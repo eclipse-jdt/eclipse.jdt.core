@@ -101,4 +101,19 @@ public class MultiLineTestCase extends CommentTestCase {
 		String content= PREFIX + DELIMITER + INFIX + "test" + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX;
 		assertEquals(content, testFormat(content));
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=145544
+	 */
+	public void testMultiLineCommentFor145544() {
+		setUserOption(DefaultCodeFormatterConstants.getJavaConventionsSettings());
+		String input= "/**\n" +  //$NON-NLS-1$
+				" * Member comment\n" +//$NON-NLS-1$ 
+				" */";//$NON-NLS-1$
+		String result= testFormat(input, 0, input.length(), CodeFormatter.K_MULTI_LINE_COMMENT , 2);
+		String expectedOutput = "/***********************************************************************\n" + 
+				"	 * Member comment\n" + 
+				"	 */";
+		assertEquals("Different output", expectedOutput, result);
+	}
 }

@@ -49,6 +49,34 @@ public class CommentFormatterUtil {
 	 * @return the formatted source string
 	 */
 	public static String format(int kind, String source, int offset, int length, Map preferences) {
+		Assert.isNotNull(source);
+		IDocument document= new Document(source);
+		
+		try {
+			int indentOffset= document.getLineOffset(document.getLineOfOffset(offset));
+			int indentationLevel= inferIndentationLevel(document.get(indentOffset, offset - indentOffset), getTabSize(preferences));
+			return format(kind, source, offset, length, indentationLevel, preferences);
+		} catch (BadLocationException x) {
+			throw new RuntimeException(x);
+		}
+	}
+	
+	/**
+	 * Formats the source string as a comment region of the specified kind.
+	 * <p>
+	 * Both offset and length must denote a valid comment partition, that is
+	 * to say a substring that starts and ends with the corresponding
+	 * comment delimiter tokens.
+	 * 
+	 * @param kind the kind of the comment
+	 * @param source the source string to format
+	 * @param offset the offset relative to the source string where to
+	 *                format
+	 * @param length the length of the region in the source string to format
+	 * @param preferences preferences for the comment formatter
+	 * @return the formatted source string
+	 */
+	public static String format(int kind, String source, int offset, int length, int indentationLevel, Map preferences) {
 		Assert.isTrue(kind == CodeFormatter.K_JAVA_DOC || kind == CodeFormatter.K_MULTI_LINE_COMMENT || kind == CodeFormatter.K_SINGLE_LINE_COMMENT);
 
 		Assert.isNotNull(source);
@@ -60,13 +88,7 @@ public class CommentFormatterUtil {
 		IDocument document= new Document(source);
 		
 		TextEdit edit;
-		try {
-			int indentOffset= document.getLineOffset(document.getLineOfOffset(offset));
-			int indentationLevel= inferIndentationLevel(document.get(indentOffset, offset - indentOffset), getTabSize(preferences));
-			edit= ToolFactory.createCodeFormatter(preferences).format(kind, source, offset, length, indentationLevel, TextUtilities.getDefaultLineDelimiter(document));
-		} catch (BadLocationException x) {
-			throw new RuntimeException(x);
-		}
+		edit= ToolFactory.createCodeFormatter(preferences).format(kind, source, offset, length, indentationLevel, TextUtilities.getDefaultLineDelimiter(document));
 		
 		try {
 			if (edit != null)
@@ -78,7 +100,7 @@ public class CommentFormatterUtil {
 		}
 		return document.get();
 	}
-	
+
 	/**
 	 * Infer the indentation level based on the given reference indentation,
 	 * tab size and text measurement.

@@ -65,6 +65,14 @@ public abstract class CommentTestCase extends SuiteOfTestCases {
 		fUserOptions.put(name, value);
 	}
 	
+	protected void setUserOption(Map options) {
+		if (fUserOptions == null) {
+			fUserOptions= options;
+		} else {
+			fUserOptions.putAll(options);
+		}
+	}	
+	
 	protected final String testFormat(String text) {
 		return testFormat(text, 0, text.length());
 	}
@@ -84,4 +92,17 @@ public abstract class CommentTestCase extends SuiteOfTestCases {
 
 		return CommentFormatterUtil.format(kind, text, offset, length, CommentFormatterUtil.createOptions(getUserOptions()));
 	}
+	
+	protected String testFormat(String text, int offset, int length, int kind, int indentationLevel) {
+		assertNotNull(text);
+		assertTrue(offset >= 0);
+		assertTrue(offset < text.length());
+		assertTrue(length >= 0);
+		assertTrue(offset + length <= text.length());
+
+		assertTrue(kind == CodeFormatter.K_JAVA_DOC || kind == CodeFormatter.K_MULTI_LINE_COMMENT || kind == CodeFormatter.K_SINGLE_LINE_COMMENT);
+
+		return CommentFormatterUtil.format(kind, text, offset, length, indentationLevel, CommentFormatterUtil.createOptions(getUserOptions()));
+	}
+
 }

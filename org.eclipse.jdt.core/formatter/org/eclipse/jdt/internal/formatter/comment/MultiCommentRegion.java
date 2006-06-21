@@ -139,7 +139,7 @@ public class MultiCommentRegion extends CommentRegion implements IJavaDocTagCons
 				return delimiter + delimiter;
 
 			else if (fIndentRoots && !predecessor.hasAttribute(COMMENT_ROOT) && !predecessor.hasAttribute(COMMENT_PARAMETER) && !predecessor.hasAttribute(COMMENT_BLANKLINE))
-				return delimiter + stringToIndent(predecessor.getIndentationReference(), false);
+				return delimiter + stringToIndent(predecessor.getIndentationReference());
 		}
 		return delimiter;
 	}
