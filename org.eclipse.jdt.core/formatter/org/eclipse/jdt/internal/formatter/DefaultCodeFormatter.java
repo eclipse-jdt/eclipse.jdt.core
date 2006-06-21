@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.formatter.comment.CommentRegion;
 import org.eclipse.jdt.internal.formatter.comment.JavaDocRegion;
@@ -184,7 +185,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			if (lineSeparator != null) {
 				this.preferences.line_separator = lineSeparator;
 			} else {
-				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+				this.preferences.line_separator = Util.LINE_SEPARATOR;
 			}
 			this.preferences.initial_indentation_level = indentationLevel;
 
@@ -206,7 +207,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			if (lineSeparator != null) {
 				this.preferences.line_separator = lineSeparator;
 			} else {
-				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+				this.preferences.line_separator = Util.LINE_SEPARATOR;
 			}
 			this.preferences.initial_indentation_level = indentationLevel;
 			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, offset, length, null);
@@ -230,7 +231,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			if (lineSeparator != null) {
 				this.preferences.line_separator = lineSeparator;
 			} else {
-				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+				this.preferences.line_separator = Util.LINE_SEPARATOR;
 			}
 			this.preferences.initial_indentation_level = indentationLevel;
 
@@ -242,7 +243,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
 		} else {
-			this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+			this.preferences.line_separator = Util.LINE_SEPARATOR;
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
@@ -264,7 +265,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			if (lineSeparator != null) {
 				this.preferences.line_separator = lineSeparator;
 			} else {
-				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+				this.preferences.line_separator = Util.LINE_SEPARATOR;
 			}
 			this.preferences.initial_indentation_level = indentationLevel;
 
@@ -294,7 +295,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			if (lineSeparator != null) {
 				this.preferences.line_separator = lineSeparator;
 			} else {
-				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+				this.preferences.line_separator = Util.LINE_SEPARATOR;
 			}
 			this.preferences.initial_indentation_level = indentationLevel;
 
@@ -389,7 +390,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
 		} else {
-			this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+			this.preferences.line_separator = Util.LINE_SEPARATOR;
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
@@ -401,7 +402,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
 		} else {
-			this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+			this.preferences.line_separator = Util.LINE_SEPARATOR;
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
@@ -415,7 +416,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		if (lineSeparator != null) {
 			this.preferences.line_separator = lineSeparator;
 		} else {
-			this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+			this.preferences.line_separator = Util.LINE_SEPARATOR;
 		}
 		this.preferences.initial_indentation_level = indentationLevel;
 
@@ -468,7 +469,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				if (lineSeparator != null) {
 					this.preferences.line_separator = lineSeparator;
 				} else {
-					this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+					this.preferences.line_separator = Util.LINE_SEPARATOR;
 				}
 				this.preferences.initial_indentation_level = indentationLevel;
 
@@ -494,7 +495,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				if (lineSeparator != null) {
 					this.preferences.line_separator = lineSeparator;
 				} else {
-					this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+					this.preferences.line_separator = Util.LINE_SEPARATOR;
 				}
 				this.preferences.initial_indentation_level = indentationLevel;
 
@@ -518,7 +519,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				if (lineSeparator != null) {
 					this.preferences.line_separator = lineSeparator;
 				} else {
-					this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+					this.preferences.line_separator = Util.LINE_SEPARATOR;
 				}
 				this.preferences.initial_indentation_level = indentationLevel;
 
@@ -540,7 +541,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			if (lineSeparator != null) {
 				this.preferences.line_separator = lineSeparator;
 			} else {
-				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+				this.preferences.line_separator = Util.LINE_SEPARATOR;
 			}
 			this.preferences.initial_indentation_level = indentationLevel;
 
