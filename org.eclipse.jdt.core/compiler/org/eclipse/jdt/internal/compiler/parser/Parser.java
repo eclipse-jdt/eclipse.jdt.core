@@ -1369,7 +1369,7 @@ protected void consumeArrayAccess(boolean unspecifiedReference) {
 					this.expressionStack[this.expressionPtr],
 					this.expressionStack[this.expressionPtr + 1]);
 	}
-	exp.sourceEnd = this.endPosition;
+	exp.sourceEnd = this.endStatementPosition;
 }
 protected void consumeArrayCreationExpressionWithInitializer() {
 	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
@@ -1392,7 +1392,7 @@ protected void consumeArrayCreationExpressionWithInitializer() {
 		length);
 	arrayAllocation.sourceStart = this.intStack[this.intPtr--];
 	if (arrayAllocation.initializer == null) {
-		arrayAllocation.sourceEnd = this.endPosition;
+		arrayAllocation.sourceEnd = this.endStatementPosition;
 	} else {
 		arrayAllocation.sourceEnd = arrayAllocation.initializer.sourceEnd ;
 	}
@@ -1416,7 +1416,7 @@ protected void consumeArrayCreationExpressionWithoutInitializer() {
 		length);
 	arrayAllocation.sourceStart = this.intStack[this.intPtr--];
 	if (arrayAllocation.initializer == null) {
-		arrayAllocation.sourceEnd = this.endPosition;
+		arrayAllocation.sourceEnd = this.endStatementPosition;
 	} else {
 		arrayAllocation.sourceEnd = arrayAllocation.initializer.sourceEnd ;
 	}
