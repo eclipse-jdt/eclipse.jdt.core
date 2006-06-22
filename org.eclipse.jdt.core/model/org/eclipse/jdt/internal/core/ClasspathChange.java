@@ -237,6 +237,8 @@ public class ClasspathChange {
 			if (DeltaProcessor.VERBOSE) {
 				e.printStackTrace();
 			}
+			// project no longer exist
+			return false;
 		}
 		
 		if (this.oldResolvedClasspath == null)

@@ -938,6 +938,30 @@ public void testDeleteNonJavaFolder() throws CoreException {
 	}
 }
 /*
+ * Ensures that changing a project's classpath and deleting it in an IWorkspaceRunnable doesn't throw an NPE
+ * (regression test for bug 148015 NPE in log from ClasspathChange)
+ */
+public void testDeleteProjectAfterChangingClasspath() throws CoreException {
+	try {
+		final IJavaProject project = createJavaProject("P");
+		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				project.setRawClasspath(createClasspath("P", new String[] {"/P/src", ""}), new Path("/P/bin"), monitor);
+				deleteProject("P");
+			}
+		};
+		startDeltas();
+		getWorkspace().run(runnable, null/*no progress*/);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+/*
  * Ensure that deleting a project and setting the classpath on another project
  * in an IWorkspaceRunnable doesn't throw a NullPointerException
  * (regression test for bug 25197 NPE importing external plugins)
