@@ -63,10 +63,14 @@ import org.eclipse.jdt.internal.core.util.Util;
  * ResolvedClassTypeSignature ::= // resolved named type (in compiled code)
  *     "L" + Identifier + OptionalTypeArguments
  *           ( ( "." | "/" ) + Identifier + OptionalTypeArguments )* + ";"
+ *     | OptionalTypeParameters + "L" + Identifier +
+ *           ( ( "." | "/" ) + Identifier )* + ";"
  * 
  * UnresolvedClassTypeSignature ::= // unresolved named type (in source code)
  *     "Q" + Identifier + OptionalTypeArguments
  *           ( ( "." | "/" ) + Identifier + OptionalTypeArguments )* + ";"
+ *     | OptionalTypeParameters "Q" + Identifier +
+ *           ( ( "." | "/" ) + Identifier )* + ";"
  * 
  * OptionalTypeArguments ::=
  *     "&lt;" + TypeArgument+ + "&gt;" 
@@ -77,6 +81,10 @@ import org.eclipse.jdt.internal.core.util.Util;
  *   | "*" // wildcard ?
  *   | "+" TypeSignature // wildcard ? extends X
  *   | "-" TypeSignature // wildcard ? super X
+ *   
+ * OptionalTypeParameters ::=
+ *     "&lt;" + FormalTypeParameterSignature+ + "&gt;" 
+ *   |
  * </pre>
  * </p>
  * <p>
@@ -89,12 +97,13 @@ import org.eclipse.jdt.internal.core.util.Util;
  *   <li><code>"[QString;"</code> denotes <code>String[]</code> in source code</li>
  *   <li><code>"QMap&lt;QString;*&gt;;"</code> denotes <code>Map&lt;String,?&gt;</code> in source code</li>
  *   <li><code>"Qjava.util.List&ltTV;&gt;;"</code> denotes <code>java.util.List&lt;V&gt;</code> in source code</li>
+ *   <li><code>"&ltE;&gt;Ljava.util.List;"</code> denotes <code>&lt;E&gt;java.util.List</code> in source code</li>
  * </ul>
  * </p>
  * <p>
  * The syntax for a method signature is: 
  * <pre>
- * MethodSignature ::= "(" + ParamTypeSignature* + ")" + ReturnTypeSignature
+ * MethodSignature ::= OptionalTypeParameters + "(" + ParamTypeSignature* + ")" + ReturnTypeSignature
  * ParamTypeSignature ::= TypeSignature
  * ReturnTypeSignature ::= TypeSignature
  * </pre>
