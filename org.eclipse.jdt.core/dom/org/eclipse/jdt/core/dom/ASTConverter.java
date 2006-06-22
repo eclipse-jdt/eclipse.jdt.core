@@ -882,16 +882,23 @@ class ASTConverter {
 
 	public AssertStatement convert(org.eclipse.jdt.internal.compiler.ast.AssertStatement statement) {
 		AssertStatement assertStatement = new AssertStatement(this.ast);
-		int end = statement.assertExpression.sourceEnd + 1;
-		assertStatement.setExpression(convert(statement.assertExpression));
+		final Expression assertExpression = convert(statement.assertExpression);
+		Expression searchingNode = assertExpression;
+		assertStatement.setExpression(assertExpression);
 		org.eclipse.jdt.internal.compiler.ast.Expression exceptionArgument = statement.exceptionArgument;
 		if (exceptionArgument != null) {
-			end = exceptionArgument.sourceEnd + 1;
-			assertStatement.setMessage(convert(exceptionArgument));
+			final Expression exceptionMessage = convert(exceptionArgument);
+			assertStatement.setMessage(exceptionMessage);
+			searchingNode = exceptionMessage;
 		}
 		int start = statement.sourceStart;
-		int sourceEnd = retrieveEndingSemiColonPosition(end, this.compilationUnitSourceLength);
-		assertStatement.setSourceRange(start, sourceEnd - start + 1);
+		int sourceEnd = retrieveSemiColonPosition(searchingNode);
+		if (sourceEnd == -1) {
+			sourceEnd = searchingNode.getStartPosition() + searchingNode.getLength() - 1;
+			assertStatement.setSourceRange(start, sourceEnd - start + 1);
+		} else {
+			assertStatement.setSourceRange(start, sourceEnd - start + 1);
+		}
 		return assertStatement;
 	}
 	
@@ -3956,35 +3963,17 @@ class ASTConverter {
 		return -1;
 	}
 
-	protected int retrieveEndingSemiColonPosition(int start, int end) {
-		int count = 0;
-		this.scanner.resetTo(start, end);
+	protected int retrieveSemiColonPosition(Expression node) {
+		int start = node.getStartPosition();
+		int length = node.getLength();
+		int end = start + length;
+		this.scanner.resetTo(end, this.compilationUnitSourceLength);
 		try {
 			int token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameSEMICOLON:
-						if (count == 0) {
-							return this.scanner.currentPosition - 1;
-						}
-						break;
-					case TerminalTokens.TokenNameLBRACE :
-						count++;
-						break;
-					case TerminalTokens.TokenNameRBRACE :
-						count--;
-						break;
-					case TerminalTokens.TokenNameLPAREN :
-						count++;
-						break;
-					case TerminalTokens.TokenNameRPAREN :
-						count--;
-						break;
-					case TerminalTokens.TokenNameLBRACKET :
-						count++;
-						break;
-					case TerminalTokens.TokenNameRBRACKET :
-						count--;
+						return this.scanner.currentPosition - 1;
 				}
 			}
 		} catch(InvalidInputException e) {

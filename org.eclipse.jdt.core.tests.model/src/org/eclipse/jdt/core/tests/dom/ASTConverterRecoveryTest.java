@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.AssertStatement;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -815,5 +816,139 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		SimpleName simpleName = fragment.getName();
 		assertEquals("Not length isn't correct", 0, simpleName.getLength()); //$NON-NLS-1$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=143212
+	public void test0015() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    assert 0 == 0 : a[0;\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    assert 0 == 0 : a[0];\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Flag as RECOVERED", (methodDeclaration.getFlags() & ASTNode.RECOVERED) == 0);
+		Block block = methodDeclaration.getBody();
+		assertTrue("Flag as RECOVERED", (block.getFlags() & ASTNode.RECOVERED) == 0);
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an assert statement", statement.getNodeType() == ASTNode.ASSERT_STATEMENT); //$NON-NLS-1$
+		AssertStatement assertStatement = (AssertStatement) statement;
+		checkSourceRange(assertStatement, "assert 0 == 0 : a[0;", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (assertStatement.getFlags() & ASTNode.RECOVERED) == 0);
+		Expression message = assertStatement.getMessage();
+		assertTrue("No message expression", message != null); //$NON-NLS-1$
+		checkSourceRange(message, "a[0", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (message.getFlags() & ASTNode.RECOVERED) != 0);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=143212
+	public void test0016() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    assert 0 == 0 : foo(;\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    assert 0 == 0 : foo();\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Flag as RECOVERED", (methodDeclaration.getFlags() & ASTNode.RECOVERED) == 0);
+		Block block = methodDeclaration.getBody();
+		assertTrue("Flag as RECOVERED", (block.getFlags() & ASTNode.RECOVERED) == 0);
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an assert statement", statement.getNodeType() == ASTNode.ASSERT_STATEMENT); //$NON-NLS-1$
+		AssertStatement assertStatement = (AssertStatement) statement;
+		checkSourceRange(assertStatement, "assert 0 == 0 : foo(;", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (assertStatement.getFlags() & ASTNode.RECOVERED) == 0);
+		Expression message = assertStatement.getMessage();
+		assertTrue("No message expression", message != null); //$NON-NLS-1$
+		checkSourceRange(message, "foo(", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (message.getFlags() & ASTNode.RECOVERED) != 0);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=143212
+	public void test0017() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	void foo() {\n"+
+			"	    assert 0 == 0 : (\"aa\";\n"+
+			"	}\n"+
+			"}\n");
+		
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+		
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    assert 0 == 0 : (\"aa\");\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+		
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue("Flag as RECOVERED", (methodDeclaration.getFlags() & ASTNode.RECOVERED) == 0);
+		Block block = methodDeclaration.getBody();
+		assertTrue("Flag as RECOVERED", (block.getFlags() & ASTNode.RECOVERED) == 0);
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an assert statement", statement.getNodeType() == ASTNode.ASSERT_STATEMENT); //$NON-NLS-1$
+		AssertStatement assertStatement = (AssertStatement) statement;
+		checkSourceRange(assertStatement, "assert 0 == 0 : (\"aa\";", source); //$NON-NLS-1$
+		assertTrue("Flag as RECOVERED", (assertStatement.getFlags() & ASTNode.RECOVERED) == 0);
+		Expression message = assertStatement.getMessage();
+		assertTrue("No message expression", message != null); //$NON-NLS-1$
+		checkSourceRange(message, "(\"aa\"", source); //$NON-NLS-1$
+		assertTrue("Not flag as RECOVERED", (message.getFlags() & ASTNode.RECOVERED) != 0);
 	}
 }
