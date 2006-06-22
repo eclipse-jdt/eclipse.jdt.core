@@ -22055,6 +22055,8 @@ public void test0715() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98396
+// javac 1.5.0_08 and 6.0 b86 also raise an unchecked warning for line 3
+// the error is enough to help the user though
 public void test0716() {
 	this.runNegativeTest(
 		new String[] {
@@ -22735,7 +22737,9 @@ public void test0741() {
 		"Cannot cast from D to B<String>\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98538
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=98538
+// javac 1.5.0_08 and 6.0 b86 raise an error on #6, but this is a known
+// javac bug
 public void test0742() {
 	this.runNegativeTest(
 		new String[] {
@@ -22795,6 +22799,7 @@ public void test0742() {
 		"Bound mismatch: The generic method makeSingletonList2(S) of type X is not applicable for the arguments (X.SubType). The inferred type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
 		"----------\n");
 }
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99553
 public void test0743() {
 	this.runNegativeTest(
