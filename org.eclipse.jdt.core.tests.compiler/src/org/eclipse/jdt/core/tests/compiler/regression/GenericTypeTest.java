@@ -1159,7 +1159,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// Access to enclosing 't' of type 'T' (not substituted from X<X> as private thus non inherited)
-	// javac finds no error/warning on this test but it should
+	// **
 	public void test0048() {
 		this.runNegativeTest(
 			new String[] {
@@ -2699,6 +2699,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 
+	// **
 	public void test0093() {
 		this.runConformTest(
 			new String[] {
@@ -2707,7 +2708,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    public static void main(String[] args) {\n" + 
 				"        AX ax = new AX();\n" + 
 				"        AX ax2 = new AX();\n" + 
-				"        ax.p = ax2.p;\n" + // javac reports unchecked warning, which seems a bug as no difference in between lhs and rhs types
+				"        ax.p = ax2.p;\n" +
 				"        System.out.println(\"SUCCESS\");\n" + 
 				"    }\n" + 
 				"}\n" + 
@@ -3577,7 +3578,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
-	// test binary member types
+	// test binary member types **
 	public void _test0119() {
 		this.runConformTest(
 			new String[] {
@@ -3602,7 +3603,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"SUCCESS"
-			// javac fails with 6 errors that complain that type parameters are not within their bounds
 		);
 
 		// TODO (philippe) bounds checks are done before binaryType X is finished creating its type variables
@@ -7329,8 +7329,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69799 NPE in foreach checkcast
 	// effective result may change depending upon 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=148241
-	// (expect an unchecked warning on (Set<X>) iter.next(), as raised by
-	//  javac 1.5.0_08 and 6.0 b86)
+	// **
 	public void test0252() {
 		this.runNegativeTest(
 			new String[] {
@@ -12970,7 +12969,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}		
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 **
 	public void test0446() {
 		this.runNegativeTest(
 			new String[] {
@@ -12982,17 +12981,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    X<String>.Inner<Integer> a= new X<String>().new Inner<Integer>();\n" + 
 				"    Inner<Integer> b= new X<A>().new Inner<Integer>();\n" + 
 				"    Inner<Integer> c= new Inner<Integer>();\n" + 
-				"    //OK for javac and eclipse\n" + 
+				"    // OK\n" + 
 				"\n" + 
 				"    X<String>.Inner<Integer> d= new X<String>.Inner<Integer>();\n" + 
 				"    //eclipse: OK\n" + 
-				"    //javac: error: \'(\' or \'[\' expected\n" + 
+				"    //other: error: \'(\' or \'[\' expected\n" + 
 				"\n" + 
 				"    X<A>.Inner<Integer> e= new X<A>().new Inner<Integer>();\n" + 
 				"    X<A>.Inner<Integer> f= new Inner<Integer>();\n" + 
 				"    e= b;\n" + 
 				"    f= c;\n" + 
-				"    //javac: OK\n" + 
+				"    //other: OK\n" + 
 				"    //eclipse: Type mismatch: cannot convert from X<A>.Inner<Integer> to X<A>.Inner<Integer>\n" + 
 				"\n" + 
 				"  }\n" + 
@@ -13001,7 +13000,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"class External {\n" + 
 				"  void m() {\n" + 
 				"    X<String>.Inner<Integer> x= new X<String>().new Inner<Integer>();\n" + 
-				"    //OK for javac and eclipse\n" + 
+				"    // OK\n" + 
 				"  }\n" + 
 				"}\n",
 			},
@@ -15708,7 +15707,7 @@ public void test0500(){
 			},
 			"SUCCESS");
 	}			
-	// variation on test0521, check issuing of unchecked warning (javac misses it)
+	// variation on test0521, check issuing of unchecked warning **
 	public void test0522(){
 		runNegativeTest(
 			new String[] {
@@ -15790,8 +15789,7 @@ public void test0500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}
-	// ensure there is no unchecked warning (javac incorrectly reported one -
-	// 1.5.0_08 and 6.0 b86 are ok)
+	// ensure there is no unchecked warning **
 	public void test0524(){
 		runNegativeTest(
 			new String[] {
@@ -15887,8 +15885,7 @@ public void test0500(){
 			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
 			"----------\n");
 	}				
-	// should not produce unchecked errors (javac incorrectly did -
-	// 1.5.0_08 and 6.0 b86 are ok)
+	// should not produce unchecked errors **
 	public void test0527(){
 		runNegativeTest(
 			new String[] {
@@ -16524,8 +16521,7 @@ public void test0500(){
 			"Name clash: The method bar(X<? extends Object>) of type D has the same erasure as bar(X<String>) of type C but does not override it\n" + 
 			"----------\n");
 	}		
-	// ensure no unsafe cast warning (javac incorrectly reported one -
-	// 1.5.0_08 and 6.0 b86 are ok)
+	// ensure no unsafe cast warning **
 	public void test0546() {
 		this.runNegativeTest(
 			new String[] {
@@ -16604,8 +16600,7 @@ public void test0500(){
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}
-	// legal, but javac rejects it
-	// note: 1.5.0_08 no more rejects it; 6.0 b86 still does
+	// **
 	public void test0549() {
 		this.runConformTest(
 			new String[] {
@@ -16621,8 +16616,7 @@ public void test0500(){
 	}	
 // results may change depending on 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=148046
-// javac 1.5.0_08 and 6.0 b86 both raise an error where eclipse raises a
-// warning
+// **
 	public void test0550() {
 		this.runNegativeTest(
 			new String[] {
@@ -16916,6 +16910,7 @@ public void test0500(){
 			null);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86902
+	// **
 	public void test0559() {
 		this.runNegativeTest(
 			new String[] {
@@ -16934,9 +16929,9 @@ public void test0500(){
 				"  Zork z;\n" +
 				"	public static void main(String[] args) {\n" + 
 				"		Cell c= new Cell();\n" + 
-				"		c.setT(Boolean.FALSE); //javac: warning: [unchecked] unchecked\n" + 
+				"		c.setT(Boolean.FALSE); // other: warning: [unchecked] unchecked\n" + 
 				"			// call to setT(T) as a member of the raw type p.Cell\n" + 
-				"		c.t= Boolean.TRUE; // javac: warning: [unchecked] unchecked call\n" + 
+				"		c.t= Boolean.TRUE; // other: warning: [unchecked] unchecked call\n" + 
 				"			// to setT(T) as a member of the raw type p.Cell\n" + 
 				"		boolean b1= (Boolean) c.getT();\n" + 
 				"		boolean b2= (Boolean) c.t;\n" + 
@@ -16960,12 +16955,12 @@ public void test0500(){
 			"Cell is a raw type. References to generic type Cell<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 15)\n" + 
-			"	c.setT(Boolean.FALSE); //javac: warning: [unchecked] unchecked\n" + 
+			"	c.setT(Boolean.FALSE); // other: warning: [unchecked] unchecked\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The method setT(Object) belongs to the raw type Cell. References to generic type Cell<T> should be parameterized\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 17)\n" + 
-			"	c.t= Boolean.TRUE; // javac: warning: [unchecked] unchecked call\n" + 
+			"	c.t= Boolean.TRUE; // other: warning: [unchecked] unchecked call\n" + 
 			"	  ^\n" + 
 			"Type safety: The field t from the raw type Cell is assigned a value of type Boolean. References to generic type Cell<T> should be parameterized\n" + 
 			"----------\n");
@@ -17653,7 +17648,7 @@ public void test0500(){
 			"----------\n");
 	}			
 	
-	// javac incorrectly rejected it - javac 1.5.0_08 and javac 6.0 b86 are ok
+	// **
 	// note: the test does not show the needed unchecked warning, since it is
 	//       a conform test
 	public void test0586() {
@@ -19822,7 +19817,7 @@ public void test0617() {
 			"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
 			"----------\n");
 	}			
-// javac incorrectly rejected the cast - 1.5.0_08 and 6.0 b86 are ok
+// **
 public void test0655() {
 	this.runNegativeTest(
 		new String[] {
@@ -22055,8 +22050,7 @@ public void test0715() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98396
-// javac 1.5.0_08 and 6.0 b86 also raise an unchecked warning for line 3
-// the error is enough to help the user though
+// **
 public void test0716() {
 	this.runNegativeTest(
 		new String[] {
@@ -22738,8 +22732,7 @@ public void test0741() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=98538
-// javac 1.5.0_08 and 6.0 b86 raise an error on #6, but this is a known
-// javac bug
+// **
 public void test0742() {
 	this.runNegativeTest(
 		new String[] {
@@ -24907,7 +24900,7 @@ public void test0809() {
 		"Type mismatch: cannot convert from element type Object to Node\n" + 
 		"----------\n");
 }
-//crash javac
+// **
 public void test0810() {
 	this.runConformTest(
 		new String[] {
@@ -31034,7 +31027,7 @@ public void test0984() {
 		null /* no vm arguments */,
 		null /* no custom options*/,
 		null /* no custom requestor*/,
-		false /* do not skip javac for this peculiar test */);
+		false /* do not skip j for this peculiar test */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141330
 public void test0985() {
