@@ -17,7 +17,8 @@ import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 public class QualifiedTypeDeclarationPattern extends TypeDeclarationPattern implements IIndexConstants {
 
 public char[] qualification;
-public int packageIndex;
+PackageDeclarationPattern packagePattern;
+public int packageIndex = -1;
 
 public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, char typeSuffix, int matchRule) {
 	this(matchRule);
@@ -28,6 +29,10 @@ public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, 
 
 	((InternalSearchPattern)this).mustResolve = this.qualification != null || typeSuffix != TYPE_SUFFIX;
 }
+public QualifiedTypeDeclarationPattern(char[] qualification, int qualificationMatchRule, char[] simpleName, char typeSuffix, int matchRule) {
+	this(qualification, simpleName, typeSuffix, matchRule);
+	this.packagePattern = new PackageDeclarationPattern(qualification, qualificationMatchRule);
+}
 QualifiedTypeDeclarationPattern(int matchRule) {
 	super(matchRule);
 }
@@ -35,22 +40,14 @@ public void decodeIndexKey(char[] key) {
 	int slash = CharOperation.indexOf(SEPARATOR, key, 0);
 	this.simpleName = CharOperation.subarray(key, 0, slash);
 
-	int start = slash + 1;
-	slash = CharOperation.indexOf(SEPARATOR, key, start);
-	int secondSlash = CharOperation.indexOf(SEPARATOR, key, slash + 1);
-	this.packageIndex = -1; // used to compute package vs. enclosingTypeNames in MultiTypeDeclarationPattern
-	if (start + 1 == secondSlash) {
-		this.qualification = CharOperation.NO_CHAR; // no package name or enclosingTypeNames
-	} else if (slash + 1 == secondSlash) {
-		this.qualification = CharOperation.subarray(key, start, slash); // only a package name
-	} else if (slash == start) {
-		this.qualification = CharOperation.subarray(key, slash + 1, secondSlash); // no package name
-		this.packageIndex = 0;
+	int start = ++slash;
+	if (key[start] == SEPARATOR) {
+		this.pkg = CharOperation.NO_CHAR;
 	} else {
-		this.qualification = CharOperation.subarray(key, start, secondSlash);
-		this.packageIndex = slash - start;
-		this.qualification[this.packageIndex] = '.';
+		slash = CharOperation.indexOf(SEPARATOR, key, start);
+		this.pkg = internedPackageNames.add(CharOperation.subarray(key, start, slash));
 	}
+	this.qualification = this.pkg;
 
 	// Continue key read by the end to decode modifiers
 	int last = key.length-1;
@@ -60,23 +57,28 @@ public void decodeIndexKey(char[] key) {
 	}
 	this.modifiers = key[last-1] + (key[last]<<16);
 	decodeModifiers();
+
+	// Retrieve enclosing type names
+	start = slash + 1;
+	last -= 2; // position of ending slash
+	if (start == last) {
+		this.enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+	} else {
+		int length = this.qualification.length;
+		int size = last - start;
+		System.arraycopy(this.qualification, 0, this.qualification = new char[length+1+size], 0, length);
+		this.qualification[length] = '.';
+		if (last == (start+1) && key[start] == ZERO_CHAR) {
+			this.enclosingTypeNames = ONE_ZERO_CHAR;
+			this.qualification[length+1] = ZERO_CHAR;
+		} else {
+			this.enclosingTypeNames = CharOperation.splitOn('.', key, start, last);
+			System.arraycopy(key, start, this.qualification, length+1, size);
+		}
+	}
 }
 public SearchPattern getBlankPattern() {
 	return new QualifiedTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
-}
-public char[] getPackageName() {
-	if (this.packageIndex == -1)
-		return this.qualification;
-	return internedPackageNames.add(CharOperation.subarray(this.qualification, 0, this.packageIndex));
-}
-public char[][] getEnclosingTypeNames() {
-	if (this.packageIndex == -1)
-		return CharOperation.NO_CHAR_CHAR;
-	if (this.packageIndex == 0)
-		return CharOperation.splitOn('.', this.qualification);
-
-	char[] names = CharOperation.subarray(this.qualification, this.packageIndex + 1, this.qualification.length);
-	return CharOperation.splitOn('.', names);
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	QualifiedTypeDeclarationPattern pattern = (QualifiedTypeDeclarationPattern) decodedPattern;
@@ -134,7 +136,8 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 			break;
 	}
 
-	return matchesName(this.simpleName, pattern.simpleName) && matchesName(this.qualification, pattern.qualification);
+	return matchesName(this.simpleName, pattern.simpleName) &&
+		(this.qualification == null || this.packagePattern == null || this.packagePattern.matchesName(this.qualification, pattern.qualification));
 }
 protected StringBuffer print(StringBuffer output) {
 	switch (this.typeSuffix){

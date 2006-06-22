@@ -1777,9 +1777,11 @@ public boolean matchesName(char[] pattern, char[] name) {
 		boolean isCaseSensitive = (this.matchRule & R_CASE_SENSITIVE) != 0;
 		boolean isCamelCase = (this.matchRule & R_CAMELCASE_MATCH) != 0;
 		int matchMode = this.matchRule & MODE_MASK;
+		boolean emptyPattern = pattern.length == 0;
+		if (matchMode == R_PREFIX_MATCH && emptyPattern) return true;
 		boolean sameLength = pattern.length == name.length;
 		boolean canBePrefix = name.length >= pattern.length;
-		boolean matchFirstChar = !isCaseSensitive || pattern.length == 0 || (name.length > 0 &&  pattern[0] == name[0]);
+		boolean matchFirstChar = !isCaseSensitive || emptyPattern || (name.length > 0 &&  pattern[0] == name[0]);
 		if (isCamelCase && matchFirstChar && CharOperation.camelCaseMatch(pattern, name)) {
 			return true;
 		}

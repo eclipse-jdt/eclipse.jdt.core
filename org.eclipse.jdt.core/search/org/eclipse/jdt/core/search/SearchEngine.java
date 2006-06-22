@@ -540,15 +540,16 @@ public class SearchEngine {
 
 	/**
 	 * Searches for all top-level types and member types in the given scope.
-	 * The search can be selecting specific types (given a package or a type name
-	 * prefix and match modes). 
+	 * The search can be selecting specific types (given a package exact full name or
+	 * a type name with specific match mode). 
 	 * 
-	 * @param packageName the full name of the package of the searched types, or a prefix for this
-	 *						package, or a wild-carded string for this package.
+	 * @param packageExactName the exact package full name of the searched types.<br>
+	 * 					If you want to use a prefix or a wild-carded string for package, you need to use
+	 * 					{@link #searchAllTypeNames(char[], int, char[], int, int, IJavaSearchScope, TypeNameRequestor, int, IProgressMonitor)} method  instead.
 	 * @param typeName the dot-separated qualified name of the searched type (the qualification include
 	 *					the enclosing types if the searched type is a member type), or a prefix
 	 *					for this type, or a wild-carded string for this type.
-	 * @param matchRule one of
+	 * @param matchRule type name match rule one of
 	 * <ul>
 	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
 	 *			of the searched types.</li>
@@ -589,7 +590,7 @@ public class SearchEngine {
 	 * @since 3.1
 	 */
 	public void searchAllTypeNames(
-		final char[] packageName, 
+		final char[] packageExactName, 
 		final char[] typeName,
 		final int matchRule, 
 		int searchFor, 
@@ -599,7 +600,84 @@ public class SearchEngine {
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 		
 		TypeNameRequestorWrapper requestorWrapper = new TypeNameRequestorWrapper(nameRequestor);
-		this.basicEngine.searchAllTypeNames(packageName, typeName, matchRule, searchFor, scope, requestorWrapper, waitingPolicy, progressMonitor);
+		this.basicEngine.searchAllTypeNames(packageExactName, SearchPattern.R_EXACT_MATCH, typeName, matchRule, searchFor, scope, requestorWrapper, waitingPolicy, progressMonitor);
+	}
+
+	/**
+	 * Searches for all top-level types and member types in the given scope.
+	 * The search can be selecting specific types (given a package name using specific match mode
+	 * and/or a type name using another specific match mode). 
+	 * 
+	 * @param packageName the full name of the package of the searched types, or a prefix for this
+	 *						package, or a wild-carded string for this package.
+	 * @param typeName the dot-separated qualified name of the searched type (the qualification include
+	 *					the enclosing types if the searched type is a member type), or a prefix
+	 *					for this type, or a wild-carded string for this type.
+	 * @param packageMatchRule one of
+	 * <ul>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
+	 *			of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
+	 *			of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 * </ul>
+	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
+	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
+	 *   or {@link SearchPattern#R_PREFIX_MATCH} if a prefix non case sensitive match is requested.
+	 * @param typeMatchRule one of
+	 * <ul>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
+	 *			of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
+	 *			of the searched types.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if type name are camel case of the names of the searched types.</li>
+	 * </ul>
+	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
+	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
+	 *   or {@link SearchPattern#R_PREFIX_MATCH} if a prefix non case sensitive match is requested.
+	 * @param searchFor determines the nature of the searched elements
+	 *	<ul>
+	 * 	<li>{@link IJavaSearchConstants#CLASS}: only look for classes</li>
+	 *		<li>{@link IJavaSearchConstants#INTERFACE}: only look for interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#ENUM}: only look for enumeration</li>
+	 *		<li>{@link IJavaSearchConstants#ANNOTATION_TYPE}: only look for annotation type</li>
+	 * 	<li>{@link IJavaSearchConstants#CLASS_AND_ENUM}: only look for classes and enumerations</li>
+	 *		<li>{@link IJavaSearchConstants#CLASS_AND_INTERFACE}: only look for classes and interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#TYPE}: look for all types (ie. classes, interfaces, enum and annotation types)</li>
+	 *	</ul>
+	 * @param scope the scope to search in
+	 * @param nameRequestor the requestor that collects the results of the search
+	 * @param waitingPolicy one of
+	 * <ul>
+	 *		<li>{@link IJavaSearchConstants#FORCE_IMMEDIATE_SEARCH} if the search should start immediately</li>
+	 *		<li>{@link IJavaSearchConstants#CANCEL_IF_NOT_READY_TO_SEARCH} if the search should be cancelled if the
+	 *			underlying indexer has not finished indexing the workspace</li>
+	 *		<li>{@link IJavaSearchConstants#WAIT_UNTIL_READY_TO_SEARCH} if the search should wait for the
+	 *			underlying indexer to finish indexing the workspace</li>
+	 * </ul>
+	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
+	 *							monitor is provided
+	 * @exception JavaModelException if the search failed. Reasons include:
+	 *	<ul>
+	 *		<li>the classpath is incorrectly set</li>
+	 *	</ul>
+	 * @since 3.3
+	 */
+	public void searchAllTypeNames(
+		final char[] packageName, 
+		final int packageMatchRule, 
+		final char[] typeName,
+		final int typeMatchRule, 
+		int searchFor, 
+		IJavaSearchScope scope, 
+		final TypeNameRequestor nameRequestor,
+		int waitingPolicy,
+		IProgressMonitor progressMonitor)  throws JavaModelException {
+		
+		TypeNameRequestorWrapper requestorWrapper = new TypeNameRequestorWrapper(nameRequestor);
+		this.basicEngine.searchAllTypeNames(packageName, packageMatchRule, typeName, typeMatchRule, searchFor, scope, requestorWrapper, waitingPolicy, progressMonitor);
 	}
 
 	/**
@@ -702,7 +780,8 @@ public class SearchEngine {
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 		
-		this.basicEngine.searchAllTypeNames(packageName, typeName, matchRule, searchFor, scope, new TypeNameRequestorAdapter(nameRequestor), waitingPolicy, progressMonitor);
+		TypeNameRequestorAdapter requestorAdapter = new TypeNameRequestorAdapter(nameRequestor);
+		this.basicEngine.searchAllTypeNames(packageName, SearchPattern.R_EXACT_MATCH, typeName, matchRule, searchFor, scope, requestorAdapter, waitingPolicy, progressMonitor);
 	}
 
 	/**

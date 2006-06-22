@@ -504,246 +504,9 @@ public class BasicSearchEngine {
 	}
 
 	/**
-	 * Searches for all top-level types and member types in the given scope.
+	 * Searches for all secondary types in the given scope.
 	 * The search can be selecting specific types (given a package or a type name
 	 * prefix and match modes). 
-	 * 
-	 * @see SearchEngine#searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, TypeNameRequestor, int, IProgressMonitor)
-	 * 	for detailed comment
-	 */
-	public void searchAllTypeNames(
-		final char[] packageName, 
-		final char[] typeName,
-		final int matchRule, 
-		int searchFor, 
-		IJavaSearchScope scope, 
-		final IRestrictedAccessTypeRequestor nameRequestor,
-		int waitingPolicy,
-		IProgressMonitor progressMonitor)  throws JavaModelException {
-
-		if (VERBOSE) {
-			Util.verbose("BasicSearchEngine.searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
-			Util.verbose("	- package name: "+(packageName==null?"null":new String(packageName))); //$NON-NLS-1$ //$NON-NLS-2$
-			Util.verbose("	- type name: "+(typeName==null?"null":new String(typeName))); //$NON-NLS-1$ //$NON-NLS-2$
-			Util.verbose("	- match rule: "+getMatchRuleString(matchRule)); //$NON-NLS-1$
-			Util.verbose("	- search for: "+searchFor); //$NON-NLS-1$
-			Util.verbose("	- scope: "+scope); //$NON-NLS-1$
-		}
-
-		// Return on invalid combination of package and type names
-		if (packageName == null || packageName.length == 0) {
-			if (typeName != null && typeName.length == 0) {
-				if (VERBOSE) {
-					Util.verbose("	=> return no result due to invalid empty values for package and type names!"); //$NON-NLS-1$
-				}
-				return;
-			}
-		}
-
-		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
-		final char typeSuffix;
-		switch(searchFor){
-			case IJavaSearchConstants.CLASS :
-				typeSuffix = IIndexConstants.CLASS_SUFFIX;
-				break;
-			case IJavaSearchConstants.CLASS_AND_INTERFACE :
-				typeSuffix = IIndexConstants.CLASS_AND_INTERFACE_SUFFIX;
-				break;
-			case IJavaSearchConstants.CLASS_AND_ENUM :
-				typeSuffix = IIndexConstants.CLASS_AND_ENUM_SUFFIX;
-				break;
-			case IJavaSearchConstants.INTERFACE :
-				typeSuffix = IIndexConstants.INTERFACE_SUFFIX;
-				break;
-			case IJavaSearchConstants.ENUM :
-				typeSuffix = IIndexConstants.ENUM_SUFFIX;
-				break;
-			case IJavaSearchConstants.ANNOTATION_TYPE :
-				typeSuffix = IIndexConstants.ANNOTATION_TYPE_SUFFIX;
-				break;
-			default : 
-				typeSuffix = IIndexConstants.TYPE_SUFFIX;
-				break;
-		}
-		final TypeDeclarationPattern pattern = new TypeDeclarationPattern(
-			packageName,
-			null, // do find member types
-			typeName,
-			typeSuffix,
-			matchRule);
-
-		// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
-		final HashSet workingCopyPaths = new HashSet();
-		String workingCopyPath = null;
-		ICompilationUnit[] copies = getWorkingCopies();
-		final int copiesLength = copies == null ? 0 : copies.length;
-		if (copies != null) {
-			if (copiesLength == 1) {
-				workingCopyPath = copies[0].getPath().toString();
-			} else {
-				for (int i = 0; i < copiesLength; i++) {
-					ICompilationUnit workingCopy = copies[i];
-					workingCopyPaths.add(workingCopy.getPath().toString());
-				}
-			}
-		}
-		final String singleWkcpPath = workingCopyPath;
-
-		// Index requestor
-		IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
-			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
-				// Filter unexpected types
-				TypeDeclarationPattern record = (TypeDeclarationPattern)indexRecord;
-				if (record.enclosingTypeNames == IIndexConstants.ONE_ZERO_CHAR) {
-					return true; // filter out local and anonymous classes
-				}
-				switch (copiesLength) {
-					case 0:
-						break;
-					case 1:
-						if (singleWkcpPath.equals(documentPath)) {
-							return true; // fliter out *the* working copy
-						}
-						break;
-					default:
-						if (workingCopyPaths.contains(documentPath)) {
-							return true; // filter out working copies
-						}
-						break;
-				}
-
-				// Accept document path
-				AccessRestriction accessRestriction = null;
-				if (access != null) {
-					// Compute document relative path
-					int pkgLength = (record.pkg==null || record.pkg.length==0) ? 0 : record.pkg.length+1;
-					int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
-					char[] path = new char[pkgLength+nameLength];
-					int pos = 0;
-					if (pkgLength > 0) {
-						System.arraycopy(record.pkg, 0, path, pos, pkgLength-1);
-						CharOperation.replace(path, '.', '/');
-						path[pkgLength-1] = '/';
-						pos += pkgLength;
-					}
-					if (nameLength > 0) {
-						System.arraycopy(record.simpleName, 0, path, pos, nameLength);
-						pos += nameLength;
-					}
-					// Update access restriction if path is not empty
-					if (pos > 0) {
-						accessRestriction = access.getViolatedRestriction(path);
-					}
-				}
-				if (match(record.typeSuffix, record.modifiers)) {
-					nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
-				}
-				return true;
-			}
-		};
-	
-		try {
-			if (progressMonitor != null) {
-				progressMonitor.beginTask(Messages.engine_searching, 100); 
-			}
-			// add type names from indexes
-			indexManager.performConcurrentJob(
-				new PatternSearchJob(
-					pattern, 
-					getDefaultSearchParticipant(), // Java search only
-					scope, 
-					searchRequestor),
-				waitingPolicy,
-				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));	
-				
-			// add type names from working copies
-			if (copies != null) {
-				for (int i = 0; i < copiesLength; i++) {
-					ICompilationUnit workingCopy = copies[i];
-					if (!scope.encloses(workingCopy)) continue;
-					final String path = workingCopy.getPath().toString();
-					if (workingCopy.isConsistent()) {
-						IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
-						char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
-						IType[] allTypes = workingCopy.getAllTypes();
-						for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
-							IType type = allTypes[j];
-							IJavaElement parent = type.getParent();
-							char[][] enclosingTypeNames;
-							if (parent instanceof IType) {
-								char[] parentQualifiedName = ((IType)parent).getTypeQualifiedName('.').toCharArray();
-								enclosingTypeNames = CharOperation.splitOn('.', parentQualifiedName);
-							} else {
-								enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
-							}
-							char[] simpleName = type.getElementName().toCharArray();
-							int kind;
-							if (type.isEnum()) {
-								kind = TypeDeclaration.ENUM_DECL;
-							} else if (type.isAnnotation()) {
-								kind = TypeDeclaration.ANNOTATION_TYPE_DECL;
-							}	else if (type.isClass()) {
-								kind = TypeDeclaration.CLASS_DECL;
-							} else /*if (type.isInterface())*/ {
-								kind = TypeDeclaration.INTERFACE_DECL;
-							}
-							if (match(typeSuffix, packageName, typeName, matchRule, kind, packageDeclaration, simpleName)) {
-								nameRequestor.acceptType(type.getFlags(), packageDeclaration, simpleName, enclosingTypeNames, path, null);
-							}
-						}
-					} else {
-						Parser basicParser = getParser();
-						org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) workingCopy;
-						CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.compilerOptions.maxProblemsPerUnit);
-						CompilationUnitDeclaration parsedUnit = basicParser.dietParse(unit, compilationUnitResult);
-						if (parsedUnit != null) {
-							final char[] packageDeclaration = parsedUnit.currentPackage == null ? CharOperation.NO_CHAR : CharOperation.concatWith(parsedUnit.currentPackage.getImportName(), '.');
-							class AllTypeDeclarationsVisitor extends ASTVisitor {
-								public boolean visit(TypeDeclaration typeDeclaration, BlockScope blockScope) {
-									return false; // no local/anonymous type
-								}
-								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
-									if (match(typeSuffix, packageName, typeName, matchRule, TypeDeclaration.kind(typeDeclaration.modifiers), packageDeclaration, typeDeclaration.name)) {
-										nameRequestor.acceptType(typeDeclaration.modifiers, packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
-									}
-									return true;
-								}
-								public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope classScope) {
-									if (match(typeSuffix, packageName, typeName, matchRule, TypeDeclaration.kind(memberTypeDeclaration.modifiers), packageDeclaration, memberTypeDeclaration.name)) {
-										// compute encloising type names
-										TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
-										char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
-										while (enclosing != null) {
-											enclosingTypeNames = CharOperation.arrayConcat(new char[][] {enclosing.name}, enclosingTypeNames);
-											if ((enclosing.bits & ASTNode.IsMemberType) != 0) {
-												enclosing = enclosing.enclosingType;
-											} else {
-												enclosing = null;
-											}
-										}
-										// report
-										nameRequestor.acceptType(memberTypeDeclaration.modifiers, packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
-									}
-									return true;
-								}
-							}
-							parsedUnit.traverse(new AllTypeDeclarationsVisitor(), parsedUnit.scope);
-						}
-					}
-				}
-			}	
-		} finally {
-			if (progressMonitor != null) {
-				progressMonitor.done();
-			}
-		}
-	}
-
-	/**
-	 * Searches for all top-level types and member types in the given scope.
-	 * The search can be selecting specific types (given a package or a type name
-	 * prefix and match modes). 
-	 * 
 	 */
 	public void searchAllSecondaryTypeNames(
 			IPackageFragmentRoot[] sourceFolders,
@@ -864,6 +627,253 @@ public class BasicSearchEngine {
 	}
 
 	/**
+	 * Searches for all top-level types and member types in the given scope.
+	 * The search can be selecting specific types (given a package or a type name
+	 * prefix and match modes). 
+	 * 
+	 * @see SearchEngine#searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, TypeNameRequestor, int, IProgressMonitor)
+	 * 	for detailed comment
+	 */
+	public void searchAllTypeNames(
+		final char[] packageName, 
+		final int packageMatchRule, 
+		final char[] typeName,
+		final int typeMatchRule, 
+		int searchFor, 
+		IJavaSearchScope scope, 
+		final IRestrictedAccessTypeRequestor nameRequestor,
+		int waitingPolicy,
+		IProgressMonitor progressMonitor)  throws JavaModelException {
+
+		if (VERBOSE) {
+			Util.verbose("BasicSearchEngine.searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
+			Util.verbose("	- package name: "+(packageName==null?"null":new String(packageName))); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.verbose("	- match rule: "+getMatchRuleString(packageMatchRule)); //$NON-NLS-1$
+			Util.verbose("	- type name: "+(typeName==null?"null":new String(typeName))); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.verbose("	- match rule: "+getMatchRuleString(typeMatchRule)); //$NON-NLS-1$
+			Util.verbose("	- search for: "+searchFor); //$NON-NLS-1$
+			Util.verbose("	- scope: "+scope); //$NON-NLS-1$
+		}
+
+		// Return on invalid combination of package and type names
+		if (packageName == null || packageName.length == 0) {
+			if (typeName != null && typeName.length == 0) {
+				// TODO (frederic) Throw a JME instead?
+				if (VERBOSE) {
+					Util.verbose("	=> return no result due to invalid empty values for package and type names!"); //$NON-NLS-1$
+				}
+				return;
+			}
+		}
+
+		// Create pattern
+		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+		final char typeSuffix;
+		switch(searchFor){
+			case IJavaSearchConstants.CLASS :
+				typeSuffix = IIndexConstants.CLASS_SUFFIX;
+				break;
+			case IJavaSearchConstants.CLASS_AND_INTERFACE :
+				typeSuffix = IIndexConstants.CLASS_AND_INTERFACE_SUFFIX;
+				break;
+			case IJavaSearchConstants.CLASS_AND_ENUM :
+				typeSuffix = IIndexConstants.CLASS_AND_ENUM_SUFFIX;
+				break;
+			case IJavaSearchConstants.INTERFACE :
+				typeSuffix = IIndexConstants.INTERFACE_SUFFIX;
+				break;
+			case IJavaSearchConstants.ENUM :
+				typeSuffix = IIndexConstants.ENUM_SUFFIX;
+				break;
+			case IJavaSearchConstants.ANNOTATION_TYPE :
+				typeSuffix = IIndexConstants.ANNOTATION_TYPE_SUFFIX;
+				break;
+			default : 
+				typeSuffix = IIndexConstants.TYPE_SUFFIX;
+				break;
+		}
+		final TypeDeclarationPattern pattern = packageMatchRule == SearchPattern.R_EXACT_MATCH
+			? new TypeDeclarationPattern(
+				packageName,
+				null,
+				typeName,
+				typeSuffix,
+				typeMatchRule)
+			: new QualifiedTypeDeclarationPattern(
+				packageName,
+				packageMatchRule,
+				typeName,
+				typeSuffix,
+				typeMatchRule);
+
+		// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
+		final HashSet workingCopyPaths = new HashSet();
+		String workingCopyPath = null;
+		ICompilationUnit[] copies = getWorkingCopies();
+		final int copiesLength = copies == null ? 0 : copies.length;
+		if (copies != null) {
+			if (copiesLength == 1) {
+				workingCopyPath = copies[0].getPath().toString();
+			} else {
+				for (int i = 0; i < copiesLength; i++) {
+					ICompilationUnit workingCopy = copies[i];
+					workingCopyPaths.add(workingCopy.getPath().toString());
+				}
+			}
+		}
+		final String singleWkcpPath = workingCopyPath;
+
+		// Index requestor
+		IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
+			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
+				// Filter unexpected types
+				TypeDeclarationPattern record = (TypeDeclarationPattern)indexRecord;
+				if (record.enclosingTypeNames == IIndexConstants.ONE_ZERO_CHAR) {
+					return true; // filter out local and anonymous classes
+				}
+				switch (copiesLength) {
+					case 0:
+						break;
+					case 1:
+						if (singleWkcpPath.equals(documentPath)) {
+							return true; // fliter out *the* working copy
+						}
+						break;
+					default:
+						if (workingCopyPaths.contains(documentPath)) {
+							return true; // filter out working copies
+						}
+						break;
+				}
+
+				// Accept document path
+				AccessRestriction accessRestriction = null;
+				if (access != null) {
+					// Compute document relative path
+					int pkgLength = (record.pkg==null || record.pkg.length==0) ? 0 : record.pkg.length+1;
+					int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
+					char[] path = new char[pkgLength+nameLength];
+					int pos = 0;
+					if (pkgLength > 0) {
+						System.arraycopy(record.pkg, 0, path, pos, pkgLength-1);
+						CharOperation.replace(path, '.', '/');
+						path[pkgLength-1] = '/';
+						pos += pkgLength;
+					}
+					if (nameLength > 0) {
+						System.arraycopy(record.simpleName, 0, path, pos, nameLength);
+						pos += nameLength;
+					}
+					// Update access restriction if path is not empty
+					if (pos > 0) {
+						accessRestriction = access.getViolatedRestriction(path);
+					}
+				}
+				if (match(record.typeSuffix, record.modifiers)) {
+					nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
+				}
+				return true;
+			}
+		};
+	
+		try {
+			if (progressMonitor != null) {
+				progressMonitor.beginTask(Messages.engine_searching, 100); 
+			}
+			// add type names from indexes
+			indexManager.performConcurrentJob(
+				new PatternSearchJob(
+					pattern, 
+					getDefaultSearchParticipant(), // Java search only
+					scope, 
+					searchRequestor),
+				waitingPolicy,
+				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));	
+				
+			// add type names from working copies
+			if (copies != null) {
+				for (int i = 0; i < copiesLength; i++) {
+					ICompilationUnit workingCopy = copies[i];
+					if (!scope.encloses(workingCopy)) continue;
+					final String path = workingCopy.getPath().toString();
+					if (workingCopy.isConsistent()) {
+						IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
+						char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
+						IType[] allTypes = workingCopy.getAllTypes();
+						for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
+							IType type = allTypes[j];
+							IJavaElement parent = type.getParent();
+							char[][] enclosingTypeNames;
+							if (parent instanceof IType) {
+								char[] parentQualifiedName = ((IType)parent).getTypeQualifiedName('.').toCharArray();
+								enclosingTypeNames = CharOperation.splitOn('.', parentQualifiedName);
+							} else {
+								enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+							}
+							char[] simpleName = type.getElementName().toCharArray();
+							int kind;
+							if (type.isEnum()) {
+								kind = TypeDeclaration.ENUM_DECL;
+							} else if (type.isAnnotation()) {
+								kind = TypeDeclaration.ANNOTATION_TYPE_DECL;
+							}	else if (type.isClass()) {
+								kind = TypeDeclaration.CLASS_DECL;
+							} else /*if (type.isInterface())*/ {
+								kind = TypeDeclaration.INTERFACE_DECL;
+							}
+							if (match(typeSuffix, packageName, typeName, typeMatchRule, kind, packageDeclaration, simpleName)) {
+								nameRequestor.acceptType(type.getFlags(), packageDeclaration, simpleName, enclosingTypeNames, path, null);
+							}
+						}
+					} else {
+						Parser basicParser = getParser();
+						org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) workingCopy;
+						CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.compilerOptions.maxProblemsPerUnit);
+						CompilationUnitDeclaration parsedUnit = basicParser.dietParse(unit, compilationUnitResult);
+						if (parsedUnit != null) {
+							final char[] packageDeclaration = parsedUnit.currentPackage == null ? CharOperation.NO_CHAR : CharOperation.concatWith(parsedUnit.currentPackage.getImportName(), '.');
+							class AllTypeDeclarationsVisitor extends ASTVisitor {
+								public boolean visit(TypeDeclaration typeDeclaration, BlockScope blockScope) {
+									return false; // no local/anonymous type
+								}
+								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
+									if (match(typeSuffix, packageName, typeName, typeMatchRule, TypeDeclaration.kind(typeDeclaration.modifiers), packageDeclaration, typeDeclaration.name)) {
+										nameRequestor.acceptType(typeDeclaration.modifiers, packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
+									}
+									return true;
+								}
+								public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope classScope) {
+									if (match(typeSuffix, packageName, typeName, typeMatchRule, TypeDeclaration.kind(memberTypeDeclaration.modifiers), packageDeclaration, memberTypeDeclaration.name)) {
+										// compute encloising type names
+										TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
+										char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+										while (enclosing != null) {
+											enclosingTypeNames = CharOperation.arrayConcat(new char[][] {enclosing.name}, enclosingTypeNames);
+											if ((enclosing.bits & ASTNode.IsMemberType) != 0) {
+												enclosing = enclosing.enclosingType;
+											} else {
+												enclosing = null;
+											}
+										}
+										// report
+										nameRequestor.acceptType(memberTypeDeclaration.modifiers, packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
+									}
+									return true;
+								}
+							}
+							parsedUnit.traverse(new AllTypeDeclarationsVisitor(), parsedUnit.scope);
+						}
+					}
+				}
+			}	
+		} finally {
+			if (progressMonitor != null) {
+				progressMonitor.done();
+			}
+		}
+	}
+
+	/**
 	 * Searches for all top-level types and member types in the given scope using  a case sensitive exact match
 	 * with the given qualified names and type names.
 	 * 
@@ -976,7 +986,7 @@ public class BasicSearchEngine {
 						accessRestriction = access.getViolatedRestriction(path);
 					}
 				}
-				nameRequestor.acceptType(record.modifiers, record.getPackageName(), record.simpleName, record.getEnclosingTypeNames(), documentPath, accessRestriction);
+				nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
 				return true;
 			}
 		};

@@ -2893,6 +2893,111 @@ public void testBug91078() throws CoreException {
 }
 
 /**
+ * Bug 92264: [search] all types names should support patterns for package/enclosing type name
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=92264"
+ */
+public void testBug92264a() throws CoreException {
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		"*.lang".toCharArray(),
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
+		IIndexConstants.ONE_STAR,
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
+		TYPE,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null
+	);
+	assertSearchResults(
+		"Unexpected all type names",
+		"java.lang.CharSequence\n" + 
+		"java.lang.Class\n" + 
+		"java.lang.CloneNotSupportedException\n" + 
+		"java.lang.Comparable\n" + 
+		"java.lang.Enum\n" + 
+		"java.lang.Error\n" + 
+		"java.lang.Exception\n" + 
+		"java.lang.IllegalMonitorStateException\n" + 
+		"java.lang.InterruptedException\n" + 
+		"java.lang.Object\n" + 
+		"java.lang.RuntimeException\n" + 
+		"java.lang.String\n" + 
+		"java.lang.Throwable",
+		requestor);
+}
+public void testBug92264b() throws CoreException {
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		"*.lang*".toCharArray(),
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
+		"*tion".toCharArray(),
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
+		TYPE,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null
+	);
+	assertSearchResults(
+		"Unexpected all type names",
+		"java.lang.CloneNotSupportedException\n" + 
+		"java.lang.Exception\n" + 
+		"java.lang.IllegalMonitorStateException\n" + 
+		"java.lang.InterruptedException\n" + 
+		"java.lang.RuntimeException\n" + 
+		"java.lang.annotation.Annotation",
+		requestor);
+}
+public void testBug92264c() throws CoreException {
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		"*.test*".toCharArray(),
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
+		IIndexConstants.ONE_STAR,
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
+		TYPE,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null
+	);
+	assertSearchResults(
+		"Unexpected all type names",
+		"Test$Inner\n" + 
+		"b123679.test.Test\n" + 
+		"b123679.test.Test$StaticClass\n" + 
+		"b123679.test.Test$StaticClass$Member\n" + 
+		"b124645.test.A_124645\n" + 
+		"b124645.test.X_124645\n" + 
+		"b127628.Test127628$Member127628\n" + 
+		"b95794.Test$Color\n" + 
+		"pack.age.Test$Member\n" + 
+		"test.Test$StaticClass\n" + 
+		"test.Test$StaticClass$Member",
+		requestor);
+}
+public void testBug92264d() throws CoreException {
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		"b12*".toCharArray(),
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
+		new char[] { 'X' },
+		SearchPattern.R_PREFIX_MATCH, // case insensitive
+		TYPE,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null
+	);
+	assertSearchResults(
+		"Unexpected all type names",
+		"b124645.test.X_124645\n" + 
+		"b124645.xy.X_124645",
+		requestor);
+}
+
+/**
  * Bug 92944: [1.5][search] SearchEngine#searchAllTypeNames doesn't honor enum or annotation element kind
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=92944"
  */

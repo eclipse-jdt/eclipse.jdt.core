@@ -4,7 +4,7 @@
    id="org.eclipse.jdt.core.tests.performance"
    name="%pluginName"
    provider-name = "%providerName"
-   version="3.2.100">
+   version="3.3.0">
 
    <runtime>
       <library name="jdtcoretestsperf.jar">

@@ -17,8 +17,9 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
  * Wrapper used to link {@link IRestrictedAccessTypeRequestor} with {@link TypeNameRequestor}.
  * This wrapper specifically allows usage of internal method {@link BasicSearchEngine#searchAllTypeNames(
  * 	char[] packageName, 
+ * 	int packageMatchRule, 
  * 	char[] typeName,
- * 	int matchRule, 
+ * 	int typeMatchRule, 
  * 	int searchFor, 
  * 	org.eclipse.jdt.core.search.IJavaSearchScope scope, 
  * 	IRestrictedAccessTypeRequestor nameRequestor,

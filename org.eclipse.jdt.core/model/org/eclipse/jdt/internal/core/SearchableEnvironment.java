@@ -264,6 +264,7 @@ public class SearchableEnvironment
 				if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
 				new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
 					qualification,
+					SearchPattern.R_EXACT_MATCH,
 					simpleName,
 					matchRule, // not case sensitive
 					IJavaSearchConstants.TYPE,
