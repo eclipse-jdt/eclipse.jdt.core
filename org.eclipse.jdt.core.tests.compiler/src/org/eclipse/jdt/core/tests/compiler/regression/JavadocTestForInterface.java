@@ -365,17 +365,20 @@ public class JavadocTestForInterface extends JavadocTest {
 		this.runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "	/**\n"
-					+ "	 * Valid external classes references \n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPublic Valid ref: visible class through import => no warning on import\n"
-					+ "	 * @see VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n"
-					+ "	 */\n"
-					+ "public interface IX {\n"
-					+ "	public void foo();\n"
-					+ "}\n" });
+				"package test;\n" +
+				"import test.copy.*;\n" +
+				"	/**\n" +
+				"	 * Valid external classes references \n" +
+				"	 *\n" +
+				"	 * @see VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
+				// Inner classes are not visible in generated documentation
+				//"	 * @see VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
+				"	 */\n" +
+				"public interface IX {\n" +
+				"	public void foo();\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test023() {
@@ -410,16 +413,19 @@ public class JavadocTestForInterface extends JavadocTest {
 		this.runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
-				"package test;\n"
-					+ "	/**\n"
-					+ "	 * Valid external classes references \n"
-					+ "	 *\n"
-					+ "	 * @see test.copy.VisibilityPublic Valid ref: visible class through import => no warning on import\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n"
-					+ "	 */\n"
-					+ "public interface IX {\n"
-					+ "	public void foo();\n"
-					+ "}\n" });
+				"package test;\n" +
+				"	/**\n" +
+				"	 * Valid external classes references \n" +
+				"	 *\n" +
+				"	 * @see test.copy.VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
+				// Inner classes are not visible in generated documentation
+				//"	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
+				"	 */\n" +
+				"public interface IX {\n" +
+				"	public void foo();\n" +
+				"}\n"
+			}
+		);
 	}
 
 	// @see Field references
@@ -1622,17 +1628,20 @@ public class JavadocTestForInterface extends JavadocTest {
 		this.runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "public interface IX {\n"
-					+ "	/**\n"
-					+ "	 * Valid external classes references \n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPublic Valid ref: visible class through import => no warning on import\n"
-					+ "	 * @see VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n"
-					+ "	 */\n"
-					+ "	public void foo();\n"
-					+ "}\n" });
+				"package test;\n" +
+				"import test.copy.*;\n" +
+				"public interface IX {\n" +
+				"	/**\n" +
+				"	 * Valid external classes references \n" +
+				"	 *\n" +
+				"	 * @see VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
+				// Inner classes are not visible in generated documentation
+				//"	 * @see VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
+				"	 */\n" +
+				"	public void foo();\n" +
+				"}\n"
+				}
+			);
 	}
 
 	public void test098() {
@@ -1667,16 +1676,19 @@ public class JavadocTestForInterface extends JavadocTest {
 		this.runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
-				"package test;\n"
-					+ "public interface IX {\n"
-					+ "	/**\n"
-					+ "	 * Valid external classes references \n"
-					+ "	 *\n"
-					+ "	 * @see test.copy.VisibilityPublic Valid ref: visible class through import => no warning on import\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n"
-					+ "	 */\n"
-					+ "	public void foo();\n"
-					+ "}\n" });
+				"package test;\n" +
+				"public interface IX {\n" +
+				"	/**\n" +
+				"	 * Valid external classes references \n" +
+				"	 *\n" +
+				"	 * @see test.copy.VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
+				// Inner classes are not visible in generated documentation
+				//"	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
+				"	 */\n" +
+				"	public void foo();\n" +
+				"}\n"
+			}
+		);
 	}
 
 	// @see tag: field references

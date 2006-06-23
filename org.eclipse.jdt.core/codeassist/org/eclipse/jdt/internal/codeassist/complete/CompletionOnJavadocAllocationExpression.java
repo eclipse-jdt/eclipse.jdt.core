@@ -23,6 +23,7 @@ public class CompletionOnJavadocAllocationExpression extends JavadocAllocationEx
 		this.tagValue = allocation.tagValue;
 		this.sourceEnd = allocation.sourceEnd;
 		this.separatorPosition = position;
+		this.qualification = allocation.qualification;
 	}
 
 	public CompletionOnJavadocAllocationExpression(JavadocAllocationExpression allocation, int position, int flags) {

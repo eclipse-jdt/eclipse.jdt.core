@@ -34,7 +34,35 @@ public class Javadoc extends ASTNode {
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
-	
+	/**
+	 * Returns whether a type can be seen at a given visibility level or not.
+	 *
+	 * @param visibility Level of visiblity allowed to see references
+	 * @param binding Type to be seen
+	 * @return true if the type can be seen, false otherwise
+	 */
+	boolean canBeSeen(int visibility, ReferenceBinding binding) {
+		int modifiers = binding.modifiers;
+		if (!binding.isValidBinding()) {
+			ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) binding;
+			if (problemBinding.closestMatch != null) {
+				modifiers = problemBinding.closestMatch.modifiers;
+			}
+		}
+		if (modifiers < 0) return true;
+		switch (modifiers & ExtraCompilerModifiers.AccVisibilityMASK) {
+			case ClassFileConstants.AccPublic :
+				return true;
+			case ClassFileConstants.AccProtected:
+				return (visibility != ClassFileConstants.AccPublic);
+			case ClassFileConstants.AccDefault:
+				return (visibility == ClassFileConstants.AccDefault || visibility == ClassFileConstants.AccPrivate);
+			case ClassFileConstants.AccPrivate:
+				return (visibility == ClassFileConstants.AccPrivate);
+		}
+		return true;
+	}
+
 	/*
 	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#print(int, java.lang.StringBuffer)
 	 */
@@ -233,17 +261,18 @@ public class Javadoc extends ASTNode {
 		}
 
 		// Verify field references
-		boolean verifyValues = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
+		boolean source15 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
+		int scopeModifiers = -1;
 		if (reference instanceof JavadocFieldReference) {
 			JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
-			int modifiers = fieldRef.binding==null ? -1 : fieldRef.binding.modifiers;
 			
 			// Verify if this is a method reference
 			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51911
 			if (fieldRef.methodBinding != null) {
 				// cannot refer to method for @value tag
 				if (fieldRef.tagValue == JavadocTagConstants.TAG_VALUE_VALUE) {
-					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, modifiers);
+					if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, scopeModifiers);
 				}
 				else if (fieldRef.receiverType != null) {
 					fieldRef.superAccess = scope.enclosingSourceType().isCompatibleWith(fieldRef.receiverType);
@@ -252,35 +281,81 @@ public class Javadoc extends ASTNode {
 			}
 
 			// Verify whether field ref should be static or not (for @value tags)
-			else if (verifyValues && fieldRef.binding != null && fieldRef.binding.isValidBinding()) {
+			else if (source15 && fieldRef.binding != null && fieldRef.binding.isValidBinding()) {
 				if (fieldRef.tagValue == JavadocTagConstants.TAG_VALUE_VALUE && !fieldRef.binding.isStatic()) {
-					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, modifiers);
+					if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, scopeModifiers);
 				}
 			}
-			
+
 			// That's it for field references
 			return;
 		}
 
-		// If not 1.5 level, verification is finished
-		if (!verifyValues)  return;
+		// Verify type references
+		if ((reference instanceof JavadocSingleTypeReference || reference instanceof JavadocQualifiedTypeReference) && reference.resolvedType instanceof ReferenceBinding) {
+			ReferenceBinding resolvedType = (ReferenceBinding) reference.resolvedType;
+			if (reference.resolvedType.isValidBinding()) {
 
-		// Verify that message reference are not used for @value tags
-		else if (reference instanceof JavadocMessageSend) {
-			JavadocMessageSend msgSend = (JavadocMessageSend) reference;
-			int modifiers = msgSend.binding==null ? -1 : msgSend.binding.modifiers;
-			if (msgSend.tagValue == JavadocTagConstants.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
-				scope.problemReporter().javadocInvalidValueReference(msgSend.sourceStart, msgSend.sourceEnd, modifiers);
+				// member types
+				if (resolvedType.isMemberType()) {
+					ReferenceBinding topLevelType = resolvedType;
+					int depth = 0;
+					while (topLevelType.enclosingType() != null) {
+						topLevelType = topLevelType.enclosingType();
+						depth++;
+					}
+					ClassScope topLevelScope = scope.classScope();
+					// when scope is not on compilation unit type, then inner class may not be visible...
+					if (topLevelScope.parent.kind != Scope.COMPILATION_UNIT_SCOPE ||
+						!CharOperation.equals(topLevelType.sourceName, topLevelScope.referenceContext.name)) {
+						topLevelScope = topLevelScope.outerMostClassScope();
+						if (reference instanceof JavadocSingleTypeReference) {
+							// inner class single reference can only be done in same unit
+							if ((!source15 && depth == 1) || topLevelType != topLevelScope.referenceContext.binding) {
+								if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+								scope.problemReporter().javadocNotVisibleReference(reference.sourceStart, reference.sourceEnd, scopeModifiers);
+							}
+						} else {
+							// inner class qualified reference can only be done in same package
+							if (topLevelType.getPackage() != topLevelScope.referenceContext.binding.getPackage()) {
+								if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+								scope.problemReporter().javadocNotVisibleReference(reference.sourceStart, reference.sourceEnd, scopeModifiers);
+							}
+						}
+					}
+				}
+
+				// reference must have enough visibility to be used
+				if (!canBeSeen(scope.problemReporter().options.reportInvalidJavadocTagsVisibility, resolvedType)) {
+					if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+					scope.problemReporter().javadocNotVisibleReference(reference.sourceStart, reference.sourceEnd, scopeModifiers);
+				}
 			}
 		}
 
-		// Verify that constructorreference are not used for @value tags
+		// Verify that message reference are not used for @value tags
+		if (reference instanceof JavadocMessageSend) {
+			JavadocMessageSend msgSend = (JavadocMessageSend) reference;
+
+			// tag value
+			if (source15 && msgSend.tagValue == JavadocTagConstants.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
+				if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+				scope.problemReporter().javadocInvalidValueReference(msgSend.sourceStart, msgSend.sourceEnd, scopeModifiers);
+			}
+
+		}
+
+		// Verify that constructor reference are not used for @value tags
 		else if (reference instanceof JavadocAllocationExpression) {
 			JavadocAllocationExpression alloc = (JavadocAllocationExpression) reference;
-			int modifiers = alloc.binding==null ? -1 : alloc.binding.modifiers;
-			if (alloc.tagValue == JavadocTagConstants.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
-				scope.problemReporter().javadocInvalidValueReference(alloc.sourceStart, alloc.sourceEnd, modifiers);
+
+			// tag value
+			if (source15 && alloc.tagValue == JavadocTagConstants.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
+				if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+				scope.problemReporter().javadocInvalidValueReference(alloc.sourceStart, alloc.sourceEnd, scopeModifiers);
 			}
+
 		}
 		
 		// Verify that there's no type variable reference

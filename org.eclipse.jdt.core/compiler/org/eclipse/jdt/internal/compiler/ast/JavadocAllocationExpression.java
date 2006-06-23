@@ -10,15 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class JavadocAllocationExpression extends AllocationExpression {
 
 	public int tagSourceStart, tagSourceEnd;
-	public int tagValue;
+	public int tagValue, memberStart;
 	public boolean superAccess = false;
-	
+	public char[][] qualification;
+
 	public JavadocAllocationExpression(int start, int end) {
 		this.sourceStart = start;
 		this.sourceEnd = end;
@@ -28,7 +30,7 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		this((int) (pos >>> 32), (int) pos);
 	}
 
-	private TypeBinding internalResolveType(Scope scope) {
+	TypeBinding internalResolveType(Scope scope) {
 	
 		// Propagate the type checking to the arguments, and check if the constructor is defined.
 		this.constant = Constant.NotAConstant;
@@ -118,6 +120,20 @@ public class JavadocAllocationExpression extends AllocationExpression {
 						scope.problemReporter().javadocInvalidConstructor(this, problem, scope.getDeclarationModifiers());
 						break;
 					}
+				}
+			}
+		} else if (this.resolvedType.isMemberType()) { // inner class constructor reference must be qualified
+			int length = qualification.length;
+			ReferenceBinding enclosingTypeBinding = allocationType;
+			if (type instanceof JavadocQualifiedTypeReference && (((JavadocQualifiedTypeReference)type).tokens.length != length)) {
+				scope.problemReporter().javadocInvalidConstructorQualification(this.memberStart+1, this.sourceEnd); //, scope.getDeclarationModifiers());
+			} else {
+				int idx = length;
+				while (idx > 0 && CharOperation.equals(qualification[--idx], enclosingTypeBinding.sourceName) && (enclosingTypeBinding = enclosingTypeBinding.enclosingType()) != null) {
+					// verify that each qualification token matches enclosing types
+				}
+				if (idx > 0 || enclosingTypeBinding != null) {
+					scope.problemReporter().javadocInvalidConstructorQualification(this.memberStart+1, this.sourceEnd); //, scope.getDeclarationModifiers());
 				}
 			}
 		}

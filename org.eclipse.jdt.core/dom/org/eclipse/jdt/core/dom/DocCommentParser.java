@@ -86,7 +86,7 @@ class DocCommentParser extends AbstractCommentParser {
 		buffer.append(super.toString());
 		return buffer.toString();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createArgumentReference(char[], java.lang.Object, int)
 	 */
@@ -167,13 +167,13 @@ class DocCommentParser extends AbstractCommentParser {
 			// Create method ref
 			MethodRef methodRef = this.ast.newMethodRef();
 			SimpleName methodName = new SimpleName(this.ast);
-			methodName.internalSetIdentifier(new String(this.identifierStack[0]));
+			int memberPtr = this.identifierLengthStack[0] - 1;
+			methodName.internalSetIdentifier(new String(this.identifierStack[memberPtr]));
 			methodRef.setName(methodName);
-			int start = (int) (this.identifierPositionStack[0] >>> 32);
-			int end = (int) this.identifierPositionStack[0];
+			int start = (int) (this.identifierPositionStack[memberPtr] >>> 32);
+			int end = (int) this.identifierPositionStack[memberPtr];
 			methodName.setSourceRange(start, end - start + 1);
 			// Set qualifier
-//			int end = methodName.getStartPosition()+methodName.getLength()-1;
 			if (receiver == null) {
 				start = this.memberStart;
 				methodRef.setSourceRange(start, end - start + 1);
@@ -188,10 +188,8 @@ class DocCommentParser extends AbstractCommentParser {
 				while (parameters.hasNext()) {
 					MethodRefParameter param = (MethodRefParameter) parameters.next();
 					methodRef.parameters().add(param);
-//					end = param.getStartPosition()+param.getLength()-1;
 				}
 			}
-//			methodRef.setSourceRange(start, end-start+1);
 			methodRef.setSourceRange(start, this.scanner.getCurrentTokenEndPosition()-start+1);
 			return methodRef;
 		}
@@ -239,7 +237,7 @@ class DocCommentParser extends AbstractCommentParser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createTypeReference()
 	 */
 	protected Object createTypeReference(int primitiveToken) {
-		int size = this.identifierLengthStack[this.identifierLengthPtr--];
+		int size = this.identifierLengthStack[this.identifierLengthPtr];
 		String[] identifiers = new String[size];
 		int pos = this.identifierPtr - size + 1;
 		for (int i = 0; i < size; i++) {
@@ -307,16 +305,7 @@ class DocCommentParser extends AbstractCommentParser {
 			int end = (int) this.identifierPositionStack[pos];
 			typeRef.setSourceRange(start, end-start+1);
 		}
-		this.identifierPtr -= size;
 		return typeRef;
-	}
-
-	/*
-	 * Parse @return tag declaration
-	 */
-	protected boolean parseReturn() {
-		createTag();
-		return true;
 	}
 
 	/* (non-Javadoc)
@@ -330,6 +319,14 @@ class DocCommentParser extends AbstractCommentParser {
 			return true;
 		}
 		return false;
+	}
+
+	/*
+	 * Parse @return tag declaration
+	 */
+	protected boolean parseReturn() {
+		createTag();
+		return true;
 	}
 
 	/* (non-Javadoc)

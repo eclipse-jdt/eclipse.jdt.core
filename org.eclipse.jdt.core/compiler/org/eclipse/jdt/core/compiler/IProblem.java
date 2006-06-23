@@ -753,6 +753,16 @@ void setSourceStart(int sourceStart);
 	/*
 	 * Javadoc comments
 	 */
+	/** 
+	 * Problem signaled on a reference to an java element which has a too low visibility level.
+	 * @since 3.3
+	 */
+	int JavadocNotVisibleReference = Javadoc + Internal + 465;
+	/** 
+	 * Problem signaled on an unqualified inner class constructor reference.
+	 * @since 3.3
+	 */
+	int JavadocInvalidConstructorQualification = Javadoc + Internal + 466;
 	/** @since 3.2 */
 	int JavadocMissingIdentifier = Javadoc + Internal + 467;
 	/** @since 3.2 */

@@ -407,17 +407,20 @@ public class JavadocTestForField extends JavadocTest {
 		this.runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid external classes references \n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPublic Valid ref: visible class through import => no warning on import\n"
-					+ "	 * @see VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n"
-					+ "	 */\n"
-					+ "	public int x;\n"
-					+ "}\n" });
+				"package test;\n" +
+				"import test.copy.*;\n" +
+				"public class X {\n" +
+				"	/**\n" +
+				"	 * Valid external classes references \n" +
+				"	 *\n" +
+				"	 * @see VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
+				// Inner classes are not visible in generated documentation
+				//"	 * @see VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
+				"	 */\n" +
+				"	public int x;\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test023() {
@@ -452,16 +455,19 @@ public class JavadocTestForField extends JavadocTest {
 		this.runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid external classes references \n"
-					+ "	 *\n"
-					+ "	 * @see test.copy.VisibilityPublic Valid ref: visible class through import => no warning on import\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n"
-					+ "	 */\n"
-					+ "	public int x;\n"
-					+ "}\n" });
+				"package test;\n" +
+				"public class X {\n" +
+				"	/**\n" +
+				"	 * Valid external classes references \n" +
+				"	 *\n" +
+				"	 * @see test.copy.VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
+				// Inner classes are not visible in generated documentation
+				//"	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
+				"	 */\n" +
+				"	public int x;\n" +
+				"}\n"
+				}
+			);
 	}
 
 	// @see Field references

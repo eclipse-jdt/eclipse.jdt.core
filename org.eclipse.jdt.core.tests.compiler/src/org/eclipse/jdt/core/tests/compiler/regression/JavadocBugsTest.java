@@ -20,6 +20,7 @@ public class JavadocBugsTest extends JavadocTest {
 
 	String docCommentSupport = CompilerOptions.ENABLED;
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
+	String reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
 	String reportDeprecation = CompilerOptions.ERROR;
@@ -36,7 +37,7 @@ public class JavadocBugsTest extends JavadocTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_PREFIX = "testBug83127";
+//		TESTS_PREFIX = "testBug96237";
 //		TESTS_NAMES = new String[] { "testBug68017javadocWarning2" };
 //		TESTS_NUMBERS = new int[] { 129241 };
 //		TESTS_RANGE = new int[] { 21, 50 };
@@ -49,6 +50,9 @@ public class JavadocBugsTest extends JavadocTest {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_DocCommentSupport, docCommentSupport);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
+		if (!CompilerOptions.IGNORE.equals(reportInvalidJavadoc)) {
+			options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, this.reportInvalidJavadocVisibility);
+		}
 		if (this.reportJavadocDeprecation != null) {
 			options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, reportJavadocDeprecation);
 		}
@@ -77,6 +81,7 @@ public class JavadocBugsTest extends JavadocTest {
 		super.setUp();
 		docCommentSupport = CompilerOptions.ENABLED;
 		reportInvalidJavadoc = CompilerOptions.ERROR;
+		reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		reportMissingJavadocTags = CompilerOptions.IGNORE;
 		reportMissingJavadocComments = CompilerOptions.IGNORE;
 		reportDeprecation = CompilerOptions.ERROR;
@@ -220,45 +225,45 @@ public class JavadocBugsTest extends JavadocTest {
 	public void testBug45592() {
 		runConformTest(
 			new String[] {
-		"a/Y.java",
-		"package a;\n" + 
-		"\n" + 
-		"/** */\n" + 
-		"public class Y {\n" + 
-		"	protected boolean bar(Object obj) {\n" + 
-		"		return obj == null;\n" + 
-		"	}\n" + 
-		"}\n",
-		"test/X.java",
-		"package test;\n" + 
-		"public class X {\n" + 
-		"	public static Boolean valueOf(boolean bool) {\n" + 
-		"		if (bool) {\n" + 
-		"			return Boolean.TRUE;\n" + 
-		"		} else {\n" + 
-		"			return Boolean.FALSE;\n" + 
-		"		}\n" + 
-		"	}\n" + 
-		"}\n",
-		"test/YY.java",
-		"package test;\n" + 
-		"\n" + 
-		"import a.Y;\n" + 
-		"\n" + 
-		"/** */\n" + 
-		"public class YY extends Y {\n" + 
-		"	/**\n" + 
-		"	 * Returns a Boolean.\n" + 
-		"	 * @param key\n" + 
-		"	 * @return A Boolean telling whether the key is null or not.\n" + 
-		"	 * @see #bar(Object)\n" + 
-		"	 */\n" + 
-		"	protected Boolean foo(Object key) {\n" + 
-		"		return X.valueOf(bar(key));\n" + 
-		"	}\n" + 
-		"}\n"
-		}
-			);
+				"a/Y.java",
+				"package a;\n" + 
+				"\n" + 
+				"/** */\n" + 
+				"public class Y {\n" + 
+				"	protected boolean bar(Object obj) {\n" + 
+				"		return obj == null;\n" + 
+				"	}\n" + 
+				"}\n",
+				"test/X.java",
+				"package test;\n" + 
+				"public class X {\n" + 
+				"	public static Boolean valueOf(boolean bool) {\n" + 
+				"		if (bool) {\n" + 
+				"			return Boolean.TRUE;\n" + 
+				"		} else {\n" + 
+				"			return Boolean.FALSE;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+				"test/YY.java",
+				"package test;\n" + 
+				"\n" + 
+				"import a.Y;\n" + 
+				"\n" + 
+				"/** */\n" + 
+				"public class YY extends Y {\n" + 
+				"	/**\n" + 
+				"	 * Returns a Boolean.\n" + 
+				"	 * @param key\n" + 
+				"	 * @return A Boolean telling whether the key is null or not.\n" + 
+				"	 * @see #bar(Object)\n" + 
+				"	 */\n" + 
+				"	protected Boolean foo(Object key) {\n" + 
+				"		return X.valueOf(bar(key));\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
 	}
 
 	/**
@@ -690,12 +695,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 2)\n" + 
-			"	public class X extends RuntimeException {\n" + 
-			"	             ^\n" + 
-			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
 			"	public X(String message) {\n" + 
 			"	                ^^^^^^^\n" + 
 			"Javadoc: Missing tag for parameter message\n" + 
@@ -2420,6 +2420,196 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
+	 * Bug 68726: [Javadoc] Target attribute in @see link triggers warning
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726">68726</a>
+	 */
+	public void testBug68726conform1() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 *	@see Object <a href=\"http://www.eclipse.org\" target=\"_top\">Eclipse</a>\n" + 
+					"	 */\n" + 
+					"	void foo1() {}\n" + 
+					"	/**@see Object <a href=\"http://www.eclipse.org\" target=\"_top\" target1=\"_top1\" target2=\"_top2\">Eclipse</a>*/\n" + 
+					"	void foo2() {}\n" + 
+					"}\n"	
+			}
+		);
+	}
+	public void testBug68726conform2() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page</a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*          IBM Home Page</a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*          IBM Home Page\n" + 
+					"	* 			</a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*\n" + 
+					"	*          IBM\n" + 
+					"	*\n" + 
+					"	*          Home Page\n" + 
+					"	*\n" + 
+					"	*\n" + 
+					"	* 			</a>\n" + 
+					"	* @see Object\n" + 
+					"	*/\n" + 
+					"public class X {\n" + 
+					"}\n"	
+			}
+		);
+	}
+	public void testBug68726negative1() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"	/**\n" + 
+					"	 * Invalid URL link references\n" + 
+					"	 *\n" + 
+					"	 * @see <a href=\"invalid\" target\n" + 
+					"	 * @see <a href=\"invalid\" target=\n" + 
+					"	 * @see <a href=\"invalid\" target=\"\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\"\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">invalid\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">invalid<\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">invalid</\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">invalid</a\n" + 
+					"	 * @see <a href=\"invalid\" target=\"_top\">invalid</a> no text allowed after the href\n" + 
+					"	 */\n" + 
+					"	void foo() {}\n" + 
+					"}\n"	
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	* @see <a href=\"invalid\" target\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	* @see <a href=\"invalid\" target=\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	* @see <a href=\"invalid\" target=\"\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 9)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\"\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 10)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 11)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 12)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">invalid\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 13)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">invalid<\n" + 
+				"	                                              ^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"10. ERROR in X.java (at line 14)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">invalid</\n" + 
+				"	                                              ^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"11. ERROR in X.java (at line 15)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">invalid</a\n" + 
+				"	                                              ^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"12. ERROR in X.java (at line 16)\n" + 
+				"	* @see <a href=\"invalid\" target=\"_top\">invalid</a> no text allowed after the href\n" + 
+				"	                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Unexpected text\n" + 
+				"----------\n"
+		);
+	}
+	public void testBug68726negative2() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*          IBM Home Page\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*          IBM Home Page<\n" + 
+					"	* 			/a>\n" + 
+					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+					"	*\n" + 
+					"	*          IBM\n" + 
+					"	*\n" + 
+					"	*          Home Page\n" + 
+					"	*\n" + 
+					"	*\n" + 
+					"	* 			\n" + 
+					"	* @see Unknown\n" + 
+					"	*/\n" + 
+					"public class X {\n" + 
+					"}\n"	
+			},
+			"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+				"	*          IBM Home Page\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	*          IBM Home Page<\n" + 
+				"	                        ^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
+				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
+				"	*\n" + 
+				"	*          IBM\n" + 
+				"	*\n" + 
+				"	*          Home Page\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 16)\n" + 
+				"	* @see Unknown\n" + 
+				"	       ^^^^^^^\n" + 
+				"Javadoc: Unknown cannot be resolved to a type\n" + 
+				"----------\n"
+		);
+	}
+
+	/**
 	 * Bug 69272: [Javadoc] Invalid malformed reference (missing separator)
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69272">69272</a>
 	 */
@@ -2705,196 +2895,6 @@ public class JavadocBugsTest extends JavadocTest {
 			"	        ^^^^^^^\n" + 
 			"Javadoc: Unknown cannot be resolved to a type\n" + 
 			"----------\n"
-		);
-	}
-
-	/**
-	 * Bug 68726: [Javadoc] Target attribute in @see link triggers warning
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68726">68726</a>
-	 */
-	public void testBug68726conform1() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-					"	/**\n" + 
-					"	 *	@see Object <a href=\"http://www.eclipse.org\" target=\"_top\">Eclipse</a>\n" + 
-					"	 */\n" + 
-					"	void foo1() {}\n" + 
-					"	/**@see Object <a href=\"http://www.eclipse.org\" target=\"_top\" target1=\"_top1\" target2=\"_top2\">Eclipse</a>*/\n" + 
-					"	void foo2() {}\n" + 
-					"}\n"	
-			}
-		);
-	}
-	public void testBug68726conform2() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"/**\n" + 
-					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page</a>\n" + 
-					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
-					"	*          IBM Home Page</a>\n" + 
-					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
-					"	*          IBM Home Page\n" + 
-					"	* 			</a>\n" + 
-					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
-					"	*\n" + 
-					"	*          IBM\n" + 
-					"	*\n" + 
-					"	*          Home Page\n" + 
-					"	*\n" + 
-					"	*\n" + 
-					"	* 			</a>\n" + 
-					"	* @see Object\n" + 
-					"	*/\n" + 
-					"public class X {\n" + 
-					"}\n"	
-			}
-		);
-	}
-	public void testBug68726negative1() {
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-					"	/**\n" + 
-					"	 * Invalid URL link references\n" + 
-					"	 *\n" + 
-					"	 * @see <a href=\"invalid\" target\n" + 
-					"	 * @see <a href=\"invalid\" target=\n" + 
-					"	 * @see <a href=\"invalid\" target=\"\n" + 
-					"	 * @see <a href=\"invalid\" target=\"_top\n" + 
-					"	 * @see <a href=\"invalid\" target=\"_top\"\n" + 
-					"	 * @see <a href=\"invalid\" target=\"_top\">\n" + 
-					"	 * @see <a href=\"invalid\" target=\"_top\">\n" + 
-					"	 * @see <a href=\"invalid\" target=\"_top\">invalid\n" + 
-					"	 * @see <a href=\"invalid\" target=\"_top\">invalid<\n" + 
-					"	 * @see <a href=\"invalid\" target=\"_top\">invalid</\n" + 
-					"	 * @see <a href=\"invalid\" target=\"_top\">invalid</a\n" + 
-					"	 * @see <a href=\"invalid\" target=\"_top\">invalid</a> no text allowed after the href\n" + 
-					"	 */\n" + 
-					"	void foo() {}\n" + 
-					"}\n"	
-			},
-			"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	* @see <a href=\"invalid\" target\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	* @see <a href=\"invalid\" target=\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
-				"	* @see <a href=\"invalid\" target=\"\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 8)\n" + 
-				"	* @see <a href=\"invalid\" target=\"_top\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"5. ERROR in X.java (at line 9)\n" + 
-				"	* @see <a href=\"invalid\" target=\"_top\"\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"6. ERROR in X.java (at line 10)\n" + 
-				"	* @see <a href=\"invalid\" target=\"_top\">\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"7. ERROR in X.java (at line 11)\n" + 
-				"	* @see <a href=\"invalid\" target=\"_top\">\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"8. ERROR in X.java (at line 12)\n" + 
-				"	* @see <a href=\"invalid\" target=\"_top\">invalid\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"9. ERROR in X.java (at line 13)\n" + 
-				"	* @see <a href=\"invalid\" target=\"_top\">invalid<\n" + 
-				"	                                              ^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"10. ERROR in X.java (at line 14)\n" + 
-				"	* @see <a href=\"invalid\" target=\"_top\">invalid</\n" + 
-				"	                                              ^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"11. ERROR in X.java (at line 15)\n" + 
-				"	* @see <a href=\"invalid\" target=\"_top\">invalid</a\n" + 
-				"	                                              ^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"12. ERROR in X.java (at line 16)\n" + 
-				"	* @see <a href=\"invalid\" target=\"_top\">invalid</a> no text allowed after the href\n" + 
-				"	                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Unexpected text\n" + 
-				"----------\n"
-		);
-	}
-	public void testBug68726negative2() {
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				"/**\n" + 
-					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page\n" + 
-					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
-					"	*          IBM Home Page\n" + 
-					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
-					"	*          IBM Home Page<\n" + 
-					"	* 			/a>\n" + 
-					"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
-					"	*\n" + 
-					"	*          IBM\n" + 
-					"	*\n" + 
-					"	*          Home Page\n" + 
-					"	*\n" + 
-					"	*\n" + 
-					"	* 			\n" + 
-					"	* @see Unknown\n" + 
-					"	*/\n" + 
-					"public class X {\n" + 
-					"}\n"	
-			},
-			"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 3)\n" + 
-				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
-				"	*          IBM Home Page\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
-				"	*          IBM Home Page<\n" + 
-				"	                        ^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 8)\n" + 
-				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">\n" + 
-				"	*\n" + 
-				"	*          IBM\n" + 
-				"	*\n" + 
-				"	*          Home Page\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Malformed link reference\n" + 
-				"----------\n" + 
-				"5. ERROR in X.java (at line 16)\n" + 
-				"	* @see Unknown\n" + 
-				"	       ^^^^^^^\n" + 
-				"Javadoc: Unknown cannot be resolved to a type\n" + 
-				"----------\n"
 		);
 	}
 
@@ -3567,30 +3567,7 @@ public class JavadocBugsTest extends JavadocTest {
 	/**
 	 * Bug 77602: [javadoc] "Only consider members as visible as" is does not work for syntax error
 	 */
-	public void testBug77602public() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PUBLIC);
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-					"  /**\n" + 
-					"   * @see\n" + 
-					"   * @see UnknownClass\n" + 
-					"   */\n" + 
-					"  protected void foo() {\n" + 
-					"  }\n" + 
-				"}\n"
-			},
-			"",
-			null,
-			true,
-			null,
-			options,
-			null
-		);
-	}
-	public void testBug77602private() {
+	public void testBug77602() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3614,6 +3591,22 @@ public class JavadocBugsTest extends JavadocTest {
 				"	       ^^^^^^^^^^^^\n" + 
 				"Javadoc: UnknownClass cannot be resolved to a type\n" + 
 				"----------\n"
+		);
+	}
+	public void testBug77602_Public() {
+		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+					"  /**\n" + 
+					"   * @see\n" + 
+					"   * @see UnknownClass\n" + 
+					"   */\n" + 
+					"  protected void foo() {\n" + 
+					"  }\n" + 
+				"}\n"
+			}
 		);
 	}
 
@@ -3751,7 +3744,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"	class C { \n" + 
 				"	    /**\n" + 
 				"	     * Link {@link #B(Exception)} OK\n" + 
-				"	     * Link {@link #C(String)} OK\n" + 
+				"	     * Link {@link #B.C(String)} OK\n" + 
 				"	     * Link {@link #foo()} OK\n" + 
 				"	     * Link {@link #bar()} OK\n" + 
 				"	     */\n" + 

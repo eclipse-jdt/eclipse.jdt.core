@@ -149,8 +149,9 @@ public class CompletionJavadocParser extends JavadocParser {
 	 * Otherwise return null as we do not need this reference.
 	 */
 	protected Object createMethodReference(Object receiver, List arguments) throws InvalidInputException {
-		int refStart = (int) (this.identifierPositionStack[0] >>> 32);
-		int refEnd = (int) this.identifierPositionStack[0];
+		int memberPtr = this.identifierLengthStack[0] - 1; // may be > 0 for inner class constructor reference
+		int refStart = (int) (this.identifierPositionStack[memberPtr] >>> 32);
+		int refEnd = (int) this.identifierPositionStack[memberPtr];
 		boolean inCompletion = (refStart <= (this.cursorLocation+1) && this.cursorLocation <= refEnd) // completion cursor is between first and last stacked identifiers
 			|| ((refStart == (refEnd+1) && refEnd == this.cursorLocation)) // or it's a completion on empty token
 			|| (this.memberStart == this.cursorLocation); // or it's a completion just after the member separator with an identifier after the cursor
@@ -226,7 +227,6 @@ public class CompletionJavadocParser extends JavadocParser {
 				this.completionNode = new CompletionOnJavadocQualifiedTypeReference(tokens, this.identifierStack[this.identifierPtr], positions, this.tagSourceStart, this.tagSourceEnd);
 			}
 		}
-		this.identifierPtr -= nbIdentifiers;
 
 		if (CompletionEngine.DEBUG) {
 			System.out.println("	completion partial qualified type="+completionNode); //$NON-NLS-1$
@@ -792,7 +792,7 @@ public class CompletionJavadocParser extends JavadocParser {
 			// special case of completion just before the dot.
 			return createTypeReference(primitiveToken);
 		}
-		int idLength = this.identifierLengthStack[this.identifierLengthPtr--];
+		int idLength = this.identifierLengthStack[this.identifierLengthPtr];
 		char[][] tokens = new char[idLength][];
 		int startPtr = this.identifierPtr-idLength+1;
 		System.arraycopy(this.identifierStack, startPtr, tokens, 0, idLength);
@@ -800,7 +800,6 @@ public class CompletionJavadocParser extends JavadocParser {
 		System.arraycopy(this.identifierPositionStack, startPtr, positions, 0, idLength);
 		positions[idLength] = (((long)this.tokenPreviousPosition)<<32) + this.tokenPreviousPosition;
 		this.completionNode = new CompletionOnJavadocQualifiedTypeReference(tokens, CharOperation.NO_CHAR, positions, this.tagSourceStart, this.tagSourceEnd);
-		this.identifierPtr -= idLength;
 
 		if (CompletionEngine.DEBUG) {
 			System.out.println("	completion partial qualified type="+completionNode); //$NON-NLS-1$

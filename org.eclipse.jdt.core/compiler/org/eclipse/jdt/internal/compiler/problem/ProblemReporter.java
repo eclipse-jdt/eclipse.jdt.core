@@ -215,6 +215,7 @@ public class ProblemReporter extends ProblemHandler {
 			case IProblem.JavadocDuplicateParamName:
 			case IProblem.JavadocMissingParamName:
 			case IProblem.JavadocMissingIdentifier:
+			case IProblem.JavadocInvalidConstructorQualification:
 			case IProblem.JavadocInvalidThrowsClassName:
 			case IProblem.JavadocDuplicateThrowsClassName:
 			case IProblem.JavadocMissingThrowsClassName:
@@ -255,6 +256,7 @@ public class ProblemReporter extends ProblemHandler {
 			case IProblem.JavadocUsingDeprecatedConstructor:
 			case IProblem.JavadocUsingDeprecatedMethod:
 			case IProblem.JavadocUsingDeprecatedType:
+			case IProblem.JavadocNotVisibleReference:
 				return CompilerOptions.InvalidJavadoc;
 	
 			case IProblem.JavadocMissingParamTag:
@@ -988,6 +990,7 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocDuplicateParamName:
 		case IProblem.JavadocMissingParamName:
 		case IProblem.JavadocMissingIdentifier:
+		case IProblem.JavadocInvalidConstructorQualification:
 		case IProblem.JavadocInvalidThrowsClassName:
 		case IProblem.JavadocDuplicateThrowsClassName:
 		case IProblem.JavadocMissingThrowsClassName:
@@ -1042,6 +1045,7 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocNotVisibleConstructor:
 		case IProblem.JavadocNotVisibleMethod:
 		case IProblem.JavadocNotVisibleType:
+		case IProblem.JavadocNotVisibleReference:
 			if (!(this.options.reportInvalidJavadocTags && this.options.reportInvalidJavadocTagsNotVisibleRef)) {
 				return ProblemSeverities.Ignore;			
 			}
@@ -3578,13 +3582,17 @@ public void javadocDeprecatedType(TypeBinding type, ASTNode location, int modifi
 	int severity = computeSeverity(IProblem.JavadocUsingDeprecatedType);
 	if (severity == ProblemSeverities.Ignore) return;
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
-		this.handle(
-			IProblem.JavadocUsingDeprecatedType,
-			new String[] {new String(type.readableName())},
-			new String[] {new String(type.shortReadableName())},
-			severity,
-			location.sourceStart,
-			location.sourceEnd);
+		if (type.isMemberType() && type instanceof ReferenceBinding && !javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, ((ReferenceBinding)type).modifiers)) {
+			this.handle(IProblem.JavadocNotVisibleReference, NoArgument, NoArgument, location.sourceStart, location.sourceEnd);
+		} else {
+			this.handle(
+				IProblem.JavadocUsingDeprecatedType,
+				new String[] {new String(type.readableName())},
+				new String[] {new String(type.shortReadableName())},
+				severity,
+				location.sourceStart,
+				location.sourceEnd);
+		}
 	}
 }
 public void javadocDuplicatedParamTag(char[] token, int sourceStart, int sourceEnd, int modifiers) {
@@ -3806,6 +3814,9 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 		severity,
 		statement.sourceStart,
 		statement.sourceEnd);
+}
+public void javadocInvalidConstructorQualification(int sourceStart, int sourceEnd){
+	this.handle(IProblem.JavadocInvalidConstructorQualification, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 /*
  * Similar implementation than invalidField(FieldReference...)
@@ -4207,6 +4218,10 @@ public void javadocMissingThrowsTag(TypeReference typeRef, int modifiers){
 			typeRef.sourceStart,
 			typeRef.sourceEnd);
 	}
+}
+public void javadocNotVisibleReference(int sourceStart, int sourceEnd, int modifiers) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
+		this.handle(IProblem.JavadocNotVisibleReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocUndeclaredParamTagName(char[] token, int sourceStart, int sourceEnd, int modifiers) {
 	int severity = computeSeverity(IProblem.JavadocInvalidParamName);

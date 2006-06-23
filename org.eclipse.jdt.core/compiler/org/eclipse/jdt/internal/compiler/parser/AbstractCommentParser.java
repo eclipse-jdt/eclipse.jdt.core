@@ -641,8 +641,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	
 		// Get member identifier
 		if (readToken() == TerminalTokens.TokenNameIdentifier) {
-			consumeToken();
-			pushIdentifier(true, false);
+			if (this.scanner.currentCharacter == '.') { // member name may be qualified (inner class constructor reference)
+				parseQualifiedName(true);
+			} else {
+				consumeToken();
+				pushIdentifier(true, false);
+			}
 			// Look for next token to know whether it's a field or method reference
 			int previousPosition = this.index;
 			if (readToken() == TerminalTokens.TokenNameLPAREN) {

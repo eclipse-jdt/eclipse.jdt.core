@@ -100,6 +100,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility, CompilerOptions.PRIVATE);
+		options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 		return options;
 	}
 	
@@ -120,154 +121,154 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		referencedClasses =
 			new String[] {
 				"test/AbstractVisibility.java",
-				"package test;\n"
-					+ "public abstract class AbstractVisibility {\n"
-					+ "	private class AvcPrivate {\n"
-					+ "		private int avf_private = 10;\n"
-					+ "		public int avf_public = avf_private;\n"
-					+ "		private int avm_private() {\n"
-					+ "			avf_private = (new AvcPrivate()).avf_private;\n"
-					+ "			return avf_private;\n"
-					+ "		}\n"
-					+ "		public int avm_public() {\n"
-					+ "			return avm_private();\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "	public class AvcPublic {\n"
-					+ "		private int avf_private = 10;\n"
-					+ "		public int avf_public = avf_private;\n"
-					+ "		private int avm_private() {\n"
-					+ "			avf_private = (new AvcPrivate()).avf_private;\n"
-					+ "			return avf_private;\n"
-					+ "		}\n"
-					+ "		public int avm_public() {\n"
-					+ "			return avm_private();\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "	private int avf_private = 100;\n"
-					+ "	public int avf_public = avf_private;\n"
-					+ "	\n"
-					+ "	private int avm_private() {\n"
-					+ "		avf_private = (new AvcPrivate()).avf_private;\n"
-					+ "		return avf_private;\n"
-					+ "	}\n"
-					+ "	public int avm_public() {\n"
-					+ "		return avm_private();\n"
-					+ "	}\n"
-					+ "}\n",
+				"package test;\n" +
+				"public abstract class AbstractVisibility {\n" +
+				"	private class AvcPrivate {\n" +
+				"		private int avf_private = 10;\n" +
+				"		public int avf_public = avf_private;\n" +
+				"		private int avm_private() {\n" +
+				"			avf_private = (new AvcPrivate()).avf_private;\n" +
+				"			return avf_private;\n" +
+				"		}\n" +
+				"		public int avm_public() {\n" +
+				"			return avm_private();\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public class AvcPublic {\n" +
+				"		private int avf_private = 10;\n" +
+				"		public int avf_public = avf_private;\n" +
+				"		private int avm_private() {\n" +
+				"			avf_private = (new AvcPrivate()).avf_private;\n" +
+				"			return avf_private;\n" +
+				"		}\n" +
+				"		public int avm_public() {\n" +
+				"			return avm_private();\n" +
+				"		}\n" +
+				"	}\n" +
+				"	private int avf_private = 100;\n" +
+				"	public int avf_public = avf_private;\n" +
+				"	\n" +
+				"	private int avm_private() {\n" +
+				"		avf_private = (new AvcPrivate()).avf_private;\n" +
+				"		return avf_private;\n" +
+				"	}\n" +
+				"	public int avm_public() {\n" +
+				"		return avm_private();\n" +
+				"	}\n" +
+				"}\n",
 				"test/Visibility.java",
-				"package test;\n"
-					+ "public class Visibility extends AbstractVisibility {\n"
-					+ "	private class VcPrivate {\n"
-					+ "		private int vf_private = 10;\n"
-					+ "		public int vf_public = vf_private;\n"
-					+ "		private int vm_private() {\n"
-					+ "			vf_private = (new VcPrivate()).vf_private;\n"
-					+ "			avf_private = vf_private;\n"
-					+ "			return vf_private+avf_private;\n"
-					+ "		}\n"
-					+ "		public int vm_public() {\n"
-					+ "			return vm_private();\n"
-					+ "		}\n"
-					+ "	};\n"
-					+ "	public class VcPublic {\n"
-					+ "		private int vf_private = 10;\n"
-					+ "		public int vf_public = vf_private;\n"
-					+ "		private int vm_private() {\n"
-					+ "			vf_private = (new VcPrivate()).vf_private;\n"
-					+ "			avf_private = vf_private;\n"
-					+ "			return vf_private+avf_private;\n"
-					+ "		}\n"
-					+ "		public int vm_public() {\n"
-					+ "			return vm_private();\n"
-					+ "		}\n"
-					+ "	};\n"
-					+ "	private int vf_private = 100;\n"
-					+ "	private int avf_private = 100;\n"
-					+ "	public int vf_public = vf_private;\n"
-					+ "	public int avf_public = vf_private;\n"
-					+ "	\n"
-					+ "	private int vm_private() {\n"
-					+ "		vf_private = (new VcPrivate()).vf_private;\n"
-					+ "		avf_private = vf_private;\n"
-					+ "		return vf_private+avf_private;\n"
-					+ "	}\n"
-					+ "	public int vm_public() {\n"
-					+ "		return vm_private();\n"
-					+ "	}\n"
-					+ "}\n",
+				"package test;\n" +
+				"public class Visibility extends AbstractVisibility {\n" +
+				"	private class VcPrivate {\n" +
+				"		private int vf_private = 10;\n" +
+				"		public int vf_public = vf_private;\n" +
+				"		private int vm_private() {\n" +
+				"			vf_private = (new VcPrivate()).vf_private;\n" +
+				"			avf_private = vf_private;\n" +
+				"			return vf_private+avf_private;\n" +
+				"		}\n" +
+				"		public int vm_public() {\n" +
+				"			return vm_private();\n" +
+				"		}\n" +
+				"	};\n" +
+				"	public class VcPublic {\n" +
+				"		private int vf_private = 10;\n" +
+				"		public int vf_public = vf_private;\n" +
+				"		private int vm_private() {\n" +
+				"			vf_private = (new VcPrivate()).vf_private;\n" +
+				"			avf_private = vf_private;\n" +
+				"			return vf_private+avf_private;\n" +
+				"		}\n" +
+				"		public int vm_public() {\n" +
+				"			return vm_private();\n" +
+				"		}\n" +
+				"	};\n" +
+				"	private int vf_private = 100;\n" +
+				"	private int avf_private = 100;\n" +
+				"	public int vf_public = vf_private;\n" +
+				"	public int avf_public = vf_private;\n" +
+				"	\n" +
+				"	private int vm_private() {\n" +
+				"		vf_private = (new VcPrivate()).vf_private;\n" +
+				"		avf_private = vf_private;\n" +
+				"		return vf_private+avf_private;\n" +
+				"	}\n" +
+				"	public int vm_public() {\n" +
+				"		return vm_private();\n" +
+				"	}\n" +
+				"}\n",
 				"test/copy/VisibilityPackage.java",
-				"package test.copy;\n"
-					+ "class VisibilityPackage {\n"
-					+ "	private class VpPrivate {\n"
-					+ "		private int vf_private = 10;\n"
-					+ "		public int vf_public = vf_private;\n"
-					+ "		private int vm_private() {\n"
-					+ "			vf_private = (new VpPrivate()).vf_private;\n"
-					+ "			return vf_private;\n"
-					+ "		}\n"
-					+ "		public int vm_public() {\n"
-					+ "			return vm_private();\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "	public class VpPublic {\n"
-					+ "		private int vf_private = 10;\n"
-					+ "		public int vf_public = vf_private;\n"
-					+ "		private int vm_private() {\n"
-					+ "			vf_private = (new VpPrivate()).vf_private;\n"
-					+ "			return vf_private;\n"
-					+ "		}\n"
-					+ "		public int vm_public() {\n"
-					+ "			return vm_private();\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "	private int vf_private = 100;\n"
-					+ "	public int vf_public = vf_private;\n"
-					+ "	\n"
-					+ "	private int vm_private() {\n"
-					+ "		vf_private = (new VpPrivate()).vf_private;\n"
-					+ "		return vf_private;\n"
-					+ "	}\n"
-					+ "	public int vm_public() {\n"
-					+ "		return vm_private();\n"
-					+ "	}\n"
-					+ "}\n",
+				"package test.copy;\n" +
+				"class VisibilityPackage {\n" +
+				"	private class VpPrivate {\n" +
+				"		private int vf_private = 10;\n" +
+				"		public int vf_public = vf_private;\n" +
+				"		private int vm_private() {\n" +
+				"			vf_private = (new VpPrivate()).vf_private;\n" +
+				"			return vf_private;\n" +
+				"		}\n" +
+				"		public int vm_public() {\n" +
+				"			return vm_private();\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public class VpPublic {\n" +
+				"		private int vf_private = 10;\n" +
+				"		public int vf_public = vf_private;\n" +
+				"		private int vm_private() {\n" +
+				"			vf_private = (new VpPrivate()).vf_private;\n" +
+				"			return vf_private;\n" +
+				"		}\n" +
+				"		public int vm_public() {\n" +
+				"			return vm_private();\n" +
+				"		}\n" +
+				"	}\n" +
+				"	private int vf_private = 100;\n" +
+				"	public int vf_public = vf_private;\n" +
+				"	\n" +
+				"	private int vm_private() {\n" +
+				"		vf_private = (new VpPrivate()).vf_private;\n" +
+				"		return vf_private;\n" +
+				"	}\n" +
+				"	public int vm_public() {\n" +
+				"		return vm_private();\n" +
+				"	}\n" +
+				"}\n",
 				"test/copy/VisibilityPublic.java",
-				"package test.copy;\n"
-					+ "public class VisibilityPublic {\n"
-					+ "	private class VpPrivate {\n"
-					+ "		private int vf_private = 10;\n"
-					+ "		public int vf_public = vf_private;\n"
-					+ "		private int vm_private() {\n"
-					+ "			vf_private = (new VpPrivate()).vf_private;\n"
-					+ "			return vf_private;\n"
-					+ "		}\n"
-					+ "		public int vm_public() {\n"
-					+ "			return vm_private();\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "	public class VpPublic {\n"
-					+ "		private int vf_private = 10;\n"
-					+ "		public int vf_public = vf_private;\n"
-					+ "		private int vm_private() {\n"
-					+ "			vf_private = (new VpPrivate()).vf_private;\n"
-					+ "			return vf_private;\n"
-					+ "		}\n"
-					+ "		public int vm_public() {\n"
-					+ "			return vm_private();\n"
-					+ "		}\n"
-					+ "	}\n"
-					+ "	private int vf_private = 100;\n"
-					+ "	public int vf_public = vf_private;\n"
-					+ "	\n"
-					+ "	private int vm_private() {\n"
-					+ "		vf_private = (new VpPrivate()).vf_private;\n"
-					+ "		return vf_private;\n"
-					+ "	}\n"
-					+ "	public int vm_public() {\n"
-					+ "		return vm_private();\n"
-					+ "	}\n"
-					+ "}\n" };
+				"package test.copy;\n" +
+				"public class VisibilityPublic {\n" +
+				"	private class VpPrivate {\n" +
+				"		private int vf_private = 10;\n" +
+				"		public int vf_public = vf_private;\n" +
+				"		private int vm_private() {\n" +
+				"			vf_private = (new VpPrivate()).vf_private;\n" +
+				"			return vf_private;\n" +
+				"		}\n" +
+				"		public int vm_public() {\n" +
+				"			return vm_private();\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public class VpPublic {\n" +
+				"		private int vf_private = 10;\n" +
+				"		public int vf_public = vf_private;\n" +
+				"		private int vm_private() {\n" +
+				"			vf_private = (new VpPrivate()).vf_private;\n" +
+				"			return vf_private;\n" +
+				"		}\n" +
+				"		public int vm_public() {\n" +
+				"			return vm_private();\n" +
+				"		}\n" +
+				"	}\n" +
+				"	private int vf_private = 100;\n" +
+				"	public int vf_public = vf_private;\n" +
+				"	\n" +
+				"	private int vm_private() {\n" +
+				"		vf_private = (new VpPrivate()).vf_private;\n" +
+				"		return vf_private;\n" +
+				"	}\n" +
+				"	public int vm_public() {\n" +
+				"		return vm_private();\n" +
+				"	}\n" +
+				"}\n" };
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()

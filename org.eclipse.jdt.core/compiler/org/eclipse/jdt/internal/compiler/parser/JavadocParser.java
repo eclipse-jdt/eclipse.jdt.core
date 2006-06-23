@@ -180,36 +180,57 @@ public class JavadocParser extends AbstractCommentParser {
 			TypeReference typeRef = (TypeReference) receiver;
 			// Decide whether we have a constructor or not
 			boolean isConstructor = false;
+			int length = this.identifierLengthStack[0];	// may be > 0 for inner class constructor reference
 			if (typeRef == null) {
 				char[] name = this.sourceParser.compilationUnit.getMainTypeName();
 				TypeDeclaration typeDecl = getParsedTypeDeclaration();
 				if (typeDecl != null) {
 					name = typeDecl.name;
 				}
-				isConstructor = CharOperation.equals(this.identifierStack[0], name);
+				isConstructor = CharOperation.equals(this.identifierStack[length-1], name);
 				typeRef = new JavadocImplicitTypeReference(name, this.memberStart);
 			} else {
-				char[] name = null;
 				if (typeRef instanceof JavadocSingleTypeReference) {
-					name = ((JavadocSingleTypeReference)typeRef).token;
+					char[] name = ((JavadocSingleTypeReference)typeRef).token;
+					isConstructor = CharOperation.equals(this.identifierStack[length-1], name);
 				} else if (typeRef instanceof JavadocQualifiedTypeReference) {
 					char[][] tokens = ((JavadocQualifiedTypeReference)typeRef).tokens;
-					name = tokens[tokens.length-1];
+					int last = tokens.length-1;
+					isConstructor = CharOperation.equals(this.identifierStack[length-1], tokens[last]);
+					if (isConstructor) {
+						boolean valid = true;
+						if (valid) {
+							for (int i=0; i<length-1 && valid; i++) {
+								valid = CharOperation.equals(this.identifierStack[i], tokens[i]);
+							}
+						}
+						if (!valid) {
+							if (this.reportProblems) {
+								this.sourceParser.problemReporter().javadocInvalidConstructorQualification(this.memberStart+1, this.scanner.getCurrentTokenEndPosition());
+							}
+							return null;
+						}
+					}
 				} else {
 					throw new InvalidInputException();
 				}
-				isConstructor = CharOperation.equals(this.identifierStack[0], name);
 			}
 			// Create node
 			if (arguments == null) {
 				if (isConstructor) {
-					JavadocAllocationExpression alloc = new JavadocAllocationExpression(this.identifierPositionStack[0]);
-					alloc.type = typeRef;
-					alloc.tagValue = this.tagValue;
-					alloc.sourceEnd = this.scanner.getCurrentTokenEndPosition();
-					return alloc;
+					JavadocAllocationExpression allocation = new JavadocAllocationExpression(this.identifierPositionStack[length-1]);
+					allocation.type = typeRef;
+					allocation.tagValue = this.tagValue;
+					allocation.sourceEnd = this.scanner.getCurrentTokenEndPosition();
+					if (length == 1) {
+						allocation.qualification = new char[][] { this.identifierStack[0] };
+					} else {
+						System.arraycopy(this.identifierStack, 0, allocation.qualification = new char[length][], 0, length);
+					}
+					allocation.memberStart = this.memberStart;
+					return allocation;
 				} else {
-					JavadocMessageSend msg = new JavadocMessageSend(this.identifierStack[0], this.identifierPositionStack[0]);
+					JavadocMessageSend msg = new JavadocMessageSend(this.identifierStack[length-1], this.identifierPositionStack[length-1]);
 					msg.receiver = typeRef;
 					msg.tagValue = this.tagValue;
 					msg.sourceEnd = this.scanner.getCurrentTokenEndPosition();
@@ -219,14 +240,20 @@ public class JavadocParser extends AbstractCommentParser {
 				JavadocArgumentExpression[] expressions = new JavadocArgumentExpression[arguments.size()];
 				arguments.toArray(expressions);
 				if (isConstructor) {
-					JavadocAllocationExpression alloc = new JavadocAllocationExpression(this.identifierPositionStack[0]);
-					alloc.arguments = expressions;
-					alloc.type = typeRef;
-					alloc.tagValue = this.tagValue;
-					alloc.sourceEnd = this.scanner.getCurrentTokenEndPosition();
-					return alloc;
+					JavadocAllocationExpression allocation = new JavadocAllocationExpression(this.identifierPositionStack[length-1]);
+					allocation.arguments = expressions;
+					allocation.type = typeRef;
+					allocation.tagValue = this.tagValue;
+					allocation.sourceEnd = this.scanner.getCurrentTokenEndPosition();
+					if (length == 1) {
+						allocation.qualification = new char[][] { this.identifierStack[0] };
+					} else {
+						System.arraycopy(this.identifierStack, 0, allocation.qualification = new char[length][], 0, length);
+					}
+					allocation.memberStart = this.memberStart;
+					return allocation;
 				} else {
-					JavadocMessageSend msg = new JavadocMessageSend(this.identifierStack[0], this.identifierPositionStack[0], expressions);
+					JavadocMessageSend msg = new JavadocMessageSend(this.identifierStack[length-1], this.identifierPositionStack[length-1], expressions);
 					msg.receiver = typeRef;
 					msg.tagValue = this.tagValue;
 					msg.sourceEnd = this.scanner.getCurrentTokenEndPosition();
@@ -258,7 +285,7 @@ public class JavadocParser extends AbstractCommentParser {
 	 */
 	protected Object createTypeReference(int primitiveToken) {
 		TypeReference typeRef = null;
-		int size = this.identifierLengthStack[this.identifierLengthPtr--];
+		int size = this.identifierLengthStack[this.identifierLengthPtr];
 		if (size == 1) { // Single Type ref
 			typeRef = new JavadocSingleTypeReference(
 						this.identifierStack[this.identifierPtr],
@@ -272,7 +299,6 @@ public class JavadocParser extends AbstractCommentParser {
 			System.arraycopy(this.identifierPositionStack, this.identifierPtr - size + 1, positions, 0, size);
 			typeRef = new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
 		}
-		this.identifierPtr -= size;
 		return typeRef;
 	}
 
@@ -691,7 +717,7 @@ public class JavadocParser extends AbstractCommentParser {
 	 * Fill associated comment fields with ast nodes information stored in stack.
 	 */
 	protected void updateDocComment() {
-		
+
 		// Set inherited positions
 		this.docComment.inheritedPositions = this.inheritedPositions;
 

@@ -114,7 +114,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug130752"));
+		suite.addTest(new ASTConverterJavadocTest("testBug103304"));
 		return suite;
 	}
 
@@ -989,10 +989,27 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					}
 					// Verify member name position
 					Name name = methodRef.getName();
-					text = new String(source, start, name.getLength());
-					assumeEquals(prefix+"Misplaced method ref name at <"+start+">: ", text, name.toString());
+					int nameLength = name.getLength();
+					text = new String(source, start, nameLength);
+					if (!text.equals(name.toString())) { // may have qualified constructor reference for inner classes
+						if (methodRef.getQualifier().isQualifiedName()) {
+							text = new String(source, start, methodRef.getQualifier().getLength());
+							assumeEquals(prefix+"Misplaced method ref name at <"+start+">: ", text, methodRef.getQualifier().toString());
+							while (source[start] != '.' || Character.isWhitespace(source[start])) {
+								start++; // purge non-stored characters
+							}
+							start++;
+						} else {
+							while (source[start] != '.' || Character.isWhitespace(source[start])) {
+								start++; // purge non-stored characters
+							}
+							start++;
+							text = new String(source, start, nameLength);
+							assumeEquals(prefix+"Misplaced method ref name at <"+start+">: ", text, name.toString());
+						}
+					}
 					verifyNamePositions(start, name, source);
-					start += name.getLength();
+					start += nameLength;
 					// Verify arguments starting open parenthesis
 					while (source[start] == '*' || Character.isWhitespace(source[start])) {
 						start++; // purge non-stored characters
@@ -2985,6 +3002,52 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			methodDeclaration = (MethodDeclaration) node;
 			javadocStart = javadocs[5].getStartPosition();
 			assertEquals("Invalid start position for MethodDeclaration: "+methodDeclaration, methodDeclaration.getStartPosition(), javadocStart);
+		}
+	}
+
+	/**
+	 * @bug 103304: [Javadoc] Wrong reference proposal for inner classes.
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=103304"
+	 */
+	public void testBug103304() throws JavaModelException {
+		this.packageBinding = false; // do NOT verify that qualification only can be package name
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b103304/Test.java",
+			"package javadoc.b103304;\n" + 
+			"interface IAFAState {\n" + 
+			"    public class ValidationException extends Exception {\n" + 
+			"        public ValidationException(String variableName, IAFAState subformula) {\n" + 
+			"            super(\"Variable \'\"+variableName+\"\' may be unbound in \'\"+subformula+\"\'\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n" +
+			"public class Test {\n" + 
+			"	/**\n" + 
+			"	 * @see IAFAState.ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+			"	 */\n" + 
+			"	IAFAState.ValidationException valid;\n" + 
+			"}\n"
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify comment type
+			Iterator unitComments = compilUnit.getCommentList().iterator();
+			while (unitComments.hasNext()) {
+				Comment comment = (Comment) unitComments.next();
+				assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+				Javadoc javadoc = (Javadoc) comment;
+
+				// Verify that there's always a method reference in tags
+				List tags = javadoc.tags();
+				int size = tags.size();
+				for (int i=0; i<size; i++) {
+					TagElement tag = (TagElement) javadoc.tags().get(i);				
+					assertEquals("Invalid number of fragment for see reference: "+tag, 1, tag.fragments().size());
+					ASTNode node = (ASTNode) tag.fragments().get(0);
+					assertEquals("Invalid kind of name reference for tag element: "+tag, ASTNode.METHOD_REF, node.getNodeType());
+				}
+			}
 		}
 	}
 
