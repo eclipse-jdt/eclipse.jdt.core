@@ -6743,4 +6743,55 @@ public void testBug140156() throws CoreException {
 		"lib/b140156.jar void X.foo(List<T>) [No source] EXACT_MATCH"
 	);
 }
+
+/**
+ * Bug 148215: [search] correct results are missing in java search
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=148215"
+ */
+public void testBug148215_Types() throws CoreException {
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b148215.jar", false);
+	try {
+		IType type = getClassFile("JavaSearchBugs", "lib/b148215.jar", "test.pack", "Test.class").getType();
+		IMethod method = type.getMethods()[1];
+		searchDeclarationsOfReferencedTypes(method, this.resultCollector);
+		assertSearchResults(
+			""+ getExternalJCLPathString("1.5") + " java.lang.Object EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " java.lang.String EXACT_MATCH\n" + 
+			"lib/b148215.jar test.def.Reference EXACT_MATCH"
+		);
+	}
+	finally {
+		removeLibraryEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
+	}
+}
+public void testBug148215_Messages() throws CoreException {
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b148215.jar", false);
+	try {
+		IType type = getClassFile("JavaSearchBugs", "lib/b148215.jar", "test.pack", "Test.class").getType();
+		IMethod method = type.getMethods()[1];
+		searchDeclarationsOfSentMessages(method, this.resultCollector);
+		assertSearchResults(
+			"lib/b148215.jar void test.pack.Test.bar(java.lang.String) EXACT_MATCH\n" + 
+			"lib/b148215.jar void test.pack.Test.bar(test.def.Reference) EXACT_MATCH"
+		);
+	}
+	finally {
+		removeLibraryEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
+	}
+}
+public void testBug148215_Fields() throws CoreException {
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b148215.jar", false);
+	try {
+		IType type = getClassFile("JavaSearchBugs", "lib/b148215.jar", "test.pack", "Test.class").getType();
+		IMethod method = type.getMethods()[1];
+		searchDeclarationsOfAccessedFields(method, this.resultCollector);
+		assertSearchResults(
+			"lib/b148215.jar test.pack.Test.sField EXACT_MATCH\n" + 
+			"lib/b148215.jar test.pack.Test.rField EXACT_MATCH"
+		);
+	}
+	finally {
+		removeLibraryEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
+	}
+}
 }

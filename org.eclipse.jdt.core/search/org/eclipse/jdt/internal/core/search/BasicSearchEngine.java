@@ -319,20 +319,7 @@ public class BasicSearchEngine {
 		}
 		return this.parser;
 	}
-	
-	/*
-	 * Returns the underlying resource of the given element.
-	 */
-	private IResource getResource(IJavaElement element) {
-		if (element instanceof IMember) {
-			ICompilationUnit cu = ((IMember)element).getCompilationUnit();
-			if (cu != null) {
-				return cu.getResource();
-			} 
-		} 
-		return element.getResource();
-	}
-	
+
 	/*
 	 * Returns the list of working copies used by this search engine.
 	 * Returns null if none.
@@ -1101,7 +1088,18 @@ public class BasicSearchEngine {
 			Util.verbose("	- java element: "+enclosingElement); //$NON-NLS-1$
 		}
 		IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
-		IResource resource = this.getResource(enclosingElement);
+		IResource resource = enclosingElement.getResource();
+		if (enclosingElement instanceof IMember) {
+			IMember member = (IMember) enclosingElement;
+			ICompilationUnit cu = member.getCompilationUnit();
+			if (cu != null) {
+				resource = cu.getResource();
+			} else if (member.isBinary()) {
+				// binary member resource cannot be used as this
+				// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=148215
+				resource = null;
+			}
+		}
 		try {
 			if (resource instanceof IFile) {
 				try {
