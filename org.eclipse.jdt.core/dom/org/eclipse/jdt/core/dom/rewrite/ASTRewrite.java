@@ -369,9 +369,9 @@ public class ASTRewrite {
      * (not part of the original AST) or a placeholder node (for example, one
      * created by {@link #createCopyTarget(ASTNode)}
 	 * or {@link #createStringPlaceholder(String, int)}); or it must be
-	 * </code>null</code>, indicating that the child should be deleted.
+	 * <code>null</code>, indicating that the child should be deleted.
 	 * If the given property is a simple property, the value must be the new
-	 * value (primitive types must be boxed) or </code>null</code>.
+	 * value (primitive types must be boxed) or <code>null</code>.
      * The AST itself is not actually modified in any way; rather, the rewriter
      * just records a note that this node has been changed in the specified way.
 	 * 

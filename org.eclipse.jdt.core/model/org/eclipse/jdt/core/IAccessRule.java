@@ -99,7 +99,7 @@ public interface IAccessRule {
 	int getKind();
 	
 	/**
-	 * Returns whether a type matching this rule should be ignored iff a type with 
+	 * <p>Returns whether a type matching this rule should be ignored iff a type with 
 	 * the same qualified name can be found on a later classpath entry with a better 
 	 * accessibility.</p>
 	 * <p>E.g. if a type p.X matches a rule K_NON_ACCESSIBLE | IGNORE_IF_BETTER 

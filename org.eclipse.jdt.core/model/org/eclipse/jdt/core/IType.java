@@ -428,7 +428,7 @@ public interface IType extends IMember {
 	
 	/**
 	 * Returns this type's fully qualified name followed by its type parameters between angle brakets if it is a generic type.
-	 * For example, "p.X<T>", "java.util.Map<java.lang.String, p.X>"
+	 * For example, "p.X&lt;T&gt;", "java.util.Map&lt;java.lang.String, p.X&gt;"
 	 * 
 	 * @exception JavaModelException if this element does not exist or if an
 	 *      exception occurs while accessing its corresponding resource.
@@ -492,7 +492,7 @@ public interface IType extends IMember {
 	
 	/**
 	 * Returns the methods and constructors declared by this type.
-	 * For binary types, this may include the special <code>&lt;clinit&gt</code>; method 
+	 * For binary types, this may include the special <code>&lt;clinit&gt;</code>; method 
 	 * and synthetic methods.
 	 * If this is a source type, the results are listed in the order
 	 * in which they appear in the source, otherwise, the results are
@@ -580,7 +580,7 @@ public interface IType extends IMember {
 	/**
 	 * Returns the names of interfaces that this type implements or extends,
 	 * in the order in which they are listed in the source.
-	 * </p>
+	 * <p>
 	 * For classes, this gives the interfaces that this class implements.
 	 * For interfaces, this gives the interfaces that this interface extends.
 	 * An empty collection is returned if this type does not implement or
@@ -802,7 +802,7 @@ public interface IType extends IMember {
 	 * <li>IType#newSupertypeHierarchy(IProgressMonitor)</li>
 	 * <li>IType#newTypeHierarchy(IJavaProject, IProgressMonitor)</li>
 	 * <li>IType#newTypeHierarchy(IProgressMonitor)</li>
-	 * </u>
+	 * </ul>
 	 * 
 	 * @param input stream where hierarchy will be read
 	 * @param monitor the given progress monitor

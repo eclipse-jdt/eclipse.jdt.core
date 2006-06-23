@@ -324,7 +324,7 @@ public class ASTParser {
 	/**
      * Requests an abridged abstract syntax tree. 
      * By default, complete ASTs are returned.
-     *
+     * <p>
      * When <code>true</code> the resulting AST does not have nodes for
      * the entire compilation unit. Rather, the AST is only fleshed out
      * for the node that include the given source position. This kind of limited
@@ -735,7 +735,7 @@ public class ASTParser {
 	 * Note also the following parser parameters are used, regardless of what
 	 * may have been specified:
 	 * <ul>
-	 * <li>The {@linkplain #setResolveBindings(boolean) binding resolution flag} is <code>true</code<</li>
+	 * <li>The {@linkplain #setResolveBindings(boolean) binding resolution flag} is <code>true</code></li>
 	 * <li>The {@linkplain #setKind(int) parser kind} is <code>K_COMPILATION_UNIT</code></li>
 	 * <li>The {@linkplain #setSourceRange(int,int) source range} is <code>(0, -1)</code></li>
 	 * <li>The {@linkplain #setFocalPosition(int) focal position} is not set</li>

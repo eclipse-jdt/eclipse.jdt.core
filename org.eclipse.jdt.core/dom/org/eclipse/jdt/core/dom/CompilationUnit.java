@@ -390,6 +390,7 @@ public class CompilationUnit extends ASTNode {
 	 * for comments of all kinds (line, block, and doc), arranged in order
 	 * of increasing source position. 
 	 * </p>
+	 * <p>
 	 * Note on comment parenting: The {@link ASTNode#getParent() getParent()}
 	 * of a doc comment associated with a body declaration is the body
 	 * declaration node; for these comment nodes

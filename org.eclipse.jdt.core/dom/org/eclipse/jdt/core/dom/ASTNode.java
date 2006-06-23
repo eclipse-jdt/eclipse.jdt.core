@@ -36,7 +36,7 @@ import java.util.Map;
  * Clients can navigate upwards, from child to parent, as well as downwards,
  * from parent to child. Newly created nodes are unparented. When an 
  * unparented node is set as a child of a node (using a 
- * <code>set<it>CHILD</it></code> method), its parent link is set automatically
+ * <code>set<i>CHILD</i></code> method), its parent link is set automatically
  * and the parent link of the former child is set to <code>null</code>.
  * For nodes with properties that include a list of children (for example,
  * <code>Block</code> whose <code>statements</code> property is a list
@@ -68,8 +68,8 @@ import java.util.Map;
  * </p>
  * <p>
  * Abstract syntax trees may be hand constructed by clients, using the
- * <code>new<it>TYPE</it></code> factory methods (see <code>AST</code>) to
- * create new nodes, and the various <code>set<it>CHILD</it></code> methods
+ * <code>new<i>TYPE</i></code> factory methods (see <code>AST</code>) to
+ * create new nodes, and the various <code>set<i>CHILD</i></code> methods
  * to connect them together.
  * </p>
  * <p>

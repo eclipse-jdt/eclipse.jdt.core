@@ -32,10 +32,10 @@ import org.eclipse.jdt.internal.core.util.Util;
  * <p>
  * Generic types introduce to the Java language in J2SE 1.5 add three new
  * facets to signatures: type variables, parameterized types with type arguments,
- * and formal type parameters. <it>Rich</it> signatures containing these facets
+ * and formal type parameters. <i>Rich</i> signatures containing these facets
  * only occur when dealing with code that makes overt use of the new language
  * features. All other code, and certainly all Java code written or compiled
- * with J2SE 1.4 or earlier, involved only <it>simple</it> signatures.
+ * with J2SE 1.4 or earlier, involved only <i>simple</i> signatures.
  * </p>
  * <p>
  * Note that the "Q" and "!" formats are specific to Eclipse; the remainder
@@ -311,7 +311,7 @@ public final class Signature {
 
 	/**
 	 * Character constant indicating a capture of a wildcard type in a 
-	 * signature.Value is <code>'!'</code>.
+	 * signature. Value is <code>'!'</code>.
 	 * @since 3.1
 	 */
 	public static final char C_CAPTURE	= '!';
@@ -1608,9 +1608,9 @@ public static char[] getQualifier(char[] name) {
  * For example:
  * <pre>
  * <code>
- * getQualifier("java.lang.Object") -> "java.lang"
- * getQualifier("Outer.Inner") -> "Outer"
- * getQualifier("java.util.List<java.lang.String>") -> "java.util"
+ * getQualifier("java.lang.Object") -&gt; "java.lang"
+ * getQualifier("Outer.Inner") -&gt; "Outer"
+ * getQualifier("java.util.List&lt;java.lang.String&gt;") -&gt; "java.util"
  * </code>
  * </pre>
  * </p>
@@ -1851,10 +1851,10 @@ public static char[] getSimpleName(char[] name) {
  * For example:
  * <pre>
  * <code>
- * getSimpleName("java.lang.Object") -> "Object"
+ * getSimpleName("java.lang.Object") -&gt; "Object"
  * </code>
  * <code>
- * getSimpleName("java.util.Map<java.lang.String, java.lang.Object>") -> "Map<String,Object>"
+ * getSimpleName("java.util.Map&lt;java.lang.String, java.lang.Object&gt;") -&gt; "Map&lt;String,Object&gt;"
  * </code>
  * </pre>
  * </p>
@@ -2045,10 +2045,11 @@ public static char[][] getSimpleNames(char[] name) {
  * For example:
  * <pre>
  * <code>
- * getSimpleNames("java.lang.Object") -> {"java", "lang", "Object"}
- * getSimpleNames("Object") -> {"Object"}
- * getSimpleNames("") -> {}
- * getSimpleNames("java.util.List<java.lang.String>") -> {"java", "lang", "List<java.lang.String"}
+ * getSimpleNames("java.lang.Object") -&gt; {"java", "lang", "Object"}
+ * getSimpleNames("Object") -&gt; {"Object"}
+ * getSimpleNames("") -&gt; {}
+ * getSimpleNames("java.util.List&lt;java.lang.String&gt;") -&gt; 
+ *   {"java", "util", "List&lt;java.lang.String&gt;"}
  * </code>
  * </pre>
  *
@@ -2069,8 +2070,8 @@ public static String[] getSimpleNames(String name) {
  * For example (using equivalent string-based method):
  * <pre>
  * <code>
- * removeCapture("LTest<!+Ljava.lang.Throwable;>;")
- * will return: "LTest<+Ljava.lang.Throwable;>;"
+ * removeCapture("LTest&lt;!+Ljava.lang.Throwable;&gt;;")
+ * will return: "LTest&lt;+Ljava.lang.Throwable;&gt;;"
  * </code>
  * </pre>
  * </p>
@@ -2095,8 +2096,8 @@ public static char[] removeCapture(char[] methodOrTypeSignature) {
  * For example:
  * <pre>
  * <code>
- * removeCapture("LTest<!+Ljava.lang.Throwable;>;")
- * will return: "LTest<+Ljava.lang.Throwable;>;"
+ * removeCapture("LTest&lt;!+Ljava.lang.Throwable;&gt;;")
+ * will return: "LTest&lt;+Ljava.lang.Throwable;&gt;;"
  * </code>
  * </pre>
  * </p>

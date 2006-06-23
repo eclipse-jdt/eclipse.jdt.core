@@ -36,8 +36,8 @@ import org.eclipse.text.edits.TextEdit;
  * instance.
  * <p>
  * Abstract syntax trees may be hand constructed by clients, using the
- * <code>new<it>TYPE</it></code> factory methods to create new nodes, and the
- * various <code>set<it>CHILD</it></code> methods 
+ * <code>new<i>TYPE</i></code> factory methods to create new nodes, and the
+ * various <code>set<i>CHILD</i></code> methods 
  * (see {@link org.eclipse.jdt.core.dom.ASTNode ASTNode} and its subclasses)
  * to connect them together.
  * </p>

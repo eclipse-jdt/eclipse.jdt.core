@@ -60,6 +60,7 @@ public final class ImportRewrite {
 	 * unnecessary to add import statements for. 
 	 * 
 	 * </p>
+	 * <p>
 	 * This class can be implemented by clients.
 	 * </p>
 	 */

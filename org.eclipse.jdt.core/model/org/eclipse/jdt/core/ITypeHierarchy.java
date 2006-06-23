@@ -291,7 +291,7 @@ void removeTypeHierarchyChangedListener(ITypeHierarchyChangedListener listener);
  * <li>IType#newSupertypeHierarchy(IProgressMonitor)</li>
  * <li>IType#newTypeHierarchy(IJavaProject, IProgressMonitor)</li>
  * <li>IType#newTypeHierarchy(IProgressMonitor)</li>
- * </u>
+ * </ul>
  * 
  * @param outputStream output stream where the hierarchy will be stored
  * @param monitor the given progress monitor

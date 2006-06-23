@@ -14,10 +14,10 @@ package org.eclipse.jdt.core.dom;
 /**
  * A visitor for abstract syntax trees.
  * <p>
- * For each different concrete AST node type <it>T</it> there are
+ * For each different concrete AST node type <i>T</i> there are
  * a pair of methods:
  * <ul>
- * <li><code>public boolean visit(<it>T</it> node)</code> - Visits
+ * <li><code>public boolean visit(<i>T</i> node)</code> - Visits
  * the given node to perform some arbitrary operation. If <code>true</code>
  * is returned, the given node's child nodes will be visited next; however,
  * if <code>false</code> is returned, the given node's child nodes will 
@@ -25,7 +25,7 @@ package org.eclipse.jdt.core.dom;
  * nothing and returns <code>true</code> (with the exception of 
  * {@link #visit(Javadoc) ASTVisitor.visit(Javadoc)}).
  * Subclasses may reimplement this method as needed.</li>
- * <li><code>public void endVisit(<it>T</it> node)</code> - Visits
+ * <li><code>public void endVisit(<i>T</i> node)</code> - Visits
  * the given node to perform some arbitrary operation. When used in the
  * conventional way, this method is called after all of the given node's
  * children have been visited (or immediately, if <code>visit</code> returned
@@ -73,7 +73,7 @@ package org.eclipse.jdt.core.dom;
  * been visited from the ones that are still to be visited (the cursor
  * is between the elements, rather than on an element). The cursor moves from
  * the head to the tail of this list, advancing to the next position just
- * <it>before</it> <code>visit</code> if called for that child. After the child
+ * <i>before</i> <code>visit</code> if called for that child. After the child
  * subtree has been completely visited, the visit moves on the child 
  * immediately after the cursor. Removing a child while it is being visited
  * does not alter the course of the visit. But any children added at positions

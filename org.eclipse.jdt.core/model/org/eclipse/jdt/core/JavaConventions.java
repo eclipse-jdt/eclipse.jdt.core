@@ -110,6 +110,7 @@ public final class JavaConventions {
 
 	/**
 	 * Validate the given compilation unit name.
+	 * <p>
 	 * A compilation unit name must obey the following rules:
 	 * <ul>
 	 * <li> it must not be null
@@ -157,6 +158,7 @@ public final class JavaConventions {
 
 	/**
 	 * Validate the given .class file name.
+	 * <p>
 	 * A .class file name must obey the following rules:
 	 * <ul>
 	 * <li> it must not be null

@@ -213,7 +213,7 @@ boolean isConstructor() throws JavaModelException;
  * <li>its name is equal to <code>"main"</code></li>
  * <li>its return type is <code>void</code></li>
  * <li>it is <code>static</code> and <code>public</code></li>
- * <li>it defines one parameter whose type's simple name is </code>String[]</code></li>
+ * <li>it defines one parameter whose type's simple name is <code>String[]</code></li>
  * </ul>
  * 
  * @exception JavaModelException if this element does not exist or if an
