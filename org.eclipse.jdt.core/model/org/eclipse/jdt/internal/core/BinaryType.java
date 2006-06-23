@@ -162,12 +162,6 @@ public IMethod[] findMethods(IMethod method) {
  * @see IParent#getChildren()
  */
 public IJavaElement[] getChildren() throws JavaModelException {
-	// ensure present
-	// fix for 1FWWVYT
-	if (!exists()) {
-		throw newNotPresentException();
-	}
-	// get children
 	ClassFileInfo cfi = getClassFileInfo();
 	return cfi.binaryChildren;
 }
