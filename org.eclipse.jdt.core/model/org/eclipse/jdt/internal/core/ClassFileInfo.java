@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IField;
@@ -38,26 +37,13 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 	 * The children of the <code>BinaryType</code> corresponding to our
 	 * <code>ClassFile</code>. These are kept here because we don't have
 	 * access to the <code>BinaryType</code> info (<code>ClassFileReader</code>).
-	 * <p>
-	 * The children are lazily initialized, on the first call to
-	 * <code>getBinaryChildren()</code>, which in turn is called by
-	 * <code>BinaryType.getChildren()</code>. 
 	 */
 	protected JavaElement[] binaryChildren = null;
 	/*
 	 * The type parameters in this class file.
 	 */
 	protected ITypeParameter[] typeParameters;
-	/**
-	 * Back-pointer to the IClassFile to allow lazy initialization.
-	 */
-	protected ClassFile classFile = null;
-/**
- * Creates a new <code>ClassFileInfo</code> for <code>classFile</code>.
- */
-ClassFileInfo(ClassFile classFile) {
-	this.classFile = classFile;
-}
+	
 /**
  * Creates the handles and infos for the fields of the given binary type.
  * Adds new handles to the given vector.
@@ -87,10 +73,11 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
 	// Can also return an entry for the enclosing type of an inner type.
 	IBinaryNestedType[] innerTypes = typeInfo.getMemberTypes();
 	if (innerTypes != null) {
+		IPackageFragment pkg = (IPackageFragment) type.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 		for (int i = 0, typeCount = innerTypes.length; i < typeCount; i++) {
 			IBinaryNestedType binaryType = innerTypes[i];
-			IClassFile parentClassFile= ((IPackageFragment)this.classFile.getParent()).getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
-			IType innerType = new BinaryType((JavaElement)parentClassFile, ClassFile.simpleName(binaryType.getName()));
+			IClassFile parentClassFile= pkg.getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
+			IType innerType = new BinaryType((JavaElement) parentClassFile, ClassFile.simpleName(binaryType.getName()));
 			childrenHandles.add(innerType);
 		}
 	}
@@ -177,16 +164,6 @@ private void generateTypeParameterInfos(BinaryMember parent, char[] signature, H
 	}
 }
 /**
- * Returns the list of children (<code>BinaryMember</code>s) of the
- * <code>BinaryType</code> of our <code>ClassFile</code>.
- */
-IJavaElement[] getBinaryChildren(HashMap newElements) {
-	if (this.binaryChildren == null) {
-		readBinaryChildren(newElements, null/*type info not known here*/);
-	}
-	return this.binaryChildren;
-}
-/**
  * Returns true iff the <code>readBinaryChildren</code> has already
  * been called.
  */
@@ -198,21 +175,9 @@ boolean hasReadBinaryChildren() {
  * <code>ClassFile</code> and adds them to the
  * <code>JavaModelManager</code>'s cache.
  */
-protected void readBinaryChildren(HashMap newElements, IBinaryType typeInfo) {
+protected void readBinaryChildren(ClassFile classFile, HashMap newElements, IBinaryType typeInfo) {
 	ArrayList childrenHandles = new ArrayList();
-	BinaryType type = null;
-	try {
-		type = (BinaryType) this.classFile.getType();
-		if (typeInfo == null) {
-			typeInfo = (IBinaryType) newElements.get(type);
-			if (typeInfo == null) {
-				// create a classfile reader 
-			    typeInfo = this.classFile.getBinaryTypeInfo((IFile)this.classFile.getResource());
-			}
-		}
-	} catch (JavaModelException npe) {
-		return;
-	}
+	BinaryType type = (BinaryType) classFile.getType();
 	ArrayList typeParameterHandles = new ArrayList();
 	if (typeInfo != null) { //may not be a valid class file
 		generateTypeParameterInfos(type, typeInfo.getGenericSignature(), newElements, typeParameterHandles);

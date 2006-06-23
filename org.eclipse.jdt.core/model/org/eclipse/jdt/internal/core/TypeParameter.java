@@ -40,17 +40,8 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 	 */
 	protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 		Openable openableParent = (Openable)getOpenableParent();
-		if (openableParent == null) return;
-		
-		JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
-		if (openableParentInfo == null) {
+		if (JavaModelManager.getJavaModelManager().getInfo(openableParent) == null) {
 			openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
-		}
-		
-		if (openableParent.getElementType() == IJavaElement.CLASS_FILE) {
-			ClassFileInfo classFileInfo = (ClassFileInfo) (openableParentInfo == null ? newElements.get(openableParent) : openableParentInfo);
-			if (classFileInfo == null) return;
-			classFileInfo.getBinaryChildren(newElements); // forces the initialization
 		}
 	}	
 	

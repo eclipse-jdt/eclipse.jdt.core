@@ -169,22 +169,6 @@ public IJavaElement[] getChildren() throws JavaModelException {
 	}
 	// get children
 	ClassFileInfo cfi = getClassFileInfo();
-	if (cfi.binaryChildren == null) {
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		boolean hadTemporaryCache = manager.hasTemporaryCache();
-		try {
-			Object info = manager.getInfo(this);
-			HashMap newElements = manager.getTemporaryCache();
-			cfi.readBinaryChildren(newElements, (IBinaryType)info);
-			if (!hadTemporaryCache) {
-				manager.putInfos(this, newElements);
-			}
-		} finally {
-			if (!hadTemporaryCache) {
-				manager.resetTemporaryCache();
-			}
-		}
-	}
 	return cfi.binaryChildren;
 }
 public IJavaElement[] getChildrenForCategory(String category) throws JavaModelException {

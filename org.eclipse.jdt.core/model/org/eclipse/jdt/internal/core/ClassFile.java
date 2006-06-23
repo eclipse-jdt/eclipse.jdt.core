@@ -98,7 +98,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	newElements.put(type, typeInfo);
 	
 	// Read children
-	((ClassFileInfo) info).readBinaryChildren((HashMap) newElements, typeInfo);
+	((ClassFileInfo) info).readBinaryChildren(this, (HashMap) newElements, typeInfo);
 	
 	return true;
 }
@@ -169,7 +169,7 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner)
  * Returns a new element info for this element.
  */
 protected Object createElementInfo() {
-	return new ClassFileInfo(this);
+	return new ClassFileInfo();
 }
 public boolean equals(Object o) {
 	if (!(o instanceof ClassFile)) return false;

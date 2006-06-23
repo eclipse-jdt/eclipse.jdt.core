@@ -39,16 +39,10 @@ public void copy(IJavaElement container, IJavaElement sibling, String rename, bo
  * @see JavaElement#generateInfos
  */
 protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	Openable openableParent = (Openable)getOpenableParent();
-	if (openableParent == null) return;
-	
-	ClassFileInfo openableParentInfo = (ClassFileInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
-	if (openableParentInfo == null) {
+	Openable openableParent = (Openable) getOpenableParent();
+	if (JavaModelManager.getJavaModelManager().getInfo(openableParent) == null) {
 		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
-		openableParentInfo = (ClassFileInfo)newElements.get(openableParent);
 	}
-	if (openableParentInfo == null) return;
-	openableParentInfo.getBinaryChildren(newElements); // forces the initialization
 }
 public String[] getCategories() throws JavaModelException {
 	SourceMapper mapper= getSourceMapper();
