@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -95,6 +96,10 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	IType type = new BinaryType(this, simpleName(typeInfo.getName()));
 	info.setChildren(new IJavaElement[] {type});
 	newElements.put(type, typeInfo);
+	
+	// Read children
+	((ClassFileInfo) info).readBinaryChildren((HashMap) newElements, typeInfo);
+	
 	return true;
 }
 /**

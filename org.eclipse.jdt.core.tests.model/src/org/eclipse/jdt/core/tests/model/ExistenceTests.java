@@ -64,6 +64,18 @@ protected void assertUnderlyingResourceFails(IJavaElement element) {
 	}
 	assertTrue("Should not be able to get underlying resource", gotException);
 }
+public void testBinaryMethodAfterNonExistingMember() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB"}, "");
+		IClassFile classFile = project.getPackageFragmentRoot(getExternalJCLPathString()).getPackageFragment("java.lang").getClassFile("Object.class");
+		classFile.open(null);
+		IType type = classFile.getType();
+		type.getMethod("foo", new String[0]).exists();
+		assertTrue("Object.toString() should exist", type.getMethod("toString", new String[0]).exists());
+	} finally {
+		deleteProject("P");
+	}
+}
 public void testClassFileInBinary() throws CoreException {
 	try {
 		this.createJavaProject("P", new String[] {"src"}, "bin");
