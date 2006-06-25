@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
@@ -112,8 +111,7 @@ public TypeBinding capture(Scope scope, int position) {
  *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
  *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
  */
-public void collectSubstitutes(Scope scope, TypeBinding actualType,
-		Map substitutes, int constraint) {
+public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
 	// no substitute by default
 }
 

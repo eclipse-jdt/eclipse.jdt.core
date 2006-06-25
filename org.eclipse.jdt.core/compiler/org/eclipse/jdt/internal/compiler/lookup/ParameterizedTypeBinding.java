@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -120,7 +119,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
 	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
 	 */
-	public void collectSubstitutes(Scope scope, TypeBinding actualType, Map substitutes, int constraint) {
+	public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
 		
 		if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
 		if (actualType == TypeBinding.NULL) return;
@@ -144,7 +143,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		// collect through enclosing type
 		ReferenceBinding formalEnclosingType = formalEquivalent.enclosingType();
 		if (formalEnclosingType != null) {
-			formalEnclosingType.collectSubstitutes(scope, actualEquivalent.enclosingType(), substitutes, constraint);
+			formalEnclosingType.collectSubstitutes(scope, actualEquivalent.enclosingType(), inferenceContext, constraint);
 		}
 		// collect through type arguments
 		if (this.arguments == null) return;
@@ -157,7 +156,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         		formalArguments = ((ParameterizedTypeBinding)formalEquivalent).arguments;
         		break;
         	case Binding.RAW_TYPE :
-        		substitutes.clear(); // clear all variables to indicate raw generic method in the end
+        		if (!inferenceContext.checkRawSubstitution()) {
+	           		inferenceContext.status = InferenceContext.FAILED; // marker for impossible inference
+        		}
         		return;
         	default :
         		return;
@@ -171,19 +172,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         		actualArguments = ((ParameterizedTypeBinding)actualEquivalent).arguments;
         		break;
         	case Binding.RAW_TYPE :
-        		substitutes.clear(); // clear all variables to indicate raw generic method in the end
-        		if (constraint == TypeConstants.CONSTRAINT_EQUAL) {
-        			substitutes.put(TypeBinding.VOID, Binding.NO_TYPES); // marker for impossible inference
+        		if (!inferenceContext.checkRawSubstitution()) {
+	           		inferenceContext.status = InferenceContext.FAILED; // marker for impossible inference
         		}
         		return;
         	default :
         		return;
         }
+        inferenceContext.depth++;
         for (int i = 0, length = formalArguments.length; i < length; i++) {
         	TypeBinding formalArgument = formalArguments[i];
         	TypeBinding actualArgument = actualArguments[i];
         	if (formalArgument.isWildcard()) {
-                formalArgument.collectSubstitutes(scope, actualArgument, substitutes, constraint);
+                formalArgument.collectSubstitutes(scope, actualArgument, inferenceContext, constraint);
                 continue;
         	} else if (actualArgument.isWildcard()){
     			WildcardBinding actualWildcardArgument = (WildcardBinding) actualArgument;
@@ -191,10 +192,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
     				if (constraint == TypeConstants.CONSTRAINT_SUPER) { // JLS 15.12.7, p.459
 						switch(actualWildcardArgument.boundKind) {
 		    				case Wildcard.EXTENDS :
-		    					formalArgument.collectSubstitutes(scope, actualWildcardArgument.bound, substitutes, TypeConstants.CONSTRAINT_SUPER);
+		    					formalArgument.collectSubstitutes(scope, actualWildcardArgument.bound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
 		    					continue;
 		    				case Wildcard.SUPER :
-		    					formalArgument.collectSubstitutes(scope, actualWildcardArgument.bound, substitutes, TypeConstants.CONSTRAINT_EXTENDS);
+		    					formalArgument.collectSubstitutes(scope, actualWildcardArgument.bound, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
 		    					continue;
 		    				default :
 		    					continue; // cannot infer anything further from unbound wildcard
@@ -205,8 +206,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
     			}
         	}
         	// by default, use EQUAL constraint
-            formalArgument.collectSubstitutes(scope, actualArgument, substitutes, TypeConstants.CONSTRAINT_EQUAL);
+            formalArgument.collectSubstitutes(scope, actualArgument, inferenceContext, TypeConstants.CONSTRAINT_EQUAL);
         }
+        inferenceContext.depth--;
 	}
 	
 	/**

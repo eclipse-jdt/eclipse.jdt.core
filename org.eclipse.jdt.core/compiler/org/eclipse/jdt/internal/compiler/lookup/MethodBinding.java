@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 
-public class MethodBinding extends Binding implements TypeConstants {
+public class MethodBinding extends Binding {
 	
 	public int modifiers;
 	public char[] selector;
@@ -537,7 +537,7 @@ public final boolean isOverriding() {
  * Answer true if the receiver is a "public static void main(String[])" method
  */
 public final boolean isMain() {
-	if (this.selector.length == 4 && CharOperation.equals(this.selector, MAIN)
+	if (this.selector.length == 4 && CharOperation.equals(this.selector, TypeConstants.MAIN)
 			&& ((this.modifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccStatic)) != 0)
 			&& TypeBinding.VOID == this.returnType  
 			&& this.parameters.length == 1) {

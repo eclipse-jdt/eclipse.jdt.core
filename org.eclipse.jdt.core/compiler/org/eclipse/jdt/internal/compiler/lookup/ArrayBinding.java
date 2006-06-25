@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -45,7 +44,7 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
  *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
  *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
 */
-public void collectSubstitutes(Scope scope, TypeBinding actualType, Map substitutes, int constraint) {
+public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
 	
 	if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
 	if (actualType == TypeBinding.NULL) return;
@@ -54,10 +53,10 @@ public void collectSubstitutes(Scope scope, TypeBinding actualType, Map substitu
 		case Binding.ARRAY_TYPE :
 	        int actualDim = actualType.dimensions();
 	        if (actualDim == this.dimensions) {
-			    this.leafComponentType.collectSubstitutes(scope, actualType.leafComponentType(), substitutes, constraint);
+			    this.leafComponentType.collectSubstitutes(scope, actualType.leafComponentType(), inferenceContext, constraint);
 	        } else if (actualDim > this.dimensions) {
 	            ArrayBinding actualReducedType = this.environment.createArrayType(actualType.leafComponentType(), actualDim - this.dimensions);
-	            this.leafComponentType.collectSubstitutes(scope, actualReducedType, substitutes, constraint);
+	            this.leafComponentType.collectSubstitutes(scope, actualReducedType, inferenceContext, constraint);
 	        }
 			break;
 		case Binding.TYPE_PARAMETER :

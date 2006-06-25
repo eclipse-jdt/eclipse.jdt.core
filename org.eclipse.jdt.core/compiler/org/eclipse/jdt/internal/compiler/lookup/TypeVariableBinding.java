@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -165,7 +164,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
 	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
 	 */
-	public void collectSubstitutes(Scope scope, TypeBinding actualType, Map substitutes, int constraint) {
+	public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
+		
+		//	only infer for type params of the generic method
+		if (this.declaringElement != inferenceContext.genericMethod) return;
 		
 		// cannot infer anything from a null type
 		switch (actualType.kind()) {
@@ -195,31 +197,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				variableConstraint =TypeConstants.CONSTRAINT_EXTENDS;
 				break;
 		}
-	    TypeBinding[][] variableSubstitutes = (TypeBinding[][])substitutes.get(this);
-	    if (variableSubstitutes != null) {
-		    insertLoop: {
-		    	TypeBinding[] constraintSubstitutes = variableSubstitutes[variableConstraint];
-		    	int length;
-		    	if (constraintSubstitutes == null) {
-		    		length = 0;
-		    		constraintSubstitutes = new TypeBinding[1];
-		    	} else {
-		    		length = constraintSubstitutes.length;
-			        for (int i = 0; i < length; i++) {
-			        	TypeBinding substitute = constraintSubstitutes[i];
-			            if (substitute == actualType) return; // already there
-			            if (substitute == null) {
-			                constraintSubstitutes[i] = actualType;
-			                break insertLoop;
-			            }
-			        }
-			        // no free spot found, need to grow by one
-			        System.arraycopy(constraintSubstitutes, 0, constraintSubstitutes = new TypeBinding[length+1], 0, length);
-		    	}
-		        constraintSubstitutes[length] = actualType;
-		        variableSubstitutes[variableConstraint] = constraintSubstitutes;
-		    }
-	    }
+		inferenceContext.recordSubstitute(this, actualType, variableConstraint);
 	}
 	
 	public char[] constantPoolName() { /* java/lang/Object */ 

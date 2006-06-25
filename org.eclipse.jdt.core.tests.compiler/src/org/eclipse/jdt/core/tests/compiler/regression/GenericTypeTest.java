@@ -11903,7 +11903,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78467 
-	public void _test0412() {
+	public void testONLY_0412() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11924,7 +11924,47 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   Zork z;\n" +
 				"}",
 			},
-			"should warn about unchecked array conversion for T[]");	
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78467 - variation
+	public void testONLY_0412a() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"public class X {\n" + 
+				"\n" + 
+				"    public static <T> T first(T... args) {\n" + 
+				"        return args[0];\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    	if (false) { \n" + 
+				"    		List<String> ls = first(); \n" + 
+				"    		int i; \n" + 
+				"    		i++; \n" + 
+				"    	}\n" + 
+				"        System.out.println(first(\"SUCCESS\", \"List\"));\n" + 
+				"    }\n" + 
+				"   Zork z;\n" +
+				"}",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	List<String> ls = first(); \n" + 
+			"	                  ^^^^^^^\n" + 
+			"Type safety : A generic array of List<String> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 16)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");	
 	}
 	
 	public void test0413() {
@@ -31782,18 +31822,485 @@ public void test1007() {
 			"public class GenericsProblem {\n" + 
 			"	public <T> void test(T val) {\n" + 
 			"		GenericsProblem gp = new GenericsProblem();\n" + 
-			"		// this is fine with both\n" + 
 			"		Class<? extends GenericsProblem> cl2 = gp.getClass();\n" + 
-			"		// This fails on Sun\'s compiler\n" + 
 			"		Class<? extends T> cl = val.getClass();\n" + 
 			"	}\n" + 
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in GenericsProblem.java (at line 7)\n" + 
+		"1. ERROR in GenericsProblem.java (at line 5)\n" + 
 		"	Class<? extends T> cl = val.getClass();\n" + 
 		"	                        ^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Class<capture-of ? extends Object> to Class<? extends T>\n" + 
 		"----------\n");
-}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061
+public void test1008() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(L l, C<? extends X> c) {\n" + 
+			"		X x = bar(l, c);\n" + 
+			"	}\n" + 
+			"	<T> T bar(L<T> l, C<? extends T> c) { \n" + 
+			"		return null;\n" + 
+			"	}	\n" + 
+			"}\n" + 
+			"class C<E> {}\n" + 
+			"class L<E> {}\n" + 
+			"\n" + 
+			"\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\r\n" + 
+		"	void foo(L l, C<? extends X> c) {\r\n" + 
+		"	         ^\n" + 
+		"L is a raw type. References to generic type L<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\r\n" + 
+		"	X x = bar(l, c);\r\n" + 
+		"	      ^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar(L, C) of the generic method bar(L<T>, C<? extends T>) of type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\r\n" + 
+		"	X x = bar(l, c);\r\n" + 
+		"	      ^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to X\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 3)\r\n" + 
+		"	X x = bar(l, c);\r\n" + 
+		"	          ^\n" + 
+		"Type safety: The expression of type L needs unchecked conversion to conform to L<T>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
+public void test1009() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	void foo(Map<String,Map> map) {\n" + 
+			"		bar(map);\n" + 
+			"	}\n" + 
+			"	<U,V> void bar(Map<U,Map<U,V>> map) {\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	void foo(Map<String,Map> map) {\n" + 
+		"	                    ^^^\n" + 
+		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	bar(map);\n" + 
+		"	^^^\n" + 
+		"The method bar(Map<U,Map<U,V>>) in the type X is not applicable for the arguments (Map<String,Map>)\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
+public void test1010() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	void foo(Map<String,Map> map) {\n" + 
+			"		bar(map);\n" + 
+			"	}\n" + 
+			"	<U,V> void bar(Map<U,? extends Map<U,V>> map) {\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	void foo(Map<String,Map> map) {\n" + 
+		"	                    ^^^\n" + 
+		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	bar(map);\n" + 
+		"	^^^\n" + 
+		"The method bar(Map<U,? extends Map<U,V>>) in the type X is not applicable for the arguments (Map<String,Map>)\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
+public void test1011() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void foo(HashMap map, String s, Map<String,String> map2) {\n" + 
+			"		bar(map, s, map2); //1\n" + 
+			"		bar(map2, s, map2); //2\n" + 
+			"		bar2(map, s, map2); //3\n" + 
+			"		bar3(map, s, map2); //4\n" + 
+			"	}\n" + 
+			"	<U> void bar(Map<U,U> map, U u, Map<U,U> map2) {}\n" + 
+			"	void bar2(Map<String,String> map, String s, Map<String,String> map2) {}\n" + 
+			"	<U> void bar3(Map<String,String> map, U s, Map<U,U> map2) {}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	void foo(HashMap map, String s, Map<String,String> map2) {\n" + 
+		"	         ^^^^^^^\n" + 
+		"HashMap is a raw type. References to generic type HashMap<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	bar(map, s, map2); //1\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar(Map, Object, Map) of the generic method bar(Map<U,U>, U, Map<U,U>) of type X\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	bar(map, s, map2); //1\n" + 
+		"	    ^^^\n" + 
+		"Type safety: The expression of type HashMap needs unchecked conversion to conform to Map<U,U>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 6)\n" + 
+		"	bar2(map, s, map2); //3\n" + 
+		"	     ^^^\n" + 
+		"Type safety: The expression of type HashMap needs unchecked conversion to conform to Map<String,String>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 7)\n" + 
+		"	bar3(map, s, map2); //4\n" + 
+		"	     ^^^\n" + 
+		"Type safety: The expression of type HashMap needs unchecked conversion to conform to Map<String,String>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
+public void test1012() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(L l, C<X> c) {\n" + 
+			"		X x = bar1(l, c);\n" + 
+			"		L<X> lx = bar2(l, c);\n" + 
+			"		C<X> cx = bar3(l, c);\n" + 
+			"	}\n" + 
+			"	<T> T bar1(L<T> l, C<T> c) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	<T> L<T> bar2(L<T> l, C<T> c) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	<T> C<T> bar3(L<T> l, C<T> c) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class C<E> {}\n" + 
+			"class L<E> {}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\r\n" + 
+		"	void foo(L l, C<X> c) {\r\n" + 
+		"	         ^\n" + 
+		"L is a raw type. References to generic type L<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\r\n" + 
+		"	X x = bar1(l, c);\r\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar1(L, C) of the generic method bar1(L<T>, C<T>) of type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\r\n" + 
+		"	X x = bar1(l, c);\r\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to X\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 3)\r\n" + 
+		"	X x = bar1(l, c);\r\n" + 
+		"	           ^\n" + 
+		"Type safety: The expression of type L needs unchecked conversion to conform to L<T>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 4)\r\n" + 
+		"	L<X> lx = bar2(l, c);\r\n" + 
+		"	          ^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar2(L, C) of the generic method bar2(L<T>, C<T>) of type X\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 4)\r\n" + 
+		"	L<X> lx = bar2(l, c);\r\n" + 
+		"	          ^^^^^^^^^^\n" + 
+		"Type safety: The expression of type L needs unchecked conversion to conform to L<X>\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 4)\r\n" + 
+		"	L<X> lx = bar2(l, c);\r\n" + 
+		"	               ^\n" + 
+		"Type safety: The expression of type L needs unchecked conversion to conform to L<T>\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 5)\r\n" + 
+		"	C<X> cx = bar3(l, c);\r\n" + 
+		"	          ^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar3(L, C) of the generic method bar3(L<T>, C<T>) of type X\n" + 
+		"----------\n" + 
+		"9. WARNING in X.java (at line 5)\r\n" + 
+		"	C<X> cx = bar3(l, c);\r\n" + 
+		"	          ^^^^^^^^^^\n" + 
+		"Type safety: The expression of type C needs unchecked conversion to conform to C<X>\n" + 
+		"----------\n" + 
+		"10. WARNING in X.java (at line 5)\r\n" + 
+		"	C<X> cx = bar3(l, c);\r\n" + 
+		"	               ^\n" + 
+		"Type safety: The expression of type L needs unchecked conversion to conform to L<T>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
+public void test1013() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<String> ls = new ArrayList<String>();\n" + 
+			"		ls.add(\"foo\");\n" + 
+			"		List<X> lx = new ArrayList<X>();\n" + 
+			"		lx.add(new X());\n" + 
+			"		new X().foo(ls, lx);\n" + 
+			"	}\n" + 
+			"	void done() {\n" + 
+			"		System.out.println(\"[done]\");\n" + 
+			"	}\n" + 
+			"	void foo(List l1, List<X> l2) {\n" + 
+			"		X x = bar1(l1, l2);\n" + 
+			"		x.done();\n" + 
+			"		List<X> lx = bar2(l1, l2);\n" + 
+			"		lx.get(0).done();\n" + 
+			"	}\n" + 
+			"	<T> T bar1(List<T> l1, List<T> l2) {\n" + 
+			"		return l1.get(0);\n" + 
+			"	}\n" + 
+			"	<T> List<T> bar2(List<T> l1, List<T> l2) {\n" + 
+			"		return l1;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 14)\r\n" + 
+		"	void foo(List l1, List<X> l2) {\r\n" + 
+		"	         ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 15)\r\n" + 
+		"	X x = bar1(l1, l2);\r\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar1(List, List) of the generic method bar1(List<T>, List<T>) of type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 15)\r\n" + 
+		"	X x = bar1(l1, l2);\r\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to X\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 15)\r\n" + 
+		"	X x = bar1(l1, l2);\r\n" + 
+		"	           ^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 17)\r\n" + 
+		"	List<X> lx = bar2(l1, l2);\r\n" + 
+		"	             ^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar2(List, List) of the generic method bar2(List<T>, List<T>) of type X\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 17)\r\n" + 
+		"	List<X> lx = bar2(l1, l2);\r\n" + 
+		"	             ^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<X>\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 17)\r\n" + 
+		"	List<X> lx = bar2(l1, l2);\r\n" + 
+		"	                  ^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
+public void test1014() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo1(List l, List<String> ls) {\n" + 
+			"		Set<Map.Entry<String,String>> mss1 = bar(l, ls).entrySet();\n" + 
+			"		String s = bar(l, ls).entrySet();\n" + 
+			"	}\n" + 
+			"	<U,V> Map<U,V> bar(List<U> lu, List<V> lv) { return null; }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	void foo1(List l, List<String> ls) {\n" + 
+		"	          ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	Set<Map.Entry<String,String>> mss1 = bar(l, ls).entrySet();\n" + 
+		"	                                     ^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar(List, List) of the generic method bar(List<U>, List<V>) of type X\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	Set<Map.Entry<String,String>> mss1 = bar(l, ls).entrySet();\n" + 
+		"	                                     ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Set needs unchecked conversion to conform to Set<Map.Entry<String,String>>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 5)\n" + 
+		"	Set<Map.Entry<String,String>> mss1 = bar(l, ls).entrySet();\n" + 
+		"	                                         ^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<U>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 6)\n" + 
+		"	String s = bar(l, ls).entrySet();\n" + 
+		"	           ^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar(List, List) of the generic method bar(List<U>, List<V>) of type X\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 6)\n" + 
+		"	String s = bar(l, ls).entrySet();\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Set to String\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 6)\n" + 
+		"	String s = bar(l, ls).entrySet();\n" + 
+		"	               ^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<U>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
+public void test1015() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void foo1(List l, List<String> ls) {\n" + 
+			"		List<String> ls1 = bar(l, ls);\n" + 
+			"		String s = bar(l, ls);\n" + 
+			"	}\n" + 
+			"	<U,V> List<V> bar(List<U> lu, List<V> lv) { return null; }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	void foo1(List l, List<String> ls) {\n" + 
+		"	          ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	List<String> ls1 = bar(l, ls);\n" + 
+		"	                   ^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar(List, List) of the generic method bar(List<U>, List<V>) of type X\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	List<String> ls1 = bar(l, ls);\n" + 
+		"	                   ^^^^^^^^^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 4)\n" + 
+		"	List<String> ls1 = bar(l, ls);\n" + 
+		"	                       ^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<U>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 5)\n" + 
+		"	String s = bar(l, ls);\n" + 
+		"	           ^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation bar(List, List) of the generic method bar(List<U>, List<V>) of type X\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 5)\n" + 
+		"	String s = bar(l, ls);\n" + 
+		"	           ^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List to String\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 5)\n" + 
+		"	String s = bar(l, ls);\n" + 
+		"	               ^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<U>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
+public void test1016() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void foo1() {\n" + 
+			"		List ls1 = bar(null);\n" + 
+			"		List<String> ls2 = bar(null);\n" + 
+			"		String s = bar(null);\n" + 
+			"	}\n" + 
+			"	<U> List<U> bar(List<U> lu) { return null; }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	List ls1 = bar(null);\n" + 
+		"	^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	String s = bar(null);\n" + 
+		"	           ^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Object> to String\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
+public void test1017() {
+	this.runNegativeTest(
+		new String[] {
+			"SortedList.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class SortedList<E extends Comparable> extends LinkedList<E>\n" + 
+			"{\n" + 
+			"    public boolean add(E e){\n" + 
+			"      int index = Collections.binarySearch(this,e);\n" + 
+			"      if (index<0)\n" + 
+			"      super.add(-index-1,e);\n" + 
+			"      return true;\n" + 
+			"  }\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in SortedList.java (at line 3)\n" + 
+		"	public class SortedList<E extends Comparable> extends LinkedList<E>\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"The serializable class SortedList does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. WARNING in SortedList.java (at line 3)\n" + 
+		"	public class SortedList<E extends Comparable> extends LinkedList<E>\n" + 
+		"	                                  ^^^^^^^^^^\n" + 
+		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in SortedList.java (at line 5)\n" + 
+		"	public boolean add(E e){\n" + 
+		"	               ^^^^^^^^\n" + 
+		"The method add(E) of type SortedList<E> should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"4. ERROR in SortedList.java (at line 6)\n" + 
+		"	int index = Collections.binarySearch(this,e);\n" + 
+		"	                        ^^^^^^^^^^^^\n" + 
+		"The method binarySearch(List<? extends Comparable<? super T>>, T) in the type Collections is not applicable for the arguments (SortedList<E>, E)\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061 - variation
+public void test1018() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<U,V> {\n" + 
+			"\n" + 
+			"	void foo(U u) {\n" + 
+			"		bar(u, new Exception());\n" + 
+			"	}\n" + 
+			"	<T extends Exception> T bar(U u, T t) { return null; }\n" + 
+			"}", // =================
+		},
+		"");
+}
 }
