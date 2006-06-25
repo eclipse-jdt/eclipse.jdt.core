@@ -85,12 +85,12 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				}				
 				switch (substitutedSuperclass.kind()) {
 					case Binding.ARRAY_TYPE :
-						substitutedVariable.superclass = parameterizedDeclaringClass.environment.getResolvedType(JAVA_LANG_OBJECT, null);
+						substitutedVariable.superclass = parameterizedDeclaringClass.environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
 						substitutedVariable.superInterfaces = substitutedInterfaces;
 						break;
 					default:
 						if (substitutedSuperclass.isInterface()) {
-							substitutedVariable.superclass = parameterizedDeclaringClass.environment.getResolvedType(JAVA_LANG_OBJECT, null);
+							substitutedVariable.superclass = parameterizedDeclaringClass.environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
 							int interfaceCount = substitutedInterfaces.length;
 							System.arraycopy(substitutedInterfaces, 0, substitutedInterfaces = new ReferenceBinding[interfaceCount+1], 1, interfaceCount);
 							substitutedInterfaces[0] = (ReferenceBinding) substitutedSuperclass;
@@ -174,12 +174,12 @@ public class ParameterizedMethodBinding extends MethodBinding {
 				}				
 				switch (substitutedSuperclass.kind()) {
 					case Binding.ARRAY_TYPE :
-						substitutedVariable.superclass = environment.getResolvedType(JAVA_LANG_OBJECT, null);
+						substitutedVariable.superclass = environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
 						substitutedVariable.superInterfaces = substitutedInterfaces;
 						break;
 					default:
 						if (substitutedSuperclass.isInterface()) {
-							substitutedVariable.superclass = environment.getResolvedType(JAVA_LANG_OBJECT, null);
+							substitutedVariable.superclass = environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
 							int interfaceCount = substitutedInterfaces.length;
 							System.arraycopy(substitutedInterfaces, 0, substitutedInterfaces = new ReferenceBinding[interfaceCount+1], 1, interfaceCount);
 							substitutedInterfaces[0] = (ReferenceBinding) substitutedSuperclass;
