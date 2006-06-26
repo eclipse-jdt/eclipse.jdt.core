@@ -805,7 +805,7 @@ public void testPackageFragmentRootNonJavaResources() throws JavaModelException 
 	resources = root.getNonJavaResources();
 	assertResourceNamesEqual(
 		"unexpected non java resoures (test case 4)", 
-		"",
+		"MANIFEST.MF",
 		resources);
 }
 /**
@@ -954,8 +954,6 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 		"<default> [in "+ getExternalJCLPathString() + "]\n" + 
 		"<default> [in <project root> [in JavaProjectTests]]\n" + 
 		"<default> [in lib.jar [in JavaProjectTests]]\n" + 
-		"META-INF [in "+ getExternalJCLPathString() + "]\n" + 
-		"META-INF [in lib.jar [in JavaProjectTests]]\n" + 
 		"java [in "+ getExternalJCLPathString() + "]\n" + 
 		"java.io [in "+ getExternalJCLPathString() + "]\n" + 
 		"java.lang [in "+ getExternalJCLPathString() + "]\n" + 
@@ -1015,7 +1013,6 @@ public void testRootGetPackageFragments() throws JavaModelException {
 	assertSortedElementsEqual(
 		"unexpected package fragments in library",
 		"<default> [in lib.jar [in JavaProjectTests]]\n" + 
-		"META-INF [in lib.jar [in JavaProjectTests]]\n" + 
 		"p [in lib.jar [in JavaProjectTests]]",
 		fragments);
 }

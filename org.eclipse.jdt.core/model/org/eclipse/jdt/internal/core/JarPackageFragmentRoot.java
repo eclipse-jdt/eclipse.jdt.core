@@ -84,29 +84,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	
 			for (Enumeration e= jar.entries(); e.hasMoreElements();) {
 				ZipEntry member= (ZipEntry) e.nextElement();
-				String entryName= member.getName();
-	
-				if (member.isDirectory()) {
-					
-					initPackageFragToTypes(packageFragToTypes, entryName, entryName.length()-1);
-				} else {
-					//store the class file / non-java rsc entry name to be cached in the appropriate package fragment
-					//zip entries only use '/'
-					int lastSeparator= entryName.lastIndexOf('/');
-					String fileName= entryName.substring(lastSeparator + 1);
-					String[] pkgName = initPackageFragToTypes(packageFragToTypes, entryName, lastSeparator);
-
-					// add classfile info amongst children
-					ArrayList[] children = (ArrayList[]) packageFragToTypes.get(pkgName);
-					if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
-						if (children[JAVA] == EMPTY_LIST) children[JAVA] = new ArrayList();
-						children[JAVA].add(fileName);
-					} else {
-						if (children[NON_JAVA] == EMPTY_LIST) children[NON_JAVA] = new ArrayList();
-						children[NON_JAVA].add(fileName);
-					}
-				}
+				initPackageFragToTypes(packageFragToTypes, member.getName(), member.isDirectory());
 			}
+			
 			//loop through all of referenced packages, creating package fragments if necessary
 			// and cache the entry names in the infos created for those package fragments
 			for (int i = 0, length = packageFragToTypes.keyTable.length; i < length; i++) {
@@ -233,7 +213,8 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	public int hashCode() {
 		return this.jarPath.hashCode();
 	}
-	private String[] initPackageFragToTypes(HashtableOfArrayToObject packageFragToTypes, String entryName, int lastSeparator) {
+	private void initPackageFragToTypes(HashtableOfArrayToObject packageFragToTypes, String entryName, boolean isDirectory) {
+		int lastSeparator = isDirectory ? entryName.length()-1 : entryName.lastIndexOf('/');
 		String[] pkgName = Util.splitOn('/', entryName, 0, lastSeparator);
 		String[] existing = null;
 		int length = pkgName.length;
@@ -245,12 +226,32 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		}
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		for (int i = existingLength; i < length; i++) {
-			System.arraycopy(existing, 0, existing = new String[i+1], 0, i);
-			existing[i] = manager.intern(pkgName[i]);
-			packageFragToTypes.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
+			if (Util.isValidFolderNameForPackage(pkgName[i])) {
+				System.arraycopy(existing, 0, existing = new String[i+1], 0, i);
+				existing[i] = manager.intern(pkgName[i]);
+				packageFragToTypes.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
+			} else {
+				// non-Java esource folder
+				ArrayList[] children = (ArrayList[]) packageFragToTypes.get(existing);
+				if (children[1/*NON_JAVA*/] == EMPTY_LIST) children[1/*NON_JAVA*/] = new ArrayList();
+				children[1/*NON_JAVA*/].add(entryName);
+				return;
+			}
+		}
+		if (isDirectory)
+			return;
+		
+		// add classfile info amongst children
+		String fileName = entryName.substring(lastSeparator + 1);
+		ArrayList[] children = (ArrayList[]) packageFragToTypes.get(pkgName);
+		if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
+			if (children[0/*JAVA*/] == EMPTY_LIST) children[0/*JAVA*/] = new ArrayList();
+			children[0/*JAVA*/].add(fileName);
+		} else {
+			if (children[1/*NON_JAVA*/] == EMPTY_LIST) children[1/*NON_JAVA*/] = new ArrayList();
+			children[1/*NON_JAVA*/].add(fileName);
 		}
 		
-		return existing;
 	}
 	/**
 	 * @see IPackageFragmentRoot

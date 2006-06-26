@@ -323,9 +323,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertResourceNamesEqual(String message, String expected, Object[] resources) {
 		sortResources(resources);
 		StringBuffer buffer = new StringBuffer();
-		for (int i = 0, length = resources.length; i < length; i++){
-			IResource resource = (IResource)resources[i];
-			buffer.append(resource == null ? "<null>" : resource.getName());
+		for (int i = 0, length = resources.length; i < length; i++) {
+			if (resources[i] instanceof IResource) {
+				buffer.append(((IResource)resources[i]).getName());
+			} else if (resources[i] instanceof IStorage) {
+				buffer.append(((IStorage) resources[i]).getName());
+			} else if (resources[i] == null) {
+				buffer.append("<null>");
+			}
 			if (i != length-1)buffer.append("\n");
 		}
 		if (!expected.equals(buffer.toString())) {
