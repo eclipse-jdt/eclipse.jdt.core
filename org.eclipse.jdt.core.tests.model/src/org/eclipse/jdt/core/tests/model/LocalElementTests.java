@@ -241,6 +241,46 @@ public class LocalElementTests extends ModifyingResourceTests {
 	}
 
 	/*
+	 * Anonymous type test.
+	 * (regression test for bug 147485 Anonymous type missing from java model)
+	 */
+	public void testAnonymousType7() throws CoreException {
+		try {
+			createFile(
+				"/P/X.java",
+				"public class X {\n" + 
+				"	class Y {\n" + 
+				"	}\n" + 
+				"	{\n" + 
+				"		new Y() {\n" + 
+				"			class Z {\n" + 
+				"			}\n" + 
+				"			{\n" + 
+				"				new Y() {\n" + 
+				"				};\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("/P/X.java");
+			assertElementDescendants(
+				"Unexpected compilation unit contents",
+				"X.java\n" + 
+				"  class X\n" + 
+				"    class Y\n" + 
+				"    <initializer #1>\n" + 
+				"      class <anonymous #1>\n" + 
+				"        class Z\n" + 
+				"        <initializer #1>\n" + 
+				"          class <anonymous #1>",
+				cu);
+		} finally {
+			deleteFile("/P/X.java");
+		}
+	}
+	
+	/*
 	 * IType.getSuperclassName() test
 	 */
 	public void testGetSuperclassName() throws CoreException {
