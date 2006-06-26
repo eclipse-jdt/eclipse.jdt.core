@@ -180,7 +180,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
 	 * 
 	 * This test suite differ from this computed in {@link TestCase} in the fact that this is
-	 * a {@link Suite} instead of a simple framework {@link TestSuite}.
+	 * a {@link SuiteOfTestCases.Suite} instead of a simple framework {@link TestSuite}.
 	 * 
 	 * @param evaluationTestClass
 	 * @return a test suite ({@link Test}) 
@@ -197,7 +197,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
 	 * 
 	 * This test suite differ from this computed in {@link TestCase} in the fact that this is
-	 * a {@link Suite} instead of a simple framework {@link TestSuite}.
+	 * a {@link SuiteOfTestCases.Suite} instead of a simple framework {@link TestSuite}.
 	 * 
 	 * @param evaluationTestClass
 	 * @param ordering kind of sort use for the list (see {@link #ORDERING} for possible values)
