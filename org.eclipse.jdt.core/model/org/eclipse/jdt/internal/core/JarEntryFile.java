@@ -18,7 +18,6 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
@@ -33,10 +32,10 @@ public class JarEntryFile extends PlatformObject implements IStorage {
 	private String zipName;
 	private IPath path;
 	
-	public JarEntryFile(String entryName, String zipName){
+	public JarEntryFile(String entryName, String zipName, IPath parentRelativePath) {
 		this.entryName = entryName;
 		this.zipName = zipName;
-		this.path = new Path(this.entryName);
+		this.path = parentRelativePath;
 	}
 public InputStream getContents() throws CoreException {
 

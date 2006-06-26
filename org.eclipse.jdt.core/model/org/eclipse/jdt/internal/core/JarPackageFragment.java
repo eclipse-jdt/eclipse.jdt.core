@@ -15,7 +15,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -74,7 +76,8 @@ protected boolean computeChildren(OpenableElementInfo info, ArrayList entryNames
 			String resName = resNames[i];
 			// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
 			if (!Util.isJavaLikeFileName(resName)) {
-				res[index++] = new JarEntryFile(resName, zipName);
+				IPath parentRelativePath = new Path(resName).removeFirstSegments(this.names.length);
+				res[index++] = new JarEntryFile(resName, zipName, parentRelativePath);
 			}
 		} 
 		if (index != max) {
