@@ -684,41 +684,83 @@ public void testPackageFragmentIsStructureKnown2() throws CoreException {
 		deleteProject("P");
 	}
 }
-/**
- * Test getting the non-java resources from a package fragment.
+
+/*
+ * Ensure that the non-Java resources of a source package are correct.
  */
-public void testPackageFragmentNonJavaResources() throws JavaModelException {
+public void testPackageFragmentNonJavaResources1() throws JavaModelException {
 	// regular source package with resources
 	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "", "x");
 	Object[] resources = pkg.getNonJavaResources();
-	assertEquals("incorrect number of non java resources (test case 1)", 2, resources.length);
+	assertResourcesEqual(
+		"Unexpected resources", 
+		"/JavaProjectTests/x/readme.txt\n" + 
+		"/JavaProjectTests/x/readme2.txt",
+		resources);
+}
 
-	// regular source package without resources
-	pkg = getPackageFragment("JavaProjectTests", "", "x.y");
-	resources = pkg.getNonJavaResources();
-	assertEquals("incorrect number of non java resources (test case 2)", 0, resources.length);
+/*
+ * Ensure that the non-Java resources of a source package without resources are correct.
+ */
+public void testPackageFragmentNonJavaResources2() throws JavaModelException {	
+	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "", "x.y");
+	Object[] resources = pkg.getNonJavaResources();
+	assertResourcesEqual(
+		"Unexpected resources", 
+		"",
+		resources);
+}
 
-	// source default package with potentialy resources
-	pkg = getPackageFragment("JavaProjectTests", "", "");
-	resources = pkg.getNonJavaResources();
-	assertEquals("incorrect number of non java resources (test case 3)", 0, resources.length);
+/*
+ * Ensure that the non-Java resources of the default package are correct.
+ */
+public void testPackageFragmentNonJavaResources3() throws JavaModelException {	
+	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "", "");
+	Object[] resources = pkg.getNonJavaResources();
+	assertResourcesEqual(
+		"Unexpected resources", 
+		"",
+		resources);
+}
 
-	// regular zip package with resources
-	// TO DO
+/*
+ * Ensure that the non-Java resources of a zip package without resources are correct.
+ */
+public void testPackageFragmentNonJavaResources4() throws JavaModelException {	
+	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "lib.jar", "p");
+	Object[] resources = pkg.getNonJavaResources();
+	assertResourcesEqual(
+		"Unexpected resources", 
+		"",
+		resources);
+}
 
+// TODO: zip default package with potentialy resources
+
+/*
+ * Ensure that the non-Java resources of a zip default package without resources are correct.
+ */
+public void testPackageFragmentNonJavaResources5() throws JavaModelException {	
+	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "lib.jar", "");
+	Object[] resources = pkg.getNonJavaResources();
+	assertResourcesEqual(
+		"Unexpected resources", 
+		"",
+		resources);	
+}
+
+/*
+ * Ensure that the non-Java resources of a zip package with resources are correct.
+ * (regression test for bug 142530 [hierarchical packages] '.' in folder names confuses package explorer)
+ */
+public void testPackageFragmentNonJavaResources6() throws JavaModelException {	
 	// regular zip package without resources
-	pkg = getPackageFragment("JavaProjectTests", "lib.jar", "p");
-	resources = pkg.getNonJavaResources();
-	assertEquals("incorrect number of non java resources (test case 5)", 0, resources.length);
-
-	// zip default package with potentialy resources
-	// TO DO
-	
-	// zip default package with potentialy no resources
-	pkg = getPackageFragment("JavaProjectTests", "lib.jar", "");
-	resources = pkg.getNonJavaResources();
-	assertEquals("incorrect number of non java resources (test case 7)", 0, resources.length);
-	
+	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "lib142530.jar", "p");
+	Object[] resources = pkg.getNonJavaResources();
+	assertResourcesEqual(
+		"Unexpected resources", 
+		"x.y/Test.txt",
+		resources);
 }
 
 /*
@@ -941,7 +983,13 @@ public void testProjectCorrespondingResource() throws JavaModelException {
 public void testProjectGetChildren() throws JavaModelException {
 	IJavaProject project = getJavaProject("JavaProjectTests");
 	IJavaElement[] roots= project.getChildren();
-	assertTrue("should be package 3 package fragment root children in 'JavaProjectTests', were " + roots.length , roots.length == 3);
+	assertElementsEqual(
+		"Unexpected package fragment roots",
+		"<project root> [in JavaProjectTests]\n" + 
+		getExternalJCLPathString() + "\n" + 
+		"lib.jar [in JavaProjectTests]\n" + 
+		"lib142530.jar [in JavaProjectTests]",
+		roots);
 }
 /**
  * Test that the correct package fragments exist in the project.
@@ -954,10 +1002,12 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 		"<default> [in "+ getExternalJCLPathString() + "]\n" + 
 		"<default> [in <project root> [in JavaProjectTests]]\n" + 
 		"<default> [in lib.jar [in JavaProjectTests]]\n" + 
+		"<default> [in lib142530.jar [in JavaProjectTests]]\n" + 
 		"java [in "+ getExternalJCLPathString() + "]\n" + 
 		"java.io [in "+ getExternalJCLPathString() + "]\n" + 
 		"java.lang [in "+ getExternalJCLPathString() + "]\n" + 
 		"p [in lib.jar [in JavaProjectTests]]\n" + 
+		"p [in lib142530.jar [in JavaProjectTests]]\n" + 
 		"q [in <project root> [in JavaProjectTests]]\n" + 
 		"x [in <project root> [in JavaProjectTests]]\n" + 
 		"x.y [in <project root> [in JavaProjectTests]]",
