@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
+import java.util.Random;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -3581,6 +3582,98 @@ public void test009() {
 		},
 		"true");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
+// Failed before using a non recursive implementation of deep binary
+// expressions.
+public void test010() {
+	StringBuffer sourceCode = new StringBuffer(			
+			"public class X {\n" + 
+			"  void foo(String a, String b, String c, String d, String e) {\n" +
+			"    String s = \n");
+	for (int i = 0; i < 350; i++) {
+		sourceCode.append(
+			"    	\"abcdef\" + a + b + c + d + e + " +
+			"\" ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmno" +
+			"pqrstuvwxyzabcdefghijklmnopqrstuvwxyz\" +\n");
+	}
+	sourceCode.append(			
+			"    	\"abcdef\" + a + b + c + d + e + \" ghijklmnopqrstuvwxyz" +
+			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz" +
+			"abcdefghijklmnopqrstuvwxy12\";\n" + 
+			"    }\n" + 
+			"}");
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			sourceCode.toString()
+		},
+		"");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
+// check if we hit the 64Kb limit on method code lenth in class files before 
+// filling the stack
+// need to use a computed string (else this source file will get blown away
+// as well)
+public void test011() {
+	int length = 3 * 54 * 1000; 
+		// the longer the slower, but still needs to reach the limit...
+	StringBuffer veryLongString = new StringBuffer(length + 20);
+	veryLongString.append('"');
+	Random random = new Random();
+	while (veryLongString.length() < length) {
+		veryLongString.append("\"+a+\"");
+		veryLongString.append(random.nextLong());
+	}
+	veryLongString.append('"');
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(String a, String b, String c, String d, String e) {\n" +
+			"    String s = \n" +
+			veryLongString.toString() +
+			"    	+ \"abcdef\" + a + b + c + d + e + \" ghiABCDEFGHIJKLMNOPQRSTUVWXYZjklmnopqrstuvwxyzabcdefghiABCDEFGHIJKLMNOPQRSTUVWXYZjklmnopqrstuvwxyzabcdefghiABCDEFGHIJKLMNOPQRSTUVWXYZjklmnopqrstuvwxyzabcdefghiABCDEFGHIJKLMNOPQRSTUVWXYZjklmnopqrstuvwxy12\";\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	void foo(String a, String b, String c, String d, String e) {\n" +
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The code of method foo(String, String, String, String, String) is " +
+			"exceeding the 65535 bytes limit\n" +
+		"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
+// variant: right member of the topmost expression is left-deep
+public void test012() {
+	StringBuffer sourceCode = new StringBuffer(			
+			"public class X {\n" + 
+			"  void foo(String a, String b, String c, String d, String e) {\n" +
+			"    String s = a + (\n");
+	for (int i = 0; i < 1000; i++) {
+		sourceCode.append(
+			"    	\"abcdef\" + a + b + c + d + e + " +
+			"\" ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmno" +
+			"pqrstuvwxyzabcdefghijklmnopqrstuvwxyz\" +\n");
+	}
+	sourceCode.append(			
+			"    	\"abcdef\" + a + b + c + d + e + \" ghijklmnopqrstuvwxyz" +
+			"abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz" +
+			"abcdefghijklmnopqrstuvwxy12\");\n" + 
+			"    }\n" + 
+			"}");
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			sourceCode.toString()
+		},
+		"");
+}
+
 public static Class testClass() {
 	return XLargeTest.class;
 }

@@ -1528,8 +1528,39 @@ protected void consumeBinaryExpression(int op) {
 					} else {
 						this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
 					}
+				} else if (expr1 instanceof CombinedBinaryExpression) {
+					CombinedBinaryExpression cursor;
+					// left branch is comprised of PLUS BEs
+					// cursor is shifted upwards, while needed BEs are added
+					// on demand; past the arityMax-th
+					// consecutive BE, a CBE is inserted that holds a 
+					// full-fledged references table
+					if ((cursor = (CombinedBinaryExpression)expr1).arity <
+								cursor.arityMax) {
+						cursor.left = new BinaryExpression(cursor.left,
+								cursor.right, PLUS);
+						cursor.arity++;
+					} else {
+						cursor.left = new CombinedBinaryExpression(cursor.left,
+								cursor.right, PLUS, cursor.arity);
+						cursor.arity = 0;
+						cursor.tuneArityMax();
+					}
+					cursor.right = expr2;
+					cursor.sourceEnd = expr2.sourceEnd;
+					this.expressionStack[this.expressionPtr] = cursor;
+					// BE_INSTRUMENTATION: neutralized in the released code					
+//					cursor.depthTracker = ((BinaryExpression)cursor.left).
+//						depthTracker + 1;					
+				} else if (expr1 instanceof BinaryExpression) {
+					this.expressionStack[this.expressionPtr] = 
+						new CombinedBinaryExpression(expr1, expr2, PLUS, 1);
 				} else {
-					this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
+					// single out the a + b case, which is a BE 
+					// instead of a CBE (slightly more than a half of strings
+					// concatenation are one-deep binary expressions)
+					this.expressionStack[this.expressionPtr] = 
+						new BinaryExpression(expr1, expr2, PLUS);
 				}
 			} else if (expr1 instanceof StringLiteral) {
 				if (expr2 instanceof StringLiteral) {
@@ -1537,19 +1568,38 @@ protected void consumeBinaryExpression(int op) {
 					this.expressionStack[this.expressionPtr] = 
 						((StringLiteral) expr1).extendsWith((StringLiteral) expr2); 
 				} else {
+					// single out the a + b case
 					this.expressionStack[this.expressionPtr] = 
-						new BinaryExpression(
-							expr1, 
-							expr2, 
-							op);
+						new BinaryExpression(expr1, expr2, PLUS);
 				}
-			} else {
-				this.expressionStack[this.expressionPtr] = 
-					new BinaryExpression(
-						expr1, 
-						expr2, 
-						op);
-			}
+			} else if (expr1 instanceof CombinedBinaryExpression) {
+					CombinedBinaryExpression cursor;
+					// shift cursor; create BE/CBE as needed
+					if ((cursor = (CombinedBinaryExpression)expr1).arity <
+								cursor.arityMax) {
+						cursor.left = new BinaryExpression(cursor.left,
+								cursor.right, PLUS);
+						cursor.arity++;
+					} else {
+						cursor.left = new CombinedBinaryExpression(cursor.left,
+								cursor.right, PLUS, cursor.arity);
+						cursor.arity = 0;
+						cursor.tuneArityMax();
+					}
+					cursor.right = expr2;
+					cursor.sourceEnd = expr2.sourceEnd;
+					// BE_INSTRUMENTATION: neutralized in the released code					
+//					cursor.depthTracker = ((BinaryExpression)cursor.left).
+//						depthTracker + 1;
+					this.expressionStack[this.expressionPtr] = cursor;
+				} else if (expr1 instanceof BinaryExpression) {
+					this.expressionStack[this.expressionPtr] = 
+						new CombinedBinaryExpression(expr1, expr2, PLUS, 1);
+				} else {
+					// single out the a + b case
+					this.expressionStack[this.expressionPtr] = 
+						new BinaryExpression(expr1, expr2, PLUS);
+				}
 			break;
 		case LESS :
 			this.intPtr--;
@@ -1619,6 +1669,8 @@ protected void consumeBinaryExpressionWithName(int op) {
 	*/
 	Expression expr1 = this.expressionStack[this.expressionPtr + 1];
 	Expression expr2 = this.expressionStack[this.expressionPtr];
+	// Note: we do not attempt to promote BinaryExpression-s to 
+	//       IndexedBinaryExpression-s here since expr1 always holds a name
 	switch(op) {
 		case OR_OR :
 			this.expressionStack[this.expressionPtr] = 

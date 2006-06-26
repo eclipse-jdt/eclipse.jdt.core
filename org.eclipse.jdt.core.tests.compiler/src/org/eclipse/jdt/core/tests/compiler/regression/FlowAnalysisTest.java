@@ -752,6 +752,31 @@ public void test026() {
 		"The local variable s may not have been initialized\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
+// Non-recursive approach for deep binary expressions. Check that the
+// flow analysis doesn't break.
+public void test027() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    String s;\n" + 
+			"    if (args.length == 0) {\n" + 
+			"      s = \"s\";\n" + 
+			"    } else {\n" + 
+			"      s = args[0];\n" + 
+			"    }\n" + 
+			"    System.out.println(s + \"-\" + s + \"-\" + s + \"-\" +\n" +
+			"                       s + \"-\" + s + \"-\" + s + \"-\" +\n" + 
+			"                       s + \"-\" + s + \"-\" + s + \"-\" +\n" + 
+			"                       s + \"-\" + s + \"-\" + s + \"-\" +\n" + 
+			"                       s + \"-\" + s + \"-\" + s + \"-\");\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }

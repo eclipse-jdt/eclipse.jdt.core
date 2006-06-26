@@ -18,6 +18,19 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class BinaryExpression extends OperatorExpression {
+	
+/* Tracking helpers
+ * The following are used to elaborate realistic statistics about binary 
+ * expressions. This must be neutralized in the released code.
+ * Search the keyword BE_INSTRUMENTATION to reenable.
+ * An external device must install a suitable probe so as to monitor the
+ * emission of events and publish the results.
+	public interface Probe {
+		public void ping(int depth);
+	}
+	public int depthTracker;
+	public static Probe probe;
+ */
 
 	public Expression left, right;
 	public Constant optimizedBooleanConstant;
@@ -28,9 +41,18 @@ public BinaryExpression(Expression left, Expression right, int operator) {
 	this.bits |= operator << ASTNode.OperatorSHIFT; // encode operator
 	this.sourceStart = left.sourceStart;
 	this.sourceEnd = right.sourceEnd;
+	// BE_INSTRUMENTATION: neutralized in the released code
+//	if (left instanceof BinaryExpression && 
+//			((left.bits & OperatorMASK) ^ (this.bits & OperatorMASK)) == 0) {
+//		this.depthTracker = ((BinaryExpression)left).depthTracker + 1;
+//	} else {
+//		this.depthTracker = 1;
+//	}
 }
 
-public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, 
+		FlowInfo flowInfo) {
+	// keep implementation in sync with CombinedBinaryExpression#analyseCode
 	if (this.resolvedType.id == TypeIds.T_JavaLangString) {
 		return this.right.analyseCode(
 							currentScope, flowContext, 
@@ -78,6 +100,9 @@ public Constant optimizedBooleanConstant() {
 /**
  * Code generation for a binary operation
  */
+// given the current focus of CombinedBinaryExpression on strings concatenation,
+// we do not provide a general, non-recursive implementation of generateCode,
+// but rely upon generateOptimizedStringConcatenationCreation instead
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
 	if (this.constant != Constant.NotAConstant) {
@@ -90,6 +115,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		case PLUS :
 			switch (this.bits & ASTNode.ReturnTypeIDMASK) {
 				case T_JavaLangString :
+					// BE_INSTRUMENTATION: neutralized in the released code					
+//					if (probe != null) {
+//						probe.ping(this.depthTracker);
+//					}
 					codeStream.generateStringConcatenationAppend(currentScope, this.left, this.right);
 					if (!valueRequired)
 						codeStream.pop();
@@ -1511,7 +1540,8 @@ public void generateOptimizedLogicalXor(BlockScope currentScope, CodeStream code
 }
 
 public void generateOptimizedStringConcatenation(BlockScope blockScope, CodeStream codeStream, int typeID) {
-		
+	// keep implementation in sync with CombinedBinaryExpression
+	// #generateOptimizedStringConcatenation
 	/* In the case trying to make a string concatenation, there is no need to create a new
 	 * string buffer, thus use a lower-level API for code generation involving only the
 	 * appending of arguments to the existing StringBuffer
@@ -1542,12 +1572,12 @@ public void generateOptimizedStringConcatenation(BlockScope blockScope, CodeStre
 }
 
 public void generateOptimizedStringConcatenationCreation(BlockScope blockScope, CodeStream codeStream, int typeID) {
-		
+	// keep implementation in sync with CombinedBinaryExpression
+	// #generateOptimizedStringConcatenationCreation
 	/* In the case trying to make a string concatenation, there is no need to create a new
 	 * string buffer, thus use a lower-level API for code generation involving only the 
 	 * appending of arguments to the existing StringBuffer
 	 */
-
 	if ((((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.PLUS)
 		&& ((this.bits & ASTNode.ReturnTypeIDMASK) == TypeIds.T_JavaLangString)) {
 		if (this.constant != Constant.NotAConstant) {
@@ -1577,6 +1607,123 @@ public void generateOptimizedStringConcatenationCreation(BlockScope blockScope, 
 
 public boolean isCompactableOperation() {
 	return true;
+}
+
+/**
+ * Separates into a reusable method the subpart of {@link 
+ * #resolveType(BlockScope)} that needs to be executed while climbing up the 
+ * chain of expressions of this' leftmost branch. For use by {@link 
+ * CombinedBinaryExpression#resolveType(BlockScope)}.
+ * @param scope the scope within which the resolution occurs
+ */
+void nonRecursiveResolveTypeUpwards(BlockScope scope) {
+	// keep implementation in sync with BinaryExpression#resolveType
+	boolean leftIsCast, rightIsCast;
+	TypeBinding leftType = this.left.resolvedType;
+	
+	if ((rightIsCast = this.right instanceof CastExpression) == true) {
+		this.right.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
+	}
+	TypeBinding rightType = this.right.resolveType(scope);
+
+	// use the id of the type to navigate into the table
+	if (leftType == null || rightType == null) {
+		this.constant = Constant.NotAConstant;
+		return;
+	}
+
+	int leftTypeID = leftType.id;
+	int rightTypeID = rightType.id;
+
+	// autoboxing support
+	boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
+	if (use15specifics) {
+		if (!leftType.isBaseType() && rightTypeID != TypeIds.T_JavaLangString && rightTypeID != TypeIds.T_null) {
+			leftTypeID = scope.environment().computeBoxingType(leftType).id;
+		}
+		if (!rightType.isBaseType() && leftTypeID != TypeIds.T_JavaLangString && leftTypeID != TypeIds.T_null) {
+			rightTypeID = scope.environment().computeBoxingType(rightType).id;
+		}
+	}
+	if (leftTypeID > 15
+		|| rightTypeID > 15) { // must convert String + Object || Object + String
+		if (leftTypeID == TypeIds.T_JavaLangString) {
+			rightTypeID = TypeIds.T_JavaLangObject;
+		} else if (rightTypeID == TypeIds.T_JavaLangString) {
+			leftTypeID = TypeIds.T_JavaLangObject;
+		} else {
+			this.constant = Constant.NotAConstant;
+			scope.problemReporter().invalidOperator(this, leftType, rightType);
+			return;
+		}
+	}
+	if (((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.PLUS) {
+		if (leftTypeID == TypeIds.T_JavaLangString) {
+			this.left.computeConversion(scope, leftType, leftType);
+			if (rightType.isArrayType() && ((ArrayBinding) rightType).elementsType() == TypeBinding.CHAR) {
+				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(this.right);
+			}
+		}
+		if (rightTypeID == TypeIds.T_JavaLangString) {
+			this.right.computeConversion(scope, rightType, rightType);
+			if (leftType.isArrayType() && ((ArrayBinding) leftType).elementsType() == TypeBinding.CHAR) {
+				scope.problemReporter().signalNoImplicitStringConversionForCharArrayExpression(this.left);
+			}
+		}
+	}
+
+	// the code is an int
+	// (cast)  left   Op (cast)  right --> result
+	//  0000   0000       0000   0000      0000
+	//  <<16   <<12       <<8    <<4       <<0
+
+	// Don't test for result = 0. If it is zero, some more work is done.
+	// On the one hand when it is not zero (correct code) we avoid doing the test	
+	int operator = (this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT;
+	int operatorSignature = OperatorExpression.OperatorSignatures[operator][(leftTypeID << 4) + rightTypeID];
+
+	this.left.computeConversion(scope, 	TypeBinding.wellKnownType(scope, (operatorSignature >>> 16) & 0x0000F), leftType);
+	this.right.computeConversion(scope, TypeBinding.wellKnownType(scope, (operatorSignature >>> 8) & 0x0000F), rightType);
+	this.bits |= operatorSignature & 0xF;
+	switch (operatorSignature & 0xF) { // record the current ReturnTypeID
+		// only switch on possible result type.....
+		case T_boolean :
+			this.resolvedType = TypeBinding.BOOLEAN;
+			break;
+		case T_byte :
+			this.resolvedType = TypeBinding.BYTE;
+			break;
+		case T_char :
+			this.resolvedType = TypeBinding.CHAR;
+			break;
+		case T_double :
+			this.resolvedType = TypeBinding.DOUBLE;
+			break;
+		case T_float :
+			this.resolvedType = TypeBinding.FLOAT;
+			break;
+		case T_int :
+			this.resolvedType = TypeBinding.INT;
+			break;
+		case T_long :
+			this.resolvedType = TypeBinding.LONG;
+			break;
+		case T_JavaLangString :
+			this.resolvedType = scope.getJavaLangString();
+			break;
+		default : //error........
+			this.constant = Constant.NotAConstant;
+			scope.problemReporter().invalidOperator(this, leftType, rightType);
+			return;
+	}
+
+	// check need for operand cast
+	if ((leftIsCast = (this.left instanceof CastExpression)) == true || 
+			rightIsCast) {
+		CastExpression.checkNeedForArgumentCasts(scope, operator, operatorSignature, this.left, leftTypeID, leftIsCast, this.right, rightTypeID, rightIsCast);
+	}
+	// compute the constant when valid
+	computeConstant(scope, leftTypeID, rightTypeID);
 }
 
 public void optimizedBooleanConstant(int leftId, int operator, int rightId) {
@@ -1628,11 +1775,15 @@ public void optimizedBooleanConstant(int leftId, int operator, int rightId) {
 }
 
 public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+	// keep implementation in sync with 
+	// CombinedBinaryExpression#printExpressionNoParenthesis
 	this.left.printExpression(indent, output).append(' ').append(operatorToString()).append(' ');
 	return this.right.printExpression(0, output);
 }
-	
+
 public TypeBinding resolveType(BlockScope scope) {
+	// keep implementation in sync with CombinedBinaryExpression#resolveType
+	// and nonRecursiveResolveTypeUpwards
 	boolean leftIsCast, rightIsCast;
 	if ((leftIsCast = this.left instanceof CastExpression) == true) this.left.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 	TypeBinding leftType = this.left.resolveType(scope);
