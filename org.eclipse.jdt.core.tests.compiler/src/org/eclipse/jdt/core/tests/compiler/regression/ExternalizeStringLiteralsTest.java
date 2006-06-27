@@ -517,6 +517,37 @@ public void test016() {
 		true,
 		customOptions);	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148352
+public void test017() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo(String locationInAST) {\n" +
+			"		String enclosingType= \"\"; //$NON-NLS-1$\n" +
+			"		if (locationInAST != null) {\n" +
+			"			enclosingType.toString()\n" +
+			"		}\n" +
+			"	}\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	enclosingType.toString()\n" + 
+		"	                       ^\n" + 
+		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions,
+		false,
+		false,
+		false,
+		false,
+		true);	
+}
 public static Class testClass() {
 	return ExternalizeStringLiteralsTest.class;
 }

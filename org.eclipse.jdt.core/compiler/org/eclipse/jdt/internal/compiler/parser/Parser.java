@@ -7176,7 +7176,7 @@ protected void consumeToken(int type) {
 			break;
 		case TokenNameStringLiteral :
 			StringLiteral stringLiteral;
-			if (this.recordStringLiterals && this.checkExternalizeStrings) {
+			if (this.recordStringLiterals && this.checkExternalizeStrings && !this.statementRecoveryActivated) {
 				stringLiteral = this.createStringLiteral(
 					this.scanner.getCurrentTokenSourceString(), 
 					this.scanner.startPosition, 

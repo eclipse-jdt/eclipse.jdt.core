@@ -555,7 +555,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			false /* do not generate output */,
 			false /* do not show category */, 
 			false /* do not show warning token */, 
-			false  /* do not skip javac for this peculiar test */);
+			false  /* do not skip javac for this peculiar test */,
+			false  /* do not perform statements recovery */);
 	}
 
 	/**
@@ -575,7 +576,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			false /* do not generate output */,
 			false /* do not show category */, 
 			false /* do not show warning token */, 
-			false  /* do not skip javac for this peculiar test */);
+			false  /* do not skip javac for this peculiar test */,
+			false  /* do not perform statements recovery */);
 	}
 	/**
 	 * Log contains all problems (warnings+errors)
@@ -595,7 +597,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			false /* do not generate output */,
 			false /* do not show category */, 
 			false /* do not show warning token */, 
-			false  /* do not skip javac for this peculiar test */);
+			false  /* do not skip javac for this peculiar test */,
+			false  /* do not perform statements recovery */);
 	}
 	/**
 	 * Log contains all problems (warnings+errors)
@@ -618,7 +621,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		  generateOutput,
 		  showCategory,
 		  showWarningToken,
-		  false  /* do not skip javac for this peculiar test */);
+		  false  /* do not skip javac for this peculiar test */,
+		  false  /* do not perform statements recovery */);
 	}
 	/**
 	 * Log contains all problems (warnings+errors)
@@ -632,7 +636,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		boolean generateOutput,
 		boolean showCategory,
 		boolean showWarningToken,
-		boolean skipJavac) {
+		boolean skipJavac,
+		boolean performStatementsRecovery) {
 		// Non-javac part
 		try {
 			if (shouldFlushOutputDirectory)
@@ -652,7 +657,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				options.putAll(customOptions);
 			}
 			CompilerOptions compilerOptions = new CompilerOptions(options);
-			compilerOptions.performStatementsRecovery = false;
+			compilerOptions.performStatementsRecovery = performStatementsRecovery;
 			Compiler batchCompiler = 
 				new Compiler(
 					getNameEnvironment(new String[]{}, classLib), 
