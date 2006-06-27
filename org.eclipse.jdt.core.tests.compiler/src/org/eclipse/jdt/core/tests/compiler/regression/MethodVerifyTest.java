@@ -5172,5 +5172,279 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		} catch (IOException e) {
 			assertTrue(false);
 		}		
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783	
+	public void _test091() {
+		this.runNegativeTest(
+			new String[] {
+				"DataSet.java",//===================
+				"import java.io.Serializable;\n" + 
+				"import java.util.*;\n" + 
+				"\n" + 
+				"class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+				"	\n" + 
+				"	public <S> S[] toArray(S[] s) {\n" + 
+				"		return s;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public boolean add(Object o) { return false; }\n" + 
+				"	public void add(int index, Object element) {}\n" + 
+				"	public boolean addAll(Collection c) {	return false; }\n" + 
+				"	public boolean addAll(int index, Collection c) {	return false; }\n" + 
+				"	public void clear() {}\n" + 
+				"	public boolean contains(Object o) {	return false; }\n" + 
+				"	public boolean containsAll(Collection c) { return false; }\n" + 
+				"	public Object get(int index) { return null; }\n" + 
+				"	public int indexOf(Object o) { return 0; }\n" + 
+				"	public boolean isEmpty() {	return false; }\n" + 
+				"	public Iterator iterator() {	return null; }\n" + 
+				"	public int lastIndexOf(Object o) {	return 0; }\n" + 
+				"	public ListIterator listIterator() {	return null; }\n" + 
+				"	public ListIterator listIterator(int index) {	return null; }\n" + 
+				"	public boolean remove(Object o) {	return false; }\n" + 
+				"	public Object remove(int index) {	return null; }\n" + 
+				"	public boolean removeAll(Collection c) {	return false; }\n" + 
+				"	public boolean retainAll(Collection c) {	return false; }\n" + 
+				"	public Object set(int index, Object element) {	return false; }\n" + 
+				"	public int size() {	return 0; }\n" + 
+				"	public List subList(int fromIndex, int toIndex) {	return null; }\n" + 
+				"	public Object[] toArray() {	return null; }\n" + 
+				"	public boolean hasNext() {	return false; }\n" + 
+				"	public Object next() {	return null; }\n" + 
+				"	public void remove() {}\n" + 
+				"}\n", // =================
+			},
+			"should have a nameclash issue ?"
+		);
+	}	
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783 - variation
+	public void test092() {
+		this.runNegativeTest(
+			new String[] {
+				"DataSet.java",//===================
+				"import java.io.Serializable;\n" + 
+				"import java.util.*;\n" + 
+				"\n" + 
+				"class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+				"	\n" + 
+				"	public <S extends T> S[] toArray(S[] s) {\n" + 
+				"		return s;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public boolean add(Object o) { return false; }\n" + 
+				"	public void add(int index, Object element) {}\n" + 
+				"	public boolean addAll(Collection c) {	return false; }\n" + 
+				"	public boolean addAll(int index, Collection c) {	return false; }\n" + 
+				"	public void clear() {}\n" + 
+				"	public boolean contains(Object o) {	return false; }\n" + 
+				"	public boolean containsAll(Collection c) { return false; }\n" + 
+				"	public Object get(int index) { return null; }\n" + 
+				"	public int indexOf(Object o) { return 0; }\n" + 
+				"	public boolean isEmpty() {	return false; }\n" + 
+				"	public Iterator iterator() {	return null; }\n" + 
+				"	public int lastIndexOf(Object o) {	return 0; }\n" + 
+				"	public ListIterator listIterator() {	return null; }\n" + 
+				"	public ListIterator listIterator(int index) {	return null; }\n" + 
+				"	public boolean remove(Object o) {	return false; }\n" + 
+				"	public Object remove(int index) {	return null; }\n" + 
+				"	public boolean removeAll(Collection c) {	return false; }\n" + 
+				"	public boolean retainAll(Collection c) {	return false; }\n" + 
+				"	public Object set(int index, Object element) {	return false; }\n" + 
+				"	public int size() {	return 0; }\n" + 
+				"	public List subList(int fromIndex, int toIndex) {	return null; }\n" + 
+				"	public Object[] toArray() {	return null; }\n" + 
+				"	public boolean hasNext() {	return false; }\n" + 
+				"	public Object next() {	return null; }\n" + 
+				"	public void remove() {}\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	      ^^^^^^^\n" + 
+			"The type DataSet<T> must implement the inherited abstract method List.toArray(Object[])\n" + 
+			"----------\n" + 
+			"2. WARNING in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	      ^^^^^^^\n" + 
+			"The serializable class DataSet does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"3. WARNING in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	                                           ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	                                                 ^^^^^^^^\n" + 
+			"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in DataSet.java (at line 12)\n" + 
+			"	public boolean addAll(Collection c) {	return false; }\n" + 
+			"	                      ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in DataSet.java (at line 13)\n" + 
+			"	public boolean addAll(int index, Collection c) {	return false; }\n" + 
+			"	                                 ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in DataSet.java (at line 16)\n" + 
+			"	public boolean containsAll(Collection c) { return false; }\n" + 
+			"	                           ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"8. WARNING in DataSet.java (at line 20)\n" + 
+			"	public Iterator iterator() {	return null; }\n" + 
+			"	       ^^^^^^^^\n" + 
+			"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in DataSet.java (at line 22)\n" + 
+			"	public ListIterator listIterator() {	return null; }\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"ListIterator is a raw type. References to generic type ListIterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"10. WARNING in DataSet.java (at line 23)\n" + 
+			"	public ListIterator listIterator(int index) {	return null; }\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"ListIterator is a raw type. References to generic type ListIterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"11. WARNING in DataSet.java (at line 26)\n" + 
+			"	public boolean removeAll(Collection c) {	return false; }\n" + 
+			"	                         ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"12. WARNING in DataSet.java (at line 27)\n" + 
+			"	public boolean retainAll(Collection c) {	return false; }\n" + 
+			"	                         ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"13. WARNING in DataSet.java (at line 30)\n" + 
+			"	public List subList(int fromIndex, int toIndex) {	return null; }\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783 - variation
+	public void test093() {
+		this.runNegativeTest(
+			new String[] {
+				"DataSet.java",//===================
+				"import java.io.Serializable;\n" + 
+				"import java.util.*;\n" + 
+				"\n" + 
+				"class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+				"	\n" + 
+				"	public <S> S[] toArray(S[] s) {\n" + 
+				"		return s;\n" + 
+				"	}\n" + 
+				"	public Object[] toArray(Object[] o) {\n" + 
+				"		return o;\n" + 
+				"	}\n" + 
+				"	public boolean add(Object o) { return false; }\n" + 
+				"	public void add(int index, Object element) {}\n" + 
+				"	public boolean addAll(Collection c) {	return false; }\n" + 
+				"	public boolean addAll(int index, Collection c) {	return false; }\n" + 
+				"	public void clear() {}\n" + 
+				"	public boolean contains(Object o) {	return false; }\n" + 
+				"	public boolean containsAll(Collection c) { return false; }\n" + 
+				"	public Object get(int index) { return null; }\n" + 
+				"	public int indexOf(Object o) { return 0; }\n" + 
+				"	public boolean isEmpty() {	return false; }\n" + 
+				"	public Iterator iterator() {	return null; }\n" + 
+				"	public int lastIndexOf(Object o) {	return 0; }\n" + 
+				"	public ListIterator listIterator() {	return null; }\n" + 
+				"	public ListIterator listIterator(int index) {	return null; }\n" + 
+				"	public boolean remove(Object o) {	return false; }\n" + 
+				"	public Object remove(int index) {	return null; }\n" + 
+				"	public boolean removeAll(Collection c) {	return false; }\n" + 
+				"	public boolean retainAll(Collection c) {	return false; }\n" + 
+				"	public Object set(int index, Object element) {	return false; }\n" + 
+				"	public int size() {	return 0; }\n" + 
+				"	public List subList(int fromIndex, int toIndex) {	return null; }\n" + 
+				"	public Object[] toArray() {	return null; }\n" + 
+				"	public boolean hasNext() {	return false; }\n" + 
+				"	public Object next() {	return null; }\n" + 
+				"	public void remove() {}\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	      ^^^^^^^\n" + 
+			"The type DataSet<T> must implement the inherited abstract method List.toArray(Object[])\n" + 
+			"----------\n" + 
+			"2. WARNING in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	      ^^^^^^^\n" + 
+			"The serializable class DataSet does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"3. WARNING in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	                                           ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	                                                 ^^^^^^^^\n" + 
+			"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. ERROR in DataSet.java (at line 6)\n" + 
+			"	public <S> S[] toArray(S[] s) {\n" + 
+			"	               ^^^^^^^^^^^^^^\n" + 
+			"Method toArray(S[]) has the same erasure toArray(Object[]) as another method in type DataSet<T>\n" + 
+			"----------\n" + 
+			"6. ERROR in DataSet.java (at line 9)\n" + 
+			"	public Object[] toArray(Object[] o) {\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate method toArray(Object[]) in type DataSet<T>\n" + 
+			"----------\n" + 
+			"7. WARNING in DataSet.java (at line 14)\n" + 
+			"	public boolean addAll(Collection c) {	return false; }\n" + 
+			"	                      ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"8. WARNING in DataSet.java (at line 15)\n" + 
+			"	public boolean addAll(int index, Collection c) {	return false; }\n" + 
+			"	                                 ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in DataSet.java (at line 18)\n" + 
+			"	public boolean containsAll(Collection c) { return false; }\n" + 
+			"	                           ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"10. WARNING in DataSet.java (at line 22)\n" + 
+			"	public Iterator iterator() {	return null; }\n" + 
+			"	       ^^^^^^^^\n" + 
+			"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"11. WARNING in DataSet.java (at line 24)\n" + 
+			"	public ListIterator listIterator() {	return null; }\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"ListIterator is a raw type. References to generic type ListIterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"12. WARNING in DataSet.java (at line 25)\n" + 
+			"	public ListIterator listIterator(int index) {	return null; }\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"ListIterator is a raw type. References to generic type ListIterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"13. WARNING in DataSet.java (at line 28)\n" + 
+			"	public boolean removeAll(Collection c) {	return false; }\n" + 
+			"	                         ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"14. WARNING in DataSet.java (at line 29)\n" + 
+			"	public boolean retainAll(Collection c) {	return false; }\n" + 
+			"	                         ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"15. WARNING in DataSet.java (at line 32)\n" + 
+			"	public List subList(int fromIndex, int toIndex) {	return null; }\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n"
+		);
 	}	
 }
