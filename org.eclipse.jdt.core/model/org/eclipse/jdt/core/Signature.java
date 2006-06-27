@@ -1929,6 +1929,10 @@ private static void appendSimpleName(char[] name, int start, int end, StringBuff
 			case '.':
 				if (depth == 0) {
 					lastDot = i;
+					char c = name[start];
+					if (c == C_EXTENDS || c == C_SUPER) {
+						buffer.append(c);
+					}
 					break lastDotLookup;
 				}
 				break;
