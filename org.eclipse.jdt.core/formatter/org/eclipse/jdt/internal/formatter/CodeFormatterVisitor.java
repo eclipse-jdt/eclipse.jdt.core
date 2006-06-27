@@ -2407,23 +2407,21 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.space();
 			arrayAllocationExpression.type.traverse(this, scope);
 			
-			if (isNextToken(TerminalTokens.TokenNameLBRACKET)) {
-				final Expression[] dimensions = arrayAllocationExpression.dimensions;
-				int dimensionsLength = dimensions.length;
-				for (int i = 0; i < dimensionsLength; i++) {
-					if (this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression) {
+			final Expression[] dimensions = arrayAllocationExpression.dimensions;
+			int dimensionsLength = dimensions.length;
+			for (int i = 0; i < dimensionsLength; i++) {
+				if (this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression) {
+					this.scribe.space();
+				}
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, false);
+				if (dimensions[i] != null) {
+					if (this.preferences.insert_space_after_opening_bracket_in_array_allocation_expression) {
 						this.scribe.space();
 					}
-					this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, false);
-					if (dimensions[i] != null) {
-						if (this.preferences.insert_space_after_opening_bracket_in_array_allocation_expression) {
-							this.scribe.space();
-						}
-						dimensions[i].traverse(this, scope);
-						this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_before_closing_bracket_in_array_allocation_expression);
-					} else {
-						this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression);
-					}
+					dimensions[i].traverse(this, scope);
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_before_closing_bracket_in_array_allocation_expression);
+				} else {
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression);
 				}
 			}
 			final ArrayInitializer initializer = arrayAllocationExpression.initializer;
@@ -4289,7 +4287,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 		}
 		int dimensions = getDimensions();
-		if (dimensions != 0) {
+		if (dimensions != 0 && dimensions <= parameterizedQualifiedTypeReference.dimensions()) {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
 				this.scribe.space();
 			}
@@ -4341,7 +4339,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 		}
 		int dimensions = getDimensions();
-		if (dimensions != 0) {
+		if (dimensions != 0 && dimensions <= parameterizedQualifiedTypeReference.dimensions()) {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
 				this.scribe.space();
 			}
@@ -4385,7 +4383,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
 		}
 		int dimensions = getDimensions();
-		if (dimensions != 0) {
+		if (dimensions != 0 && dimensions <= parameterizedSingleTypeReference.dimensions()) {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
 				this.scribe.space();
 			}
@@ -4429,7 +4427,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
 		}
 		int dimensions = getDimensions();
-		if (dimensions != 0) {
+		if (dimensions != 0 && dimensions <= parameterizedSingleTypeReference.dimensions()) {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
 				this.scribe.space();
 			}
