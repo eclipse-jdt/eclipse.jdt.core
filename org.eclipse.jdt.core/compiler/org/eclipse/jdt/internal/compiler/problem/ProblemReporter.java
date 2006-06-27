@@ -215,7 +215,7 @@ public class ProblemReporter extends ProblemHandler {
 			case IProblem.JavadocDuplicateParamName:
 			case IProblem.JavadocMissingParamName:
 			case IProblem.JavadocMissingIdentifier:
-			case IProblem.JavadocInvalidConstructorQualification:
+			case IProblem.JavadocInvalidMemberTypeQualification:
 			case IProblem.JavadocInvalidThrowsClassName:
 			case IProblem.JavadocDuplicateThrowsClassName:
 			case IProblem.JavadocMissingThrowsClassName:
@@ -990,7 +990,7 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocDuplicateParamName:
 		case IProblem.JavadocMissingParamName:
 		case IProblem.JavadocMissingIdentifier:
-		case IProblem.JavadocInvalidConstructorQualification:
+		case IProblem.JavadocInvalidMemberTypeQualification:
 		case IProblem.JavadocInvalidThrowsClassName:
 		case IProblem.JavadocDuplicateThrowsClassName:
 		case IProblem.JavadocMissingThrowsClassName:
@@ -3815,9 +3815,6 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void javadocInvalidConstructorQualification(int sourceStart, int sourceEnd){
-	this.handle(IProblem.JavadocInvalidConstructorQualification, NoArgument, NoArgument, sourceStart, sourceEnd);
-}
 /*
  * Similar implementation than invalidField(FieldReference...)
  * Note that following problem id cannot occur for Javadoc:
@@ -3854,6 +3851,11 @@ public void javadocInvalidField(int sourceStart, int sourceEnd, Binding fieldBin
 			severity,
 			sourceStart,
 			sourceEnd);
+	}
+}
+public void javadocInvalidMemberTypeQualification(int sourceStart, int sourceEnd, int modifiers){
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
+		this.handle(IProblem.JavadocInvalidMemberTypeQualification, NoArgument, NoArgument, sourceStart, sourceEnd);
 	}
 }
 /*

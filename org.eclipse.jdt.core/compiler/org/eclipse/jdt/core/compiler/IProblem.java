@@ -759,10 +759,10 @@ void setSourceStart(int sourceStart);
 	 */
 	int JavadocNotVisibleReference = Javadoc + Internal + 465;
 	/** 
-	 * Problem signaled on an unqualified inner class constructor reference.
+	 * Problem signaled on an invalid qualification for member type reference.
 	 * @since 3.3
 	 */
-	int JavadocInvalidConstructorQualification = Javadoc + Internal + 466;
+	int JavadocInvalidMemberTypeQualification = Javadoc + Internal + 466;
 	/** @since 3.2 */
 	int JavadocMissingIdentifier = Javadoc + Internal + 467;
 	/** @since 3.2 */

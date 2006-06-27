@@ -3688,8 +3688,21 @@ class ASTConverter {
 			} else if (node.getNodeType() == ASTNode.METHOD_REF) {
 				MethodRef methodRef = (MethodRef) node;
 				Name name = methodRef.getName();
-				// get compiler node and record nodes
-				int start = name.getStartPosition();
+				// get method name start position
+				int start = methodRef.getStartPosition();
+				this.scanner.resetTo(start, start + name.getStartPosition()+name.getLength());
+				int token;
+				try {
+					nextToken: while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF && token != TerminalTokens.TokenNameLPAREN)  {
+						if (token == TerminalTokens.TokenNameERROR && this.scanner.currentCharacter == '#') {
+							start = this.scanner.getCurrentTokenEndPosition()+1;
+							break nextToken;
+						}
+					}
+				}
+				catch(InvalidInputException e) {
+					// ignore
+				}
 				// get compiler node and record nodes
 				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(start);
 				// record nodes

@@ -126,14 +126,14 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			int length = qualification.length;
 			ReferenceBinding enclosingTypeBinding = allocationType;
 			if (type instanceof JavadocQualifiedTypeReference && (((JavadocQualifiedTypeReference)type).tokens.length != length)) {
-				scope.problemReporter().javadocInvalidConstructorQualification(this.memberStart+1, this.sourceEnd); //, scope.getDeclarationModifiers());
+				scope.problemReporter().javadocInvalidMemberTypeQualification(this.memberStart+1, this.sourceEnd, scope.getDeclarationModifiers());
 			} else {
 				int idx = length;
 				while (idx > 0 && CharOperation.equals(qualification[--idx], enclosingTypeBinding.sourceName) && (enclosingTypeBinding = enclosingTypeBinding.enclosingType()) != null) {
 					// verify that each qualification token matches enclosing types
 				}
 				if (idx > 0 || enclosingTypeBinding != null) {
-					scope.problemReporter().javadocInvalidConstructorQualification(this.memberStart+1, this.sourceEnd); //, scope.getDeclarationModifiers());
+					scope.problemReporter().javadocInvalidMemberTypeQualification(this.memberStart+1, this.sourceEnd, scope.getDeclarationModifiers());
 				}
 			}
 		}

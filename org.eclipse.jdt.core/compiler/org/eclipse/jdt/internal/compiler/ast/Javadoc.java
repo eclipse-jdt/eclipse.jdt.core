@@ -64,6 +64,88 @@ public class Javadoc extends ASTNode {
 	}
 
 	/*
+	 * Search node with a given staring position in javadoc objects arrays.
+	 */
+	public ASTNode getNodeStartingAt(int start) {
+		int length = 0;
+		// parameters array
+		if (this.paramReferences != null) {
+			length = this.paramReferences.length;
+			for (int i=0; i<length; i++) {
+				JavadocSingleNameReference param = this.paramReferences[i];
+				if (param.sourceStart==start) {
+					return param;
+				}
+			}
+		}
+		// array of invalid syntax tags parameters
+		if (this.invalidParameters != null) {
+			length = this.invalidParameters.length;
+			for (int i=0; i<length; i++) {
+				JavadocSingleNameReference param = this.invalidParameters[i];
+				if (param.sourceStart==start) {
+					return param;
+				}
+			}
+		}
+		// type parameters array
+		if (this.paramTypeParameters != null) {
+			length = this.paramTypeParameters.length;
+			for (int i=0; i<length; i++) {
+				JavadocSingleTypeReference param = this.paramTypeParameters[i];
+				if (param.sourceStart==start) {
+					return param;
+				}
+			}
+		}
+		// thrown exception array
+		if (this.exceptionReferences != null) {
+			length = this.exceptionReferences.length;
+			for (int i=0; i<length; i++) {
+				TypeReference typeRef = this.exceptionReferences[i];
+				if (typeRef.sourceStart==start) {
+					return typeRef;
+				}
+			}
+		}
+		// references array
+		if (this.seeReferences != null) {
+			length = this.seeReferences.length;
+			for (int i=0; i<length; i++) {
+				org.eclipse.jdt.internal.compiler.ast.Expression expression = this.seeReferences[i];
+				if (expression.sourceStart==start) {
+					return expression;
+				} else if (expression instanceof JavadocAllocationExpression) {
+					JavadocAllocationExpression allocationExpr = (JavadocAllocationExpression) this.seeReferences[i];
+					// if binding is valid then look at arguments
+					if (allocationExpr.binding != null && allocationExpr.binding.isValidBinding()) {
+						if (allocationExpr.arguments != null) {
+							for (int j=0, l=allocationExpr.arguments.length; j<l; j++) {
+								if (allocationExpr.arguments[j].sourceStart == start) {
+									return allocationExpr.arguments[j];
+								}
+							}
+						}
+					}
+				} else if (expression instanceof JavadocMessageSend) {
+					JavadocMessageSend messageSend = (JavadocMessageSend) this.seeReferences[i];
+					// if binding is valid then look at arguments
+					if (messageSend.binding != null && messageSend.binding.isValidBinding()) {
+						if (messageSend.arguments != null) {
+							for (int j=0, l=messageSend.arguments.length; j<l; j++) {
+								if (messageSend.arguments[j].sourceStart == start) {
+									return messageSend.arguments[j];
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/*
 	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#print(int, java.lang.StringBuffer)
 	 */
 	public StringBuffer print(int indent, StringBuffer output) {
@@ -288,6 +370,15 @@ public class Javadoc extends ASTNode {
 				}
 			}
 
+			// Verify type references
+			// TODO (frederic) fix for bug 119857
+			/*
+			if (fieldRef.binding != null && fieldRef.binding.isValidBinding() && fieldRef.receiverType instanceof ReferenceBinding) {
+				ReferenceBinding resolvedType = (ReferenceBinding) fieldRef.receiverType;
+				verifyTypeReference(fieldRef.receiver, scope, source15, resolvedType);
+			}
+			*/
+
 			// That's it for field references
 			return;
 		}
@@ -295,43 +386,7 @@ public class Javadoc extends ASTNode {
 		// Verify type references
 		if ((reference instanceof JavadocSingleTypeReference || reference instanceof JavadocQualifiedTypeReference) && reference.resolvedType instanceof ReferenceBinding) {
 			ReferenceBinding resolvedType = (ReferenceBinding) reference.resolvedType;
-			if (reference.resolvedType.isValidBinding()) {
-
-				// member types
-				if (resolvedType.isMemberType()) {
-					ReferenceBinding topLevelType = resolvedType;
-					int depth = 0;
-					while (topLevelType.enclosingType() != null) {
-						topLevelType = topLevelType.enclosingType();
-						depth++;
-					}
-					ClassScope topLevelScope = scope.classScope();
-					// when scope is not on compilation unit type, then inner class may not be visible...
-					if (topLevelScope.parent.kind != Scope.COMPILATION_UNIT_SCOPE ||
-						!CharOperation.equals(topLevelType.sourceName, topLevelScope.referenceContext.name)) {
-						topLevelScope = topLevelScope.outerMostClassScope();
-						if (reference instanceof JavadocSingleTypeReference) {
-							// inner class single reference can only be done in same unit
-							if ((!source15 && depth == 1) || topLevelType != topLevelScope.referenceContext.binding) {
-								if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
-								scope.problemReporter().javadocNotVisibleReference(reference.sourceStart, reference.sourceEnd, scopeModifiers);
-							}
-						} else {
-							// inner class qualified reference can only be done in same package
-							if (topLevelType.getPackage() != topLevelScope.referenceContext.binding.getPackage()) {
-								if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
-								scope.problemReporter().javadocNotVisibleReference(reference.sourceStart, reference.sourceEnd, scopeModifiers);
-							}
-						}
-					}
-				}
-
-				// reference must have enough visibility to be used
-				if (!canBeSeen(scope.problemReporter().options.reportInvalidJavadocTagsVisibility, resolvedType)) {
-					if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
-					scope.problemReporter().javadocNotVisibleReference(reference.sourceStart, reference.sourceEnd, scopeModifiers);
-				}
-			}
+			verifyTypeReference(reference, scope, source15, resolvedType);
 		}
 
 		// Verify that message reference are not used for @value tags
@@ -344,6 +399,14 @@ public class Javadoc extends ASTNode {
 				scope.problemReporter().javadocInvalidValueReference(msgSend.sourceStart, msgSend.sourceEnd, scopeModifiers);
 			}
 
+			// Verify type references
+			// TODO (frederic) fix for bug 119857
+			/*
+			if (msgSend.binding != null && msgSend.binding.isValidBinding() && msgSend.actualReceiverType instanceof ReferenceBinding) {
+				ReferenceBinding resolvedType = (ReferenceBinding) msgSend.actualReceiverType;
+				verifyTypeReference(msgSend.receiver, scope, source15, resolvedType);
+			}
+			*/
 		}
 
 		// Verify that constructor reference are not used for @value tags
@@ -356,6 +419,14 @@ public class Javadoc extends ASTNode {
 				scope.problemReporter().javadocInvalidValueReference(alloc.sourceStart, alloc.sourceEnd, scopeModifiers);
 			}
 
+			// Verify type references
+			// TODO (frederic) fix for bug 119857
+			/*
+			if (alloc.binding != null && alloc.binding.isValidBinding() && alloc.resolvedType instanceof ReferenceBinding) {
+				ReferenceBinding resolvedType = (ReferenceBinding) alloc.resolvedType;
+				verifyTypeReference(alloc.type, scope, source15, resolvedType);
+			}
+			*/
 		}
 		
 		// Verify that there's no type variable reference
@@ -640,86 +711,46 @@ public class Javadoc extends ASTNode {
 			}
 		}
 	}
-	
-	/*
-	 * Search node with a given staring position in javadoc objects arrays.
-	 */
-	public ASTNode getNodeStartingAt(int start) {
-		int length = 0;
-		// parameters array
-		if (this.paramReferences != null) {
-			length = this.paramReferences.length;
-			for (int i=0; i<length; i++) {
-				JavadocSingleNameReference param = this.paramReferences[i];
-				if (param.sourceStart==start) {
-					return param;
+
+	private void verifyTypeReference(Expression reference, Scope scope, boolean source15, ReferenceBinding resolvedType) {
+		if (resolvedType.isValidBinding()) {
+			int scopeModifiers = -1;
+
+			// member types
+			if (resolvedType.isMemberType()) {
+				ReferenceBinding topLevelType = resolvedType;
+				int depth = 0;
+				while (topLevelType.enclosingType() != null) {
+					topLevelType = topLevelType.enclosingType();
+					depth++;
 				}
-			}
-		}
-		// array of invalid syntax tags parameters
-		if (this.invalidParameters != null) {
-			length = this.invalidParameters.length;
-			for (int i=0; i<length; i++) {
-				JavadocSingleNameReference param = this.invalidParameters[i];
-				if (param.sourceStart==start) {
-					return param;
-				}
-			}
-		}
-		// type parameters array
-		if (this.paramTypeParameters != null) {
-			length = this.paramTypeParameters.length;
-			for (int i=0; i<length; i++) {
-				JavadocSingleTypeReference param = this.paramTypeParameters[i];
-				if (param.sourceStart==start) {
-					return param;
-				}
-			}
-		}
-		// thrown exception array
-		if (this.exceptionReferences != null) {
-			length = this.exceptionReferences.length;
-			for (int i=0; i<length; i++) {
-				TypeReference typeRef = this.exceptionReferences[i];
-				if (typeRef.sourceStart==start) {
-					return typeRef;
-				}
-			}
-		}
-		// references array
-		if (this.seeReferences != null) {
-			length = this.seeReferences.length;
-			for (int i=0; i<length; i++) {
-				org.eclipse.jdt.internal.compiler.ast.Expression expression = this.seeReferences[i];
-				if (expression.sourceStart==start) {
-					return expression;
-				} else if (expression instanceof JavadocAllocationExpression) {
-					JavadocAllocationExpression allocationExpr = (JavadocAllocationExpression) this.seeReferences[i];
-					// if binding is valid then look at arguments
-					if (allocationExpr.binding != null && allocationExpr.binding.isValidBinding()) {
-						if (allocationExpr.arguments != null) {
-							for (int j=0, l=allocationExpr.arguments.length; j<l; j++) {
-								if (allocationExpr.arguments[j].sourceStart == start) {
-									return allocationExpr.arguments[j];
-								}
-							}
+				ClassScope topLevelScope = scope.classScope();
+				// when scope is not on compilation unit type, then inner class may not be visible...
+				if (topLevelScope.parent.kind != Scope.COMPILATION_UNIT_SCOPE ||
+					!CharOperation.equals(topLevelType.sourceName, topLevelScope.referenceContext.name)) {
+					topLevelScope = topLevelScope.outerMostClassScope();
+					if (reference instanceof JavadocSingleTypeReference) {
+						// inner class single reference can only be done in same unit
+						if ((!source15 && depth == 1) || topLevelType != topLevelScope.referenceContext.binding) {
+							if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+							scope.problemReporter().javadocInvalidMemberTypeQualification(reference.sourceStart, reference.sourceEnd, scopeModifiers);
 						}
-					}
-				} else if (expression instanceof JavadocMessageSend) {
-					JavadocMessageSend messageSend = (JavadocMessageSend) this.seeReferences[i];
-					// if binding is valid then look at arguments
-					if (messageSend.binding != null && messageSend.binding.isValidBinding()) {
-						if (messageSend.arguments != null) {
-							for (int j=0, l=messageSend.arguments.length; j<l; j++) {
-								if (messageSend.arguments[j].sourceStart == start) {
-									return messageSend.arguments[j];
-								}
-							}
+					} else if (reference instanceof JavadocQualifiedTypeReference) {
+						JavadocQualifiedTypeReference qualifiedTypeReference = (JavadocQualifiedTypeReference) reference;
+						// inner class qualified reference can only be done in same package
+						if ((qualifiedTypeReference.tokens.length != resolvedType.enclosingType().compoundName.length+1) && topLevelType.getPackage() != topLevelScope.referenceContext.binding.getPackage()) {
+							if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+							scope.problemReporter().javadocInvalidMemberTypeQualification(reference.sourceStart, reference.sourceEnd, scopeModifiers);
 						}
 					}
 				}
 			}
+
+			// reference must have enough visibility to be used
+			if (!canBeSeen(scope.problemReporter().options.reportInvalidJavadocTagsVisibility, resolvedType)) {
+				if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+				scope.problemReporter().javadocNotVisibleReference(reference.sourceStart, reference.sourceEnd, scopeModifiers);
+			}
 		}
-		return null;
 	}
 }

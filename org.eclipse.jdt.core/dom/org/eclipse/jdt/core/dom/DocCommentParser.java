@@ -167,11 +167,11 @@ class DocCommentParser extends AbstractCommentParser {
 			// Create method ref
 			MethodRef methodRef = this.ast.newMethodRef();
 			SimpleName methodName = new SimpleName(this.ast);
-			int memberPtr = this.identifierLengthStack[0] - 1;
-			methodName.internalSetIdentifier(new String(this.identifierStack[memberPtr]));
+			int length = this.identifierLengthStack[0] - 1; // may be > 0 for member class constructor reference
+			methodName.internalSetIdentifier(new String(this.identifierStack[length]));
 			methodRef.setName(methodName);
-			int start = (int) (this.identifierPositionStack[memberPtr] >>> 32);
-			int end = (int) this.identifierPositionStack[memberPtr];
+			int start = (int) (this.identifierPositionStack[length] >>> 32);
+			int end = (int) this.identifierPositionStack[length];
 			methodName.setSourceRange(start, end - start + 1);
 			// Set qualifier
 			if (receiver == null) {

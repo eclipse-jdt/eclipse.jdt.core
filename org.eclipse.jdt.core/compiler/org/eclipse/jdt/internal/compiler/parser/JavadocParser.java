@@ -180,7 +180,7 @@ public class JavadocParser extends AbstractCommentParser {
 			TypeReference typeRef = (TypeReference) receiver;
 			// Decide whether we have a constructor or not
 			boolean isConstructor = false;
-			int length = this.identifierLengthStack[0];	// may be > 0 for inner class constructor reference
+			int length = this.identifierLengthStack[0];	// may be > 0 for member class constructor reference
 			if (typeRef == null) {
 				char[] name = this.sourceParser.compilationUnit.getMainTypeName();
 				TypeDeclaration typeDecl = getParsedTypeDeclaration();
@@ -206,7 +206,7 @@ public class JavadocParser extends AbstractCommentParser {
 						}
 						if (!valid) {
 							if (this.reportProblems) {
-								this.sourceParser.problemReporter().javadocInvalidConstructorQualification(this.memberStart+1, this.scanner.getCurrentTokenEndPosition());
+								this.sourceParser.problemReporter().javadocInvalidMemberTypeQualification((int)(this.identifierPositionStack[0]>>>32), (int)this.identifierPositionStack[length-1], -1);
 							}
 							return null;
 						}
@@ -226,6 +226,7 @@ public class JavadocParser extends AbstractCommentParser {
 						allocation.qualification = new char[][] { this.identifierStack[0] };
 					} else {
 						System.arraycopy(this.identifierStack, 0, allocation.qualification = new char[length][], 0, length);
+						allocation.sourceStart = (int) (this.identifierPositionStack[0] >>> 32);
 					}
 					allocation.memberStart = this.memberStart;
 					return allocation;
@@ -249,6 +250,7 @@ public class JavadocParser extends AbstractCommentParser {
 						allocation.qualification = new char[][] { this.identifierStack[0] };
 					} else {
 						System.arraycopy(this.identifierStack, 0, allocation.qualification = new char[length][], 0, length);
+						allocation.sourceStart = (int) (this.identifierPositionStack[0] >>> 32);
 					}
 					allocation.memberStart = this.memberStart;
 					return allocation;

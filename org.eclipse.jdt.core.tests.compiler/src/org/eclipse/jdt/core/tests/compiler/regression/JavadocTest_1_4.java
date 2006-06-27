@@ -2866,7 +2866,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in comment6\\Invalid.java (at line 4)\r\n" + 
 			"	* @see Inner\r\n" + 
 			"	       ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n"
 		);
 	}
@@ -2897,6 +2897,14 @@ public class JavadocTest_1_4 extends JavadocTest {
 				" * @see Test.Inner\n" + 
 				" */\n" + 
 				"public class Invalid2 extends Test { \n" + 
+				"}",
+				"comment6a/test/Valid.java",
+				"package comment6a.test;\n" + 
+				"import comment6a.def.Test;\n" + 
+				"/**\n" + 
+				" * @see comment6a.def.Test.Inner\n" + 
+				" */\n" + 
+				"public class Valid extends Test { \n" + 
 				"}"
 			},
 //			comment6a\def\Test.java:6: warning - Tag @see: reference not found: Inner
@@ -2906,19 +2914,19 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in comment6a\\def\\Test.java (at line 4)\n" + 
 			"	* @see Inner\n" + 
 			"	       ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in comment6a\\test\\Invalid.java (at line 4)\n" + 
 			"	* See also {@link Inner}\n" + 
 			"	                  ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" + 
 			"	* @see Test.Inner\n" + 
 			"	       ^^^^^^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n"
 		);
 	}
@@ -2957,13 +2965,13 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in comment6b\\Invalid.java (at line 4)\n" + 
 			"	* @see Inner\n" + 
 			"	       ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in comment6b\\Test.java (at line 4)\n" + 
 			"	* @see Inner\n" + 
 			"	       ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n"
 		);
 	}
@@ -3107,6 +3115,37 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n"
 		);
 	}
+	public void testBug96237_Public08() {
+		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(
+			new String[] {
+				"test/d/Reference.java",
+				"package test.d;\n" + 
+				"class Reference {\n" + 
+				"}\n",
+				"test/d/Test.java",
+				"package test.d;\n" + 
+				"/**\n" + 
+				" * @see Secondary\n" + 
+				" * @see Reference\n" + 
+				" */\n" + 
+				"public class Test {\n" + 
+				"}\n" + 
+				"class Secondary {}"
+			},
+			"----------\n" + 
+			"1. ERROR in test\\d\\Test.java (at line 3)\n" + 
+			"	* @see Secondary\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"Javadoc: Not visible reference\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\d\\Test.java (at line 4)\n" + 
+			"	* @see Reference\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"Javadoc: Not visible reference\n" + 
+			"----------\n"
+		);
+	}
 	public void testBug96237_Private01() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
 		runConformTest(
@@ -3149,12 +3188,12 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in comment6\\Invalid.java (at line 4)\n" + 
 			"	* @see Inner\n" + 
 			"	       ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"2. ERROR in comment6\\Invalid.java (at line 9)\n" + 
 			"	* See also {@link Inner} \n" + 
 			"	                  ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n"
 		);
 	}
@@ -3185,6 +3224,14 @@ public class JavadocTest_1_4 extends JavadocTest {
 				" * @see Test.Inner\n" + 
 				" */\n" + 
 				"public class Invalid2 extends Test { \n" + 
+				"}",
+				"comment6a/test/Valid.java",
+				"package comment6a.test;\n" + 
+				"import comment6a.def.Test;\n" + 
+				"/**\n" + 
+				" * @see comment6a.def.Test.Inner\n" + 
+				" */\n" + 
+				"public class Valid extends Test { \n" + 
 				"}"
 			},
 //			comment6a\def\Test.java:6: warning - Tag @see: reference not found: Inner
@@ -3194,19 +3241,19 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in comment6a\\def\\Test.java (at line 4)\n" + 
 			"	* @see Inner\n" + 
 			"	       ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in comment6a\\test\\Invalid.java (at line 4)\n" + 
 			"	* See also {@link Inner}\n" + 
 			"	                  ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" + 
 			"	* @see Test.Inner\n" + 
 			"	       ^^^^^^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n"
 		);
 	}
@@ -3245,13 +3292,13 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in comment6b\\Invalid.java (at line 4)\n" + 
 			"	* @see Inner\n" + 
 			"	       ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in comment6b\\Test.java (at line 4)\n" + 
 			"	* @see Inner\n" + 
 			"	       ^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n"
 		);
 	}
@@ -3317,6 +3364,26 @@ public class JavadocTest_1_4 extends JavadocTest {
 				"		}\n" + 
 				"	}\n" + 
 				"}\n"
+			}
+		);
+	}
+	public void testBug96237_Private08() {
+		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
+		runConformTest(
+			new String[] {
+				"test/d/Reference.java",
+				"package test.d;\n" + 
+				"class Reference {\n" + 
+				"}\n",
+				"test/d/Test.java",
+				"package test.d;\n" + 
+				"/**\n" + 
+				" * @see Secondary\n" + 
+				" * @see Reference\n" + 
+				" */\n" + 
+				"public class Test {\n" + 
+				"}\n" + 
+				"class Secondary {}"
 			}
 		);
 	}
@@ -3568,7 +3635,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in boden\\TestValid.java (at line 4)\r\n" + 
 			"	* @see ValidationException\r\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Not visible reference\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n"
 		);
 	}
@@ -3630,19 +3697,19 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in boden\\TestInvalid1.java (at line 5)\n" + 
 			"	* @see ValidationException#ValidationException(String, IAFAState)\n" + 
 			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" +
 			"----------\n" + 
 			"1. ERROR in boden\\TestInvalid2.java (at line 5)\n" + 
 			"	* @see IAFAState.ValidationException#ValidationException(String, IAFAState)\n" + 
 			"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" +
 			"----------\n" + 
 			"1. ERROR in boden\\TestInvalid3.java (at line 5)\n" + 
 			"	* @see IAFAState.ValidationException#IAFA.State.ValidationException(String, IAFAState)\n" + 
-			"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+		"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in boden\\TestInvalid4.java (at line 5)\n" + 
@@ -3685,7 +3752,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in test\\C.java (at line 8)\n" + 
 			"	* @see Test.Level0#Level0()\n" + 
 			"	                   ^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n"
 		);
 	}
@@ -3727,12 +3794,12 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in test\\C2.java (at line 8)\n" + 
 			"	* @see Test.Member.Level1#Level1()\n" + 
 			"	                          ^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"2. ERROR in test\\C2.java (at line 12)\n" + 
 			"	* @see Test.Member.Level1#Test.Level1()\n" + 
 			"	                          ^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n"
 		);
 	}
@@ -3814,42 +3881,42 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"1. ERROR in implicit\\Invalid.java (at line 5)\n" + 
 			"	* @see #Level0() Invalid\n" + 
 			"	        ^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"2. ERROR in implicit\\Invalid.java (at line 9)\n" + 
 			"	* @see #Level0(String) Invalid\n" + 
 			"	        ^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"3. ERROR in implicit\\Invalid.java (at line 16)\n" + 
 			"	* @see #Level1() Invalid\n" + 
 			"	        ^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"4. ERROR in implicit\\Invalid.java (at line 17)\n" + 
 			"	* @see #Member.Level1() Invalid\n" + 
 			"	        ^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"5. ERROR in implicit\\Invalid.java (at line 18)\n" + 
 			"	* @see #Invalid.Level1() Invalid\n" + 
 			"	        ^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"6. ERROR in implicit\\Invalid.java (at line 22)\n" + 
 			"	* @see #Level1(int) Invalid\n" + 
 			"	        ^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"7. ERROR in implicit\\Invalid.java (at line 23)\n" + 
 			"	* @see #Invalid.Level1(int) Invalid\n" + 
 			"	        ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n" + 
 			"8. ERROR in implicit\\Invalid.java (at line 24)\n" + 
 			"	* @see #Member.Level1(int) Invalid\n" + 
 			"	        ^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid qualification for member type constructor\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n"
 		);
 	}
