@@ -1552,13 +1552,16 @@ protected void consumeBinaryExpression(int op) {
 					// BE_INSTRUMENTATION: neutralized in the released code					
 //					cursor.depthTracker = ((BinaryExpression)cursor.left).
 //						depthTracker + 1;					
-				} else if (expr1 instanceof BinaryExpression) {
+				} else if (expr1 instanceof BinaryExpression &&
+							// single out the a + b case, which is a BE 
+							// instead of a CBE (slightly more than a half of 
+							// strings concatenation are one-deep binary 
+							// expressions)
+						((expr1.bits & ASTNode.OperatorMASK) >> 
+							ASTNode.OperatorSHIFT) == OperatorIds.PLUS) {
 					this.expressionStack[this.expressionPtr] = 
 						new CombinedBinaryExpression(expr1, expr2, PLUS, 1);
 				} else {
-					// single out the a + b case, which is a BE 
-					// instead of a CBE (slightly more than a half of strings
-					// concatenation are one-deep binary expressions)
 					this.expressionStack[this.expressionPtr] = 
 						new BinaryExpression(expr1, expr2, PLUS);
 				}
@@ -1592,14 +1595,16 @@ protected void consumeBinaryExpression(int op) {
 //					cursor.depthTracker = ((BinaryExpression)cursor.left).
 //						depthTracker + 1;
 					this.expressionStack[this.expressionPtr] = cursor;
-				} else if (expr1 instanceof BinaryExpression) {
-					this.expressionStack[this.expressionPtr] = 
-						new CombinedBinaryExpression(expr1, expr2, PLUS, 1);
-				} else {
-					// single out the a + b case
-					this.expressionStack[this.expressionPtr] = 
-						new BinaryExpression(expr1, expr2, PLUS);
-				}
+			} else if (expr1 instanceof BinaryExpression && 
+							// single out the a + b case
+						((expr1.bits & ASTNode.OperatorMASK) >> 
+							ASTNode.OperatorSHIFT) == OperatorIds.PLUS) {
+				this.expressionStack[this.expressionPtr] = 
+					new CombinedBinaryExpression(expr1, expr2, PLUS, 1);
+			} else {
+				this.expressionStack[this.expressionPtr] = 
+					new BinaryExpression(expr1, expr2, PLUS);
+			}
 			break;
 		case LESS :
 			this.intPtr--;

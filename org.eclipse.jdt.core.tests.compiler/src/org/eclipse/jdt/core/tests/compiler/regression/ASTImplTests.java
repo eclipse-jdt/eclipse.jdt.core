@@ -584,7 +584,7 @@ public void test0011_combined_binary_expression() {
 // AST implementation - visiting binary expressions
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions - checking recursive print
-public void test_0012_combined_binary_expression() {
+public void test0012_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 2; 
 	runConformTest(
 		"X.java", 
@@ -707,6 +707,33 @@ public void test0015_combined_binary_expression() {
 			"}"
 		},
 		"bccccccccccccccccccccaaa");
+}
+
+// AST implementation - binary expressions
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
+// Adding combined binary expressions - alternate operands
+public void testONLY_0016_combined_binary_expression() {
+	CombinedBinaryExpression.defaultArityMaxStartingValue = 2; 
+	this.runConformTest(
+		"X.java", 
+		"public class X {\n" + 
+		"void foo(int i1, int i2, int i3, int i4) {\n" + 
+		"  System.out.println(i1 - i2 + 0 + i3 + 0 + i4);\n" + 
+		"}\n" + 
+		"}\n",
+		defaultParser,
+		new ASTCollector() {
+			public boolean visit(BinaryExpression binaryExpression, 
+					BlockScope scope) {
+				super.visit(binaryExpression, scope);
+				this.collector.append(binaryExpression);
+				return true;
+			}
+		},
+		"(((((i1 - i2) + 0) + i3) + 0) + i4)((((i1 - i2) + 0) + i3) + 0)" +
+			"(((i1 - i2) + 0) + i3)((i1 - i2) + 0)(i1 - i2)");
+	CombinedBinaryExpression.defaultArityMaxStartingValue = 
+		CombinedBinaryExpression.ARITY_MAX_MIN;
 }
 }
 
