@@ -25,25 +25,15 @@ public class ArrayAllocationExpression extends Expression {
 	public Expression[] dimensions;
 	public ArrayInitializer initializer;
 
-	/**
-	 * ArrayAllocationExpression constructor comment.
-	 */
-	public ArrayAllocationExpression() {
-		super();
-	}
-
-	public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
-		for (int i = 0, max = dimensions.length; i < max; i++) {
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+		for (int i = 0, max = this.dimensions.length; i < max; i++) {
 			Expression dim;
-			if ((dim = dimensions[i]) != null) {
+			if ((dim = this.dimensions[i]) != null) {
 				flowInfo = dim.analyseCode(currentScope, flowContext, flowInfo);
 			}
 		}
-		if (initializer != null) {
-			return initializer.analyseCode(currentScope, flowContext, flowInfo);
+		if (this.initializer != null) {
+			return this.initializer.analyseCode(currentScope, flowContext, flowInfo);
 		}
 		return flowInfo;
 	}
@@ -51,72 +41,66 @@ public class ArrayAllocationExpression extends Expression {
 	/**
 	 * Code generation for a array allocation expression
 	 */
-	public void generateCode(
-		BlockScope currentScope,
-		CodeStream codeStream,
-		boolean valueRequired) {
+	public void generateCode(BlockScope currentScope, 	CodeStream codeStream, boolean valueRequired) {
 
 		int pc = codeStream.position;
 
-		if (initializer != null) {
-			initializer.generateCode(currentScope, codeStream, valueRequired);
+		if (this.initializer != null) {
+			this.initializer.generateCode(currentScope, codeStream, valueRequired);
 			return;
 		}
 
-		int nonNullDimensionsLength = 0;
-		for (int i = 0, max = dimensions.length; i < max; i++)
-			if (dimensions[i] != null) {
-				dimensions[i].generateCode(currentScope, codeStream, true);
-				nonNullDimensionsLength++;
-			}
+		int explicitDimCount = 0;
+		for (int i = 0, max = this.dimensions.length; i < max; i++) {
+			Expression dimExpression;
+			if ((dimExpression = this.dimensions[i]) == null) break; // implicit dim, no further explict after this point
+			dimExpression.generateCode(currentScope, codeStream, true);
+			explicitDimCount++;
+		}
 
-		// Generate a sequence of bytecodes corresponding to an array allocation
-		if (this.resolvedType.dimensions() == 1) {
+		// array allocation
+		if (explicitDimCount == 1) {
 			// Mono-dimensional array
 			codeStream.newArray((ArrayBinding)this.resolvedType);
 		} else {
 			// Multi-dimensional array
-			codeStream.multianewarray(this.resolvedType, nonNullDimensionsLength);
+			codeStream.multianewarray(this.resolvedType, explicitDimCount);
 		}
-
 		if (valueRequired) {
-			codeStream.generateImplicitConversion(implicitConversion);
+			codeStream.generateImplicitConversion(this.implicitConversion);
 		} else {
 			codeStream.pop();
 		}
-
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-
 		output.append("new "); //$NON-NLS-1$
-		type.print(0, output); 
-		for (int i = 0; i < dimensions.length; i++) {
-			if (dimensions[i] == null)
+		this.type.print(0, output); 
+		for (int i = 0; i < this.dimensions.length; i++) {
+			if (this.dimensions[i] == null)
 				output.append("[]"); //$NON-NLS-1$
 			else {
 				output.append('[');
-				dimensions[i].printExpression(0, output);
+				this.dimensions[i].printExpression(0, output);
 				output.append(']');
 			}
 		} 
-		if (initializer != null) initializer.printExpression(0, output);
+		if (this.initializer != null) this.initializer.printExpression(0, output);
 		return output;
 	}
 	
 	public TypeBinding resolveType(BlockScope scope) {
-
 		// Build an array type reference using the current dimensions
 		// The parser does not check for the fact that dimension may be null
 		// only at the -end- like new int [4][][]. The parser allows new int[][4][]
 		// so this must be checked here......(this comes from a reduction to LL1 grammar)
 
-		TypeBinding referenceType = type.resolveType(scope, true /* check bounds*/);
+		TypeBinding referenceType = this.type.resolveType(scope, true /* check bounds*/);
 		
 		// will check for null after dimensions are checked
-		constant = Constant.NotAConstant;
+		this.constant = Constant.NotAConstant;
 		if (referenceType == TypeBinding.VOID) {
 			scope.problemReporter().cannotAllocateVoidArray(this);
 			referenceType = null;
@@ -124,8 +108,8 @@ public class ArrayAllocationExpression extends Expression {
 
 		// check the validity of the dimension syntax (and test for all null dimensions)
 		int explicitDimIndex = -1;
-		loop: for (int i = dimensions.length; --i >= 0;) {
-			if (dimensions[i] != null) {
+		loop: for (int i = this.dimensions.length; --i >= 0;) {
+			if (this.dimensions[i] != null) {
 				if (explicitDimIndex < 0) explicitDimIndex = i;
 			} else if (explicitDimIndex > 0) {
 				// should not have an empty dimension before an non-empty one
@@ -136,7 +120,7 @@ public class ArrayAllocationExpression extends Expression {
 
 		// explicitDimIndex < 0 says if all dimensions are nulled
 		// when an initializer is given, no dimension must be specified
-		if (initializer == null) {
+		if (this.initializer == null) {
 			if (explicitDimIndex < 0) {
 				scope.problemReporter().mustDefineDimensionsOrInitializer(this);
 			}
@@ -150,25 +134,26 @@ public class ArrayAllocationExpression extends Expression {
 
 		// dimensions resolution 
 		for (int i = 0; i <= explicitDimIndex; i++) {
-			if (dimensions[i] != null) {
-				TypeBinding dimensionType = dimensions[i].resolveTypeExpecting(scope, TypeBinding.INT);
+			Expression dimExpression;
+			if ((dimExpression = this.dimensions[i]) != null) {
+				TypeBinding dimensionType = dimExpression.resolveTypeExpecting(scope, TypeBinding.INT);
 				if (dimensionType != null) {
-					dimensions[i].computeConversion(scope, TypeBinding.INT, dimensionType);
+					this.dimensions[i].computeConversion(scope, TypeBinding.INT, dimensionType);
 				}
 			}
 		}
 
 		// building the array binding
 		if (referenceType != null) {
-			if (dimensions.length > 255) {
+			if (this.dimensions.length > 255) {
 				scope.problemReporter().tooManyDimensions(this);
 			}
-			this.resolvedType = scope.createArrayType(referenceType, dimensions.length);
+			this.resolvedType = scope.createArrayType(referenceType, this.dimensions.length);
 
 			// check the initializer
-			if (initializer != null) {
-				if ((initializer.resolveTypeExpecting(scope, this.resolvedType)) != null)
-					initializer.binding = (ArrayBinding)this.resolvedType;
+			if (this.initializer != null) {
+				if ((this.initializer.resolveTypeExpecting(scope, this.resolvedType)) != null)
+					this.initializer.binding = (ArrayBinding)this.resolvedType;
 			}
 		}
 		return this.resolvedType;
@@ -176,16 +161,15 @@ public class ArrayAllocationExpression extends Expression {
 
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-
 		if (visitor.visit(this, scope)) {
-			int dimensionsLength = dimensions.length;
-			type.traverse(visitor, scope);
+			int dimensionsLength = this.dimensions.length;
+			this.type.traverse(visitor, scope);
 			for (int i = 0; i < dimensionsLength; i++) {
-				if (dimensions[i] != null)
-					dimensions[i].traverse(visitor, scope);
+				if (this.dimensions[i] != null)
+					this.dimensions[i].traverse(visitor, scope);
 			}
-			if (initializer != null)
-				initializer.traverse(visitor, scope);
+			if (this.initializer != null)
+				this.initializer.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}

@@ -17,6 +17,8 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ArrayTest extends AbstractRegressionTest {
 
@@ -242,5 +244,135 @@ public void test010() {
 		"	        ^^\n" + 
 		"Type mismatch: cannot convert from Object[] to int\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148807 - variation
+public void test011() {
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_5) {
+		// there is a bug on 1.4 VMs which make them fail verification (see 148807)
+		return;
+	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			Object[][] all = new String[1][];\n" + 
+				"			all[0] = new Object[0];\n" + 
+				"		} catch (ArrayStoreException e) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}", // =================
+			},
+			"SUCCESS");
+		String expectedOutput =
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 3, Locals: 2\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
+			"     0  iconst_1\n" + 
+			"     1  anewarray java.lang.String[] [16]\n" + 
+			"     4  astore_1 [all]\n" + 
+			"     5  aload_1 [all]\n" + 
+			"     6  iconst_0\n" + 
+			"     7  iconst_0\n" + 
+			"     8  anewarray java.lang.Object [3]\n" + 
+			"    11  aastore\n" + 
+			"    12  goto 24\n" + 
+			"    15  astore_1 [e]\n" + 
+			"    16  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
+			"    19  ldc <String \"SUCCESS\"> [24]\n" + 
+			"    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [26]\n" + 
+			"    24  return\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 15] -> 15 when : java.lang.ArrayStoreException\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"        [pc: 5, line: 5]\n" + 
+			"        [pc: 15, line: 6]\n" + 
+			"        [pc: 16, line: 7]\n" + 
+			"        [pc: 24, line: 9]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 25] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 5, pc: 15] local: all index: 1 type: java.lang.Object[][]\n" + 
+			"        [pc: 16, pc: 24] local: e index: 1 type: java.lang.ArrayStoreException\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148807 - variation
+public void test012() {
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_5) {
+		// there is a bug on 1.4 VMs which make them fail verification (see 148807)
+		return;
+	}
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Map fValueMap;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"	public Object[][] getAllChoices() {\n" + 
+			"		Object[][] all = new String[this.fValueMap.size()][];\n" + 
+			"		return all;\n" + 
+			"	}\n" + 
+			"}", // =================,
+		},
+		"SUCCESS");
+	String expectedOutput =
+	"  // Method descriptor #35 ()[[Ljava/lang/Object;\n" + 
+	"  // Stack: 1, Locals: 2\n" + 
+	"  public java.lang.Object[][] getAllChoices();\n" + 
+	"     0  aload_0 [this]\n" + 
+	"     1  getfield X.fValueMap : java.util.Map [36]\n" + 
+	"     4  invokeinterface java.util.Map.size() : int [38] [nargs: 1]\n" + 
+	"     9  anewarray java.lang.String[] [44]\n" + 
+	"    12  astore_1 [all]\n" + 
+	"    13  aload_1 [all]\n" + 
+	"    14  areturn\n" + 
+	"      Line numbers:\n" + 
+	"        [pc: 0, line: 10]\n" + 
+	"        [pc: 13, line: 11]\n" + 
+	"      Local variable table:\n" + 
+	"        [pc: 0, pc: 15] local: this index: 0 type: X\n" + 
+	"        [pc: 13, pc: 15] local: all index: 1 type: java.lang.Object[][]\n";
+
+try {
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+	assertTrue(false);
+} catch (IOException e) {
+	assertTrue(false);
+}		
 }
 }
