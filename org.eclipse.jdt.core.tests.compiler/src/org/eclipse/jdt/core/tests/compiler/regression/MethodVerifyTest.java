@@ -5447,4 +5447,31 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}	
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146383
+public void test094() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",//===================
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Arrays;\n" + 
+			"class Y<T> {}\n" + 
+			"public class X\n" + 
+			"{\n" + 
+			"  private static ArrayList<Y<X>> y = new ArrayList<Y<X>>();\n" + 
+			"  void foo(Y[] array)\n" + 
+			"  {\n" + 
+			"    y.addAll(Arrays.asList(array));\n" + 
+			"  }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	y.addAll(Arrays.asList(array));\n" + 
+		"	  ^^^^^^\n" + 
+		"The method addAll(Collection<? extends Y<X>>) in the type ArrayList" +
+			"<Y<X>> is not applicable for the arguments (List<Y>)\n" + 
+		"----------\n"
+	);
+}
 }
