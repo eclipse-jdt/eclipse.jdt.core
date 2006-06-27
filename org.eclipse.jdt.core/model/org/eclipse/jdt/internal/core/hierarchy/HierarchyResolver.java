@@ -92,6 +92,10 @@ public HierarchyResolver(LookupEnvironment lookupEnvironment, HierarchyBuilder b
  * @param packageBinding
  */
 public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
+	IProgressMonitor progressMonitor = this.builder.hierarchy.progressMonitor;
+	if (progressMonitor != null && progressMonitor.isCanceled())
+		throw new OperationCanceledException();
+	
 	BinaryTypeBinding typeBinding = this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
 	try {
 		this.remember(binaryType, typeBinding);
@@ -118,6 +122,10 @@ public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestrict
  * @param packageBinding
  */
 public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
+	IProgressMonitor progressMonitor = this.builder.hierarchy.progressMonitor;
+	if (progressMonitor != null && progressMonitor.isCanceled())
+		throw new OperationCanceledException();
+	
 	// find most enclosing type first (needed when explicit askForType(...) is done 
 	// with a member type (e.g. p.A$B))
 	ISourceType sourceType = sourceTypes[0];

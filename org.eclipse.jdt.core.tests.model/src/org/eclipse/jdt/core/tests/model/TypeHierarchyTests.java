@@ -567,6 +567,33 @@ public void testCycle2() throws JavaModelException {
 	);
 }
 /*
+ * Ensures that creating a type hierarchy accross multiple project is efficient enough.
+ */
+public void testEfficiencyMultipleProjects() throws CoreException {
+	try {
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFile("/P1/X.java", "public class X {}");
+		createFile("/P3/Y.java", "public class Y extends X {}");
+		createFile("/P3/Z.java", "public class Z extends X {}");
+		createFile("/P2/W.java", "public class W extends X {}");
+		IType type = getCompilationUnit("/P1/X.java").getType("X");
+		class ProgressCounter extends TestProgressMonitor {
+			int count = 0;
+			public boolean isCanceled() {
+				this.count++;
+				return false;
+			}
+		}
+		ProgressCounter counter = new ProgressCounter();
+		type.newTypeHierarchy(counter);
+		assertEquals("Unexpected work count", 18, counter.count);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2", "P3"});
+	}
+}
+/*
  * Ensures that a hierarchy can be created with a potential subtype in an empty primary working copy
  * (regression test for bug 65677 Creating hierarchy failed. See log for details. 0)
  */
