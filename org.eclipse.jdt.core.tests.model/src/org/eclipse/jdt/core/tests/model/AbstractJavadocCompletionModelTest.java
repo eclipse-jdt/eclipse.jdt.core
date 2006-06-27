@@ -158,12 +158,10 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 		"R_DICUNREETIT",
 	};
 
-	// Write file contants
+	// Write file contents
 	protected static final String WRITE_DIR = System.getProperty("writeDir");
 	protected static final File WRITE_DIR_FILE;
 	protected static final Set PACKAGE_FILES = new HashSet();
-	
-	CompletionTestsRequestor2 requestor;
 	static {
 		File writeDir = null;
 		if (WRITE_DIR != null) {
@@ -179,6 +177,8 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 		}
 		WRITE_DIR_FILE = writeDir;
 	}
+
+	CompletionTestsRequestor2 requestor;
 	protected int cursorLocation;
 	protected int completionStart;
 	protected String replacedText;
