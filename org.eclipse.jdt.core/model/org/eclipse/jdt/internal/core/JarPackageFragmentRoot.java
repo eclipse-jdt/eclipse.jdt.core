@@ -231,10 +231,12 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				existing[i] = manager.intern(pkgName[i]);
 				packageFragToTypes.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 			} else {
-				// non-Java esource folder
-				ArrayList[] children = (ArrayList[]) packageFragToTypes.get(existing);
-				if (children[1/*NON_JAVA*/] == EMPTY_LIST) children[1/*NON_JAVA*/] = new ArrayList();
-				children[1/*NON_JAVA*/].add(entryName);
+				// non-Java resource folder
+				if (!isDirectory) {
+					ArrayList[] children = (ArrayList[]) packageFragToTypes.get(existing);
+					if (children[1/*NON_JAVA*/] == EMPTY_LIST) children[1/*NON_JAVA*/] = new ArrayList();
+					children[1/*NON_JAVA*/].add(entryName);
+				}
 				return;
 			}
 		}
