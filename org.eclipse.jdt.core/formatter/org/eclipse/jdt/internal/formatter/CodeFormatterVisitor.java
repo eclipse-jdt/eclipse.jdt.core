@@ -2060,26 +2060,33 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		this.localScanner.resetTo(this.scribe.scanner.currentPosition, this.scribe.scannerEndPosition - 1);
 		int dimensions = 0;
+		int balance = 0;
 		try {
 			int token;
-			while ((token = this.localScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			loop: while ((token = this.localScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameRBRACKET:
 						dimensions++;
+						balance--;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
 					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
 					case TerminalTokens.TokenNameCOMMENT_LINE :
+						break;
 					case TerminalTokens.TokenNameLBRACKET :
+						balance++;
 						break;
 					default:
-						return dimensions;
+						break loop;
 				}
 			}
 		} catch(InvalidInputException e) {
 			// ignore
 		}
-		return dimensions;
+		if (balance == 0) {
+			return dimensions;
+		}
+		return 0;
 	}
 
 	private boolean hasComments() {
@@ -2400,21 +2407,23 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.space();
 			arrayAllocationExpression.type.traverse(this, scope);
 			
-			final Expression[] dimensions = arrayAllocationExpression.dimensions;
-			int dimensionsLength = dimensions.length;
-			for (int i = 0; i < dimensionsLength; i++) {
-				if (this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression) {
-					this.scribe.space();
-				}
-				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, false);
-				if (dimensions[i] != null) {
-					if (this.preferences.insert_space_after_opening_bracket_in_array_allocation_expression) {
+			if (isNextToken(TerminalTokens.TokenNameLBRACKET)) {
+				final Expression[] dimensions = arrayAllocationExpression.dimensions;
+				int dimensionsLength = dimensions.length;
+				for (int i = 0; i < dimensionsLength; i++) {
+					if (this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression) {
 						this.scribe.space();
 					}
-					dimensions[i].traverse(this, scope);
-					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_before_closing_bracket_in_array_allocation_expression);
-				} else {
-					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression);
+					this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, false);
+					if (dimensions[i] != null) {
+						if (this.preferences.insert_space_after_opening_bracket_in_array_allocation_expression) {
+							this.scribe.space();
+						}
+						dimensions[i].traverse(this, scope);
+						this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_before_closing_bracket_in_array_allocation_expression);
+					} else {
+						this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression);
+					}
 				}
 			}
 			final ArrayInitializer initializer = arrayAllocationExpression.initializer;
