@@ -5174,7 +5174,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		}		
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783	
-	public void _test091() {
+	public void test091() {
 		this.runNegativeTest(
 			new String[] {
 				"DataSet.java",//===================
@@ -5214,7 +5214,82 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	public void remove() {}\n" + 
 				"}\n", // =================
 			},
-			"should have a nameclash issue ?"
+			"----------\n" + 
+			"1. ERROR in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	      ^^^^^^^\n" + 
+			"The type DataSet<T> must implement the inherited abstract method List.toArray(Object[])\n" + 
+			"----------\n" + 
+			"2. WARNING in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	      ^^^^^^^\n" + 
+			"The serializable class DataSet does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"3. WARNING in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	                                           ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in DataSet.java (at line 4)\n" + 
+			"	class DataSet<T extends Number> implements List, Iterator, Serializable {\n" + 
+			"	                                                 ^^^^^^^^\n" + 
+			"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. ERROR in DataSet.java (at line 6)\n" + 
+			"	public <S> S[] toArray(S[] s) {\n" + 
+			"	               ^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method toArray(S[]) of type DataSet<T> has the same erasure as toArray(T[]) of type List<E> but does not override it\n" + 
+			"----------\n" + 
+			"6. ERROR in DataSet.java (at line 6)\n" + 
+			"	public <S> S[] toArray(S[] s) {\n" + 
+			"	               ^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method toArray(S[]) of type DataSet<T> has the same erasure as toArray(T[]) of type Collection<E> but does not override it\n" + 
+			"----------\n" + 
+			"7. WARNING in DataSet.java (at line 12)\n" + 
+			"	public boolean addAll(Collection c) {	return false; }\n" + 
+			"	                      ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"8. WARNING in DataSet.java (at line 13)\n" + 
+			"	public boolean addAll(int index, Collection c) {	return false; }\n" + 
+			"	                                 ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in DataSet.java (at line 16)\n" + 
+			"	public boolean containsAll(Collection c) { return false; }\n" + 
+			"	                           ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"10. WARNING in DataSet.java (at line 20)\n" + 
+			"	public Iterator iterator() {	return null; }\n" + 
+			"	       ^^^^^^^^\n" + 
+			"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"11. WARNING in DataSet.java (at line 22)\n" + 
+			"	public ListIterator listIterator() {	return null; }\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"ListIterator is a raw type. References to generic type ListIterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"12. WARNING in DataSet.java (at line 23)\n" + 
+			"	public ListIterator listIterator(int index) {	return null; }\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
+			"ListIterator is a raw type. References to generic type ListIterator<E> should be parameterized\n" + 
+			"----------\n" + 
+			"13. WARNING in DataSet.java (at line 26)\n" + 
+			"	public boolean removeAll(Collection c) {	return false; }\n" + 
+			"	                         ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"14. WARNING in DataSet.java (at line 27)\n" + 
+			"	public boolean retainAll(Collection c) {	return false; }\n" + 
+			"	                         ^^^^^^^^^^\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"15. WARNING in DataSet.java (at line 30)\n" + 
+			"	public List subList(int fromIndex, int toIndex) {	return null; }\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n"
 		);
 	}	
 	
