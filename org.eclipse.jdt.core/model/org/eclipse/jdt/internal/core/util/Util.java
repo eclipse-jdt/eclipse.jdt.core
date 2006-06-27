@@ -1273,7 +1273,8 @@ public class Util {
 	public final static boolean isExcluded(IResource resource, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 		IPath path = resource.getFullPath();
 		// ensure that folders are only excluded if all of their children are excluded
-		return isExcluded(path, inclusionPatterns, exclusionPatterns, resource.getType() == IResource.FOLDER);
+		int resourceType = resource.getType();
+		return isExcluded(path, inclusionPatterns, exclusionPatterns, resourceType == IResource.FOLDER || resourceType == IResource.PROJECT);
 	}
 
 	/**

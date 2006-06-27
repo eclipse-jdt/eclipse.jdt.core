@@ -369,6 +369,24 @@ public void testCreateResourceIncludedPackage2() throws CoreException {
 		root.getNonJavaResources());
 }
 /*
+ * Ensures that the default package is included if the project is a source folder and one of the
+ * compilation unit of the default package is included.
+ * (regression test for bug 148278 Default-package classes missing in Package Explorer)
+ */
+public void testDefaultPackageProjectIsSource() throws CoreException {
+	setClasspath(new String[] {"/P", "**/*.java"});
+	deleteFolder("/P/src");
+	createFile("/P/A.java", "public class A {}");
+	IPackageFragmentRoot root = getPackageFragmentRoot("/P");
+	assertElementDescendants(
+		"Unexpected descendants of root",
+		"<project root>\n" + 
+		"  <default> (...)\n" + 
+		"    A.java\n" + 
+		"      class A",
+		root);
+}
+/*
  * Ensure that a type can be resolved if it is included but not its super packages.
  * (regression test for bug 119161 classes in "deep" packages not fully recognized when using tight inclusion filters)
  */

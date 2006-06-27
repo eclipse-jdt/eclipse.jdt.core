@@ -2107,7 +2107,8 @@ public class JavaProject
 		IPath path = exactPath;
 		
 		// ensure that folders are only excluded if all of their children are excluded
-		boolean isFolderPath = resource.getType() == IResource.FOLDER;
+		int resourceType = resource.getType();
+		boolean isFolderPath = resourceType == IResource.FOLDER || resourceType == IResource.PROJECT;
 		
 		IClasspathEntry[] classpath;
 		try {
