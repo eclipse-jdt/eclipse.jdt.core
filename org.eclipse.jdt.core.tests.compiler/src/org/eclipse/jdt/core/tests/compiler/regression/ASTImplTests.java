@@ -712,7 +712,7 @@ public void test0015_combined_binary_expression() {
 // AST implementation - binary expressions
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // Adding combined binary expressions - alternate operands
-public void testONLY_0016_combined_binary_expression() {
+public void test0016_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 2; 
 	this.runConformTest(
 		"X.java", 
