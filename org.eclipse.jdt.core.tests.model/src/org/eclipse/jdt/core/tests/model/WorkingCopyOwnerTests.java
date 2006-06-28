@@ -461,6 +461,31 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 
 	/*
+	 * Ensures that a CONTENT delta is issued when a primary working copy becomes a compilation unit
+	 * with unsaved changes.
+	 * (regression test for bug 146012 No F_CONTENT flag on delta when reverting to old annotations)
+	 */
+	public void testDeltaDiscardPrimaryWorkingCopy4() throws CoreException {
+		try {
+			this.workingCopy = getCompilationUnit("P/X.java");
+			this.workingCopy.becomeWorkingCopy(null, null);
+
+			this.workingCopy.getBuffer().setContents("/*annotation*/public class X {}");
+			startDeltas();
+			this.workingCopy.discardWorkingCopy();
+			assertDeltas(
+				"Unexpected delta",
+				"P[*]: {CHILDREN}\n" + 
+				"	<project root>[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
+				"			X.java[*]: {CONTENT | FINE GRAINED | PRIMARY WORKING COPY}"
+			);
+		} finally {
+			stopDeltas();
+		}
+	}
+
+	/*
 	 * Tests that a primary working copy is back in compilation unit mode when discardWorkingCopy() is called.
 	 */
 	public void testDiscardWorkingCopy1() throws CoreException {

@@ -1286,7 +1286,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			// compute the delta if needed and register it if there are changes
 			if (deltaBuilder != null) {
 				deltaBuilder.buildDeltas();
-				if ((deltaBuilder.delta != null) && (deltaBuilder.delta.getAffectedChildren().length > 0)) {
+				if (deltaBuilder.delta != null) {
 					getDeltaProcessor().registerJavaModelDelta(deltaBuilder.delta);
 				}
 			}
