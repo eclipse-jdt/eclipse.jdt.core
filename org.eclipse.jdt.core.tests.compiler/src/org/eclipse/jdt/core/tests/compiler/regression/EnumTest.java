@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 133 };
+//		TESTS_NUMBERS = new int[] { 134 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -3770,8 +3770,7 @@ public void test113() {
 		"	           ^^^\n" + 
 		"The field bar cannot be declared static; static fields can only be declared in static or top level types\n" + 
 		"----------\n");
-}	
-
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99428 and https://bugs.eclipse.org/bugs/show_bug.cgi?id=99655
 public void test114() {
     this.runConformTest(
@@ -4656,5 +4655,26 @@ public void test133() {
 	if (index == -1) {
 		assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
 	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149042
+public void test134() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"public enum X {\n" + 
+			"    INITIAL ,\n" + 
+			"    OPENED {\n" + 
+			"        {\n" + 
+			"            System.out.printf(\"After the %s constructor\\n\",INITIAL);\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}",
+        },
+        "----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	System.out.printf(\"After the %s constructor\\n\",INITIAL);\n" + 
+		"	                                               ^^^^^^^\n" + 
+		"Cannot refer to the static enum field X.INITIAL within an initializer\n" + 
+		"----------\n");
 }
 }
