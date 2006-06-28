@@ -5572,4 +5572,53 @@ public void _test095() {
 			"}\n"},
 		"");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148957
+public void test096() {
+	this.runNegativeTest(
+		new String[] {
+			"ProblemClass.java",//===================
+			"import java.util.Collection;\n" + 
+			"import javax.swing.JLabel;\n" + 
+			"interface SuperInterface {\n" + 
+			"   public <A extends JLabel> void doIt(Collection<A> as);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class ProblemClass implements SuperInterface {\n" + 
+			"   public void doIt(Collection<? extends JLabel> as) {\n" + 
+			"   }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in ProblemClass.java (at line 7)\n" + 
+		"	public class ProblemClass implements SuperInterface {\n" + 
+		"	             ^^^^^^^^^^^^\n" + 
+		"The type ProblemClass must implement the inherited abstract method SuperInterface.doIt(Collection<A>)\n" + 
+		"----------\n" + 
+		"2. ERROR in ProblemClass.java (at line 8)\n" + 
+		"	public void doIt(Collection<? extends JLabel> as) {\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method doIt(Collection<? extends JLabel>) of type ProblemClass has the same erasure as doIt(Collection<A>) of type SuperInterface but does not override it\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148957 - variation
+public void test097() {
+	this.runConformTest(
+		new String[] {
+			"ProblemClass.java",//===================
+			"import java.util.Collection;\n" + 
+			"import javax.swing.JLabel;\n" + 
+			"interface SuperInterface {\n" + 
+			"   public <A extends JLabel> void doIt(Collection<A> as);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class ProblemClass implements SuperInterface {\n" + 
+			"   public <B extends JLabel> void doIt(Collection<B> as) {\n" + 
+			"   }\n" + 
+			"}\n"
+		},
+		""
+	);
+}
 }
