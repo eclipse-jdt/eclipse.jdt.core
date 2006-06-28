@@ -60,35 +60,9 @@ protected void setUp() throws Exception {
 	// Javadoc disabled by default 
 	docSupport = false;
 }
-public void test001() {
-	this.runNegativeTest(
-		new String[] {
-			"p1/Test.java",
-			"package p1; \n"+
-			"public class Test { \n"+
-			"	public static void main(String[] arguments) { \n"+
-			"		new Test().foo(); \n"+
-			"	} \n"+
-			"	class M { \n"+
-			"	} \n"+
-			"	void foo(){ \n"+
-			"		class Y extends Secondary { \n"+
-			"			M m; \n"+
-			"		}; \n"+
-			"	} \n"+
-			"} \n" +
-			"class Secondary { \n" +
-			"	class M {} \n" +
-			"} \n"
-		},
-		"----------\n" + 
-		"1. ERROR in p1\\Test.java (at line 10)\n" + 
-		"	M m; \n" + 
-		"	^\n" + 
-		"The type M is defined in an inherited type and an enclosing scope\n" + 
-		"----------\n"
-	);
-}
+
+// test001 - moved to SuperTypeTest#test002
+
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
