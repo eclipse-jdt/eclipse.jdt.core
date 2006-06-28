@@ -28,6 +28,38 @@ public class CopyResourceTests extends BuilderTests {
 		return buildTestSuite(CopyResourceTests.class);
 	}
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=117302
+	public void testFilteredResources() throws JavaModelException {
+		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
+		IPath src = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		env.addClass(src, "x", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package x;"+ //$NON-NLS-1$
+			"public class A extends q.B {}" //$NON-NLS-1$
+		);
+		env.addClass(src, "q", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package q;"+ //$NON-NLS-1$
+			"public class B {}" //$NON-NLS-1$
+		);
+		env.addFile(src.append("q"), "test.txt", "test file"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		org.eclipse.jdt.core.IJavaProject p = env.getJavaProject("P");
+		java.util.Map options = p.getOptions(true);
+		options.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, "q*"); //$NON-NLS-1$
+		p.setOptions(options);
+
+		int max = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
+		try {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1;
+			fullBuild();
+		} finally {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
+		}
+		expectingNoProblems();
+		expectingNoPresenceOf(projectPath.append("bin/q/test.txt")); //$NON-NLS-1$
+	}
+
 	public void testSimpleProject() throws JavaModelException {
 		IPath projectPath = env.addProject("P1"); //$NON-NLS-1$
 		IPath src = env.getPackageFragmentRootPath(projectPath, ""); //$NON-NLS-1$

@@ -85,6 +85,9 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 		final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 		final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
 		final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
+		final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
+		final IContainer outputFolder = sourceLocation.binaryFolder;
+		final boolean isOutputFolder = sourceLocation.sourceFolder.equals(outputFolder);
 		sourceLocation.sourceFolder.accept(
 			new IResourceProxyVisitor() {
 				public boolean visit(IResourceProxy proxy) throws CoreException {
@@ -107,7 +110,14 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 								resource = proxy.requestResource();
 								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
 							}
-							if (isAlsoProject && isExcludedFromProject(proxy.requestFullPath())) return false;
+							IPath folderPath = null;
+							if (isAlsoProject)
+								if (isExcludedFromProject(folderPath = proxy.requestFullPath())) return false;
+							if (!isOutputFolder) {
+								if (folderPath == null)
+									folderPath = proxy.requestFullPath();
+								createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
+							}
 					}
 					return true;
 				}
@@ -190,10 +200,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 					},
 					IResource.NONE
 				);
-				if (!isOutputFolder && copyBack) {
-					notifier.checkCancel();
-					copyPackages(sourceLocation);
-				}
+				notifier.checkCancel();
 			}
 			notifier.checkCancel();
 		}
@@ -202,8 +209,6 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 			ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 			if (sourceLocation.hasIndependentOutputFolder)
 				copyExtraResourcesBack(sourceLocation, false);
-			else if (!sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder))
-				copyPackages(sourceLocation); // output folder is different from source folder
 			notifier.checkCancel();
 		}
 	}
@@ -262,6 +267,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 							}
 							copiedResource.delete(IResource.FORCE, null); // last one wins
 						}
+						createFolder(partialPath.removeLastSegments(1), outputFolder); // ensure package folder exists
 						resource.copy(copiedResource.getFullPath(), IResource.FORCE | IResource.DERIVED, null);
 						Util.setReadOnly(copiedResource, false); // just in case the original was read only
 						return false;
@@ -272,35 +278,6 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 						if (isAlsoProject && isExcludedFromProject(folderPath)) return false; // the sourceFolder == project
 						if (exclusionPatterns != null && Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
 					        return inclusionPatterns != null; // need to go further only if inclusionPatterns are set
-						createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
-				}
-				return true;
-			}
-		},
-		IResource.NONE
-	);
-}
-
-protected void copyPackages(ClasspathMultiDirectory sourceLocation) throws CoreException {
-	final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
-	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
-	final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
-	final IContainer outputFolder = sourceLocation.binaryFolder;
-	final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
-	sourceLocation.sourceFolder.accept(
-		new IResourceProxyVisitor() {
-			public boolean visit(IResourceProxy proxy) throws CoreException {
-				switch(proxy.getType()) {
-					case IResource.FILE :
-						return false;
-					case IResource.FOLDER :
-						IResource resource = proxy.requestResource();
-						if (javaBuilder.filterExtraResource(resource)) return false;
-						IPath folderPath = resource.getFullPath();
-						if (isAlsoProject && isExcludedFromProject(folderPath)) return false; // the sourceFolder == project
-						if (exclusionPatterns != null && Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
-					        return inclusionPatterns != null; // need to go further only if inclusionPatterns are set
-						createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
 				}
 				return true;
 			}
