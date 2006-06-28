@@ -18,9 +18,12 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -1144,7 +1147,7 @@ public void testExcludePartOfAnotherProject2() throws CoreException {
 /*
  * Ensures that an external working copy can be reconciled with no error.
  */
-public void testExternal() throws CoreException {
+public void testExternal1() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
 	this.problemRequestor =  new ProblemRequestor();
@@ -1163,6 +1166,41 @@ public void testExternal() throws CoreException {
 		"----------\n" + 
 		"----------\n"
 	);
+}
+
+/*
+ * Ensures that an external working copy with a container classpath entry can be reconciled with no exception.
+ * (regression test for bug 148970 Exceptions opening external Java file)
+ */
+public void testExternal2() throws CoreException {
+	class LogListener implements ILogListener {
+    	IStatus log;
+        public void logging(IStatus status, String plugin) {
+            this.log = status;
+        }
+	}
+	LogListener listener = new LogListener();
+	try {
+		Platform.addLogListener(listener);
+		this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+		this.workingCopy = null;
+		this.problemRequestor =  new ProblemRequestor();
+		ContainerInitializer.setInitializer(new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {" ", getExternalJCLPathString()}));
+		IClasspathEntry[] classpath = new IClasspathEntry[] {
+			JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"))
+		};
+		this.workingCopy = newExternalWorkingCopy("External.java", classpath, this.problemRequestor,
+			"public class External {\n"+
+			"	String foo(){\n"+
+			"		return \"\";\n" +
+			"	}\n"+
+			"}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null/*no owner*/, null);
+		assertEquals("Should not get any exception in log", null, listener.log);
+	} finally {
+		Platform.removeLogListener(listener);
+	}
 }
 
 /*

@@ -150,7 +150,13 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 					
 					if (this.canChangeResources) {
 						// touch project to force a build if needed
-						affectedProject.getProject().touch(this.progressMonitor);
+						try {
+							affectedProject.getProject().touch(this.progressMonitor);
+						} catch (CoreException e) {
+							// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=148970
+							if (!ExternalJavaProject.EXTERNAL_PROJECT_NAME.equals(affectedProject.getElementName()))
+								throw e;
+						}
 					}
 				}
 			} catch(CoreException e) {
