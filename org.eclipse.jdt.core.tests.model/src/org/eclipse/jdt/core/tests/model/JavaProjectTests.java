@@ -764,6 +764,20 @@ public void testPackageFragmentNonJavaResources6() throws JavaModelException {
 }
 
 /*
+ * Ensure that the non-Java resources of a zip package with resources are correct.
+ * (regression test for bug 148949 JarEntryFile now returning 'null')
+ */
+public void testPackageFragmentNonJavaResources7() throws JavaModelException {	
+	// regular zip package without resources
+	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "lib148949.jar", "p");
+	Object[] resources = pkg.getNonJavaResources();
+	assertResourceNamesEqual(
+		"Unexpected resources", 
+		"test.txt",
+		resources);
+}
+
+/*
  * Ensures that the package-info.class file doesn't appear as a child of a package if proj=src
  * (regression test for bug 99654 [5.0] JavaModel returns both IClassFile and ICompilationUnit for package-info.java)
  */
@@ -988,7 +1002,8 @@ public void testProjectGetChildren() throws JavaModelException {
 		"<project root> [in JavaProjectTests]\n" + 
 		getExternalJCLPathString() + "\n" + 
 		"lib.jar [in JavaProjectTests]\n" + 
-		"lib142530.jar [in JavaProjectTests]",
+		"lib142530.jar [in JavaProjectTests]\n" + 
+		"lib148949.jar [in JavaProjectTests]",
 		roots);
 }
 /**
@@ -1003,11 +1018,13 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 		"<default> [in <project root> [in JavaProjectTests]]\n" + 
 		"<default> [in lib.jar [in JavaProjectTests]]\n" + 
 		"<default> [in lib142530.jar [in JavaProjectTests]]\n" + 
+		"<default> [in lib148949.jar [in JavaProjectTests]]\n" + 
 		"java [in "+ getExternalJCLPathString() + "]\n" + 
 		"java.io [in "+ getExternalJCLPathString() + "]\n" + 
 		"java.lang [in "+ getExternalJCLPathString() + "]\n" + 
 		"p [in lib.jar [in JavaProjectTests]]\n" + 
 		"p [in lib142530.jar [in JavaProjectTests]]\n" + 
+		"p [in lib148949.jar [in JavaProjectTests]]\n" + 
 		"q [in <project root> [in JavaProjectTests]]\n" + 
 		"x [in <project root> [in JavaProjectTests]]\n" + 
 		"x.y [in <project root> [in JavaProjectTests]]",

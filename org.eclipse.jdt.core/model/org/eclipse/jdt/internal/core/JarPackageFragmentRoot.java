@@ -244,14 +244,14 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			return;
 		
 		// add classfile info amongst children
-		String fileName = entryName.substring(lastSeparator + 1);
 		ArrayList[] children = (ArrayList[]) packageFragToTypes.get(pkgName);
 		if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
 			if (children[0/*JAVA*/] == EMPTY_LIST) children[0/*JAVA*/] = new ArrayList();
+			String fileName = entryName.substring(lastSeparator + 1);
 			children[0/*JAVA*/].add(fileName);
 		} else {
 			if (children[1/*NON_JAVA*/] == EMPTY_LIST) children[1/*NON_JAVA*/] = new ArrayList();
-			children[1/*NON_JAVA*/].add(fileName);
+			children[1/*NON_JAVA*/].add(entryName);
 		}
 		
 	}
