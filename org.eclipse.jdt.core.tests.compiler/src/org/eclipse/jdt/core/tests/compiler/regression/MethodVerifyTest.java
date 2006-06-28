@@ -5550,29 +5550,6 @@ public void test094() {
 	);
 }
 
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
-// TODO (maxime/kent) activate once fixed
-public void _test095() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  interface I1 {}\n" + 
-			"  interface I2 {}\n" + 
-			"  static Object foo(I1 p) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"  static <T extends I2 & I1> Object foo(T p) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"    class Y implements I1, I2 {}\n" + 
-			"    foo(new Y());\n" + // should not report an error here
-			"  }\n" + 
-			"}\n"},
-		"");
-}
-
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148957
 public void test096() {
 	this.runNegativeTest(
