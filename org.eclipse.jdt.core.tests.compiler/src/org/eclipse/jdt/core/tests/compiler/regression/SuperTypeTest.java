@@ -102,4 +102,165 @@ public void test002() {
 			"SUCCESS");
 	}
 }	
+
+// was Compliance_1_x#test002
+public void test003() {
+	String[] sources = new String[] {
+		"p1/Test.java",
+		"package p1; \n"+
+		"public class Test { \n"+
+		"	public static void main(String[] arguments) { \n"+
+		"		new Test().foo(); \n"+
+		"	} \n"+
+		"	String bar() { \n"+
+		"		return \"FAILED\";	\n" +
+		"	} \n"+
+		"	void foo(){ \n"+
+		"		class Y extends Secondary { \n"+
+		"			String z = bar();	\n" +
+		"		}; \n"+
+		"		System.out.println(new Y().z);	\n" +
+		"	} \n"+
+		"} \n" +
+		"class Secondary { \n" +
+		"	String bar(){ return \"SUCCESS\"; } \n" +
+		"} \n"
+	};
+	if (this.complianceLevel.equals(COMPLIANCE_1_3)) {
+		runNegativeTest(
+			sources,
+			"----------\n" + 
+			"1. ERROR in p1\\Test.java (at line 11)\n" + 
+			"	String z = bar();	\n" + 
+			"	           ^^^\n" + 
+			"The method bar is defined in an inherited type and an enclosing scope\n" + 
+			"----------\n");
+	} else {
+		runConformTest(
+			sources,
+			"SUCCESS");
+	}
+}
+
+// was Compliance_1_x#test003
+public void test004() {
+	String[] sources = new String[] {
+		"p1/Test.java",
+		"package p1; \n"+
+		"public class Test { \n"+
+		"	public static void main(String[] arguments) { \n"+
+		"		new Test().foo(); \n"+
+		"	} \n"+
+		"	String bar = \"FAILED\";"+
+		"	void foo(){ \n"+
+		"		class Y extends Secondary { \n"+
+		"			String z = bar; \n"+
+		"		}; \n"+
+		"		System.out.println(new Y().z);	\n" +
+		"	} \n"+
+		"} \n" +
+		"class Secondary { \n" +
+		"	String bar = \"SUCCESS\"; \n" +
+		"} \n"
+	};
+	if (this.complianceLevel.equals(COMPLIANCE_1_3)) {
+		runNegativeTest(
+			sources,
+			"----------\n" + 
+			"1. ERROR in p1\\Test.java (at line 8)\n" + 
+			"	String z = bar; \n" + 
+			"	           ^^^\n" + 
+			"The field bar is defined in an inherited type and an enclosing scope \n" + 
+			"----------\n");
+	} else {
+		runConformTest(
+			sources,
+			"SUCCESS");
+	}
+}
+
+// was Compliance_1_x#test004
+public void test005() {
+	this.runConformTest(
+		new String[] {
+			"p1/Test.java",
+			"package p1; \n"+
+			"public class Test { \n"+
+			"	public static void main(String[] arguments) { \n"+
+			"		new Test().foo(); \n"+
+			"	} \n"+
+			"	String bar() { \n"+
+			"		return \"SUCCESS\";	\n" +
+			"	} \n"+
+			"	void foo(){ \n"+
+			"		class Y extends Secondary { \n"+
+			"			String z = bar();	\n" +
+			"		}; \n"+
+			"		System.out.println(new Y().z);	\n" +
+			"	} \n"+
+			"} \n" +
+			"class Secondary { \n" +
+			"	private String bar(){ return \"FAILED\"; } \n" +
+			"} \n"
+		},
+		"SUCCESS");
+}
+
+// was Compliance_1_x#test005
+public void test006() {
+	this.runConformTest(
+		new String[] {
+			"p1/Test.java",
+			"package p1; \n"+
+			"public class Test { \n"+
+			"	public static void main(String[] arguments) { \n"+
+			"		new Test().foo(); \n"+
+			"	} \n"+
+			"	String bar = \"SUCCESS\";"+
+			"	void foo(){ \n"+
+			"		class Y extends Secondary { \n"+
+			"			String z = bar; \n"+
+			"		}; \n"+
+			"		System.out.println(new Y().z);	\n" +
+			"	} \n"+
+			"} \n" +
+			"class Secondary { \n" +
+			"	private String bar = \"FAILED\"; \n" +
+			"} \n"
+		},
+		"SUCCESS");
+}
+
+// was Compliance_1_x#test006
+public void test007() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/Test.java",
+			"package p1; \n"+
+			"public class Test { \n"+
+			"	public static void main(String[] arguments) { \n"+
+			"		new Test().foo(); \n"+
+			"	} \n"+
+			"	String bar() { \n"+
+			"		return \"FAILED\";	\n" +
+			"	} \n"+
+			"	void foo(){ \n"+
+			"		class Y extends Secondary { \n"+
+			"			String z = bar();	\n" +
+			"		}; \n"+
+			"		System.out.println(new Y().z);	\n" +
+			"	} \n"+
+			"} \n" +
+			"class Secondary { \n" +
+			"	String bar(int i){ return \"SUCCESS\"; } \n" +
+			"} \n"
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\Test.java (at line 11)\n" + 
+		"	String z = bar();	\n" + 
+		"	           ^^^\n" + 
+		"The method bar(int) in the type Secondary is not applicable for the arguments ()\n" + 
+		"----------\n"
+	);
+}
 }
