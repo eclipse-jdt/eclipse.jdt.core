@@ -32303,4 +32303,38 @@ public void test1018() {
 		},
 		"");
 }
+public void test1019() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		double[] d1 = new double[] { 1.0, 2.0, 3.0, 4.0 };\n" + 
+			"		System.out.println(deepToString(d1));\n" + 
+			"\n" + 
+			"		Double[] d2 = new Double[] { 1.0, 2.0, 3.0, 4.0 };\n" + 
+			"		System.out.println(deepToString(d2));\n" + 
+			"	\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <T> String deepToString(T[] array) {\n" + 
+			"		StringBuffer s = new StringBuffer();\n" + 
+			"		for (T t : array) {\n" + 
+			"			s.append(t.toString());\n" + 
+			"			s.append(\",\");\n" + 
+			"		}\n" + 
+			"		if (s.length() > 0) {\n" + 
+			"			s.setLength(s.length() - 1); // removes last \",\"\n" + 
+			"		}\n" + 
+			"		return s.toString();\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	System.out.println(deepToString(d1));\n" + 
+		"	                   ^^^^^^^^^^^^\n" + 
+		"The method deepToString(T[]) in the type X is not applicable for the arguments (double[])\n" + 
+		"----------\n");
+}
 }
