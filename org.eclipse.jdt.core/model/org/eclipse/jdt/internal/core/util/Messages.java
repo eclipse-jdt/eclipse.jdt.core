@@ -36,7 +36,6 @@ public final class Messages extends NLS {
 	public static String element_nullName;
 	public static String element_nullType;
 	public static String element_illegalParent;
-	public static String sourcetype_invalidName;
 	public static String operation_needElements;
 	public static String operation_needName;
 	public static String operation_needPath;

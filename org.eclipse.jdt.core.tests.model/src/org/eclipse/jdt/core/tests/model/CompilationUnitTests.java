@@ -233,6 +233,26 @@ public void testDeprecatedFlag09() throws JavaModelException {
 }
 
 /*
+ * Ensures that the primary type of a cu can be found.
+ */
+public void testFindPrimaryType1() throws JavaModelException {
+	ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+	assertElementEquals(
+		"Unexpected primary type", 
+		"X [in X.java [in p [in src [in P]]]]",
+		unit.findPrimaryType());
+}
+
+/*
+ * Ensures that findPrimaryType() doesn't throw an exception if the cu name is invalid.
+ * (regression test for bug 120865 ICompilationUnit.findPrimaryType(..) should not throw internal AFE)
+ */
+public void testFindPrimaryType2() throws JavaModelException {
+	ICompilationUnit unit = getPackage("/P/src/p").getCompilationUnit("A.B.java");
+	assertNull("Unexpected primary type", unit.findPrimaryType());
+}
+
+/*
  * Ensures that the categories for a class are correct.
  */
 public void testGetCategories01() throws CoreException {
