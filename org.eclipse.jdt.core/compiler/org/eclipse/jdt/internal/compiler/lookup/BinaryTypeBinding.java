@@ -315,6 +315,7 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 			boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
 			boolean isViewedAsDeprecated = isViewedAsDeprecated();
 			boolean hasRestrictedAccess = hasRestrictedAccess();
+			int firstAnnotatedFieldIndex = -1;
 			for (int i = 0; i < size; i++) {
 				IBinaryField binaryField = iFields[i];
 				char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
@@ -328,8 +329,11 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 						binaryField.getModifiers() | ExtraCompilerModifiers.AccUnresolved, 
 						this, 
 						binaryField.getConstant());
-				if (this.environment.globalOptions.storeAnnotations)
-					field.setAnnotations(createAnnotations(binaryField.getAnnotations(), this.environment));
+				if (firstAnnotatedFieldIndex < 0
+						&& this.environment.globalOptions.storeAnnotations 
+						&& binaryField.getAnnotations() != null) {
+					firstAnnotatedFieldIndex = i;
+				}
 				field.id = i; // ordinal
 				if (use15specifics)
 					field.tagBits |= binaryField.getTagBits();
@@ -340,6 +344,12 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 				if (fieldSignature != null)
 					field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				this.fields[i] = field;
+			}
+			// second pass for reifying annotations, since may refer to fields being constructed (147875)
+			if (firstAnnotatedFieldIndex >= 0) {
+				for (int i = firstAnnotatedFieldIndex; i <size; i++) {
+					this.fields[i].setAnnotations(createAnnotations(iFields[i].getAnnotations(), this.environment));
+				}
 			}
 		}
 	}
