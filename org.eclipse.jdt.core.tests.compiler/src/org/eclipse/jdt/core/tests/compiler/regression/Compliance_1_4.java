@@ -68,23 +68,7 @@ protected void setUp() throws Exception {
 // test004 - moved to SuperTypeTest#test005
 // test005 - moved to SuperTypeTest#test006
 // test006 - moved to SuperTypeTest#test007
-public void test007() {
-	this.runConformTest(
-		new String[] {
-			"p1/Test.java",
-			"package p1; \n"+
-			"public class Test { \n"+
-			"	public static void main(String[] arguments) { \n"+
-			"		try {	\n" +
-			"			throw null; \n"+
-			"		} catch(NullPointerException e){ 	\n" +
-			"			System.out.println(\"SUCCESS\");	\n"	+
-			"		}	\n" +
-			"	} \n"+
-			"} \n"
-		},
-		"SUCCESS");
-}
+// test007 - moved to TryStatementTest#test057
 public void test008() {
 	this.runNegativeTest(
 		new String[] {

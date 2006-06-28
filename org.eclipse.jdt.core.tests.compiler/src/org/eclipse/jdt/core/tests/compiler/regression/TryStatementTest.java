@@ -4811,6 +4811,38 @@ public void _test056() {
 		"Unreachable catch block for IOException. This exception is never thrown from the try statement body\n" + 
 		"----------\n");
 }
+
+// was Compliance_1_x#test007
+public void test057() {
+	String[] sources = new String[] {
+		"p1/Test.java",
+		"package p1; \n"+
+		"public class Test { \n"+
+		"	public static void main(String[] arguments) { \n"+
+		"		try {	\n" +
+		"			throw null; \n"+
+		"		} catch(NullPointerException e){ 	\n" +
+		"			System.out.println(\"SUCCESS\");	\n"	+
+		"		}	\n" +
+		"	} \n"+
+		"} \n"
+	};
+	if (this.complianceLevel.equals(COMPLIANCE_1_3)) {
+		runNegativeTest(
+			sources,
+			"----------\n" + 
+			"1. ERROR in p1\\Test.java (at line 5)\n" + 
+			"	throw null; \n" + 
+			"	      ^^^^\n" + 
+			"Cannot throw null as an exception\n" + 
+			"----------\n");
+	} else {
+		runConformTest(
+			sources,
+			"SUCCESS");
+	}
+}
+
 public static Class testClass() {
 	return TryStatementTest.class;
 }
