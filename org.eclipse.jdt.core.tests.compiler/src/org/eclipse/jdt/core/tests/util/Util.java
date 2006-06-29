@@ -547,9 +547,17 @@ public static String getJREDirectory() {
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.getOutputDirectory()]
  */
 public static String getOutputDirectory() {
-	String container = System.getProperty("user.home");
+	String container = System.getProperty("jdt.test.output_directory");
 	if (container == null){
-		return null;
+		container = System.getProperty("user.home");
+		if (container == null){
+			return null;
+		}
+	}
+	if (Character.isLowerCase(container.charAt(0)) && 
+			container.charAt(1) == ':') {
+		return toNativePath(Character.toUpperCase(container.charAt(0))
+				+ container.substring(1)) + File.separator + OUTPUT_DIRECTORY;
 	}
 	return toNativePath(container) + File.separator + OUTPUT_DIRECTORY;
 }
