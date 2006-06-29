@@ -1719,7 +1719,9 @@ class ASTConverter {
 			case AST.JLS3 :
 				EnhancedForStatement enhancedForStatement = new EnhancedForStatement(this.ast);
 				enhancedForStatement.setParameter(convertToSingleVariableDeclaration(statement.elementVariable));
-				enhancedForStatement.setExpression(convert(statement.collection));
+				org.eclipse.jdt.internal.compiler.ast.Expression collection = statement.collection;
+				if (collection == null) return null;
+				enhancedForStatement.setExpression(convert(collection));
 				final Statement action = convert(statement.action);
 				if (action == null) return null;
 				enhancedForStatement.setBody(action);

@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 221 };
+//		TESTS_NUMBERS = new int[] { 222 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6962,5 +6962,36 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=148797
+	 */
+	public void test0222() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X {\n" + 
+    		"   public void a() {\n" + 
+    		"      Object a = null;\n" + 
+    		"      for (Object o : a.getClass()()) {\n" + 
+    		"      }\n" + 
+    		"   }\n" + 
+    		"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false,
+    			true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 2, "Syntax error on token \")\", invalid Name\n" + 
+				"Syntax error, insert \")\" to complete EnhancedForStatementHeader");
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block body = methodDeclaration.getBody();
+		assertNotNull("No body", body);
+		List statements = body.statements();
+		assertEquals("Wrong size", 1, statements.size());
 	}
 }
