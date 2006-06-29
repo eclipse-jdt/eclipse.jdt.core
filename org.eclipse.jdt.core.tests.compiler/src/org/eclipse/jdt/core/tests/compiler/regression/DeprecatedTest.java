@@ -407,6 +407,85 @@ public void test011() {
 		"----------\n");
 }         
 
+// @deprecated upon locals do not influence the deprecation diagnostic
+// JLS3 9.6
+public void test012() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, 
+		CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
+		CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+            "X.java",
+			"public class X {\n" + 
+			"    void foo() {\n" + 
+			"        /** @deprecated */\n" + 
+			"        int i1 = Y.m;\n" + 
+			"    }\n" + 
+			"    /** @deprecated */\n" + 
+			"    void bar() {\n" + 
+			"        int i1 = Y.m;\n" + 
+			"    }\n" + 
+			"}\n",
+            "Y.java",
+			"public class Y {\n" + 
+			"    /** @deprecated */\n" + 
+			"    static int m;\n" +			
+			"}\n",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	int i1 = Y.m;\n" + 
+		"	           ^\n" + 
+		"The field Y.m is deprecated\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+
+// @deprecated upon locals do not influence the deprecation diagnostic
+// JLS3 9.6
+// @Deprecated variant
+public void test013() {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportDeprecation, 
+			CompilerOptions.ERROR);
+		customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
+			CompilerOptions.IGNORE);
+		this.runNegativeTest(
+			new String[] {
+	            "X.java",
+				"public class X {\n" + 
+				"    void foo() {\n" + 
+				"        @Deprecated\n" + 
+				"        int i1 = Y.m;\n" + 
+				"    }\n" + 
+				"    @Deprecated\n" + 
+				"    void bar() {\n" + 
+				"        int i1 = Y.m;\n" + 
+				"    }\n" + 
+				"}\n",
+	            "Y.java",
+				"public class Y {\n" + 
+				"    @Deprecated\n" + 
+				"    static int m;\n" +			
+				"}\n",
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	int i1 = Y.m;\n" + 
+			"	           ^\n" + 
+			"The field Y.m is deprecated\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+	}
+}
+
 public static Class testClass() {
 	return DeprecatedTest.class;
 }
