@@ -107,7 +107,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 647 };
+//		TESTS_NUMBERS =  new int[] { 652 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -7941,6 +7941,48 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			Expression expression = fragment.getInitializer();
 			assertNotNull("No initializer", expression);
 			checkSourceRange(expression, "new int[0\\u005D", contents);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=149126
+	 */
+	public void _test0652() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"import java.nio.ByteBuffer;\n" + 
+				"import java.nio.CharBuffer;\n" + 
+				"import java.nio.charset.Charset;\n" + 
+				"import java.nio.charset.CharsetDecoder;\n" + 
+				"import java.nio.charset.CharsetEncoder;\n" + 
+				"import java.nio.charset.CoderResult;\n" + 
+				"public class TestCharset extends Charset {\n" + 
+				"        public CharsetDecoder newDecoder() {\n" + 
+				"                return new CharsetDecoder(this, 2.0, 2.0) {\n" + 
+				"                        CharsetDecoder(CharSet\n" + 
+				"                        protected CoderResult decodeLoop(ByteBuffer in,\n" + 
+				"CharBuffer out) {\n" + 
+				"                                return null;\n" + 
+				"                        }\n" + 
+				"                };;\n" + 
+				"        }\n" + 
+				"        public CharsetEncoder newEncoder() {\n" + 
+				"                return null;\n" + 
+				"        }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 1);
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
