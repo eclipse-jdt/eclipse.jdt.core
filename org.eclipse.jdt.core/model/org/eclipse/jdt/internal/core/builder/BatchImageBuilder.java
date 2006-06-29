@@ -91,25 +91,18 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 		sourceLocation.sourceFolder.accept(
 			new IResourceProxyVisitor() {
 				public boolean visit(IResourceProxy proxy) throws CoreException {
-					IResource resource = null;
 					switch(proxy.getType()) {
 						case IResource.FILE :
-							if (exclusionPatterns != null || inclusionPatterns != null) {
-								resource = proxy.requestResource();
-								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
-							}
 							if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
-								if (resource == null)
-									resource = proxy.requestResource();
+								IResource resource = proxy.requestResource();
+								if (exclusionPatterns != null || inclusionPatterns != null)
+									if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
 								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation));
 							}
 							return false;
 						case IResource.FOLDER :
-							if (exclusionPatterns != null && inclusionPatterns == null) {
-								// if there are inclusion patterns then we must walk the children
-								resource = proxy.requestResource();
-								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
-							}
+							if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
+								if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns)) return false;
 							IPath folderPath = null;
 							if (isAlsoProject)
 								if (isExcludedFromProject(folderPath = proxy.requestFullPath())) return false;
@@ -176,24 +169,17 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 				sourceLocation.binaryFolder.accept(
 					new IResourceProxyVisitor() {
 						public boolean visit(IResourceProxy proxy) throws CoreException {
-							IResource resource = null;
 							if (proxy.getType() == IResource.FILE) {
-								if (exclusionPatterns != null || inclusionPatterns != null) {
-									resource = proxy.requestResource();
-									if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
-								}
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
-									if (resource == null)
-										resource = proxy.requestResource();
+									IResource resource = proxy.requestResource();
+									if (exclusionPatterns != null || inclusionPatterns != null)
+										if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
 									resource.delete(IResource.FORCE, null);
 								}
 								return false;
 							}
-							if (exclusionPatterns != null && inclusionPatterns == null) {
-								// if there are inclusion patterns then we must walk the children
-								resource = proxy.requestResource();
-								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
-							}
+							if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
+								if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns)) return false;
 							notifier.checkCancel();
 							return true;
 						}
@@ -274,10 +260,9 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 					case IResource.FOLDER :
 						resource = proxy.requestResource();
 						if (javaBuilder.filterExtraResource(resource)) return false;
-						IPath folderPath = resource.getFullPath();
-						if (isAlsoProject && isExcludedFromProject(folderPath)) return false; // the sourceFolder == project
-						if (exclusionPatterns != null && Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
-					        return inclusionPatterns != null; // need to go further only if inclusionPatterns are set
+						if (isAlsoProject && isExcludedFromProject(resource.getFullPath())) return false; // the sourceFolder == project
+						if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
+							if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
 				}
 				return true;
 			}
