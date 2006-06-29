@@ -147,7 +147,12 @@ public void searchAllTypeNames(
 Note that already existing <code>searchAllTypeNames(char [], char[], int, int, IJavaSearchScope, TypeNameRequestor, int, IProgressMonitor)</code> API method documentation has been updated to reflected the fact
 that package name is an exact name and does not accept wildcards.
 </li>
-<li>Incremented plug-in version ID to &quot;3.3.0&quot; due to newly added API method (see details above)</li>
+<li>Incremented plug-in version ID to &quot;3.3.0&quot; due to newly added API method (see details above).</li>
+<li>Huge String concatenations - thousands of terms and beyond - are now 
+    handled smoothly by the compiler even when they are not solely comprised of 
+    literals and other constants (cf. bug 
+    <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=102728">102728</a>).
+    </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -266,10 +271,9 @@ Eclipse SDK 3.3M1 - 13th June 2006
     more part of the general help message, which is thus more compact
     (cf. bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144248">144248</a>).
     </li>
-<li>
-</li>Compiler is now better resilient to duplicate local variables, thus allowing further
+<li>Compiler is now better resilient to duplicate local variables, thus allowing further
 operation to still be carried out accurately (codeselect, completion, search, DOM AST ops)
-(cf. bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144858">144858</a>).
+(cf. bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144858">144858</a>).</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
