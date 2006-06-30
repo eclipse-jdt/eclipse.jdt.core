@@ -2440,6 +2440,46 @@ public void test073() {
 		"The method run() in the type E.Inner is not applicable for the arguments (int)\n" + 
 		"----------\n");
 }
+
+// was Compliance_1_x#test008
+public void test074() {
+	String[] sources = new String[] {
+		"p1/Test.java",
+		"package p1; \n"+
+		"import Test2;	\n" +
+		"import Test2.Member;	\n" +
+		"public class Test { \n"+
+		"	public static void main(String[] arguments) { \n"+
+		"		System.out.println(\"SUCCESS\");	\n"	+
+		"	} \n"+
+		"} \n",
+		"Test2.java",
+		"public class Test2 { \n"+
+		"	public class Member {	\n" +
+		"	} \n"+
+		"} \n"
+	};
+	if (this.complianceLevel.equals(COMPLIANCE_1_3)) {
+		runConformTest(
+			sources,
+			"SUCCESS");
+	} else {
+		runNegativeTest(
+			sources,
+			"----------\n" + 
+			"1. ERROR in p1\\Test.java (at line 2)\n" + 
+			"	import Test2;	\n" + 
+			"	       ^^^^^\n" + 
+			"The import Test2 cannot be resolved\n" + 
+			"----------\n" + 
+			"2. ERROR in p1\\Test.java (at line 3)\n" + 
+			"	import Test2.Member;	\n" + 
+			"	       ^^^^^\n" + 
+			"The import Test2 cannot be resolved\n" + 
+			"----------\n");
+	}
+}
+
 public static Class testClass() {	return LookupTest.class;
 }
 }

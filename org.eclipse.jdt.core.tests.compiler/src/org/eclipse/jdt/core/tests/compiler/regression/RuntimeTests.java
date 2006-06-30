@@ -482,4 +482,59 @@ public void test1003_partial_rebuild() {
 		null);
 }
 
+// partial rebuild - extending class now redefines extended class fields and
+//                   methods
+// was Compliance_1_x#test009
+public void test1004_partial_rebuild() {
+	this.runConformTest(
+		new String[] {
+			"p1/Z.java",
+			"package p1; \n"+
+			"public class Z {	\n" +
+			"	public static void main(String[] arguments) { \n"+
+			"		Y y = new Y();	\n" +
+			"		System.out.print(y.field);	\n"	+
+			"		System.out.print(y.staticField);	\n"	+
+			"		System.out.print(y.method());	\n"	+
+			"		System.out.println(y.staticMethod());	\n"	+
+			"	} \n"+
+			"} \n",
+			"p1/X.java",
+			"package p1; \n"+
+			"public class X { \n"+
+			"	public String field = \"X.field-\";	\n" +
+			"	public static String staticField = \"X.staticField-\";	\n" +
+			"	public String method(){ return \"X.method()-\";	}	\n" +
+			"	public static String staticMethod(){ return \"X.staticMethod()-\";	}	\n" +
+			"} \n",
+			"p1/Y.java",
+			"package p1; \n"+
+			"public class Y extends X { \n"+
+			"} \n"
+		},
+		"X.field-X.staticField-X.method()-X.staticMethod()-");
+	String expectedOutput =
+		this.complianceLevel.equals(COMPLIANCE_1_3) ?
+			"X.field-X.staticField-Y.method()-X.staticMethod()-" :
+			"Y.field-Y.staticField-Y.method()-Y.staticMethod()-";
+	this.runConformTest(
+		new String[] {
+			"p1/Y.java",
+			"package p1; \n"+
+			"public class Y extends X { \n"+
+			"	public static void main(String[] arguments) { \n"+
+			"		Z.main(arguments);	\n" +
+			"	}	\n" +
+			"	public String field = \"Y.field-\";	\n" +
+			"	public static String staticField = \"Y.staticField-\";	\n" +
+			"	public String method(){ return \"Y.method()-\";	}	\n" +
+			"	public static String staticMethod(){ return \"Y.staticMethod()-\";	}	\n" +
+			"} \n"
+		},
+		expectedOutput, // expected output
+		null, // use default class-path
+		false, // do not flush previous output dir content
+		null); // no special vm args
+}
+
 }
