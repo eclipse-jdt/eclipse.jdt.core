@@ -10,11 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.text.MessageFormat;
 
 import junit.framework.Test;
@@ -261,7 +263,27 @@ public static Test suite() {
 					errOutputString);
 		}
 	}
-	
+
+/**
+ * Check that no line of message extends beyond width columns. Tabs count for
+ * 4 characters.
+ * @param message the message to check
+ * @param width the maximum number of columns for the message
+ */
+private void checkWidth(String message, int width) {
+	BufferedReader reader = new BufferedReader(
+			new StringReader(message.replaceAll("\t", "    ")));
+	String line;
+	try {
+		while ((line = reader.readLine()) != null) {
+			assertTrue("line exceeds " + width + "characters: " + line,
+				line.length() <= width);
+		}
+	} catch (IOException e) {
+		// should never happen on a StringReader
+	}
+}
+
 	/**
 	 * Abstract normalizer for output comparison. This class merely embodies a
 	 * chain of responsibility, plus the signature of the method of interest
@@ -840,6 +862,8 @@ public void test011(){
         true);
 }
 // command line - help
+// amended for https://bugs.eclipse.org/bugs/show_bug.cgi?id=141512 (checking
+// width)
 public void test012(){
 	final String expectedOutput =
         "{0} {1}\n" + 
@@ -890,7 +914,8 @@ public void test012(){
         "    -1.6               use 1.6 compliance level (implicit -source 1.6\n" + 
         "                       -target 1.6)\n" + 
         "    -source <version>  set source level: 1.3 to 1.6 (or 5, 5.0, 6 or 6.0)\n" + 
-        "    -target <version>  set classfile target level: 1.1 to 1.6 (or 5, 5.0, 6 or 6.0)\n" + 
+        "    -target <version>  set classfile target level: 1.1 to 1.6 (or 5, 5.0, 6 or\n" +
+        "                       6.0)\n" + 
         " \n" + 
         " Warning options:\n" + 
         "    -deprecation     + deprecation outside deprecated code\n" + 
@@ -933,10 +958,7 @@ public void test012(){
         "    -v -version        print compiler version\n" + 
         "    -showversion       print compiler version and continue\n" + 
         "\n";
-
-	this.runConformTest(
-		new String[0],
-        " -help -referenceInfo",
+	String expandedExpectedOutput = 
 		MessageFormat.format(expectedOutput, new String[] {
 			Main.bind("compiler.name"),
 			Main.bind("compiler.version"),
@@ -949,12 +971,19 @@ public void test012(){
 //					Main.bind("compiler.copyright")
 //				}),
 				// File.pathSeparator
-		}),
+			});
+		this.runConformTest(
+		new String[0],
+        " -help -referenceInfo",
+        expandedExpectedOutput,
         "", true);
+	checkWidth(expandedExpectedOutput, 80);
 }
 //command line - help
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=144248
 // Progressive help text modifies the help options and messages.
+// amended for https://bugs.eclipse.org/bugs/show_bug.cgi?id=141512 (checking
+// width)
 public void test012b(){
 	final String expectedOutput =
         "{0} {1}\n" + 
@@ -1028,10 +1057,7 @@ public void test012b(){
         " Advanced options:\n" + 
         "    -? -help           print the help message\n" + 
         "\n";
-
-	this.runConformTest(
-		new String[0],
-        " -help:warn -referenceInfo",
+	String expandedExpectedOutput = 
 		MessageFormat.format(expectedOutput, new String[] {
 			Main.bind("compiler.name"),
 			Main.bind("compiler.version"),
@@ -1044,8 +1070,13 @@ public void test012b(){
 //					Main.bind("compiler.copyright")
 //				}),
 				// File.pathSeparator
-		}),
+			});
+	this.runConformTest(
+		new String[0],
+        " -help:warn -referenceInfo",
+        expandedExpectedOutput,
         "", true);
+	checkWidth(expandedExpectedOutput, 80);
 }
 
 	// command line - xml log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
