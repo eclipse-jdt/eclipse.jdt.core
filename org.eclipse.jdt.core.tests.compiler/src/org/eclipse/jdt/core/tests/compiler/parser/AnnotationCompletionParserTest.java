@@ -712,6 +712,7 @@ public void test0023(){
 	String expectedReplacedSource = "MyAnn";
 	String expectedUnitDisplayString =
 		"public class X {\n" + 
+		"  @<CompleteOnType:MyAnn>\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
@@ -727,29 +728,6 @@ public void test0023(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "@<CompleteOnType:MyAnn>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "MyAnn";
-	expectedReplacedSource = "MyAnn";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    @<CompleteOnType:MyAnn>\n" + 
-		"  }\n" + 
-		"}\n";
-
-	checkMethodParse(
-			str.toCharArray(),
-			cursorLocation,
-			expectedCompletionNodeToString,
-			expectedParentNodeToString,
-			expectedUnitDisplayString,
-			completionIdentifier,
-			expectedReplacedSource,
-			"full ast");
 }
 public void test0024(){
 	String str =
@@ -4633,6 +4611,69 @@ public void test0124(){
 		"  }\n" + 
 		"  void bar() {\n" + 
 		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=148742
+public void test0125(){
+	String str =
+		"public interface X {\n" +
+		"  public void test(@TestAnnotation int testParam);\n" +
+		"}";
+
+
+	String completeBehind = "@TestAnnotation";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "@<CompleteOnType:TestAnnotation>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "TestAnnotation";
+	String expectedReplacedSource = "TestAnnotation";
+	String expectedUnitDisplayString =
+		"public interface X {\n" + 
+		"  @<CompleteOnType:TestAnnotation>\n" + 
+		"  public void test() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148742
+public void test0126(){
+	String str =
+		"public abstract class X {\n" +
+		"  public abstract void test(@TestAnnotation int testParam);\n" +
+		"}";
+
+
+	String completeBehind = "@TestAnnotation";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "@<CompleteOnType:TestAnnotation>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "TestAnnotation";
+	String expectedReplacedSource = "TestAnnotation";
+	String expectedUnitDisplayString =
+		"public abstract class X {\n" + 
+		"  @<CompleteOnType:TestAnnotation>\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public abstract void test();\n" + 
 		"}\n";
 
 	checkDietParse(

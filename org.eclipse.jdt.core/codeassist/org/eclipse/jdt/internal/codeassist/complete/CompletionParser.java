@@ -207,6 +207,16 @@ protected void attachOrphanCompletionNode(){
 						new CompletionOnFieldType((TypeReference)orphan, true), 0);
 					return;
 				}
+				
+				if(orphan instanceof Annotation) {
+					TypeDeclaration fakeType =
+						new CompletionOnAnnotationOfType(
+								FAKE_TYPE_NAME, 
+								this.compilationUnit.compilationResult(),
+								(Annotation)orphan);
+					currentElement.parent.add(fakeType, 0);
+					return;
+				}
 			}
 		}
 
