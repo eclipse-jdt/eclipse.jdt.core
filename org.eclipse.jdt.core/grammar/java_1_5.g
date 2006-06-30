@@ -290,6 +290,7 @@ ClassType -> ClassOrInterfaceType
 Name -> SimpleName
 Name -> QualifiedName
 /:$readableName Name:/
+/:$recovery_template Identifier:/
 
 SimpleName -> 'Identifier'
 /:$readableName SimpleName:/

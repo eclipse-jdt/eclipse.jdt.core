@@ -6992,6 +6992,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Block body = methodDeclaration.getBody();
 		assertNotNull("No body", body);
 		List statements = body.statements();
-		assertEquals("Wrong size", 1, statements.size());
+		assertEquals("Wrong size", 2, statements.size());
+		Statement statement = (Statement) statements.get(1);
+		assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, statement.getNodeType());
+		EnhancedForStatement forStatement = (EnhancedForStatement) statement;
+		Expression expression = forStatement.getExpression();
+		assertNotNull("No expression", expression);
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		
 	}
 }
