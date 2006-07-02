@@ -256,7 +256,7 @@ public class ProblemReporter extends ProblemHandler {
 			case IProblem.JavadocUsingDeprecatedConstructor:
 			case IProblem.JavadocUsingDeprecatedMethod:
 			case IProblem.JavadocUsingDeprecatedType:
-			case IProblem.JavadocNotVisibleReference:
+			case IProblem.JavadocHiddenReference:
 				return CompilerOptions.InvalidJavadoc;
 	
 			case IProblem.JavadocMissingParamTag:
@@ -1045,7 +1045,7 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocNotVisibleConstructor:
 		case IProblem.JavadocNotVisibleMethod:
 		case IProblem.JavadocNotVisibleType:
-		case IProblem.JavadocNotVisibleReference:
+		case IProblem.JavadocHiddenReference:
 			if (!(this.options.reportInvalidJavadocTags && this.options.reportInvalidJavadocTagsNotVisibleRef)) {
 				return ProblemSeverities.Ignore;			
 			}
@@ -3583,7 +3583,7 @@ public void javadocDeprecatedType(TypeBinding type, ASTNode location, int modifi
 	if (severity == ProblemSeverities.Ignore) return;
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		if (type.isMemberType() && type instanceof ReferenceBinding && !javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, ((ReferenceBinding)type).modifiers)) {
-			this.handle(IProblem.JavadocNotVisibleReference, NoArgument, NoArgument, location.sourceStart, location.sourceEnd);
+			this.handle(IProblem.JavadocHiddenReference, NoArgument, NoArgument, location.sourceStart, location.sourceEnd);
 		} else {
 			this.handle(
 				IProblem.JavadocUsingDeprecatedType,
@@ -4221,9 +4221,16 @@ public void javadocMissingThrowsTag(TypeReference typeRef, int modifiers){
 			typeRef.sourceEnd);
 	}
 }
-public void javadocNotVisibleReference(int sourceStart, int sourceEnd, int modifiers) {
-	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
-		this.handle(IProblem.JavadocNotVisibleReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+public void javadocHiddenReference(int sourceStart, int sourceEnd, Scope scope, int modifiers) {
+	Scope currentScope = scope;
+	while (currentScope.parent.kind != Scope.COMPILATION_UNIT_SCOPE ) {
+		if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, currentScope.getDeclarationModifiers())) {
+			return;
+		}
+		currentScope = currentScope.parent;
+	}
+	String[] arguments = new String[] { this.options.getVisibilityString(this.options.reportInvalidJavadocTagsVisibility), this.options.getVisibilityString(modifiers) };
+	this.handle(IProblem.JavadocHiddenReference, arguments, arguments, sourceStart, sourceEnd);
 }
 public void javadocUndeclaredParamTagName(char[] token, int sourceStart, int sourceEnd, int modifiers) {
 	int severity = computeSeverity(IProblem.JavadocInvalidParamName);

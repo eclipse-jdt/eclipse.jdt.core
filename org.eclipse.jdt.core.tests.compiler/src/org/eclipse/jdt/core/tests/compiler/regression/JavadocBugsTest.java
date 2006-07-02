@@ -3943,6 +3943,310 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
+	 * Bug 103304: [Javadoc] Wrong reference proposal for inner classes.
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=103304"
+	 */
+	public void testBug103304a() {
+		runNegativeTest(
+			new String[] {
+				"boden/IAFAState.java",
+				"package boden;\n" + 
+				"public interface IAFAState {\n" + 
+				"    public class ValidationException extends Exception {\n" + 
+				"        public ValidationException(String variableName, IAFAState subformula) {\n" + 
+				"            super(\"Variable \'\"+variableName+\"\' may be unbound in \'\"+subformula+\"\'\");\n" + 
+				"        }\n" + 
+				"        public void method() {}\n" + 
+				"    }\n" + 
+				"    /**\n" + 
+				"     * Validates a formula for consistent bindings. Bindings are consistent, when at each point in time,\n" + 
+				"     * the set of povided variables can be guaranteed to be a superset of the set of required variables.\n" + 
+				"     * @throws ValidationException Thrown if a variable is unbound. \n" + 
+				"     * @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+				"     * @see IAFAState.ValidationException#method()\n" + 
+				"     * @see ValidationException\n" + 
+				"     * {@link ValidationException}\n" + 
+				"     */\n" + 
+				"    public void validate() throws ValidationException;\n" + 
+				"}\n",
+				"boden/TestValid.java",
+				"package boden;\n" + 
+				"import boden.IAFAState.ValidationException;\n" + 
+				"/**\n" + 
+				" * @see ValidationException\n" + 
+				" * @see IAFAState.ValidationException\n" + 
+				" */\n" + 
+				"public class TestValid {\n" + 
+				"	/**  \n" + 
+				"	 * @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+				"	 */\n" + 
+				"	IAFAState.ValidationException valid1;\n" + 
+				"	/**\n" + 
+				"	 * @see IAFAState.ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+				"	 */\n" + 
+				"	IAFAState.ValidationException valid2;\n" + 
+				"}\n"
+			},
+//			boden\TestValid.java:8: warning - Tag @see: reference not found: ValidationException
+//			boden\TestValid.java:12: warning - Tag @see: reference not found: ValidationException#IAFAState.ValidationException(String, IAFAState)
+			"----------\n" + 
+			"1. ERROR in boden\\TestValid.java (at line 4)\n" + 
+			"	* @see ValidationException\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"2. ERROR in boden\\TestValid.java (at line 9)\n" + 
+			"	* @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug103304b() {
+		runNegativeTest(
+			new String[] {
+				"boden/IAFAState.java",
+				"package boden;\n" + 
+				"public interface IAFAState {\n" + 
+				"    public class ValidationException extends Exception {\n" + 
+				"        public ValidationException(String variableName, IAFAState subformula) {\n" + 
+				"            super(\"Variable \'\"+variableName+\"\' may be unbound in \'\"+subformula+\"\'\");\n" + 
+				"        }\n" + 
+				"        public void method() {}\n" + 
+				"    }\n" + 
+				"}\n",
+				"boden/TestInvalid1.java",
+				"package boden;\n" + 
+				"import boden.IAFAState.ValidationException;\n" + 
+				"public class TestInvalid1 {\n" + 
+				"	/** \n" + 
+				"	 * @see ValidationException#ValidationException(String, IAFAState)\n" + 
+				"	 */ \n" + 
+				"	IAFAState.ValidationException invalid;\n" + 
+				"}\n",
+				"boden/TestInvalid2.java",
+				"package boden;\n" + 
+				"public class TestInvalid2 {\n" + 
+				"	/**\n" + 
+				"	 * @see IAFAState.ValidationException#ValidationException(String, IAFAState)\n" + 
+				"	 */\n" + 
+				"	IAFAState.ValidationException invalid;\n" + 
+				"}\n",
+				"boden/TestInvalid3.java",
+				"package boden;\n" + 
+				"import boden.IAFAState.ValidationException;\n" + 
+				"public class TestInvalid3 {\n" + 
+				"	/**\n" + 
+				"	 * @see IAFAState.ValidationException#IAFA.State.ValidationException(String, IAFAState)\n" + 
+				"	 */\n" + 
+				"	IAFAState.ValidationException invalid;\n" + 
+				"}\n",
+				"boden/TestInvalid4.java",
+				"package boden;\n" + 
+				"import boden.IAFAState.ValidationException;\n" + 
+				"public class TestInvalid4 {\n" + 
+				"	/**\n" + 
+				"	 * @see IAFAState.ValidationException#IAFAState .ValidationException(String, IAFAState)\n" + 
+				"	 */\n" + 
+				"	IAFAState.ValidationException invalid;\n" + 
+				"}\n"
+			},
+//			boden\TestInvalid1.java:7: warning - Tag @see: reference not found: ValidationException#ValidationException(String, IAFAState)
+//			boden\TestInvalid2.java:6: warning - Tag @see: can't find ValidationException(String, IAFAState) in boden.IAFAState.ValidationException => bug ID: 4288720
+//			boden\TestInvalid3.java:6: warning - Tag @see: can't find IAFA.State.ValidationException(String, IAFAState) in boden.IAFAState.ValidationException
+//			boden\TestInvalid4.java:6: warning - Tag @see: can't find IAFAState in boden.IAFAState.ValidationException
+			"----------\n" + 
+			"1. ERROR in boden\\TestInvalid1.java (at line 5)\n" + 
+			"	* @see ValidationException#ValidationException(String, IAFAState)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in boden\\TestInvalid3.java (at line 5)\n" + 
+			"	* @see IAFAState.ValidationException#IAFA.State.ValidationException(String, IAFAState)\n" + 
+		"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in boden\\TestInvalid4.java (at line 5)\n" + 
+			"	* @see IAFAState.ValidationException#IAFAState .ValidationException(String, IAFAState)\n" + 
+			"	                                     ^^^^^^^^^\n" + 
+			"Javadoc: IAFAState cannot be resolved or is not a field\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug103304c() {
+		runConformTest(
+			new String[] {
+				"test/Test.java",
+				"package test;\n" + 
+				"public interface Test {\n" + 
+				"	public class Level0 {\n" + 
+				"		public Level0() {}\n" + 
+				"	}\n" + 
+				"	public interface Member {\n" + 
+				"		public class Level1 {\n" + 
+				"			public Level1() {}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+				"test/C.java",
+				"package test;\n" + 
+				"public class C {\n" + 
+				"	/**\n" + 
+				"	 * @see Test.Level0#Test.Level0()\n" + 
+				"	 */\n" + 
+				"	Test.Level0 valid = new Test.Level0();\n" + 
+				"	/**\n" + 
+				"	 * @see Test.Level0#Level0()\n" + 
+				"	 */\n" + 
+				"	Test.Level0 invalid = new Test.Level0();\n" + 
+				"}\n"
+			}
+//			test\C.java:10: warning - Tag @see: can't find Level0() in test.Test.Level0 => bug ID: 4288720
+		);
+	}
+	public void testBug103304d() {
+		runNegativeTest(
+			new String[] {
+				"test/Test.java",
+				"package test;\n" + 
+				"public interface Test {\n" + 
+				"	public class Level0 {\n" + 
+				"		public Level0() {}\n" + 
+				"	}\n" + 
+				"	public interface Member {\n" + 
+				"		public class Level1 {\n" + 
+				"			public Level1() {}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+				"test/C2.java",
+				"package test;\n" + 
+				"public class C2 {\n" + 
+				"	/**\n" + 
+				"	 * @see Test.Member.Level1#Test.Member.Level1()\n" + 
+				"	 */\n" + 
+				"	Test.Member.Level1 valid = new Test.Member.Level1();\n" + 
+				"	/**\n" + 
+				"	 * @see Test.Member.Level1#Level1()\n" + 
+				"	 */\n" + 
+				"	Test.Member.Level1 invalid = new Test.Member.Level1();\n" + 
+				"	/**\n" + 
+				"	 * @see Test.Member.Level1#Test.Level1()\n" + 
+				"	 */\n" + 
+				"	Test.Member.Level1 wrong = new Test.Member.Level1();\n" + 
+				"}\n"
+			},
+//			test\C2.java:10: warning - Tag @see: can't find Level1() in test.Test.Member.Level1 => Bug ID: 4288720
+//			test\C2.java:14: warning - Tag @see: can't find Test.Level1() in test.Test.Member.Level1
+			"----------\n" + 
+			"1. ERROR in test\\C2.java (at line 12)\n" + 
+			"	* @see Test.Member.Level1#Test.Level1()\n" + 
+			"	                          ^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug103304e() {
+		runConformTest(
+			new String[] {
+				"implicit/Valid.java",
+				"package implicit;\n" + 
+				"public interface Valid {\n" + 
+				"	public class Level0 {\n" + 
+				"		/**\n" + 
+				"		 * @see #Valid.Level0() Valid\n" + 
+				"		 */\n" + 
+				"		public Level0() {}\n" + 
+				"		/**\n" + 
+				"		 * @see #Valid.Level0(String) Valid\n" + 
+				"		 */\n" + 
+				"		public Level0(String str) {}\n" + 
+				"	}\n" + 
+				"	public interface Member {\n" + 
+				"		public class Level1 {\n" + 
+				"			/**\n" + 
+				"			 * @see #Valid.Member.Level1() Valid\n" + 
+				"			 */\n" + 
+				"			public Level1() {}\n" + 
+				"			/**\n" + 
+				"			 * @see #Valid.Member.Level1(int) Valid\n" + 
+				"			 */\n" + 
+				"			public Level1(int x) {}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug103304f() {
+		runNegativeTest(
+			new String[] {
+				"implicit/Invalid.java",
+				"package implicit;\n" + 
+				"public interface Invalid {\n" + 
+				"	public class Level0 {\n" + 
+				"		/**\n" + 
+				"		 * @see #Level0() Invalid\n" + 
+				"		 */\n" + 
+				"		public Level0() {}\n" + 
+				"		/**\n" + 
+				"		 * @see #Level0(String) Invalid\n" + 
+				"		 */\n" + 
+				"		public Level0(String str) {}\n" + 
+				"	}\n" + 
+				"	public interface Member {\n" + 
+				"		public class Level1 {\n" + 
+				"			/**\n" + 
+				"			 * @see #Level1() Invalid\n" + 
+				"			 * @see #Member.Level1() Invalid\n" + 
+				"			 * @see #Invalid.Level1() Invalid\n" + 
+				"			 */\n" + 
+				"			public Level1() {}\n" + 
+				"			/**\n" + 
+				"			 * @see #Level1(int) Invalid\n" + 
+				"			 * @see #Invalid.Level1(int) Invalid\n" + 
+				"			 * @see #Member.Level1(int) Invalid\n" + 
+				"			 */\n" + 
+				"			public Level1(int x) {}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+//			implicit\Invalid.java:7: warning - Tag @see: can't find Level0() in implicit.Invalid.Level0 => bug ID: 4288720
+//			implicit\Invalid.java:11: warning - Tag @see: can't find Level0(String) in implicit.Invalid.Level0 => bug ID: 4288720
+//			implicit\Invalid.java:20: warning - Tag @see: can't find Level1() in implicit.Invalid.Member.Level1 => bug ID: 4288720
+//			implicit\Invalid.java:20: warning - Tag @see: can't find Member.Level1() in implicit.Invalid.Member.Level1
+//			implicit\Invalid.java:20: warning - Tag @see: can't find Invalid.Level1() in implicit.Invalid.Member.Level1
+//			implicit\Invalid.java:26: warning - Tag @see: can't find Level1(int) in implicit.Invalid.Member.Level1 => bug ID: 4288720
+//			implicit\Invalid.java:26: warning - Tag @see: can't find Invalid.Level1(int) in implicit.Invalid.Member.Level1
+//			implicit\Invalid.java:26: warning - Tag @see: can't find Member.Level1(int) in implicit.Invalid.Member.Level1
+			"----------\n" + 
+			"1. ERROR in implicit\\Invalid.java (at line 17)\n" + 
+			"	* @see #Member.Level1() Invalid\n" + 
+			"	        ^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"2. ERROR in implicit\\Invalid.java (at line 18)\n" + 
+			"	* @see #Invalid.Level1() Invalid\n" + 
+			"	        ^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"3. ERROR in implicit\\Invalid.java (at line 23)\n" + 
+			"	* @see #Invalid.Level1(int) Invalid\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"4. ERROR in implicit\\Invalid.java (at line 24)\n" + 
+			"	* @see #Member.Level1(int) Invalid\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
 	 * Bug 116464: [javadoc] Unicode tag name are not correctly parsed
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=116464"
 	 */
@@ -4200,6 +4504,253 @@ public class JavadocBugsTest extends JavadocTest {
 			"	public test() {}\n" + 
 			"	       ^^^^^^\n" + 
 			"Return type for the method is missing\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Bug 149013: [javadoc] In latest 3.3 build, there is a javadoc error in org.eclipse.core.resources
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=149013"
+	 */
+	public void testBug149013_Private01() {
+		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"test1/X.java",
+				"package test1;\n" + 
+				"public class X {\n" + 
+				"	class Inner {\n" + 
+				"		class Level2 {\n" + 
+				"			class Level3 {}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+				"test1/Test.java",
+				"package test1;\n" + 
+				"/**\n" + 
+				" * @see X.Inner\n" + 
+				" * @see X.Inner.Level2\n" + 
+				" * @see X.Inner.Level2.Level3\n" + 
+				" */\n" + 
+				"public class Test {}\n",
+				"test1/X.java"
+			}
+		);
+	}
+	public void testBug149013_Public01() {
+		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
+		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(
+			new String[] {
+				"test1/X.java",
+				"package test1;\n" + 
+				"public class X {\n" + 
+				"	class Inner {\n" + 
+				"		class Level2 {\n" + 
+				"			class Level3 {}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+				"test1/Test.java",
+				"package test1;\n" + 
+				"/**\n" + 
+				" * @see X.Inner\n" + 
+				" * @see X.Inner.Level2\n" + 
+				" * @see X.Inner.Level2.Level3\n" + 
+				" */\n" + 
+				"public class Test {\n" + 
+				"}\n"
+			},
+			//test1\Test.java:7: warning - Tag @see: reference not found: X.Inner
+			//test1\Test.java:7: warning - Tag @see: reference not found: X.Inner.Level2
+			//test1\Test.java:7: warning - Tag @see: reference not found: X.Inner.Level2.Level3
+			"----------\n" + 
+			"1. ERROR in test1\\Test.java (at line 3)\n" + 
+			"	* @see X.Inner\n" + 
+			"	       ^^^^^^^\n" + 
+			"Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference\n" + 
+			"----------\n" + 
+			"2. ERROR in test1\\Test.java (at line 4)\n" + 
+			"	* @see X.Inner.Level2\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference\n" + 
+			"----------\n" + 
+			"3. ERROR in test1\\Test.java (at line 5)\n" + 
+			"	* @see X.Inner.Level2.Level3\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug149013_Private02() {
+		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"test1/X.java",
+				"package test1;\n" + 
+				"public class X {\n" + 
+				"	class Inner {\n" + 
+				"		class Level2 {\n" + 
+				"			class Level3 {}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+				"test2/Test.java",
+				"package test2;\n" + 
+				"import test1.X;\n" + 
+				"/**\n" + 
+				" * @see X.Inner\n" + 
+				" * @see X.Inner.Level2\n" + 
+				" * @see X.Inner.Level2.Level3\n" + 
+				" */\n" + 
+				"public class Test {}\n",
+			},
+			//test2\Test.java:10: warning - Tag @see: reference not found: X.Inner
+			//test2\Test.java:10: warning - Tag @see: reference not found: X.Inner.Level2
+			//test2\Test.java:10: warning - Tag @see: reference not found: X.Inner.Level2.Level3
+			"----------\n" + 
+			"1. ERROR in test2\\Test.java (at line 4)\r\n" + 
+			"	* @see X.Inner\r\n" + 
+			"	       ^^^^^^^\n" + 
+			"Javadoc: The type X.Inner is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in test2\\Test.java (at line 5)\r\n" + 
+			"	* @see X.Inner.Level2\r\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type X.Inner is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in test2\\Test.java (at line 6)\r\n" + 
+			"	* @see X.Inner.Level2.Level3\r\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type X.Inner is not visible\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug149013_Public02() {
+		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
+		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(
+			new String[] {
+				"test1/X.java",
+				"package test1;\n" + 
+				"public class X {\n" + 
+				"	class Inner {\n" + 
+				"		class Level2 {\n" + 
+				"			class Level3 {}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+				"test2/Test.java",
+				"package test2;\n" + 
+				"import test1.X;\n" + 
+				"/**\n" + 
+				" * @see X.Inner\n" + 
+				" * @see X.Inner.Level2\n" + 
+				" * @see X.Inner.Level2.Level3\n" + 
+				" */\n" + 
+				"public class Test {}\n",
+			},
+			//test2\Test.java:10: warning - Tag @see: reference not found: X.Inner
+			//test2\Test.java:10: warning - Tag @see: reference not found: X.Inner.Level2
+			//test2\Test.java:10: warning - Tag @see: reference not found: X.Inner.Level2.Level3
+			"----------\n" + 
+			"1. ERROR in test2\\Test.java (at line 4)\r\n" + 
+			"	* @see X.Inner\r\n" + 
+			"	       ^^^^^^^\n" + 
+			"Javadoc: The type X.Inner is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in test2\\Test.java (at line 5)\r\n" + 
+			"	* @see X.Inner.Level2\r\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type X.Inner is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in test2\\Test.java (at line 6)\r\n" + 
+			"	* @see X.Inner.Level2.Level3\r\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type X.Inner is not visible\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug149013_Private03() {
+		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runNegativeTest(
+			new String[] {
+				"test1/X.java",
+				"package test1;\n" + 
+				"public class X {\n" + 
+				"	class Inner {\n" + 
+				"		class Level2 {\n" + 
+				"			class Level3 {}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+				"test3/Test.java",
+				"package test3;\n" + 
+				"/**\n" + 
+				" * @see test1.X.Inner\n" + 
+				" * @see test1.X.Inner.Level2\n" + 
+				" * @see test1.X.Inner.Level2.Level3\n" + 
+				" */\n" + 
+				"public class Test {}\n"
+			},
+			// no warning
+			"----------\n" + 
+			"1. ERROR in test3\\Test.java (at line 3)\r\n" + 
+			"	* @see test1.X.Inner\r\n" + 
+			"	       ^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type test1.X.Inner is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in test3\\Test.java (at line 4)\r\n" + 
+			"	* @see test1.X.Inner.Level2\r\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type test1.X.Inner is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in test3\\Test.java (at line 5)\r\n" + 
+			"	* @see test1.X.Inner.Level2.Level3\r\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type test1.X.Inner is not visible\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug149013_Public03() {
+		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
+		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(
+			new String[] {
+				"test1/X.java",
+				"package test1;\n" + 
+				"public class X {\n" + 
+				"	class Inner {\n" + 
+				"		class Level2 {\n" + 
+				"			class Level3 {}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+				"test3/Test.java",
+				"package test3;\n" + 
+				"/**\n" + 
+				" * @see test1.X.Inner\n" + 
+				" * @see test1.X.Inner.Level2\n" + 
+				" * @see test1.X.Inner.Level2.Level3\n" + 
+				" */\n" + 
+				"public class Test {}\n"
+			},
+			// no warning
+			"----------\n" + 
+			"1. ERROR in test3\\Test.java (at line 3)\r\n" + 
+			"	* @see test1.X.Inner\r\n" + 
+			"	       ^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type test1.X.Inner is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in test3\\Test.java (at line 4)\r\n" + 
+			"	* @see test1.X.Inner.Level2\r\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type test1.X.Inner is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in test3\\Test.java (at line 5)\r\n" + 
+			"	* @see test1.X.Inner.Level2.Level3\r\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type test1.X.Inner is not visible\n" + 
 			"----------\n"
 		);
 	}

@@ -754,10 +754,10 @@ void setSourceStart(int sourceStart);
 	 * Javadoc comments
 	 */
 	/** 
-	 * Problem signaled on a reference to an java element which has a too low visibility level.
+	 * Problem signaled on an hidden reference due to a too low visibility level.
 	 * @since 3.3
 	 */
-	int JavadocNotVisibleReference = Javadoc + Internal + 465;
+	int JavadocHiddenReference = Javadoc + Internal + 465;
 	/** 
 	 * Problem signaled on an invalid qualification for member type reference.
 	 * @since 3.3

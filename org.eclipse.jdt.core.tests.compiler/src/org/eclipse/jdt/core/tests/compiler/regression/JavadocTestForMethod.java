@@ -2015,7 +2015,7 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test092() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
 				"package test;\n" +
@@ -2025,8 +2025,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				"	 * Valid external classes references \n" +
 				"	 *\n" +
 				"	 * @see VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
-				// Inner classes are not visible in generated documentation
-				//"	 * @see VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
+				"	 * @see VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
 				"	 */\n" +
 				"	public void s_foo() {\n" +
 				"	}\n" +
@@ -2086,8 +2085,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				"	 * Valid external classes references \n" +
 				"	 *\n" +
 				"	 * @see test.copy.VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
-				// Inner classes are not visible in generated documentation
-				//"	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
+				"	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
 				"	 */\n" +
 				"	public void s_foo() {\n" +
 				"	}\n" +
@@ -2483,157 +2481,162 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test107() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class fields references\n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" }
-				);
+				"package test;\n" +
+				"import test.copy.*;\n" +
+				"public class X {\n" +
+				"	/**\n" +
+				"	 * Invalid other package non visible class fields references\n" +
+				"	 *\n" +
+				"	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n" +
+				"	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n" +
+				"	 */\n" +
+				"	public void s_foo() {\n" +
+				"	}\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test108() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class fields references\n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
-					+ "	 * @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n"
-					+ "	 * @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
+				"package test;\n" +
+				"import test.copy.*;\n" +
+				"public class X {\n" +
+				"	/**\n" +
+				"	 * Invalid other package non visible class fields references\n" +
+				"	 *\n" +
+				"	 * @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n" +
+				"	 * @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n" +
+				"	 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n" +
+				"	 * @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n" +
+				"	 * @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n" +
+				"	 * @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n" +
+				"	 * @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n" +
+				"	 */\n" +
+				"	public void s_foo() {\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in test\\X.java (at line 7)\n" +
+			"	* @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n" +
+			"	                        ^^^^^^^\n" +
+			"Javadoc: unknown cannot be resolved or is not a field\n" +
+			"----------\n" +
+			"2. ERROR in test\\X.java (at line 8)\n" +
+			"	* @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n" +
+			"	                        ^^^^^^^^^^\n" +
+			"Javadoc: The field vf_private is not visible\n" +
+			"----------\n" +
+			"3. ERROR in test\\X.java (at line 9)\n" +
+			"	* @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type VisibilityPublic.VpPrivate is not visible\n" +
+			"----------\n" +
+			"4. ERROR in test\\X.java (at line 10)\n" +
+			"	* @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type VisibilityPublic.VpPrivate is not visible\n" +
+			"----------\n" +
+			"5. ERROR in test\\X.java (at line 11)\n" +
+			"	* @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type VisibilityPublic.VpPrivate is not visible\n" +
+			"----------\n" +
+			"6. ERROR in test\\X.java (at line 12)\n" +
+			"	* @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n" +
+			"	                                 ^^^^^^^\n" +
+			"Javadoc: unknown cannot be resolved or is not a field\n" +
+			"----------\n" +
+			"7. ERROR in test\\X.java (at line 13)\n" +
+			"	* @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n" +
+			"	                                 ^^^^^^^^^^\n" +
+			"Javadoc: The field vf_private is not visible\n" +
 			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
-				+ "	                        ^^^^^^^\n"
-				+ "Javadoc: unknown cannot be resolved or is not a field\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
-				+ "	                        ^^^^^^^^^^\n"
-				+ "Javadoc: The field vf_private is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
-				+ "	                                 ^^^^^^^\n"
-				+ "Javadoc: unknown cannot be resolved or is not a field\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 13)\n"
-				+ "	* @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
-				+ "	                                 ^^^^^^^^^^\n"
-				+ "Javadoc: The field vf_private is not visible\n"
-				+ "----------\n");
+		);
 	}
 
 	public void test109() {
 		this.runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class fields references\n"
-					+ "	 *\n"
-					+ "	 * @see test.copy.VisibilityPublic#vf_public Valid ref to not visible field of other package class\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" }
-				);
+				"package test;\n" +
+				"public class X {\n" +
+				"	/**\n" +
+				"	 * Invalid other package non visible class fields references\n" +
+				"	 *\n" +
+				"	 * @see test.copy.VisibilityPublic#vf_public Valid ref to not visible field of other package class\n" +
+				"	 * @see test.copy.VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n" +
+				"	 */\n" +
+				"	public void s_foo() {\n" +
+				"	}\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test110() {
 		this.runNegativeReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class fields references\n"
-					+ "	 *\n"
-					+ "	 * @see test.copy.VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
-					+ "	 * @see test.copy.VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
-					+ "	 * @see test.copy.VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
+				"package test;\n" +
+				"public class X {\n" +
+				"	/**\n" +
+				"	 * Invalid other package non visible class fields references\n" +
+				"	 *\n" +
+				"	 * @see test.copy.VisibilityPublic#unknown Invalid ref to non existent field of other package class\n" +
+				"	 * @see test.copy.VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n" +
+				"	 * @see test.copy.VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n" +
+				"	 * @see test.copy.VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n" +
+				"	 * @see test.copy.VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n" +
+				"	 * @see test.copy.VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n" +
+				"	 * @see test.copy.VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n" +
+				"	 */\n" +
+				"	public void s_foo() {\n" +
+				"	}\n" +
+				"}\n"},
+			"----------\n" +
+			"1. ERROR in test\\X.java (at line 6)\n" +
+			"	* @see test.copy.VisibilityPublic#unknown Invalid ref to non existent field of other package class\n" +
+			"	                                  ^^^^^^^\n" +
+			"Javadoc: unknown cannot be resolved or is not a field\n" +
+			"----------\n" +
+			"2. ERROR in test\\X.java (at line 7)\n" +
+			"	* @see test.copy.VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n" +
+			"	                                  ^^^^^^^^^^\n" +
+			"Javadoc: The field vf_private is not visible\n" +
+			"----------\n" +
+			"3. ERROR in test\\X.java (at line 8)\n" +
+			"	* @see test.copy.VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n" +
+			"----------\n" +
+			"4. ERROR in test\\X.java (at line 9)\n" +
+			"	* @see test.copy.VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n" +
+			"----------\n" +
+			"5. ERROR in test\\X.java (at line 10)\n" +
+			"	* @see test.copy.VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n" +
+			"----------\n" +
+			"6. ERROR in test\\X.java (at line 11)\n" +
+			"	* @see test.copy.VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n" +
+			"	                                           ^^^^^^^\n" +
+			"Javadoc: unknown cannot be resolved or is not a field\n" +
+			"----------\n" +
+			"7. ERROR in test\\X.java (at line 12)\n" +
+			"	* @see test.copy.VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n" +
+			"	                                           ^^^^^^^^^^\n" +
+			"Javadoc: The field vf_private is not visible\n" +
 			"----------\n"
-				+ "1. ERROR in test\\X.java (at line 6)\n"
-				+ "	* @see test.copy.VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
-				+ "	                                  ^^^^^^^\n"
-				+ "Javadoc: unknown cannot be resolved or is not a field\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see test.copy.VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
-				+ "	                                  ^^^^^^^^^^\n"
-				+ "Javadoc: The field vf_private is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate#vf_private Invalid ref to a non visible other package private inner class (non visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate#vf_public Invalid ref to a non visible other package private inner class (public field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPublic.VpPrivate is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
-				+ "	                                           ^^^^^^^\n"
-				+ "Javadoc: unknown cannot be resolved or is not a field\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
-				+ "	                                           ^^^^^^^^^^\n"
-				+ "Javadoc: The field vf_private is not visible\n"
-				+ "----------\n");
+		);
 	}
 
 	// @see local method references
@@ -4440,21 +4443,23 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test154() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.VisibilityPublic;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid other package visible class methods references \n"
-					+ "	 * \n"
-					+ "	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" });
+				"package test;\n" +
+				"import test.copy.VisibilityPublic;\n" +
+				"public class X {\n" +
+				"	/**\n" +
+				"	 * Valid other package visible class methods references \n" +
+				"	 * \n" +
+				"	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n" +
+				"	 * @see VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n" +
+				"	 */\n" +
+				"	public void s_foo() {\n" +
+				"	}\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test155() {

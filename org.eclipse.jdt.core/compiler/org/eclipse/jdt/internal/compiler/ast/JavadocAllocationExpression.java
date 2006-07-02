@@ -122,18 +122,20 @@ public class JavadocAllocationExpression extends AllocationExpression {
 					}
 				}
 			}
-		} else if (this.resolvedType.isMemberType()) { // inner class constructor reference must be qualified
+		} else if (this.resolvedType.isMemberType()) {
 			int length = qualification.length;
-			ReferenceBinding enclosingTypeBinding = allocationType;
-			if (type instanceof JavadocQualifiedTypeReference && (((JavadocQualifiedTypeReference)type).tokens.length != length)) {
-				scope.problemReporter().javadocInvalidMemberTypeQualification(this.memberStart+1, this.sourceEnd, scope.getDeclarationModifiers());
-			} else {
-				int idx = length;
-				while (idx > 0 && CharOperation.equals(qualification[--idx], enclosingTypeBinding.sourceName) && (enclosingTypeBinding = enclosingTypeBinding.enclosingType()) != null) {
-					// verify that each qualification token matches enclosing types
-				}
-				if (idx > 0 || enclosingTypeBinding != null) {
+			if (length > 1) { // accept qualified member class constructor reference => see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=103304
+				ReferenceBinding enclosingTypeBinding = allocationType;
+				if (type instanceof JavadocQualifiedTypeReference && ((JavadocQualifiedTypeReference)type).tokens.length != length) {
 					scope.problemReporter().javadocInvalidMemberTypeQualification(this.memberStart+1, this.sourceEnd, scope.getDeclarationModifiers());
+				} else {
+					int idx = length;
+					while (idx > 0 && CharOperation.equals(qualification[--idx], enclosingTypeBinding.sourceName) && (enclosingTypeBinding = enclosingTypeBinding.enclosingType()) != null) {
+						// verify that each qualification token matches enclosing types
+					}
+					if (idx > 0 || enclosingTypeBinding != null) {
+						scope.problemReporter().javadocInvalidMemberTypeQualification(this.memberStart+1, this.sourceEnd, scope.getDeclarationModifiers());
+					}
 				}
 			}
 		}

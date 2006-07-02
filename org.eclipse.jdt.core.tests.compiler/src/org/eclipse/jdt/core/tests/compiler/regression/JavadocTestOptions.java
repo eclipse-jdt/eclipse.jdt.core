@@ -91,13 +91,13 @@ public class JavadocTestOptions extends JavadocTest {
 //		"	class X_dep{}\n" + 
 		"	private class X_priv{}\n" + 
 		"	/** @deprecated */\n" + 
-		"	int x_dep;\n" + 
+		"	public int x_dep;\n" + 
 		"	private int x_priv;\n" + 
 		"	/** @deprecated */\n" + 
-		"	X() {}\n" + 
+		"	public X() {}\n" + 
 		"	private X(int x) {}\n" + 
 		"	/** @deprecated */\n" + 
-		"	void foo_dep() {}\n" + 
+		"	public void foo_dep() {}\n" + 
 		"	private void foo_priv() {}\n" + 
 		"	}\n";
 	private static String[] CLASSES_INVALID_COMMENT = {
@@ -898,7 +898,7 @@ public class JavadocTestOptions extends JavadocTest {
 								add = line.indexOf("is deprecated") == -1;
 							}
 							if (add && CompilerOptions.DISABLED.equals(reportInvalidJavadocTagsNotVisibleRef)) {
-								add = line.indexOf("is not visible") == -1 && line.indexOf("in generated documentation") == -1;
+								add = line.indexOf("is not visible") == -1 && line.indexOf("visibility for malformed doc comments") == -1;
 							}
 						default:
 							error.append(line);
@@ -940,7 +940,7 @@ public class JavadocTestOptions extends JavadocTest {
 								add = line.indexOf("is deprecated") == -1;
 							}
 							if (add && CompilerOptions.DISABLED.equals(reportInvalidJavadocTagsNotVisibleRef)) {
-								add = line.indexOf("is not visible") == -1 && line.indexOf("in generated documentation") == -1;
+								add = line.indexOf("is not visible") == -1 && line.indexOf("visibility for malformed doc comments") == -1;
 							}
 						default:
 							error.append(line);

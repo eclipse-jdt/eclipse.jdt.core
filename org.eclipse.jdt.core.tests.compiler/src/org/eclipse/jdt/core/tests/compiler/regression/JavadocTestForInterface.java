@@ -497,20 +497,22 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test032() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "	/**\n"
-					+ "	 * Valid other package visible class fields references\n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n"
-					+ "	 */\n"
-					+ "public interface IX {\n"
-					+ "	public void foo();\n"
-					+ "}\n" });
+				"package test;\n" +
+				"import test.copy.*;\n" +
+				"	/**\n" +
+				"	 * Valid other package visible class fields references\n" +
+				"	 *\n" +
+				"	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n" +
+				"	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n" +
+				"	 */\n" +
+				"public interface IX {\n" +
+				"	public void foo();\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test033() {
@@ -910,20 +912,22 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test052() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
-				"package test;\n"
-					+ "import test.copy.VisibilityPublic;\n"
-					+ "	/**\n"
-					+ "	 * Valid other package visible class methods references \n"
-					+ "	 * \n"
-					+ "	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n"
-					+ "	 */\n"
-					+ "public interface IX {\n"
-					+ "	public void foo();\n"
-					+ "}\n" });
+				"package test;\n" +
+				"import test.copy.VisibilityPublic;\n" +
+				"	/**\n" +
+				"	 * Valid other package visible class methods references \n" +
+				"	 * \n" +
+				"	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n" +
+				"	 * @see VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n" +
+				"	 */\n" +
+				"public interface IX {\n" +
+				"	public void foo();\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test053() {
@@ -1760,20 +1764,22 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test107() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "public interface IX {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class fields references\n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public void foo();\n"
-					+ "}\n" });
+				"package test;\n" +
+				"import test.copy.*;\n" +
+				"public interface IX {\n" +
+				"	/**\n" +
+				"	 * Invalid other package non visible class fields references\n" +
+				"	 *\n" +
+				"	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n" +
+				"	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n" +
+				"	 */\n" +
+				"	public void foo();\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test108() {
@@ -2176,20 +2182,22 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test122() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/IX.java",
-				"package test;\n"
-					+ "import test.copy.VisibilityPublic;\n"
-					+ "public interface IX {\n"
-					+ "	/**\n"
-					+ "	 * Valid other package visible class methods references \n"
-					+ "	 * \n"
-					+ "	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public void foo();\n"
-					+ "}\n" });
+				"package test;\n" +
+				"import test.copy.VisibilityPublic;\n" +
+				"public interface IX {\n" +
+				"	/**\n" +
+				"	 * Valid other package visible class methods references \n" +
+				"	 * \n" +
+				"	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n" +
+				"	 * @see VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n" +
+				"	 */\n" +
+				"	public void foo();\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test123() {

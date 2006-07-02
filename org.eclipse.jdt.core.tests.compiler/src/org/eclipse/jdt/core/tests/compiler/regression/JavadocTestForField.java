@@ -541,20 +541,22 @@ public class JavadocTestForField extends JavadocTest {
 	}
 
 	public void test032() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.*;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid other package non visible class fields references\n"
-					+ "	 *\n"
-					+ "	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public int x;\n"
-					+ "}\n" });
+				"package test;\n" +
+				"import test.copy.*;\n" +
+				"public class X {\n" +
+				"	/**\n" +
+				"	 * Invalid other package non visible class fields references\n" +
+				"	 *\n" +
+				"	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n" +
+				"	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n" +
+				"	 */\n" +
+				"	public int x;\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test033() {
@@ -974,20 +976,22 @@ public class JavadocTestForField extends JavadocTest {
 	}
 
 	public void test052() {
-		this.runConformReferenceTest(
+		runConformReferenceTest(
 			new String[] {
 				"test/X.java",
-				"package test;\n"
-					+ "import test.copy.VisibilityPublic;\n"
-					+ "public class X {\n"
-					+ "	/**\n"
-					+ "	 * Valid other package visible class methods references \n"
-					+ "	 * \n"
-					+ "	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n"
-					+ "	 */\n"
-					+ "	public int x;\n"
-					+ "}\n" });
+				"package test;\n" +
+				"import test.copy.VisibilityPublic;\n" +
+				"public class X {\n" +
+				"	/**\n" +
+				"	 * Valid other package visible class methods references \n" +
+				"	 * \n" +
+				"	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n" +
+				"	 * @see VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n" +
+				"	 */\n" +
+				"	public int x;\n" +
+				"}\n"
+			}
+		);
 	}
 
 	public void test053() {

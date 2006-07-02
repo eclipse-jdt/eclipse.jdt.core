@@ -38,17 +38,10 @@ public class Javadoc extends ASTNode {
 	 * Returns whether a type can be seen at a given visibility level or not.
 	 *
 	 * @param visibility Level of visiblity allowed to see references
-	 * @param binding Type to be seen
+	 * @param modifiers modifiers of java element to be seen
 	 * @return true if the type can be seen, false otherwise
 	 */
-	boolean canBeSeen(int visibility, ReferenceBinding binding) {
-		int modifiers = binding.modifiers;
-		if (!binding.isValidBinding()) {
-			ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) binding;
-			if (problemBinding.closestMatch != null) {
-				modifiers = problemBinding.closestMatch.modifiers;
-			}
-		}
+	boolean canBeSeen(int visibility, int modifiers) {
 		if (modifiers < 0) return true;
 		switch (modifiers & ExtraCompilerModifiers.AccVisibilityMASK) {
 			case ClassFileConstants.AccPublic :
@@ -333,6 +326,7 @@ public class Javadoc extends ASTNode {
 	private void resolveReference(Expression reference, Scope scope) {
 
 		// Perform resolve
+		int problemCount = scope.referenceContext().compilationResult().problemCount;
 		switch (scope.kind) {
 			case Scope.METHOD_SCOPE:
 				reference.resolveType((MethodScope)scope);
@@ -341,6 +335,7 @@ public class Javadoc extends ASTNode {
 				reference.resolveType((ClassScope)scope);
 				break;
 		}
+		boolean hasProblems = scope.referenceContext().compilationResult().problemCount > problemCount;
 
 		// Verify field references
 		boolean source15 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
@@ -371,22 +366,19 @@ public class Javadoc extends ASTNode {
 			}
 
 			// Verify type references
-			// TODO (frederic) fix for bug 119857
-			/*
-			if (fieldRef.binding != null && fieldRef.binding.isValidBinding() && fieldRef.receiverType instanceof ReferenceBinding) {
+			if (!hasProblems && fieldRef.binding != null && fieldRef.binding.isValidBinding() && fieldRef.receiverType instanceof ReferenceBinding) {
 				ReferenceBinding resolvedType = (ReferenceBinding) fieldRef.receiverType;
-				verifyTypeReference(fieldRef.receiver, scope, source15, resolvedType);
+				verifyTypeReference(fieldRef, fieldRef.receiver, scope, source15, resolvedType, fieldRef.binding.modifiers);
 			}
-			*/
 
 			// That's it for field references
 			return;
 		}
 
 		// Verify type references
-		if ((reference instanceof JavadocSingleTypeReference || reference instanceof JavadocQualifiedTypeReference) && reference.resolvedType instanceof ReferenceBinding) {
+		if (!hasProblems && (reference instanceof JavadocSingleTypeReference || reference instanceof JavadocQualifiedTypeReference) && reference.resolvedType instanceof ReferenceBinding) {
 			ReferenceBinding resolvedType = (ReferenceBinding) reference.resolvedType;
-			verifyTypeReference(reference, scope, source15, resolvedType);
+			verifyTypeReference(reference, reference, scope, source15, resolvedType, resolvedType.modifiers);
 		}
 
 		// Verify that message reference are not used for @value tags
@@ -400,13 +392,10 @@ public class Javadoc extends ASTNode {
 			}
 
 			// Verify type references
-			// TODO (frederic) fix for bug 119857
-			/*
-			if (msgSend.binding != null && msgSend.binding.isValidBinding() && msgSend.actualReceiverType instanceof ReferenceBinding) {
+			if (!hasProblems && msgSend.binding != null && msgSend.binding.isValidBinding() && msgSend.actualReceiverType instanceof ReferenceBinding) {
 				ReferenceBinding resolvedType = (ReferenceBinding) msgSend.actualReceiverType;
-				verifyTypeReference(msgSend.receiver, scope, source15, resolvedType);
+				verifyTypeReference(msgSend, msgSend.receiver, scope, source15, resolvedType, msgSend.binding.modifiers);
 			}
-			*/
 		}
 
 		// Verify that constructor reference are not used for @value tags
@@ -420,13 +409,10 @@ public class Javadoc extends ASTNode {
 			}
 
 			// Verify type references
-			// TODO (frederic) fix for bug 119857
-			/*
-			if (alloc.binding != null && alloc.binding.isValidBinding() && alloc.resolvedType instanceof ReferenceBinding) {
+			if (!hasProblems && alloc.binding != null && alloc.binding.isValidBinding() && alloc.resolvedType instanceof ReferenceBinding) {
 				ReferenceBinding resolvedType = (ReferenceBinding) alloc.resolvedType;
-				verifyTypeReference(alloc.type, scope, source15, resolvedType);
+				verifyTypeReference(alloc, alloc.type, scope, source15, resolvedType, alloc.binding.modifiers);
 			}
-			*/
 		}
 		
 		// Verify that there's no type variable reference
@@ -712,9 +698,25 @@ public class Javadoc extends ASTNode {
 		}
 	}
 
-	private void verifyTypeReference(Expression reference, Scope scope, boolean source15, ReferenceBinding resolvedType) {
+	private void verifyTypeReference(Expression reference, Expression typeReference, Scope scope, boolean source15, ReferenceBinding resolvedType, int modifiers) {
 		if (resolvedType.isValidBinding()) {
 			int scopeModifiers = -1;
+
+			// reference must have enough visibility to be used
+			if (!canBeSeen(scope.problemReporter().options.reportInvalidJavadocTagsVisibility, modifiers)) {
+//				if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+				scope.problemReporter().javadocHiddenReference(typeReference.sourceStart, reference.sourceEnd, scope, modifiers);
+				return;
+			}
+
+			// type reference must have enough visibility to be used
+			if (reference != typeReference) {
+				if (!canBeSeen(scope.problemReporter().options.reportInvalidJavadocTagsVisibility, resolvedType.modifiers)) {
+//					if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+					scope.problemReporter().javadocHiddenReference(typeReference.sourceStart, typeReference.sourceEnd, scope, resolvedType.modifiers);
+					return;
+				}
+			}
 
 			// member types
 			if (resolvedType.isMemberType()) {
@@ -729,27 +731,26 @@ public class Javadoc extends ASTNode {
 				if (topLevelScope.parent.kind != Scope.COMPILATION_UNIT_SCOPE ||
 					!CharOperation.equals(topLevelType.sourceName, topLevelScope.referenceContext.name)) {
 					topLevelScope = topLevelScope.outerMostClassScope();
-					if (reference instanceof JavadocSingleTypeReference) {
+					if (typeReference instanceof JavadocSingleTypeReference) {
 						// inner class single reference can only be done in same unit
 						if ((!source15 && depth == 1) || topLevelType != topLevelScope.referenceContext.binding) {
 							if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
-							scope.problemReporter().javadocInvalidMemberTypeQualification(reference.sourceStart, reference.sourceEnd, scopeModifiers);
+							scope.problemReporter().javadocInvalidMemberTypeQualification(typeReference.sourceStart, typeReference.sourceEnd, scopeModifiers);
+							return;
 						}
-					} else if (reference instanceof JavadocQualifiedTypeReference) {
-						JavadocQualifiedTypeReference qualifiedTypeReference = (JavadocQualifiedTypeReference) reference;
+					}
+					/*
+					if (typeReference instanceof JavadocQualifiedTypeReference) {
+						JavadocQualifiedTypeReference qualifiedTypeReference = (JavadocQualifiedTypeReference) typeReference;
 						// inner class qualified reference can only be done in same package
 						if ((qualifiedTypeReference.tokens.length != resolvedType.enclosingType().compoundName.length+1) && topLevelType.getPackage() != topLevelScope.referenceContext.binding.getPackage()) {
 							if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
-							scope.problemReporter().javadocInvalidMemberTypeQualification(reference.sourceStart, reference.sourceEnd, scopeModifiers);
+							scope.problemReporter().javadocInvalidMemberTypeQualification(typeReference.sourceStart, typeReference.sourceEnd, scopeModifiers);
+							return;
 						}
 					}
+					*/
 				}
-			}
-
-			// reference must have enough visibility to be used
-			if (!canBeSeen(scope.problemReporter().options.reportInvalidJavadocTagsVisibility, resolvedType)) {
-				if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
-				scope.problemReporter().javadocNotVisibleReference(reference.sourceStart, reference.sourceEnd, scopeModifiers);
 			}
 		}
 	}
