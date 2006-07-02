@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jface.text.BadLocationException;
@@ -1949,6 +1950,23 @@ public class Util {
 		return copy;
 	}
 
+	/**
+	 * Sorts an array of Java elements based on their toStringWithAncestors(), 
+	 * returning a new array with the sorted items. 
+	 * The original array is left untouched.
+	 */
+	public static IJavaElement[] sortCopy(IJavaElement[] elements) {
+		int len = elements.length;
+		IJavaElement[] copy = new IJavaElement[len];
+		System.arraycopy(elements, 0, copy, 0, len);
+		sort(copy, new Comparer() {
+			public int compare(Object a, Object b) {
+				return ((JavaElement) a).toStringWithAncestors().compareTo(((JavaElement) b).toStringWithAncestors());
+			}
+		});
+		return copy;
+	}
+	
 	/**
 	 * Sorts an array of Strings, returning a new array
 	 * with the sorted items.  The original array is left untouched.

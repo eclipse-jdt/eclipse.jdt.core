@@ -1976,11 +1976,11 @@ public void testEncodeDecodeEntry01() {
 public void testEncodeDecodeEntry02() {
 	assertEncodeDecodeEntry(
 		"P", 
-		"<classpathentry including=\"**/Y.java\" excluding=\"**/X.java\" output=\"bin\" kind=\"src\" path=\"src\">\n" + 
+		"<classpathentry excluding=\"**/X.java\" including=\"**/Y.java\" kind=\"src\" output=\"bin\" path=\"src\">\n" + 
 		"	<attributes>\n" + 
-		"		<attribute value=\"some value\" name=\"attrName\"/>\n" + 
+		"		<attribute name=\"attrName\" value=\"some value\"/>\n" + 
 		"	</attributes>\n" + 
-		"</classpathentry>\n", 
+		"</classpathentry>\n",
 		JavaCore.newSourceEntry(
 			new Path("/P/src"), 
 			new IPath[] {new Path("**/Y.java")},
@@ -2005,14 +2005,14 @@ public void testEncodeDecodeEntry03() {
 public void testEncodeDecodeEntry04() {
 	assertEncodeDecodeEntry(
 		"P", 
-		"<classpathentry exported=\"true\" sourcepath=\"src.zip\" kind=\"lib\" rootpath=\"root\" path=\"lib.jar\">\n" + 
+		"<classpathentry exported=\"true\" kind=\"lib\" path=\"lib.jar\" rootpath=\"root\" sourcepath=\"src.zip\">\n" + 
 		"	<attributes>\n" + 
-		"		<attribute value=\"val1\" name=\"attr1\"/>\n" + 
+		"		<attribute name=\"attr1\" value=\"val1\"/>\n" + 
 		"	</attributes>\n" + 
 		"	<accessrules>\n" + 
 		"		<accessrule kind=\"accessible\" pattern=\"**/A*.java\"/>\n" + 
 		"	</accessrules>\n" + 
-		"</classpathentry>\n",	
+		"</classpathentry>\n",
 		JavaCore.newLibraryEntry(
 			new Path("/P/lib.jar"),
 			new Path("/P/src.zip"),
@@ -2028,12 +2028,12 @@ public void testEncodeDecodeEntry04() {
 public void testEncodeDecodeEntry05() {
 	assertEncodeDecodeEntry(
 		"P", 
-		"<classpathentry exported=\"true\" sourcepath=\"src.zip\" kind=\"lib\" rootpath=\"root\" path=\"lib.jar\">\n" + 
+		"<classpathentry exported=\"true\" kind=\"lib\" path=\"lib.jar\" rootpath=\"root\" sourcepath=\"src.zip\">\n" + 
 		"	<attributes>\n" + 
-		"		<attribute value=\"val1\" name=\"attr1\"/>\n" + 
+		"		<attribute name=\"attr1\" value=\"val1\"/>\n" + 
 		"	</attributes>\n" + 
 		"	<accessrules>\n" + 
-		"		<accessrule kind=\"accessible\" pattern=\"**/A*.java\" ignoreifbetter=\"true\"/>\n" + 
+		"		<accessrule ignoreifbetter=\"true\" kind=\"accessible\" pattern=\"**/A*.java\"/>\n" + 
 		"	</accessrules>\n" + 
 		"</classpathentry>\n",
 		JavaCore.newLibraryEntry(
@@ -2182,7 +2182,7 @@ public void testExtraAttributes2() throws CoreException {
 			"<classpath>\n" + 
 			"	<classpathentry kind=\"src\" path=\"\">\n" + 
 			"		<attributes>\n" + 
-			"			<attribute value=\"some value\" name=\"foo\"/>\n" + 
+			"			<attribute name=\"foo\" value=\"some value\"/>\n" + 
 			"		</attributes>\n" + 
 			"	</classpathentry>\n" + 
 			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
@@ -2209,8 +2209,8 @@ public void testExtraAttributes3() throws CoreException {
 			"<classpath>\n" + 
 			"	<classpathentry kind=\"src\" path=\"\">\n" + 
 			"		<attributes>\n" + 
-			"			<attribute value=\"some value\" name=\"foo\"/>\n" + 
-			"			<attribute value=\"other value\" name=\"bar\"/>\n" + 
+			"			<attribute name=\"foo\" value=\"some value\"/>\n" + 
+			"			<attribute name=\"bar\" value=\"other value\"/>\n" + 
 			"		</attributes>\n" + 
 			"	</classpathentry>\n" + 
 			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
@@ -3653,9 +3653,9 @@ public void testUnknownAttributes() throws CoreException {
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<classpath>\n" + 
 			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" + 
-			"	<classpathentry unknown=\"test\" kind=\"src\" path=\"src1\"/>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src1\" unknown=\"test\"/>\n" + 
 			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
-			"</classpath>\n",			
+			"</classpath>\n",
 			contents);		
 	} finally {
 		deleteProject("P");
@@ -3751,17 +3751,17 @@ public void testUnknownElements2() throws CoreException {
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<classpath>\n" + 
 			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" + 
-			"	<classpathentry kind=\"src\" unknownattribute=\"abcde\" path=\"src1\">\n" + 
-			"		<unknown1>\n" +
-			"			<test kind=\"1\"/>\n" +
-			"			<test kind=\"2\"/>\n" +
-			"		</unknown1>\n" +
-			"		<unknown2 attribute2=\"\">\n" +
-			"			<test>\n" +
-			"				<other a=\"b\"/>\n" +
-			"			</test>\n" +
-			"		</unknown2>\n" +
-			"	</classpathentry>\n" +
+			"	<classpathentry kind=\"src\" path=\"src1\" unknownattribute=\"abcde\">\n" + 
+			"		<unknown1>\n" + 
+			"			<test kind=\"1\"/>\n" + 
+			"			<test kind=\"2\"/>\n" + 
+			"		</unknown1>\n" + 
+			"		<unknown2 attribute2=\"\">\n" + 
+			"			<test>\n" + 
+			"				<other a=\"b\"/>\n" + 
+			"			</test>\n" + 
+			"		</unknown2>\n" + 
+			"	</classpathentry>\n" + 
 			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
 			"</classpath>\n",
 			contents);		

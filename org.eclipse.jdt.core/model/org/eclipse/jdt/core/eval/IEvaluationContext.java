@@ -342,7 +342,7 @@ public interface IEvaluationContext {
 		throws JavaModelException;
 	/**
 	 * Evaluates the given global variable. During this operation, 
-	 * this context's package declaration, imports, and <it>all</it> its declared 
+	 * this context's package declaration, imports, and <i>all</i> its declared 
 	 * variables are verified. The given requestor's <code>acceptProblem</code>
 	 * method will be called for each problem that is detected.
 	 * <p>

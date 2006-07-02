@@ -788,4 +788,27 @@ public void testBug118397d() throws JavaModelException {
 		"BasicTestBugs.Inner.Level2[TYPE_REF]{Level2, bugs.b118397, Lbugs.b118397.BasicTestBugs$Inner$Level2;, null, null, "+this.positions+R_DICNR+"}"
 	);
 }
+
+/**
+ * Bug 144866: [assist][javadoc] Wrong completion inside @value tag
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=144866"
+ */
+public void testBug144866() throws JavaModelException {
+	String source =
+		"package bugs.b144866;\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	public static int EXAMPLE = 0;\n" + 
+		"	/**\n" + 
+		"	 * This method returns an object\n" + 
+		"	 * @see Object\n" + 
+		"	 * 	This method will use {@value #EX } constant value...\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b144866/BasicTestBugs.java", source, true, "EX", 2); // 2nd occurence
+	assertSortedResults(
+		"EXAMPLE[FIELD_REF]{EXAMPLE, Lbugs.b144866.BasicTestBugs;, I, EXAMPLE, null, "+this.positions+R_DICNR+"}"
+	);
+}
 }

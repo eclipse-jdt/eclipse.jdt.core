@@ -10,9 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 import junit.framework.*;
+
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodVerifyTest extends AbstractComparableTest {
@@ -5082,38 +5088,89 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 2)\n" + 
 			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
 			"	             ^\n" + 
-			"Name clash: The method addAll(Collection<? extends E>) of type ArrayList<T0> has the same erasure as addAll(Collection<? extends E>) of type Collection<String> but does not override it\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 2)\n" + 
-			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
-			"	             ^\n" + 
-			"The type X<T0> must implement the inherited abstract method Collection<String>.addAll(Collection<? extends String>)\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 2)\n" + 
-			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
-			"	             ^\n" + 
 			"The type X<T0> must implement the inherited abstract method Runnable.run()\n" + 
 			"----------\n" + 
-			"5. ERROR in X.java (at line 2)\n" + 
-			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
-			"	             ^\n" + 
-			"The type X<T0> must implement the inherited abstract method Collection<String>.add(String)\n" + 
-			"----------\n" + 
-			"6. ERROR in X.java (at line 2)\n" + 
-			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
-			"	             ^\n" + 
-			"The return type is incompatible with Iterable<String>.iterator(), Collection<String>.iterator(), AbstractList<T0>.iterator()\n" + 
-			"----------\n" + 
-			"7. WARNING in X.java (at line 2)\n" + 
+			"3. WARNING in X.java (at line 2)\n" + 
 			"	public class X<T0> extends ArrayList<T0> implements I<T0>,Runnable {\n" + 
 			"	             ^\n" + 
 			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n" + 
-			"8. ERROR in X.java (at line 5)\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
 			"	this.add(new Object());\n" + 
 			"	     ^^^\n" + 
 			"The method add(T0) in the type ArrayList<T0> is not applicable for the arguments (Object)\n" + 
 			"----------\n"
 		);
 	}
+	//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653 - variation
+	public void test089() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",//===================
+				"import java.util.*;\n" + 
+				"public class X extends X2 {}\n" + 
+				"abstract class X2 extends X3 implements List<String> {}\n" + 
+				"abstract class X3 implements List<Thread> {}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	abstract class X2 extends X3 implements List<String> {}\n" + 
+			"	               ^^\n" + 
+			"The interface List cannot be implemented more than once with different arguments: List<Thread> and List<String>\n" + 
+			"----------\n"
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=147690
+	public void test090() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class XSuper {\n" + 
+				"	Object foo() throws Exception { return null; }\n" + 
+				"	protected Object bar() throws Exception { return null; }\n" + 
+				"}\n" + 
+				"public class X extends XSuper {\n" + 
+				"	protected String foo() { return null; }\n" + 
+				"	public String bar() { return null; }\n" + 
+				"}", // =================
+			},
+			"");
+		// 	ensure bridge methods have target method modifiers, and inherited thrown exceptions
+		String expectedOutput =
+			"  // Method descriptor #17 ()Ljava/lang/Object;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public bridge synthetic java.lang.Object bar() throws java.lang.Exception;\n" + 
+			"    0  aload_0\n" + 
+			"    1  invokevirtual X.bar() : java.lang.String [21]\n" + 
+			"    4  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"  \n" + 
+			"  // Method descriptor #17 ()Ljava/lang/Object;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  protected bridge synthetic java.lang.Object foo() throws java.lang.Exception;\n" + 
+			"    0  aload_0\n" + 
+			"    1  invokevirtual X.foo() : java.lang.String [23]\n" + 
+			"    4  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n";
+		
+		try {
+			File f = new File(OUTPUT_DIR + File.separator + "X.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}		
+	}	
 }

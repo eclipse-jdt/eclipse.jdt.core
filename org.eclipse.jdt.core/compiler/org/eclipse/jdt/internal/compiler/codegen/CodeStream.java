@@ -2328,49 +2328,16 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 	this.return_();
 }
 //static X valueOf(String name) {
-// X[] values;
-// for (int i = (values = $VALUES).length; --i >= 0;) {
-// 		 X value;
-// 		 if (name.equals(value = values[i].name())) return value;
-// }
-// throw new IllegalArgumentException(name);
+// return (X) Enum.valueOf(X.class, name);
 //}		
 public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBinding) {
-	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
-	FieldBinding enumValuesSyntheticfield = scope.referenceContext.enumValuesSyntheticfield;
 	initializeMaxLocals(methodBinding);
-	BranchLabel loopCond = new BranchLabel(this);
-	BranchLabel loopStart = new BranchLabel(this);
-	BranchLabel wrongConstant = new BranchLabel(this);
-
-	this.getstatic(enumValuesSyntheticfield);
-	this.dup();
-	this.astore_1();
-	this.arraylength();
-	this.istore_2();
-	this.goto_(loopCond);
-	loopStart.place();
+	final ReferenceBinding declaringClass = methodBinding.declaringClass;
+	this.ldc(declaringClass);
 	this.aload_0();
-	this.aload_1();
-	this.iload_2();
-	this.aaload();
-	this.dup();
-	this.astore_3();
-	this.invokeJavaLangEnumname(this.classFile.referenceBinding);
-	this.invokeStringEquals();
-	this.ifeq(wrongConstant);
-	this.aload_3();
+	this.invokeJavaLangEnumvalueOf(declaringClass);
+	this.checkcast(declaringClass);
 	this.areturn();
-	wrongConstant.place();
-	loopCond.place();
-	this.iinc(2, -1);		
-	this.iload_2();
-	this.ifge(loopStart);
-	this.newJavaLangIllegalArgumentException();
-	this.dup();
-	this.aload_0();
-	this.invokeJavaLangIllegalArgumentExceptionStringConstructor();
-	this.athrow();
 }
 //static X[] values() {
 // X[] values;
@@ -2552,7 +2519,7 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 				this.aload_0();
 				this.getstatic(fieldBinding);
 				this.invokeEnumOrdinal(enumBinding.constantPoolName());
-				this.generateInlinedValue(fieldBinding.id);
+				this.generateInlinedValue(fieldBinding.id + 1); // zero should not be returned see bug 141810
 				this.iastore();
 				anyExceptionHandler.placeEnd();
 				this.goto_(endLabel);
@@ -3938,16 +3905,16 @@ public void invokeJavaLangClassDesiredAssertionStatus() {
 			ConstantPool.DesiredAssertionStatus,
 			ConstantPool.DesiredAssertionStatusSignature);
 }
-public void invokeJavaLangEnumname(TypeBinding typeBinding) {
-	// invokevirtual: java.lang.Enum.name()String
-	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.Enum.name()Ljava/lang/String;"); //$NON-NLS-1$
+public void invokeJavaLangEnumvalueOf(ReferenceBinding binding) {
+	// invokestatic: java.lang.Enum.valueOf(Class,String)
+	if (DEBUG) System.out.println(position + "\t\tinvokestatic: java.lang.Enum.valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;"); //$NON-NLS-1$
 	this.invoke(
-			Opcodes.OPC_invokevirtual,
-			0,
-			1,
-			typeBinding.constantPoolName(),
-			ConstantPool.Name,
-			ConstantPool.NameSignature);
+			Opcodes.OPC_invokestatic,
+			2, // argCount
+			1, // return type size
+			ConstantPool.JavaLangEnumConstantPoolName,
+			ConstantPool.ValueOf,
+			ConstantPool.ValueOfStringClassSignature);
 }
 public void invokeJavaLangEnumValues(TypeBinding enumBinding, ArrayBinding arrayBinding) {
 	char[] signature = "()".toCharArray(); //$NON-NLS-1$
@@ -3962,17 +3929,6 @@ public void invokeJavaLangErrorConstructor() {
 			1, // argCount
 			0, // return type size
 			ConstantPool.JavaLangErrorConstantPoolName,
-			ConstantPool.Init,
-			ConstantPool.StringConstructorSignature);
-}
-public void invokeJavaLangIllegalArgumentExceptionStringConstructor() {
-	// invokespecial: java.lang.IllegalArgumentException.<init>(String)V
-	if (DEBUG) System.out.println(position + "\t\tinvokespecial: java.lang.IllegalArgumentException.<init>(java.lang.String)V"); //$NON-NLS-1$
-	this.invoke(
-			Opcodes.OPC_invokespecial,
-			1, // argCount
-			0, // return type size
-			ConstantPool.JavaLangIllegalArgumentExceptionConstantPoolName,
 			ConstantPool.Init,
 			ConstantPool.StringConstructorSignature);
 }
@@ -4161,28 +4117,34 @@ public void invokespecial(MethodBinding methodBinding) {
 			methodBinding.selector,
 			methodBinding.signature(),
 			false));
-	if (methodBinding.isConstructor() && methodBinding.declaringClass.isNestedType()) {
-		// enclosing instances
-		TypeBinding[] syntheticArgumentTypes = methodBinding.declaringClass.syntheticEnclosingInstanceTypes();
-		if (syntheticArgumentTypes != null) {
-			for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
-				if (((id = syntheticArgumentTypes[i].id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
-					argCount += 2;
-				} else {
-					argCount++;
+	if (methodBinding.isConstructor()) {
+		final ReferenceBinding declaringClass = methodBinding.declaringClass;
+		if (declaringClass.isNestedType()) {
+			// enclosing instances
+			TypeBinding[] syntheticArgumentTypes = declaringClass.syntheticEnclosingInstanceTypes();
+			if (syntheticArgumentTypes != null) {
+				for (int i = 0, max = syntheticArgumentTypes.length; i < max; i++) {
+					if (((id = syntheticArgumentTypes[i].id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
+						argCount += 2;
+					} else {
+						argCount++;
+					}
 				}
 			}
-		}
-		// outer local variables
-		SyntheticArgumentBinding[] syntheticArguments = methodBinding.declaringClass.syntheticOuterLocalVariables();
-		if (syntheticArguments != null) {
-			for (int i = 0, max = syntheticArguments.length; i < max; i++) {
-				if (((id = syntheticArguments[i].type.id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
-					argCount += 2;
-				} else {
-					argCount++;
+			// outer local variables
+			SyntheticArgumentBinding[] syntheticArguments = declaringClass.syntheticOuterLocalVariables();
+			if (syntheticArguments != null) {
+				for (int i = 0, max = syntheticArguments.length; i < max; i++) {
+					if (((id = syntheticArguments[i].type.id) == TypeIds.T_double) || (id == TypeIds.T_long)) {
+						argCount += 2;
+					} else {
+						argCount++;
+					}
 				}
 			}
+		} else if (declaringClass.isEnum()) {
+			// adding String and int
+			argCount += 2;
 		}
 	}
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
@@ -4398,17 +4360,6 @@ public void invokeStringConcatenationToString() {
 			declaringClass,
 			ConstantPool.ToString,
 			ConstantPool.ToStringSignature);
-}
-public void invokeStringEquals() {
-	// invokevirtual: java.lang.String.equals(java.lang.Object)
-	if (DEBUG) System.out.println(position + "\t\tinvokevirtual: java.lang.String.equals(...)"); //$NON-NLS-1$
-	this.invoke(
-			Opcodes.OPC_invokevirtual,
-			1, // argCount
-			1, // return type size
-			ConstantPool.JavaLangStringConstantPoolName,
-			ConstantPool.Equals,
-			ConstantPool.EqualsSignature);
 }
 public void invokeStringIntern() {
 	// invokevirtual: java.lang.String.intern()
@@ -5574,20 +5525,6 @@ public void newJavaLangError() {
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_new;
 	writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangErrorConstantPoolName));
-}
-public void newJavaLangIllegalArgumentException() {
-	// new: java.lang.IllegalArgumentException
-	if (DEBUG) System.out.println(position + "\t\tnew: java.lang.IllegalArgumentException"); //$NON-NLS-1$
-	countLabels = 0;
-	stackDepth++;
-	if (stackDepth > stackMax)
-		stackMax = stackDepth;
-	if (classFileOffset + 2 >= bCodeStream.length) {
-		resizeByteArray();
-	}
-	position++;
-	bCodeStream[classFileOffset++] = Opcodes.OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForType(ConstantPool.JavaLangIllegalArgumentExceptionConstantPoolName));
 }
 public void newNoClassDefFoundError() {
 	// new: java.lang.NoClassDefFoundError

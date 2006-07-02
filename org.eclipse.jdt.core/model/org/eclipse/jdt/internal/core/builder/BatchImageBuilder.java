@@ -14,6 +14,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -23,13 +24,15 @@ import java.util.*;
 public class BatchImageBuilder extends AbstractImageBuilder {
 
 	IncrementalImageBuilder incrementalBuilder; // if annotations or secondary types have to be processed after the compile loop
-	ArrayList missingSecondaryTypes; // qualified names for any secondary types found after the first compile loop
+	ArrayList secondaryTypes; // qualified names for all secondary types found during batch compile
+	StringSet typeLocatorsWithUndefinedTypes; // type locators for all source files with errors that may be caused by 'not found' secondary types
 
 protected BatchImageBuilder(JavaBuilder javaBuilder, boolean buildStarting) {
 	super(javaBuilder, buildStarting, null);
 	this.nameEnvironment.isIncrementalBuild = false;
 	this.incrementalBuilder = null;
-	this.missingSecondaryTypes = null;
+	this.secondaryTypes = null;
+	this.typeLocatorsWithUndefinedTypes = null;
 }
 
 public void build() {
@@ -55,8 +58,9 @@ public void build() {
 			workQueue.addAll(allSourceFiles);
 			compile(allSourceFiles);
 
-			if (this.missingSecondaryTypes != null && !this.missingSecondaryTypes.isEmpty())
-				rebuildTypesAffectedByMissingSecondaryTypes();
+			if (this.typeLocatorsWithUndefinedTypes != null)
+				if (this.secondaryTypes != null && !this.secondaryTypes.isEmpty())
+					rebuildTypesAffectedBySecondaryTypes();
 			if (this.incrementalBuilder != null)
 				this.incrementalBuilder.buildAfterBatchBuild();
 		}
@@ -71,8 +75,8 @@ public void build() {
 }
 
 protected void acceptSecondaryType(ClassFile classFile) {
-	if (this.missingSecondaryTypes != null)
-		this.missingSecondaryTypes.add(classFile.fileName());
+	if (this.secondaryTypes != null)
+		this.secondaryTypes.add(classFile.fileName());
 }
 
 protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreException {
@@ -81,29 +85,32 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 		final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 		final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
 		final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
+		final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
+		final IContainer outputFolder = sourceLocation.binaryFolder;
+		final boolean isOutputFolder = sourceLocation.sourceFolder.equals(outputFolder);
 		sourceLocation.sourceFolder.accept(
 			new IResourceProxyVisitor() {
 				public boolean visit(IResourceProxy proxy) throws CoreException {
-					IResource resource = null;
 					switch(proxy.getType()) {
 						case IResource.FILE :
-							if (exclusionPatterns != null || inclusionPatterns != null) {
-								resource = proxy.requestResource();
-								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
-							}
 							if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
-								if (resource == null)
-									resource = proxy.requestResource();
+								IResource resource = proxy.requestResource();
+								if (exclusionPatterns != null || inclusionPatterns != null)
+									if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
 								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation));
 							}
 							return false;
 						case IResource.FOLDER :
-							if (exclusionPatterns != null && inclusionPatterns == null) {
-								// if there are inclusion patterns then we must walk the children
-								resource = proxy.requestResource();
-								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
+							if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
+								if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns)) return false;
+							IPath folderPath = null;
+							if (isAlsoProject)
+								if (isExcludedFromProject(folderPath = proxy.requestFullPath())) return false;
+							if (!isOutputFolder) {
+								if (folderPath == null)
+									folderPath = proxy.requestFullPath();
+								createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
 							}
-							if (isAlsoProject && isExcludedFromProject(proxy.requestFullPath())) return false;
 					}
 					return true;
 				}
@@ -162,34 +169,24 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 				sourceLocation.binaryFolder.accept(
 					new IResourceProxyVisitor() {
 						public boolean visit(IResourceProxy proxy) throws CoreException {
-							IResource resource = null;
 							if (proxy.getType() == IResource.FILE) {
-								if (exclusionPatterns != null || inclusionPatterns != null) {
-									resource = proxy.requestResource();
-									if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
-								}
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
-									if (resource == null)
-										resource = proxy.requestResource();
+									IResource resource = proxy.requestResource();
+									if (exclusionPatterns != null || inclusionPatterns != null)
+										if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
 									resource.delete(IResource.FORCE, null);
 								}
 								return false;
 							}
-							if (exclusionPatterns != null && inclusionPatterns == null) {
-								// if there are inclusion patterns then we must walk the children
-								resource = proxy.requestResource();
-								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
-							}
+							if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
+								if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns)) return false;
 							notifier.checkCancel();
 							return true;
 						}
 					},
 					IResource.NONE
 				);
-				if (!isOutputFolder && copyBack) {
-					notifier.checkCancel();
-					copyPackages(sourceLocation);
-				}
+				notifier.checkCancel();
 			}
 			notifier.checkCancel();
 		}
@@ -198,8 +195,6 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 			ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 			if (sourceLocation.hasIndependentOutputFolder)
 				copyExtraResourcesBack(sourceLocation, false);
-			else if (!sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder))
-				copyPackages(sourceLocation); // output folder is different from source folder
 			notifier.checkCancel();
 		}
 	}
@@ -207,13 +202,14 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 
 protected void cleanUp() {
 	this.incrementalBuilder = null;
-	this.missingSecondaryTypes = null;
+	this.secondaryTypes = null;
+	this.typeLocatorsWithUndefinedTypes = null;
 	super.cleanUp();
 }
 
 protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean compilingFirstGroup) {
-	if (!compilingFirstGroup && this.missingSecondaryTypes == null)
-		this.missingSecondaryTypes = new ArrayList(7);
+	if (additionalUnits != null && this.secondaryTypes == null)
+		this.secondaryTypes = new ArrayList(7);
 	super.compile(units, additionalUnits, compilingFirstGroup);
 }
 
@@ -257,45 +253,16 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 							}
 							copiedResource.delete(IResource.FORCE, null); // last one wins
 						}
+						createFolder(partialPath.removeLastSegments(1), outputFolder); // ensure package folder exists
 						resource.copy(copiedResource.getFullPath(), IResource.FORCE | IResource.DERIVED, null);
 						Util.setReadOnly(copiedResource, false); // just in case the original was read only
 						return false;
 					case IResource.FOLDER :
 						resource = proxy.requestResource();
 						if (javaBuilder.filterExtraResource(resource)) return false;
-						IPath folderPath = resource.getFullPath();
-						if (isAlsoProject && isExcludedFromProject(folderPath)) return false; // the sourceFolder == project
-						if (exclusionPatterns != null && Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
-					        return inclusionPatterns != null; // need to go further only if inclusionPatterns are set
-						createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
-				}
-				return true;
-			}
-		},
-		IResource.NONE
-	);
-}
-
-protected void copyPackages(ClasspathMultiDirectory sourceLocation) throws CoreException {
-	final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
-	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
-	final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
-	final IContainer outputFolder = sourceLocation.binaryFolder;
-	final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
-	sourceLocation.sourceFolder.accept(
-		new IResourceProxyVisitor() {
-			public boolean visit(IResourceProxy proxy) throws CoreException {
-				switch(proxy.getType()) {
-					case IResource.FILE :
-						return false;
-					case IResource.FOLDER :
-						IResource resource = proxy.requestResource();
-						if (javaBuilder.filterExtraResource(resource)) return false;
-						IPath folderPath = resource.getFullPath();
-						if (isAlsoProject && isExcludedFromProject(folderPath)) return false; // the sourceFolder == project
-						if (exclusionPatterns != null && Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
-					        return inclusionPatterns != null; // need to go further only if inclusionPatterns are set
-						createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
+						if (isAlsoProject && isExcludedFromProject(resource.getFullPath())) return false; // the sourceFolder == project
+						if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
+							if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
 				}
 				return true;
 			}
@@ -323,14 +290,38 @@ protected void processAnnotationResults(CompilationParticipantResult[] results) 
 	this.incrementalBuilder.processAnnotationResults(results);
 }
 
-protected void rebuildTypesAffectedByMissingSecondaryTypes() {
+protected void rebuildTypesAffectedBySecondaryTypes() {
 	// to compile types that could not find 'missing' secondary types because of multiple
 	// compile groups, we need to incrementally recompile all affected types as if the missing
-	// secondary types have just been added
+	// secondary types have just been added, see bug 146324
 	if (this.incrementalBuilder == null)
 		this.incrementalBuilder = new IncrementalImageBuilder(this);
-	for (int i = this.missingSecondaryTypes.size(); --i >=0; )
-		this.incrementalBuilder.addAffectedSourceFiles((char[]) this.missingSecondaryTypes.get(i));
+
+	for (int i = this.secondaryTypes.size(); --i >=0;) {
+		char[] secondaryTypeName = (char[]) this.secondaryTypes.get(i);
+		IPath path = new Path(null, new String(secondaryTypeName));
+		this.incrementalBuilder.addDependentsOf(path, false);
+	}
+	this.incrementalBuilder.addAffectedSourceFiles(
+		this.incrementalBuilder.qualifiedStrings,
+		this.incrementalBuilder.simpleStrings,
+		this.typeLocatorsWithUndefinedTypes);
+}
+
+protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] problems) throws CoreException {
+	if (sourceFile == null || problems == null || problems.length == 0) return;
+
+	for (int i = problems.length; --i >= 0;) {
+		CategorizedProblem problem = problems[i];
+		if (problem != null && problem.getID() == IProblem.UndefinedType) {
+			if (this.typeLocatorsWithUndefinedTypes == null)
+				this.typeLocatorsWithUndefinedTypes = new StringSet(3);
+			this.typeLocatorsWithUndefinedTypes.add(sourceFile.typeLocator());
+			break;
+		}
+	}
+
+	super.storeProblemsFor(sourceFile, problems);
 }
 
 public String toString() {

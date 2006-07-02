@@ -67,8 +67,13 @@ public final class BindingKey {
 	 * For example:
 	 * <pre>
 	 * <code>
-	 * createParameterizedTypeBindingKey("Ljava/util/Map<TK;TV;>;", new String[] {"Ljava/lang/String;", "Ljava/lang/Object;"}) -> "Ljava/util/Map<Ljava/lang/String;Ljava/lang/Object;>;"
-	 * createParameterizedTypeBindingKey("Ljava/util/List<TE;>;", new String[] {}) -> "Ljava/util/List<>;"
+	 * createParameterizedTypeBindingKey(
+	 *     "Ljava/util/Map&lt;TK;TV;&gt;;", 
+	 *     new String[] {"Ljava/lang/String;", "Ljava/lang/Object;"}) -&gt; 
+	 *       "Ljava/util/Map&lt;Ljava/lang/String;Ljava/lang/Object;&gt;;"
+	 * createParameterizedTypeBindingKey(
+	 *     "Ljava/util/List&lt;TE;&gt;;", new String[] {}) -&gt; 
+	 *       "Ljava/util/List&lt;&gt;;"
 	 * </code>
 	 * </pre>
 	 * </p>
@@ -121,8 +126,10 @@ public final class BindingKey {
 	 * For example:
 	 * <pre>
 	 * <code>
-	 * createTypeVariableBindingKey("T", "Ljava/util/List<TE;>;") -> "Ljava/util/List<TE;>;:TT;"
-	 * createTypeVariableBindingKey("SomeTypeVariable", "Lp/X;.foo()V") -> "Lp/X;.foo()V:TSomeTypeVariable;"
+	 * createTypeVariableBindingKey("T", "Ljava/util/List&lt;TE;&gt;;") -&gt; 
+	 *   "Ljava/util/List&lt;TE;&gt;;:TT;"
+	 * createTypeVariableBindingKey("SomeTypeVariable", "Lp/X;.foo()V") -&gt; 
+	 *   "Lp/X;.foo()V:TSomeTypeVariable;"
 	 * </code>
 	 * </pre>
 	 * </p>
@@ -150,9 +157,11 @@ public final class BindingKey {
 	 * For example:
 	 * <pre>
 	 * <code>
-	 * createWilcardTypeBindingKey(null, Signature.C_STAR) -> "*"
-	 * createWilcardTypeBindingKey("Ljava/util/List<TE;>;", Signature.C_SUPER) -> "-Ljava/util/List<TE;>;"
-	 * createWilcardTypeBindingKey("Ljava/util/ArrayList;", Signature.C_EXTENDS) -> "+Ljava/util/ArrayList;"
+	 * createWilcardTypeBindingKey(null, Signature.C_STAR) -&gt; "*"
+	 * createWilcardTypeBindingKey("Ljava/util/List&lt;TE;&gt;;",
+	 *    Signature.C_SUPER) -&gt; "-Ljava/util/List&lt;TE;&gt;;"
+	 * createWilcardTypeBindingKey("Ljava/util/ArrayList;", Signature.C_EXTENDS) -&gt;
+	 *    "+Ljava/util/ArrayList;"
 	 * </code>
 	 * </pre>
 	 * </p>

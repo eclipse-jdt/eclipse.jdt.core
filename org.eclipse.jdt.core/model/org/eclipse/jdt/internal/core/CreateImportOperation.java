@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
@@ -52,16 +53,23 @@ import org.eclipse.jface.text.IDocument;
  */
 public class CreateImportOperation extends CreateElementInCUOperation {
 
-	/**
+	/*
 	 * The name of the import to be created.
 	 */
 	protected String importName;
+	
+	/*
+	 * The flags of the import to be created (either Flags#AccDefault or Flags#AccStatic)
+	 */
+	protected int flags;
+
 /**
  * When executed, this operation will add an import to the given compilation unit.
  */
-public CreateImportOperation(String importName, ICompilationUnit parentElement) {
+public CreateImportOperation(String importName, ICompilationUnit parentElement, int flags) {
 	super(parentElement);
 	this.importName = importName;
+	this.flags = flags;
 }
 protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent) {
 	return CompilationUnit.IMPORTS_PROPERTY;
@@ -69,10 +77,16 @@ protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent
 protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, ICompilationUnit cu) throws JavaModelException {
 	// ensure no duplicate
 	Iterator imports = this.cuAST.imports().iterator();
+	boolean onDemand = this.importName.endsWith(".*"); //$NON-NLS-1$
+	String importActualName = this.importName;
+	if (onDemand) {
+		importActualName = this.importName.substring(0, this.importName.length() - 2);
+	}
 	while (imports.hasNext()) {
 		ImportDeclaration importDeclaration = (ImportDeclaration) imports.next();
-		if (this.importName.equals(importDeclaration.getName().getFullyQualifiedName())) {
-			//no new import was generated
+		if (importActualName.equals(importDeclaration.getName().getFullyQualifiedName())
+				&& (onDemand == importDeclaration.isOnDemand())
+				&& (Flags.isStatic(this.flags) == importDeclaration.isStatic())) {
 			this.creationOccurred = false;
 			return null;
 		}
@@ -80,9 +94,9 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, IC
 	
 	AST ast = this.cuAST.getAST();
 	ImportDeclaration importDeclaration = ast.newImportDeclaration();
+	importDeclaration.setStatic(Flags.isStatic(this.flags));
 	// split import name into individual fragments, checking for on demand imports
-	boolean onDemand = this.importName.endsWith("*"); //$NON-NLS-1$
-	char[][] charFragments = CharOperation.splitOn('.', this.importName.toCharArray(), 0, onDemand ? this.importName.length()-2 : this.importName.length());
+	char[][] charFragments = CharOperation.splitOn('.', importActualName.toCharArray(), 0, importActualName.length());
 	int length = charFragments.length;
 	String[] strFragments = new String[length];
 	for (int i = 0; i < length; i++) {

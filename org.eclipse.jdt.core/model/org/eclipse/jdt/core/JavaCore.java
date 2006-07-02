@@ -1541,7 +1541,7 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Returns the path held in the given classpath variable.
-	 * Returns <node>null</code> if unable to bind.
+	 * Returns <code>null</code> if unable to bind.
 	 * <p>
 	 * Classpath variable values are persisted locally to the workspace, and 
 	 * are preserved from session to session.
@@ -2550,6 +2550,7 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.camelCaseMatch"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
+	 * </pre>
 	 */
  	public static Hashtable getDefaultOptions(){
  		return JavaModelManager.getJavaModelManager().getDefaultOptions();
@@ -2644,7 +2645,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * This is a helper method, which returns the resolved classpath entry denoted 
 	 * by a given entry (if it is a variable entry). It is obtained by resolving the variable 
-	 * reference in the first segment. Returns <node>null</code> if unable to resolve using 
+	 * reference in the first segment. Returns <code>null</code> if unable to resolve using 
 	 * the following algorithm:
 	 * <ul>
 	 * <li> if variable segment cannot be resolved, returns <code>null</code></li>
@@ -2808,7 +2809,7 @@ public final class JavaCore extends Plugin {
 	 * Only compilation units in working copy mode are returned.
 	 * If the owner is <code>null</code>, primary working copies are returned.
 	 * 
-	 * @param owner the given working copy owner or <null> for primary working copy owner
+	 * @param owner the given working copy owner or <code>null</code> for primary working copy owner
 	 * @return the list of working copies for a given owner
 	 * @since 3.0
 	 */
@@ -3790,7 +3791,7 @@ public final class JavaCore extends Plugin {
 	 * <p>
 	 *	It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>),
 	 * which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
-	 * After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>	 
+	 * After resolution, a classpath variable entry may either correspond to a project or a library entry.
 	 * <p>
 	 * e.g. Here are some examples of variable path usage<ul>
 	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 

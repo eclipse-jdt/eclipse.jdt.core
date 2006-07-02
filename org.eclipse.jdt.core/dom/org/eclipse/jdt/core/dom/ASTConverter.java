@@ -3325,7 +3325,14 @@ class ASTConverter {
 			comment = docComment;
 		} else {
 			end = -end;
-			if (positions[0]>0) { // Block comment have positive start position
+			if (positions[0] == 0) { // we cannot know without testing chars again
+				if (this.docParser.scanner.source[1] == '/') {
+					comment = new LineComment(this.ast);
+				} else {
+					comment = new BlockComment(this.ast);
+				}
+			}
+			else if (positions[0]>0) { // Block comment have positive start position
 				comment = new BlockComment(this.ast);
 			} else { // Line comment have negative start and end position
 				start = -start;
@@ -5172,4 +5179,3 @@ class ASTConverter {
 		}
 	}
 }
-

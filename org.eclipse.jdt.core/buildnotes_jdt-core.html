@@ -3,14 +3,14 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="IBM">
-   <title>JDT/Core Release Notes 3.2</title>
+   <title>JDT/Core Release Notes 3.2.x</title>
    <link rel="stylesheet" href="jdt_core_style.css" charset="iso-8859-1" type="text/css">
 </head>
 <body text="#000000" bgcolor="#FFFFFF">
 <table border=0 cellspacing=5 cellpadding=2 width="100%" >
   <tr> 
     <td align="left" width="72%" class="title1">
-      <font size="+3"><b>jdt core - build notes 3.2 stream</b></font>
+      <font size="+3"><b>jdt core - build notes 3.2.x stream</b></font>
     </td>
   </tr>
   <tr><td align="left" width="72%" class="title2"><font size="-2">java development tooling core</font></td></tr>
@@ -20,7 +20,7 @@
 	  <font size="-1">
 	  Here are the build notes for the Eclipse JDT/Core plug-in project 
 	  <a href="http://www.eclipse.org/jdt/core/index.php"><b>org.eclipse.jdt.core</b></a>, 
-	  describing <a href="http://bugs.eclipse.org/bugs" target=new>bug</a> resolution and substantial changes in the <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=R3_2_maintenance"><b>R3_2_maintenance</b></a> branch. 
+	  describing <a href="http://bugs.eclipse.org/bugs" target=new>bug</a> resolution and substantial changes in the <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=TARGET_321"><b>TARGET_321</b></a> branch. 
 	  <!--
 	  This present document covers all changes since Release 3.0 (also see a summary of <a href="http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/org.eclipse.jdt.core/notes/API_changes.html">API changes</a>).
 	  Older changes which occurred up to Release 3.0 can be found in 
@@ -37,6 +37,125 @@
 	</td>
   </tr>
 </table>
+<a name="v_672_R32x"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.2.1 - ?th September 2006
+<br>Project org.eclipse.jdt.core v_672_R32x
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_672_R32x">cvs</a>).
+<h2>What's new in this drop</h2>
+<ul>
+<li>Incremented plug-in version ID to &quot;3.2.1&quot;</li>
+<li>Progressive help message for the batch compiler.<br>
+	The new <tt>-help:warn</tt> option displays details about the various 
+    parameters applicable to the <tt>-warn</tt> option; these details are no
+    more part of the general help message, which is thus more compact.
+    (See also bug 
+    <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144248">144248</a>.)
+    </li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=117302">117302</a>
+Clean build of large project gives unresolved type errors
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=147875">147875</a>
+[1.5][compiler] NPE when initializing annotations of a binary field
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148523">148523</a>
+[batch] Batch compiler output contains extra linebreak before line position
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148215">148215</a>
+[search] Exception while searching for declarations of referenced types in binary java elements packaged in a jar
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=145007">145007</a>
+[1.5][javadoc] Generics + Inner Class -&gt; Javadoc &quot;missing @throws&quot; warning
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=147690">147690</a>
+[1.5][compiler] Incompatible serialversionuid when using covariant in Java 1.5
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=147747">147747</a>
+max stack for clinit of enum overestimated
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=142059">142059</a>
+[efs] renaming package fails to update references
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=143013">143013</a>
+SWTException: Failed to execute runnable (...AbortCompilation)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=147024">147024</a>
+[compiler] Compiler bug when accessing static final attribute in a non-static way
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=143684">143684</a>
+Creating of static imports is unavailable..
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=147736">147736</a>
+ClassCastException in TypeHierarchy
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=91709">91709</a>
+[1.5][model] Quick Fix Error but no Problem Reported
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=147381">147381</a>
+[1.5][compiler] Generics discrepancy between Eclipse compiler and Sun compiler.
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144573">144573</a>
+compilationParticipant extension point schema incomplete
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=145835">145835</a>
+getJavaClassLibs needs to account for IBM J2SE 1.5
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=147096">147096</a>
+ecj.jar manifest should not use x-friends, but use x-internal=true instead
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=146015">146015</a>
+Some JDT/Core tests results are still VM dependent
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=146324">146324</a>
+Batch builds produce "The type X is already defined" errors
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=146615">146615</a>
+[hierarchy] TypeHierarchyTests is tests order dependent
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=142207">142207</a>
+[batch][options] Source/target level names 5 and 5.0 missing from batch 
+compiler help message
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=146215">146215</a>
+JDT Core tests should not be dependent on HashMap implementation
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=145746">145746</a>
+[1.5][compiler] Enum synthetic methods should be improved
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=145732">145732</a>
+[1.5][compiler] Inconsistent behavior in ECJ code for enum types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=145516">145516</a>
+Bad performance when compiling a java file with non java content
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=142897">142897</a>
+[1.5][compiler] Compiler cannot resolve type of inner class of a bounded generic type
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144976">144976</a>
+[hierarchy] NPE in ReferenceBinding
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=145500">145500</a>
+[hierarchy] Superclass could be more resilient
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144866">144866</a>
+[assist][javadoc] Wrong completion inside @value tag
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144414">144414</a>
+JDT Compiler fails while standard javac compiler can proceed
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=142772">142772</a>
+[1.5][compiler] Compilation succeeds with static imports that fail with javac
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144504">144504</a>
+JDT Core model JUnit tests fail when ordering of methods reversed
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=143259">143259</a>
+[1.5][compiler] NullPointerException in ReferenceBinding.binarySearch , Eclipse 3.2RC4
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144426">144426</a>
+[compiler] Compiler incorrectly reports "assignment to variable has no effect" when it is a duplicate
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144248">144248</a>
+[batch] Progressive help text
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141512">141512</a>
+[batch] re-format the help message so as to fit into 80 columns
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141522">141522</a>
+[compiler][batch] ClassFile#buildAllDirectoriesInto should protect itself 
+against concurrent directory creation
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141330">141330</a>
+[1.5][compiler] Suspicious error message for type mismatch
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141252">141252</a>
+[1.6]][compiler] ClassFormatError: Illegal class name "" in class file
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141810">141810</a>
+[1.5][compiler] Enum switch tables incorrectly generated by the compiler
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141327">141327</a>
+StackFrame and VerificationTypeInfo must call super.clone() in their clone() method
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=140476">140476</a>
+JDOM: IDOMType.setSuperInterfaces(new String [0]) fails to remove existing implements clause
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=132430">132430</a>
+[1.5][javadoc] Unwanted missing tag warning for overridden method with parameter containing type variable
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=130752">130752</a>
+[comments] first BlockComment parsed as LineComment
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=95152">95152</a>
+[search] F3 can't find synthetic constructor
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=140156">140156</a>
+[1.5][search] Invalid method handle with parameterized parameters when no source is attached
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=123679">123679</a>
+[search] missing icon or bad hit in search results
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141550">141550</a>
+Enable now passing tests
+
 <a name="v_671"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes<br>
@@ -73,9 +192,7 @@ Eclipse SDK 3.2RC7 - 2nd June 2006
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144504">144504</a>
-JDT Core model JUnit tests fail when ordering of methods reversed
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=143718">143718</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=143718">143718</a>
 [1.6][compiler] ClassFormatError : wrong stack map frame is used
 
 <a name="v_668"></a>

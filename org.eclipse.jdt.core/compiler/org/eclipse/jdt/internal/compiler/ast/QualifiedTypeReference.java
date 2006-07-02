@@ -73,7 +73,7 @@ public class QualifiedTypeReference extends TypeReference {
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!this.resolvedType.isValidBinding())
 				return this.resolvedType;
-			if (i == 0 && this.resolvedType.isTypeVariable()) { // cannot select from a type variable
+			if (i == 0 && this.resolvedType.isTypeVariable() && ((TypeVariableBinding) this.resolvedType).firstBound == null) { // cannot select from a type variable
 				scope.problemReporter().illegalAccessFromTypeVariable((TypeVariableBinding) this.resolvedType, this);
 				return this.resolvedType = null;
 			}

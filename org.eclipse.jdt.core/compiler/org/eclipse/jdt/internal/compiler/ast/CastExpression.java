@@ -226,50 +226,49 @@ public class CastExpression extends Expression {
 
 	private static void checkAlternateBinding(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] originalArgumentTypes, TypeBinding[] alternateArgumentTypes, final InvocationSite invocationSite) {
 
-		InvocationSite fakeInvocationSite = new InvocationSite(){	
-			public TypeBinding[] genericTypeArguments() { return null; }
-			public boolean isSuperAccess(){ return invocationSite.isSuperAccess(); }
-			public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
-			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-			public void setDepth(int depth) { /* ignore */}
-			public void setFieldIndex(int depth){ /* ignore */}
-			public int sourceStart() { return 0; }
-			public int sourceEnd() { return 0; }
-		};	
-		MethodBinding bindingIfNoCast;
-		if (binding.isConstructor()) {
-			bindingIfNoCast = scope.getConstructor((ReferenceBinding)receiverType, alternateArgumentTypes, fakeInvocationSite);
-		} else {
-			bindingIfNoCast = receiver.isImplicitThis()
-				? scope.getImplicitMethod(binding.selector, alternateArgumentTypes, fakeInvocationSite)
-				: scope.getMethod(receiverType, binding.selector, alternateArgumentTypes, fakeInvocationSite); 	
-		}
-		if (bindingIfNoCast == binding) {
-			int argumentLength = originalArgumentTypes.length;
-			if (binding.isVarargs()) {
-				int paramLength = binding.parameters.length;
-				if (paramLength == argumentLength) {
-					int varargsIndex = paramLength - 1;
-					ArrayBinding varargsType = (ArrayBinding) binding.parameters[varargsIndex];
-					TypeBinding lastArgType = alternateArgumentTypes[varargsIndex];
-					// originalType may be compatible already, but cast mandated
-					// to clarify between varargs/non-varargs call
-					if (varargsType.dimensions != lastArgType.dimensions()) {
-						return;
-					}
-					if (lastArgType.isCompatibleWith(varargsType.elementsType())
-							&& lastArgType.isCompatibleWith(varargsType)) {
-						return;
+			InvocationSite fakeInvocationSite = new InvocationSite(){	
+				public TypeBinding[] genericTypeArguments() { return null; }
+				public boolean isSuperAccess(){ return invocationSite.isSuperAccess(); }
+				public boolean isTypeAccess() { return invocationSite.isTypeAccess(); }
+				public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
+				public void setDepth(int depth) { /* ignore */}
+				public void setFieldIndex(int depth){ /* ignore */}
+				public int sourceStart() { return 0; }
+				public int sourceEnd() { return 0; }
+			};	
+			MethodBinding bindingIfNoCast;
+			if (binding.isConstructor()) {
+				bindingIfNoCast = scope.getConstructor((ReferenceBinding)receiverType, alternateArgumentTypes, fakeInvocationSite);
+			} else {
+				bindingIfNoCast = receiver.isImplicitThis()
+					? scope.getImplicitMethod(binding.selector, alternateArgumentTypes, fakeInvocationSite)
+					: scope.getMethod(receiverType, binding.selector, alternateArgumentTypes, fakeInvocationSite); 	
+			}
+			if (bindingIfNoCast == binding) {
+				int argumentLength = originalArgumentTypes.length;
+				if (binding.isVarargs()) {
+					int paramLength = binding.parameters.length;
+					if (paramLength == argumentLength) {
+						int varargsIndex = paramLength - 1;
+						ArrayBinding varargsType = (ArrayBinding) binding.parameters[varargsIndex];
+						TypeBinding lastArgType = alternateArgumentTypes[varargsIndex];
+						// originalType may be compatible already, but cast mandated
+						// to clarify between varargs/non-varargs call
+						if (varargsType.dimensions != lastArgType.dimensions()) {
+							return;
+						}
+						if (lastArgType.isCompatibleWith(varargsType.elementsType())
+								&& lastArgType.isCompatibleWith(varargsType)) {
+							return;
+						}
 					}
 				}
-			}
-			for (int i = 0; i < argumentLength; i++) {
-				if (originalArgumentTypes[i] != alternateArgumentTypes[i]) {
-					scope.problemReporter().unnecessaryCast(
-							(CastExpression) arguments[i]);
+				for (int i = 0; i < argumentLength; i++) {
+					if (originalArgumentTypes[i] != alternateArgumentTypes[i]) {
+						scope.problemReporter().unnecessaryCast((CastExpression)arguments[i]);
+					}
 				}
-			}
-		}	
+			}	
 	}
 	
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {

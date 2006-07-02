@@ -48,7 +48,7 @@ public interface IClassFile extends IJavaElement, IParent, IOpenable, ISourceRef
  * Once in working copy mode, changes to this working copy or its children are done in memory.
  * Only the new buffer is affected. 
  * </p>
- * </p>
+ * <p>
  * Using {@link ICompilationUnit#commitWorkingCopy(boolean, IProgressMonitor)} on the working copy
  * will throw a <code>JavaModelException</code> as a class file is implicetly read-only.
  * </p>

@@ -30,9 +30,6 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	 */
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 		options.put(CompilerOptions.OPTION_ReportFinalParameterBound, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, CompilerOptions.WARNING);

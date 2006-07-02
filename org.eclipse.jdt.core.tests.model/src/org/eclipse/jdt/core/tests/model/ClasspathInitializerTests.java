@@ -131,7 +131,7 @@ public ClasspathInitializerTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildModelTestSuite(ClasspathInitializerTests.class);
+	return buildModelTestSuite(ClasspathInitializerTests.class, ALPHABETICAL_SORT); // need to sort tests as random order may result with failures
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...

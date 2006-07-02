@@ -205,7 +205,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
-			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
@@ -248,7 +248,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
-			"Enum(java.lang.String, int) [in Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]]",
+			"Enum(java.lang.String, int) [in Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
@@ -291,7 +291,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
@@ -1154,7 +1154,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
-			"java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]",
+			"java.lang [in "+ getExternalJCLPathString("1.5") + "]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
@@ -1196,7 +1196,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
-			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
@@ -1240,7 +1240,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
-			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
@@ -1309,7 +1309,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IJavaElement element = binding.getJavaElement();
 		assertElementEquals(
 			"Unexpected Java element",
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());

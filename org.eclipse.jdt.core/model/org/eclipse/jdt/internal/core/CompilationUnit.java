@@ -372,8 +372,7 @@ public IImportDeclaration createImport(String importName, IJavaElement sibling, 
  * @since 3.0
  */
 public IImportDeclaration createImport(String importName, IJavaElement sibling, int flags, IProgressMonitor monitor) throws JavaModelException {
-	// TODO (jerome) - consult flags to create static imports
-	CreateImportOperation op = new CreateImportOperation(importName, this);
+	CreateImportOperation op = new CreateImportOperation(importName, this, flags);
 	if (sibling != null) {
 		op.createBefore(sibling);
 	}

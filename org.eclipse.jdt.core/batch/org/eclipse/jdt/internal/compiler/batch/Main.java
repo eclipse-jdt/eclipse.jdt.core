@@ -28,9 +28,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -581,7 +579,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				if (localErrorCount == 0) {
 					this.printlnErr("----------"); //$NON-NLS-1$
 				}
-				this.printlnErr(problem.isError() ?
+				this.printErr(problem.isError() ?
 						Main.bind(
 								"requestor.error", //$NON-NLS-1$
 								Integer.toString(globalErrorCount),
@@ -592,7 +590,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 										new String(problem.getOriginatingFileName())));
 				try {
 					final String errorReportSource = ((DefaultProblem) problem).errorReportSource(unitSource);
-					if (errorReportSource.length() != 0) this.printlnErr(errorReportSource);
+					this.printlnErr(errorReportSource);
 					this.printlnErr(problem.getMessage());
 				} catch (Exception e) {
 					this.printlnErr(Main.bind(
@@ -958,12 +956,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			buffer.append("<"); //$NON-NLS-1$
 			buffer.append(name);
 			if (params != null) {
-				for (Enumeration enumeration = Collections.enumeration(params.keySet()); enumeration.hasMoreElements();) {
+				int length = parameters.size();
+				String[] keys = new String[length];
+				parameters.keySet().toArray(keys);
+				Arrays.sort(keys);
+				for (int i = 0; i < length; i++) {
 					buffer.append(" "); //$NON-NLS-1$
-					String key= (String) enumeration.nextElement();
-					buffer.append(key);
+					buffer.append(keys[i]);
 					buffer.append("=\""); //$NON-NLS-1$
-					buffer.append(getEscaped(String.valueOf(params.get(key))));
+					buffer.append(getEscaped(String.valueOf(params.get(keys[i]))));
 					buffer.append("\""); //$NON-NLS-1$
 				}
 			}
@@ -1425,6 +1426,7 @@ public void configure(String[] argv) throws InvalidInputException {
 	int mode = DEFAULT;
 	this.repetitions = 0;
 	boolean printUsageRequired = false;
+	String usageSection = null;	
 	boolean printVersionRequired = false;
 	
 	boolean didSpecifyDefaultEncoding = false;
@@ -1725,6 +1727,12 @@ public void configure(String[] argv) throws InvalidInputException {
 					mode = DEFAULT;
 					continue;
 				}
+				if (currentArg.equals("-help:warn") || //$NON-NLS-1$
+						currentArg.equals("-?:warn")) { //$NON-NLS-1$ 
+					printUsageRequired = true;
+					usageSection = "misc.usage.warn"; //$NON-NLS-1$
+					continue;
+				}				
 				if (currentArg.equals("-noExit")) { //$NON-NLS-1$
 					this.systemExitWhenFinished = false;
 					mode = DEFAULT;
@@ -2389,7 +2397,11 @@ public void configure(String[] argv) throws InvalidInputException {
 	this.logger.logVersion(printVersionRequired);
 	
 	if (printUsageRequired || filesCount == 0) {
-		printUsage();
+		if (usageSection ==  null) {
+			printUsage(); // default
+		} else {
+			printUsage(usageSection);
+		}
 		this.proceed = false;
 		return;
 	}
@@ -2957,14 +2969,18 @@ public void performCompilation() throws InvalidInputException {
 	environment.cleanup();
 }
 public void printUsage() {
-	this.logger.logUsage(Main.bind("misc.usage", //$NON-NLS-1$
-		new String[] {
-			System.getProperty("path.separator"), //$NON-NLS-1$
-			Main.bind("compiler.name"), //$NON-NLS-1$
-			Main.bind("compiler.version"), //$NON-NLS-1$
-			Main.bind("compiler.copyright") //$NON-NLS-1$
-		}
-	));
+	printUsage("misc.usage"); //$NON-NLS-1$
+}
+private void printUsage(String sectionID) {
+	this.logger.logUsage(
+		Main.bind(
+			sectionID,
+			new String[] {
+				System.getProperty("path.separator"), //$NON-NLS-1$
+				Main.bind("compiler.name"), //$NON-NLS-1$
+				Main.bind("compiler.version"), //$NON-NLS-1$
+				Main.bind("compiler.copyright") //$NON-NLS-1$
+			}));	
 	this.logger.flush();
 }
 

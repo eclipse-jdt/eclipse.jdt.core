@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.ClassFile;
@@ -952,11 +953,17 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isAssignmentCompatible(ITypeBinding)
 	 */
 	public boolean isAssignmentCompatible(ITypeBinding type) {
-		if (this == type) return true;
-		TypeBinding other = (TypeBinding) type;
-		Scope scope = this.resolver.scope();
-		if (scope == null) return false;
-		return this.binding.isCompatibleWith(other.binding) || scope.isBoxingCompatibleWith(this.binding, other.binding);
+		try {
+			if (this == type) return true;
+			TypeBinding other = (TypeBinding) type;
+			Scope scope = this.resolver.scope();
+			if (scope == null) return false;
+			return this.binding.isCompatibleWith(other.binding) || scope.isBoxingCompatibleWith(this.binding, other.binding);
+		} catch (AbortCompilation e) {
+			// don't surface internal exception to clients
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=143013
+			return false;
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -970,17 +977,23 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isCastCompatible(ITypeBinding)
 	 */
 	public boolean isCastCompatible(ITypeBinding type) {
-		Expression expression = new Expression() {
-			public StringBuffer printExpression(int indent,StringBuffer output) {
-				return null;
-			}
-		};
-		Scope scope = this.resolver.scope();
-		if (scope == null) return false;
-		org.eclipse.jdt.internal.compiler.lookup.TypeBinding expressionType = ((TypeBinding) type).binding;
-		// simulate capture in case checked binding did not properly get extracted from a reference
-		expressionType = expressionType.capture(scope, 0);
-		return expression.checkCastTypesCompatibility(scope, this.binding, expressionType, null);
+		try {
+			Expression expression = new Expression() {
+				public StringBuffer printExpression(int indent,StringBuffer output) {
+					return null;
+				}
+			};
+			Scope scope = this.resolver.scope();
+			if (scope == null) return false;
+			org.eclipse.jdt.internal.compiler.lookup.TypeBinding expressionType = ((TypeBinding) type).binding;
+			// simulate capture in case checked binding did not properly get extracted from a reference
+			expressionType = expressionType.capture(scope, 0);
+			return expression.checkCastTypesCompatibility(scope, this.binding, expressionType, null);
+		} catch (AbortCompilation e) {
+			// don't surface internal exception to clients
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=143013
+			return false;
+		}
 	}
 
 	/*
@@ -1145,11 +1158,17 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isSubTypeCompatible(ITypeBinding)
 	 */
 	public boolean isSubTypeCompatible(ITypeBinding type) {
-		if (this == type) return true;
-		if (this.binding.isBaseType()) return false;
-		TypeBinding other = (TypeBinding) type;
-		if (other.binding.isBaseType()) return false;
-		return this.binding.isCompatibleWith(other.binding);
+		try {
+			if (this == type) return true;
+			if (this.binding.isBaseType()) return false;
+			TypeBinding other = (TypeBinding) type;
+			if (other.binding.isBaseType()) return false;
+			return this.binding.isCompatibleWith(other.binding);
+		} catch (AbortCompilation e) {
+			// don't surface internal exception to clients
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=143013
+			return false;
+		}
 	}
 	
 	/**

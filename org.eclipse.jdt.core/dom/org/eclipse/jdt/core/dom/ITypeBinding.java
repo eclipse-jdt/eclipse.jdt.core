@@ -472,6 +472,7 @@ public interface ITypeBinding extends IBinding {
      * Note that per construction, it can only contain one class or array type, 
      * at most, and then it is located in first position.
      * </p>
+     * <p>
      * Also note that array type bound may only occur in the case of a capture
      * binding, e.g. <code>capture-of ? extends Object[]</code>
      * </p>
@@ -755,6 +756,7 @@ public interface ITypeBinding extends IBinding {
 	 * class <code>java.lang.String</code> and whose erasure is the type
 	 * binding for the generic type <code>java.util.Collection</code>.
 	 * </p>
+	 * <p>
 	 * Note that {@link #isGenericType()},
 	 * {@link #isParameterizedType()},
 	 * and {@link #isRawType()} are mutually exclusive.
@@ -877,7 +879,7 @@ public interface ITypeBinding extends IBinding {
 	 * For example, a AST type like 
 	 * <code>Collection&lt;? extends Object&gt;</code> typically resolves to a
 	 * parameterized type binding whose type argument is a wildcard type
-	 * with upper type bound <code>java.util.Object/code>.
+	 * with upper type bound <code>java.util.Object</code>.
 	 * </p>
 	 *
 	 * @return <code>true</code> if this object represents a wildcard type,

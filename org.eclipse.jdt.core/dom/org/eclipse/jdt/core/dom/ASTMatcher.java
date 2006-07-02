@@ -21,8 +21,8 @@ import java.util.List;
  * <code>n1</code> and <code>n2</code> are the AST root nodes of the subtrees.
  * </p>
  * <p>
- * For each different concrete AST node type <it>T</it> there is a
- * <code>public boolean match(<it>T</it> node, Object other)</code> method
+ * For each different concrete AST node type <i>T</i> there is a
+ * <code>public boolean match(<i>T</i> node, Object other)</code> method
  * that matches the given node against another object (typically another
  * AST node, although this is not essential). The default implementations
  * provided by this class tests whether the other object is a node of the

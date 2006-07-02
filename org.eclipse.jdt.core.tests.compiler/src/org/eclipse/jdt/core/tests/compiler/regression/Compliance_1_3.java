@@ -746,6 +746,36 @@ public void test020() {
 		},
 		"SUCCESS");
 }
+public void test020a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class T {	\n"+
+			"      void foo(U j) { System.out.println(\"SUCCESS\"); }	\n"+
+			"}	\n"+
+			"class U {	\n"+
+			"}	\n"+
+			"public class X extends U {	\n"+
+			"      void foo(X j) { System.out.println(\"FAILED\"); }	\n"+
+			"      void bar() {	\n"+
+			"            new T() {	\n"+
+			"                  {	\n"+
+			"                        foo(new X()); 	\n"+
+			"                  }	\n"+
+			"            };	\n"+
+			"      }	\n"+
+			"      public static void main(String[] arguments) {	\n"+
+			"			new X().bar();	\n" +
+			"      }	\n"+
+			"} 	\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\r\n" + 
+		"	foo(new X()); 	\r\n" + 
+		"	^^^\n" + 
+		"The method foo is defined in an inherited type and an enclosing scope\n" + 
+		"----------\n");
+}
 // binary check for 11511
 public void test021() {
 	this.runConformTest(

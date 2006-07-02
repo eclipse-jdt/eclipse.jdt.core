@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -411,10 +412,16 @@ class MethodBinding implements IMethodBinding {
 	}
 	
 	public boolean isSubsignature(IMethodBinding otherMethod) {
-		org.eclipse.jdt.internal.compiler.lookup.MethodBinding other = ((MethodBinding) otherMethod).binding;
-		if (!CharOperation.equals(this.binding.selector, other.selector))
+		try {
+			org.eclipse.jdt.internal.compiler.lookup.MethodBinding other = ((MethodBinding) otherMethod).binding;
+			if (!CharOperation.equals(this.binding.selector, other.selector))
+				return false;
+			return this.binding.areParameterErasuresEqual(other) && this.binding.areTypeVariableErasuresEqual(other);
+		} catch (AbortCompilation e) {
+			// don't surface internal exception to clients
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=143013
 			return false;
-		return this.binding.areParameterErasuresEqual(other) && this.binding.areTypeVariableErasuresEqual(other);
+		}
 	}
 
 	/**
@@ -428,28 +435,34 @@ class MethodBinding implements IMethodBinding {
 	 * @see IMethodBinding#overrides(IMethodBinding)
 	 */
 	public boolean overrides(IMethodBinding overridenMethod) {
-		org.eclipse.jdt.internal.compiler.lookup.MethodBinding overridenCompilerBinding = ((MethodBinding) overridenMethod).binding;
-		if (this.binding == overridenCompilerBinding) 
-			return false;
-		char[] selector = this.binding.selector;
-		if (!CharOperation.equals(selector, overridenCompilerBinding.selector))
-			return false;
-		TypeBinding match = this.binding.declaringClass.findSuperTypeWithSameErasure(overridenCompilerBinding.declaringClass);
-		if (!(match instanceof ReferenceBinding)) return false;
-		
-		org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] superMethods = ((ReferenceBinding)match).getMethods(selector);
-		for (int i = 0, length = superMethods.length; i < length; i++) {
-			if (superMethods[i].original() == overridenCompilerBinding) {
-				LookupEnvironment lookupEnvironment = this.resolver.lookupEnvironment();
-				if (lookupEnvironment == null) return false;
-				MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
-				org.eclipse.jdt.internal.compiler.lookup.MethodBinding superMethod = superMethods[i];
-				return !superMethod.isPrivate() 
-					&& !(superMethod.isDefault() && (superMethod.declaringClass.getPackage()) != this.binding.declaringClass.getPackage())
-					&& methodVerifier.doesMethodOverride(this.binding, superMethod);
+		try {
+			org.eclipse.jdt.internal.compiler.lookup.MethodBinding overridenCompilerBinding = ((MethodBinding) overridenMethod).binding;
+			if (this.binding == overridenCompilerBinding) 
+				return false;
+			char[] selector = this.binding.selector;
+			if (!CharOperation.equals(selector, overridenCompilerBinding.selector))
+				return false;
+			TypeBinding match = this.binding.declaringClass.findSuperTypeWithSameErasure(overridenCompilerBinding.declaringClass);
+			if (!(match instanceof ReferenceBinding)) return false;
+			
+			org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] superMethods = ((ReferenceBinding)match).getMethods(selector);
+			for (int i = 0, length = superMethods.length; i < length; i++) {
+				if (superMethods[i].original() == overridenCompilerBinding) {
+					LookupEnvironment lookupEnvironment = this.resolver.lookupEnvironment();
+					if (lookupEnvironment == null) return false;
+					MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
+					org.eclipse.jdt.internal.compiler.lookup.MethodBinding superMethod = superMethods[i];
+					return !superMethod.isPrivate() 
+						&& !(superMethod.isDefault() && (superMethod.declaringClass.getPackage()) != this.binding.declaringClass.getPackage())
+						&& methodVerifier.doesMethodOverride(this.binding, superMethod);
+				}
 			}
+			return false;
+		} catch (AbortCompilation e) {
+			// don't surface internal exception to clients
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=143013
+			return false;
 		}
-		return false;
 	}
 
 	/**

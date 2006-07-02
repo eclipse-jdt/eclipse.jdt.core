@@ -337,9 +337,8 @@ public void testInLabeledInnerClass() {
 /*
  * Completion inside an inner class defined inside a labeled statement with a syntax error
  * just before the labeled statement.
- * TODO excluded test (cannot get labels in recovery mode yet)
  */
-public void _testInLabeledInnerClassWithErrorBefore() {
+public void testInLabeledInnerClassWithErrorBefore() {
 	this.runTestCheckMethodParse(
 		// compilationUnit: 
 		"class Bar {									\n" +

@@ -42,7 +42,7 @@ public void setUpSuite() throws Exception {
 public void setUp() throws Exception {
 	super.setUp();
 	
-	this.createJavaProject("P", new String[] {"src"}, new String[] {"/BinaryProject/bin"}, "bin");
+	this.createJavaProject("P", new String[] {"src"}, new String[] {"/BinaryProject/bin"}, "bin", "1.5");
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
@@ -688,6 +688,53 @@ public void testCopyFieldWithPositioningInDifferentProject() throws CoreExceptio
 	} finally {
 		this.deleteProject("P2");
 	}
+}
+/*
+ * Ensures that an import can be copied to a different cu.
+ */
+public void testCopyImport() throws CoreException {
+	this.createFile(
+		"/P/src/X.java",
+		"import java.util.*;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	IImportDeclaration importSource = getCompilationUnit("/P/src/X.java").getImport("java.util.*");
+
+	this.createFile(
+		"/P/src/Y.java",
+		"public class Y {\n" +
+		"}"
+	);
+	ICompilationUnit cuDest = getCompilationUnit("/P/src/Y.java");
+
+	copyPositive(importSource, cuDest, null, null, false);
+}
+/*
+ * Ensures that a static import can be copied to a different cu.
+ */
+public void testCopyImportStatic() throws CoreException {
+	this.createFile(
+		"/P/src/X.java",
+		"import static java.lang.Math;\n" +
+		"public class X {\n" +
+		"  int foo;\n" +
+		"  {\n" +
+		"    foo = 10;\n" +
+		"  }\n" +
+		"}"
+	);
+	IImportDeclaration importSource = getCompilationUnit("/P/src/X.java").getImport("java.lang.Math");
+
+	this.createFile(
+		"/P/src/Y.java",
+		"public class Y {\n" +
+		"}"
+	);
+	ICompilationUnit cuDest = getCompilationUnit("/P/src/Y.java");
+
+	copyPositive(importSource, cuDest, null, null, false);
+	assertEquals("Copied import should be static", Flags.AccStatic, cuDest.getImport("java.lang.Math").getFlags());
 }
 /**
  * Ensures that a initializer can be copied to a different type.

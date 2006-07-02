@@ -19,7 +19,7 @@ import java.util.List;
  * <pre>
  * ArrayCreation:
  *    <b>new</b> PrimitiveType <b>[</b> Expression <b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
- *    <b>new</b> TypeName <b>[</b> Expression ]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
+ *    <b>new</b> TypeName <b>[</b> Expression <b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
  *    <b>new</b> PrimitiveType <b>[</b> <b>]</b> { <b>[</b> <b>]</b> } ArrayInitializer
  *    <b>new</b> TypeName <b>[</b> <b>]</b> { <b>[</b> <b>]</b> } ArrayInitializer
  * </pre>
@@ -37,7 +37,7 @@ import java.util.List;
  * ArrayCreation:
  *    <b>new</b> PrimitiveType <b>[</b> Expression <b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
  *    <b>new</b> TypeName [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
- *        <b>[</b> Expression ]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
+ *        <b>[</b> Expression <b>]</b> { <b>[</b> Expression <b>]</b> } { <b>[</b> <b>]</b> }
  *    <b>new</b> PrimitiveType <b>[</b> <b>]</b> { <b>[</b> <b>]</b> } ArrayInitializer
  *    <b>new</b> TypeName [ <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b> ]
  *        <b>[</b> <b>]</b> { <b>[</b> <b>]</b> } ArrayInitializer

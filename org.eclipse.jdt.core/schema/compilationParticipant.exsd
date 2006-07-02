@@ -58,6 +58,9 @@
                <documentation>
                   the class that implements this compilation participant. This class must implement a public subclass of &lt;code&gt;org.eclipse.jdt.core.compiler.CompilationParticipant&lt;/code&gt; with a public 0-argument constructor.
                </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="org.eclipse.jdt.core.compiler.CompilationParticipant"/>
+               </appInfo>
             </annotation>
          </attribute>
          <attribute name="id" type="string" use="required">
@@ -139,7 +142,19 @@
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         [Enter extension point usage example here.]
+         Example of a declaration of a &lt;code&gt;compilationParticipant&lt;/code&gt;:  &lt;pre&gt;                                                                       
+&lt;extension
+      id=&quot;apt&quot;
+      name=&quot;%annotationProcessingName&quot;
+      point=&quot;org.eclipse.jdt.core.compilationParticipant&quot;&gt;
+   &lt;compilationParticipant
+         class=&quot;org.eclipse.jdt.apt.core.internal.AptCompilationParticipant&quot;
+         id=&quot;APT&quot;
+         requiredSourceLevel=&quot;1.5&quot;&gt;
+      &lt;managedMarker markerType=&quot;org.eclipse.jdt.apt.core.compile.problem&quot;/&gt;
+   &lt;/compilationParticipant&gt;
+&lt;/extension&gt;
+&lt;/pre&gt;
       </documentation>
    </annotation>
 
@@ -148,7 +163,7 @@
          <meta.section type="apiInfo"/>
       </appInfo>
       <documentation>
-         [Enter API information here.]
+         
       </documentation>
    </annotation>
 
@@ -157,7 +172,7 @@
          <meta.section type="implementation"/>
       </appInfo>
       <documentation>
-         [Enter information about supplied implementation of this extension point.]
+         
       </documentation>
    </annotation>
 
@@ -166,7 +181,7 @@
          <meta.section type="copyright"/>
       </appInfo>
       <documentation>
-         Copyright (c) 2005 BEA Systems, Inc and others.&lt;br&gt;
+         Copyright (c) 2006 BEA Systems, Inc and others.&lt;br&gt;
 All rights reserved. This program and the accompanying materials
 are made available under the terms of the Eclipse Public License v1.0
 which accompanies this distribution, and is available at 

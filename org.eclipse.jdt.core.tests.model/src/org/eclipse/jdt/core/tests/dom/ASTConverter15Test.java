@@ -6256,9 +6256,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=124716
-	 * disable for now. Reenable when 124716 is fixed.
 	 */
-	public void _test0207() throws JavaModelException {
+	public void test0207() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
 			"public class X {\n" + 
@@ -6941,5 +6940,26 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 0, body.statements().size());
 		assertTrue("Not recovered", isRecovered(body));
 		assertFalse("Malformed", isMalformed(body));
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=147875
+	 */
+	public void test0221() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"import p1.p2.MyEnum;\n" + 
+    		"public class X {\n" + 
+			"	MyEnum foo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false,
+    			true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
 	}
 }

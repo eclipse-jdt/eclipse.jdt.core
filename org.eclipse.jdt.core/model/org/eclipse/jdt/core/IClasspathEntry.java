@@ -374,8 +374,8 @@ public interface IClasspathEntry {
 	 *		path to the corresponding project resource.</li>
 	 *  <li>A variable entry (<code>CPE_VARIABLE</code>) - the first segment of the path 
 	 *      is the name of a classpath variable. If this classpath variable
-	 *		is bound to the path <it>P</it>, the path of the corresponding classpath entry
-	 *		is computed by appending to <it>P</it> the segments of the returned
+	 *		is bound to the path <i>P</i>, the path of the corresponding classpath entry
+	 *		is computed by appending to <i>P</i> the segments of the returned
 	 *		path without the variable.</li>
 	 *  <li> A container entry (<code>CPE_CONTAINER</code>) - the path of the entry
 	 * 	is the name of the classpath container, which can be bound indirectly to a set of classpath 
@@ -431,7 +431,7 @@ public interface IClasspathEntry {
 	/**
 	 * This is a helper method, which returns the resolved classpath entry denoted 
 	 * by an entry (if it is a variable entry). It is obtained by resolving the variable 
-	 * reference in the first segment. Returns <node>null</code> if unable to resolve using 
+	 * reference in the first segment. Returns <code>null</code> if unable to resolve using 
 	 * the following algorithm:
 	 * <ul>
 	 * <li> if variable segment cannot be resolved, returns <code>null</code></li>

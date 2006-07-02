@@ -33,7 +33,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 8 };
+//		TESTS_NUMBERS = new int[] { 7 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
@@ -825,8 +825,109 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
-	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141252
 	public void test008() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		int foo = 0;\n" + 
+					"		String bar = \"zero\";\n" + 
+					"		System.out.println((foo != 0) ? foo : bar);\n" + 
+					"	}\n" + 
+					"	<T extends Comparable<?>> void foo(T foo) {\n" + 
+					"		T bar = null;\n" + 
+					"		System.out.println((foo != null) ? foo : bar);\n" + 
+					"	}	\n" + 
+					"}\n",
+				},
+				"zero");
+				
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String actualOutput = null;
+			try {
+				byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+				actualOutput =
+					disassembler.disassemble(
+						classFileBytes,
+						"\n",
+						ClassFileBytesDisassembler.DETAILED); 
+			} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+				assertTrue("ClassFormatException", false);
+			} catch (IOException e) {
+				assertTrue("IOException", false);
+			}
+			
+			String expectedOutput = 
+				"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+				"  // Stack: 2, Locals: 3\n" + 
+				"  public static void main(java.lang.String[] args);\n" + 
+				"     0  iconst_0\n" + 
+				"     1  istore_1 [foo]\n" + 
+				"     2  ldc <String \"zero\"> [16]\n" + 
+				"     4  astore_2 [bar]\n" + 
+				"     5  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
+				"     8  iload_1 [foo]\n" + 
+				"     9  ifeq 19\n" + 
+				"    12  iload_1 [foo]\n" + 
+				"    13  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [24]\n" + 
+				"    16  goto 20\n" + 
+				"    19  aload_2 [bar]\n" + 
+				"    20  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [30]\n" + 
+				"    23  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 3]\n" + 
+				"        [pc: 2, line: 4]\n" + 
+				"        [pc: 5, line: 5]\n" + 
+				"        [pc: 23, line: 6]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 24] local: args index: 0 type: java.lang.String[]\n" + 
+				"        [pc: 2, pc: 24] local: foo index: 1 type: int\n" + 
+				"        [pc: 5, pc: 24] local: bar index: 2 type: java.lang.String\n" + 
+				"      Stack map table: number of frames 2\n" + 
+				"        [pc: 19, full, stack: {java.io.PrintStream}, locals: {java.lang.String[], int, java.lang.String}]\n" + 
+				"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {java.lang.String[], int, java.lang.Comparable}]\n" + 
+				"  \n" + 
+				"  // Method descriptor #48 (Ljava/lang/Comparable;)V\n" + 
+				"  // Signature: <T::Ljava/lang/Comparable<*>;>(TT;)V\n" + 
+				"  // Stack: 2, Locals: 3\n" + 
+				"  void foo(java.lang.Comparable foo);\n" + 
+				"     0  aconst_null\n" + 
+				"     1  astore_2 [bar]\n" + 
+				"     2  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
+				"     5  aload_1 [foo]\n" + 
+				"     6  ifnull 13\n" + 
+				"     9  aload_1 [foo]\n" + 
+				"    10  goto 14\n" + 
+				"    13  aload_2 [bar]\n" + 
+				"    14  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [30]\n" + 
+				"    17  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 8]\n" + 
+				"        [pc: 2, line: 9]\n" + 
+				"        [pc: 17, line: 10]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 18] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 18] local: foo index: 1 type: java.lang.Comparable\n" + 
+				"        [pc: 2, pc: 18] local: bar index: 2 type: java.lang.Comparable\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 18] local: foo index: 1 type: T\n" + 
+				"        [pc: 2, pc: 18] local: bar index: 2 type: T\n" + 
+				"      Stack map table: number of frames 2\n" + 
+				"        [pc: 13, full, stack: {java.io.PrintStream}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n" + 
+				"        [pc: 14, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n";
+			
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+	}
+	
+	public void test009() {
 		this.runConformTest(
 				new String[] {
 					"X.java",

@@ -223,7 +223,8 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.declaringClass = declaringClass;
 	    this.selector = overridenMethodToBridge.selector;
 	    // amongst other, clear the AccGenericSignature, so as to ensure no remains of original inherited persist (101794)
-	    this.modifiers = (overridenMethodToBridge.modifiers | ClassFileConstants.AccBridge | ClassFileConstants.AccSynthetic) & ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccNative | ExtraCompilerModifiers.AccGenericSignature);
+	    // also use the modifiers from the target method, as opposed to inherited one (147690)
+	    this.modifiers = (targetMethod.modifiers | ClassFileConstants.AccBridge | ClassFileConstants.AccSynthetic) & ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccNative | ExtraCompilerModifiers.AccGenericSignature);
 		this.tagBits |= TagBits.AnnotationResolved;
 	    this.returnType = overridenMethodToBridge.returnType;
 	    this.parameters = overridenMethodToBridge.parameters;

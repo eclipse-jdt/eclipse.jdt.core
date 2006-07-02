@@ -266,18 +266,19 @@ public void testSeveralVariableInstallations() {
 		// Change value of a variable using a code snippet and move it
 		evaluateWithExpectedValue("var3 = 'z'; return var3;".toCharArray(), "z".toCharArray(), "char".toCharArray());
 		context.deleteVariable(var3);
-		var3 = context.newVariable(var3.getTypeName(), var3.getName(), var3.getInitializer());
 
 		// Change the type of another variable to an incompatible type
 		context.deleteVariable(var4);
-		var4 = context.newVariable("java.net.URL".toCharArray(), "var4".toCharArray(), "new java.net.URL(\"http://www.ibm.com/index.html\")".toCharArray());
+		installVariables(5);
 
-		// Upadte the variables
+		// Recreate the variables
+		var3 = context.newVariable(var3.getTypeName(), var3.getName(), var3.getInitializer());
+		var4 = context.newVariable("java.net.URL".toCharArray(), "var4".toCharArray(), "new java.net.URL(\"http://www.ibm.com/index.html\")".toCharArray());
 		installVariables(7);
 
 		// Get their values
 		evaluateWithExpectedValue(var1, "1".toCharArray(), "int".toCharArray());
-		evaluateWithExpectedValue(var3, "z".toCharArray(), "char".toCharArray());
+		evaluateWithExpectedValue(var3, "c".toCharArray(), "char".toCharArray());
 		evaluateWithExpectedValue(var4, "http://www.ibm.com/index.html".toCharArray(), "java.net.URL".toCharArray());
 		evaluateWithExpectedValue(var7, "1".toCharArray(), "long".toCharArray());
 		evaluateWithExpectedValue(var8, "hello".toCharArray(), "java.lang.String".toCharArray());

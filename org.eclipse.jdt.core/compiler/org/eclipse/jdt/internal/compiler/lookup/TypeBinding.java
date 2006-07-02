@@ -112,8 +112,7 @@ public TypeBinding capture(Scope scope, int position) {
  *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
  *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
  */
-public void collectSubstitutes(Scope scope, TypeBinding actualType,
-		Map substitutes, int constraint) {
+public void collectSubstitutes(Scope scope, TypeBinding actualType, Map substitutes, int constraint) {
 	// no substitute by default
 }
 
@@ -187,14 +186,14 @@ public TypeBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 		case Binding.GENERIC_TYPE :
 		case Binding.RAW_TYPE :
 		case Binding.WILDCARD_TYPE :
-		    // do not allow type variables to match with erasures for free
-		    if (!otherType.isTypeVariable()) otherType = otherType.erasure();
-		    if (this == otherType || (!isTypeVariable() && erasure() == otherType)) return this;
+		    // do not allow type variables/intersection types to match with erasures for free
+		    if (!otherType.isTypeVariable() && !otherType.isIntersectionType()) otherType = otherType.erasure();
+		    if (this == otherType || (!isTypeVariable() && !isIntersectionType() && erasure() == otherType)) return this;
 		    
 		    ReferenceBinding currentType = (ReferenceBinding)this;
 		    if (!otherType.isInterface()) {
 				while ((currentType = currentType.superclass()) != null) {
-					if (currentType == otherType || (!currentType.isTypeVariable() && currentType.erasure() == otherType)) return currentType;
+					if (currentType == otherType || (!currentType.isTypeVariable() && !currentType.isIntersectionType() && currentType.erasure() == otherType)) return currentType;
 				}
 				return null;
 		    }
@@ -222,7 +221,7 @@ public TypeBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 					
 			for (int i = 0; i < nextPosition; i++) {
 				currentType = interfacesToVisit[i];
-				if (currentType == otherType || (!currentType.isTypeVariable() && currentType.erasure() == otherType))
+				if (currentType == otherType || (!currentType.isTypeVariable() && !currentType.isIntersectionType() && currentType.erasure() == otherType))
 					return currentType;
 
 				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();

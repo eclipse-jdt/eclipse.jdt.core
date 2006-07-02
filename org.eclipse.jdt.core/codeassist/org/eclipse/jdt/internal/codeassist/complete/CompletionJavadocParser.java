@@ -642,7 +642,7 @@ public class CompletionJavadocParser extends JavadocParser {
 								}
 								this.scanner.tokenizeWhiteSpace = true;
 								if (this.completionNode != null) {
-									int flags = CompletionOnJavadoc.TEXT|CompletionOnJavadoc.ONLY_INLINE_TAG;
+									int flags = this.inlineTagStarted ? 0 : CompletionOnJavadoc.TEXT|CompletionOnJavadoc.ONLY_INLINE_TAG;
 									if (member instanceof JavadocMessageSend) {
 										JavadocMessageSend msgSend = (JavadocMessageSend) member;
 										this.completionNode = new CompletionOnJavadocMessageSend(msgSend, this.memberStart, flags);
@@ -763,9 +763,10 @@ public class CompletionJavadocParser extends JavadocParser {
 			consumeToken();
 
 			if (this.completionNode != null) {
-				this.completionNode.addCompletionFlags(CompletionOnJavadoc.TEXT);
 				if (this.inlineTagStarted) {
 					this.completionNode.addCompletionFlags(CompletionOnJavadoc.FORMAL_REFERENCE);
+				} else {
+					this.completionNode.addCompletionFlags(CompletionOnJavadoc.TEXT);
 				}
 			}
 		}

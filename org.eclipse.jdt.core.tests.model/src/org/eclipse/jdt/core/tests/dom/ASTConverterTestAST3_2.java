@@ -2100,9 +2100,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=39327
-	 * TODO reactivate when a binding is returned
 	 */
-	public void _test0477() throws JavaModelException {
+	public void test0477() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0477", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);

@@ -11,8 +11,6 @@
 package org.eclipse.jdt.internal.core;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 
 import org.eclipse.jdt.core.IJavaProject;
@@ -80,12 +78,15 @@ class XMLWriter extends PrintWriter {
 		sb.append("<"); //$NON-NLS-1$
 		sb.append(name);
 		if (parameters != null) {
-			for (Enumeration en = Collections.enumeration(parameters.keySet()); en.hasMoreElements();) {
+			int length = parameters.size();
+			String[] keys = new String[length];
+			parameters.keySet().toArray(keys);
+			Util.sort(keys);
+			for (int i = 0; i < length; i++) {
 				sb.append(" "); //$NON-NLS-1$
-				String key= (String) en.nextElement();
-				sb.append(key);
+				sb.append(keys[i]);
 				sb.append("=\""); //$NON-NLS-1$
-				sb.append(getEscaped(String.valueOf(parameters.get(key))));
+				sb.append(getEscaped(String.valueOf(parameters.get(keys[i]))));
 				sb.append("\""); //$NON-NLS-1$
 			}
 		}

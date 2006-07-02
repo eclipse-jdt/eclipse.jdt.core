@@ -1471,17 +1471,16 @@ public String toString() {
 			toString(buffer, this.focusType, 1, false);
 		} else {
 			buffer.append("Sub types of root classes:\n"); //$NON-NLS-1$
-			IType[] roots= getRootClasses();
+			IJavaElement[] roots = Util.sortCopy(getRootClasses());
 			for (int i= 0; i < roots.length; i++) {
-				toString(buffer, roots[i], 1, false);
+				toString(buffer, (IType) roots[i], 1, false);
 			}
 		}
 		if (this.rootClasses.size > 1) {
 			buffer.append("Root classes:\n"); //$NON-NLS-1$
-			IType[] roots = this.getRootClasses();
+			IJavaElement[] roots = Util.sortCopy(getRootClasses());
 			for (int i = 0, length = roots.length; i < length; i++) {
-				IType type = roots[i];
-				toString(buffer, type, 1, false);
+				toString(buffer, (IType) roots[i], 1, false);
 			}
 		} else if (this.rootClasses.size == 0) {
 			// see http://bugs.eclipse.org/bugs/show_bug.cgi?id=24691
@@ -1499,11 +1498,12 @@ public String toString() {
  */
 private void toString(StringBuffer buffer, IType type, int indent, boolean ascendant) {
 	IType[] types= ascendant ? getSupertypes(type) : getSubtypes(type);
-	for (int i= 0; i < types.length; i++) {
+	IJavaElement[] sortedTypes = Util.sortCopy(types);
+	for (int i= 0; i < sortedTypes.length; i++) {
 		for (int j= 0; j < indent; j++) {
 			buffer.append("  "); //$NON-NLS-1$
 		}
-		JavaElement element = (JavaElement)types[i];
+		JavaElement element = (JavaElement)sortedTypes[i];
 		buffer.append(element.toStringWithAncestors(false/*don't show key*/));
 		buffer.append('\n');
 		toString(buffer, types[i], indent + 1, ascendant);

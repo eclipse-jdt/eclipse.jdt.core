@@ -157,6 +157,7 @@ public interface ICodeAssist {
 	 * @return the Java elements corresponding to the given selected text
 	 *
 	 * @exception JavaModelException if code resolve could not be performed. Reasons include:
+	 * <ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 *  <li> The range specified is not within this element's
 	 *      source range (INDEX_OUT_OF_BOUNDS)
@@ -186,6 +187,7 @@ public interface ICodeAssist {
 	 * @return the Java elements corresponding to the given selected text
 	 *
 	 * @exception JavaModelException if code resolve could not be performed. Reasons include:
+	 * <ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 *  <li> The range specified is not within this element's
 	 *      source range (INDEX_OUT_OF_BOUNDS)

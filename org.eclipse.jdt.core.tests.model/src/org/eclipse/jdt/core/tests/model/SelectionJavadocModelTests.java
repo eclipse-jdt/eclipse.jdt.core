@@ -179,10 +179,10 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
 			"field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
 			"foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]\n" + 
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
 			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
 			"foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			elements
 		);
 	}
@@ -214,10 +214,10 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
 			"field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
 			"foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]\n" + 
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
 			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
 			"foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			elements
 		);
 	}
@@ -258,7 +258,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"field [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" + 
 			"Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]\n" + 
 			"foo(Object[]) [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" + 
-			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
+			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			elements
 		);
 	}
@@ -298,7 +298,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"field [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" + 
 			"Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]\n" + 
 			"foo(Object[]) [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" + 
-			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
+			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			elements
 		);
 	}
@@ -317,8 +317,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[0] = selectType(this.workingCopies[0], "RuntimeException");
 		elements[1] = selectType(this.workingCopies[0], "InterruptedException");
 		assertElementsEqual("Invalid selection(s)",
-			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]\n" + 
-			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
+			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			elements
 		);
 	}
@@ -337,8 +337,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[0] = selectType(this.workingCopies[0], "RuntimeException");
 		elements[1] = selectType(this.workingCopies[0], "InterruptedException");
 		assertElementsEqual("Invalid selection(s)",
-			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]\n" + 
-			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
+			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			elements
 		);
 	}
@@ -461,8 +461,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"foo(int, String) [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
 			"xxx [in foo(int, String) [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
 			"str [in foo(int, String) [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
-			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]\n" + 
-			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
+			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
 			elements
 		);
 	}

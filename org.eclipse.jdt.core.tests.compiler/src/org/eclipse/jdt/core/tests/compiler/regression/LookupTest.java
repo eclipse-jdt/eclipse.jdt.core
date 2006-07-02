@@ -2422,6 +2422,24 @@ public void test072() {
 			"The method foo(String) is ambiguous for the type AX\n" + 
 			"----------\n");
 }
+public void test073() {
+	this.runNegativeTest(
+		new String[] {
+			"E.java",//===================
+			"public class E {\n" + 
+			"	void run(int i) {}\n" + 
+			"	static class Inner {\n" + 
+			"		void run() { run(1); }\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in E.java (at line 4)\n" + 
+		"	void run() { run(1); }\n" + 
+		"	             ^^^\n" + 
+		"The method run() in the type E.Inner is not applicable for the arguments (int)\n" + 
+		"----------\n");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }

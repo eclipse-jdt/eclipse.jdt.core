@@ -290,6 +290,13 @@ public class WildcardBinding extends ReferenceBinding {
        }
 	
 	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#constantPoolName()
+	 */
+	public char[] constantPoolName() {
+		return this.erasure().constantPoolName();
+	}
+	
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */
 	public String debugName() {
@@ -300,9 +307,15 @@ public class WildcardBinding extends ReferenceBinding {
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#erasure()
      */
     public TypeBinding erasure() {
-    	if (this.boundKind == Wildcard.EXTENDS)
-	        return this.bound.erasure();
-    	return typeVariable().erasure();
+    	if (this.otherBounds == null) {
+	    	if (this.boundKind == Wildcard.EXTENDS)
+		        return this.bound.erasure();
+	    	return typeVariable().erasure();
+    	}
+    	// intersection type
+    	return this.bound.id == TypeIds.T_JavaLangObject
+    		? this.otherBounds[0].erasure()
+    		: this.bound.erasure();
     }
 
     /* (non-Javadoc)

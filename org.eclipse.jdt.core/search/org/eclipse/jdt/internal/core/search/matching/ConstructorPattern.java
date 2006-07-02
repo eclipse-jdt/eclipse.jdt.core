@@ -78,11 +78,18 @@ public ConstructorPattern(
 	this.declaringSimpleName = (isCaseSensitive() || isCamelCase()) ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	if (parameterSimpleNames != null) {
 		this.parameterCount = parameterSimpleNames.length;
+		boolean synthetic = this.parameterCount>0 && declaringQualification != null && CharOperation.equals(CharOperation.concat(parameterQualifications[0], parameterSimpleNames[0], '.'), declaringQualification);
+		int offset = 0;
+		if (synthetic) {
+			// skip first synthetic parameter
+			this.parameterCount--;
+			offset++;
+		}
 		this.parameterQualifications = new char[this.parameterCount][];
 		this.parameterSimpleNames = new char[this.parameterCount][];
 		for (int i = 0; i < this.parameterCount; i++) {
-			this.parameterQualifications[i] = isCaseSensitive() ? parameterQualifications[i] : CharOperation.toLowerCase(parameterQualifications[i]);
-			this.parameterSimpleNames[i] = isCaseSensitive() ? parameterSimpleNames[i] : CharOperation.toLowerCase(parameterSimpleNames[i]);
+			this.parameterQualifications[i] = isCaseSensitive() ? parameterQualifications[i+offset] : CharOperation.toLowerCase(parameterQualifications[i+offset]);
+			this.parameterSimpleNames[i] = isCaseSensitive() ? parameterSimpleNames[i+offset] : CharOperation.toLowerCase(parameterSimpleNames[i+offset]);
 		}
 	} else {
 		this.parameterCount = -1;

@@ -151,7 +151,10 @@ public String toString() {
 	return String.valueOf(buffer);
 }
 protected Object clone() throws CloneNotSupportedException {
-	final VerificationTypeInfo verificationTypeInfo = new VerificationTypeInfo(this.id, this.tag, this.constantPoolName);
+	final VerificationTypeInfo verificationTypeInfo = (VerificationTypeInfo) super.clone();
+	verificationTypeInfo.id = this.id;
+	verificationTypeInfo.tag = this.tag;
+	verificationTypeInfo.constantPoolName = this.constantPoolName;
 	verificationTypeInfo.offset = this.offset;
 	return verificationTypeInfo;
 }

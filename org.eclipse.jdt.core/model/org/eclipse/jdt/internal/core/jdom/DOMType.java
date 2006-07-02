@@ -325,6 +325,9 @@ protected void appendMemberDeclarationContents(CharArrayBuffer  buffer) {
 		} else {
 			if (fSuperclassRange[0] < 0) {
 				buffer.append(' ');
+			} else if (fImplementsRange[0] > 0) {
+				buffer.append(fDocument, fSuperclassRange[1] + 1, fImplementsRange[0] - fSuperclassRange[1] - 1);
+				buffer.append(fDocument, fInterfacesRange[1] + 1, fOpenBodyRange[0] - fInterfacesRange[1] - 1);
 			} else {
 				buffer.append(fDocument, fSuperclassRange[1] + 1, fOpenBodyRange[0] - fSuperclassRange[1] - 1);
 			}

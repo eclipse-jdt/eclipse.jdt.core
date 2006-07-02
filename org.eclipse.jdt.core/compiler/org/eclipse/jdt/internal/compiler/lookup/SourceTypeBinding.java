@@ -591,6 +591,7 @@ public FieldBinding[] fields() {
 		return this.fields;	
 
 	int failed = 0;
+	FieldBinding[] resolvedFields = this.fields;
 	try {
 		// lazily sort fields
 		if ((this.tagBits & TagBits.AreFieldsSorted) == 0) {
@@ -598,24 +599,28 @@ public FieldBinding[] fields() {
 			if (length > 1)
 				ReferenceBinding.sortFields(this.fields, 0, length);
 			this.tagBits |= TagBits.AreFieldsSorted;
-		}			
+		}
 		for (int i = 0, length = this.fields.length; i < length; i++) {
 			if (resolveTypeFor(this.fields[i]) == null) {
-				this.fields[i] = null;
+				// do not alter original field array until resolution is over, due to reentrance (143259)
+				if (resolvedFields == this.fields) {
+					System.arraycopy(this.fields, 0, resolvedFields = new FieldBinding[length], 0, length);
+				}
+				resolvedFields[i] = null;
 				failed++;
 			}
 		}
 	} finally {
 		if (failed > 0) {
 			// ensure fields are consistent reqardless of the error
-			int newSize = this.fields.length - failed;
+			int newSize = resolvedFields.length - failed;
 			if (newSize == 0)
 				return this.fields = Binding.NO_FIELDS;
 
 			FieldBinding[] newFields = new FieldBinding[newSize];
-			for (int i = 0, j = 0, length = this.fields.length; i < length; i++) {
-				if (this.fields[i] != null)
-					newFields[j++] = this.fields[i];
+			for (int i = 0, j = 0, length = resolvedFields.length; i < length; i++) {
+				if (resolvedFields[i] != null)
+					newFields[j++] = resolvedFields[i];
 			}
 			this.fields = newFields;
 		}
@@ -1088,10 +1093,15 @@ public MethodBinding[] methods() {
 	}
 
 	int failed = 0;
+	MethodBinding[] resolvedMethods = this.methods;
 	try {
 		for (int i = 0, length = this.methods.length; i < length; i++) {
 			if (resolveTypesFor(this.methods[i]) == null) {
-				this.methods[i] = null; // unable to resolve parameters
+				// do not alter original method array until resolution is over, due to reentrance (143259)
+				if (resolvedMethods == this.methods) {
+					System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
+				}				
+				resolvedMethods[i] = null; // unable to resolve parameters
 				failed++;
 			}
 		}
@@ -1099,13 +1109,13 @@ public MethodBinding[] methods() {
 		// find & report collision cases
 		boolean complyTo15 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = 0, length = this.methods.length; i < length; i++) {
-			MethodBinding method = this.methods[i];
+			MethodBinding method = resolvedMethods[i];
 			if (method == null) 
 				continue;
 			char[] selector = method.selector;
 			AbstractMethodDeclaration methodDecl = null;
 			nextSibling: for (int j = i + 1; j < length; j++) {
-				MethodBinding method2 = this.methods[j];
+				MethodBinding method2 = resolvedMethods[j];
 				if (method2 == null)
 					continue nextSibling;
 				if (!CharOperation.equals(selector, method2.selector)) 
@@ -1176,7 +1186,11 @@ public MethodBinding[] methods() {
 							this.scope.problemReporter().duplicateMethodInType(this, methodDecl);
 						}
 						methodDecl.binding = null;
-						this.methods[i] = null;
+						// do not alter original method array until resolution is over, due to reentrance (143259)
+						if (resolvedMethods == this.methods) {
+							System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
+						}								
+						resolvedMethods[i] = null;
 						failed++;
 					}
 				}
@@ -1188,26 +1202,37 @@ public MethodBinding[] methods() {
 						this.scope.problemReporter().duplicateMethodInType(this, method2Decl);
 					}
 					method2Decl.binding = null;
-					this.methods[j] = null;
+					// do not alter original method array until resolution is over, due to reentrance (143259)
+					if (resolvedMethods == this.methods) {
+						System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
+					}							
+					resolvedMethods[j] = null;
 					failed++;
 				}
 			}
 			if (method.returnType == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
-				method.sourceMethod().binding = null;
-				this.methods[i] = null;
+				methodDecl = method.sourceMethod();
+				if (methodDecl != null) {
+					methodDecl.binding = null;
+				}
+				// do not alter original method array until resolution is over, due to reentrance (143259)
+				if (resolvedMethods == this.methods) {
+					System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
+				}						
+				resolvedMethods[i] = null;
 				failed++;
 			}
 		}
 	} finally {
 		if (failed > 0) {
-			int newSize = this.methods.length - failed;
+			int newSize = resolvedMethods.length - failed;
 			if (newSize == 0) {
 				this.methods = Binding.NO_METHODS;
 			} else {
 				MethodBinding[] newMethods = new MethodBinding[newSize];
-				for (int i = 0, j = 0, length = this.methods.length; i < length; i++)
-					if (this.methods[i] != null)
-						newMethods[j++] = this.methods[i];
+				for (int i = 0, j = 0, length = resolvedMethods.length; i < length; i++)
+					if (resolvedMethods[i] != null)
+						newMethods[j++] = resolvedMethods[i];
 				this.methods = newMethods;
 			}
 		}
@@ -1249,17 +1274,17 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 				field.type = fieldType;
 				field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 				if (fieldType == null) {
-					fieldDecls[f].binding = null;
+					fieldDecl.binding = null;
 					return null;
 				}
 				if (fieldType == TypeBinding.VOID) {
-					this.scope.problemReporter().variableTypeCannotBeVoid(fieldDecls[f]);
-					fieldDecls[f].binding = null;
+					this.scope.problemReporter().variableTypeCannotBeVoid(fieldDecl);
+					fieldDecl.binding = null;
 					return null;
 				}
 				if (fieldType.isArrayType() && ((ArrayBinding) fieldType).leafComponentType == TypeBinding.VOID) {
-					this.scope.problemReporter().variableTypeCannotBeVoidArray(fieldDecls[f]);
-					fieldDecls[f].binding = null;
+					this.scope.problemReporter().variableTypeCannotBeVoidArray(fieldDecl);
+					fieldDecl.binding = null;
 					return null;
 				}
 				TypeBinding leafType = fieldType.leafComponentType();

@@ -298,7 +298,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 	 *   - int foo(String[]) is ([Ljava/lang/String;)I => java.lang.String[] in a char[][]
 	 *   - void foo(int) is (I)V ==> int
 	 */
-	private char[][] decodeParameterTypes(char[] signature) throws ClassFormatException {
+	private char[][] decodeParameterTypes(char[] signature, boolean firstIsSynthetic) throws ClassFormatException {
 		if (signature == null) return null;
 		int indexOfClosingParen = CharOperation.lastIndexOf(')', signature);
 		if (indexOfClosingParen == 1) {
@@ -362,9 +362,14 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 				case 'L':
 					int indexOfSemiColon = CharOperation.indexOf(';', signature, i+1);
 					if (indexOfSemiColon == -1) throw new ClassFormatException(ClassFormatException.ErrInvalidMethodSignature);
-					parameterTypes[parameterTypesCounter++] = replace('/','.',CharOperation.subarray(signature, i + 1, indexOfSemiColon));
-					if (arrayDim > 0)
-						convertToArrayType(parameterTypes, parameterTypesCounter-1, arrayDim);
+					if (firstIsSynthetic && parameterTypesCounter == 0) {
+						// skip first synthetic parameter
+						firstIsSynthetic = false;
+					} else {
+						parameterTypes[parameterTypesCounter++] = replace('/','.',CharOperation.subarray(signature, i + 1, indexOfSemiColon));
+						if (arrayDim > 0)
+							convertToArrayType(parameterTypes, parameterTypesCounter-1, arrayDim);
+					}
 					i = indexOfSemiColon;
 					arrayDim = 0;
 					break;
@@ -464,7 +469,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 		}
 		return null;
 	}
-	private int extractArgCount(char[] signature) throws ClassFormatException {
+	private int extractArgCount(char[] signature, char[] className) throws ClassFormatException {
 		int indexOfClosingParen = CharOperation.lastIndexOf(')', signature);
 		if (indexOfClosingParen == 1) {
 			// there is no parameter
@@ -489,7 +494,25 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 				case 'L':
 					int indexOfSemiColon = CharOperation.indexOf(';', signature, i+1);
 					if (indexOfSemiColon == -1) throw new ClassFormatException(ClassFormatException.ErrInvalidMethodSignature);
-					parameterTypesCounter++;
+					// verify if first parameter is synthetic
+					if (className != null && parameterTypesCounter == 0) {
+						char[] classSignature = Signature.createCharArrayTypeSignature(className, true);
+						int length = indexOfSemiColon-i+1;
+						if (classSignature.length > (length+1)) {
+							// synthetic means that parameter type has same signature than given class
+							for (int j=i, k=0; j<indexOfSemiColon; j++, k++) {
+								if (signature[j] != classSignature[k]) {
+									parameterTypesCounter++;
+									break;
+								}
+							}
+						} else {
+							parameterTypesCounter++;
+						}
+						className = null; // do not verify following parameters
+					} else {
+						parameterTypesCounter++;
+					}
 					i = indexOfSemiColon;
 					break;
 				case '[':
@@ -544,12 +567,26 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					name = extractName(constantPoolOffsets, reader, i);
 					type = extractType(constantPoolOffsets, reader, i);
 					if (CharOperation.equals(INIT, name)) {
-						// add a constructor reference
-						char[] className = replace('/', '.', extractClassName(constantPoolOffsets, reader, i)); // so that it looks like java.lang.String
-						addConstructorReference(className, extractArgCount(type));
+						// get class name and see if it's a local type or not
+						char[] className = extractClassName(constantPoolOffsets, reader, i);
+						boolean localType = false;
+						if (className !=  null) {
+							for (int c = 0, max = className.length; c < max; c++) {
+								switch (className[c]) {
+									case '/':
+										className[c] = '.';
+										break;
+									case '$':
+										localType = true;
+										break;
+								}
+							}
+						}
+						// add a constructor reference, use class name to extract arg count if it's a local type to remove synthetic parameter
+						addConstructorReference(className, extractArgCount(type, localType?className:null));
 					} else {
 						// add a method reference
-						addMethodReference(name, extractArgCount(type));
+						addMethodReference(name, extractArgCount(type, null));
 					}
 					break;
 				case ClassFileConstants.ClassTag :
@@ -597,7 +634,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 				name = className;
 			}
 			char[] enclosingTypeName = null;
-			if (reader.isNestedType()) {
+			boolean isNestedType = reader.isNestedType();
+			if (isNestedType) {
 				if (reader.isAnonymous()) {
 					name = CharOperation.NO_CHAR;
 				} else {
@@ -664,11 +702,12 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			if (methods != null) {
 				for (int i = 0, max = methods.length; i < max; i++) {
 					MethodInfo method = methods[i];
+					boolean isConstructor = method.isConstructor();
 					char[] descriptor = method.getMethodDescriptor();
-					char[][] parameterTypes = decodeParameterTypes(descriptor);
+					char[][] parameterTypes = decodeParameterTypes(descriptor, isConstructor && isNestedType);
 					char[] returnType = decodeReturnType(descriptor);
 					char[][] exceptionTypes = replace('/', '.', method.getExceptionTypeNames());
-					if (method.isConstructor()) {
+					if (isConstructor) {
 						addConstructorDeclaration(className, parameterTypes, exceptionTypes);
 					} else {
 						if (!method.isClinit()) {

@@ -44,7 +44,750 @@ static {
 }
 public static Test suite() {
 	// TODO (david) make execution independant from tests order
-	return buildModelTestSuite(CompletionTests.class, 1/*sort ascending order*/);
+	return buildModelTestSuite(CompletionTests.class, ALPHABETICAL_SORT);
+}
+public void testParameterNames1() throws CoreException, IOException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);
+	try {
+		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000");
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/p/Test.java",
+			"package p;"+
+			"public class Test {\n" + 
+			"  void foo(doctest.X x) {\n" + 
+			"    x.fo\n" + 
+			"  }\n" + 
+			"}\n");
+		
+		addLibrary(
+				"Completion", 
+				"tmpDoc.jar",
+				null,
+				"tmpDocDoc.zip",
+				false);
+		
+		CompletionTestsRequestor2 requestor;
+		try {
+			requestor = new CompletionTestsRequestor2(true);
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "x.fo";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			
+			assertResults(
+				"foo[METHOD_REF]{foo(), Ldoctest.X;, (Ljava.lang.Object;)V, foo, (param), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+		} finally {
+			removeLibrary("Completion", "tmpDoc.jar");
+		}
+	} finally {
+		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+public void testInconsistentHierarchy1() throws CoreException, IOException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/p/Test.java",
+		"package p;"+
+		"public class Test extends Unknown {\n" + 
+		"  void foo() {\n" + 
+		"    this.has\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "this.has";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+		requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck1() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  ZZZTy\n"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType1.java",
+			"package deprecation;"+
+			"public class ZZZType1 {\n"+
+			"}");
+		
+		this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType2.java",
+			"package deprecation;"+
+			"/** @deprecated */\n"+
+			"public class ZZZType2 {\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZTy";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"ZZZTy[POTENTIAL_METHOD_DECLARATION]{ZZZTy, Ldeprecation.Test;, ()V, ZZZTy, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"ZZZType1[TYPE_REF]{ZZZType1, deprecation, Ldeprecation.ZZZType1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZZType2[TYPE_REF]{ZZZType2, deprecation, Ldeprecation.ZZZType2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck2() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  ZZZTy\n"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType1.java",
+			"package deprecation;"+
+			"public class ZZZType1 {\n"+
+			"}");
+		
+		this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType2.java",
+			"package deprecation;"+
+			"/** @deprecated */\n"+
+			"public class ZZZType2 {\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZTy";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"ZZZTy[POTENTIAL_METHOD_DECLARATION]{ZZZTy, Ldeprecation.Test;, ()V, ZZZTy, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"ZZZType1[TYPE_REF]{ZZZType1, deprecation, Ldeprecation.ZZZType1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck3() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  void foo() {"+
+			"    ZZZType1.fo\n"+
+			"  }"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType1.java",
+			"package deprecation;"+
+			"public class ZZZType1 {\n"+
+			"  public static void foo1(){}\n"+
+			"  /** @deprecated */\n"+
+			"  public static void foo2(){}\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZType1.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo1[METHOD_REF]{foo1(), Ldeprecation.ZZZType1;, ()V, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"foo2[METHOD_REF]{foo2(), Ldeprecation.ZZZType1;, ()V, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck4() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  void foo() {"+
+			"    ZZZType1.fo\n"+
+			"  }"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType1.java",
+			"package deprecation;"+
+			"public class ZZZType1 {\n"+
+			"  public static void foo1(){}\n"+
+			"  /** @deprecated */\n"+
+			"  public static void foo2(){}\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZType1.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo1[METHOD_REF]{foo1(), Ldeprecation.ZZZType1;, ()V, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck5() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  ZZZType1.Inn\n"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType1.java",
+			"package deprecation;"+
+			"public class ZZZType1 {\n"+
+			"  public class Inner1 {}\n"+
+			"  /** @deprecated */\n"+
+			"  public class Inner2 {}\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZType1.Inn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"ZZZType1.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.ZZZType1$Inner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZType1.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.ZZZType1$Inner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck6() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  ZZZType1.Inn\n"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType1.java",
+			"package deprecation;"+
+			"public class ZZZType1 {\n"+
+			"  public class Inner1 {}\n"+
+			"  /** @deprecated */\n"+
+			"  public class Inner2 {}\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZType1.Inn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"ZZZType1.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.ZZZType1$Inner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck7() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  void foo() {"+
+			"    ZZZType1.fo\n"+
+			"  }"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType1.java",
+			"package deprecation;"+
+			"public class ZZZType1 {\n"+
+			"  public static int foo1;\n"+
+			"  /** @deprecated */\n"+
+			"  public static int foo2;\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZType1.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo1[FIELD_REF]{foo1, Ldeprecation.ZZZType1;, I, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"foo2[FIELD_REF]{foo2, Ldeprecation.ZZZType1;, I, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck8() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  void foo() {"+
+			"    ZZZType1.fo\n"+
+			"  }"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType1.java",
+			"package deprecation;"+
+			"public class ZZZType1 {\n"+
+			"  public static int foo1;\n"+
+			"  /** @deprecated */\n"+
+			"  public static int foo2;\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZType1.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"foo1[FIELD_REF]{foo1, Ldeprecation.ZZZType1;, I, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck9() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  public void bar1(){}\n"+
+			"  /** @deprecated */\n"+
+			"  public void bar2(){}\n"+
+			"  void foo() {"+
+			"    bar\n"+
+			"  }"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "bar";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"bar1[METHOD_REF]{bar1(), Ldeprecation.Test;, ()V, bar1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"bar2[METHOD_REF]{bar2(), Ldeprecation.Test;, ()V, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck10() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  public void bar1(){}\n"+
+			"  /** @deprecated */\n"+
+			"  public void bar2(){}\n"+
+			"  void foo() {"+
+			"    bar\n"+
+			"  }"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "bar";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"bar1[METHOD_REF]{bar1(), Ldeprecation.Test;, ()V, bar1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"bar2[METHOD_REF]{bar2(), Ldeprecation.Test;, ()V, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck11() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  public int bar1;\n"+
+			"  /** @deprecated */\n"+
+			"  public int bar2;\n"+
+			"  void foo() {"+
+			"    bar\n"+
+			"  }"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "bar";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"bar1[FIELD_REF]{bar1, Ldeprecation.Test;, I, bar1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"bar2[FIELD_REF]{bar2, Ldeprecation.Test;, I, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck12() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  public int bar1;\n"+
+			"  /** @deprecated */\n"+
+			"  public int bar2;\n"+
+			"  void foo() {"+
+			"    bar\n"+
+			"  }"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "bar";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"bar1[FIELD_REF]{bar1, Ldeprecation.Test;, I, bar1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"bar2[FIELD_REF]{bar2, Ldeprecation.Test;, I, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck13() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  class Inner1 {}\n"+
+			"  /** @deprecated */\n"+
+			"  class Inner2 {}\n"+
+			"  void foo() {"+
+			"    Inn\n"+
+			"  }"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "Inn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"Test.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.Test$Inner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"Test.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.Test$Inner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck14() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  class Inner1 {}\n"+
+			"  /** @deprecated */\n"+
+			"  class Inner2 {}\n"+
+			"  void foo() {"+
+			"    Inn\n"+
+			"  }"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "Inn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"Test.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.Test$Inner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"Test.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.Test$Inner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck15() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  void foo() {"+
+			"    ZZZType1.foo\n"+
+			"  }"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType1.java",
+			"package deprecation;"+
+			"/** @deprecated */\n"+
+			"public class ZZZType1 {\n"+
+			"  public static int foo1;\n"+
+			"  public static int foo2;\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZType1.foo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck16() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"/** @deprecated */\n"+
+			"public class ZZZType1 {\n"+
+			"}"+
+			"public class Test {\n"+
+			"  void foo() {"+
+			"    ZZZTy\n"+
+			"  }"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZTy";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"ZZZType1[TYPE_REF]{ZZZType1, deprecation, Ldeprecation.ZZZType1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127628
+public void testDeprecationCheck17() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	try {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  Bug127628Ty\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "Bug127628Ty";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"Bug127628Ty[POTENTIAL_METHOD_DECLARATION]{Bug127628Ty, Ldeprecation.Test;, ()V, Bug127628Ty, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Bug127628Type1.Bug127628TypeInner1[TYPE_REF]{deprecation.Bug127628Type1.Bug127628TypeInner1, deprecation, Ldeprecation.Bug127628Type1$Bug127628TypeInner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"Bug127628Type2.Bug127628TypeInner2[TYPE_REF]{deprecation.Bug127628Type2.Bug127628TypeInner2, deprecation, Ldeprecation.Bug127628Type2$Bug127628TypeInner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"Bug127628Type1[TYPE_REF]{Bug127628Type1, deprecation, Ldeprecation.Bug127628Type1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139937
+public void testEvaluationContextCompletion() throws JavaModelException {
+	class EvaluationContextCompletionRequestor extends CompletionRequestor {
+		public boolean acceptContext;
+		public void acceptContext(CompletionContext context) {
+			this.acceptContext = context != null;
+		}
+		public void accept(CompletionProposal proposal) {
+			// Do nothing
+		}
+	}
+	String start = "";
+	IJavaProject javaProject = getJavaProject("Completion");
+	IEvaluationContext context = javaProject.newEvaluationContext();
+    EvaluationContextCompletionRequestor rc = new EvaluationContextCompletionRequestor();
+	context.codeComplete(start, start.length(), rc);
+	
+	assertTrue("acceptContext() method isn't call", rc.acceptContext);
 }
 
 /**
@@ -11646,748 +12389,5 @@ public void testLabel6() throws JavaModelException {
 	assertResults(
 			"label2[LABEL_REF]{label2, null, null, label2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
-}
-public void testParameterNames1() throws CoreException, IOException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);
-	try {
-		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000");
-		COMPLETION_PROJECT.setOptions(options);
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/p/Test.java",
-			"package p;"+
-			"public class Test {\n" + 
-			"  void foo(doctest.X x) {\n" + 
-			"    x.fo\n" + 
-			"  }\n" + 
-			"}\n");
-		
-		addLibrary(
-				"Completion", 
-				"tmpDoc.jar",
-				null,
-				"tmpDocDoc.zip",
-				false);
-		
-		CompletionTestsRequestor2 requestor;
-		try {
-			requestor = new CompletionTestsRequestor2(true);
-			String str = this.workingCopies[0].getSource();
-			String completeBehind = "x.fo";
-			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-			
-			assertResults(
-				"foo[METHOD_REF]{foo(), Ldoctest.X;, (Ljava.lang.Object;)V, foo, (param), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-		} finally {
-			removeLibrary("Completion", "tmpDoc.jar");
-		}
-	} finally {
-		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-public void testInconsistentHierarchy1() throws CoreException, IOException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/p/Test.java",
-		"package p;"+
-		"public class Test extends Unknown {\n" + 
-		"  void foo() {\n" + 
-		"    this.has\n" + 
-		"  }\n" + 
-		"}\n");
-	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "this.has";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-	assertResults(
-		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
-		requestor.getResults());
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck1() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[3];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  ZZZTy\n"+
-			"}");
-		
-		this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"}");
-		
-		this.workingCopies[2] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType2.java",
-			"package deprecation;"+
-			"/** @deprecated */\n"+
-			"public class ZZZType2 {\n"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZTy";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"ZZZTy[POTENTIAL_METHOD_DECLARATION]{ZZZTy, Ldeprecation.Test;, ()V, ZZZTy, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-				"ZZZType1[TYPE_REF]{ZZZType1, deprecation, Ldeprecation.ZZZType1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZZType2[TYPE_REF]{ZZZType2, deprecation, Ldeprecation.ZZZType2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck2() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[3];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  ZZZTy\n"+
-			"}");
-		
-		this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"}");
-		
-		this.workingCopies[2] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType2.java",
-			"package deprecation;"+
-			"/** @deprecated */\n"+
-			"public class ZZZType2 {\n"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZTy";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"ZZZTy[POTENTIAL_METHOD_DECLARATION]{ZZZTy, Ldeprecation.Test;, ()V, ZZZTy, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-				"ZZZType1[TYPE_REF]{ZZZType1, deprecation, Ldeprecation.ZZZType1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck3() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[2];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.fo\n"+
-			"  }"+
-			"}");
-		
-		this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public static void foo1(){}\n"+
-			"  /** @deprecated */\n"+
-			"  public static void foo2(){}\n"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZType1.fo";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"foo1[METHOD_REF]{foo1(), Ldeprecation.ZZZType1;, ()V, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"foo2[METHOD_REF]{foo2(), Ldeprecation.ZZZType1;, ()V, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck4() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[2];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.fo\n"+
-			"  }"+
-			"}");
-		
-		this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public static void foo1(){}\n"+
-			"  /** @deprecated */\n"+
-			"  public static void foo2(){}\n"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZType1.fo";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"foo1[METHOD_REF]{foo1(), Ldeprecation.ZZZType1;, ()V, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck5() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[2];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  ZZZType1.Inn\n"+
-			"}");
-		
-		this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public class Inner1 {}\n"+
-			"  /** @deprecated */\n"+
-			"  public class Inner2 {}\n"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZType1.Inn";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"ZZZType1.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.ZZZType1$Inner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZType1.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.ZZZType1$Inner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck6() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[2];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  ZZZType1.Inn\n"+
-			"}");
-		
-		this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public class Inner1 {}\n"+
-			"  /** @deprecated */\n"+
-			"  public class Inner2 {}\n"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZType1.Inn";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"ZZZType1.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.ZZZType1$Inner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck7() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[2];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.fo\n"+
-			"  }"+
-			"}");
-		
-		this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public static int foo1;\n"+
-			"  /** @deprecated */\n"+
-			"  public static int foo2;\n"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZType1.fo";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"foo1[FIELD_REF]{foo1, Ldeprecation.ZZZType1;, I, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"foo2[FIELD_REF]{foo2, Ldeprecation.ZZZType1;, I, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck8() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[2];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.fo\n"+
-			"  }"+
-			"}");
-		
-		this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public static int foo1;\n"+
-			"  /** @deprecated */\n"+
-			"  public static int foo2;\n"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZType1.fo";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"foo1[FIELD_REF]{foo1, Ldeprecation.ZZZType1;, I, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck9() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  public void bar1(){}\n"+
-			"  /** @deprecated */\n"+
-			"  public void bar2(){}\n"+
-			"  void foo() {"+
-			"    bar\n"+
-			"  }"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "bar";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"bar1[METHOD_REF]{bar1(), Ldeprecation.Test;, ()V, bar1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"bar2[METHOD_REF]{bar2(), Ldeprecation.Test;, ()V, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck10() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  public void bar1(){}\n"+
-			"  /** @deprecated */\n"+
-			"  public void bar2(){}\n"+
-			"  void foo() {"+
-			"    bar\n"+
-			"  }"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "bar";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"bar1[METHOD_REF]{bar1(), Ldeprecation.Test;, ()V, bar1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"bar2[METHOD_REF]{bar2(), Ldeprecation.Test;, ()V, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck11() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  public int bar1;\n"+
-			"  /** @deprecated */\n"+
-			"  public int bar2;\n"+
-			"  void foo() {"+
-			"    bar\n"+
-			"  }"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "bar";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"bar1[FIELD_REF]{bar1, Ldeprecation.Test;, I, bar1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"bar2[FIELD_REF]{bar2, Ldeprecation.Test;, I, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck12() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  public int bar1;\n"+
-			"  /** @deprecated */\n"+
-			"  public int bar2;\n"+
-			"  void foo() {"+
-			"    bar\n"+
-			"  }"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "bar";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"bar1[FIELD_REF]{bar1, Ldeprecation.Test;, I, bar1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"bar2[FIELD_REF]{bar2, Ldeprecation.Test;, I, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck13() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  class Inner1 {}\n"+
-			"  /** @deprecated */\n"+
-			"  class Inner2 {}\n"+
-			"  void foo() {"+
-			"    Inn\n"+
-			"  }"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "Inn";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"Test.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.Test$Inner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"Test.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.Test$Inner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck14() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[2];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  class Inner1 {}\n"+
-			"  /** @deprecated */\n"+
-			"  class Inner2 {}\n"+
-			"  void foo() {"+
-			"    Inn\n"+
-			"  }"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "Inn";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"Test.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.Test$Inner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"Test.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.Test$Inner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck15() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[2];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.foo\n"+
-			"  }"+
-			"}");
-		
-		this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"/** @deprecated */\n"+
-			"public class ZZZType1 {\n"+
-			"  public static int foo1;\n"+
-			"  public static int foo2;\n"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZType1.foo";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck16() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"/** @deprecated */\n"+
-			"public class ZZZType1 {\n"+
-			"}"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZTy\n"+
-			"  }"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZTy";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"ZZZType1[TYPE_REF]{ZZZType1, deprecation, Ldeprecation.ZZZType1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127628
-public void testDeprecationCheck17() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  Bug127628Ty\n"+
-			"}");
-	
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "Bug127628Ty";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
-		assertResults(
-				"Bug127628Ty[POTENTIAL_METHOD_DECLARATION]{Bug127628Ty, Ldeprecation.Test;, ()V, Bug127628Ty, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-				"Bug127628Type1.Bug127628TypeInner1[TYPE_REF]{deprecation.Bug127628Type1.Bug127628TypeInner1, deprecation, Ldeprecation.Bug127628Type1$Bug127628TypeInner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"Bug127628Type2.Bug127628TypeInner2[TYPE_REF]{deprecation.Bug127628Type2.Bug127628TypeInner2, deprecation, Ldeprecation.Bug127628Type2$Bug127628TypeInner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"Bug127628Type1[TYPE_REF]{Bug127628Type1, deprecation, Ldeprecation.Bug127628Type1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
-	}
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139937
-public void testEvaluationContextCompletion() throws JavaModelException {
-	class EvaluationContextCompletionRequestor extends CompletionRequestor {
-		public boolean acceptContext;
-		public void acceptContext(CompletionContext context) {
-			this.acceptContext = context != null;
-		}
-		public void accept(CompletionProposal proposal) {
-			// Do nothing
-		}
-	}
-	String start = "";
-	IJavaProject javaProject = getJavaProject("Completion");
-	IEvaluationContext context = javaProject.newEvaluationContext();
-    EvaluationContextCompletionRequestor rc = new EvaluationContextCompletionRequestor();
-	context.codeComplete(start, start.length(), rc);
-	
-	assertTrue("acceptContext() method isn't call", rc.acceptContext);
 }
 }

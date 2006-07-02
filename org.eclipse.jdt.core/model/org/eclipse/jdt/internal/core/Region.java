@@ -16,7 +16,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IRegion;
 
-
 /**
  * @see IRegion
  */
@@ -110,7 +109,7 @@ public boolean remove(IJavaElement element) {
  *
  * <p>Children are all children, not just direct children.
  */
-private void removeAllChildren(IJavaElement element) {
+protected void removeAllChildren(IJavaElement element) {
 	if (element instanceof IParent) {
 		ArrayList newRootElements = new ArrayList();
 		for (int i = 0, size = fRootElements.size(); i < size; i++) {

@@ -1655,4 +1655,24 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142772
+	public void test045() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static test.Y.arrayList;\n" +
+				"public class X { static void arrayList(int x) { arrayList(); } }\n",
+				"test/Y.java",
+				"package test;\n" +
+				"public class Y { public static void arrayList() {} }\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public class X { static void arrayList(int x) { arrayList(); } }\n" + 
+			"	                                                ^^^^^^^^^\n" + 
+			"The method arrayList(int) in the type X is not applicable for the arguments ()\n" + 
+			"----------\n"
+			// arrayList(int) in X cannot be applied to ()
+		);
+	}
 }

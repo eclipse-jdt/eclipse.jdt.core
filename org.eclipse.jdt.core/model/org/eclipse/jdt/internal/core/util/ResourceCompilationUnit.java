@@ -25,7 +25,7 @@ public class ResourceCompilationUnit extends CompilationUnit {
 	private IFile file;
 	
 	public ResourceCompilationUnit(IFile file, URI location) {
-		super(null/*no contents*/, location == null ? file.getFullPath().toString() : location.getSchemeSpecificPart(), null/*encoding is used only when retrieving the contents*/);
+		super(null/*no contents*/, location == null ? file.getFullPath().toString() : location.getPath(), null/*encoding is used only when retrieving the contents*/);
 		this.file = file;
 	}
 

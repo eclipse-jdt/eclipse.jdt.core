@@ -684,9 +684,8 @@ public class ClassScope extends Scope {
 				return;
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-				if (itsInterfaces == null)
-					return; // in code assist cases when source types are added late, may not be finished connecting hierarchy
+			// in code assist cases when source types are added late, may not be finished connecting hierarchy
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {
 					interfacesToVisit = itsInterfaces;
 					nextPosition = interfacesToVisit.length;
@@ -715,7 +714,7 @@ public class ClassScope extends Scope {
 
 					needToTag = true;
 					ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
-					if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+					if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 						int itsLength = itsInterfaces.length;
 						if (nextPosition + itsLength >= interfacesToVisit.length)
 							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
@@ -1036,7 +1035,7 @@ public class ClassScope extends Scope {
 			}
 
 			ReferenceBinding[] itsInterfaces = superType.superInterfaces();
-			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				for (int i = 0, length = itsInterfaces.length; i < length; i++) {
 					ReferenceBinding anInterface = itsInterfaces[i];
 					if (sourceType == anInterface) {
@@ -1085,6 +1084,8 @@ public class ClassScope extends Scope {
 			this.superTypeReference = null;
 			return superType;
 		} catch (AbortCompilation e) {
+			SourceTypeBinding sourceType = this.referenceContext.binding;
+			if (sourceType.superInterfaces == null)  sourceType.superInterfaces = Binding.NO_SUPERINTERFACES; // be more resilient for hierarchies (144976)
 			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);
 			throw e;
 		}			

@@ -1571,7 +1571,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * </p>
 	 * <p>
 	 * <b>Note that this is an expensive thing to compute, which may require
-	 * parsing Java source files, etc. Use sparingly.
+	 * parsing Java source files, etc. Use sparingly.</b>
 	 * </p>
 	 * 
 	 * @param monitor the progress monitor, or <code>null</code> if none
