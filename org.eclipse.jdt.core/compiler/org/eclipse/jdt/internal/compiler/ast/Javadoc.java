@@ -704,7 +704,6 @@ public class Javadoc extends ASTNode {
 
 			// reference must have enough visibility to be used
 			if (!canBeSeen(scope.problemReporter().options.reportInvalidJavadocTagsVisibility, modifiers)) {
-//				if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
 				scope.problemReporter().javadocHiddenReference(typeReference.sourceStart, reference.sourceEnd, scope, modifiers);
 				return;
 			}
@@ -712,7 +711,6 @@ public class Javadoc extends ASTNode {
 			// type reference must have enough visibility to be used
 			if (reference != typeReference) {
 				if (!canBeSeen(scope.problemReporter().options.reportInvalidJavadocTagsVisibility, resolvedType.modifiers)) {
-//					if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
 					scope.problemReporter().javadocHiddenReference(typeReference.sourceStart, typeReference.sourceEnd, scope, resolvedType.modifiers);
 					return;
 				}
@@ -739,17 +737,6 @@ public class Javadoc extends ASTNode {
 							return;
 						}
 					}
-					/*
-					if (typeReference instanceof JavadocQualifiedTypeReference) {
-						JavadocQualifiedTypeReference qualifiedTypeReference = (JavadocQualifiedTypeReference) typeReference;
-						// inner class qualified reference can only be done in same package
-						if ((qualifiedTypeReference.tokens.length != resolvedType.enclosingType().compoundName.length+1) && topLevelType.getPackage() != topLevelScope.referenceContext.binding.getPackage()) {
-							if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
-							scope.problemReporter().javadocInvalidMemberTypeQualification(typeReference.sourceStart, typeReference.sourceEnd, scopeModifiers);
-							return;
-						}
-					}
-					*/
 				}
 			}
 		}
