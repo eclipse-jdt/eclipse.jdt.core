@@ -1982,8 +1982,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"public class Valid extends Test { \n" + 
 				"}"
 			},
-//			comment6a\test\Invalid.java:8: warning - Tag @link: reference not found: Inner
-//			comment6a\test\Invalid2.java:8: warning - Tag @see: reference not found: Test.Inner => bug ID: 4464323
+			//comment6a\test\Invalid.java:8: warning - Tag @link: reference not found: Inner
+			//comment6a\test\Invalid2.java:8: warning - Tag @see: reference not found: Test.Inner => bug ID: 4464323
 			"----------\n" + 
 			"1. ERROR in comment6a\\test\\Invalid.java (at line 4)\n" + 
 			"	* See also {@link Inner}\n" + 
@@ -2021,7 +2021,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"public class Valid implements Test { \n" + 
 				"}"
 			},
-//			comment6b\Invalid.java:6: warning - Tag @see: reference not found: Inner
+			//comment6b\Invalid.java:6: warning - Tag @see: reference not found: Inner
 			"----------\n" + 
 			"1. ERROR in comment6b\\Invalid.java (at line 4)\n" + 
 			"	* @see Inner\n" + 
@@ -2044,8 +2044,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	class Inner {}\n" + 
 				"}\n"
 			},
-//			test\a\Test.java:6: warning - Tag @see: reference not found: Inner
-//			test\a\Test.java:6: warning - Tag @see: reference not found: Test.Inner
+			//test\a\Test.java:6: warning - Tag @see: reference not found: Inner
+			//test\a\Test.java:6: warning - Tag @see: reference not found: Test.Inner
 			"----------\n" + 
 			"1. ERROR in test\\a\\Test.java (at line 3)\n" + 
 			"	* @see Inner\n" + 
@@ -2079,10 +2079,10 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	}\n" + 
 				"}\n"
 			},
-//			test\b\Test.java:6: warning - Tag @see: reference not found: Inner.Level2
-//			test\b\Test.java:6: warning - Tag @see: reference not found: Test.Inner.Level2
-//			test\b\Test.java:11: warning - Tag @see: reference not found: Level2
-//			test\b\Test.java:11: warning - Tag @see: reference not found: Test.Inner.Level2
+			//test\b\Test.java:6: warning - Tag @see: reference not found: Inner.Level2
+			//test\b\Test.java:6: warning - Tag @see: reference not found: Test.Inner.Level2
+			//test\b\Test.java:11: warning - Tag @see: reference not found: Level2
+			//test\b\Test.java:11: warning - Tag @see: reference not found: Test.Inner.Level2
 			"----------\n" + 
 			"1. ERROR in test\\b\\Test.java (at line 3)\n" + 
 			"	* @see Inner.Level2\n" + 
@@ -2131,12 +2131,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	}\n" + 
 				"}\n"
 			},
-//			test\c\Test.java:6: warning - Tag @see: reference not found: Inner.Level2.Level3
-//			test\c\Test.java:6: warning - Tag @see: reference not found: Test.Inner.Level2.Level3
-//			test\c\Test.java:14: warning - Tag @see: reference not found: Level3
-//			test\c\Test.java:14: warning - Tag @see: reference not found: Level2.Level3
-//			test\c\Test.java:14: warning - Tag @see: reference not found: Inner.Level2.Level3
-//			test\c\Test.java:14: warning - Tag @see: reference not found: Test.Inner.Level2.Level3
+			//test\c\Test.java:6: warning - Tag @see: reference not found: Inner.Level2.Level3
+			//test\c\Test.java:6: warning - Tag @see: reference not found: Test.Inner.Level2.Level3
+			//test\c\Test.java:14: warning - Tag @see: reference not found: Level3
+			//test\c\Test.java:14: warning - Tag @see: reference not found: Level2.Level3
+			//test\c\Test.java:14: warning - Tag @see: reference not found: Inner.Level2.Level3
+			//test\c\Test.java:14: warning - Tag @see: reference not found: Test.Inner.Level2.Level3
 			"----------\n" + 
 			"1. ERROR in test\\c\\Test.java (at line 3)\n" + 
 			"	* @see Inner.Level2.Level3\n" + 
@@ -2237,7 +2237,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				" */\n" + 
 				"class Sub1 extends Invalid { }\n"
 			},
-//			comment6\Invalid.java:11: warning - Tag @link: reference not found: Inner
+			//comment6\Invalid.java:11: warning - Tag @link: reference not found: Inner
 			"----------\n" + 
 			"1. ERROR in comment6\\Invalid.java (at line 9)\n" + 
 			"	* See also {@link Inner} \n" + 
@@ -2283,8 +2283,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"public class Valid extends Test { \n" + 
 				"}"
 			},
-//			comment6a\test\Invalid.java:8: warning - Tag @link: reference not found: Inner
-//			comment6a\test\Invalid2.java:8: warning - Tag @see: reference not found: Test.Inner => bug ID: 4464323
+			//comment6a\test\Invalid.java:8: warning - Tag @link: reference not found: Inner
+			//comment6a\test\Invalid2.java:8: warning - Tag @see: reference not found: Test.Inner => bug ID: 4464323
 			"----------\n" + 
 			"1. ERROR in comment6a\\test\\Invalid.java (at line 4)\n" + 
 			"	* See also {@link Inner}\n" + 
@@ -2322,7 +2322,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"public class Valid implements Test { \n" + 
 				"}"
 			},
-//			comment6b\Invalid.java:6: warning - Tag @see: reference not found: Inner
+			//comment6b\Invalid.java:6: warning - Tag @see: reference not found: Inner
 			"----------\n" + 
 			"1. ERROR in comment6b\\Invalid.java (at line 4)\n" + 
 			"	* @see Inner\n" + 

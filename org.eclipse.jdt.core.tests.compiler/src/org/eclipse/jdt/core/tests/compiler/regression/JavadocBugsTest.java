@@ -3987,8 +3987,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	IAFAState.ValidationException valid2;\n" + 
 				"}\n"
 			},
-//			boden\TestValid.java:8: warning - Tag @see: reference not found: ValidationException
-//			boden\TestValid.java:12: warning - Tag @see: reference not found: ValidationException#IAFAState.ValidationException(String, IAFAState)
+			//boden\TestValid.java:8: warning - Tag @see: reference not found: ValidationException
+			//boden\TestValid.java:12: warning - Tag @see: reference not found: ValidationException#IAFAState.ValidationException(String, IAFAState)
 			"----------\n" + 
 			"1. ERROR in boden\\TestValid.java (at line 4)\n" + 
 			"	* @see ValidationException\n" + 
@@ -4051,10 +4051,10 @@ public class JavadocBugsTest extends JavadocTest {
 				"	IAFAState.ValidationException invalid;\n" + 
 				"}\n"
 			},
-//			boden\TestInvalid1.java:7: warning - Tag @see: reference not found: ValidationException#ValidationException(String, IAFAState)
-//			boden\TestInvalid2.java:6: warning - Tag @see: can't find ValidationException(String, IAFAState) in boden.IAFAState.ValidationException => bug ID: 4288720
-//			boden\TestInvalid3.java:6: warning - Tag @see: can't find IAFA.State.ValidationException(String, IAFAState) in boden.IAFAState.ValidationException
-//			boden\TestInvalid4.java:6: warning - Tag @see: can't find IAFAState in boden.IAFAState.ValidationException
+			//boden\TestInvalid1.java:7: warning - Tag @see: reference not found: ValidationException#ValidationException(String, IAFAState)
+			//boden\TestInvalid2.java:6: warning - Tag @see: can't find ValidationException(String, IAFAState) in boden.IAFAState.ValidationException => bug ID: 4288720
+			//boden\TestInvalid3.java:6: warning - Tag @see: can't find IAFA.State.ValidationException(String, IAFAState) in boden.IAFAState.ValidationException
+			//boden\TestInvalid4.java:6: warning - Tag @see: can't find IAFAState in boden.IAFAState.ValidationException
 			"----------\n" + 
 			"1. ERROR in boden\\TestInvalid1.java (at line 5)\n" + 
 			"	* @see ValidationException#ValidationException(String, IAFAState)\n" + 
@@ -4103,7 +4103,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"	Test.Level0 invalid = new Test.Level0();\n" + 
 				"}\n"
 			}
-//			test\C.java:10: warning - Tag @see: can't find Level0() in test.Test.Level0 => bug ID: 4288720
+			//test\C.java:10: warning - Tag @see: can't find Level0() in test.Test.Level0 => bug ID: 4288720
 		);
 	}
 	public void testBug103304d() {
@@ -4138,8 +4138,8 @@ public class JavadocBugsTest extends JavadocTest {
 				"	Test.Member.Level1 wrong = new Test.Member.Level1();\n" + 
 				"}\n"
 			},
-//			test\C2.java:10: warning - Tag @see: can't find Level1() in test.Test.Member.Level1 => Bug ID: 4288720
-//			test\C2.java:14: warning - Tag @see: can't find Test.Level1() in test.Test.Member.Level1
+			//test\C2.java:10: warning - Tag @see: can't find Level1() in test.Test.Member.Level1 => Bug ID: 4288720
+			//test\C2.java:14: warning - Tag @see: can't find Test.Level1() in test.Test.Member.Level1
 			"----------\n" + 
 			"1. ERROR in test\\C2.java (at line 12)\n" + 
 			"	* @see Test.Member.Level1#Test.Level1()\n" + 
@@ -4214,14 +4214,14 @@ public class JavadocBugsTest extends JavadocTest {
 				"	}\n" + 
 				"}\n"
 			},
-//			implicit\Invalid.java:7: warning - Tag @see: can't find Level0() in implicit.Invalid.Level0 => bug ID: 4288720
-//			implicit\Invalid.java:11: warning - Tag @see: can't find Level0(String) in implicit.Invalid.Level0 => bug ID: 4288720
-//			implicit\Invalid.java:20: warning - Tag @see: can't find Level1() in implicit.Invalid.Member.Level1 => bug ID: 4288720
-//			implicit\Invalid.java:20: warning - Tag @see: can't find Member.Level1() in implicit.Invalid.Member.Level1
-//			implicit\Invalid.java:20: warning - Tag @see: can't find Invalid.Level1() in implicit.Invalid.Member.Level1
-//			implicit\Invalid.java:26: warning - Tag @see: can't find Level1(int) in implicit.Invalid.Member.Level1 => bug ID: 4288720
-//			implicit\Invalid.java:26: warning - Tag @see: can't find Invalid.Level1(int) in implicit.Invalid.Member.Level1
-//			implicit\Invalid.java:26: warning - Tag @see: can't find Member.Level1(int) in implicit.Invalid.Member.Level1
+			//implicit\Invalid.java:7: warning - Tag @see: can't find Level0() in implicit.Invalid.Level0 => bug ID: 4288720
+			//implicit\Invalid.java:11: warning - Tag @see: can't find Level0(String) in implicit.Invalid.Level0 => bug ID: 4288720
+			//implicit\Invalid.java:20: warning - Tag @see: can't find Level1() in implicit.Invalid.Member.Level1 => bug ID: 4288720
+			//implicit\Invalid.java:20: warning - Tag @see: can't find Member.Level1() in implicit.Invalid.Member.Level1
+			//implicit\Invalid.java:20: warning - Tag @see: can't find Invalid.Level1() in implicit.Invalid.Member.Level1
+			//implicit\Invalid.java:26: warning - Tag @see: can't find Level1(int) in implicit.Invalid.Member.Level1 => bug ID: 4288720
+			//implicit\Invalid.java:26: warning - Tag @see: can't find Invalid.Level1(int) in implicit.Invalid.Member.Level1
+			//implicit\Invalid.java:26: warning - Tag @see: can't find Member.Level1(int) in implicit.Invalid.Member.Level1
 			"----------\n" + 
 			"1. ERROR in implicit\\Invalid.java (at line 17)\n" + 
 			"	* @see #Member.Level1() Invalid\n" + 
@@ -4409,7 +4409,6 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 	public void testBug129241b() {
 		this.reportDeprecation = CompilerOptions.IGNORE;
-//		this.reportJavadocDeprecation = CompilerOptions.ENABLED;
 		runNegativeTest(
 			new String[] {
 				"X.java",
