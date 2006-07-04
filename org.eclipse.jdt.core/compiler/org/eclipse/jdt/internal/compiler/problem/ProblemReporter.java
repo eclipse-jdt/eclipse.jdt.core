@@ -3653,6 +3653,17 @@ public void javadocErrorNoMethodFor(MessageSend messageSend, TypeBinding recType
 			messageSend.sourceEnd);
 	}
 }
+public void javadocHiddenReference(int sourceStart, int sourceEnd, Scope scope, int modifiers) {
+	Scope currentScope = scope;
+	while (currentScope.parent.kind != Scope.COMPILATION_UNIT_SCOPE ) {
+		if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, currentScope.getDeclarationModifiers())) {
+			return;
+		}
+		currentScope = currentScope.parent;
+	}
+	String[] arguments = new String[] { this.options.getVisibilityString(this.options.reportInvalidJavadocTagsVisibility), this.options.getVisibilityString(modifiers) };
+	this.handle(IProblem.JavadocHiddenReference, arguments, arguments, sourceStart, sourceEnd);
+}
 public void javadocInvalidConstructor(Statement statement, MethodBinding targetConstructor, int modifiers) {
 
 	if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) return;
@@ -4220,17 +4231,6 @@ public void javadocMissingThrowsTag(TypeReference typeRef, int modifiers){
 			typeRef.sourceStart,
 			typeRef.sourceEnd);
 	}
-}
-public void javadocHiddenReference(int sourceStart, int sourceEnd, Scope scope, int modifiers) {
-	Scope currentScope = scope;
-	while (currentScope.parent.kind != Scope.COMPILATION_UNIT_SCOPE ) {
-		if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, currentScope.getDeclarationModifiers())) {
-			return;
-		}
-		currentScope = currentScope.parent;
-	}
-	String[] arguments = new String[] { this.options.getVisibilityString(this.options.reportInvalidJavadocTagsVisibility), this.options.getVisibilityString(modifiers) };
-	this.handle(IProblem.JavadocHiddenReference, arguments, arguments, sourceStart, sourceEnd);
 }
 public void javadocUndeclaredParamTagName(char[] token, int sourceStart, int sourceEnd, int modifiers) {
 	int severity = computeSeverity(IProblem.JavadocInvalidParamName);
