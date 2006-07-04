@@ -116,7 +116,8 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 				if (oldContainer == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
 					oldContainer = null;
 				}
-				if (oldContainer != null && oldContainer.equals(this.respectiveContainers[i])){
+				if ((oldContainer != null && oldContainer.equals(this.respectiveContainers[i]))
+						|| (oldContainer == this.respectiveContainers[i])/*handle case where old and new containers are null (see bug 149043*/) {
 					modifiedProjects[i] = null; // filter out this project - container did not change
 					continue;
 				}

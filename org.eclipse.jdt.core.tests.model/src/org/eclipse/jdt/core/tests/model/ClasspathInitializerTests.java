@@ -674,6 +674,48 @@ public void testContainerInitializer12() throws CoreException {
 	}
 }
 
+/* 
+ * Ensures that no resource deta is reported if a container that was not initialized is initialized with null
+ * (regression test for bug 149043 Unresolvable classpath container leads to lots of scheduled jobs)
+ */
+public void testContainerInitializer13() throws CoreException {
+	IResourceChangeListener listener = new IResourceChangeListener() {
+		StringBuffer buffer = new StringBuffer();
+		public void resourceChanged(IResourceChangeEvent event) {
+			this.buffer.append(event.getDelta().findMember(new Path("/P1")));
+		}
+		public String toString() {
+			return this.buffer.toString();
+		}
+	};
+	try {
+		NullContainerInitializer nullInitializer = new NullContainerInitializer();
+		ContainerInitializer.setInitializer(nullInitializer);
+		IJavaProject project = createJavaProject(
+				"P1", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+				
+		// simulate state on startup
+		simulateExitRestart();
+		
+		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
+		
+		// force resolution of container
+		project.findPackageFragmentRoots(project.getRawClasspath()[0]);
+
+		assertEquals(
+			"Unexpected resource delta on startup", 
+			"",
+			listener.toString()
+		);
+	} finally {
+		getWorkspace().removeResourceChangeListener(listener);
+		deleteProject("P1");
+	}
+}
+
 public void testVariableInitializer01() throws CoreException {
 	try {
 		createProject("P1");
