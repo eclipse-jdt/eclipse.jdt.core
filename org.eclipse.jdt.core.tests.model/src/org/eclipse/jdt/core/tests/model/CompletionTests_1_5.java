@@ -1519,17 +1519,27 @@ public void test0058() throws JavaModelException {
 		
 		qqTypes = this.getExternalQQTypes();
 		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test0058/Test.java",
+			"package test0058;\n"+
+			"import static pkgstaticimport.QQType4.*;\n"+
+			"public class Test {\n"+
+			"	void foo() {\n"+
+			"		zzvarzz\n"+
+			"	}\n"+
+			"}");
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0058", "Test.java");
-	
-		String str = cu.getSource();
+		String str = this.workingCopies[0].getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
+	
 	} finally {
 		this.discardWorkingCopies(qqTypes);
 		
@@ -1562,15 +1572,24 @@ public void test0059() throws JavaModelException {
 				"	int zzvarzz7;\n"+
 				"	static int zzvarzz8;\n"+
 				"}");
-		
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0059", "Test.java");
 	
-		String str = cu.getSource();
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test0059/Test.java",
+			"package test0059;\n"+
+			"import static test0059.QQType5.*;\n"+
+			"public class Test {\n"+
+			"	void foo() {\n"+
+			"		zzvarzz\n"+
+			"	}\n"+
+			"}");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		String str = this.workingCopies[0].getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Ltest0059.QQType5;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"zzvarzz4[FIELD_REF]{zzvarzz4, Ltest0059.QQType5;, I, zzvarzz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -1626,13 +1645,22 @@ public void test0061() throws JavaModelException {
 		
 		qqTypes = this.getExternalQQTypes();
 		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test0061/Test.java",
+			"package test0061;\n" +
+			"import static pkgstaticimport.QQType4.zzvarzz2;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"		zzvarzz\n" +
+			"	}\n" +
+			"}");
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0061", "Test.java");
-	
-		String str = cu.getSource();
+		String str = this.workingCopies[0].getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -1654,13 +1682,23 @@ public void test0062() throws JavaModelException {
 		
 		qqTypes = this.getExternalQQTypes();
 		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test0062/Test.java",
+			"package test0062;\n" +
+			"import static pkgstaticimport.QQType4.*;\n" +
+			"import static pkgstaticimport.QQType4.zzvarzz2;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"		zzvarzz\n" +
+			"	}\n" +
+			"}");
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0062", "Test.java");
-	
-		String str = cu.getSource();
+		String str = this.workingCopies[0].getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -1682,13 +1720,23 @@ public void test0063() throws JavaModelException {
 		
 		qqTypes = this.getExternalQQTypes();
 		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test0063/Test.java",
+			"package test0063;\n" +
+			"import static pkgstaticimport.QQType4.zzvarzz2;\n" +
+			"import static pkgstaticimport.QQType4.*;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"		zzvarzz\n" +
+			"	}\n" +
+			"}");
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0063", "Test.java");
-	
-		String str = cu.getSource();
+		String str = this.workingCopies[0].getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -1737,15 +1785,24 @@ public void test0065() throws JavaModelException {
 		JavaCore.setOptions(options);
 		
 		qqTypes = this.getExternalQQTypes();
-		
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0065", "Test.java");
 	
-		String str = cu.getSource();
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test0065/Test.java",
+			"package test0065;\n" +
+			"import static pkgstaticimport.QQType7.*;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"		zzfoozz\n" +
+			"	}\n" +
+			"}");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		String str = this.workingCopies[0].getSource();
 		String completeBehind = "zzfoozz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
 		assertResults(
 				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
@@ -1781,15 +1838,24 @@ public void test0066() throws JavaModelException {
 				"	void zzfoozz7(){};\n"+
 				"	static void zzfoozz8(){};\n"+
 				"}");
-		
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0066", "Test.java");
 	
-		String str = cu.getSource();
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test0066/Test.java",
+			"package test0066;\n" +
+			"import static test0066.QQType8.*;\n" +
+			"public class Test {\n" +
+			"	void foo() {\n" +
+			"		zzfoozz\n" +
+			"	}\n" +
+			"}");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		String str = this.workingCopies[0].getSource();
 		String completeBehind = "zzfoozz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
 		assertResults(
 				"zzfoozz2[METHOD_REF]{zzfoozz2(), Ltest0066.QQType8;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"zzfoozz4[METHOD_REF]{zzfoozz4(), Ltest0066.QQType8;, ()V, zzfoozz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -7303,7 +7369,7 @@ public void test0228() throws JavaModelException {
             result.context);
 
 	assertResults(
-			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0228/Test;>;, class, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0228/Test;>;, class, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			result.proposals);
 }
 /*
@@ -7328,7 +7394,7 @@ public void test0229() throws JavaModelException {
             result.context);
 
 	assertResults(
-			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0229/Test;>;, class, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0229/Test;>;, class, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			result.proposals);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=96944
@@ -8224,7 +8290,7 @@ public void test0271() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"zzz2[METHOD_REF]{zzz2(), Ltest.TestCollections;, (Ljava.lang.Object;)V, zzz2, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"zzz2[METHOD_REF]{zzz2(), Ltest.TestCollections;, (Ljava.lang.Object;)V, zzz2, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
@@ -8443,7 +8509,7 @@ public void test0278() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"zzz2[METHOD_REF]{zzz2(), Ltest.Test;, (Ljava.lang.Object;)V, zzz2, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"zzz2[METHOD_REF]{zzz2(), Ltest.Test;, (Ljava.lang.Object;)V, zzz2, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
@@ -8474,7 +8540,7 @@ public void test0279() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"zzz2[METHOD_REF]{zzz2(), Ltest.TestCollections;, (Ljava.lang.Object;)V, zzz2, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"zzz2[METHOD_REF]{zzz2(), Ltest.TestCollections;, (Ljava.lang.Object;)V, zzz2, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
@@ -8536,7 +8602,7 @@ public void test0281() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"zzz2[METHOD_REF]{zzz2(), Ltest.TestCollections;, <T:Ljava.lang.Object;>(TT;)V, zzz2, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"zzz2[METHOD_REF]{zzz2(), Ltest.TestCollections;, <T:Ljava.lang.Object;>(TT;)V, zzz2, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=106450
@@ -8617,7 +8683,7 @@ public void test0284() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"zzz2[METHOD_REF]{zzz2(), Ltest.Test;, (Ljava.lang.Object;)V, zzz2, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"zzz2[METHOD_REF]{zzz2(), Ltest.Test;, (Ljava.lang.Object;)V, zzz2, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=133491

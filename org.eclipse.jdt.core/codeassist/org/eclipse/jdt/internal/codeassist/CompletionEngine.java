@@ -807,7 +807,7 @@ public final class CompletionEngine
 				findTypesAndPackages(this.completionToken, scope);
 				if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 					if (this.completionToken != null && this.completionToken.length != 0) {
-						findKeywords(this.completionToken, singleNameReference.possibleKeywords, false);
+						findKeywords(this.completionToken, singleNameReference.possibleKeywords, false, false);
 					} else {
 						findTrueOrFalseKeywords(singleNameReference.possibleKeywords);
 					}
@@ -854,6 +854,7 @@ public final class CompletionEngine
 					false,
 					false,
 					false,
+					false,
 					!this.assistNodeIsConstructor,
 					null,
 					new ObjectVector());
@@ -886,6 +887,7 @@ public final class CompletionEngine
 							scope,
 							scope.enclosingSourceType(),
 							false,
+							true,
 							new ObjectVector());
 				}
 				if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
@@ -898,12 +900,14 @@ public final class CompletionEngine
 						((scope instanceof MethodScope && !((MethodScope)scope).isStatic)
 						|| ((methodScope = scope.enclosingMethodScope()) != null && !methodScope.isStatic))) {
 					if (this.completionToken.length > 0) {
-						findKeywords(this.completionToken, new char[][]{Keywords.THIS}, false);
+						findKeywords(this.completionToken, new char[][]{Keywords.THIS}, false, true);
 					} else {
 						int relevance = computeBaseRelevance();
 						relevance += computeRelevanceForInterestingProposal();
 						relevance += computeRelevanceForCaseMatching(this.completionToken, Keywords.THIS);
 						relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
+						relevance += R_NON_INHERITED;
+						
 						this.noProposal = false;
 						if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 							CompletionProposal proposal = this.createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
@@ -981,6 +985,7 @@ public final class CompletionEngine
 						scope,
 						scope.enclosingSourceType(),
 						false,
+						false,
 						new ObjectVector());
 				}
 			} else if (qualifiedBinding instanceof PackageBinding) {
@@ -998,7 +1003,7 @@ public final class CompletionEngine
 			this.completionToken = access.token;
 			
 			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-				findKeywords(this.completionToken, new char[][]{Keywords.NEW}, false);
+				findKeywords(this.completionToken, new char[][]{Keywords.NEW}, false, false);
 			}
 			
 			findFieldsAndMethods(
@@ -1143,7 +1148,7 @@ public final class CompletionEngine
 		} else if (astNode instanceof CompletionOnKeyword) {
 			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 				CompletionOnKeyword keyword = (CompletionOnKeyword)astNode;
-				findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), keyword.canCompleteEmptyToken());
+				findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), keyword.canCompleteEmptyToken(), false);
 			}
 		} else if (astNode instanceof CompletionOnParameterizedQualifiedTypeReference) {
 			if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
@@ -1163,6 +1168,7 @@ public final class CompletionEngine
 					(ReferenceBinding) qualifiedBinding,
 					scope,
 					scope.enclosingSourceType(),
+					false,
 					false,
 					new ObjectVector());
 			}
@@ -1195,6 +1201,7 @@ public final class CompletionEngine
 						(ReferenceBinding) qualifiedBinding,
 						scope,
 						scope.enclosingSourceType(),
+						false,
 						false,
 						new ObjectVector());
 				}
@@ -1304,6 +1311,7 @@ public final class CompletionEngine
 							(ReferenceBinding) qualifiedBinding,
 							scope,
 							scope.enclosingSourceType(),
+							false,
 							false,
 							new ObjectVector());
 					}
@@ -1723,7 +1731,7 @@ public final class CompletionEngine
 							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 								setSourceRange(importReference.sourceStart, importReference.sourceEnd);
 								CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
-								findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), false);
+								findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), false, false);
 							}
 							if(this.noProposal && this.problem != null) {
 								this.requestor.completionFailure(this.problem);
@@ -1990,6 +1998,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForCaseMatching(token, classField);
 			relevance += computeRelevanceForExpectingType(scope.getJavaLangClass());
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); //no access restriction for class field 
+			relevance += R_NON_INHERITED;
 			
 			this.noProposal = false;
 			if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
@@ -2548,6 +2557,9 @@ public final class CompletionEngine
 			relevance += computeRelevanceForStatic(onlyStaticFields, field.isStatic());
 			relevance += computeRelevanceForQualification(prefixRequired);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			if (onlyStaticFields && this.insideQualifiedReference) {
+				relevance += computeRelevanceForInheritance(receiverType, field.declaringClass);
+			}
 			
 			this.noProposal = false;
 			// Standard proposal
@@ -3139,7 +3151,7 @@ public final class CompletionEngine
 
 	// what about onDemand types? Ignore them since it does not happen!
 	// import p1.p2.A.*;
-	private void findKeywords(char[] keyword, char[][] choices, boolean canCompleteEmptyToken) {
+	private void findKeywords(char[] keyword, char[][] choices, boolean canCompleteEmptyToken, boolean staticFieldsAndMethodOnly) {
 		if(choices == null || choices.length == 0) return;
 		
 		int length = keyword.length;
@@ -3152,6 +3164,7 @@ public final class CompletionEngine
 					relevance += computeRelevanceForInterestingProposal();
 					relevance += computeRelevanceForCaseMatching(keyword, choices[i]);
 					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+					if (staticFieldsAndMethodOnly && this.insideQualifiedReference) relevance += R_NON_INHERITED;
 					
 					if(CharOperation.equals(choices[i], Keywords.TRUE) || CharOperation.equals(choices[i], Keywords.FALSE)) {
 						relevance += computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
@@ -3291,7 +3304,7 @@ public final class CompletionEngine
 		}
 		System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
 		
-		findKeywords(token, keywords, false);
+		findKeywords(token, keywords, false, false);
 	}
 
 	// Helper method for findMemberTypes(char[], ReferenceBinding, Scope)
@@ -3302,6 +3315,7 @@ public final class CompletionEngine
 		ReferenceBinding receiverType,
 		SourceTypeBinding invocationType,
 		boolean staticOnly,
+		boolean staticFieldsAndMethodOnly,
 		boolean fromStaticImport,
 		boolean checkQualification,
 		Scope scope) {
@@ -3404,6 +3418,7 @@ public final class CompletionEngine
 			if(!insideQualifiedReference) {
 				relevance += computeRelevanceForQualification(isQualified);
 			}
+			if (staticFieldsAndMethodOnly && this.insideQualifiedReference) relevance += R_NON_INHERITED; // This criterion doesn't concern types and is added to be balanced with field and method relevance.
 
 			if (memberType.isClass()) {
 				relevance += computeRelevanceForClass();
@@ -3427,6 +3442,7 @@ public final class CompletionEngine
 		Scope scope,
 		SourceTypeBinding typeInvocation,
 		boolean staticOnly,
+		boolean staticFieldsAndMethodOnly,
 		ObjectVector typesFound)  {
 		findMemberTypes(
 				typeName,
@@ -3434,6 +3450,7 @@ public final class CompletionEngine
 				scope,
 				typeInvocation,
 				staticOnly,
+				staticFieldsAndMethodOnly,
 				false,
 				false,
 				false,
@@ -3446,6 +3463,7 @@ public final class CompletionEngine
 		Scope scope,
 		SourceTypeBinding typeInvocation,
 		boolean staticOnly,
+		boolean staticFieldsAndMethodOnly,
 		boolean fromStaticImport,
 		boolean checkQualification,
 		boolean proposeAllMemberTypes,
@@ -3469,6 +3487,7 @@ public final class CompletionEngine
 				receiverType,
 				typeInvocation,
 				staticOnly,
+				staticFieldsAndMethodOnly,
 				fromStaticImport,
 				checkQualification,
 				scope);
@@ -3504,6 +3523,7 @@ public final class CompletionEngine
 				receiverType,
 				typeInvocation,
 				staticOnly,
+				staticFieldsAndMethodOnly,
 				fromStaticImport,
 				checkQualification,
 				scope);
@@ -3521,6 +3541,7 @@ public final class CompletionEngine
 						scope,
 						typeInvocation,
 						staticOnly,
+						staticFieldsAndMethodOnly,
 						fromStaticImport,
 						typesFound);
 				}
@@ -3537,6 +3558,7 @@ public final class CompletionEngine
 					receiverType,
 					typeInvocation,
 					staticOnly,
+					staticFieldsAndMethodOnly,
 					fromStaticImport,
 					checkQualification,
 					scope);
@@ -3600,6 +3622,7 @@ public final class CompletionEngine
 		Scope scope,
 		SourceTypeBinding typeInvocation,
 		boolean staticOnly,
+		boolean staticFieldsAndMethodOnly,
 		boolean fromStaticImport,
 		ObjectVector typesFound) {
 
@@ -3617,6 +3640,7 @@ public final class CompletionEngine
 				receiverType,
 				typeInvocation,
 				staticOnly,
+				staticFieldsAndMethodOnly,
 				fromStaticImport,
 				true,
 				scope);
@@ -3636,6 +3660,7 @@ public final class CompletionEngine
 				scope,
 				typeInvocation,
 				staticOnly,
+				staticFieldsAndMethodOnly,
 				fromStaticImport,
 				typesFound);
 		}
@@ -3981,6 +4006,9 @@ public final class CompletionEngine
 			relevance += computeRelevanceForStatic(onlyStaticMethods, method.isStatic());
 			relevance += computeRelevanceForQualification(prefixRequired);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			if (onlyStaticMethods && this.insideQualifiedReference) {
+				relevance += computeRelevanceForInheritance(receiverType, method.declaringClass);
+			}
 			
 			this.noProposal = false;
 			// Standard proposal
@@ -4247,6 +4275,12 @@ public final class CompletionEngine
 		} 
 		return 0;
 	}
+	
+	private int computeRelevanceForInheritance(ReferenceBinding receiverType, ReferenceBinding declaringClass) {
+		if (receiverType == declaringClass) return R_NON_INHERITED;
+		return 0;
+	}
+	
 	int computeRelevanceForInterestingProposal(){
 		return computeRelevanceForInterestingProposal(null);
 	}
@@ -4891,7 +4925,7 @@ public final class CompletionEngine
 
 				case Scope.CLASS_SCOPE :
 					SourceTypeBinding enclosingSourceType = scope.enclosingSourceType();
-					findMemberTypes(typeName, enclosingSourceType, scope, currentType, false, false, false, proposeAllMemberTypes, nextTypeToIgnore, typesFound);
+					findMemberTypes(typeName, enclosingSourceType, scope, currentType, false, false, false, false, proposeAllMemberTypes, nextTypeToIgnore, typesFound);
 					nextTypeToIgnore = enclosingSourceType;
 					if (typeLength == 0)
 						return; // do not search outside the class scope if no prefix was provided
@@ -5065,6 +5099,7 @@ public final class CompletionEngine
 							scope.enclosingSourceType(),
 							false,
 							false,
+							false,
 							typesFound);
 				}
 				
@@ -5219,7 +5254,7 @@ public final class CompletionEngine
 		} else {
 			if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 				if (this.assistNodeInJavadoc == 0 || (this.assistNodeInJavadoc & CompletionOnJavadoc.BASE_TYPES) != 0) {
-					findKeywords(token, BASE_TYPE_NAMES, false);
+					findKeywords(token, BASE_TYPE_NAMES, false, false);
 				}
 			}
 			if(proposeType) {
@@ -5365,6 +5400,7 @@ public final class CompletionEngine
 									scope,
 									scope.enclosingSourceType(),
 									true,
+									false,
 									true,
 									true,
 									proposeAllMemberTypes,
