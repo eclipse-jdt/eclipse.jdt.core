@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
@@ -43,15 +42,16 @@ static {
 //	TESTS_NAMES = new String[] { "testDeprecationCheck17"};
 }
 public static Test suite() {
-	// TODO (david) make execution independant from tests order
-	return buildModelTestSuite(CompletionTests.class, ALPHABETICAL_SORT);
+	return buildModelTestSuite(CompletionTests.class);
 }
 public void testParameterNames1() throws CoreException, IOException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
+	Hashtable options = JavaCore.getOptions();
 	Object timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);
+	options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC,"2000"); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000");
-		COMPLETION_PROJECT.setOptions(options);
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/p/Test.java",
@@ -85,7 +85,7 @@ public void testParameterNames1() throws CoreException, IOException {
 		}
 	} finally {
 		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		JavaCore.setOptions(options);
 	}
 }
 public void testInconsistentHierarchy1() throws CoreException, IOException {
@@ -111,12 +111,13 @@ public void testInconsistentHierarchy1() throws CoreException, IOException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck1() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -150,18 +151,19 @@ public void testDeprecationCheck1() throws JavaModelException {
 				"ZZZType2[TYPE_REF]{ZZZType2, deprecation, Ldeprecation.ZZZType2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck2() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -194,18 +196,20 @@ public void testDeprecationCheck2() throws JavaModelException {
 				"ZZZType1[TYPE_REF]{ZZZType1, deprecation, Ldeprecation.ZZZType1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck3() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+	
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -236,18 +240,20 @@ public void testDeprecationCheck3() throws JavaModelException {
 				"foo2[METHOD_REF]{foo2(), Ldeprecation.ZZZType1;, ()V, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck4() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -277,18 +283,20 @@ public void testDeprecationCheck4() throws JavaModelException {
 				"foo1[METHOD_REF]{foo1(), Ldeprecation.ZZZType1;, ()V, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck5() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -317,18 +325,20 @@ public void testDeprecationCheck5() throws JavaModelException {
 				"ZZZType1.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.ZZZType1$Inner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck6() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -356,18 +366,20 @@ public void testDeprecationCheck6() throws JavaModelException {
 				"ZZZType1.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.ZZZType1$Inner1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck7() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -398,18 +410,20 @@ public void testDeprecationCheck7() throws JavaModelException {
 				"foo2[FIELD_REF]{foo2, Ldeprecation.ZZZType1;, I, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck8() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -439,18 +453,20 @@ public void testDeprecationCheck8() throws JavaModelException {
 				"foo1[FIELD_REF]{foo1, Ldeprecation.ZZZType1;, I, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck9() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -475,19 +491,21 @@ public void testDeprecationCheck9() throws JavaModelException {
 				"bar2[METHOD_REF]{bar2(), Ldeprecation.Test;, ()V, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck10() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -512,18 +530,20 @@ public void testDeprecationCheck10() throws JavaModelException {
 				"bar2[METHOD_REF]{bar2(), Ldeprecation.Test;, ()V, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck11() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -548,18 +568,20 @@ public void testDeprecationCheck11() throws JavaModelException {
 				"bar2[FIELD_REF]{bar2, Ldeprecation.Test;, I, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck12() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -584,18 +606,20 @@ public void testDeprecationCheck12() throws JavaModelException {
 				"bar2[FIELD_REF]{bar2, Ldeprecation.Test;, I, bar2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck13() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -620,18 +644,20 @@ public void testDeprecationCheck13() throws JavaModelException {
 				"Test.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.Test$Inner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck14() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -656,18 +682,20 @@ public void testDeprecationCheck14() throws JavaModelException {
 				"Test.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.Test$Inner2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck15() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -697,18 +725,20 @@ public void testDeprecationCheck15() throws JavaModelException {
 				"",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck16() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -732,19 +762,21 @@ public void testDeprecationCheck16() throws JavaModelException {
 				"ZZZType1[TYPE_REF]{ZZZType1, deprecation, Ldeprecation.ZZZType1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127628
 public void testDeprecationCheck17() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object timeout = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable options = JavaCore.getOptions();
+	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
+	
+	JavaCore.setOptions(options);
+
 	try {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
-		COMPLETION_PROJECT.setOptions(options);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/deprecation/Test.java",
@@ -766,8 +798,8 @@ public void testDeprecationCheck17() throws JavaModelException {
 				"Bug127628Type1[TYPE_REF]{Bug127628Type1, deprecation, Ldeprecation.Bug127628Type1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, timeout);
-		COMPLETION_PROJECT.setOptions(options);
+		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+		JavaCore.setOptions(options);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139937
