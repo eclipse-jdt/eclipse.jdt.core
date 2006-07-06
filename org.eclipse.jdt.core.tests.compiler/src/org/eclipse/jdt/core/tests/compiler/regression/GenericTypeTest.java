@@ -32356,4 +32356,37 @@ public void test1020() {
 		"The method add(capture#1-of ? extends Exception) in the type List<capture#1-of ? extends Exception> is not applicable for the arguments (capture#2-of ? extends Exception)\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149376
+public void test1021() {
+	this.runConformTest(
+		new String[] {
+			"p/SomeClass.java",
+			"package p;\n" + 
+			"import static p.SomeClass.SomeEnum.*;\n" + 
+			"public abstract class SomeClass<T> extends Object {\n" + 
+			"	public enum SomeEnum {\n" +
+			"		A;\n" + 
+			"	};\n" + 
+			"}\n",
+		},
+		""
+	);
+}
+public void test1021b() { // should this case be allowed?
+	this.runConformTest(
+		new String[] {
+			"p/SomeClass2.java",
+			"package p;\n" + 
+			"import static p.SomeClass2.M1.*;\n" + 
+			"public abstract class SomeClass2<T> extends M {\n" + 
+			"	public static class M1 extends M2 {}\n" + 
+			"	public static class M2 extends M3 {}\n" + 
+			"	public static class M3 {\n" +
+			"		public static class M {}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		""
+	);
+}
 }
