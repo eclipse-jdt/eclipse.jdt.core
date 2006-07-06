@@ -3088,7 +3088,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 20)\n" + 
 			"	final long t4 = obj.getVal();\n" + 
 			"	                ^^^^^^^^^^^^\n" + 
-			"The expression of type capture-of ? extends Long is unboxed into long\n" + 
+			"The expression of type capture#2-of ? extends Long is unboxed into long\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 24)\n" + 
 			"	<U extends Long> void proc2(Cla<U> obj) {\n" + 

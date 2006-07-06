@@ -18,18 +18,20 @@ public class CaptureBinding extends TypeVariableBinding {
 	
 	public TypeBinding lowerBound;
 	public WildcardBinding wildcard;
+	public int captureID;
 	
 	/* information to compute unique binding key */
 	public ReferenceBinding sourceType;
 	public int position;
 	
-	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position) {
-		super(TypeConstants.WILDCARD_CAPTURE_NAME, null, 0);
+	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position, int captureID) {
+		super(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX, null, 0);
 		this.wildcard = wildcard;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
 		this.fPackage = wildcard.fPackage;
 		this.sourceType = sourceType;
 		this.position = position;
+		this.captureID = captureID;
 	}
 
 	/*
@@ -54,8 +56,15 @@ public class CaptureBinding extends TypeVariableBinding {
 	}	
 
 	public String debugName() {
+
 		if (this.wildcard != null) {
-			return String.valueOf(TypeConstants.WILDCARD_CAPTURE_NAME) + this.wildcard.debugName();
+			StringBuffer buffer = new StringBuffer(10);
+			buffer
+				.append(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX)
+				.append(this.captureID)
+				.append(TypeConstants.WILDCARD_CAPTURE_NAME_SUFFIX)
+				.append(this.wildcard.debugName());
+			return buffer.toString();
 		}
 		return super.debugName();
 	}
@@ -156,21 +165,45 @@ public class CaptureBinding extends TypeVariableBinding {
 
 	public char[] readableName() {
 		if (this.wildcard != null) {
-			return CharOperation.concat(TypeConstants.WILDCARD_CAPTURE_NAME, this.wildcard.readableName());
+			StringBuffer buffer = new StringBuffer(10);
+			buffer
+				.append(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX)
+				.append(this.captureID)
+				.append(TypeConstants.WILDCARD_CAPTURE_NAME_SUFFIX)
+				.append(this.wildcard.readableName());
+			int length = buffer.length();
+			char[] name = new char[length];
+			buffer.getChars(0, length, name, 0);
+			return name;
 		}
 		return super.readableName();
 	}
 	
 	public char[] shortReadableName() {
 		if (this.wildcard != null) {
-			return CharOperation.concat(TypeConstants.WILDCARD_CAPTURE_NAME, this.wildcard.shortReadableName());
+			StringBuffer buffer = new StringBuffer(10);
+			buffer
+				.append(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX)
+				.append(this.captureID)
+				.append(TypeConstants.WILDCARD_CAPTURE_NAME_SUFFIX)
+				.append(this.wildcard.shortReadableName());
+			int length = buffer.length();
+			char[] name = new char[length];
+			buffer.getChars(0, length, name, 0);
+			return name;
 		}
-		return super.shortReadableName();
+		return super.shortReadableName();		
 	}
 	
 	public String toString() {
 		if (this.wildcard != null) {
-			return String.valueOf(TypeConstants.WILDCARD_CAPTURE_NAME) + this.wildcard.toString();
+			StringBuffer buffer = new StringBuffer(10);
+			buffer
+				.append(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX)
+				.append(this.captureID)
+				.append(TypeConstants.WILDCARD_CAPTURE_NAME_SUFFIX)
+				.append(this.wildcard);
+			return buffer.toString();
 		}
 		return super.toString();
 	}		

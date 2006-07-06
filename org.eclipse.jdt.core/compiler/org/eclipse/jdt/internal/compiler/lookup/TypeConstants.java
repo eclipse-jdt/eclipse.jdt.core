@@ -43,7 +43,8 @@ public interface TypeConstants {
     char[] WILDCARD_MINUS = { '-' };
     char[] WILDCARD_STAR = { '*' };
     char[] WILDCARD_PLUS = { '+' };
-    char[] WILDCARD_CAPTURE_NAME = "capture-of ".toCharArray(); //$NON-NLS-1$
+    char[] WILDCARD_CAPTURE_NAME_PREFIX = "capture#".toCharArray(); //$NON-NLS-1$
+    char[] WILDCARD_CAPTURE_NAME_SUFFIX = "-of ".toCharArray(); //$NON-NLS-1$
 	char[] WILDCARD_CAPTURE = { '!' };
 	char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
 	char[] SHORT = "short".toCharArray(); //$NON-NLS-1$

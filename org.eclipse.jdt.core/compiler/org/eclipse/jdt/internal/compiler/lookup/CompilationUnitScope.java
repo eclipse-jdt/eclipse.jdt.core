@@ -20,21 +20,22 @@ import org.eclipse.jdt.internal.compiler.util.*;
 
 public class CompilationUnitScope extends Scope {
 	
-public LookupEnvironment environment;
-public CompilationUnitDeclaration referenceContext;
-public char[][] currentPackageName;
-public PackageBinding fPackage;
-public ImportBinding[] imports;
-public HashtableOfObject typeOrPackageCache; // used in Scope.getTypeOrPackage()
-
-public SourceTypeBinding[] topLevelTypes;
-
-private CompoundNameVector qualifiedReferences;
-private SimpleNameVector simpleNameReferences;
-private ObjectVector referencedTypes;
-private ObjectVector referencedSuperTypes;
-
-HashtableOfType constantPoolNameUsage;
+	public LookupEnvironment environment;
+	public CompilationUnitDeclaration referenceContext;
+	public char[][] currentPackageName;
+	public PackageBinding fPackage;
+	public ImportBinding[] imports;
+	public HashtableOfObject typeOrPackageCache; // used in Scope.getTypeOrPackage()
+	
+	public SourceTypeBinding[] topLevelTypes;
+	
+	private CompoundNameVector qualifiedReferences;
+	private SimpleNameVector simpleNameReferences;
+	private ObjectVector referencedTypes;
+	private ObjectVector referencedSuperTypes;
+	
+	HashtableOfType constantPoolNameUsage;
+	private int captureID = 1;
 
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	super(COMPILATION_UNIT_SCOPE, null);
@@ -561,13 +562,17 @@ public final Binding getImport(char[][] compoundName, boolean onDemand, boolean 
 		return findImport(compoundName, compoundName.length);
 	return findSingleImport(compoundName, isStaticImport);
 }
+
+public int nextCaptureID() {
+	return this.captureID++;
+}
+
 /* Answer the problem reporter to use for raising new problems.
 *
 * Note that as a side-effect, this updates the current reference context
 * (unit, type or method) in case the problem handler decides it is necessary
 * to abort.
 */
-
 public ProblemReporter problemReporter() {
 	ProblemReporter problemReporter = referenceContext.problemReporter;
 	problemReporter.referenceContext = referenceContext;

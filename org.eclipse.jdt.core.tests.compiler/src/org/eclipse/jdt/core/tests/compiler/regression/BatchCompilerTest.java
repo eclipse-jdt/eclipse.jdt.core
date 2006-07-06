@@ -2043,7 +2043,7 @@ public void test032(){
 	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
 	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
 	        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-	        "Type safety: The cast from X.XX<capture-of ?,capture-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
+	        "Type safety: The cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" +
 	        "----------\n" + 
 	        "5 problems (5 warnings)",
 	        true);
@@ -2208,7 +2208,7 @@ public void test032(){
         "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
         "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
         "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-        "Type safety: The cast from X.XX<capture-of ?,capture-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
+        "Type safety: The cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
         "----------\n" + 
         "5 problems (5 warnings)",
         false);

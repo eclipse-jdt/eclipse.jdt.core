@@ -3016,7 +3016,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	x.t.bar(\"ESS\");\n" + 
 			"	    ^^^\n" + 
-			"The method bar(String) is undefined for the type capture-of ?\n" + 
+			"The method bar(String) is undefined for the type capture#2-of ?\n" + 
 			"----------\n");		
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303
@@ -3810,7 +3810,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	Class<? extends X> c3 = s.getClass();\n" + 
 			"	                        ^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Class<capture-of ? extends String> to Class<? extends X>\n" + 
+			"Type mismatch: cannot convert from Class<capture#3-of ? extends String> to Class<? extends X>\n" + 
 			"----------\n");
 	}		
 	// variation on test0128
@@ -3845,7 +3845,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	Class<? extends XY> c3 = s.getClass();\n" + 
 			"	                         ^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Class<capture-of ? extends String> to Class<? extends XY>\n" + 
+			"Type mismatch: cannot convert from Class<capture#3-of ? extends String> to Class<? extends XY>\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 14)\n" + 
 			"	public Class <? extends Object> getClass() {\n" + 
@@ -4030,7 +4030,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. ERROR in Z.java (at line 6)\n" + 
 			"	zs.foo();\n" + 
 			"	   ^^^\n" + 
-			"The method foo(Z<? super ZA>) in the type Z<capture-of ? super ZA> is not applicable for the arguments ()\n" + 
+			"The method foo(Z<? super ZA>) in the type Z<capture#1-of ? super ZA> is not applicable for the arguments ()\n" + 
 			"----------\n");
 	}
 	public void test0137() {
@@ -4122,7 +4122,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	x.get().afoo();\n" + 
 			"	        ^^^^\n" + 
-			"The method afoo() is undefined for the type capture-of ? extends BX\n" + 
+			"The method afoo() is undefined for the type capture#1-of ? extends BX\n" + 
 			"----------\n");
 	}		
 	// extending wildcard considers its bound prior to its corresponding variable
@@ -4184,7 +4184,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	x.get().bfoo();\n" + 
 			"	        ^^^^\n" + 
-			"The method bfoo() is undefined for the type capture-of ? super BX\n" + 
+			"The method bfoo() is undefined for the type capture#2-of ? super BX\n" + 
 			"----------\n");
 	}		
 	public void test0142() {
@@ -4229,7 +4229,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. ERROR in X.java (at line 10)\n" + 
 			"	x = identity(x);\n" + 
 			"	    ^^^^^^^^\n" + 
-			"Bound mismatch: The generic method identity(X<P>) of type X<T> is not applicable for the arguments (X<capture-of ? extends X>). The inferred type capture-of ? extends X is not a valid substitute for the bounded parameter <P extends AX>\n" + 
+			"Bound mismatch: The generic method identity(X<P>) of type X<T> is not applicable for the arguments (X<capture#2-of ? extends X>). The inferred type capture#2-of ? extends X is not a valid substitute for the bounded parameter <P extends AX>\n" + 
 			"----------\n");
 	}			
 	public void test0143() {
@@ -4248,7 +4248,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	Class<Object> xo2 = xx;\n" + 
 			"	                    ^^\n" + 
-			"Type mismatch: cannot convert from Class<capture-of ? extends X> to Class<Object>\n" + 
+			"Type mismatch: cannot convert from Class<capture#2-of ? extends X> to Class<Object>\n" + 
 			"----------\n");
 	}			
 	public void test0144() {
@@ -4296,17 +4296,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lx.add(x);\n" + 
 			"	   ^^^\n" + 
-			"The method add(capture-of ?) in the type XList<capture-of ?> is not applicable for the arguments (X)\n" + 
+			"The method add(capture#3-of ?) in the type XList<capture#3-of ?> is not applicable for the arguments (X)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	lx.slot = x;\n" + 
 			"	          ^\n" + 
-			"Type mismatch: cannot convert from X to capture-of ?\n" + 
+			"Type mismatch: cannot convert from X to capture#4-of ?\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	lx.addAll(lx);\n" + 
 			"	   ^^^^^^\n" + 
-			"The method addAll(XList<capture-of ?>) in the type XList<capture-of ?> is not applicable for the arguments (XList<capture-of ?>)\n" + 
+			"The method addAll(XList<capture#5-of ?>) in the type XList<capture#5-of ?> is not applicable for the arguments (XList<capture#6-of ?>)\n" + 
 			"----------\n");
 	}
 	// 59628
@@ -4623,7 +4623,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
 			"	       ^^^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? to T\n" + 
+			"Type mismatch: cannot convert from capture#1-of ? to T\n" + 
 			"----------\n");
 	}		
 	public void test0160() {
@@ -4966,7 +4966,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
 			"	       ^^^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? to T\n" + 
+			"Type mismatch: cannot convert from capture#1-of ? to T\n" + 
 			"----------\n");
 	}
 	// Expected type inference for cast operation
@@ -5000,7 +5000,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
 			"	       ^^^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? to T\n" + 
+			"Type mismatch: cannot convert from capture#1-of ? to T\n" + 
 			"----------\n");
 	}
 	// Expected type inference for cast operation
@@ -6305,7 +6305,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	Integer i = al.get(0);  // (2)\n" + 
 			"	            ^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? super Integer to Integer\n" + 
+			"Type mismatch: cannot convert from capture#2-of ? super Integer to Integer\n" + 
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69141 variation
@@ -6326,7 +6326,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	al.add(new Integer(1)); // (1)\n" + 
 			"	   ^^^\n" + 
-			"The method add(capture-of ? extends Integer) in the type ArrayList<capture-of ? extends Integer> is not applicable for the arguments (Integer)\n" + 
+			"The method add(capture#1-of ? extends Integer) in the type ArrayList<capture#1-of ? extends Integer> is not applicable for the arguments (Integer)\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69141: variation
@@ -6349,7 +6349,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	Integer i = lx.slot;\n" + 
 			"	            ^^^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? super Integer to Integer\n" + 
+			"Type mismatch: cannot convert from capture#2-of ? super Integer to Integer\n" + 
 			"----------\n");
 	}	
 	
@@ -6617,7 +6617,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"18. ERROR in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
 			"	                                    ^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Collection<capture-of ?> to List\n" + 
+			"Type mismatch: cannot convert from Collection<capture#2-of ?> to List\n" + 
 			"----------\n");
 	}	
 	// conversion from raw to X<?> is safe (no unsafe warning)
@@ -6669,7 +6669,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	li= ln;\n" + 
 			"	    ^^\n" + 
-			"Type mismatch: cannot convert from List<capture-of ? extends Number> to List<? extends Integer>\n" + 
+			"Type mismatch: cannot convert from List<capture#4-of ? extends Number> to List<? extends Integer>\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69170 - variation
@@ -7323,7 +7323,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	return clazz.newInstance(); // ? extends Object\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? extends Object to X.A\n" + 
+			"Type mismatch: cannot convert from capture#1-of ? extends Object to X.A\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69799 NPE in foreach checkcast
@@ -7376,12 +7376,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	List<Number> x2= (List<Number>)ls;//unsafe\n" + 
 			"	                 ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from List<capture-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
+			"Type safety: The cast from List<capture#1-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	List<Number> ls2 = (List<? extends Number>)ls;\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from List<capture-of ? extends Number> to List<Number>\n" + 
+			"Type mismatch: cannot convert from List<capture#3-of ? extends Number> to List<Number>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 12)\n" + 
 			"	List<? extends Number> ls3 = (List<? extends Number>) li;\n" + 
@@ -7615,7 +7615,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	XC<U> xcu1 = (XC<?>) new X<E>();			\n" + 
 			"	             ^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from XC<capture-of ?> to XC<U>\n" + 
+			"Type mismatch: cannot convert from XC<capture#1-of ?> to XC<U>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	XC<?> xcu2 = (XC<? extends X>) new X<E>();						\n" + 
@@ -10097,7 +10097,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	out.element = in.element;\n" + 
 			"	              ^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? to capture-of ?\n" + 
+			"Type mismatch: cannot convert from capture#2-of ? to capture#1-of ?\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75328
@@ -10363,7 +10363,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	m_values = values.entrySet();\n" + 
 			"	           ^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Set<Map.Entry<Integer,capture-of ?>> to Set<Map.Entry<Integer,?>>\n" + 
+			"Type mismatch: cannot convert from Set<Map.Entry<Integer,capture#1-of ?>> to Set<Map.Entry<Integer,?>>\n" + 
 			"----------\n");
 	}	
 	// check param type equivalences
@@ -10412,7 +10412,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	mx = x.createMX();\n" + 
 			"	     ^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from X<capture-of ?>.MX<capture-of ?> to X<T>.MX<?>\n" + 
+			"Type mismatch: cannot convert from X<capture#2-of ?>.MX<capture#2-of ?> to X<T>.MX<?>\n" + 
 			"----------\n");
 	}		
 	// check param type equivalences
@@ -10542,12 +10542,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"16. ERROR in X.java (at line 31)\n" + 
 			"	target= value; // foo10 - wrong\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from MX<capture-of ? extends Object> to MX<? extends String>\n" + 
+			"Type mismatch: cannot convert from MX<capture#6-of ? extends Object> to MX<? extends String>\n" + 
 			"----------\n" + 
 			"17. ERROR in X.java (at line 34)\n" + 
 			"	target= value; // foo11 - wrong\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from MX<capture-of ? super String> to MX<? super Object>\n" + 
+			"Type mismatch: cannot convert from MX<capture#8-of ? super String> to MX<? super Object>\n" + 
 			"----------\n");
 	}		
 	// check param type equivalences
@@ -10654,7 +10654,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	target = value;\n" + 
 			"	         ^^^^^\n" + 
-			"Type mismatch: cannot convert from XC<capture-of ? extends Runnable> to XC<Runnable>\n" + 
+			"Type mismatch: cannot convert from XC<capture#1-of ? extends Runnable> to XC<Runnable>\n" + 
 			"----------\n");
 	}			
 	public void test0372() {
@@ -10764,7 +10764,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	target = value; // foo1\n" + 
 			"	         ^^^^^\n" + 
-			"Type mismatch: cannot convert from X<capture-of ? extends Exception> to X<? super Exception>\n" + 
+			"Type mismatch: cannot convert from X<capture#2-of ? extends Exception> to X<? super Exception>\n" + 
 			"----------\n");
 	}		
 	public void test0376() {
@@ -11359,7 +11359,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	xnpe.element = new java.io.IOException();\n" + 
 			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from IOException to capture-of ? super NullPointerException\n" + 
+			"Type mismatch: cannot convert from IOException to capture#1-of ? super NullPointerException\n" + 
 			"----------\n");
 	}			
 
@@ -11707,7 +11707,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	X<String> x = (X<String>) xs;\n" + 
 			"	              ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<capture-of ? extends String> to X<String> is actually checking against the erased type X\n" + 
+			"Type safety: The cast from X<capture#1-of ? extends String> to X<String> is actually checking against the erased type X\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
@@ -11861,12 +11861,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	list.add(new Object());                       // should fail\n" + 
 			"	     ^^^\n" + 
-			"The method add(capture-of ? super Exception) in the type List<capture-of ? super Exception> is not applicable for the arguments (Object)\n" + 
+			"The method add(capture#4-of ? super Exception) in the type List<capture#4-of ? super Exception> is not applicable for the arguments (Object)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 12)\n" + 
 			"	list.add(new Throwable());                    // should fail\n" + 
 			"	     ^^^\n" + 
-			"The method add(capture-of ? super Exception) in the type List<capture-of ? super Exception> is not applicable for the arguments (Throwable)\n" + 
+			"The method add(capture#5-of ? super Exception) in the type List<capture#5-of ? super Exception> is not applicable for the arguments (Throwable)\n" + 
 			"----------\n");	
 	}			
 	
@@ -11903,7 +11903,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78467 
-	public void testONLY_0412() {
+	public void test0412() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11932,7 +11932,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");	
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78467 - variation
-	public void testONLY_0412a() {
+	public void test0412a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -12830,12 +12830,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	list.add((T) other.get(0)); // checked cast\n" + 
 			"	         ^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from capture-of ? extends T to T\n" + 
+			"Unnecessary cast from capture#1-of ? extends T to T\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 13)\n" + 
 			"	list.add((T) other.get(0)); // unchecked cast\n" + 
 			"	         ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from capture-of ? super T to T is actually checking against the erased type Object\n" + 
+			"Type safety: The cast from capture#2-of ? super T to T is actually checking against the erased type Object\n" + 
 			"----------\n");
 	}		
 
@@ -13364,7 +13364,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	l.add(new X()); \n" + 
 			"	  ^^^\n" + 
-			"The method add(capture-of ? extends X) in the type List<capture-of ? extends X> is not applicable for the arguments (X)\n" + 
+			"The method add(capture#2-of ? extends X) in the type List<capture#2-of ? extends X> is not applicable for the arguments (X)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 17)\n" + 
 			"	add3(lx, ls);\n" + 
@@ -13460,13 +13460,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 16)\n" + 
 			"	return m_manager.getById(getClass(), new Integer(1));\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation getById(Class<capture-of ? extends Test>, Integer) of the generic method getById(Class<T>, Integer) of type Test.Manager<C>\n" + 
+			"Type safety: Unchecked invocation getById(Class<capture#1-of ? extends Test>, Integer) of the generic method getById(Class<T>, Integer) of type Test.Manager<C>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 16)\n" + 
 			"	return m_manager.getById(getClass(), new Integer(1));\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type capture-of ? extends Test needs unchecked conversion to conform to ITest<C>\n" + 
-			"----------\n"	);
+			"Type safety: The expression of type capture#1-of ? extends Test needs unchecked conversion to conform to ITest<C>\n" + 
+			"----------\n");
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82439
@@ -13508,7 +13508,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	Class<? extends Collection> d = getClazz(); // ko\n" + 
 			"	                                ^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Class<capture-of ? extends Object> to Class<? extends Collection>\n" + 
+			"Type mismatch: cannot convert from Class<capture#2-of ? extends Object> to Class<? extends Collection>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 17)\n" + 
 			"	Class<? extends Collection> c = getClass(); // ok\n" + 
@@ -13969,7 +13969,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	list.add(new Object());   // should fail\n" + 
 			"	     ^^^\n" + 
-			"The method add(capture-of ? super Number) in the type List<capture-of ? super Number> is not applicable for the arguments (Object)\n" + 
+			"The method add(capture#1-of ? super Number) in the type List<capture#1-of ? super Number> is not applicable for the arguments (Object)\n" + 
 			"----------\n");
 	}		
 	
@@ -13991,7 +13991,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lo = list;\n" + 
 			"	     ^^^^\n" + 
-			"Type mismatch: cannot convert from List<capture-of ? super Number> to List<Object>\n" + 
+			"Type mismatch: cannot convert from List<capture#2-of ? super Number> to List<Object>\n" + 
 			"----------\n");
 	}			
 	
@@ -14013,7 +14013,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(capture-of ? super T) in the type List<capture-of ? super T> is not applicable for the arguments (capture-of ? extends Number)\n" + 
+			"The method add(capture#1-of ? super T) in the type List<capture#1-of ? super T> is not applicable for the arguments (capture#2-of ? extends Number)\n" + 
 			"----------\n");
 	}		
 	
@@ -14035,7 +14035,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(capture-of ? super Number) in the type List<capture-of ? super Number> is not applicable for the arguments (capture-of ? super U)\n" + 
+			"The method add(capture#1-of ? super Number) in the type List<capture#1-of ? super Number> is not applicable for the arguments (capture#2-of ? super U)\n" + 
 			"----------\n");
 	}	
 	
@@ -14075,7 +14075,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(capture-of ? super Integer) in the type List<capture-of ? super Integer> is not applicable for the arguments (capture-of ? extends Number)\n" + 
+			"The method add(capture#1-of ? super Integer) in the type List<capture#1-of ? super Integer> is not applicable for the arguments (capture#2-of ? extends Number)\n" + 
 			"----------\n");
 	}			
 
@@ -14098,7 +14098,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(capture-of ? super Number) in the type List<capture-of ? super Number> is not applicable for the arguments (capture-of ? super Integer)\n" + 
+			"The method add(capture#1-of ? super Number) in the type List<capture#1-of ? super Number> is not applicable for the arguments (capture#2-of ? super Integer)\n" + 
 			"----------\n");
 	}		
 	
@@ -14261,7 +14261,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	bar(l, \"\"); \n" + 
 			"	^^^\n" + 
-			"The method bar(List<? super T>, T) in the type X is not applicable for the arguments (List<capture-of ?>, String)\n" + 
+			"The method bar(List<? super T>, T) in the type X is not applicable for the arguments (List<capture#1-of ?>, String)\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496
@@ -14287,7 +14287,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	f1.bar = f2.bar;\n" + 
 			"	         ^^^^^^\n" + 
-			"Type mismatch: cannot convert from X.Bar<capture-of ?> to X.Bar<capture-of ?>\n" + 
+			"Type mismatch: cannot convert from X.Bar<capture#2-of ?> to X.Bar<capture#1-of ?>\n" + 
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496
@@ -14312,7 +14312,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	f1.bar = f1.bar;\n" + 
 			"	         ^^^^^^\n" + 
-			"Type mismatch: cannot convert from X.Bar<capture-of ?> to X.Bar<capture-of ?>\n" + 
+			"Type mismatch: cannot convert from X.Bar<capture#2-of ?> to X.Bar<capture#1-of ?>\n" + 
 			"----------\n");
 	}		
 	public void test0490() {
@@ -14335,7 +14335,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	lhs.t = rhs.t;\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? to capture-of ?\n" + 
+			"Type mismatch: cannot convert from capture#4-of ? to capture#3-of ?\n" + 
 			"----------\n");
 	}		
 	
@@ -14375,32 +14375,32 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	lhs.t = rhs.t;\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? to capture-of ?\n" + 
+			"Type mismatch: cannot convert from capture#4-of ? to capture#3-of ?\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 12)\n" + 
 			"	lhs = rhs;\n" + 
 			"	      ^^^\n" + 
-			"Type mismatch: cannot convert from X<capture-of ? extends Number> to X<? super Number>\n" + 
+			"Type mismatch: cannot convert from X<capture#8-of ? extends Number> to X<? super Number>\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 17)\n" + 
 			"	lhs.t = rhs.t;\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? extends Number to capture-of ? extends Number\n" + 
+			"Type mismatch: cannot convert from capture#14-of ? extends Number to capture#13-of ? extends Number\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 20)\n" + 
 			"	lhs = rhs;\n" + 
 			"	      ^^^\n" + 
-			"Type mismatch: cannot convert from X<capture-of ? super Number> to X<? extends Number>\n" + 
+			"Type mismatch: cannot convert from X<capture#16-of ? super Number> to X<? extends Number>\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 21)\n" + 
 			"	lhs.t = rhs.t;\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? super Number to capture-of ? extends Number\n" + 
+			"Type mismatch: cannot convert from capture#18-of ? super Number to capture#17-of ? extends Number\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 25)\n" + 
 			"	lhs.t = rhs.t;\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? super Number to capture-of ? super Number\n" + 
+			"Type mismatch: cannot convert from capture#22-of ? super Number to capture#21-of ? super Number\n" + 
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81576
@@ -16543,12 +16543,12 @@ public void test0500(){
 			"1. ERROR in X.java (at line 18)\n" + 
 			"	lhs = rhs; // cannot convert\n" + 
 			"	      ^^^\n" + 
-			"Type mismatch: cannot convert from X<capture-of ? extends Object> to X<String>\n" + 
+			"Type mismatch: cannot convert from X<capture#2-of ? extends Object> to X<String>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 21)\n" + 
 			"	lhs = rhs; // cannot convert\n" + 
 			"	      ^^^\n" + 
-			"Type mismatch: cannot convert from X<capture-of ? extends Object> to X2\n" + 
+			"Type mismatch: cannot convert from X<capture#3-of ? extends Object> to X2\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 29)\n" + 
 			"	void foo(X<String> xs) {}\n" + 
@@ -16627,7 +16627,7 @@ public void test0500(){
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	Object o = (DC<?>) (DA<?>) null;\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from DA<capture-of ?> to DC<?>\n" + 
+			"Unnecessary cast from DA<capture#1-of ?> to DC<?>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	Object o = (DC<?>) (DA<?>) null;\n" + 
@@ -16675,7 +16675,7 @@ public void test0500(){
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	X<U> foo = (X<U>)param;\n" + 
 			"	           ^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<capture-of ? super A> to X<U> is actually checking against the erased type X\n" + 
+			"Type safety: The cast from X<capture#1-of ? super A> to X<U> is actually checking against the erased type X\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	Zork z;\n" + 
@@ -16784,12 +16784,12 @@ public void test0500(){
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	Object o1 = (X<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<capture-of ? extends Object> to X<String> is actually checking against the erased type X\n" + 
+			"Type safety: The cast from X<capture#1-of ? extends Object> to X<String> is actually checking against the erased type X\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	Object o1 = (X<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from X<capture-of ? extends Object> to X<String>\n" + 
+			"Unnecessary cast from X<capture#1-of ? extends Object> to X<String>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	Object o2 = (X<? extends Object>) xs;\n" + 
@@ -16799,7 +16799,7 @@ public void test0500(){
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	Object o3 = (X2) xo;\n" + 
 			"	            ^^^^^^^\n" + 
-			"Unnecessary cast from X<capture-of ? extends Object> to X2\n" + 
+			"Unnecessary cast from X<capture#3-of ? extends Object> to X2\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 11)\n" + 
 			"	Object o4 = (X<? extends Object>) x2;\n" + 
@@ -16809,12 +16809,12 @@ public void test0500(){
 			"6. WARNING in X.java (at line 12)\n" + 
 			"	Object o5 = (X3<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<capture-of ? extends Object> to X3<String> is actually checking against the erased type X3\n" + 
+			"Type safety: The cast from X<capture#5-of ? extends Object> to X3<String> is actually checking against the erased type X3\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 12)\n" + 
 			"	Object o5 = (X3<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from X<capture-of ? extends Object> to X3<String>\n" + 
+			"Unnecessary cast from X<capture#5-of ? extends Object> to X3<String>\n" + 
 			"----------\n" + 
 			"8. ERROR in X.java (at line 18)\n" + 
 			"	Zork z;\n" + 
@@ -16841,17 +16841,17 @@ public void test0500(){
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	xu = xn;\n" + 
 			"	     ^^\n" + 
-			"Type mismatch: cannot convert from X<capture-of ? extends Number> to X<? extends U>\n" + 
+			"Type mismatch: cannot convert from X<capture#4-of ? extends Number> to X<? extends U>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	xu.u = xn.u; // ko\n" + 
 			"	       ^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? extends Number to capture-of ? extends U\n" + 
+			"Type mismatch: cannot convert from capture#6-of ? extends Number to capture#5-of ? extends U\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	xn.u = xu.u; // ko\n" + 
 			"	       ^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? extends U to capture-of ? extends Number\n" + 
+			"Type mismatch: cannot convert from capture#8-of ? extends U to capture#7-of ? extends Number\n" + 
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87273
@@ -17353,7 +17353,7 @@ public void test0500(){
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	doWithEnumClass((Class<Enum>) cl);\n" + 
 			"	                ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Class<capture-of ?> to Class<Enum> is actually checking against the erased type Class\n" + 
+			"Type safety: The cast from Class<capture#1-of ?> to Class<Enum> is actually checking against the erased type Class\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 8)\n" + 
 			"	doWithEnumClass((Class<Enum>) cl);\n" + 
@@ -17418,7 +17418,7 @@ public void test0500(){
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	(f1).bar = (f1).bar;\n" + 
 			"	           ^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from X.Bar<capture-of ?> to X.Bar<capture-of ?>\n" + 
+			"Type mismatch: cannot convert from X.Bar<capture#2-of ?> to X.Bar<capture#1-of ?>\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation with single ref
@@ -17461,7 +17461,7 @@ public void test0500(){
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	(f1).bar = f1.bar;\n" + 
 			"	           ^^^^^^\n" + 
-			"Type mismatch: cannot convert from X.Bar<capture-of ?> to X.Bar<capture-of ?>\n" + 
+			"Type mismatch: cannot convert from X.Bar<capture#2-of ?> to X.Bar<capture#1-of ?>\n" + 
 			"----------\n");
 	}	
 	// check array bound for wildcard
@@ -17498,7 +17498,7 @@ public void test0500(){
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	int[] ints = box.get();\n" + 
 			"	             ^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? super int[] to int[]\n" + 
+			"Type mismatch: cannot convert from capture#1-of ? super int[] to int[]\n" + 
 			"----------\n");
 	}		
 	// check array bound for wildcard
@@ -17519,7 +17519,7 @@ public void test0500(){
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	int[] ints = box.get();\n" + 
 			"	             ^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from capture-of ? to int[]\n" + 
+			"Type mismatch: cannot convert from capture#1-of ? to int[]\n" + 
 			"----------\n");
 	}
 	
@@ -17545,7 +17545,7 @@ public void test0500(){
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	f1.bar = f1.bar;\n" + 
 			"	         ^^^^^^\n" + 
-			"Type mismatch: cannot convert from Bar<capture-of ?> to Bar<capture-of ?>\n" + 
+			"Type mismatch: cannot convert from Bar<capture#2-of ?> to Bar<capture#1-of ?>\n" + 
 			"----------\n");            
 	}
 
@@ -17637,17 +17637,17 @@ public void test0500(){
 				"		 }\n" + 
 				"}\n"
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 18)\n" + 
-			"	untypedList.addAll(untypedList2);\n" + 
-			"	            ^^^^^^\n" + 
-			"The method addAll(Collection<? extends capture-of ?>) in the type List<capture-of ?> is not applicable for the arguments (List<capture-of ?>)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 22)\n" + 
-			"	Logger.log(\"Test_Lists.main: s: \" + s);\n" + 
-			"	^^^^^^\n" + 
-			"Logger cannot be resolved\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 18)\n" + 
+    		"	untypedList.addAll(untypedList2);\n" + 
+    		"	            ^^^^^^\n" + 
+    		"The method addAll(Collection<? extends capture#1-of ?>) in the type List<capture#1-of ?> is not applicable for the arguments (List<capture#2-of ?>)\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 22)\n" + 
+    		"	Logger.log(\"Test_Lists.main: s: \" + s);\n" + 
+    		"	^^^^^^\n" + 
+    		"Logger cannot be resolved\n" + 
+    		"----------\n");
 	}		
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90881
@@ -17775,12 +17775,12 @@ public void test0500(){
 				"	}\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	target.addAll(source);\n" + 
-			"	       ^^^^^^\n" + 
-			"The method addAll(Collection<? extends capture-of ? extends Number>) in the type List<capture-of ? extends Number> is not applicable for the arguments (List<capture-of ? extends Number>)\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 7)\n" + 
+    		"	target.addAll(source);\n" + 
+    		"	       ^^^^^^\n" + 
+    		"The method addAll(Collection<? extends capture#1-of ? extends Number>) in the type List<capture#1-of ? extends Number> is not applicable for the arguments (List<capture#2-of ? extends Number>)\n" + 
+    		"----------\n");
 	}		
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281 - variation
@@ -17800,11 +17800,11 @@ public void test0500(){
 				"	}	\n" + 
 				"}\n",
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. ERROR in X.java (at line 9)\n" + 
     		"	Class<? super Number> superSup2 = ext.getSuperclass();\n" + 
     		"	                                  ^^^^^^^^^^^^^^^^^^^\n" + 
-    		"Type mismatch: cannot convert from Class<capture-of ? super capture-of ? extends Number> to Class<? super Number>\n" + 
+    		"Type mismatch: cannot convert from Class<capture#6-of ? super capture#5-of ? extends Number> to Class<? super Number>\n" + 
     		"----------\n");
 	}
 	
@@ -17897,11 +17897,11 @@ public void test0500(){
 				"	}\n" + 
 				"}\n",
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. ERROR in X.java (at line 11)\n" + 
     		"	Iterator<Entry<String, ?>> it = map.entrySet().iterator();\n" + 
     		"	                                ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-    		"Type mismatch: cannot convert from Iterator<Map.Entry<String,capture-of ?>> to Iterator<Map.Entry<String,?>>\n" + 
+    		"Type mismatch: cannot convert from Iterator<Map.Entry<String,capture#1-of ?>> to Iterator<Map.Entry<String,?>>\n" + 
     		"----------\n");
 	}		
 	public void test0595() {
@@ -17926,11 +17926,11 @@ public void test0500(){
 				"	}\n" + 
 				"}\n",
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. ERROR in X.java (at line 11)\n" + 
     		"	Iterator<Entry<? extends String, ?>> it = map.entrySet().iterator();\n" + 
     		"	                                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-    		"Type mismatch: cannot convert from Iterator<Map.Entry<capture-of ? extends String,capture-of ?>> to Iterator<Map.Entry<? extends String,?>>\n" + 
+    		"Type mismatch: cannot convert from Iterator<Map.Entry<capture#1-of ? extends String,capture#2-of ?>> to Iterator<Map.Entry<? extends String,?>>\n" + 
     		"----------\n");
 	}		
 	public void test0596() {
@@ -17968,11 +17968,11 @@ public void test0500(){
 				"	F second;\n" + 
 				"}\n",
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. ERROR in X.java (at line 6)\n" + 
     		"	x.m().first = x.m().second;\n" + 
     		"	              ^^^^^^^^^^^^\n" + 
-    		"Type mismatch: cannot convert from capture-of ? to capture-of ?\n" + 
+    		"Type mismatch: cannot convert from capture#2-of ? to capture#1-of ?\n" + 
     		"----------\n");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90879
@@ -18146,12 +18146,12 @@ public void test0500(){
 				"abstract class Values<T> {\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	return select(box.getValues());\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<U>\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 4)\n" + 
+    		"	return select(box.getValues());\n" + 
+    		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Type mismatch: cannot convert from Values<capture#1-of ? extends U> to Values<U>\n" + 
+    		"----------\n");
 	}		
 	public void test0602() {
 	    this.runNegativeTest(
@@ -18170,12 +18170,12 @@ public void test0500(){
 				"abstract class Values<T> {\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	box.getValues()[0] = box.getValues()[1];\n" + 
-			"	                     ^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 4)\n" + 
+    		"	box.getValues()[0] = box.getValues()[1];\n" + 
+    		"	                     ^^^^^^^^^^^^^^^^^^\n" + 
+    		"Type mismatch: cannot convert from Values<capture#2-of ? extends U> to Values<capture#1-of ? extends U>\n" + 
+    		"----------\n");
 	}		
 	public void test0603() {
 	    this.runConformTest(
@@ -18235,12 +18235,12 @@ public void test0500(){
 				"abstract class Values<T> {\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	box.getValues()[1] = box.getValues()[2];\n" + 
-			"	                     ^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 4)\n" + 
+    		"	box.getValues()[1] = box.getValues()[2];\n" + 
+    		"	                     ^^^^^^^^^^^^^^^^^^\n" + 
+    		"Type mismatch: cannot convert from Values<capture#2-of ? extends U> to Values<capture#1-of ? extends U>\n" + 
+    		"----------\n");
 	}		
 	public void test0606() {
 	    this.runNegativeTest(
@@ -18264,7 +18264,7 @@ public void test0500(){
     		"1. ERROR in X.java (at line 4)\n" + 
     		"	box.getValues()[1] = (Values<? extends U>) box.getValues()[2];\n" + 
     		"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-    		"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
+    		"Type mismatch: cannot convert from Values<capture#3-of ? extends U> to Values<capture#1-of ? extends U>\n" + 
     		"----------\n");
 	}		
 	public void test0607() {
@@ -18612,12 +18612,12 @@ public void test0617() {
                 "  }\n" + 
                 "}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	s = var;\n" + 
-			"	    ^^^\n" + 
-			"Type mismatch: cannot convert from ZZZ1<?>.ZZZ2<?>.ZZZ3<capture-of ?> to String\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 6)\n" + 
+    		"	s = var;\n" + 
+    		"	    ^^^\n" + 
+    		"Type mismatch: cannot convert from ZZZ1<?>.ZZZ2<?>.ZZZ3<capture#1-of ?> to String\n" + 
+    		"----------\n");
     }
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
 	public void test0618() {
@@ -18870,11 +18870,11 @@ public void test0617() {
 				"	}\n" + 
 				"}\n",
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. ERROR in X.java (at line 9)\n" + 
     		"	String s = foo(l1, l2);\n" + 
     		"	           ^^^^^^^^^^^\n" + 
-    		"Type mismatch: cannot convert from List<capture-of ? extends Object&Serializable&Comparable<?>> to String\n" + 
+    		"Type mismatch: cannot convert from List<capture#2-of ? extends Object&Serializable&Comparable<?>> to String\n" + 
     		"----------\n");
 	}	
 	// check capture for conditional operator
@@ -18895,11 +18895,11 @@ public void test0617() {
 				"	}\n" + 
 				"}\n",
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. ERROR in X.java (at line 10)\n" + 
     		"	String s = l1 != null ? foo(l1, l2) : l3;\n" + 
     		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-    		"Type mismatch: cannot convert from List<capture-of ? extends Object> to String\n" + 
+    		"Type mismatch: cannot convert from List<capture#4-of ? extends Object> to String\n" + 
     		"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=92556
@@ -18968,7 +18968,7 @@ public void test0617() {
 			"1. ERROR in X.java (at line 17)\n" + 
 			"	arrays.add(a); // Error: The method add(capture-of ? extends Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
 			"	       ^^^\n" + 
-			"The method add(capture-of ? extends Number[]) in the type List<capture-of ? extends Number[]> is not applicable for the arguments (Number[])\n" + 
+			"The method add(capture#4-of ? extends Number[]) in the type List<capture#4-of ? extends Number[]> is not applicable for the arguments (Number[])\n" + 
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93044	
@@ -18991,7 +18991,7 @@ public void test0617() {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	System.out.println(Enum.valueOf(c, \"CLASS\"));\n" + 
 			"	                        ^^^^^^^\n" + 
-			"Bound mismatch: The generic method valueOf(Class<T>, String) of type Enum<E> is not applicable for the arguments (Class<capture-of ? extends Enum<?>>, String). The inferred type capture-of ? extends Enum<?> is not a valid substitute for the bounded parameter <T extends Enum<T>>\n" + 
+			"Bound mismatch: The generic method valueOf(Class<T>, String) of type Enum<E> is not applicable for the arguments (Class<capture#1-of ? extends Enum<?>>, String). The inferred type capture#1-of ? extends Enum<?> is not a valid substitute for the bounded parameter <T extends Enum<T>>\n" + 
 			"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982
@@ -19028,17 +19028,17 @@ public void test0617() {
 			"1. ERROR in X.java (at line 12)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(capture-of ? extends Object[]) in the type Vector<capture-of ? extends Object[]> is not applicable for the arguments (capture-of ? extends Object[])\n" + 
+			"The method add(capture#3-of ? extends Object[]) in the type Vector<capture#3-of ? extends Object[]> is not applicable for the arguments (capture#4-of ? extends Object[])\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 17)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (capture-of ? super Object[])\n" + 
+			"The method add(capture#5-of ? super Object[]) in the type Vector<capture#5-of ? super Object[]> is not applicable for the arguments (capture#6-of ? super Object[])\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 22)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(capture-of ? extends Object[]) in the type Vector<capture-of ? extends Object[]> is not applicable for the arguments (capture-of ? super Object[])\n" + 
+			"The method add(capture#7-of ? extends Object[]) in the type Vector<capture#7-of ? extends Object[]> is not applicable for the arguments (capture#8-of ? super Object[])\n" + 
 			"----------\n");
 	}				
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982 - variation
@@ -19876,12 +19876,12 @@ public void test0655() {
 		"1. WARNING in X.java (at line 6)\n" + 
 		"	Object o = (BD<Number>) bb;\n" + 
 		"	           ^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from X.BB<capture-of ? extends Number,capture-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD\n" + 
+		"Type safety: The cast from X.BB<capture#1-of ? extends Number,capture#2-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 6)\n" + 
 		"	Object o = (BD<Number>) bb;\n" + 
 		"	           ^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from X.BB<capture-of ? extends Number,capture-of ? super Integer> to X.BD<Number>\n" + 
+		"Unnecessary cast from X.BB<capture#1-of ? extends Number,capture#2-of ? super Integer> to X.BD<Number>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 8)\n" + 
 		"	Zork z;\n" + 
@@ -20037,7 +20037,7 @@ public void test0659() {
 		"2. WARNING in X.java (at line 34)\n" + 
 		"	X<String, Integer> fromQueue = (X<String, Integer>) queue.remove();\n" + 
 		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Reference<capture-of ? extends Integer> to X<String,Integer> is actually checking against the erased type X\n" + 
+		"Type safety: The cast from Reference<capture#1-of ? extends Integer> to X<String,Integer> is actually checking against the erased type X\n" + 
 		"----------\n");
 }	
 public void test0660() {
@@ -21169,7 +21169,7 @@ public void test0684() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	X<String> x = foo(x1, x2);\n" + 
 		"	              ^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from X<capture-of ? extends Object> to X<String>\n" + 
+		"Type mismatch: cannot convert from X<capture#3-of ? extends Object> to X<String>\n" + 
 		"----------\n");
 }	
 public void test0685() {
@@ -21189,7 +21189,7 @@ public void test0685() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	X<String> x = foo(x1, x2);\n" + 
 		"	              ^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from X<capture-of ? extends Object> to X<String>\n" + 
+		"Type mismatch: cannot convert from X<capture#3-of ? extends Object> to X<String>\n" + 
 		"----------\n");
 }	
 // check wildcard bounds wrt variable boundCheck
@@ -21312,7 +21312,7 @@ public void test0690() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	lr = la;\n" + 
 		"	     ^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ?> to List<? extends Runnable>\n" + 
+		"Type mismatch: cannot convert from List<capture#2-of ?> to List<? extends Runnable>\n" + 
 		"----------\n");
 }
 // check that final class bound is more restrictive
@@ -23048,7 +23048,7 @@ public void test0751() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	X<T> x2 = x;\n" + 
 		"	          ^\n" + 
-		"Type mismatch: cannot convert from X<capture-of ? extends T> to X<T>\n" + 
+		"Type mismatch: cannot convert from X<capture#1-of ? extends T> to X<T>\n" + 
 		"----------\n");
 }
 public void test0752() {
@@ -23072,7 +23072,7 @@ public void test0752() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	current = current.parent;\n" + 
 		"	          ^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from X<capture-of ? extends I<capture-of ? extends I<E>>> to X<? extends I<E>>\n" + 
+		"Type mismatch: cannot convert from X<capture#3-of ? extends I<capture#2-of ? extends I<E>>> to X<? extends I<E>>\n" + 
 		"----------\n");
 }
 public void test0753() {
@@ -23106,7 +23106,7 @@ public void test0753() {
 		"3. ERROR in X.java (at line 7)\n" + 
 		"	current = current.parent;\n" + 
 		"	          ^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from X<capture-of ? super I<capture-of ? super I<E>>> to X<? super I<E>>\n" + 
+		"Type mismatch: cannot convert from X<capture#3-of ? super I<capture#2-of ? super I<E>>> to X<? super I<E>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99578
@@ -24158,7 +24158,7 @@ public void test0785() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	getLonger(list, set);\n" + 
 		"	^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method getLonger(T, T) of type X is not applicable for the arguments (HashSet<capture-of ?>, ArrayList<capture-of ?>). The inferred type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends Number>>\n" + 
+		"Bound mismatch: The generic method getLonger(T, T) of type X is not applicable for the arguments (HashSet<capture#1-of ?>, ArrayList<capture#2-of ?>). The inferred type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends Number>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528 - variation
@@ -24199,7 +24199,7 @@ public void test0787() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	getLonger(list, set);\n" + 
 		"	^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method getLonger(T, T) of type X<U> is not applicable for the arguments (HashSet<capture-of ?>, ArrayList<capture-of ?>). The inferred type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends U>>\n" + 
+		"Bound mismatch: The generic method getLonger(T, T) of type X<U> is not applicable for the arguments (HashSet<capture#1-of ?>, ArrayList<capture#2-of ?>). The inferred type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends U>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994
@@ -24294,7 +24294,7 @@ public void test0790() {
 		"2. ERROR in X.java (at line 15)\n" + 
 		"	isGreater(c1, c2);\n" + 
 		"	^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Comparable<capture-of ? extends Number>, Comparable<capture-of ? extends Number>). The inferred type Comparable<? extends Number> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" + 
+		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Comparable<capture#1-of ? extends Number>, Comparable<capture#2-of ? extends Number>). The inferred type Comparable<? extends Number> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 18)\n" + 
 		"	Comparable c1= i;\n" + 
@@ -24546,7 +24546,7 @@ public void test0799() {
 		"4. WARNING in X.java (at line 13)\n" + 
 		"	ref.next = first == null ? ref : first;\n" + 
 		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture-of ? extends T>\n" + 
+		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture#2-of ? extends T>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 14)\n" + 
 		"	String s = first == null ? ref : first;\n" + 
@@ -24556,7 +24556,7 @@ public void test0799() {
 		"6. WARNING in X.java (at line 15)\n" + 
 		"	ref.next = first2 == null ? ref : first2;\n" + 
 		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture-of ? extends T>\n" + 
+		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture#5-of ? extends T>\n" + 
 		"----------\n" + 
 		"7. WARNING in X.java (at line 18)\n" + 
 		"	return first == null ? ref : first;\n" + 
@@ -24689,7 +24689,7 @@ public void test0803() {
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	return true ? superList : superList;\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from ArrayList<capture-of ? extends Object> to ArrayList<? super A>\n" + 
+		"Type mismatch: cannot convert from ArrayList<capture#3-of ? extends Object> to ArrayList<? super A>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106865
@@ -24724,12 +24724,12 @@ public void test0804() {
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	y.foo(os);\n" + 
 		"	  ^^^\n" + 
-		"The method foo(capture-of ? extends Object[]) in the type Y<capture-of ? extends Object[]> is not applicable for the arguments (Object[])\n" + 
+		"The method foo(capture#3-of ? extends Object[]) in the type Y<capture#3-of ? extends Object[]> is not applicable for the arguments (Object[])\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 16)\n" + 
 		"	y.foo(c);\n" + 
 		"	  ^^^\n" + 
-		"The method foo(capture-of ? extends Cloneable) in the type Y<capture-of ? extends Cloneable> is not applicable for the arguments (Cloneable)\n" + 
+		"The method foo(capture#4-of ? extends Cloneable) in the type Y<capture#4-of ? extends Cloneable> is not applicable for the arguments (Cloneable)\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106936
@@ -26036,7 +26036,7 @@ public void test0837() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	bar(l.get(0));\n" + 
 		"	^^^\n" + 
-		"The method bar(String) in the type X is not applicable for the arguments (capture-of ? extends List<? extends Number>)\n" + 
+		"The method bar(String) in the type X is not applicable for the arguments (capture#1-of ? extends List<? extends Number>)\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111689
@@ -26331,7 +26331,7 @@ public void test0847() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	col.add(n);\n" + 
 		"	    ^^^\n" + 
-		"The method add(capture-of ? extends Collection<? super Number>) in the type Collection<capture-of ? extends Collection<? super Number>> is not applicable for the arguments (List<Number>)\n" + 
+		"The method add(capture#1-of ? extends Collection<? super Number>) in the type Collection<capture#1-of ? extends Collection<? super Number>> is not applicable for the arguments (List<Number>)\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106451
@@ -26357,7 +26357,7 @@ public void test0848() {
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
 		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Collection<capture-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
+		"Type safety: The cast from Collection<capture#1-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 7)\n" + 
 		"	Zork z;\n" + 
@@ -27248,12 +27248,12 @@ public void test0875() {
 		"			? uiMap.get(persistentClass)\n" + 
 		"			: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Class<capture-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>>\n" + 
+		"Type mismatch: cannot convert from Class<capture#4-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>>\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 12)\n" + 
 		"	: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" + 
 		"	  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Class<capture-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>> is actually checking against the erased type Class\n" + 
+		"Type safety: The cast from Class<capture#2-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>> is actually checking against the erased type Class\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
@@ -27298,7 +27298,7 @@ public void test0876() {
 		"5. ERROR in X.java (at line 10)\n" + 
 		"	Class<? extends Class<Object>> ceco2 = cec; // ko\n" + 
 		"	                                       ^^^\n" + 
-		"Type mismatch: cannot convert from Class<capture-of ? extends Class> to Class<? extends Class<Object>>\n" + 
+		"Type mismatch: cannot convert from Class<capture#2-of ? extends Class> to Class<? extends Class<Object>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
@@ -27349,7 +27349,7 @@ public void test0877() {
 		"6. WARNING in X.java (at line 7)\n" + 
 		"	Class<Object> c = let.get(0); // ok - unchecked\n" + 
 		"	                  ^^^^^^^^^^\n" + 
-		"Type safety: The expression of type capture-of ? extends T needs unchecked conversion to conform to Class<Object>\n" + 
+		"Type safety: The expression of type capture#1-of ? extends T needs unchecked conversion to conform to Class<Object>\n" + 
 		"----------\n" + 
 		"7. WARNING in X.java (at line 9)\n" + 
 		"	void bar3(List<? extends Class> lec) {\n" + 
@@ -27359,7 +27359,7 @@ public void test0877() {
 		"8. WARNING in X.java (at line 10)\n" + 
 		"	Class<Object> c = lec.get(0); // ok - unchecked\n" + 
 		"	                  ^^^^^^^^^^\n" + 
-		"Type safety: The expression of type capture-of ? extends Class needs unchecked conversion to conform to Class<Object>\n" + 
+		"Type safety: The expression of type capture#2-of ? extends Class needs unchecked conversion to conform to Class<Object>\n" + 
 		"----------\n" + 
 		"9. ERROR in X.java (at line 12)\n" + 
 		"	Zork z;\n" + 
@@ -27559,17 +27559,17 @@ public void test0884() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	String s = getClass();\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Class<capture-of ? extends X> to String\n" + 
+		"Type mismatch: cannot convert from Class<capture#1-of ? extends X> to String\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	return (String) getDefault(getClass());\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot cast from capture-of ? extends X to String\n" + 
+		"Cannot cast from capture#2-of ? extends X to String\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 8)\n" + 
 		"	return (String) getDefault(getClass());\n" + 
 		"	                ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked invocation getDefault(Class<capture-of ? extends X>) of the generic method getDefault(Class<T>) of type X<C>\n" + 
+		"Type safety: Unchecked invocation getDefault(Class<capture#2-of ? extends X>) of the generic method getDefault(Class<T>) of type X<C>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=125445 
@@ -28350,12 +28350,12 @@ public void test0910() {
 		"4. ERROR in X.java (at line 13)\n" + 
 		"	lc1 = lc3; //2 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection<?>> to List<Collection>\n" + 
+		"Type mismatch: cannot convert from List<capture#1-of ? extends Collection<?>> to List<Collection>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 14)\n" + 
 		"	lc1 = lc4; //3 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection> to List<Collection>\n" + 
+		"Type mismatch: cannot convert from List<capture#3-of ? extends Collection> to List<Collection>\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 15)\n" + 
 		"	lc2 = lc1; //4 ko\n" + 
@@ -28365,12 +28365,12 @@ public void test0910() {
 		"7. ERROR in X.java (at line 16)\n" + 
 		"	lc2 = lc3; //5 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection<?>> to List<Collection<?>>\n" + 
+		"Type mismatch: cannot convert from List<capture#4-of ? extends Collection<?>> to List<Collection<?>>\n" + 
 		"----------\n" + 
 		"8. ERROR in X.java (at line 17)\n" + 
 		"	lc2 = lc4; //6 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection> to List<Collection<?>>\n" + 
+		"Type mismatch: cannot convert from List<capture#6-of ? extends Collection> to List<Collection<?>>\n" + 
 		"----------\n" + 
 		"9. ERROR in X.java (at line 18)\n" + 
 		"	lc3 = lc1; //7 ko\n" + 
@@ -28380,7 +28380,7 @@ public void test0910() {
 		"10. ERROR in X.java (at line 20)\n" + 
 		"	lc3 = lc4; //9 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection> to List<? extends Collection<?>>\n" + 
+		"Type mismatch: cannot convert from List<capture#13-of ? extends Collection> to List<? extends Collection<?>>\n" + 
 		"----------\n" + 
 		"11. WARNING in X.java (at line 25)\n" + 
 		"	private final List<Collection> aList = new ArrayList<Collection>();\n" + 
@@ -28447,12 +28447,12 @@ public void test0911() {
 		"4. ERROR in X.java (at line 12)\n" + 
 		"	lc1 = lc3; //2 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>> to List<Collection>\n" + 
+		"Type mismatch: cannot convert from List<capture#1-of ? super Collection<?>> to List<Collection>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 13)\n" + 
 		"	lc1 = lc4; //3 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? super Collection> to List<Collection>\n" + 
+		"Type mismatch: cannot convert from List<capture#2-of ? super Collection> to List<Collection>\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 14)\n" + 
 		"	lc2 = lc1; //4 ko\n" + 
@@ -28462,12 +28462,12 @@ public void test0911() {
 		"7. ERROR in X.java (at line 15)\n" + 
 		"	lc2 = lc3; //5 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>> to List<Collection<?>>\n" + 
+		"Type mismatch: cannot convert from List<capture#3-of ? super Collection<?>> to List<Collection<?>>\n" + 
 		"----------\n" + 
 		"8. ERROR in X.java (at line 16)\n" + 
 		"	lc2 = lc4; //6 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? super Collection> to List<Collection<?>>\n" + 
+		"Type mismatch: cannot convert from List<capture#4-of ? super Collection> to List<Collection<?>>\n" + 
 		"----------\n" + 
 		"9. ERROR in X.java (at line 21)\n" + 
 		"	lc4 = lc2; //11 ko\n" + 
@@ -28477,7 +28477,7 @@ public void test0911() {
 		"10. ERROR in X.java (at line 22)\n" + 
 		"	lc4 = lc3; //12 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>> to List<? super Collection>\n" + 
+		"Type mismatch: cannot convert from List<capture#12-of ? super Collection<?>> to List<? super Collection>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
@@ -28503,7 +28503,7 @@ public void test0912() {
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	l2 = l1;\n" + 
 		"	     ^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection<String>[]> to List<Collection[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#2-of ? extends Collection<String>[]> to List<Collection[]>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
@@ -28542,12 +28542,12 @@ public void test0913() {
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	lc1 = lc3; //2 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection<?>[]> to List<Collection[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#1-of ? extends Collection<?>[]> to List<Collection[]>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 10)\n" + 
 		"	lc1 = lc4; //3 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection[]> to List<Collection[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#2-of ? extends Collection[]> to List<Collection[]>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 11)\n" + 
 		"	lc2 = lc1; //4 ko\n" + 
@@ -28557,12 +28557,12 @@ public void test0913() {
 		"5. ERROR in X.java (at line 12)\n" + 
 		"	lc2 = lc3; //5 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection<?>[]> to List<Collection<?>[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#3-of ? extends Collection<?>[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 13)\n" + 
 		"	lc2 = lc4; //6 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection[]> to List<Collection<?>[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#4-of ? extends Collection[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
 		"7. ERROR in X.java (at line 14)\n" + 
 		"	lc3 = lc1; //7 ko\n" + 
@@ -28572,7 +28572,7 @@ public void test0913() {
 		"8. ERROR in X.java (at line 16)\n" + 
 		"	lc3 = lc4; //9 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Collection[]> to List<? extends Collection<?>[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#8-of ? extends Collection[]> to List<? extends Collection<?>[]>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583 - variation
@@ -28611,12 +28611,12 @@ public void test0914() {
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	lc1 = lc3; //2 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>[]> to List<Collection[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#1-of ? super Collection<?>[]> to List<Collection[]>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 10)\n" + 
 		"	lc1 = lc4; //3 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? super Collection[]> to List<Collection[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#2-of ? super Collection[]> to List<Collection[]>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 11)\n" + 
 		"	lc2 = lc1; //4 ko\n" + 
@@ -28626,12 +28626,12 @@ public void test0914() {
 		"5. ERROR in X.java (at line 12)\n" + 
 		"	lc2 = lc3; //5 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>[]> to List<Collection<?>[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#3-of ? super Collection<?>[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 13)\n" + 
 		"	lc2 = lc4; //6 ko\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? super Collection[]> to List<Collection<?>[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#4-of ? super Collection[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
 		"7. ERROR in X.java (at line 18)\n" + 
 		"	lc4 = lc2; //11 ko\n" + 
@@ -28641,7 +28641,7 @@ public void test0914() {
 		"8. ERROR in X.java (at line 19)\n" + 
 		"	lc4 = lc3; //12 ko		\n" + 
 		"	      ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>[]> to List<? super Collection[]>\n" + 
+		"Type mismatch: cannot convert from List<capture#12-of ? super Collection<?>[]> to List<? super Collection[]>\n" + 
 		"----------\n");
 }
 
@@ -28966,9 +28966,8 @@ public void test0923() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	X.a(t.getClass());\n" + 
 		"	  ^\n" + 
-		"The method a(Class<? extends X<?>>) in the type X is not applicable for the arguments (Class<capture-of ? extends X>)\n" + 
-		"----------\n"
-	);
+		"The method a(Class<? extends X<?>>) in the type X is not applicable for the arguments (Class<capture#2-of ? extends X>)\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190 
 public void test0924() {
@@ -29092,7 +29091,7 @@ public void test0926() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	RESULT = NonTerminalSourcePart.create(Tuple.create(true, t.value().fst()));\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from NonTerminalSourcePart<Tuple<Boolean,capture-of ? extends Term>> to NonTerminalSourcePart<? extends Tuple<Boolean,Term>>\n" + 
+		"Type mismatch: cannot convert from NonTerminalSourcePart<Tuple<Boolean,capture#3-of ? extends Term>> to NonTerminalSourcePart<? extends Tuple<Boolean,Term>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
@@ -29133,27 +29132,27 @@ public void test0927() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	RESULT = Collections.singletonList(Collections.singletonList(lst.get(0)));\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from List<List<capture-of ? extends Object>> to List<? extends List<Object>>\n" + 
+		"Type mismatch: cannot convert from List<List<capture#2-of ? extends Object>> to List<? extends List<Object>>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 11)\n" + 
 		"	RESULT = Collections.singletonList(Collections.singletonList(lst.get(0)));\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from List<List<capture-of ? extends Object>> to List<List<Object>>\n" + 
+		"Type mismatch: cannot convert from List<List<capture#3-of ? extends Object>> to List<List<Object>>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 16)\n" + 
 		"	RESULT = Collections.singletonList(Collections.singletonList(lst.get(0)));\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from List<List<capture-of ?>> to List<List<Object>>\n" + 
+		"Type mismatch: cannot convert from List<List<capture#4-of ?>> to List<List<Object>>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 20)\n" + 
 		"	RESULT = lst;\n" + 
 		"	         ^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Object> to List<Object>\n" + 
+		"Type mismatch: cannot convert from List<capture#5-of ? extends Object> to List<Object>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 21)\n" + 
 		"	RESULT = Collections.singletonList(lst.get(0));\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from List<capture-of ? extends Object> to List<Object>\n" + 
+		"Type mismatch: cannot convert from List<capture#6-of ? extends Object> to List<Object>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
@@ -29174,7 +29173,7 @@ public void test0928() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	x1.addAll(x2);\n" + 
 		"	   ^^^^^^\n" + 
-		"The method addAll(Collection<? extends capture-of ?>) in the type List<capture-of ?> is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"The method addAll(Collection<? extends capture#1-of ?>) in the type List<capture#1-of ?> is not applicable for the arguments (List<capture#2-of ?>)\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=117119
@@ -29208,12 +29207,12 @@ public void test0929() {
 		"2. WARNING in X.java (at line 7)\n" + 
 		"	final Collection<E> test = allOf(enumType);\n" + 
 		"	                           ^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked invocation allOf(Class<capture-of ? extends Enum>) of the generic method allOf(Class<E>) of type X\n" + 
+		"Type safety: Unchecked invocation allOf(Class<capture#1-of ? extends Enum>) of the generic method allOf(Class<E>) of type X\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 7)\n" + 
 		"	final Collection<E> test = allOf(enumType);\n" + 
 		"	                           ^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Collection<capture-of ? extends Enum> to Collection<E>\n" + 
+		"Type mismatch: cannot convert from Collection<capture#1-of ? extends Enum> to Collection<E>\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 9)\n" + 
 		"	Collection<? extends Enum> colType = null;\n" + 
@@ -29223,7 +29222,7 @@ public void test0929() {
 		"5. ERROR in X.java (at line 10)\n" + 
 		"	final Collection<E> test2 = colType;\n" + 
 		"	                            ^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Collection<capture-of ? extends Enum> to Collection<E>\n" + 
+		"Type mismatch: cannot convert from Collection<capture#2-of ? extends Enum> to Collection<E>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119238
@@ -29780,7 +29779,7 @@ public void test0947() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	Box<Runnable> bx = box(b.element);\n" + 
 		"	                   ^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Box<capture-of ?> to Box<Runnable>\n" + 
+		"Type mismatch: cannot convert from Box<capture#1-of ?> to Box<Runnable>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129261 - variation
@@ -31029,7 +31028,7 @@ public void test0983() {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	l1.addAll(l2);\n" + 
 			"	   ^^^^^^\n" + 
-			"The method addAll(Collection<? extends capture-of ?>) in the type List<capture-of ?> is not applicable for the arguments (List<capture-of ?>)\n" + 
+			"The method addAll(Collection<? extends capture#1-of ?>) in the type List<capture#1-of ?> is not applicable for the arguments (List<capture#2-of ?>)\n" + 
 			"----------\n");
 }
 // generic inner class within a non generic one
@@ -31831,7 +31830,7 @@ public void test1007() {
 		"1. ERROR in GenericsProblem.java (at line 5)\n" + 
 		"	Class<? extends T> cl = val.getClass();\n" + 
 		"	                        ^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Class<capture-of ? extends Object> to Class<? extends T>\n" + 
+		"Type mismatch: cannot convert from Class<capture#2-of ? extends Object> to Class<? extends T>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148061
@@ -32335,6 +32334,26 @@ public void test1019() {
 		"	System.out.println(deepToString(d1));\n" + 
 		"	                   ^^^^^^^^^^^^\n" + 
 		"The method deepToString(T[]) in the type X is not applicable for the arguments (double[])\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149573
+public void test1020() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo(List<? extends Exception> l1, List<? extends Exception> l2) {\n" + 
+			"		l1.add(l2.get(0));\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	l1.add(l2.get(0));\n" + 
+		"	   ^^^\n" + 
+		"The method add(capture#1-of ? extends Exception) in the type List<capture#1-of ? extends Exception> is not applicable for the arguments (capture#2-of ? extends Exception)\n" + 
 		"----------\n");
 }
 }

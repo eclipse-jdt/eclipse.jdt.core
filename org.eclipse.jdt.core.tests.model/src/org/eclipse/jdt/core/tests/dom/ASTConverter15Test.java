@@ -5183,7 +5183,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
-		assertProblemsSize(compilationUnit, 1, "Type safety: The cast from X.BB<capture-of ? extends Number,capture-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD");
+		assertProblemsSize(compilationUnit, 1, "Type safety: The cast from X.BB<capture#1-of ? extends Number,capture#2-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD");
 		node = getASTNode(compilationUnit, 0, 2, 1);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
