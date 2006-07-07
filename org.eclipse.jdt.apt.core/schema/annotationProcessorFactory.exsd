@@ -6,7 +6,7 @@
          <meta.schema plugin="org.eclipse.jdt.apt.core" id="annotationProcessorFactory" name="Annotation Processor Factories"/>
       </appInfo>
       <documentation>
-         [Enter description of this extension point.]
+         Plug-ins which contribute JSR-175 annotation processors should extend this extension point in order to participate in compilation.
       </documentation>
    </annotation>
 
@@ -61,18 +61,24 @@ present this value defaults to true.
 
    <element name="factory">
       <complexType>
-         <attribute name="class" type="string">
+         <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  Qualified name of a class that implements com.sun.mirror.apt.AnnotationProcessorFactory and has a no-argument constructor.
                </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="com.sun.mirror.apt.AnnotationProcessorFactory"/>
+               </appInfo>
             </annotation>
          </attribute>
          <attribute name="implements" type="string">
             <annotation>
                <documentation>
-                  
+                  Reserved.  Do not use this attribute.
                </documentation>
+               <appInfo>
+                  <meta.attribute deprecated="true"/>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
@@ -92,7 +98,19 @@ present this value defaults to true.
          <meta.section type="examples"/>
       </appInfo>
       <documentation>
-         [Enter extension point usage example here.]
+         Example of a declaration of an &lt;code&gt;annotationProcessorFactory&lt;/code&gt;:  &lt;pre&gt;                                                                       
+     &lt;extension
+         point=&quot;org.eclipse.jdt.apt.core.annotationProcessorFactory&quot;&gt;
+      &lt;factories enableDefault=&quot;true&quot;&gt;
+       &lt;factory
+          class=&quot;org.xyz.HelloWorldAnnotationProcessorFactory&quot;&gt;
+       &lt;/factory&gt;
+       &lt;factory
+          class=&quot;org.xyz.GoodNightMoonAnnotationProcessorFactory&quot;&gt;
+       &lt;/factory&gt;
+    &lt;/factories&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
       </documentation>
    </annotation>
 
@@ -119,7 +137,11 @@ present this value defaults to true.
          <meta.section type="copyright"/>
       </appInfo>
       <documentation>
-         
+         Copyright (c) 2005 BEA Systems, Inc and others.&lt;br&gt;
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at 
+&lt;a href=&quot;http://www.eclipse.org/legal/epl-v10.html&quot;&gt;http://www.eclipse.org/legal/epl-v10.html&lt;/a&gt;
       </documentation>
    </annotation>
 
