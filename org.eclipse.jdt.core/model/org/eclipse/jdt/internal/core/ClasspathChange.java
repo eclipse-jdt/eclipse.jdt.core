@@ -33,6 +33,10 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathChange {
+	public static int NO_DELTA = 0x00;
+	public static int HAS_DELTA = 0x01;
+	public static int HAS_PROJECT_CHANGE = 0x10;
+	
 	JavaProject project;
 	IClasspathEntry[] oldRawClasspath;
 	IPath oldOutputLocation;
@@ -192,21 +196,21 @@ public class ClasspathChange {
 
 	/*
 	 * Generates a classpath change delta for this classpath change.
-	 * Returns whether a delta was generated.
+	 * Returns whether a delta was generated, and whether project reference have changed.
 	 */
-	public boolean generateDelta(JavaElementDelta delta) {
+	public int generateDelta(JavaElementDelta delta) {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		DeltaProcessingState state = manager.deltaState;
 		if (state.findJavaProject(this.project.getElementName()) == null)
 			// project doesn't exist yet (we're in an IWorkspaceRunnable)
 			// no need to create a delta here and no need to index (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=133334)
 			// the delta processor will create an ADDED project delta, and index the project
-			return false;
+			return NO_DELTA;
 
 		DeltaProcessor deltaProcessor = state.getDeltaProcessor();
 		IClasspathEntry[] newResolvedClasspath = null;
 		IPath newOutputLocation = null;
-		boolean hasDelta = false;
+		int result = NO_DELTA;
 		try {
 			PerProjectInfo perProjectInfo = this.project.getPerProjectInfo();
 			
@@ -224,12 +228,12 @@ public class ClasspathChange {
 			// check if raw classpath has changed
 			if (this.oldRawClasspath != null && !JavaProject.areClasspathsEqual(this.oldRawClasspath, newRawClasspath, this.oldOutputLocation, newOutputLocation)) {
 				delta.changed(this.project, IJavaElementDelta.F_CLASSPATH_CHANGED);
-				hasDelta = true;
+				result |= HAS_DELTA;
 			}
 					
 			// if no changes to resolved classpath, nothing more to do
 			if (this.oldResolvedClasspath != null && JavaProject.areClasspathsEqual(this.oldResolvedClasspath, newResolvedClasspath, this.oldOutputLocation, newOutputLocation))
-				return false;
+				return NO_DELTA;
 			
 			// close cached info
 			this.project.close();
@@ -238,11 +242,11 @@ public class ClasspathChange {
 				e.printStackTrace();
 			}
 			// project no longer exist
-			return false;
+			return NO_DELTA;
 		}
 		
 		if (this.oldResolvedClasspath == null)
-			return false;
+			return NO_DELTA;
 		
 		Map removedRoots = null;
 		IPackageFragmentRoot[] roots = null;
@@ -263,8 +267,9 @@ public class ClasspathChange {
 		for (int i = 0; i < oldLength; i++) {
 			int index = classpathContains(newResolvedClasspath, this.oldResolvedClasspath[i]);
 			if (index == -1) {
-				// do not notify remote project changes
-				if (this.oldResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
+				// remote project changes
+				if (this.oldResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+					result |= HAS_PROJECT_CHANGE;
 					continue; 
 				}
 
@@ -295,15 +300,16 @@ public class ClasspathChange {
 					}
 				}
 				addClasspathDeltas(delta, pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH);
-				hasDelta = true;
+				result |= HAS_DELTA;
 			} else {
-				// do not notify remote project changes
+				// remote project changes
 				if (this.oldResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+					result |= HAS_PROJECT_CHANGE;
 					continue; 
 				}				
 				if (index != i) { //reordering of the classpath
 					addClasspathDeltas(delta, this.project.computePackageFragmentRoots(this.oldResolvedClasspath[i]),	IJavaElementDelta.F_REORDER);
-					hasDelta = true;
+					result |= HAS_DELTA;
 				}
 				
 				// check source attachment
@@ -315,7 +321,7 @@ public class ClasspathChange {
 				int flags = sourceAttachmentFlags | sourceAttachmentRootFlags;
 				if (flags != 0) {
 					addClasspathDeltas(delta, this.project.computePackageFragmentRoots(this.oldResolvedClasspath[i]), flags);
-					hasDelta = true;
+					result |= HAS_DELTA;
 				} else {
 					if (oldRootPath == null && newRootPath == null) {
 						// if source path is specified and no root path, it needs to be recomputed dynamically
@@ -339,12 +345,13 @@ public class ClasspathChange {
 		for (int i = 0; i < newLength; i++) {
 			int index = classpathContains(this.oldResolvedClasspath, newResolvedClasspath[i]);
 			if (index == -1) {
-				// do not notify remote project changes
-				if (newResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
+				// remote project changes
+				if (newResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+					result |= HAS_PROJECT_CHANGE;
 					continue; 
 				}
 				addClasspathDeltas(delta, this.project.computePackageFragmentRoots(newResolvedClasspath[i]), IJavaElementDelta.F_ADDED_TO_CLASSPATH);
-				hasDelta = true;
+				result |= HAS_DELTA;
 			} // classpath reordering has already been generated in previous loop
 		}
 
@@ -358,7 +365,7 @@ public class ClasspathChange {
 					IPackageFragment frag= (IPackageFragment)iter.next();
 					((IPackageFragmentRoot)frag.getParent()).close();
 					delta.added(frag);
-					hasDelta = true;
+					result |= HAS_DELTA;
 				}
 			
 				// see if this will cause any package fragments to be removed
@@ -368,7 +375,7 @@ public class ClasspathChange {
 					IPackageFragment frag= (IPackageFragment)iter.next();
 					((IPackageFragmentRoot)frag.getParent()).close(); 
 					delta.removed(frag);
-					hasDelta = true;
+					result |= HAS_DELTA;
 				}
 			} catch (JavaModelException e) {
 				if (DeltaProcessor.VERBOSE)
@@ -376,7 +383,7 @@ public class ClasspathChange {
 			}
 		}
 
-		return hasDelta;
+		return result;
 	}
 	
 	/*

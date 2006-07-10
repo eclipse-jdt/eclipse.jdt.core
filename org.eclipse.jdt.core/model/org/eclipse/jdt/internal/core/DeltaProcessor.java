@@ -1812,10 +1812,13 @@ public class DeltaProcessor {
 									Iterator changes = this.classpathChanges.values().iterator();
 									while (changes.hasNext()) {
 										ClasspathChange change = (ClasspathChange) changes.next();
-										if (change.generateDelta(javaDelta)) {
+										int result = change.generateDelta(javaDelta);
+										if ((result & ClasspathChange.HAS_DELTA) != 0) {
 											hasDelta = true;
 											change.requestIndexing();
 											this.state.addClasspathValidation(change.project);
+										}
+										if ((result & ClasspathChange.HAS_PROJECT_CHANGE) != 0) {
 											this.state.addProjectReferenceChange(change.project, change.oldResolvedClasspath);
 										}
 									}
@@ -1859,18 +1862,12 @@ public class DeltaProcessor {
 						return; // avoid populating for SYNC or MARKER deltas
 
 					// create classpath markers if necessary
-					validateClasspaths(delta);
+					boolean needCycleValidation = validateClasspaths(delta);
 					ClasspathValidation[] validations = this.state.removeClasspathValidations();
 					if (validations != null) {
 						for (int i = 0, length = validations.length; i < length; i++) {
 							ClasspathValidation validation = validations[i];
 							validation.validate();
-						}
-						// update all cycle markers since the classpath changes may have affected cycles
-						try {
-							JavaProject.validateCycles(null);
-						} catch (JavaModelException e) {
-							// a project no longer exist
 						}
 					}
 					
@@ -1884,6 +1881,15 @@ public class DeltaProcessor {
 					            // project doesn't exist any longer, continue with next one
 					        }
 					    }
+					}
+					
+					if (needCycleValidation || projectRefChanges != null) {
+						// update all cycle markers since the project references changes may have affected cycles
+						try {
+							JavaProject.validateCycles(null);
+						} catch (JavaModelException e) {
+							// a project no longer exists
+						}
 					}
 					
 					JavaModel.flushExternalFileCache();
@@ -2107,29 +2113,20 @@ public class DeltaProcessor {
 					case IResourceDelta.CHANGED:
 						processChildren = isJavaProject;
 						if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
-							// project opened or closed: remember  project and its dependents
-							affectedProjects.add(project.getFullPath());
+							// project opened or closed
 							if (isJavaProject) {
 								JavaProject javaProject = (JavaProject)JavaCore.create(project);
 								this.state.addClasspathValidation(javaProject); // in case .classpath got modified while closed
 							}
+							affectedProjects.add(project.getFullPath());
 						} else if ((delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
 							boolean wasJavaProject = this.state.findJavaProject(project.getName()) != null;
-							if (wasJavaProject && !isJavaProject) {
-								// project no longer has Java nature, discard Java related obsolete markers
+							if (wasJavaProject  != isJavaProject) {
+								// project gained or lost Java nature
 								JavaProject javaProject = (JavaProject)JavaCore.create(project);
-								this.state.addClasspathValidation(javaProject); 
-
+								this.state.addClasspathValidation(javaProject); // add/remove classpath markers
 								affectedProjects.add(project.getFullPath());
-							} if (isJavaProject) {
-								// check if all entries exist
-								JavaProject javaProject = (JavaProject)JavaCore.create(project);
-								this.state.addClasspathValidation(javaProject); 
 							}
-						} else if (isJavaProject) {
-							// check if all entries exist
-							JavaProject javaProject = (JavaProject)JavaCore.create(project);
-							this.state.addClasspathValidation(javaProject); 
 						}
 						break;
 					case IResourceDelta.REMOVED:
@@ -2141,9 +2138,9 @@ public class DeltaProcessor {
 				/* check classpath file change */
 				IFile file = (IFile) resource;
 				if (file.getName().equals(JavaProject.CLASSPATH_FILENAME)) {
-					affectedProjects.add(file.getProject().getFullPath());
 					JavaProject javaProject = (JavaProject)JavaCore.create(file.getProject());
-					this.state.addClasspathValidation(javaProject); 
+					this.state.addClasspathValidation(javaProject);
+					affectedProjects.add(file.getProject().getFullPath());
 					break;
 				}
 				break;
@@ -2159,10 +2156,12 @@ public class DeltaProcessor {
 	/*
 	 * Validate the classpaths of the projects affected by the given delta.
 	 * Create markers if necessary.
+	 * Returns whether cycle markers should be recomputed.
 	 */
-	private void validateClasspaths(IResourceDelta delta) {
+	private boolean validateClasspaths(IResourceDelta delta) {
 		HashSet affectedProjects = new HashSet(5);
-		validateClasspaths(delta, affectedProjects); 
+		validateClasspaths(delta, affectedProjects);
+		boolean needCycleValidation = false;
 	
 		// validate classpaths of affected projects (dependent projects 
 		// or projects that reference a library in one of the projects that have changed)
@@ -2182,6 +2181,7 @@ public class DeltaProcessor {
 							case IClasspathEntry.CPE_PROJECT:
 								if (affectedProjects.contains(entry.getPath())) {
 									this.state.addClasspathValidation(javaProject);
+									needCycleValidation = true;
 								}
 								break;
 							case IClasspathEntry.CPE_LIBRARY:
@@ -2199,6 +2199,7 @@ public class DeltaProcessor {
 				}
 			}
 		}
+		return needCycleValidation;
 	}
 	
 	/*

@@ -51,7 +51,8 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 			new ProjectReferenceChange(project, change.oldResolvedClasspath).updateProjectReferencesIfNecessary();
 		} else {
 			JavaElementDelta delta = new JavaElementDelta(getJavaModel());
-			if (change.generateDelta(delta)) {
+			int result = change.generateDelta(delta);
+			if ((result & ClasspathChange.HAS_DELTA) != 0) {
 				// create delta
 				addDelta(delta);
 				
@@ -60,7 +61,8 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 				
 				// ensure classpath is validated on next build
 				state.addClasspathValidation(project);
-		
+			}
+			if ((result & ClasspathChange.HAS_PROJECT_CHANGE) != 0) {
 				// ensure project references are updated on next build
 				state.addProjectReferenceChange(project, change.oldResolvedClasspath);
 			}
