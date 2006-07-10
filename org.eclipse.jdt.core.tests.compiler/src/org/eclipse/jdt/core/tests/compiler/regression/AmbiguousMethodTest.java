@@ -832,4 +832,29 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			// 5: unreported exception E11; must be caught or declared to be thrown
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149893
+	public void test017() {
+		this.runConformTest(
+			new String[] {
+				"AbstractFilter.java",
+				"import java.util.*;\n" + 
+				"public class AbstractFilter<T> implements IFilter<T> {\n" + 
+				"	public final <E extends T> boolean select(E obj) { return true; }\n" + 
+				"	public final <E extends T> List<E> filter(List<E> elements) {\n" + 
+				"		if ((elements == null) || (elements.size() == 0)) return elements;\n" +
+				"		List<E> okElements = new ArrayList<E>(elements.size());\n" +
+				"		for (E obj : elements) {\n" +
+				"			if (select(obj)) okElements.add(obj);\n" +
+				"		}\n" +
+				"		return okElements;" +
+				"	}\n" +
+				"}\n" + 
+				"interface IFilter<T> {\n" + 
+				"	<E extends T> boolean select(E obj);\n" +
+				"	<E extends T> List<E> filter(List<E> elements);\n" + 
+				"}"
+			},
+			""
+		);
+	}
 }

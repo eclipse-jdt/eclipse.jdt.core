@@ -464,7 +464,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				int length = originalVariables.length;
 				TypeBinding[] rawArguments = new TypeBinding[length];
 				for (int i = 0; i < length; i++)
-					rawArguments[i] =  environment.convertToRawType(originalVariables[i].erasure());
+					rawArguments[i] =  environment.convertToRawType(originalVariables[i].upperBound());
 				this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, rawArguments);
 //			}
 		} 
