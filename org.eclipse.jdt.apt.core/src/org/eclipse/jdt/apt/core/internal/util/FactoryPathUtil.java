@@ -579,7 +579,7 @@ public final class FactoryPathUtil {
 							pfc.addFactoryName(factoryName);
 						}
 					} catch(CoreException e) {
-							e.printStackTrace();
+						AptPlugin.log(e, "Unable to load annotation factory from plug-in"); //$NON-NLS-1$
 					}
 				}
 			}
