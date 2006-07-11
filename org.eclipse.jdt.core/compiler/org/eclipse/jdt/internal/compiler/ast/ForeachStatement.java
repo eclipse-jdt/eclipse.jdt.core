@@ -233,6 +233,12 @@ public class ForeachStatement extends Statement {
 					codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
 				}
 				codeStream.store(this.elementVariable.binding, false);
+				codeStream.addVisibleLocalVariable(this.elementVariable.binding);
+				if (this.postCollectionInitStateIndex != -1) {
+					codeStream.addDefinitelyAssignedVariables(
+						currentScope,
+						this.postCollectionInitStateIndex);
+				}
 				break;
 			case RAW_ITERABLE :
 			case GENERIC_ITERABLE :
@@ -250,14 +256,14 @@ public class ForeachStatement extends Statement {
 						}
 					}
 					codeStream.store(this.elementVariable.binding, false);
+					codeStream.addVisibleLocalVariable(this.elementVariable.binding);
+					if (this.postCollectionInitStateIndex != -1) {
+						codeStream.addDefinitelyAssignedVariables(
+							currentScope,
+							this.postCollectionInitStateIndex);
+					}
 				}
 				break;
-		}
-		codeStream.addVisibleLocalVariable(this.elementVariable.binding);
-		if (this.postCollectionInitStateIndex != -1) {
-			codeStream.addDefinitelyAssignedVariables(
-				currentScope,
-				this.postCollectionInitStateIndex);
 		}
 
 		if (!hasEmptyAction) {
