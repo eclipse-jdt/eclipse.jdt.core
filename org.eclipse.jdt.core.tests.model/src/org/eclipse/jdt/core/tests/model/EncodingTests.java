@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import junit.framework.Test;
@@ -672,6 +673,50 @@ public class EncodingTests extends ModifyingResourceTests {
 		}
 	}
 
+	/*
+	 * Ensures that an encoding that a file using an encoding producing more charaters than the file size can
+	 * be correctly read.
+	 * (regression test for bug 149028 Limiting number of characters to read with the file size is invalid.)
+	 */
+	public void test034() throws CoreException, IOException {
+		try {
+			// Create file
+			IFile file = createFile("/Encoding/Test34.txt", "acegikm");
+			
+			// Read file using a transformation where a character is read and the next alphabetical character is
+			// automaticaly added
+			final InputStream fileStream = file.getContents();
+			try {
+				InputStream in = new InputStream() {
+					int current = -1;
+					public int read() throws IOException {
+						int result;
+						if (current != -1) {
+							result = current;
+							current = -1;
+						} else {
+							result = fileStream.read();
+							if (result == -1)
+								return -1;
+							current = result + 1;
+						}
+						return result;
+					}
+				};
+				char[] result = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(in, (int) file.getLocation().toFile().length(), "UTF-8");
+				assertSourceEquals(
+					"Unexpected source",
+					"abcdefghijklmn",
+					new String(result)					
+				);
+			} finally {
+				fileStream.close();
+			}
+		} finally {
+			deleteFile("Encoding/Test34.txt");
+		}
+	}	
+	
 	/**
 	 * Bug 66898: refactor-rename: encoding is not preserved
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=66898"

@@ -162,7 +162,7 @@ public class Util implements SuffixConstants {
 	 * in this area...
 	public static char[] getInputStreamAsCharArray(FileInputStream stream, int length, String encoding)
 		throws IOException {
-		
+	
 		FileChannel channel = stream.getChannel();
 		int size = (int)channel.size();
 		if (length >= 0 && length < size) size = length;
@@ -180,8 +180,7 @@ public class Util implements SuffixConstants {
 	*/
 	/**
 	 * Returns the given input stream's contents as a character array.
-	 * If a length is specified (ie. if length != -1), only length chars
-	 * are returned. Otherwise all chars in the stream are returned.
+	 * If a length is specified (ie. if length != -1), this represents the number of bytes in the stream.
 	 * Note this doesn't close the stream.
 	 * @throws IOException if a problem occured reading the stream.
 	 */
@@ -197,73 +196,51 @@ public class Util implements SuffixConstants {
 			reader =  new InputStreamReader(stream);
 		}
 		char[] contents;
+		int totalRead = 0;
 		if (length == -1) {
 			contents = CharOperation.NO_CHAR;
-			int contentsLength = 0;
-			int amountRead = -1;
-			do {
-				int amountRequested = Math.max(stream.available(), DEFAULT_READING_SIZE);  // read at least 8K
-
-				// resize contents if needed
-				if (contentsLength + amountRequested > contents.length) {
-					System.arraycopy(
-						contents,
-						0,
-						contents = new char[contentsLength + amountRequested],
-						0,
-						contentsLength);
-				}
-
-				// read as many chars as possible
-				amountRead = reader.read(contents, contentsLength, amountRequested);
-
-				if (amountRead > 0) {
-					// remember length of contents
-					contentsLength += amountRead;
-				}
-			} while (amountRead != -1);
-
-			// Do not keep first character for UTF-8 BOM encoding
-			int start = 0;
-			if (contentsLength > 0 && UTF_8.equals(encoding)) {
-				if (contents[0] == 0xFEFF) { // if BOM char then skip
-					contentsLength--;
-					start = 1;
-				}
-			}
-			// resize contents if necessary
-			if (contentsLength < contents.length) {
-				System.arraycopy(
-					contents,
-					start,
-					contents = new char[contentsLength],
-					0,
-					contentsLength);
-			}
 		} else {
-			contents = new char[length];
-			int len = 0;
-			int readSize = 0;
-			while ((readSize != -1) && (len != length)) {
-				// See PR 1FMS89U
-				// We record first the read size. In this case len is the actual read size.
-				len += readSize;
-				readSize = reader.read(contents, len, length - len);
-			}
-			// Do not keep first character for UTF-8 BOM encoding
-			int start = 0;
-			if (length > 0 && UTF_8.equals(encoding)) {
-				if (contents[0] == 0xFEFF) { // if BOM char then skip
-					len--;
-					start = 1;
-				}
-			}
-			// See PR 1FMS89U
-			// Now we need to resize in case the default encoding used more than one byte for each
-			// character
-			if (len != length)
-				System.arraycopy(contents, start, (contents = new char[len]), 0, len);
+			// length is a good guess when the encoding produces less or the same amount of characters than the file length
+			contents = new char[length]; // best guess
 		}
+
+		while (true) {
+			int amountRequested;
+			if (totalRead < length) {
+				// until known length is met, reuse same array sized eagerly
+				amountRequested = length - totalRead;
+			} else {
+				// reading beyond known length
+				int current = reader.read(); 
+				if (current < 0) break;
+				
+				amountRequested = Math.max(stream.available(), DEFAULT_READING_SIZE);  // read at least 8K
+				
+				// resize contents if needed
+				if (totalRead + 1 + amountRequested > contents.length)
+					System.arraycopy(contents, 	0, 	contents = new char[totalRead + 1 + amountRequested], 0, totalRead);
+				
+				// add current character
+				contents[totalRead++] = (char) current; // coming from totalRead==length
+			}
+			// read as many chars as possible
+			int amountRead = reader.read(contents, totalRead, amountRequested);
+			if (amountRead < 0) break;
+			totalRead += amountRead;
+		}
+
+		// Do not keep first character for UTF-8 BOM encoding
+		int start = 0;
+		if (totalRead > 0 && UTF_8.equals(encoding)) {
+			if (contents[0] == 0xFEFF) { // if BOM char then skip
+				totalRead--;
+				start = 1;
+			}
+		}
+		
+		// resize contents if necessary
+		if (totalRead < contents.length)
+			System.arraycopy(contents, start, contents = new char[totalRead], 	0, 	totalRead);
 
 		return contents;
 	}
