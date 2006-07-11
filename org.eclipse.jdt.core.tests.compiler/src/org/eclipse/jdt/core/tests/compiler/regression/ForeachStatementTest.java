@@ -38,11 +38,11 @@ protected Map getCompilerOptions() {
 }
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
-//static {
+static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 31 };
+//	TESTS_NUMBERS = new int[] { 39, 40, 41 };
 //	TESTS_RANGE = new int[] { 34, 38 };
-//}
+}
 public static Test suite() {
 	return buildComparableTestSuite(testClass());
 }
@@ -2087,6 +2087,257 @@ public void test038() {
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 38] local: this index: 0 type: X\n" + 
 		"        [pc: 21, pc: 37] local: o index: 1 type: java.lang.Object\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+public void test039() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.HashSet;\n" + 
+			"import java.util.Set;\n" + 
+			"import java.util.Iterator;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                for (Object o : initForEach()) {\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"\n" + 
+			"		static class MyIterator<T> implements Iterator<T> {\n" + 
+			"			Iterator<T> iterator;\n" + 
+			"			\n" + 
+			"			MyIterator(Iterator<T> it) {\n" + 
+			"				this.iterator = it;\n" + 
+			"			}\n" + 
+			"			public boolean hasNext() {\n" + 
+			"				System.out.println(\"hasNext\");\n" + 
+			"				return this.iterator.hasNext();\n" + 
+			"			}			\n" + 
+			"			public T next() {\n" + 
+			"				System.out.println(\"next\");\n" + 
+			"				return this.iterator.next();\n" + 
+			"			}\n" + 
+			"			public void remove() {\n" + 
+			"				System.out.println(\"remove\");\n" + 
+			"				this.iterator.remove();\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"        static Set<Object> initForEach()        {\n" + 
+			"                System.out.println(\"initForEach\");\n" + 
+			"                HashSet<Object> set = new HashSet<Object>() {\n" + 
+			"                	private static final long serialVersionUID = 1L;\n" + 
+			"                	public Iterator<Object> iterator() {\n" + 
+			"                		System.out.println(\"iterator\");\n" + 
+			"                		return new MyIterator<Object>(super.iterator());\n" + 
+			"                	}\n" + 
+			"                };\n" + 
+			"                for (int i = 0; i < 3; i++) set.add(i);\n" + 
+			"                return set;\n" + 
+			"        }\n" + 
+			"}",
+		},
+		"initForEach\n" + 
+		"iterator\n" + 
+		"hasNext\n" + 
+		"next\n" + 
+		"hasNext\n" + 
+		"next\n" + 
+		"hasNext\n" + 
+		"next\n" + 
+		"hasNext");
+
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  invokestatic X.initForEach() : java.util.Set [16]\n" + 
+		"     3  invokeinterface java.util.Set.iterator() : java.util.Iterator [20] [nargs: 1]\n" + 
+		"     8  astore_1\n" + 
+		"     9  goto 19\n" + 
+		"    12  aload_1\n" + 
+		"    13  invokeinterface java.util.Iterator.next() : java.lang.Object [26] [nargs: 1]\n" + 
+		"    18  pop\n" + 
+		"    19  aload_1\n" + 
+		"    20  invokeinterface java.util.Iterator.hasNext() : boolean [32] [nargs: 1]\n" + 
+		"    25  ifne 12\n" + 
+		"    28  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 8]\n" + 
+		"        [pc: 28, line: 10]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 29] local: args index: 0 type: java.lang.String[]\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+public void test040() { 
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
+	
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.HashSet;\n" + 
+			"import java.util.Set;\n" + 
+			"import java.util.Iterator;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                for (Object o : initForEach()) {\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"\n" + 
+			"		static class MyIterator<T> implements Iterator<T> {\n" + 
+			"			Iterator<T> iterator;\n" + 
+			"			\n" + 
+			"			MyIterator(Iterator<T> it) {\n" + 
+			"				this.iterator = it;\n" + 
+			"			}\n" + 
+			"			public boolean hasNext() {\n" + 
+			"				System.out.println(\"hasNext\");\n" + 
+			"				return this.iterator.hasNext();\n" + 
+			"			}			\n" + 
+			"			public T next() {\n" + 
+			"				System.out.println(\"next\");\n" + 
+			"				return this.iterator.next();\n" + 
+			"			}\n" + 
+			"			public void remove() {\n" + 
+			"				System.out.println(\"remove\");\n" + 
+			"				this.iterator.remove();\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"        static Set<Object> initForEach()        {\n" + 
+			"                System.out.println(\"initForEach\");\n" + 
+			"                HashSet<Object> set = new HashSet<Object>() {\n" + 
+			"                	private static final long serialVersionUID = 1L;\n" + 
+			"                	public Iterator<Object> iterator() {\n" + 
+			"                		System.out.println(\"iterator\");\n" + 
+			"                		return new MyIterator<Object>(super.iterator());\n" + 
+			"                	}\n" + 
+			"                };\n" + 
+			"                for (int i = 0; i < 3; i++) set.add(i);\n" + 
+			"                return set;\n" + 
+			"        }\n" + 
+			"}",
+		},
+		"initForEach\n" + 
+		"iterator\n" + 
+		"hasNext\n" + 
+		"next\n" + 
+		"hasNext\n" + 
+		"next\n" + 
+		"hasNext\n" + 
+		"next\n" + 
+		"hasNext",
+		null,
+		true,
+		null,
+		options,
+		null);
+
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 1, Locals: 3\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  invokestatic X.initForEach() : java.util.Set [16]\n" + 
+		"     3  invokeinterface java.util.Set.iterator() : java.util.Iterator [20] [nargs: 1]\n" + 
+		"     8  astore_2\n" + 
+		"     9  goto 19\n" + 
+		"    12  aload_2\n" + 
+		"    13  invokeinterface java.util.Iterator.next() : java.lang.Object [26] [nargs: 1]\n" + 
+		"    18  astore_1 [o]\n" + 
+		"    19  aload_2\n" + 
+		"    20  invokeinterface java.util.Iterator.hasNext() : boolean [32] [nargs: 1]\n" + 
+		"    25  ifne 12\n" + 
+		"    28  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 8]\n" + 
+		"        [pc: 28, line: 10]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 29] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 19, pc: 28] local: o index: 1 type: java.lang.Object\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+public void test041() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                for (int i : initForEach()) {\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"        static int[] initForEach() {\n" + 
+			"                System.out.println(\"initForEach\");\n" + 
+			"                return new int[] {1, 2, 3, 4};\n" + 
+			"        }\n" + 
+			"}",
+		},
+		"initForEach");
+
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"    0  invokestatic X.initForEach() : int[] [16]\n" + 
+		"    3  pop\n" + 
+		"    4  return\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");

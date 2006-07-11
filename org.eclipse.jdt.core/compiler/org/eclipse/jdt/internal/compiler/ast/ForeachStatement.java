@@ -124,20 +124,20 @@ public class ForeachStatement extends Statement {
 
 		// we need the variable to iterate the collection even if the 
 		// element variable is not used
-		if (!(this.action == null
+		final boolean hasEmptyAction = this.action == null
 				|| this.action.isEmptyBlock()
-				|| ((this.action.bits & IsUsefulEmptyStatement) != 0))) {
-			switch(this.kind) {
-				case ARRAY :
-					this.collectionVariable.useFlag = LocalVariableBinding.USED;
-					this.indexVariable.useFlag = LocalVariableBinding.USED;
-					this.maxVariable.useFlag = LocalVariableBinding.USED;
-					break;
-				case RAW_ITERABLE :
-				case GENERIC_ITERABLE :
-					this.indexVariable.useFlag = LocalVariableBinding.USED;
-					break;
-			}
+				|| ((this.action.bits & IsUsefulEmptyStatement) != 0);
+		switch(this.kind) {
+			case ARRAY :
+				this.collectionVariable.useFlag = LocalVariableBinding.USED;
+				if (hasEmptyAction) break;
+				this.indexVariable.useFlag = LocalVariableBinding.USED;
+				this.maxVariable.useFlag = LocalVariableBinding.USED;
+				break;
+			case RAW_ITERABLE :
+			case GENERIC_ITERABLE :
+				this.indexVariable.useFlag = LocalVariableBinding.USED;
+				break;
 		}
 		//end of loop
 		loopingContext.complainOnDeferredNullChecks(currentScope, actionInfo);
@@ -167,20 +167,17 @@ public class ForeachStatement extends Statement {
 			return;
 		}
 		int pc = codeStream.position;
-		if (this.action == null
-				|| this.action.isEmptyBlock()
-				|| ((this.action.bits & IsUsefulEmptyStatement) != 0)) {
-			codeStream.exitUserScope(scope);
-			if (mergedInitStateIndex != -1) {
-				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
-				codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);				
-			}
-			codeStream.recordPositionsFrom(pc, this.sourceStart);
-			return;
-		}
+		final boolean hasEmptyAction = this.action == null
+			|| this.action.isEmptyBlock()
+			|| ((this.action.bits & IsUsefulEmptyStatement) != 0);
+
 		// generate the initializations
 		switch(this.kind) {
 			case ARRAY :
+				if (hasEmptyAction) {
+					collection.generateCode(scope, codeStream, false);
+					break;
+				}
 				collection.generateCode(scope, codeStream, true);
 				codeStream.store(this.collectionVariable, false);
 				codeStream.iconst_0();
@@ -209,7 +206,6 @@ public class ForeachStatement extends Statement {
 				codeStream.store(this.indexVariable, false);
 				break;
 		}
-		
 		// label management
 		BranchLabel actionLabel = new BranchLabel(codeStream);
 		actionLabel.tagBits |= BranchLabel.USED;
@@ -230,6 +226,7 @@ public class ForeachStatement extends Statement {
 		if (this.elementVariable.binding.resolvedPosition != -1) {
 			switch(this.kind) {
 				case ARRAY :
+					if (hasEmptyAction) break;
 					codeStream.load(this.collectionVariable);
 					codeStream.load(this.indexVariable);
 					codeStream.arrayAt(this.collectionElementType.id);
@@ -250,7 +247,11 @@ public class ForeachStatement extends Statement {
 							codeStream.checkcast(this.elementVariable.binding.type);
 						}
 					}
-					codeStream.store(this.elementVariable.binding, false);
+					if (hasEmptyAction && !codeStream.preserveUnusedLocals) {
+						codeStream.pop();
+					} else {
+						codeStream.store(this.elementVariable.binding, false);
+					}
 					break;
 			}
 			codeStream.addVisibleLocalVariable(this.elementVariable.binding);
@@ -273,7 +274,10 @@ public class ForeachStatement extends Statement {
 					break;
 			}
 		}
-		this.action.generateCode(scope, codeStream);
+
+		if (!hasEmptyAction) {
+			this.action.generateCode(scope, codeStream);
+		}
 
 		// continuation point
 		if (this.continueLabel != null) {
@@ -282,6 +286,7 @@ public class ForeachStatement extends Statement {
 			// generate the increments for next iteration
 			switch(this.kind) {
 				case ARRAY :
+					if (hasEmptyAction) break;
 					codeStream.iinc(this.indexVariable.resolvedPosition, 1);
 					break;
 				case RAW_ITERABLE :
@@ -299,6 +304,7 @@ public class ForeachStatement extends Statement {
 		int conditionPC = codeStream.position;
 		switch(this.kind) {
 			case ARRAY :
+				if (hasEmptyAction) break;
 				codeStream.load(this.indexVariable);
 				codeStream.load(this.maxVariable);
 				codeStream.if_icmplt(actionLabel);
