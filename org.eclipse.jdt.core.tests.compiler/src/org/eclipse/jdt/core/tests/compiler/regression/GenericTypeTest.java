@@ -32389,4 +32389,37 @@ public void test1021b() { // should this case be allowed?
 		""
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150294
+public void test1022() { // should this case be allowed?
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String testString = \"test string\";\n" + 
+			"\n" + 
+			"		testWithNonGeneric(testString);\n" + 
+			"		testWithGeneric(testString);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void testWithNonGeneric(String input) {\n" + 
+			"		Class<? extends String> clazz = input.getClass();\n" + 
+			"\n" + 
+			"		System.out.println(clazz.getName());\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static <T> void testWithGeneric(T input) {\n" + 
+			"		Class<? extends T> clazz = input.getClass();\n" + 
+			"\n" + 
+			"		System.out.println(clazz.getName());\n" + 
+			"	}\n" + 
+			"}", // =================,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	Class<? extends T> clazz = input.getClass();\n" + 
+		"	                           ^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<capture#3-of ? extends Object> to Class<? extends T>\n" + 
+		"----------\n");
+}
 }
