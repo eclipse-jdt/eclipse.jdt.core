@@ -223,22 +223,24 @@ public class ForeachStatement extends Statement {
 		actionLabel.place();
 
 		// generate the loop action
-		if (this.elementVariable.binding.resolvedPosition != -1) {
-			switch(this.kind) {
-				case ARRAY :
-					if (hasEmptyAction) break;
-					codeStream.load(this.collectionVariable);
-					codeStream.load(this.indexVariable);
-					codeStream.arrayAt(this.collectionElementType.id);
-					if (this.elementVariableImplicitWidening != -1) {
-						codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
-					}
-					codeStream.store(this.elementVariable.binding, false);
-					break;
-				case RAW_ITERABLE :
-				case GENERIC_ITERABLE :
-					codeStream.load(this.indexVariable);
-					codeStream.invokeJavaUtilIteratorNext();
+		switch(this.kind) {
+			case ARRAY :
+				if (this.elementVariable.binding.resolvedPosition == -1) break;
+				codeStream.load(this.collectionVariable);
+				codeStream.load(this.indexVariable);
+				codeStream.arrayAt(this.collectionElementType.id);
+				if (this.elementVariableImplicitWidening != -1) {
+					codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
+				}
+				codeStream.store(this.elementVariable.binding, false);
+				break;
+			case RAW_ITERABLE :
+			case GENERIC_ITERABLE :
+				codeStream.load(this.indexVariable);
+				codeStream.invokeJavaUtilIteratorNext();
+				if (this.elementVariable.binding.resolvedPosition == -1) {
+					codeStream.pop();
+				} else {
 					if (this.elementVariable.binding.type.id != T_JavaLangObject) {
 						if (this.elementVariableImplicitWidening != -1) {
 							codeStream.checkcast(this.collectionElementType);
@@ -247,32 +249,15 @@ public class ForeachStatement extends Statement {
 							codeStream.checkcast(this.elementVariable.binding.type);
 						}
 					}
-					if (hasEmptyAction && !codeStream.preserveUnusedLocals) {
-						codeStream.pop();
-					} else {
-						codeStream.store(this.elementVariable.binding, false);
-					}
-					break;
-			}
-			codeStream.addVisibleLocalVariable(this.elementVariable.binding);
-			if (this.postCollectionInitStateIndex != -1) {
-				codeStream.addDefinitelyAssignedVariables(
-					currentScope,
-					this.postCollectionInitStateIndex);
-			}
-		} else {
-			// if unused variable, some side effects still need to be performed (86487)
-			switch(this.kind) {
-				case ARRAY :
-					break;
-				case RAW_ITERABLE :
-				case GENERIC_ITERABLE :
-					// still advance in iterator to prevent infinite loop
-					codeStream.load(this.indexVariable);
-					codeStream.invokeJavaUtilIteratorNext();
-					codeStream.pop();
-					break;
-			}
+					codeStream.store(this.elementVariable.binding, false);
+				}
+				break;
+		}
+		codeStream.addVisibleLocalVariable(this.elementVariable.binding);
+		if (this.postCollectionInitStateIndex != -1) {
+			codeStream.addDefinitelyAssignedVariables(
+				currentScope,
+				this.postCollectionInitStateIndex);
 		}
 
 		if (!hasEmptyAction) {
