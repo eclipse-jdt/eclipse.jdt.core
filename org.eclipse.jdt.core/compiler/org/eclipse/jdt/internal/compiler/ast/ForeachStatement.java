@@ -124,20 +124,23 @@ public class ForeachStatement extends Statement {
 
 		// we need the variable to iterate the collection even if the 
 		// element variable is not used
-		if (!(this.action == null
+		final boolean hasEmptyAction = this.action == null
 				|| this.action.isEmptyBlock()
-				|| ((this.action.bits & IsUsefulEmptyStatement) != 0))) {
-			switch(this.kind) {
-				case ARRAY :
+				|| ((this.action.bits & IsUsefulEmptyStatement) != 0);
+
+		switch(this.kind) {
+			case ARRAY :
+				if (!hasEmptyAction
+						|| this.elementVariable.binding.resolvedPosition != -1) {				
 					this.collectionVariable.useFlag = LocalVariableBinding.USED;
 					this.indexVariable.useFlag = LocalVariableBinding.USED;
 					this.maxVariable.useFlag = LocalVariableBinding.USED;
-					break;
-				case RAW_ITERABLE :
-				case GENERIC_ITERABLE :
-					this.indexVariable.useFlag = LocalVariableBinding.USED;
-					break;
-			}
+				}
+				break;
+			case RAW_ITERABLE :
+			case GENERIC_ITERABLE :
+				this.indexVariable.useFlag = LocalVariableBinding.USED;
+				break;
 		}
 		//end of loop
 		loopingContext.complainOnDeferredNullChecks(currentScope, actionInfo);
@@ -167,9 +170,14 @@ public class ForeachStatement extends Statement {
 			return;
 		}
 		int pc = codeStream.position;
-		if (this.action == null
-				|| this.action.isEmptyBlock()
-				|| ((this.action.bits & IsUsefulEmptyStatement) != 0)) {
+		final boolean hasEmptyAction = this.action == null
+			|| this.action.isEmptyBlock()
+			|| ((this.action.bits & IsUsefulEmptyStatement) != 0);
+
+		if (hasEmptyAction
+				&& this.elementVariable.binding.resolvedPosition == -1
+				&& this.kind == ARRAY) {
+			collection.generateCode(scope, codeStream, false);
 			codeStream.exitUserScope(scope);
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
@@ -178,6 +186,7 @@ public class ForeachStatement extends Statement {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
+
 		// generate the initializations
 		switch(this.kind) {
 			case ARRAY :
@@ -209,7 +218,6 @@ public class ForeachStatement extends Statement {
 				codeStream.store(this.indexVariable, false);
 				break;
 		}
-		
 		// label management
 		BranchLabel actionLabel = new BranchLabel(codeStream);
 		actionLabel.tagBits |= BranchLabel.USED;
@@ -227,9 +235,9 @@ public class ForeachStatement extends Statement {
 		actionLabel.place();
 
 		// generate the loop action
-		if (this.elementVariable.binding.resolvedPosition != -1) {
-			switch(this.kind) {
-				case ARRAY :
+		switch(this.kind) {
+			case ARRAY :
+				if (this.elementVariable.binding.resolvedPosition != -1) {
 					codeStream.load(this.collectionVariable);
 					codeStream.load(this.indexVariable);
 					codeStream.arrayAt(this.collectionElementType.id);
@@ -237,43 +245,43 @@ public class ForeachStatement extends Statement {
 						codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
 					}
 					codeStream.store(this.elementVariable.binding, false);
-					break;
-				case RAW_ITERABLE :
-				case GENERIC_ITERABLE :
-					codeStream.load(this.indexVariable);
-					codeStream.invokeJavaUtilIteratorNext();
-					if (this.elementVariable.binding.type.id != T_JavaLangObject) {
-						if (this.elementVariableImplicitWidening != -1) {
-							codeStream.checkcast(this.collectionElementType);
-							codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
-						} else {
-							codeStream.checkcast(this.elementVariable.binding.type);
-						}
+					codeStream.addVisibleLocalVariable(this.elementVariable.binding);
+					if (this.postCollectionInitStateIndex != -1) {
+						codeStream.addDefinitelyAssignedVariables(
+							currentScope,
+							this.postCollectionInitStateIndex);
 					}
-					codeStream.store(this.elementVariable.binding, false);
-					break;
-			}
-			codeStream.addVisibleLocalVariable(this.elementVariable.binding);
-			if (this.postCollectionInitStateIndex != -1) {
-				codeStream.addDefinitelyAssignedVariables(
-					currentScope,
-					this.postCollectionInitStateIndex);
-			}
-		} else {
-			// if unused variable, some side effects still need to be performed (86487)
-			switch(this.kind) {
-				case ARRAY :
-					break;
-				case RAW_ITERABLE :
-				case GENERIC_ITERABLE :
-					// still advance in iterator to prevent infinite loop
-					codeStream.load(this.indexVariable);
-					codeStream.invokeJavaUtilIteratorNext();
+				}
+				break;
+			case RAW_ITERABLE :
+			case GENERIC_ITERABLE :
+				codeStream.load(this.indexVariable);
+				codeStream.invokeJavaUtilIteratorNext();
+				if (this.elementVariable.binding.type.id != T_JavaLangObject) {
+					if (this.elementVariableImplicitWidening != -1) {
+						codeStream.checkcast(this.collectionElementType);
+						codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
+					} else {
+						codeStream.checkcast(this.elementVariable.binding.type);
+					}
+				}
+				if (this.elementVariable.binding.resolvedPosition == -1) {
 					codeStream.pop();
-					break;
-			}
+				} else {
+					codeStream.store(this.elementVariable.binding, false);
+					codeStream.addVisibleLocalVariable(this.elementVariable.binding);
+					if (this.postCollectionInitStateIndex != -1) {
+						codeStream.addDefinitelyAssignedVariables(
+							currentScope,
+							this.postCollectionInitStateIndex);
+					}
+				}
+				break;
 		}
-		this.action.generateCode(scope, codeStream);
+
+		if (!hasEmptyAction) {
+			this.action.generateCode(scope, codeStream);
+		}
 
 		// continuation point
 		if (this.continueLabel != null) {
@@ -282,6 +290,7 @@ public class ForeachStatement extends Statement {
 			// generate the increments for next iteration
 			switch(this.kind) {
 				case ARRAY :
+					if (hasEmptyAction && this.elementVariable.binding.resolvedPosition == -1) break;
 					codeStream.iinc(this.indexVariable.resolvedPosition, 1);
 					break;
 				case RAW_ITERABLE :
