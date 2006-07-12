@@ -124,13 +124,9 @@ public class ForeachStatement extends Statement {
 
 		// we need the variable to iterate the collection even if the 
 		// element variable is not used
-		final boolean hasEmptyAction = this.action == null
-				|| this.action.isEmptyBlock()
-				|| ((this.action.bits & IsUsefulEmptyStatement) != 0);
 		switch(this.kind) {
 			case ARRAY :
 				this.collectionVariable.useFlag = LocalVariableBinding.USED;
-				if (hasEmptyAction) break;
 				this.indexVariable.useFlag = LocalVariableBinding.USED;
 				this.maxVariable.useFlag = LocalVariableBinding.USED;
 				break;

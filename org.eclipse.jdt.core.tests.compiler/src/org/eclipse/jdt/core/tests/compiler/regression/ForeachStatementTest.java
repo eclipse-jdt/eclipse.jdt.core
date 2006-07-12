@@ -40,7 +40,7 @@ protected Map getCompilerOptions() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 39, 40, 41 };
+//	TESTS_NUMBERS = new int[] { 42 };
 //	TESTS_RANGE = new int[] { 34, 38 };
 }
 public static Test suite() {
@@ -2338,6 +2338,68 @@ public void test041() {
 		"    0  invokestatic X.initForEach() : int[] [16]\n" + 
 		"    3  pop\n" + 
 		"    4  return\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
+public void test042() { 
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
+	
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                for (int i : initForEach()) {\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"        static int[] initForEach() {\n" + 
+			"                System.out.println(\"initForEach\");\n" + 
+			"                return new int[] {1, 2, 3, 4};\n" + 
+			"        }\n" + 
+			"}",
+		},
+		"initForEach",
+		null,
+		true,
+		null,
+		options,
+		null);
+
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 5\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  invokestatic X.initForEach() : int[] [16]\n" + 
+		"     3  pop\n" + 
+		"     4  goto 12\n" + 
+		"     7  aload 4\n" + 
+		"     9  iload_2\n" + 
+		"    10  iaload\n" + 
+		"    11  istore_1\n" + 
+		"    12  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 12, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
