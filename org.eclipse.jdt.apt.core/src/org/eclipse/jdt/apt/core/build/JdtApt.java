@@ -23,14 +23,14 @@ import org.eclipse.jdt.apt.core.internal.build.Messages;
  *
  * Sample build.xml:
  * 
- * <project name="test_eclipse" default="build" basedir=".">
+ * &lt;project name="test_eclipse" default="build" basedir="."&gt;
  * 
- *    <taskdef name="apt" classname="org.eclipse.jdt.apt.core.build.JdtApt"/>
+ *    &lt;taskdef name="apt" classname="org.eclipse.jdt.apt.core.build.JdtApt"/&gt;
  *
- *    <target name="build">
- *        <apt workspace="C:\my_workspace" eclipseHome="C:\eclipse"/>
- *    </target>
- * </project>
+ *    &lt;target name="build"&gt;
+ *        &lt;apt workspace="C:\my_workspace" eclipseHome="C:\eclipse"/&gt;
+ *    &lt;/target&gt;
+ * &lt;/project&gt;
  */
 public class JdtApt extends Java {
 

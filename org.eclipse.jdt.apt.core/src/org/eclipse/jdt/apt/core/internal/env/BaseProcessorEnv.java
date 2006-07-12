@@ -31,6 +31,7 @@ import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.PackageUtil;
 import org.eclipse.jdt.apt.core.internal.util.TypesUtil;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotatedNodeVisitor;
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -101,6 +102,12 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	protected final AptProject _aptProject;
 	
 	/**
+	 * Unmodifiable map of processor options, including -A options.
+	 * Set in ctor and then not changed.
+	 */
+	protected final Map<String, String> _options;
+
+	/**
      * Mapping model compilation unit to dom compilation unit.
      * The assumption here is that once the client examine some binding from some file, 
      * it will continue to examine other bindings from came from that same file.
@@ -131,12 +138,52 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		_file = file;
 		_javaProject = javaProj;
 		_phase = phase;
-		
+		_options = initOptions(javaProj);
 		_modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
 		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
 		_aptProject = AptPlugin.getAptProject(javaProj);
 	}
   
+	/**
+     * Set the _options map based on the current project/workspace settings.
+     * There is a bug in Sun's apt implementation: it parses the command line 
+     * incorrectly, such that -Akey=value gets added to the options map as 
+     * key "-Akey=value" and value "".  In order to support processors written 
+     * to run on Sun's apt as well as processors written without this bug
+     * in mind, we populate the map with two copies of every option, one the
+     * expected way ("key" / "value") and the other the Sun way 
+     * ("-Akey=value" / "").  We make exceptions for the non-dash-A options
+     * that we set automatically, such as -classpath, -target, and so forth;
+     * since these wouldn't have come from a -A option we don't construct a
+     * -Akey=value variant.
+     * 
+     * Called from constructor.  A new Env is constructed for each build pass,
+     * so this will always be up to date with the latest settings.
+	 */
+	private Map<String, String> initOptions(IJavaProject jproj) {
+		Map<String, String> procOptions = AptConfig.getProcessorOptions(jproj);
+		// options is large enough to include the translated -A options
+		Map<String, String> options = new HashMap<String, String>(procOptions.size() * 2);
+		
+		// Add configured options
+		for (Map.Entry<String, String> entry : procOptions.entrySet()) {
+			String value = entry.getValue();
+			String key = entry.getKey();
+			options.put(key, value);
+			if (!AptConfig.isAutomaticProcessorOption(key)) {
+				String sunStyle;
+				if (value != null) {
+					sunStyle = "-A" + entry.getKey() + "=" + value; //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				else {
+					sunStyle = "-A" + entry.getKey(); //$NON-NLS-1$
+				}
+				options.put(sunStyle, ""); //$NON-NLS-1$
+			}
+		}
+		return Collections.unmodifiableMap(options);
+	}
+
 	public Types getTypeUtils()
     {
 		return new TypesUtil(this);
@@ -341,7 +388,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		return astUnit.findDeclaringNode(binding.getKey());
     }
     
-    public Map<String, String> getOptions(){ return Collections.emptyMap(); }
+    public Map<String, String> getOptions(){ return _options; }
     
     // does not generate dependencies
     public TypeDeclaration getTypeDeclaration(String name)

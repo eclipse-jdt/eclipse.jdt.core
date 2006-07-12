@@ -19,15 +19,18 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -58,6 +61,13 @@ import org.osgi.service.prefs.BackingStoreException;
  */
 public class AptConfig {
 	
+	/** regex to identify substituted token in path variables */
+	private static final String PATHVAR_TOKEN = "^%[^%/\\\\ ]+%.*"; //$NON-NLS-1$
+	/** path variable meaning "workspace root" */
+	private static final String PATHVAR_ROOT = "%ROOT%"; //$NON-NLS-1$
+	/** path variable meaning "project root" */
+	private static final String PATHVAR_PROJECTROOT = "%PROJECT.DIR%"; //$NON-NLS-1$
+
 	/*
 	 * Hide constructor; this is a static object
 	 */
@@ -112,8 +122,18 @@ public class AptConfig {
     
 	/**
      * Get the options that are presented to annotation processors by the
-     * AnnotationProcessorEnvironment.  The -A and = are stripped out, so 
-     * (key, value) is the equivalent of -Akey=value.
+     * AnnotationProcessorEnvironment.  Options are key/value pairs which
+     * are set in the project properties.
+     * 
+     * Option values can begin with a percent-delimited token representing
+     * a classpath variable or one of several predefined values.  The token
+     * must either be followed by a path delimiter, or be the entire value.
+     * Such tokens will be replaced with their resolved value.  The predefined
+     * values are <code>%ROOT%</code>, which is replaced by the absolute pathname
+     * of the workspace root directory, and <code>%PROJECT.DIR%</code>, which
+     * will be replaced by the absolute pathname of the project root directory.
+     * For example, a value of <code>%ECLIPSE_HOME%/configuration/config.ini</code>
+     * might be resolved to <code>d:/eclipse/configuration/config.ini</code>. 
      * 
      * This method returns some options which are set programmatically but 
      * are not directly editable, are not displayed in the configuration GUI, 
@@ -121,21 +141,42 @@ public class AptConfig {
      * emulate the behavior of Sun's apt command-line tool, which passes
      * most of its command line options to the processor environment.  The
      * programmatically set options are:
-     *  -classpath [set to Java build path]
-     *  -sourcepath [set to Java source path]
-     *  -s [set to generated src dir]
-     *  -d [set to binary output dir]
-     *  -target [set to compiler target version]
-     *  -source [set to compiler source version]
+     *  <code>-classpath</code> [set to Java build path]
+     *  <code>-sourcepath</code> [set to Java source path]
+     *  <code>-s</code> [set to generated src dir]
+     *  <code>-d</code> [set to binary output dir]
+     *  <code>-target</code> [set to compiler target version]
+     *  <code>-source</code> [set to compiler source version]
+     *  
+     * There are some slight differences between the options returned by this
+     * method and the options returned from this implementation of @see 
+     * AnnotationProcessorEnvironment#getOptions().  First, that method returns 
+     * additional options which are only meaningful during a build, such as 
+     * <code>phase</code>.  Second, that method also adds alternate encodings
+     * of each option, to be compatible with a bug in Sun's apt implementation:
+     * specifically, for each option key="k", value="v", an additional option
+     * is created with key="-Ak=v", value=null.  This includes the user-created
+     * options, but does not include the programmatically defined options listed
+     * above.
      * 
      * @param jproj a project, or null to query the workspace-wide setting.
      * @return a mutable, possibly empty, map of (key, value) pairs.  
-     * The value part of a pair may be null (equivalent to "-Akey").
-     * The value part can contain spaces, if it is quoted: -Afoo="bar baz".
+     * The value part of a pair may be null (equivalent to "-Akey" on the Sun apt
+     * command line).
+     * The value part may contain spaces.
      */
     public static Map<String, String> getProcessorOptions(IJavaProject jproj) {
-    	Map<String,String> options;
-    	options = getRawProcessorOptions(jproj);
+    	Map<String,String> rawOptions = getRawProcessorOptions(jproj);
+    	// map is large enough to also include the programmatically generated options
+    	Map<String, String> options = new HashMap<String, String>(rawOptions.size() + 6);
+    	
+    	// Resolve path metavariables like %ROOT%
+    	for (Map.Entry<String, String> entry : rawOptions.entrySet()) {
+    		String resolvedValue = resolveVarPath(jproj, entry.getValue());
+    		String value = (resolvedValue == null) ? entry.getValue() : resolvedValue;
+    		options.put(entry.getKey(), value);
+    	}
+    	
     	if (jproj == null) {
     		// there are no programmatically set options at the workspace level
     		return options;
@@ -233,7 +274,57 @@ public class AptConfig {
     	return options;
     }
     
-    // We need this as a separate method, as we'll put dependent projects' output
+	/**
+	 * If the value starts with a path variable such as %ROOT%, replace it with
+	 * the absolute path.
+	 * @param value the value of a -Akey=value command option
+	 */
+	private static String resolveVarPath(IJavaProject jproj, String value) {
+		if (value == null) {
+			return null;
+		}
+		// is there a token to substitute?
+		if (!Pattern.matches(PATHVAR_TOKEN, value)) {
+			return value;
+		}
+		IPath path = new Path(value);
+		String firstToken = path.segment(0);
+		// If it matches %ROOT%/project, it is a project-relative path.
+		if (PATHVAR_ROOT.equals(firstToken)) {
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IResource proj = root.findMember(path.segment(1));
+			if (proj == null) {
+				return value;
+			}
+			// all is well; do the substitution
+			IPath relativePath = path.removeFirstSegments(2);
+			IPath absoluteProjPath = proj.getLocation();
+			IPath absoluteResPath = absoluteProjPath.append(relativePath);
+			return absoluteResPath.toOSString();
+		}
+		
+		// If it matches %PROJECT.DIR%/project, the path is relative to the current project.
+		if (jproj != null && PATHVAR_PROJECTROOT.equals(firstToken)) {
+			// all is well; do the substitution
+			IPath relativePath = path.removeFirstSegments(1);
+			IPath absoluteProjPath = jproj.getProject().getLocation();
+			IPath absoluteResPath = absoluteProjPath.append(relativePath);
+			return absoluteResPath.toOSString();
+		}
+		
+		// otherwise it's a classpath-var-based path.
+		String cpvName = firstToken.substring(1, firstToken.length() - 1);
+		IPath cpvPath = JavaCore.getClasspathVariable(cpvName);
+		if (cpvPath != null) {
+			IPath resolved = cpvPath.append(path.removeFirstSegments(1));
+			return resolved.toOSString();
+		}
+		else {
+			return value;
+		}
+	}
+	
+	// We need this as a separate method, as we'll put dependent projects' output
     // on the classpath
     private static void addProjectClasspath(
     		IWorkspaceRoot root,

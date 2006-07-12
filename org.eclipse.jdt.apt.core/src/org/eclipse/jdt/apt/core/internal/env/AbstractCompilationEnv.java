@@ -17,14 +17,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject;
@@ -32,13 +26,11 @@ import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
-import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.BuildContext;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.Annotation;
@@ -54,21 +46,9 @@ public abstract class AbstractCompilationEnv
 	extends BaseProcessorEnv 
 	implements EclipseAnnotationProcessorEnvironment{
 	
-	/** regex to identify substituted token in path variables */
-	private static final String PATHVAR_TOKEN = "^%[^%/\\\\ ]+%.*"; //$NON-NLS-1$
-	/** path variable meaning "workspace root" */
-	private static final String PATHVAR_ROOT = "%ROOT%"; //$NON-NLS-1$
-	/** path variable meaning "project root" */
-	private static final String PATHVAR_PROJECTROOT = "%PROJECT.DIR%"; //$NON-NLS-1$
-
 	private Set<AnnotationProcessorListener> _listeners = null;
 	
 	protected List<APTProblem> _problems = new ArrayList<APTProblem>();
-	/**
-	 * Processor options, including -A options.
-	 * Set in ctor and then not changed.
-	 */
-	private Map<String, String> _options;
 	private boolean _isClosed = false;
 	
 	EnvCallback _callback;
@@ -111,7 +91,6 @@ public abstract class AbstractCompilationEnv
 			Phase phase)
 	{
 		super(compilationUnit, file, javaProj, phase);
-		initOptions(javaProj);
 	}
 	
 	@Override
@@ -141,94 +120,6 @@ public abstract class AbstractCompilationEnv
 		if( _listeners == null )
 			return Collections.emptySet();
 		return Collections.unmodifiableSet(_listeners);
-	}
-	
-	/**
-     * Set the _options map based on the current project/workspace settings.
-     * There is a bug in Sun's apt implementation: it parses the command line 
-     * incorrectly, such that -Akey=value gets added to the options map as 
-     * key "-Akey=value" and value "".  In order to support processors written 
-     * to run on Sun's apt as well as processors written without this bug
-     * in mind, we populate the map with two copies of every option, one the
-     * expected way ("key" / "value") and the other the Sun way 
-     * ("-Akey=value" / "").  We make exceptions for the non-dash-A options
-     * that we set automatically, such as -classpath, -target, and so forth;
-     * since these wouldn't have come from a -A option we don't construct a
-     * -Akey=value variant.
-     * 
-     * Called from constructor.  A new Env is constructed for each build pass,
-     * so this will always be up to date with the latest settings.
-	 */
-	private void initOptions(IJavaProject jproj) {
-		Map<String, String> procOptions = AptConfig.getProcessorOptions(jproj);
-		_options = new HashMap<String, String>(procOptions.size() * 2);
-		
-		// Add configured options
-		for (Map.Entry<String, String> entry : procOptions.entrySet()) {
-			String value = resolveVarPath(jproj, entry.getValue());
-			String key = entry.getKey();
-			_options.put(key, value);
-			if (!AptConfig.isAutomaticProcessorOption(key)) {
-				String sunStyle;
-				if (value != null) {
-					sunStyle = "-A" + entry.getKey() + "=" + value; //$NON-NLS-1$ //$NON-NLS-2$
-				}
-				else {
-					sunStyle = "-A" + entry.getKey(); //$NON-NLS-1$
-				}
-				_options.put(sunStyle, ""); //$NON-NLS-1$
-			}
-		}
-	}
-
-	/**
-	 * If the value starts with a path variable such as %ROOT%, replace it with
-	 * the absolute path.
-	 * @param value the value of a -Akey=value command option
-	 */
-	private String resolveVarPath(IJavaProject jproj, String value) {
-		if (value == null) {
-			return null;
-		}
-		// is there a token to substitute?
-		if (!Pattern.matches(PATHVAR_TOKEN, value)) {
-			return value;
-		}
-		IPath path = new Path(value);
-		String firstToken = path.segment(0);
-		// If it matches %ROOT%/project, it is a project-relative path.
-		if (PATHVAR_ROOT.equals(firstToken)) {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IResource proj = root.findMember(path.segment(1));
-			if (proj == null) {
-				return value;
-			}
-			// all is well; do the substitution
-			IPath relativePath = path.removeFirstSegments(2);
-			IPath absoluteProjPath = proj.getLocation();
-			IPath absoluteResPath = absoluteProjPath.append(relativePath);
-			return absoluteResPath.toOSString();
-		}
-		
-		// If it matches %PROJECT.DIR%/project, the path is relative to the current project.
-		if (jproj != null && PATHVAR_PROJECTROOT.equals(firstToken)) {
-			// all is well; do the substitution
-			IPath relativePath = path.removeFirstSegments(1);
-			IPath absoluteProjPath = jproj.getProject().getLocation();
-			IPath absoluteResPath = absoluteProjPath.append(relativePath);
-			return absoluteResPath.toOSString();
-		}
-		
-		// otherwise it's a classpath-var-based path.
-		String cpvName = firstToken.substring(1, firstToken.length() - 1);
-		IPath cpvPath = JavaCore.getClasspathVariable(cpvName);
-		if (cpvPath != null) {
-			IPath resolved = cpvPath.append(path.removeFirstSegments(1));
-			return resolved.toOSString();
-		}
-		else {
-			return value;
-		}
 	}
 	
 	public Map<String, String> getOptions()
