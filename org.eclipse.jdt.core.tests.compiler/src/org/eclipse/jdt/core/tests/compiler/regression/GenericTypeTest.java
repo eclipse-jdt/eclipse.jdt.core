@@ -32390,7 +32390,7 @@ public void test1021b() { // should this case be allowed?
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150294
-public void test1022() { // should this case be allowed?
+public void test1022() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -32420,6 +32420,51 @@ public void test1022() { // should this case be allowed?
 		"	Class<? extends T> clazz = input.getClass();\n" + 
 		"	                           ^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Class<capture#3-of ? extends Object> to Class<? extends T>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150362
+public void test1023() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" + 
+			"import java.util.Properties;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Properties props = new Properties();\n" + 
+			"		for (Map.Entry<String, ?> entry : props.entrySet()) {\n" + 
+			"			System.out.println(entry);\n" + 
+			"		}\n" + 
+			"		for (Map.Entry<String, ?> entry : ((Map<String, ?>) props).entrySet()) {\n" + 
+			"			System.out.println(entry);\n" + 
+			"		}\n" + 
+			"		for (Map.Entry<Object, ?> entry : ((Map<Object, ?>) props).entrySet()) {\n" + 
+			"			System.out.println(entry);\n" + 
+			"		}\n" + 
+			"		for (Map.Entry<Object, ?> entry : props.entrySet()) {\n" + 
+			"			System.out.println(entry);\n" + 
+			"		}\n" + 
+			"		for (Map.Entry<?, ?> entry : ((Map<?, ?>) props).entrySet()) {\n" + 
+			"			System.out.println(entry);\n" + 
+			"		}\n" + 
+			"		for (Map.Entry<?, ?> entry : props.entrySet()) {\n" + 
+			"			System.out.println(entry);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}", // =================,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	for (Map.Entry<String, ?> entry : props.entrySet()) {\n" + 
+		"	                                  ^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from element type Map.Entry<Object,Object> to Map.Entry<String,?>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	for (Map.Entry<String, ?> entry : ((Map<String, ?>) props).entrySet()) {\n" + 
+		"	                                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Properties to Map<String,?>\n" + 
 		"----------\n");
 }
 }
