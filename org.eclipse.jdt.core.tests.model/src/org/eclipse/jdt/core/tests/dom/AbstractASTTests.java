@@ -261,7 +261,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	 * by "*start*" and "*end*".
 	 */
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
-		return buildAST(newContents, cu, reportErrors, false);
+		return buildAST(newContents, cu, reportErrors, false/*no statement recovery*/);
 	}
 
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery) throws JavaModelException {
