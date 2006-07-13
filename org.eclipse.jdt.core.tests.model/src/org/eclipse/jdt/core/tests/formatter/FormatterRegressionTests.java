@@ -54,7 +54,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 624 } ;
+//		TESTS_NUMBERS = new int[] { 625 } ;
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -8873,5 +8873,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		} finally {
 			JavaCore.setOptions(javaCoreOptions);
 		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
+	// TODO (olivier) renable once the formatter is aware of CombinedBinaryExpression
+	public void _test625() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test625", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
