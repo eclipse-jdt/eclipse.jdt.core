@@ -74,11 +74,19 @@ public abstract class WorkingCopyOwner {
 	
 	/**
 	 * Returns a new working copy with the given name using this working copy owner to 
-	 * create its buffer. This working copy doesn't belong to any package, thus its 
-	 * parent is always <code>null</code> and it cannot be resolved in any way.
-	 * Problems are never reported and a DOM AST created using this working copy
-	 * will not have bindings resolved.
+	 * create its buffer. 
 	 * <p>
+	 * This working copy always belongs to the default package in a package
+	 * fragment root that corresponds to its Java project, and this Java project never exists.
+	 * However this Java project has the given classpath that is used when resolving names
+	 * in this working copy.
+	 * </p><p>
+	 * A DOM AST created using this working copy will have bindings resolved using the given
+	 * classpath, and problem are reported to the given problem requestor.
+	 * <p></p>
+	 * <code>JavaCore#getOptions()</code> is used to create the DOM AST as it is not
+	 * possible to set the options on the non-existing Java project.
+	 * </p><p>
 	 * When the working copy instance is created, an {@link IJavaElementDelta#ADDED added delta} is 
 	 * reported on this working copy.
 	 * </p><p>
@@ -90,11 +98,18 @@ public abstract class WorkingCopyOwner {
 	 * </p><p>
 	 * This method is not intended to be overriden by clients.
 	 * </p>
-	 * @param monitor a progress monitor used to report progress while opening this 
-	 *   working copy or <code>null</code> if no progress should be reported 
+	 * 
+	 * @param name the name of the working copy (e.g. "X.java")
+	 * @param classpath the classpath used to resolve names in this working copy
+	 * @param problemRequestor a requestor which will get notified of problems detected during
+	 * 	reconciling as they are discovered. The requestor can be set to <code>null</code> indicating
+	 * 	that the client is not interested in problems.
+	 * @param monitor a progress monitor used to report progress while opening the working copy
+	 * 	or <code>null</code> if no progress should be reported 
 	 * @throws JavaModelException if the contents of this working copy can
 	 *   not be determined. 
 	 * @return a new working copy
+	 * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, IProgressMonitor)
 	 * @since 3.2
 	 */
 	public final ICompilationUnit newWorkingCopy(String name, IClasspathEntry[] classpath, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
