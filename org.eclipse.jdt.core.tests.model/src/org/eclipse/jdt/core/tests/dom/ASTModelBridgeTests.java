@@ -130,16 +130,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		this.workingCopy = getCompilationUnit("/P/src/X.java").getWorkingCopy(
 			new WorkingCopyOwner() {}, 
 			new IProblemRequestor() {
-				public void acceptProblem(IProblem problem) {
-					System.err.println(problem.getMessage());
-				}
+				public void acceptProblem(IProblem problem) {}
 				public void beginReporting() {}
 				public void endReporting() {}
 				public boolean isActive() {
 					return true;
 				}
 			}, 
-			null);
+			null/*no progress*/);
 	}
 	
 	public void tearDownSuite() throws Exception {
@@ -962,7 +960,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a method is correct.
 	 */
-	public void testMethod1() throws JavaModelException {
+	public void testMethod01() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X<K, V> {\n" +
 			"  /*start*/void foo(int i, Object o, java.lang.String s, Class[] c, X<K, V> x) {\n" +
@@ -983,7 +981,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a method is correct.
 	 */
-	public void testMethod2() throws JavaModelException {
+	public void testMethod02() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X<K, V> {\n" +
 			"  /*start*/void foo() {\n" +
@@ -1005,7 +1003,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * Ensures that the IJavaElement of an IBinding representing a method is correct.
 	 * (regression test for bug 78757 MethodBinding.getJavaElement() returns null)
 	 */
-	public void testMethod3() throws JavaModelException {
+	public void testMethod03() throws JavaModelException {
 		ICompilationUnit otherWorkingCopy = null;
 		try {
 			otherWorkingCopy = getWorkingCopy(
@@ -1043,7 +1041,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * Ensures that the IJavaElement of an IBinding representing a method is correct.
 	 * (regression test for bug 81258 IMethodBinding#getJavaElement() is null with inferred method parameterization)
 	 */
-	public void testMethod4() throws JavaModelException {
+	public void testMethod04() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" + 
 			"	void foo() {\n" + 
@@ -1072,7 +1070,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * Ensures that the IJavaElement of an IBinding representing a parameterized method is correct.
 	 * (regression test for bug 82382 IMethodBinding#getJavaElement() for method m(T t) in parameterized type Gen<T> is null)
 	 */
-	public void testMethod5() throws JavaModelException {
+	public void testMethod05() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X<T> {\n" + 
 			"    void m(T t) { }\n" + 
@@ -1099,7 +1097,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * Ensures that the IJavaElement of an IBinding representing a method inside an annotation is correct.
 	 * (regression test for bug 83300 [1.5] ClassCastException in #getJavaElement() on binding of annotation element)
 	 */
-	public void testMethod6() throws JavaModelException {
+	public void testMethod06() throws JavaModelException {
 		ASTNode node = buildAST(
 			"@X(/*start*/value/*end*/=\"Hello\", count=-1)\n" + 
 			"@interface X {\n" + 
@@ -1122,7 +1120,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * Ensures that the IJavaElement of an IBinding representing a method with array parameters is correct.
 	 * (regression test for bug 88769 IMethodBinding#getJavaElement() drops extra array dimensions and varargs
 	 */
-	public void testMethod7() throws JavaModelException {
+	public void testMethod07() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
 			"  /*start*/public int[] bar(int a[]) {\n" +
@@ -1145,7 +1143,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * Ensures that the IJavaElement of an IBinding representing a method with array parameters is correct.
 	 * (regression test for bug 88769 IMethodBinding#getJavaElement() drops extra array dimensions and varargs
 	 */
-	public void testMethod8() throws JavaModelException {
+	public void testMethod08() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
 			"  /*start*/public Object[] bar2(Object[] o[][]) [][] {\n" +
@@ -1168,7 +1166,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * Ensures that the IJavaElement of an IBinding representing a method with varargs parameters is correct.
 	 * (regression test for bug 88769 IMethodBinding#getJavaElement() drops extra array dimensions and varargs
 	 */
-	public void testMethod9() throws JavaModelException {
+	public void testMethod09() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
 			"  /*start*/public void bar3(Object... objs) {\n" +
@@ -1184,6 +1182,43 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			element
 		);
 		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that getting the IJavaElement of an IBinding representing a method in an anonymous type
+	 * doesn't throw a ClassCastException if there is a syntax error.
+	 * (regression test for bug 149853 CCE in IMethodBinding#getJavaElement() for recovered anonymous type)
+	 */
+	public void _testMethod10() throws CoreException {
+		try {
+			// use a compilation unit instead of a working copy to use the ASTParser instead of reconcile
+			createFile(
+				"/P/src/Test.java",
+				"public class X {\n" + 
+				"        void test() {\n" + 
+				"                new Object() {\n" + 
+				"                        /*start*/public void yes() {\n" + 
+				"                                System.out.println(\"hello world\");\n" + 
+				"                        }/*end*/\n" + 
+				"                } // missing semicolon;\n" + 
+				"        }\n" + 
+				"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("/P/src/Test.java");
+			
+			ASTNode node = buildAST(null/*use existing contents*/, cu, false/*don't report errors*/, true/*statement recovery*/);
+			IBinding binding = ((MethodDeclaration) node).resolveBinding();
+			assertNotNull("No binding", binding);
+			IJavaElement element = binding.getJavaElement();
+			assertElementEquals(
+				"Unexpected Java element",
+				"yes() [in <anonymous #1> [in test() [in X [in Test.java [in <default> [in src [in P]]]]]]]",
+				element
+			);
+			assertTrue("Element should exist", element.exists());
+		} finally {
+			deleteFile("/P/src/Test.java");
+		}
 	}
 
 	/*
