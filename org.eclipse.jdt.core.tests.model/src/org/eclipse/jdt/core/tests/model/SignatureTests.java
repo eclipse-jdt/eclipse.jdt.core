@@ -734,12 +734,12 @@ public void testGetSimpleName02() {
 	assertEquals("Signature#getSimpleName is not correct 2", "",
 			Signature.getSimpleName(""));
 }
-public void _testGetSimpleName03() {
+public void testGetSimpleName03() {
 	assertEquals("Signature#getSimpleName is not correct 3", 
 			"MapEntry<K<T>[],V2[]>",
 			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>"));
 }
-public void _testGetSimpleName04() {
+public void testGetSimpleName04() {
 	assertEquals("Signature#getSimpleName is not correct 4", 
 			"MapEntry<K<T>[],? extends V2>",
 			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],? extends q.r.V2>"));	

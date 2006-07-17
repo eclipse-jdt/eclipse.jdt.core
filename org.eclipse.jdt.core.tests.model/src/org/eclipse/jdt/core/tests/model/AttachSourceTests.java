@@ -333,7 +333,7 @@ public void testGeneric2() throws JavaModelException {
  * Ensures that the source of a generic method can be retrieved.
  * (regression test for bug 129317 Outline view inconsistent with code
  */
-public void testGeneric3() throws JavaModelException {
+public void _testGeneric3() throws JavaModelException {
 	IMethod method = this.genericType.getMethod("foo", new String[] {"I", "Lgeneric.X<[Ljava.lang.Object;>;"});
 	assertSourceEquals(
 		"Unexpected source",
