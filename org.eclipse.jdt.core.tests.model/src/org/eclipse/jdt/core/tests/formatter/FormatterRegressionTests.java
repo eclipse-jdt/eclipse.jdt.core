@@ -8876,8 +8876,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 	// TODO (olivier) renable once the formatter is aware of CombinedBinaryExpression
-	public void _test625() {
+	public void test625() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
+				DefaultCodeFormatterConstants.createAlignmentValue(
+						true,
+						DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
+						DefaultCodeFormatterConstants.INDENT_DEFAULT));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test625", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$

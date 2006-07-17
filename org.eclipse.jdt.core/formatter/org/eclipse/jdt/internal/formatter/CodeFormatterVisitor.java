@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
 import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.Clinit;
+import org.eclipse.jdt.internal.compiler.ast.CombinedBinaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
@@ -200,6 +201,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	private BinaryExpressionFragmentBuilder buildFragments(BinaryExpression binaryExpression, BlockScope scope) {
 		BinaryExpressionFragmentBuilder builder = new BinaryExpressionFragmentBuilder();
 
+		if (binaryExpression instanceof CombinedBinaryExpression) {
+			binaryExpression.traverse(builder, scope);
+			return builder;
+		}
 		switch((binaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
 			case OperatorIds.MULTIPLY :
 				binaryExpression.left.traverse(builder, scope);
