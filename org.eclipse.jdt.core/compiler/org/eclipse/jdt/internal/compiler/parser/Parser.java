@@ -8937,7 +8937,7 @@ protected void parse() {
 					this.recoveryScanner.getData();
 			}
 			
-			if (this.methodRecoveryActivated) {
+			if (this.methodRecoveryActivated && this.options.performStatementsRecovery) {
 				this.methodRecoveryActivated = false;
 				this.recoverStatements();
 				this.methodRecoveryActivated = true;
@@ -8959,7 +8959,7 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, bo
 	//convert bugs into parse error
 
 	boolean oldMethodRecoveryActivated = this.methodRecoveryActivated;
-	if(this.options.performStatementsRecovery) {
+	if(this.options.performMethodsFullRecovery) {
 		this.methodRecoveryActivated = true;
 	}
 	
@@ -9139,7 +9139,7 @@ public void parse(
 	//convert bugs into parse error
 
 	boolean oldMethodRecoveryActivated = this.methodRecoveryActivated;
-	if(this.options.performStatementsRecovery) {
+	if(this.options.performMethodsFullRecovery) {
 		this.methodRecoveryActivated = true;
 	}
 	
@@ -9201,7 +9201,7 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 		return;
 
 	boolean oldMethodRecoveryActivated = this.methodRecoveryActivated;
-	if(this.options.performStatementsRecovery) {
+	if(this.options.performMethodsFullRecovery) {
 		this.methodRecoveryActivated = true;
 		this.rParenPos = md.sourceEnd;
 	}
@@ -9976,7 +9976,11 @@ protected boolean resumeOnSyntaxError() {
 	/* attempt to reset state in order to resume to parse loop */
 	return this.resumeAfterRecovery();
 }
+public void setMethodsFullRecovery(boolean enabled) {
+	this.options.performMethodsFullRecovery = enabled;
+}
 public void setStatementsRecovery(boolean enabled) {
+	if(enabled) this.options.performMethodsFullRecovery = true;
 	this.options.performStatementsRecovery = enabled;
 }
 public String toString() {

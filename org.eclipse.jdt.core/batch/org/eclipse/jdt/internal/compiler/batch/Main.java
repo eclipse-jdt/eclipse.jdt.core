@@ -2854,6 +2854,7 @@ public void performCompilation() throws InvalidInputException {
 
 	INameEnvironment environment = getLibraryAccess();
 	this.compilerOptions = new CompilerOptions(this.options);
+	this.compilerOptions.performMethodsFullRecovery = false;
 	this.compilerOptions.performStatementsRecovery = false;
 	this.batchCompiler =
 		new Compiler(

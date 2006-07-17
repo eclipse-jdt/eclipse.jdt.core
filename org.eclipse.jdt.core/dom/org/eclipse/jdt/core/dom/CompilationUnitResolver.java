@@ -259,6 +259,7 @@ class CompilationUnitResolver extends Compiler {
 	
 	protected static CompilerOptions getCompilerOptions(Map options, boolean statementsRecovery) {
 		CompilerOptions compilerOptions = new CompilerOptions(options);
+		compilerOptions.performMethodsFullRecovery = statementsRecovery;
 		compilerOptions.performStatementsRecovery = statementsRecovery;
 		compilerOptions.parseLiteralExpressionsAsConstants = false;
 		compilerOptions.storeAnnotations = true /*store annotations in the bindings*/;
@@ -378,6 +379,7 @@ class CompilationUnitResolver extends Compiler {
 			throw new IllegalStateException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		compilerOptions.performMethodsFullRecovery = statementsRecovery;
 		compilerOptions.performStatementsRecovery = statementsRecovery;
 		Parser parser = new CommentRecorderParser(
 			new ProblemReporter(

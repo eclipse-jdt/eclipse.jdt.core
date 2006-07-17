@@ -83,6 +83,7 @@ public static void compile(String[] pathsAndContents, Map options, String output
 				}
 			};
 		CompilerOptions compilerOptions = new CompilerOptions(options);
+		compilerOptions.performMethodsFullRecovery = false;
 		compilerOptions.performStatementsRecovery = false;
 		Compiler batchCompiler = 
 			new Compiler(

@@ -389,6 +389,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				options.putAll(customOptions);
 			}
 			CompilerOptions compilerOptions = new CompilerOptions(options);
+			compilerOptions.performMethodsFullRecovery = false;
 			compilerOptions.performStatementsRecovery = false;
 			Compiler batchCompiler = 
 				new Compiler(
@@ -498,6 +499,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				false /* show warning token*/);
 		
 		CompilerOptions compilerOptions = new CompilerOptions(getCompilerOptions());
+		compilerOptions.performMethodsFullRecovery = false;
 		compilerOptions.performStatementsRecovery = false;
 		Compiler batchCompiler = 
 			new Compiler(
@@ -657,6 +659,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				options.putAll(customOptions);
 			}
 			CompilerOptions compilerOptions = new CompilerOptions(options);
+			compilerOptions.performMethodsFullRecovery = performStatementsRecovery;
 			compilerOptions.performStatementsRecovery = performStatementsRecovery;
 			Compiler batchCompiler = 
 				new Compiler(
@@ -728,6 +731,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			options.putAll(customOptions);
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(options);
+		compilerOptions.performMethodsFullRecovery = false;
 		compilerOptions.performStatementsRecovery = false;
 		Compiler batchCompiler = 
 			new Compiler(

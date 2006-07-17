@@ -419,6 +419,7 @@ protected Compiler newCompiler() {
 	
 	// called once when the builder is initialized... can override if needed
 	CompilerOptions compilerOptions = new CompilerOptions(projectOptions);
+	compilerOptions.performMethodsFullRecovery = true;
 	compilerOptions.performStatementsRecovery = true;
 	Compiler newCompiler = new Compiler(
 		nameEnvironment,

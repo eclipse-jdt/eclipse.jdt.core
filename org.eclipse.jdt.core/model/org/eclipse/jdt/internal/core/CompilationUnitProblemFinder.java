@@ -115,6 +115,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 
 	protected static CompilerOptions getCompilerOptions(Map settings, boolean creatingAST, boolean statementsRecovery) {
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		compilerOptions.performMethodsFullRecovery = statementsRecovery;
 		compilerOptions.performStatementsRecovery = statementsRecovery;
 		compilerOptions.parseLiteralExpressionsAsConstants = !creatingAST; /*parse literal expressions as constants only if not creating a DOM AST*/
 		compilerOptions.storeAnnotations = creatingAST; /*store annotations in the bindings if creating a DOM AST*/

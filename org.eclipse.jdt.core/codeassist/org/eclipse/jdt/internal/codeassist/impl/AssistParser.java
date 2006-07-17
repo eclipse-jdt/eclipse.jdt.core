@@ -76,6 +76,7 @@ public AssistParser(ProblemReporter problemReporter) {
 	super(problemReporter, true);
 	this.javadocParser.checkDocComment = false;
 	
+	this.setMethodsFullRecovery(false);
 	this.setStatementsRecovery(false);
 }
 public abstract char[] assistIdentifier();

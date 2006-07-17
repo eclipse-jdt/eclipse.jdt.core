@@ -62,6 +62,7 @@ public void checkParse(
 					new CompilerOptions(getCompilerOptions()), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals);
+		parser.setMethodsFullRecovery(false);
 		parser.setStatementsRecovery(false);
 		
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
@@ -109,6 +110,7 @@ public void checkParse(
 					new CompilerOptions(getCompilerOptions()), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals);
+		parser.setMethodsFullRecovery(false);
 		parser.setStatementsRecovery(false);
 
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
@@ -184,6 +186,7 @@ public void checkParse(
 					new CompilerOptions(getCompilerOptions()), 
 					new DefaultProblemFactory(Locale.getDefault())),
 				optimizeStringLiterals);
+		parser.setMethodsFullRecovery(false);
 		parser.setStatementsRecovery(false);
 
 		ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);

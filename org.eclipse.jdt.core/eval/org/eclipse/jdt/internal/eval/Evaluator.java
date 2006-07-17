@@ -160,6 +160,7 @@ protected abstract char[] getClassName();
  */
 Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 	CompilerOptions compilerOptions = new CompilerOptions(this.options);
+	compilerOptions.performMethodsFullRecovery = true;
 	compilerOptions.performStatementsRecovery = true;
 	return new Compiler(
 		this.environment, 

@@ -48,6 +48,7 @@ public DocumentElementParser(
 	this.options = options;
 	this.javadocParser.checkDocComment = false;
 	
+	this.setMethodsFullRecovery(false);
 	this.setStatementsRecovery(false);
 }
 /*

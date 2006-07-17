@@ -126,6 +126,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		true/*report local declarations*/,
 		!createAST /*optimize string literals only if not creating a DOM AST*/);
 	parser.reportOnlyOneSyntaxError = !computeProblems;
+	parser.setMethodsFullRecovery(true);
 	parser.setStatementsRecovery(statementsRecovery);
 	
 	if (!computeProblems && !resolveBindings && !createAST) // disable javadoc parsing if not computing problems, not resolving and not creating ast

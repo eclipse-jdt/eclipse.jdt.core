@@ -62,6 +62,7 @@ public class CodeSnippetParsingUtil {
 					new DefaultProblemFactory(Locale.getDefault()));
 					
 		CommentRecorderParser parser = new CommentRecorderParser(problemReporter, false);
+		parser.setMethodsFullRecovery(false);
 		parser.setStatementsRecovery(false);
 		
 		ICompilationUnit sourceUnit = 
@@ -173,6 +174,7 @@ public class CodeSnippetParsingUtil {
 					compilerOptions, 
 					new DefaultProblemFactory(Locale.getDefault()));
 		CommentRecorderParser parser = new CommentRecorderParser(problemReporter, false);
+		parser.setMethodsFullRecovery(false);
 		parser.setStatementsRecovery(enabledStatementRecovery);
 		
 		ICompilationUnit sourceUnit = 

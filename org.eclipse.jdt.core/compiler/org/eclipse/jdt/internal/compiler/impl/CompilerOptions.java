@@ -289,6 +289,9 @@ public class CompilerOptions {
 	public boolean treatOptionalErrorAsFatal = true;
 	
 	// parser perform statements recovery 
+	public boolean performMethodsFullRecovery = true;
+	
+	// parser perform statements recovery 
 	public boolean performStatementsRecovery = true;
 	
 	// store annotations

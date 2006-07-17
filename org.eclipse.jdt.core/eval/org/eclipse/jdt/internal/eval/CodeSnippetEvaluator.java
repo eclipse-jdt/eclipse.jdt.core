@@ -117,6 +117,7 @@ Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 		// the code snippet support classes
 
 		CompilerOptions compilerOptions = new CompilerOptions(this.options);
+		compilerOptions.performMethodsFullRecovery = true;
 		compilerOptions.performStatementsRecovery = true;
 		compiler = 
 			new CodeSnippetCompiler(
@@ -153,6 +154,7 @@ Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 		// then a default implementation is provided.
 
 		CompilerOptions compilerOptions = new CompilerOptions(this.options);
+		compilerOptions.performMethodsFullRecovery = true;
 		compilerOptions.performStatementsRecovery = true;
 		compiler = new Compiler(
 			getWrapperEnvironment(), 
