@@ -726,26 +726,40 @@ public void testGetTypeErasure8() {
 /**
  * @see Signature
  */
-public void testGetSimpleName() {
+public void testGetSimpleName01() {
 	assertEquals("Signature#getSimpleName is not correct 1", "Object",
 			Signature.getSimpleName("java.lang.Object"));
+}
+public void testGetSimpleName02() {
 	assertEquals("Signature#getSimpleName is not correct 2", "",
 			Signature.getSimpleName(""));
+}
+public void _testGetSimpleName03() {
 	assertEquals("Signature#getSimpleName is not correct 3", 
 			"MapEntry<K<T>[],V2[]>",
 			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>"));
+}
+public void _testGetSimpleName04() {
 	assertEquals("Signature#getSimpleName is not correct 4", 
 			"MapEntry<K<T>[],? extends V2>",
 			Signature.getSimpleName("java.y.Map<Object[],String>.MapEntry<p.K<T>[],? extends q.r.V2>"));	
+}
+public void testGetSimpleName05() {
 	assertEquals("Unexpected simple name", "List<?>", Signature.getSimpleName("List<?>"));
+}
+public void testGetSimpleName06() {
 	assertEquals("Unexpected simple name", "List<? extends E>", Signature.getSimpleName("List<?extends E>"));
+}
+public void testGetSimpleName07() {
 	assertEquals("Unexpected simple name", "List<? super E>", Signature.getSimpleName("List<?super E>"));
+}
+public void testGetSimpleName08() {
 	assertEquals("Unexpected simple name", "List<+Comparable<-TT;>;>;", Signature.getSimpleName("	java.util.List<+Ljava.lang.Comparable<-TT;>;>;"));
 }
 /**
  * @see Signature
  */
-public void testGetSimpleNames1() {
+public void testGetSimpleNames01() {
 	assertStringsEqual(
 		"Unexpected simple names",
 		"java\n" + 
@@ -753,19 +767,19 @@ public void testGetSimpleNames1() {
 		"Object\n",
 		Signature.getSimpleNames("java.lang.Object"));
 }
-public void testGetSimpleNames2() {
+public void testGetSimpleNames02() {
 	assertStringsEqual(
 		"Unexpected simple names",
 		"",
 		Signature.getSimpleNames(""));
 }
-public void testGetSimpleNames3() {
+public void testGetSimpleNames03() {
 	assertStringsEqual(
 		"Unexpected simple names",
 		"Object\n",
 		Signature.getSimpleNames("Object"));
 }
-public void testGetSimpleNames4() {
+public void testGetSimpleNames04() {
 	assertStringsEqual(
 		"Unexpected simple names",
 		"java\n" + 
