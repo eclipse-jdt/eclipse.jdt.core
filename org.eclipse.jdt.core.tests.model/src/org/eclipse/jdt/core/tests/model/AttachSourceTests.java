@@ -84,6 +84,8 @@ private void setUpGenericJar() throws IOException, CoreException {
 		"  <K, V> V foo(K key, V value) {\n" +
 		"    return value;\n" +
 		"  }\n" +
+		"  void foo(int i, X<Object[]> x) {\n" +
+		"  }\n" +
 		"}"
 	};
 	IJavaProject project = getJavaProject("AttachSourceTests");
@@ -324,6 +326,18 @@ public void testGeneric2() throws JavaModelException {
 		"Unexpected source",
 		"<K, V> V foo(K key, V value) {\n" + 
 		"    return value;\n" + 
+		"  }",
+		method.getSource());
+}
+/*
+ * Ensures that the source of a generic method can be retrieved.
+ * (regression test for bug 129317 Outline view inconsistent with code
+ */
+public void testGeneric3() throws JavaModelException {
+	IMethod method = this.genericType.getMethod("foo", new String[] {"I", "Lgeneric.X<[Ljava.lang.Object;>;"});
+	assertSourceEquals(
+		"Unexpected source",
+		"void foo(int i, X<Object[]> x) {\n" + 
 		"  }",
 		method.getSource());
 }

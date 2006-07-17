@@ -1984,6 +1984,9 @@ private static void appendArgumentSimpleNames(char[] name, int start, int end, S
 					argumentStart = i+1;					
 				}
 				break;
+			case '[' :
+				buffer.append('[');
+				break;
 		}
 	}
 	buffer.append('>');

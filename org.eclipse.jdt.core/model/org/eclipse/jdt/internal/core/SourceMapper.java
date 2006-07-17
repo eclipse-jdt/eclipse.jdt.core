@@ -1096,6 +1096,9 @@ public class SourceMapper
 							unqualifiedName.append(current);
 							sigStart = true;
 							break;
+						case Signature.C_ARRAY :
+							unqualifiedName.append(current);
+							break;
 						default:
 							if (sigStart) {
 								switch(current) {
