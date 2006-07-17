@@ -1220,12 +1220,12 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 		// check for duplicate parameterized methods
 		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-			for (int i = 0; i < candidatesCount; i++) {
+			for (int i = 0; i < visiblesCount; i++) {
 				MethodBinding current = candidates[i];
 				if (current instanceof ParameterizedGenericMethodBinding)
 					current = ((ParameterizedGenericMethodBinding) current).originalMethod;
 				if (current instanceof ParameterizedMethodBinding)
-					for (int j = i + 1; j < candidatesCount; j++)
+					for (int j = i + 1; j < visiblesCount; j++)
 						if (current.declaringClass == candidates[j].declaringClass && current.areParametersEqual(candidates[j]))
 							return new ProblemMethodBinding(candidates[i].selector, candidates[i].parameters, ProblemReasons.Ambiguous);
 			}

@@ -2479,6 +2479,36 @@ public void test074() {
 			"----------\n");
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150758
+public void test075() {
+	this.runConformTest(
+			new String[] {
+				"package1/Test.java",//===================
+				"package package1;\n" + 
+				"import package2.MyList;\n" + 
+				"public class Test {\n" + 
+				"        public void reproduce(String sortKey, boolean isAscending) {\n" + 
+				"                MyList recList = new MyList();\n" + 
+				"                recList.add(null);\n" + 
+				"        }\n" + 
+				"}\n",//===================
+				"package2/MyList.java",//===================
+				"package package2;\n" + 
+				"import java.util.AbstractList;\n" + 
+				"import java.util.List;\n" + 
+				"public class MyList extends AbstractList implements List {\n" + 
+				"        void add(Integer i) {\n" + 
+				"        }\n" + 
+				"        public Object get(int index) {\n" + 
+				"                return null;\n" + 
+				"        }\n" + 
+				"        public int size() {\n" + 
+				"                return 0;\n" + 
+				"        }\n" + 
+				"}", // =================
+			},
+			"");
+}
 
 public static Class testClass() {	return LookupTest.class;
 }
