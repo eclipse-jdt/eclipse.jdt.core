@@ -86,6 +86,24 @@ private void setUpGenericJar() throws IOException, CoreException {
 		"  }\n" +
 		"  void foo(int i, X<Object[]> x) {\n" +
 		"  }\n" +
+		"  void foo(boolean b, X<? extends X> x) {\n" +
+		"  }\n" +
+		"  void foo(float f, X<?> x) {\n" +
+		"  }\n" +
+		"  void foo(Y<? extends Integer, ? extends Object> y) {\n" +
+		"  }\n" +
+		"  void foo(Z.Inner<Object> inner) {\n" +
+		"  }\n" +
+		"  void foo(AType<Object> t) {\n" +
+		"  }\n" +
+		"}\n" +
+		"class Y<K, V> {\n" +
+		"}\n" +
+		"class Z {\n" +
+		"  class Inner<E> {\n" +
+		"  }\n" +
+		"}\n" +
+		"class AType<E> {\n" + // type name containing character 'T'
 		"}"
 	};
 	IJavaProject project = getJavaProject("AttachSourceTests");
@@ -333,11 +351,51 @@ public void testGeneric2() throws JavaModelException {
  * Ensures that the source of a generic method can be retrieved.
  * (regression test for bug 129317 Outline view inconsistent with code
  */
-public void _testGeneric3() throws JavaModelException {
+public void testGeneric3() throws JavaModelException {
 	IMethod method = this.genericType.getMethod("foo", new String[] {"I", "Lgeneric.X<[Ljava.lang.Object;>;"});
 	assertSourceEquals(
 		"Unexpected source",
 		"void foo(int i, X<Object[]> x) {\n" + 
+		"  }",
+		method.getSource());
+}
+public void testGeneric4() throws JavaModelException {
+	IMethod method = this.genericType.getMethod("foo", new String[] {"Z", "Lgeneric.X<+Lgeneric.X;>;"});
+	assertSourceEquals(
+		"Unexpected source",
+		"void foo(boolean b, X<? extends X> x) {\n" + 
+		"  }",
+		method.getSource());
+}
+public void testGeneric5() throws JavaModelException {
+	IMethod method = this.genericType.getMethod("foo", new String[] {"F", "Lgeneric.X<*>;"});
+	assertSourceEquals(
+		"Unexpected source",
+		"void foo(float f, X<?> x) {\n" + 
+		"  }",
+		method.getSource());
+}
+public void testGeneric6() throws JavaModelException {
+	IMethod method = this.genericType.getMethod("foo", new String[] {"Lgeneric.Y<+Ljava.lang.Integer;+Ljava.lang.Object;>;"});
+	assertSourceEquals(
+		"Unexpected source",
+		"void foo(Y<? extends Integer, ? extends Object> y) {\n" + 
+		"  }",
+		method.getSource());
+}
+public void testGeneric7() throws JavaModelException {
+	IMethod method = this.genericType.getMethod("foo", new String[] {"Lgeneric.Z.Inner<Ljava.lang.Object;>;"});
+	assertSourceEquals(
+		"Unexpected source",
+		"void foo(Z.Inner<Object> inner) {\n" + 
+		"  }",
+		method.getSource());
+}
+public void testGeneric8() throws JavaModelException {
+	IMethod method = this.genericType.getMethod("foo", new String[] {"Lgeneric.AType<Ljava.lang.Object;>;"});
+	assertSourceEquals(
+		"Unexpected source",
+		"void foo(AType<Object> t) {\n" + 
 		"  }",
 		method.getSource());
 }

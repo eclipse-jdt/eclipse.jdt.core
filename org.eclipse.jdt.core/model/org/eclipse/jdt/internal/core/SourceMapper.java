@@ -307,14 +307,41 @@ public class SourceMapper
 			return CharOperation.NO_STRINGS;
 		String[] typeSigs = new String[n];
 		for (int i = 0; i < n; ++i) {
-			String typeSig = Signature.createTypeSignature(typeNames[i], false);
-			int lastIndex = typeSig.lastIndexOf('.');
-			if (lastIndex == -1) {
-				typeSigs[i] = typeSig;
+			char[] typeSig = Signature.createCharArrayTypeSignature(typeNames[i], false);
+			
+			// transforms signatures that contains a qualification into unqualified signatures
+			// e.g. "QX<+QMap.Entry;>;" becomes "QX<+QEntry;>;"
+			StringBuffer simpleTypeSig = null;
+			int start = 0;
+			int dot = -1;
+			int length = typeSig.length;
+			for (int j = 0; j < length; j++) {
+				switch (typeSig[j]) {
+					case Signature.C_UNRESOLVED:
+						if (simpleTypeSig != null)
+							simpleTypeSig.append(typeSig, start, j-start);
+						start = j;
+						break;
+					case Signature.C_DOT:
+						dot = j;
+						break;
+					case Signature.C_GENERIC_START:
+					case Signature.C_NAME_END:
+						if (dot > start) {
+							if (simpleTypeSig == null)
+								simpleTypeSig = new StringBuffer().append(typeSig, 0, start);
+							simpleTypeSig.append(Signature.C_UNRESOLVED);
+							simpleTypeSig.append(typeSig, dot+1, j-dot-1);
+							start = j;
+						}
+						break;
+				}
+			}
+			if (simpleTypeSig == null) {
+				typeSigs[i] = new String(typeSig);
 			} else {
-				int arrayEnd = 0;
-				while(typeSig.charAt(arrayEnd) == Signature.C_ARRAY) arrayEnd++;
-				typeSigs[i] = typeSig.substring(0, arrayEnd) + Signature.C_UNRESOLVED + typeSig.substring(lastIndex + 1, typeSig.length());
+				simpleTypeSig.append(typeSig, start, length-start);
+				typeSigs[i] = simpleTypeSig.toString();
 			}
 		}
 		return typeSigs;
@@ -1071,55 +1098,10 @@ public class SourceMapper
 		String[] qualifiedParameterTypes = method.getParameterTypes();
 		String[] unqualifiedParameterTypes = new String[qualifiedParameterTypes.length];
 		for (int i = 0; i < qualifiedParameterTypes.length; i++) {
-			StringBuffer unqualifiedName = new StringBuffer();
-			String qualifiedName = qualifiedParameterTypes[i];
-			int count = 0;
-			while (qualifiedName.charAt(count) == Signature.C_ARRAY) {
-				unqualifiedName.append(Signature.C_ARRAY);
-				++count;
-			}
-			char currentChar = qualifiedName.charAt(count);
-			if (currentChar == Signature.C_RESOLVED || currentChar == Signature.C_TYPE_VARIABLE) {
-				unqualifiedName.append(Signature.C_UNRESOLVED);
-				String simpleName = Signature.getSimpleName(qualifiedName.substring(count+1));
-				int lastDollar = simpleName.lastIndexOf('$');
-				hasDollar |= lastDollar != -1;
-				int start = noDollar ? lastDollar + 1 : 0;
-				boolean sigStart = false;
-				for (int j = start, length = simpleName.length(); j < length; j++) {
-					char current = simpleName.charAt(j);
-					switch (current) {
-						case Signature.C_SUPER:
-						case Signature.C_EXTENDS:
-						case Signature.C_GENERIC_START:
-						case Signature.C_NAME_END:
-							unqualifiedName.append(current);
-							sigStart = true;
-							break;
-						default:
-							if (sigStart) {
-								switch(current) {
-									case Signature.C_TYPE_VARIABLE :
-										unqualifiedName.append(Signature.C_UNRESOLVED);
-										break;
-									case Signature.C_GENERIC_END :
-									case Signature.C_STAR :
-										unqualifiedName.append(current);
-										break;
-									default:
-										unqualifiedName.append(Signature.C_UNRESOLVED);
-										unqualifiedName.append(current);
-								}
-								sigStart = false;
-							} else {
-								unqualifiedName.append(current);
-							}
-					}
-				}
-			} else {
-				unqualifiedName.append(qualifiedName.substring(count, qualifiedName.length()));
-			}
-			unqualifiedParameterTypes[i] = unqualifiedName.toString();
+			StringBuffer unqualifiedTypeSig = new StringBuffer();
+			getUnqualifiedTypeSignature(qualifiedParameterTypes[i], 0/*start*/, qualifiedParameterTypes[i].length(), unqualifiedTypeSig, noDollar);
+			unqualifiedParameterTypes[i] = unqualifiedTypeSig.toString();
+			hasDollar |= unqualifiedParameterTypes[i].lastIndexOf('$') != -1;
 		}
 		
 		IJavaElement[] result = new IJavaElement[2];
@@ -1130,6 +1112,83 @@ public class SourceMapper
 			result[1] = result[0];
 		}
 		return result;
+	}
+
+	private int getUnqualifiedTypeSignature(String qualifiedTypeSig, int start, int length, StringBuffer unqualifiedTypeSig, boolean noDollar) {
+		char firstChar = qualifiedTypeSig.charAt(start);
+		int end = start + 1;
+		boolean sigStart = false;
+		firstPass: for (int i = start; i < length; i++) {
+			char current = qualifiedTypeSig.charAt(i);
+			switch (current) {
+				case Signature.C_ARRAY :
+				case Signature.C_SUPER:
+				case Signature.C_EXTENDS:
+					unqualifiedTypeSig.append(current);
+					start = i + 1;
+					end = start + 1;
+					firstChar = qualifiedTypeSig.charAt(start);
+					break;
+				case Signature.C_RESOLVED :
+				case Signature.C_UNRESOLVED :
+				case Signature.C_TYPE_VARIABLE :
+					if (!sigStart) {
+						start = ++i;
+						sigStart = true;
+					}
+					break;
+				case Signature.C_NAME_END:
+				case Signature.C_GENERIC_START :
+					end = i;
+					break firstPass;
+				case Signature.C_STAR :
+					unqualifiedTypeSig.append(current);
+					start = i + 1;
+					end = start + 1;
+					firstChar = qualifiedTypeSig.charAt(start);
+					break;
+				case Signature.C_GENERIC_END :
+					return i;
+				case Signature.C_DOT:
+					start = ++i;
+					break;
+			}
+		}
+		switch (firstChar) {
+			case Signature.C_RESOLVED :
+			case Signature.C_UNRESOLVED :
+			case Signature.C_TYPE_VARIABLE :
+				unqualifiedTypeSig.append(Signature.C_UNRESOLVED);
+				if (noDollar) {
+					int lastDollar = qualifiedTypeSig.lastIndexOf('$', end);
+					if (lastDollar > start)
+						start = lastDollar + 1;
+				}
+				for (int i = start; i < length; i++) {
+					char current = qualifiedTypeSig.charAt(i);
+					switch (current) {
+						case Signature.C_GENERIC_START:
+							unqualifiedTypeSig.append(current);
+							i++;
+							do {
+								i = getUnqualifiedTypeSignature(qualifiedTypeSig, i, length, unqualifiedTypeSig, noDollar);
+							} while (qualifiedTypeSig.charAt(i) != Signature.C_GENERIC_END);
+							unqualifiedTypeSig.append(Signature.C_GENERIC_END);
+							break;
+						case Signature.C_NAME_END:
+							unqualifiedTypeSig.append(current);
+							return i + 1;
+						default:
+							unqualifiedTypeSig.append(current);
+							break;
+					}
+				}
+				return length;
+			default :
+				// primitive type or wildcard
+				unqualifiedTypeSig.append(qualifiedTypeSig.substring(start, end));
+				return end;
+		}
 	}
 		
 	/**
