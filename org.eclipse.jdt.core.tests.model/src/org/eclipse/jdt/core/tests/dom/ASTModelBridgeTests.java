@@ -1189,7 +1189,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * doesn't throw a ClassCastException if there is a syntax error.
 	 * (regression test for bug 149853 CCE in IMethodBinding#getJavaElement() for recovered anonymous type)
 	 */
-	public void _testMethod10() throws CoreException {
+	public void testMethod10() throws CoreException {
 		try {
 			// use a compilation unit instead of a working copy to use the ASTParser instead of reconcile
 			createFile(
