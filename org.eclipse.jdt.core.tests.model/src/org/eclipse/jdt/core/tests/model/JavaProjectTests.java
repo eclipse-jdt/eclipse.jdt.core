@@ -945,6 +945,26 @@ public void testPackageFragmentRootRawEntryWhenDuplicate() throws CoreException,
 		JavaCore.removeClasspathVariable("MyVar", null);
 	}
 }
+/*
+ * Ensures that opening a project update the project references
+ * (regression test for bug 73253 [model] Project references not set on project open)
+ */
+public void testProjectOpen() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createJavaProject("P2", new String[0], new String[0], new String[] {"/P1"}, "");
+		IProject p2 = getProject("P2");
+		p2.close(null);
+		p2.open(null);
+		IProject[] references = p2.getDescription().getDynamicReferences();
+		assertResourcesEqual(
+			"Unexpected referenced projects",
+			"/P1",
+			references);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
 /**
  * Tests that closing and opening a project triggers the correct deltas.
  */
