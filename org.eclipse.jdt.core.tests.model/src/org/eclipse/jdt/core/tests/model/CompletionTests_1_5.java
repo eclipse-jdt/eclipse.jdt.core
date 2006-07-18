@@ -2394,7 +2394,6 @@ public void test0087() throws JavaModelException {
 				requestor.getResults());
 	} else {
 		assertResults(
-				"Test2[TYPE_REF]{Test2, test0087, Ltest0087.Test2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}\n" +
 				"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 				requestor.getResults());
 	}
@@ -7462,9 +7461,15 @@ public void test0232() throws JavaModelException {
             "expectedTypesKeys={Ltest0232/Test;:TZT;}",
             result.context);
 
-	assertResults(
-			"",
-			result.proposals);
+    if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
+		assertResults(
+				"",
+				result.proposals);
+    } else {
+    	assertResults(
+				"Test<ZT>[TYPE_REF]{Test, test0232, Ltest0232.Test<TZT;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+    }
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
 public void test0233() throws JavaModelException {

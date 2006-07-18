@@ -16,6 +16,7 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
@@ -238,7 +239,15 @@ public void test011() throws JavaModelException {
 		"class BasicTestMethodsExample {\n" + 
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@see ", 0); // completion on empty token
-	assertResults("");
+	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
+		assertResults("");
+	} else {
+		assertResults(
+			"BasicTestMethods[TYPE_REF]{BasicTestMethods, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethods;, null, null, "+this.positions+R_DICUNR+"}\n" + 
+			"BasicTestMethodsException1[TYPE_REF]{BasicTestMethodsException1, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethodsException1;, null, null, "+this.positions+R_DICUNR+"}\n" + 
+			"BasicTestMethodsException2[TYPE_REF]{BasicTestMethodsException2, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethodsException2;, null, null, "+this.positions+R_DICUNR+"}\n" + 
+			"BasicTestMethodsExample[TYPE_REF]{BasicTestMethodsExample, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethodsExample;, null, null, "+this.positions+R_DICUNR+"}");
+	}
 }
 
 public void test012() throws JavaModelException {
@@ -302,9 +311,16 @@ public void test014() throws JavaModelException {
 		"class BasicTestMethodsExample {\n" + 
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@throws ", 0); // completion on empty token
-	assertResults(
-		"BasicTestMethodsException[TYPE_REF]{BasicTestMethodsException, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethodsException;, null, null, "+this.positions+R_DICUNREET+"}"
-	);
+	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
+		assertResults(
+			"BasicTestMethodsException[TYPE_REF]{BasicTestMethodsException, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethodsException;, null, null, "+this.positions+R_DICUNREET+"}"
+		);
+	} else {
+		assertResults(
+			"BasicTestMethods[TYPE_REF]{BasicTestMethods, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethods;, null, null, "+this.positions+R_DICUNR+"}\n" + 
+			"BasicTestMethodsException[TYPE_REF]{BasicTestMethodsException, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethodsException;, null, null, "+this.positions+R_DICUNREEET+"}\n" + 
+			"BasicTestMethodsExample[TYPE_REF]{BasicTestMethodsExample, javadoc.methods.tags, Ljavadoc.methods.tags.BasicTestMethodsExample;, null, null, "+this.positions+R_DICUNR+"}");
+	}
 }
 
 public void test015() throws JavaModelException {

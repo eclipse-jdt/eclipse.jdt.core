@@ -73,7 +73,7 @@ public final class CompletionEngine
 	public static boolean PERF = false;
 	
 	// temporary constants to quickly disabled polish features if necessary
-	public final static boolean NO_TYPE_COMPLETION_ON_EMPTY_TOKEN = true;
+	public final static boolean NO_TYPE_COMPLETION_ON_EMPTY_TOKEN = false;
 	public final static boolean PROPOSE_MEMBER_TYPES = true;
 	
 	private final static char[] ERROR_PATTERN = "*error*".toCharArray();  //$NON-NLS-1$

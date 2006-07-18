@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.model;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
@@ -55,9 +56,16 @@ public void testBug3270() throws JavaModelException {
 		"	void foo() throws InterruptedException {}\n" + 
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "@throws ", 0); // empty token
-	assertSortedResults(
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNREET+"}"
-	);
+	if (CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
+		assertSortedResults(
+			"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNREET+"}"
+		);
+	} else {
+		assertSortedResults(
+			"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNREET+"}\n" + 
+			"BasicTestBugs[TYPE_REF]{BasicTestBugs, javadoc.bugs, Ljavadoc.bugs.BasicTestBugs;, null, null, "+this.positions+R_DICUNR+"}"
+		);
+	}
 }
 public void testBug3270a() throws JavaModelException {
 	String source =
