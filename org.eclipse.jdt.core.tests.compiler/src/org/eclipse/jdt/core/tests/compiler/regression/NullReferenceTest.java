@@ -4686,6 +4686,32 @@ public void test0561_try_catch_unchecked_exception() {
 		"----------\n");
 }
 
+// null analysis - try/catch
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
+// (slightly different) variant of 561
+public void test0562_try_catch_unchecked_exception() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" + 
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    LineNumberReader o = null;\n" + 
+			"    try {\n" + 
+			"      o = new LineNumberReader(new FileReader(\"dummy\"));\n" + 
+			"    } catch (NumberFormatException e) {\n" + 
+			"      o.toString();\n" + // may be null
+			"    } catch (IOException e) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o may be null\n" + 
+		"----------\n");
+}
 // null analysis -- do while
 public void test0601_do_while() {
 	this.runNegativeTest(
