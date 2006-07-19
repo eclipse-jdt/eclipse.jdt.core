@@ -3673,6 +3673,65 @@ public void test012() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
+//variant: right member of the topmost expression is left-deep
+public void test013() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"	// left to right marker\n" + 
+			"	protected static char LRM = \'\\u200e\';\n" + 
+			"	// left to right embedding\n" + 
+			"	protected static char LRE = \'\\u202a\';\n" + 
+			"	// pop directional format	\n" + 
+			"	protected static char PDF = \'\\u202c\';\n" + 
+			"\n" + 
+			"	private static String PATH_1_RESULT = LRE + \"d\" + PDF + \":\" + LRM + \"\\\\\" + LRM + LRE + \"test\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05d0\\u05d1\\u05d2\\u05d3 \\u05d4\\u05d5\" + PDF + \"\\\\\" + LRM + LRE + \"segment\" + PDF;\n" + 
+			"	private static String PATH_2_RESULT = LRM + \"\\\\\" + LRM + LRE + \"test\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05d0\\u05d1\\u05d2\\u05d3 \\u05d4\\u05d5\" + PDF + \"\\\\\" + LRM + LRE + \"segment\" + PDF;\n" + 
+			"	private static String PATH_3_RESULT = LRE + \"d\" + PDF + \":\" + LRM + \"\\\\\" + LRM + LRE + \"\\u05ea\\u05e9\\u05e8\\u05e7\\u05e6 abcdef-\\u05e5\\u05e4\\u05e3\" + PDF + \"\\\\\" + LRM + LRE + \"xyz\" + PDF + \"\\\\\" + LRM + LRE + \"abcdef\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05e2\\u05e1\\u05e0\" + PDF;\n" + 
+			"	private static String PATH_4_RESULT = LRM + \"\\\\\" + LRM + LRE + \"\\u05ea\\u05e9\\u05e8\\u05e7\\u05e6 abcdef-\\u05e5\\u05e4\\u05e3\" + PDF + \"\\\\\" + LRM + LRE + \"xyz\" + PDF + \"\\\\\" + LRM + LRE + \"abcdef\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05e2\\u05e1\\05e0\" + PDF;\n" + 
+			"	private static String PATH_5_RESULT = LRE + \"d\" + PDF + \":\" + LRM + \"\\\\\" + LRM + LRE + \"\\u05ea\\u05e9\\u05e8\\u05e7\\u05e6 abcdef-\\u05e5\\u05e4\\u05e3\" + PDF + \"\\\\\" + LRM + LRE + \"xyz\" + PDF + \"\\\\\" + LRM + LRE + \"abcdef\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05e2\\u05e1\\05e0\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05df\\u05fd\\u05dd\" + PDF + \".\" + LRM + LRE + \"java\" + PDF;\n" + 
+			"	private static String PATH_6_RESULT = LRE + \"d\" + PDF + \":\" + LRM + \"\\\\\" + LRM + LRE + \"\\u05ea\\u05e9\\u05e8\\u05e7\\u05e6 abcdef-\\u05e5\\u05e4\\u05e3\" + PDF + \"\\\\\" + LRM + LRE + \"xyz\" + PDF + \"\\\\\" + LRM + LRE + \"abcdef\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05e2\\u05e1\\05e0\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05df\\u05fd\\u05dd\" + PDF + \".\" + LRM + LRE + \"\\u05dc\\u05db\\u05da\" + PDF;\n" + 
+			"	private static String PATH_7_RESULT = LRE + \"d\" + PDF + \":\" + LRM + \"\\\\\" + LRM + LRE + \"\\u05ea\\u05e9\\u05e8\\u05e7\\u05e6 abcdef-\\u05e5\\u05e4\\u05e3\" + PDF + \"\\\\\" + LRM + LRE + \"xyz\" + PDF + \"\\\\\" + LRM + LRE + \"abcdef\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05e2\\u05e1\\05e0\" + PDF + \"\\\\\" + LRM + LRE + \"Test\" + PDF + \".\" + LRM + LRE + \"java\" + PDF;\n" + 
+			"	private static String PATH_8_RESULT = LRM + \"\\\\\" + LRM + LRE + \"test\" + PDF + \"\\\\\" + LRM + LRE + \"jkl\\u05d0\\u05d1\\u05d2\\u05d3 \\u05d4\\u05d5\" + PDF + \"\\\\\" + LRM + LRE + \"segment\" + PDF;\n" + 
+			"	private static String PATH_9_RESULT = LRM + \"\\\\\" + LRM + LRE + \"test\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05d0\\u05d1\\u05d2\\u05d3 \\u05d4\\u05d5jkl\" + PDF + \"\\\\\" + LRM + LRE + \"segment\" + PDF;\n" + 
+			"	private static String PATH_10_RESULT = LRE + \"d\" + PDF + \":\" + LRM + \"\\\\\" + LRM + LRE + \"t\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05d0\" + PDF + \"\\\\\" + LRM + LRE + \"segment\" + PDF;\n" + 
+			"	private static String PATH_11_RESULT = \"\\\\\" + LRM + LRE + \"t\" + PDF + \"\\\\\" + LRM + LRE + \"\\u05d0\" + PDF + \"\\\\\" + LRM + LRE + \"segment\" + PDF;\n" + 
+			"	private static String PATH_12_RESULT = LRE + \"d\" + PDF + \":\" + LRM + \"\\\\\" + LRM;\n" + 
+			"	private static String PATH_13_RESULT = LRM + \"\\\\\" + LRM + LRE + \"test\" + PDF;\n" + 
+			"\n" + 
+			"	private static String OTHER_STRING_NO_DELIM = \"\\u05ea\\u05e9\\u05e8\\u05e7\\u05e6 abcdef-\\u05e5\\u05e4\\u05e3\";\n" + 
+			"\n" + 
+			"	private static String OTHER_STRING_1_RESULT = LRM + \"*\" + LRM + \".\" + LRM + LRE + \"java\" + PDF;\n" + 
+			"	private static String OTHER_STRING_2_RESULT = LRM + \"*\" + LRM + \".\" + LRM + LRE + \"\\u05d0\\u05d1\\u05d2\" + PDF;\n" + 
+			"	private static String OTHER_STRING_3_RESULT = LRE + \"\\u05d0\\u05d1\\u05d2 \" + PDF + \"=\" + LRM + LRE + \" \\u05ea\\u05e9\\u05e8\\u05e7\\u05e6\" + PDF;\n" + 
+			"	// result strings if null delimiter is passed for *.<string> texts\n" + 
+			"	private static String OTHER_STRING_1_ND_RESULT = LRE + \"*\" + PDF + \".\" + LRM + LRE + \"java\" + PDF;\n" + 
+			"	private static String OTHER_STRING_2_ND_RESULT = LRE + \"*\" + PDF + \".\" + LRM + LRE + \"\\u05d0\\u05d1\\u05d2\" + PDF;\n" + 
+			"\n" + 
+			"	private static String[] RESULT_DEFAULT_PATHS = {PATH_1_RESULT, PATH_2_RESULT, PATH_3_RESULT, PATH_4_RESULT, PATH_5_RESULT, PATH_6_RESULT, PATH_7_RESULT, PATH_8_RESULT, PATH_9_RESULT, PATH_10_RESULT, PATH_11_RESULT, PATH_12_RESULT, PATH_13_RESULT};\n" + 
+			"\n" + 
+			"	private static String[] RESULT_STAR_PATHS = {OTHER_STRING_1_RESULT, OTHER_STRING_2_RESULT};\n" + 
+			"	private static String[] RESULT_EQUALS_PATHS = {OTHER_STRING_3_RESULT};\n" + 
+			"	private static String[] RESULT_STAR_PATHS_ND = {OTHER_STRING_1_ND_RESULT, OTHER_STRING_2_ND_RESULT};\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * Constructor.\n" + 
+			"	 * \n" + 
+			"	 * @param name test name\n" + 
+			"	 */\n" + 
+			"	public X(String name) {\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		System.out.print(\"SUCCESS\");\n" +
+			"	}\n" + 
+			"}\n"
+		},
+		"SUCCESS");
+}
 
 public static Class testClass() {
 	return XLargeTest.class;

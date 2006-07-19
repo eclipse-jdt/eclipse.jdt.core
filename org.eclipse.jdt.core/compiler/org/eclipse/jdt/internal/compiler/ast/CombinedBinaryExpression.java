@@ -274,7 +274,7 @@ public void generateOptimizedStringConcatenationCreation(BlockScope blockScope,
 				cursor.left.generateOptimizedStringConcatenationCreation(
 					blockScope,
 					codeStream,
-					this.left.implicitConversion & TypeIds.COMPILE_TYPE_MASK);
+					cursor.left.implicitConversion & TypeIds.COMPILE_TYPE_MASK);
 			}
 			int pcAux;
 			for (int i = restart; i < this.arity; i++) {
