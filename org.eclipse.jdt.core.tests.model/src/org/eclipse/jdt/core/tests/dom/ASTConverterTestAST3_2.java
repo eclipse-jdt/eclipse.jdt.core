@@ -107,7 +107,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 652 };
+//		TESTS_NUMBERS =  new int[] { 654 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -7987,5 +7987,31 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=150409
+	 * TODO (olivier) renable if the bindings are available
+	 */
+	public void _test0653() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0653", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
+		CompilationUnit unit = (CompilationUnit) result;
+	
+		ASTNode node = getASTNode(unit, 0, 2, 0);
+		assertEquals("Not a method invocation", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		MethodInvocation invocation = (MethodInvocation) statement.getExpression();
+		List arguments = invocation.arguments();
+		assertEquals("Wrong size", 1, arguments.size());
+		Expression argument = (Expression) arguments.get(0);
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, argument.getNodeType());
+		invocation = (MethodInvocation) argument;
+		Expression expression = invocation.getExpression();
+		assertEquals("Not a method invocation", ASTNode.FIELD_ACCESS, expression.getNodeType());
+		FieldAccess fieldAccess = (FieldAccess) expression;
+		IVariableBinding variableBinding = fieldAccess.resolveFieldBinding();
+		assertNotNull("No variable binding", variableBinding);
 	}
 }
