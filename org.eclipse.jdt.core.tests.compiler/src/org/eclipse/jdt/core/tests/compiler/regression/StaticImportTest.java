@@ -1675,4 +1675,48 @@ public class StaticImportTest extends AbstractComparableTest {
 			// arrayList(int) in X cannot be applied to ()
 		);
 	}
+	public void test045b() {
+		this.runNegativeTest(
+			new String[] {
+				"test/One.java",
+				"package test;\n" +
+				"public class One { public static void arrayList(String s) {} }\n",
+				"test/Two.java",
+				"package test;\n" +
+				"public class Two { public void arrayList(int i) {} }\n",
+				"test/Three.java",
+				"package test;\n" +
+				"import static test.One.arrayList;\n" +
+				"public class Three extends Two { public static void test(String s) { arrayList(s); } }\n",
+			},
+			"----------\n" + 
+			"1. ERROR in test\\Three.java (at line 3)\n" + 
+			"	public class Three extends Two { public static void test(String s) { arrayList(s); } }\n" + 
+			"	                                                                     ^^^^^^^^^\n" + 
+			"The method arrayList(int) in the type Two is not applicable for the arguments (String)\n" + 
+			"----------\n"
+			// arrayList(int) in test.Two cannot be applied to (java.lang.String)
+		);
+		this.runNegativeTest(
+			new String[] {
+				"test/One.java",
+				"package test;\n" +
+				"public class One { public static void arrayList(String s) {} }\n",
+				"test/Two.java",
+				"package test;\n" +
+				"public class Two { public static void arrayList(int i) {} }\n",
+				"test/Three.java",
+				"package test;\n" +
+				"import static test.One.arrayList;\n" +
+				"public class Three extends Two { public static void test(String s) { arrayList(s); } }\n",
+			},
+			"----------\n" + 
+			"1. ERROR in test\\Three.java (at line 3)\r\n" + 
+			"	public class Three extends Two { public static void test(String s) { arrayList(s); } }\r\n" + 
+			"	                                                                     ^^^^^^^^^\n" + 
+			"The method arrayList(int) in the type Two is not applicable for the arguments (String)\n" + 
+			"----------\n"
+			// arrayList(int) in test.Two cannot be applied to (java.lang.String)
+		);
+	}
 }
