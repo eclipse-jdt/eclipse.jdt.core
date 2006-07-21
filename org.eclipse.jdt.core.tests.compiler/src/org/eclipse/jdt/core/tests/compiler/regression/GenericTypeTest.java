@@ -32467,4 +32467,25 @@ public void test1023() {
 		"Cannot cast from Properties to Map<String,?>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=151275
+public void test1024() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Integer castInteger = genericCast(1); // works\n" + 
+			"		int castInt1 = genericCast(1); // fails in javac but works in Eclipse\n" + 
+			"		int castInt2 = X.<Integer> genericCast(1); // workaround for javac\n" + 
+			"		int castInt3 = (Integer) genericCast(1); // workaround for javac\n" + 
+			"	}\n" + 
+			"	private static <T> T genericCast(Object input) {\n" + 
+			"		@SuppressWarnings(\"unchecked\")\n" + 
+			"		T castValue = (T) input;\n" + 
+			"		return castValue;\n" + 
+			"	}\n" + 
+			"}", // =================,
+		},
+		"");
+}
 }
