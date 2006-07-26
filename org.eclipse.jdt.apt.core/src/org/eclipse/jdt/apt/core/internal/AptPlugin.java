@@ -11,8 +11,8 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.runtime.IStatus;
@@ -45,10 +45,10 @@ public class AptPlugin extends Plugin {
 	
 	private static AptPlugin thePlugin = null; // singleton object
 	
-	// Use a weak hash map so that we don't prevent java projects from getting
-	// garbage collected
+	// Entries are added lazily in getAptProject(), and removed upon
+	// project deletion in deleteAptProject().
 	private static final Map<IJavaProject,AptProject> PROJECT_MAP = 
-		new WeakHashMap<IJavaProject,AptProject>();
+		new HashMap<IJavaProject,AptProject>();
 	
 	public void start(BundleContext context) throws Exception {
 		thePlugin = this;
