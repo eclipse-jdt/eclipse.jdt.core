@@ -212,7 +212,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 	
 	final String getLineDelimiter() {
-		return this.formatter.lineDelimiter;
+		return this.formatter.getLineDelimiter();
 	}
 	
 	final String createIndentString(int indent) {
@@ -350,7 +350,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		
 	private final TextEdit doTextCopy(TextEdit sourceEdit, int destOffset, int sourceIndentLevel, String destIndentString, TextEditGroup editGroup) {
 		TextEdit targetEdit;
-		SourceModifier modifier= new SourceModifier(sourceIndentLevel, destIndentString, this.formatter.tabWidth, this.formatter.indentWidth);
+		SourceModifier modifier= new SourceModifier(sourceIndentLevel, destIndentString, this.formatter.getTabWidth(), this.formatter.getIndentWidth());
 		
 		if (sourceEdit instanceof MoveSourceEdit) {
 			MoveSourceEdit moveEdit= (MoveSourceEdit) sourceEdit;

@@ -22,7 +22,6 @@ import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jface.text.Assert;
 import org.eclipse.jface.text.BadLocationException;
@@ -114,14 +113,14 @@ import org.eclipse.text.edits.TextEdit;
 		}
 	}
 	
-	final String lineDelimiter;
-	final int tabWidth;
-	final int indentWidth;
+	private final String lineDelimiter;
+	private final int tabWidth;
+	private final int indentWidth;
 	
-	final NodeInfoStore placeholders;
-	final RewriteEventStore eventStore;
+	private final NodeInfoStore placeholders;
+	private final RewriteEventStore eventStore;
 
-	final Map options;
+	private final Map options;
 
 	
 	public ASTRewriteFormatter(NodeInfoStore placeholders, RewriteEventStore eventStore, Map options, String lineDelimiter) {
@@ -131,7 +130,7 @@ import org.eclipse.text.edits.TextEdit;
 		if (options == null) {
 			options= JavaCore.getOptions();
 		}
-		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, String.valueOf(9999));
+		//options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, String.valueOf(9999));
 
 		this.options= options;
 		this.lineDelimiter= lineDelimiter;
@@ -150,10 +149,18 @@ import org.eclipse.text.edits.TextEdit;
 		return this.eventStore;
 	}
 	
-	public Map getOptions() {
-		return this.options;
+	public int getTabWidth() {
+		return this.tabWidth;
 	}
 	
+	public int getIndentWidth() {
+		return this.indentWidth;
+	}
+	
+	public String getLineDelimiter() {
+		return this.lineDelimiter;
+	}
+		
 	/**
 	 * Returns the string accumulated in the visit formatted using the default formatter.
 	 * Updates the existing node's positions.
@@ -174,7 +181,7 @@ import org.eclipse.text.edits.TextEdit;
 		}		
 		
 		String unformatted= flattener.getResult();
-		TextEdit edit= formatNode(node, unformatted, initialIndentationLevel, this.lineDelimiter, this.options);
+		TextEdit edit= formatNode(node, unformatted, initialIndentationLevel);
 		if (edit == null) {
 		    if (initialIndentationLevel > 0) {
 		        // at least correct the indent
@@ -190,44 +197,8 @@ import org.eclipse.text.edits.TextEdit;
 		return evaluateFormatterEdit(unformatted, edit, markers);
 	}
 	
-    /**
-     * Creates a string that represents the given number of indents (can be spaces or tabs..)
-     * @param indentationUnits the indent to represent
-     * @return Returns the created indent
-     */
     public String createIndentString(int indentationUnits) {
-		final String tabChar= (String) options.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR);
-		final int tabs, spaces;
-		if (JavaCore.SPACE.equals(tabChar)) {
-			tabs= 0;
-			spaces= indentationUnits * this.indentWidth;
-		} else if (JavaCore.TAB.equals(tabChar)) {
-			// indentWidth == tabWidth
-			tabs= indentationUnits;
-			spaces= 0;
-		} else if (DefaultCodeFormatterConstants.MIXED.equals(tabChar)){
-			int spaceEquivalents= indentationUnits * this.indentWidth;
-			if (this.tabWidth > 0) {
-				tabs= spaceEquivalents / this.tabWidth;
-				spaces= spaceEquivalents % this.tabWidth;
-			} else {
-				tabs= 0;
-				spaces= spaceEquivalents;
-			}
-		} else {
-			// new indent type not yet handled
-			//Assert.isTrue(false); bug 90580
-			tabs= 0;
-			spaces= indentationUnits * this.indentWidth;
-		}
-		
-		StringBuffer buffer= new StringBuffer(tabs + spaces);
-		for(int i= 0; i < tabs; i++)
-			buffer.append('\t');
-		for(int i= 0; i < spaces; i++)
-			buffer.append(' ');
-		return buffer.toString();
-
+    	return ToolFactory.createCodeFormatter(this.options).createIndentationString(indentationUnits);
     }
 	
 	public String getIndentString(String currentLine) {
@@ -268,8 +239,8 @@ import org.eclipse.text.edits.TextEdit;
 		return null;
 	}
 		
-	public static TextEdit formatString(int kind, String string, int indentationLevel, String lineSeparator, Map options) {
-		return ToolFactory.createCodeFormatter(options).format(kind, string, 0, string.length(), indentationLevel, lineSeparator);
+	public TextEdit formatString(int kind, String string, int offset, int length, int indentationLevel) {
+		return ToolFactory.createCodeFormatter(this.options).format(kind, string, offset, length, indentationLevel, this.lineDelimiter);
 	}
 	
 	/**
@@ -277,13 +248,11 @@ import org.eclipse.text.edits.TextEdit;
 	 * @param node Node describing the type of the string
 	 * @param str The unformatted string
 	 * @param indentationLevel 
-	 * @param lineSeparator
-	 * @param options
 	 * @return Returns the edit representing the result of the formatter
 	 * @throws IllegalArgumentException If the offset and length are not inside the string, a
 	 *  IllegalArgumentException is thrown.
 	 */
-	private static TextEdit formatNode(ASTNode node, String str, int indentationLevel, String lineSeparator, Map options) {
+	private TextEdit formatNode(ASTNode node, String str, int indentationLevel) {
 		int code;
 		String prefix= ""; //$NON-NLS-1$
 		String suffix= ""; //$NON-NLS-1$
@@ -391,7 +360,7 @@ import org.eclipse.text.edits.TextEdit;
 		}
 		
 		String concatStr= prefix + str + suffix;
-		TextEdit edit= ToolFactory.createCodeFormatter(options).format(code, concatStr, prefix.length(), str.length(), indentationLevel, lineSeparator);
+		TextEdit edit= formatString(code, concatStr, prefix.length(), str.length(), indentationLevel);
 		
 		if (prefix.length() > 0) {
 			edit= shifEdit(edit, prefix.length());
@@ -495,7 +464,7 @@ import org.eclipse.text.edits.TextEdit;
 		public String getPrefix(int indent) {
 			Position pos= new Position(this.start, this.length);
 			String str= this.string;
-			TextEdit res= formatString(this.kind, str, indent, lineDelimiter, getOptions());
+			TextEdit res= formatString(this.kind, str, 0, str.length(), indent);
 			if (res != null) {
 				str= evaluateFormatterEdit(str, res, new Position[] { pos });
 			}
@@ -517,7 +486,7 @@ import org.eclipse.text.edits.TextEdit;
 			String str= this.prefix + nodeString;
 			Position pos= new Position(this.start, this.prefix.length() + 1 - this.start);
 
-			TextEdit res= formatString(CodeFormatter.K_STATEMENTS, str, indent, lineDelimiter, getOptions());
+			TextEdit res= formatString(CodeFormatter.K_STATEMENTS, str, 0, str.length(), indent);
 			if (res != null) {
 				str= evaluateFormatterEdit(str, res, new Position[] { pos });
 			}
@@ -546,7 +515,7 @@ import org.eclipse.text.edits.TextEdit;
 			Position pos1= new Position(this.start, nodeStart + 1 - this.start);
 			Position pos2= new Position(nodeEnd, 2);
 
-			TextEdit res= formatString(CodeFormatter.K_STATEMENTS, str, indent, lineDelimiter, getOptions());
+			TextEdit res= formatString(CodeFormatter.K_STATEMENTS, str, 0, str.length(), indent);
 			if (res != null) {
 				str= evaluateFormatterEdit(str, res, new Position[] { pos1, pos2 });
 			}
