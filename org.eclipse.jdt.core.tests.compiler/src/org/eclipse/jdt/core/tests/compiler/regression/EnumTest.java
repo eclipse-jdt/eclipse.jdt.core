@@ -4677,4 +4677,38 @@ public void test134() {
 		"Cannot refer to the static enum field X.INITIAL within an initializer\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149562
+// a default case is required to consider that b is initialized (in case E 
+// takes new values in the future)
+public void test135() {
+    this.runNegativeTest(
+        new String[] {
+            "E.java",
+			"public enum E {\n" + 
+			"    A,\n" + 
+			"    B\n" + 
+			"}",
+            "X.java",
+			"public class X {\n" + 
+			"    boolean foo(E e) {\n" +
+			"        boolean b;\n" +
+			"        switch (e) {\n" +
+			"          case A:\n" +
+			"              b = true;\n" +
+			"              break;\n" + 
+			"          case B:\n" +
+			"              b = false;\n" +
+			"              break;\n" +
+			"        }\n" +
+			"        return b;\n" +
+			"    }\n" + 
+			"}",
+        },
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	return b;\n" + 
+		"	       ^\n" + 
+		"The local variable b may not have been initialized\n" + 
+		"----------\n");
+}
 }
