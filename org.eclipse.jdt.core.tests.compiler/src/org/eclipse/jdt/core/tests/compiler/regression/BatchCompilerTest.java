@@ -3175,9 +3175,9 @@ public void test060(){
 	outputDirectory.mkdirs();
 	this.runConformTest(
 		new String[] {
-				"X.java",
-				"public class X {}",
-	        },
+			"X.java",
+			"public class X {}",
+        },
 	    "\"" + OUTPUT_DIR + "\""
 	    + " -1.5 -g -preserveAllLocals"
 	    + " -d \"" + OUTPUT_DIR + "/out\"",
@@ -3209,6 +3209,58 @@ public void test061(){
 		"foo cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"1 problem (1 error)",
+		false /* do not flush output directory */);
+}
+
+// self-referential jar file
+// this only tests that the fact the jar file references itself in a Class-Path
+// clause does not break anything; the said clause is not needed for the 
+// compilation to succeed, and is merely irrelevant, but other compilers have
+// shown a bug in that area
+public void test062(){
+	String outputDirName = OUTPUT_DIR + File.separator + "d",
+	  metaInfDirName = outputDirName + File.separator + "META-INF",
+	  jarFileName = outputDirName + File.separator + "L.jar";
+	this.runConformTest(
+		new String[] {
+			"d/Y.java",
+			"public class Y {\n" +
+			"}"},
+	    "\"" + outputDirName + "\""
+	    + " -1.5 -g -preserveAllLocals"
+	    + " -d \"" + outputDirName + "\"",
+		"", 
+		"",
+		true /* flush output directory */);
+	File outputDirectory = new File(outputDirName);
+	File metaInfDirectory = new File(metaInfDirName);
+	metaInfDirectory.mkdirs();
+	try {
+		Util.createFile(metaInfDirName + File.separator + "MANIFEST.MF",
+			"Manifest-Version: 1.0\n" +
+			"Class-Path: ../d/L.jar\n");
+	} catch (IOException e) {
+		fail("could not create manifest file");
+	}
+	try {
+		Util.zip(outputDirectory, jarFileName);
+	} catch (IOException e) {
+		fail("could not create jar file");
+	}
+	new File(outputDirName + File.separator + "Y.class").delete();
+	new File(outputDirName + File.separator + "Y.java").delete();
+	this.runConformTest(
+		new String[] {
+			"d/X.java",
+			"public class X {\n" +
+			"  Y m;\n" +
+			"}"},
+	    "\"" + outputDirName + "\""
+	    + " -1.5 -g -preserveAllLocals"
+	    + " -cp \"" + jarFileName + "\""
+	    + " -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
 		false /* do not flush output directory */);
 }
 
