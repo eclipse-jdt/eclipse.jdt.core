@@ -5598,4 +5598,35 @@ public void test097() {
 		""
 	);
 }
+
+// autoboxing mixed with type parameters substitution
+public void test098() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X<A, B> {\n" + 
+			"    public X(List<A> toAdd) {\n" + 
+			"    }\n" + 
+			"    public <L extends List<? super A>, LF extends Factory<L>> L \n" + 
+			"            foo(B b, L l, LF lf) {\n" + 
+			"        return l;\n" + 
+			"    }\n" + 
+			"    public static class ListFactory<T> implements Factory<List<T>> {\n" + 
+			"        public List<T> create() {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static interface Factory<T> {\n" + 
+			"        public T create();\n" + 
+			"    }\n" + 
+			"    public static void bar() {\n" + 
+			"        (new X<Long, Number>(new ArrayList<Long>())).\n" + 
+			"            foo(1, (List<Number>) null, new ListFactory<Number>());\n" + 
+			"    }\n" + 
+			"}"
+		},
+		""
+	);
+}
 }
