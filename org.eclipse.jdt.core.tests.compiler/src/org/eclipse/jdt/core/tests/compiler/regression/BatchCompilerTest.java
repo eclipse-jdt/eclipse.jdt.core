@@ -3213,11 +3213,75 @@ public void test061(){
 }
 
 // self-referential jar file
+// variant using a relative path to the jar file in the -cp option
 // this only tests that the fact the jar file references itself in a Class-Path
 // clause does not break anything; the said clause is not needed for the 
 // compilation to succeed, and is merely irrelevant, but other compilers have
 // shown a bug in that area
-public void test062(){
+// TODO (maxime) improve management of current working directory
+// we have a problem here in that the working directory is set once and for all
+// from above, and we cannot change it afterwards (more on that when jdk7 gets 
+// ready); moreover, the default working directory may not the best choice we 
+// could expect (it is within the workspace, endangering the test project 
+// layout); this would need to be reconsidered from scratch, keeping in mind 
+// that some disk regions are not available for writing when running the releng 
+// tests; the pity is that this is precisely the case that fails with other 
+// compilers, whereas test063 passes;
+// this problem affects other batch compiler tests as well, since we must be
+// able to simulate command lines that would include relative paths; the
+// solution probably encompasses putting the effective working directory under
+// control;
+public void _test062(){
+	String outputDirName = OUTPUT_DIR + File.separator + "d",
+	  metaInfDirName = outputDirName + File.separator + "META-INF",
+	  jarFileName = outputDirName + File.separator + "L.jar";
+//	  currentWorkingDirectory = System.getProperty("user.dir");
+	this.runConformTest(
+		new String[] {
+			"d/Y.java",
+			"public class Y {\n" +
+			"}"},
+	    "\"" + outputDirName + "\""
+	    + " -1.5 -g -preserveAllLocals"
+	    + " -d \"" + outputDirName + "\"",
+		"", 
+		"",
+		true /* flush output directory */);
+	File outputDirectory = new File(outputDirName);
+	File metaInfDirectory = new File(metaInfDirName);
+	metaInfDirectory.mkdirs();
+	try {
+		Util.createFile(metaInfDirName + File.separator + "MANIFEST.MF",
+			"Manifest-Version: 1.0\n" +
+			"Class-Path: ../d/L.jar\n");
+	} catch (IOException e) {
+		fail("could not create manifest file");
+	}
+	try {
+		Util.zip(outputDirectory, jarFileName);
+	} catch (IOException e) {
+		fail("could not create jar file");
+	}
+	new File(outputDirName + File.separator + "Y.class").delete();
+	new File(outputDirName + File.separator + "Y.java").delete();
+	this.runConformTest(
+		new String[] {
+			"d/X.java",
+			"public class X {\n" +
+			"  Y m;\n" +
+			"}"},
+	    "\"" + outputDirName + "\""
+	    + " -1.5 -g -preserveAllLocals"
+	    + " -cp L.jar"
+	    + " -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		false /* do not flush output directory */);
+}
+
+// self-referential jar file
+// variant using an absolute path to the jar file in the -cp option
+public void test063(){
 	String outputDirName = OUTPUT_DIR + File.separator + "d",
 	  metaInfDirName = outputDirName + File.separator + "META-INF",
 	  jarFileName = outputDirName + File.separator + "L.jar";
