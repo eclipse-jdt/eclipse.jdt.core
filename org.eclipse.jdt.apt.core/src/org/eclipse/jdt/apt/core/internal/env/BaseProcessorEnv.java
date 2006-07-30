@@ -464,7 +464,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
      * if <code>key</code> is a wild card, primitive, array type or parameterized type, this should be null.
      * @return return the type binding for the given key or null if none is found.
      */
-    private ITypeBinding getTypeBindingFromKey(final String key, final ICompilationUnit unit){
+    protected ITypeBinding getTypeBindingFromKey(final String key, final ICompilationUnit unit){
     	
 		class BindingRequestor extends ASTRequestor
 		{

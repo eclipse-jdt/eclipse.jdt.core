@@ -27,7 +27,7 @@ import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
-import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -94,9 +94,7 @@ public abstract class AbstractCompilationEnv
 	}
 	
 	@Override
-	protected ITypeBinding getTypeDefinitionBindingFromCorrectName(String fullyQualifiedName) {
-		checkValid();
-		final String key = BindingKey.createTypeBindingKey(fullyQualifiedName);
+	protected ITypeBinding getTypeBindingFromKey(String key, ICompilationUnit unit) {
 		return (ITypeBinding)_requestor.createBindings(new String[] {key})[0];
 	}
 
