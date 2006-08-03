@@ -3355,4 +3355,196 @@ public void testBug118823c() throws CoreException, InterruptedException {
 		deleteProject("P2");
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=151410
+// CCE on parameterized type binding when searching for an inner type
+// enumeration
+// TODO (maxime) activate once fixed
+public void _testBug151410a() throws CoreException, InterruptedException  {
+	try {
+		String source1, source2;
+		createJavaProject(
+				"P1", 
+				new String[] {""}, 
+				new String[] {"JCL15_LIB"}, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no project*/, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no exported project*/, 
+				"bin", 
+				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				"1.5"
+			);
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			source1 =
+			"package p;\n" + 
+			"public interface X<T> {\n" + 
+			"  public enum E {A, B, C};\n" +
+			"  public E foo(T t) throws Exception;" +
+			"}\n");
+		createFolder("/P1/p/q");
+		createFile(
+			"/P1/p/q/Y.java",
+			source2 =
+			"package p.q;\n" + 
+			"import static p.X.E.*;\n" + 
+			"import p.*;\n" + 
+			"public class Y implements X<String> {\n" + 
+			"  public E foo(String s) {\n" + 
+			"    return A;\n" + 
+			"  }\n" + 
+			"}");
+		waitUntilIndexesReady();
+		this.workingCopies = new ICompilationUnit[2];
+		this.wcOwner = new WorkingCopyOwner() {};
+		char[] sourceChars = source1.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/P1/p/X.java").
+			getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertNoProblem(sourceChars, this.workingCopies[0]);
+		sourceChars = source2.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[1] = getCompilationUnit("/P1/p/q/Y.java").
+			getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertNoProblem(sourceChars, this.workingCopies[1]);
+		assertTrue("empty working copy", 
+				this.workingCopies[1].getAllTypes().length > 0);
+//      we do not need to reconcile per se to get into the original problem
+//      used that tests suite for convenience
+	} finally {
+		deleteProject("P1");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=151410
+// CCE on parameterized type binding when searching for an inner type
+// enumeration - variant with unrelated packages
+// TODO (maxime) activate once fixed
+public void _testBug151410b() throws CoreException, InterruptedException  {
+	try {
+		String source1, source2;
+		createJavaProject(
+				"P1", 
+				new String[] {""}, 
+				new String[] {"JCL15_LIB"}, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no project*/, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no exported project*/, 
+				"bin", 
+				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				"1.5"
+			);
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			source1 =
+			"package p;\n" + 
+			"public interface X<T> {\n" + 
+			"  public enum E {A, B, C};\n" +
+			"  public E foo(T t) throws Exception;" +
+			"}\n");
+		createFolder("/P1/q");
+		createFile(
+			"/P1/q/Y.java",
+			source2 =
+			"package q;\n" + 
+			"import static p.X.E.*;\n" + 
+			"import p.*;\n" + 
+			"public class Y implements X<String> {\n" + 
+			"  public E foo(String s) {\n" + 
+			"    return A;\n" + 
+			"  }\n" + 
+			"}");
+		waitUntilIndexesReady();
+		this.workingCopies = new ICompilationUnit[2];
+		this.wcOwner = new WorkingCopyOwner() {};
+		char[] sourceChars = source1.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/P1/p/X.java").
+			getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertNoProblem(sourceChars, this.workingCopies[0]);
+		sourceChars = source2.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[1] = getCompilationUnit("/P1/q/Y.java").
+			getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertNoProblem(sourceChars, this.workingCopies[1]);
+		assertTrue("empty working copy", 
+				this.workingCopies[1].getAllTypes().length > 0);
+	} finally {
+		deleteProject("P1");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=151410
+// CCE on parameterized type binding when searching for an inner type
+// enumeration - variant with no static import
+public void testBug151410c() throws CoreException, InterruptedException  {
+	try {
+		String source1, source2;
+		createJavaProject(
+				"P1", 
+				new String[] {""}, 
+				new String[] {"JCL15_LIB"}, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no project*/, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no exported project*/, 
+				"bin", 
+				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				"1.5"
+			);
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			source1 =
+			"package p;\n" + 
+			"public interface X<T> {\n" + 
+			"  public enum E {A, B, C};\n" +
+			"  public E foo(T t) throws Exception;" +
+			"}\n");
+		createFolder("/P1/q");
+		createFile(
+			"/P1/q/Y.java",
+			source2 =
+			"package q;\n" + 
+			"import p.*;\n" + 
+			"public class Y implements X<String> {\n" + 
+			"  public E foo(String s) {\n" + 
+			"    return E.A;\n" + 
+			"  }\n" + 
+			"}");
+		waitUntilIndexesReady();
+		this.workingCopies = new ICompilationUnit[2];
+		this.wcOwner = new WorkingCopyOwner() {};
+		char[] sourceChars = source1.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/P1/p/X.java").
+			getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertNoProblem(sourceChars, this.workingCopies[0]);
+		sourceChars = source2.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[1] = getCompilationUnit("/P1/q/Y.java").
+			getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertNoProblem(sourceChars, this.workingCopies[1]);
+		assertTrue("empty working copy", 
+				this.workingCopies[1].getAllTypes().length > 0);
+	} finally {
+		deleteProject("P1");
+	}
+}
 }
