@@ -43,6 +43,27 @@
   </tr>
 </table>
 
+<a name="v_707"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.3M1 - 3rd August 2006 - 3.3 MILESTONE 1
+<br>Project org.eclipse.jdt.core v_707
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_707">cvs</a>).
+<h2>What's new in this drop</h2>
+<ul>
+<li>
+SearchPattern API method <code>createPattern(IJavaElement, int, int)</code> behavior has been modified for generic searches.<br>
+It now returns erasure matches instead of exact ones  (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124489">124489</a> for detailed discussion on this topic).
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=116459">116459</a>
+[1.5][search] Generic type reference should return exact match on parameterized type with its own variables
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=124489">124489</a>
+[1.5][search] &quot;Find unused dependencies&quot; misses references to generic types
+
 <a name="v_706"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes<br>

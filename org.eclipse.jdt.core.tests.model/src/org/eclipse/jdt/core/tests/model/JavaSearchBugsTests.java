@@ -1840,7 +1840,7 @@ public void testBug83304_TypeGenericElementPattern() throws CoreException {
 		"src/b83304/Types.java b83304.Types.gen_wld [Generic] ERASURE_MATCH\n" + 
 		"src/b83304/Types.java b83304.Types.gen_thr [Generic] ERASURE_MATCH\n" + 
 		"src/b83304/Types.java b83304.Types.gen_run [Generic] ERASURE_MATCH\n" + 
-		"lib/JavaSearch15.jar g1.t.s.def.Generic<T> g1.t.s.def.Generic.foo() ERASURE_MATCH"
+		"lib/JavaSearch15.jar g1.t.s.def.Generic<T> g1.t.s.def.Generic.foo() EXACT_MATCH"
 	);
 }
 public void testBug83304_TypeStringPattern() throws CoreException {
@@ -5514,48 +5514,6 @@ public void testBug110291() throws CoreException {
 }
 
 /**
- * @test Bug 110422: [search] BasicSearchEngine doesn't find all type declarations
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110422"
- */
-public void testBug110422a() throws CoreException {
-	search("TestP", TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
-	assertSearchResults(
-		"lib/b110422.jar b110422.TestPrefix [No source] EXACT_MATCH"
-	);
-}
-public void testBug110422b() throws CoreException {
-	search("TESTP", TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
-	assertSearchResults(
-		"lib/b110422.jar b110422.TestPrefix [No source] EXACT_MATCH"
-	);
-}
-
-/**
- * @test Bug 114539: [search] Internal error when refactoring code with errors
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114539"
- */
-public void testBug114539() throws CoreException {
-	workingCopies = new ICompilationUnit[2];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b114539/Foo.java",
-		"package b114539;\n" + 
-		"public class Foo {\n" + 
-		"	int bar=Bar.FOO;\n" + 
-		"}\n"
-	);
-	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b114539/Bar.java",
-		"package b114539;\n" + 
-		"public class Bar {\n" + 
-		"	private static final int FOO=0;\n" + 
-		"}\n"
-	);
-	IField field = this.workingCopies[1].getType("Bar").getField("FOO");
-	search(field, REFERENCES);
-	assertSearchResults(
-		"src/b114539/Foo.java b114539.Foo.bar [FOO] POTENTIAL_MATCH"
-	);
-}
-
-/**
  * @test Bug 110336: [plan][search] Should optionaly return the local variable for type reference
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110336"
  */
@@ -5757,6 +5715,72 @@ public void testBug110336h() throws CoreException {
 		"src/b110336/Test.java b110336.Test.static {}.lv7 [Test]+[lv8,lv9]\n" + 
 		"src/b110336/Test.java b110336.Test.static {}.lv9 [Test]",
 		collector
+	);
+}
+
+/**
+ * @test Bug 110422: [search] BasicSearchEngine doesn't find all type declarations
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110422"
+ */
+public void testBug110422a() throws CoreException {
+	search("TestP", TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	assertSearchResults(
+		"lib/b110422.jar b110422.TestPrefix [No source] EXACT_MATCH"
+	);
+}
+public void testBug110422b() throws CoreException {
+	search("TESTP", TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
+	assertSearchResults(
+		"lib/b110422.jar b110422.TestPrefix [No source] EXACT_MATCH"
+	);
+}
+
+/**
+ * @test Bug 114539: [search] Internal error when refactoring code with errors
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114539"
+ */
+public void testBug114539() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b114539/Foo.java",
+		"package b114539;\n" + 
+		"public class Foo {\n" + 
+		"	int bar=Bar.FOO;\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b114539/Bar.java",
+		"package b114539;\n" + 
+		"public class Bar {\n" + 
+		"	private static final int FOO=0;\n" + 
+		"}\n"
+	);
+	IField field = this.workingCopies[1].getType("Bar").getField("FOO");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"src/b114539/Foo.java b114539.Foo.bar [FOO] POTENTIAL_MATCH"
+	);
+}
+
+/**
+ * Bug 116459: [search] correct results are missing in java search
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=116459"
+ */
+public void testBug116459() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p1/X.java",
+		"package p1;\n" + 
+		"class X<T> {\n" + 
+		"	X<T> gen;\n" + 
+		"	X<String> param;\n" + 
+		"	X raw;\n" + 
+		"}"
+	);
+	IType type = workingCopies[0].getType("X");
+	this.resultCollector.showRule = true;
+	search(type, REFERENCES, ERASURE_RULE);
+	assertSearchResults(
+		"src/p1/X.java p1.X.gen [X] EXACT_MATCH\n" + 
+		"src/p1/X.java p1.X.param [X] ERASURE_MATCH\n" + 
+		"src/p1/X.java p1.X.raw [X] ERASURE_RAW_MATCH"
 	);
 }
 
@@ -6184,6 +6208,39 @@ public void testBug124469n() throws CoreException {
 		"" // expected no result as parameters annotations are not stored in class file
 	);
 }
+
+/**
+ * Bug 124489: [search] correct results are missing in java search
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124489"
+ */
+public void testBug124489() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Foo.java",
+		"public class Foo<T> {}"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/Bar.java",
+		"public class Bar {\n" + 
+		"    Foo<String> f = new Foo<String>();\n" + 
+		"    Foo f2 = new Foo();\n" + 
+		"}"
+	);
+	IType type = workingCopies[0].getType("Foo");
+	this.resultCollector.showRule = true;
+	new SearchEngine(workingCopies).search(
+		SearchPattern.createPattern(type, REFERENCES),
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		getJavaSearchScopeBugs(),
+		this.resultCollector,
+		null
+	);
+	assertSearchResults(
+		"src/Bar.java Bar.f [Foo] ERASURE_MATCH\n" + 
+		"src/Bar.java Bar.f [Foo] ERASURE_MATCH\n" + 
+		"src/Bar.java Bar.f2 [Foo] ERASURE_RAW_MATCH\n" + 
+		"src/Bar.java Bar.f2 [Foo] ERASURE_RAW_MATCH"
+	);
+}
+
 /**
  * @test Bug 124645: [search] for implementors does not find subclasses of binary classes
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124645"
