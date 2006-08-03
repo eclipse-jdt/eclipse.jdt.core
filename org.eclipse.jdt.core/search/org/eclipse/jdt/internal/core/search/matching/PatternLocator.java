@@ -432,15 +432,32 @@ protected void updateMatch(ParameterizedTypeBinding parameterizedBinding, char[]
 
 	// Set match raw flag
 	boolean endPattern = patternTypeArguments==null  ? true  : depth>=patternTypeArguments.length;
-	boolean isRaw = parameterizedBinding.isRawType()|| (parameterizedBinding.arguments==null && parameterizedBinding.type.isGenericType());
+	TypeBinding[] argumentsBindings = parameterizedBinding.arguments;
+	boolean isRaw = parameterizedBinding.isRawType()|| (argumentsBindings==null && parameterizedBinding.type.isGenericType());
 	if (isRaw && !match.isRaw()) {
 		match.setRaw(isRaw);
 	}
 	
 	// Update match
 	if (!endPattern && patternTypeArguments != null) {
-		char[][] patternArguments =  patternTypeArguments[depth];
-		updateMatch(parameterizedBinding.arguments, locator, patternArguments, patternHasTypeParameters);
+		// verify if this is a reference to the generic type itself
+		if (!isRaw && patternHasTypeParameters && argumentsBindings != null) {
+			boolean needUpdate = false;
+			TypeVariableBinding[] typeVariables = parameterizedBinding.type.typeVariables();
+			for (int i=0, l=argumentsBindings.length; i<l; i++) {
+				if (argumentsBindings[i] != typeVariables[i]) {
+					needUpdate = true;
+					break;
+				}
+			}
+			if (needUpdate) {
+				char[][] patternArguments =  patternTypeArguments[depth];
+				updateMatch(argumentsBindings, locator, patternArguments, patternHasTypeParameters);	
+			}
+		} else {
+			char[][] patternArguments =  patternTypeArguments[depth];
+			updateMatch(argumentsBindings, locator, patternArguments, patternHasTypeParameters);
+		}
 	}
 
 	// Recurse
