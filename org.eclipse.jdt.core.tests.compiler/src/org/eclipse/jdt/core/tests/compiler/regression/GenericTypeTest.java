@@ -31813,4 +31813,63 @@ public void _test1009() {
 		},
 		"");
 }	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149376
+public void test1021() {
+	this.runConformTest(
+		new String[] {
+			"p/SomeClass.java",
+			"package p;\n" + 
+			"import static p.SomeClass.SomeEnum.*;\n" + 
+			"public abstract class SomeClass<T> extends Object {\n" + 
+			"	public enum SomeEnum {\n" +
+			"		A;\n" + 
+			"	};\n" + 
+			"}\n",
+		},
+		""
+	);
+}
+public void test1021b() { // should this case be allowed?
+	this.runConformTest(
+		new String[] {
+			"p/SomeClass2.java",
+			"package p;\n" + 
+			"import static p.SomeClass2.M1.*;\n" + 
+			"public abstract class SomeClass2<T> extends M {\n" + 
+			"	public static class M1 extends M2 {}\n" + 
+			"	public static class M2 extends M3 {}\n" + 
+			"	public static class M3 {\n" +
+			"		public static class M {}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		""
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=151410 (duplicate of 149376)
+public void test1021c() {
+	runConformTest(
+		new String[] {
+			"ccs/jdtbug/filters/NameRF.java",
+			"package ccs.jdtbug.filters;\n" + 
+			"import static ccs.jdtbug.ResultFilter.Action.*;\n" + 
+			"import ccs.jdtbug.*;\n" + 
+			"public class NameRF implements ResultFilter<String> {\n" + 
+			"	public NameRF() {}\n" + 
+			"	public Action getAction(String in, int ntotal, int naccept) {\n" + 
+			"		return YES;\n" + 
+			"	}\n" + 
+			"} // end class\n",
+			"ccs/jdtbug/ResultFilter.java",
+			"package ccs.jdtbug;\n" + 
+			"import java.io.*;\n" + 
+			"public interface ResultFilter<T> {\n" + 
+			"	public enum Action {\n" + 
+			"		YES, NO, CANCEL\n" + 
+			"	}\n" + 
+			"	public Action getAction(T in, int ntotal, int naccept) throws IOException;\n" + 
+			"} // end interface\n"
+		}
+	);
+}
 }
