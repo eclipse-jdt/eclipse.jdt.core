@@ -32389,6 +32389,32 @@ public void test1021b() { // should this case be allowed?
 		""
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=151410 (duplicate of 149376)
+public void test1021c() {
+	runConformTest(
+		new String[] {
+			"ccs/jdtbug/filters/NameRF.java",
+			"package ccs.jdtbug.filters;\n" + 
+			"import static ccs.jdtbug.ResultFilter.Action.*;\n" + 
+			"import ccs.jdtbug.*;\n" + 
+			"public class NameRF implements ResultFilter<String> {\n" + 
+			"	public NameRF() {}\n" + 
+			"	public Action getAction(String in, int ntotal, int naccept) {\n" + 
+			"		return YES;\n" + 
+			"	}\n" + 
+			"} // end class\n",
+			"ccs/jdtbug/ResultFilter.java",
+			"package ccs.jdtbug;\n" + 
+			"import java.io.*;\n" + 
+			"public interface ResultFilter<T> {\n" + 
+			"	public enum Action {\n" + 
+			"		YES, NO, CANCEL\n" + 
+			"	}\n" + 
+			"	public Action getAction(T in, int ntotal, int naccept) throws IOException;\n" + 
+			"} // end interface\n"
+		}
+	);
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150294
 public void test1022() {
 	this.runNegativeTest(
