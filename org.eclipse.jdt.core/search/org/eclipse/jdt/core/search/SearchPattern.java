@@ -1108,7 +1108,14 @@ public static SearchPattern createPattern(String stringPattern, int searchFor, i
 
 /**
  * Returns a search pattern based on a given Java element. 
- * The pattern is used to trigger the appropriate search, and can be parameterized as follows:
+ * The pattern is used to trigger the appropriate search.
+ * <br>
+ * Note that for generic searches, the returned pattern consider {@link #R_ERASURE_MATCH} matches.
+ * If other kind of generic matches (ie. {@link #R_EXACT_MATCH} or {@link #R_EQUIVALENT_MATCH})
+ * are expected, {@link #createPattern(IJavaElement, int, int)} method need to be used instead with
+ * the explicit match rule specified.
+ * <br>
+ * The pattern can be parameterized as follows:
  *
  * @param element the Java element the search pattern is based on
  * @param limitTo determines the nature of the expected matches
@@ -1150,7 +1157,7 @@ public static SearchPattern createPattern(String stringPattern, int searchFor, i
  * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
  */
 public static SearchPattern createPattern(IJavaElement element, int limitTo) {
-	return createPattern(element, limitTo, R_EXACT_MATCH | R_CASE_SENSITIVE);
+	return createPattern(element, limitTo, R_EXACT_MATCH | R_CASE_SENSITIVE | R_ERASURE_MATCH);
 }
 
 /**

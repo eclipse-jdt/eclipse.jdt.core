@@ -647,7 +647,7 @@ public void testSearchPatternCreation12() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"FieldReferencePattern: x.y.z.Foo.field --> int, exact match, case sensitive",
+		"FieldReferencePattern: x.y.z.Foo.field --> int, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -661,7 +661,7 @@ public void testSearchPatternCreation13() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"FieldDeclarationPattern: x.y.z.Foo.field --> int, exact match, case sensitive",
+		"FieldDeclarationPattern: x.y.z.Foo.field --> int, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -675,7 +675,7 @@ public void testSearchPatternCreation14() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"FieldCombinedPattern: x.y.z.Foo.field --> int, exact match, case sensitive",
+		"FieldCombinedPattern: x.y.z.Foo.field --> int, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -689,7 +689,7 @@ public void testSearchPatternCreation15() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"PackageReferencePattern: <x.y>, exact match, case sensitive",
+		"PackageReferencePattern: <x.y>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -703,7 +703,7 @@ public void testSearchPatternCreation16() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"MethodDeclarationPattern: x.y.z.Foo.bar() --> void, exact match, case sensitive",
+		"MethodDeclarationPattern: x.y.z.Foo.bar() --> void, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -717,7 +717,7 @@ public void testSearchPatternCreation17() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"MethodReferencePattern: x.y.z.Foo.bar() --> void, exact match, case sensitive",
+		"MethodReferencePattern: x.y.z.Foo.bar() --> void, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -731,7 +731,7 @@ public void testSearchPatternCreation18() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"MethodCombinedPattern: x.y.z.Foo.bar() --> void, exact match, case sensitive",
+		"MethodCombinedPattern: x.y.z.Foo.bar() --> void, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -745,7 +745,7 @@ public void testSearchPatternCreation19() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"TypeDeclarationPattern: pkg<x.y.z>, enclosing<>, type<Foo>, exact match, case sensitive",
+		"TypeDeclarationPattern: pkg<x.y.z>, enclosing<>, type<Foo>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -759,7 +759,7 @@ public void testSearchPatternCreation20() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"TypeReferencePattern: qualification<x.y.z>, type<Foo>, exact match, case sensitive",
+		"TypeReferencePattern: qualification<x.y.z>, type<Foo>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -773,7 +773,7 @@ public void testSearchPatternCreation21() {
 			IJavaSearchConstants.IMPLEMENTORS);
 	
 	assertPattern(
-		"SuperInterfaceReferencePattern: <I>, exact match, case sensitive",
+		"SuperInterfaceReferencePattern: <I>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -787,8 +787,8 @@ public void testSearchPatternCreation22() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"TypeDeclarationPattern: pkg<x.y.z>, enclosing<>, type<Foo>, exact match, case sensitive\n" + 
-		"| TypeReferencePattern: qualification<x.y.z>, type<Foo>, exact match, case sensitive",
+		"TypeDeclarationPattern: pkg<x.y.z>, enclosing<>, type<Foo>, exact match, case sensitive, erasure only\n" + 
+		"| TypeReferencePattern: qualification<x.y.z>, type<Foo>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -802,7 +802,7 @@ public void testSearchPatternCreation23() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"PackageReferencePattern: <x.y.z>, exact match, case sensitive",
+		"PackageReferencePattern: <x.y.z>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -816,7 +816,7 @@ public void testSearchPatternCreation24() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"PackageReferencePattern: <x.y.z>, exact match, case sensitive",
+		"PackageReferencePattern: <x.y.z>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -830,7 +830,7 @@ public void testSearchPatternCreation25() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"TypeReferencePattern: qualification<java.util>, type<Vector>, exact match, case sensitive",
+		"TypeReferencePattern: qualification<java.util>, type<Vector>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -844,7 +844,7 @@ public void testSearchPatternCreation26() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive",
+		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -858,7 +858,7 @@ public void testSearchPatternCreation27() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive",
+		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -872,7 +872,7 @@ public void testSearchPatternCreation28() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"PackageDeclarationPattern: <x.y>, exact match, case sensitive",
+		"PackageDeclarationPattern: <x.y>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -886,8 +886,8 @@ public void testSearchPatternCreation29() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive\n" +
-		"| PackageReferencePattern: <x.y.z>, exact match, case sensitive",
+		"PackageDeclarationPattern: <x.y.z>, exact match, case sensitive, erasure only\n" +
+		"| PackageReferencePattern: <x.y.z>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -901,7 +901,7 @@ public void testSearchPatternCreation30() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"LocalVarDeclarationPattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive",
+		"LocalVarDeclarationPattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -915,7 +915,7 @@ public void testSearchPatternCreation31() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"LocalVarReferencePattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive",
+		"LocalVarReferencePattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -929,7 +929,7 @@ public void testSearchPatternCreation32() {
 			IJavaSearchConstants.ALL_OCCURRENCES);
 	
 	assertPattern(
-		"LocalVarCombinedPattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive",
+		"LocalVarCombinedPattern: var [in foo() [in X [in X.java [in <default> [in <project root> [in P]]]]]], exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -943,7 +943,7 @@ public void testSearchPatternCreation33() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"TypeDeclarationPattern: pkg<>, enclosing<X.*>, type<Y>, exact match, case sensitive",
+		"TypeDeclarationPattern: pkg<>, enclosing<X.*>, type<Y>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -957,7 +957,7 @@ public void testSearchPatternCreation34() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive",
+		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -971,7 +971,7 @@ public void testSearchPatternCreation35() {
 			IJavaSearchConstants.DECLARATIONS);
 	
 	assertPattern(
-		"TypeDeclarationPattern: pkg<>, enclosing<X.*>, type<Y>, exact match, case sensitive",
+		"TypeDeclarationPattern: pkg<>, enclosing<X.*>, type<Y>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 
@@ -985,7 +985,7 @@ public void testSearchPatternCreation36() {
 			IJavaSearchConstants.REFERENCES);
 	
 	assertPattern(
-		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive",
+		"TypeReferencePattern: qualification<X.*>, type<Y>, exact match, case sensitive, erasure only",
 		searchPattern);
 }
 /**
