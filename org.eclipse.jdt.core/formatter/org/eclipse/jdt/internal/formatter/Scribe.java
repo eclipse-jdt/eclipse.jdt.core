@@ -11,14 +11,11 @@
 package org.eclipse.jdt.internal.formatter;
 
 import java.util.Arrays;
-import java.util.Map;
 
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -80,19 +77,20 @@ public class Scribe {
     /** indent empty lines*/
     private final boolean indentEmptyLines;
     
-	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
-		if (settings != null) {
-			Object sourceLevelOption = settings.get(JavaCore.COMPILER_SOURCE);
-			long sourceLevel = ClassFileConstants.JDK1_3;
-			if (JavaCore.VERSION_1_4.equals(sourceLevelOption)) {
-				sourceLevel = ClassFileConstants.JDK1_4;
-			} else if (JavaCore.VERSION_1_5.equals(sourceLevelOption)) {
-				sourceLevel = ClassFileConstants.JDK1_5;
-			}
+	// TODO (olivier) remove commented code after review
+	Scribe(CodeFormatterVisitor formatter, /*Map settings*/long sourceLevel, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
+//		if (settings != null) {
+//			Object sourceLevelOption = settings.get(JavaCore.COMPILER_SOURCE);
+//			long sourceLevel = ClassFileConstants.JDK1_3;
+//			if (JavaCore.VERSION_1_4.equals(sourceLevelOption)) {
+//				sourceLevel = ClassFileConstants.JDK1_4;
+//			} else if (JavaCore.VERSION_1_5.equals(sourceLevelOption)) {
+//				sourceLevel = ClassFileConstants.JDK1_5;
+//			}
 			this.scanner = new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		} else {
-			this.scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		}
+//		} else {
+//			this.scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+//		}
 		this.formatter = formatter;
 		this.pageWidth = formatter.preferences.page_width;
 		this.tabLength = formatter.preferences.tab_size;

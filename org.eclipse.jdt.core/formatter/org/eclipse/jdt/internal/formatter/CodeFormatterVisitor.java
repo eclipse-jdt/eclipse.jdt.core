@@ -104,6 +104,7 @@ import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -174,21 +175,26 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public Scribe scribe;
 
 	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
-		if (settings != null) {
-			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
-			long sourceLevel = ClassFileConstants.JDK1_3;
-			if (JavaCore.VERSION_1_4.equals(assertModeSetting)) {
-				sourceLevel = ClassFileConstants.JDK1_4;
-			} else if (JavaCore.VERSION_1_5.equals(assertModeSetting)) {
-				sourceLevel = ClassFileConstants.JDK1_5;
-			}		
-			this.localScanner = new Scanner(true, false, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		} else {
-			this.localScanner = new Scanner(true, false, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		}
+// TODO (olivier) remove commented code after review
+//		if (settings != null) {
+//			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
+//			long sourceLevel = ClassFileConstants.JDK1_3;
+//			if (JavaCore.VERSION_1_4.equals(assertModeSetting)) {
+//				sourceLevel = ClassFileConstants.JDK1_4;
+//			} else if (JavaCore.VERSION_1_5.equals(assertModeSetting)) {
+//				sourceLevel = ClassFileConstants.JDK1_5;
+//			}		
+//			this.localScanner = new Scanner(true, false, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+//		} else {
+//			this.localScanner = new Scanner(true, false, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+//		}
+		long sourceLevel = settings == null
+			? ClassFileConstants.JDK1_3
+			: CompilerOptions.versionToJdkLevel(settings.get(JavaCore.COMPILER_SOURCE));
+		this.localScanner = new Scanner(true, false, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		
 		this.preferences = preferences;
-		this.scribe = new Scribe(this, settings, offset, length, codeSnippetParsingUtil);
+		this.scribe = new Scribe(this, sourceLevel, offset, length, codeSnippetParsingUtil);
 	}
 	
 	/**

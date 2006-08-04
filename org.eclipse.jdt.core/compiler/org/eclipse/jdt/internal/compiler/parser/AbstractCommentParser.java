@@ -101,6 +101,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		if (sourceParser != null) {
 			this.checkDocComment = this.sourceParser.options.docCommentSupport;
 			this.sourceLevel = this.sourceParser.options.sourceLevel;
+			this.scanner.sourceLevel = this.sourceLevel;
 			this.complianceLevel = this.sourceParser.options.complianceLevel;
 		}
 	}
