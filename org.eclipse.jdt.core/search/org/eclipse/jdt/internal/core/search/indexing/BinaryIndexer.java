@@ -501,7 +501,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 						if (classSignature.length > (length+1)) {
 							// synthetic means that parameter type has same signature than given class
 							for (int j=i, k=0; j<indexOfSemiColon; j++, k++) {
-								if (signature[j] != classSignature[k]) {
+								if (!(signature[j] == classSignature[k] || (signature[j] == '/' && classSignature[k] == '.' ))) {
 									parameterTypesCounter++;
 									break;
 								}

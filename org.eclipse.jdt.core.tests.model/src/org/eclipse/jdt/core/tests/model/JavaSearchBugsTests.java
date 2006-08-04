@@ -3315,8 +3315,8 @@ public void testBug95152_jar01() throws CoreException {
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
-		"src/b95152/T1.java b95152.T1() [new T12()] EXACT_MATCH\n" + 
-		"src/b95152/T1.java b95152.T1() [c2.new T13()] EXACT_MATCH"
+		"lib/b95152.jar b95152.T1() EXACT_MATCH\n" + 
+		"lib/b95152.jar b95152.T1() EXACT_MATCH"
 	);
 }
 public void testBug95152_jar02() throws CoreException {
@@ -3327,8 +3327,8 @@ public void testBug95152_jar02() throws CoreException {
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
-		"src/b95152/T2.java b95152.T2(int) [new T22(c)] EXACT_MATCH\n" + 
-		"src/b95152/T2.java b95152.T2(int) [c2.new T23(c)] EXACT_MATCH"
+		"lib/b95152.jar b95152.T2(int) EXACT_MATCH\n" + 
+		"lib/b95152.jar b95152.T2(int) EXACT_MATCH"
 	);
 }
 public void testBug95152_jar03() throws CoreException {
@@ -3339,8 +3339,8 @@ public void testBug95152_jar03() throws CoreException {
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
-		"src/b95152/T3.java b95152.T3(T3) [new T32(c)] EXACT_MATCH\n" + 
-		"src/b95152/T3.java b95152.T3(T3) [c2.new T33(c2)] EXACT_MATCH"
+		"lib/b95152.jar b95152.T3(b95152.T3) EXACT_MATCH\n" + 
+		"lib/b95152.jar b95152.T3(b95152.T3) EXACT_MATCH"
 	);
 }
 public void testBug95152_jar04() throws CoreException {
@@ -3351,64 +3351,8 @@ public void testBug95152_jar04() throws CoreException {
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
-		"src/b95152/T4.java b95152.T4(T4, String) [new T42(c, str)] EXACT_MATCH\n" + 
-		"src/b95152/T4.java b95152.T4(T4, String) [c2.new T43(c2, str)] EXACT_MATCH"
-	);
-}
-public void testBug95152_cu01() throws CoreException {
-	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95152", "T1.java");
-	// search constructor first level member
-	IType type = unit.getType("T1").getType("T12");
-	search(type.getMethods()[0], REFERENCES);
-	// search constructor second level member
-	type = type.getType("T13");
-	search(type.getMethods()[0], REFERENCES);
-	// verify searches results
-	assertSearchResults(
-		"src/b95152/T1.java b95152.T1() [new T12()] EXACT_MATCH\n" +
-		"src/b95152/T1.java b95152.T1() [c2.new T13()] EXACT_MATCH"
-	);
-}
-public void testBug95152_cu02() throws CoreException {
-	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95152", "T2.java");
-	// search constructor first level member
-	IType type = unit.getType("T2").getType("T22");
-	search(type.getMethods()[0], REFERENCES);
-	// search constructor second level member
-	type = type.getType("T23");
-	search(type.getMethods()[0], REFERENCES);
-	// verify searches results
-	assertSearchResults(
-		"src/b95152/T2.java b95152.T2(int) [new T22(c)] EXACT_MATCH\n" + 
-		"src/b95152/T2.java b95152.T2(int) [c2.new T23(c)] EXACT_MATCH"
-	);
-}
-public void testBug95152_cu03() throws CoreException {
-	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95152", "T3.java");
-	// search constructor first level member
-	IType type = unit.getType("T3").getType("T32");
-	search(type.getMethods()[0], REFERENCES);
-	// search constructor second level member
-	type = type.getType("T33");
-	search(type.getMethods()[0], REFERENCES);
-	// verify searches results
-	assertSearchResults(
-		"src/b95152/T3.java b95152.T3(T3) [new T32(c)] EXACT_MATCH\n" + 
-		"src/b95152/T3.java b95152.T3(T3) [c2.new T33(c2)] EXACT_MATCH"
-	);
-}
-public void testBug95152_cu04() throws CoreException {
-	ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b95152", "T4.java");
-	// search constructor first level member
-	IType type = unit.getType("T4").getType("T42");
-	search(type.getMethods()[0], REFERENCES);
-	// search constructor second level member
-	type = type.getType("T43");
-	search(type.getMethods()[0], REFERENCES);
-	// verify searches results
-	assertSearchResults(
-		"src/b95152/T4.java b95152.T4(T4, String) [new T42(c, str)] EXACT_MATCH\n" + 
-		"src/b95152/T4.java b95152.T4(T4, String) [c2.new T43(c2, str)] EXACT_MATCH"
+		"lib/b95152.jar b95152.T4(b95152.T4, java.lang.String) EXACT_MATCH\n" + 
+		"lib/b95152.jar b95152.T4(b95152.T4, java.lang.String) EXACT_MATCH"
 	);
 }
 public void testBug95152_wc01() throws CoreException {
