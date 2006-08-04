@@ -46,9 +46,16 @@ Eclipse SDK 3.2.1 - ?th August 2006
 <br>Project org.eclipse.jdt.core v_673_R32x
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_673_R32x">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>New fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=95152">bug 95152</a> required the index version to be incremented. 
+     Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=149376">149376</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=95152">95152</a>
+[search] F3 can't find synthetic constructor
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=149376">149376</a>
 Internal compiler error on &quot;import static&quot;
 
 <a name="v_672_R32x"></a>
@@ -169,8 +176,6 @@ JDOM: IDOMType.setSuperInterfaces(new String [0]) fails to remove existing imple
 [1.5][javadoc] Unwanted missing tag warning for overridden method with parameter containing type variable
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=130752">130752</a>
 [comments] first BlockComment parsed as LineComment
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=95152">95152</a>
-[search] F3 can't find synthetic constructor
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=140156">140156</a>
 [1.5][search] Invalid method handle with parameterized parameters when no source is attached
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=123679">123679</a>
