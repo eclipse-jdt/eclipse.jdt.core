@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
@@ -66,21 +67,13 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 	public Scribe2 scribe;
 
 	public CodeFormatterVisitor2(DefaultCodeFormatterOptions preferences, Map settings, int offset, int length, CompilationUnit unit) {
-		if (settings != null) {
-			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
-			long sourceLevel = ClassFileConstants.JDK1_3;
-			if (JavaCore.VERSION_1_4.equals(assertModeSetting)) {
-				sourceLevel = ClassFileConstants.JDK1_4;
-			} else if (JavaCore.VERSION_1_5.equals(assertModeSetting)) {
-				sourceLevel = ClassFileConstants.JDK1_5;
-			}		
-			this.localScanner = new Scanner(true, false, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		} else {
-			this.localScanner = new Scanner(true, false, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		}
+		long sourceLevel = settings == null
+			? ClassFileConstants.JDK1_3
+			: CompilerOptions.versionToJdkLevel(settings.get(JavaCore.COMPILER_SOURCE));
+		this.localScanner = new Scanner(true, false, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		
 		this.preferences = preferences;
-		this.scribe = new Scribe2(this, settings, offset, length, unit);
+		this.scribe = new Scribe2(this, sourceLevel, offset, length, unit);
 	}
 
 	private boolean commentStartsBlock(int start, int end) {
