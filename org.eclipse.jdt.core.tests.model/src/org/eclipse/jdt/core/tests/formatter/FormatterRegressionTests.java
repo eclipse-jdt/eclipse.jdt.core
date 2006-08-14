@@ -8875,7 +8875,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
-	// TODO (olivier) renable once the formatter is aware of CombinedBinaryExpression
 	public void test625() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		options.put(
