@@ -199,6 +199,9 @@ public void place() { // Currently lacking wide support.
 		if (this.forwardReferenceCount != 0) {
 			isOptimizedBranch = (this.forwardReferences[this.forwardReferenceCount - 1] + 2 == this.position) && (this.codeStream.bCodeStream[this.codeStream.classFileOffset - 3] == Opcodes.OPC_goto);
 			if (isOptimizedBranch) {
+				if (this.codeStream.lastAbruptCompletion == this.position) {
+					this.codeStream.lastAbruptCompletion = -1;
+				}
 				this.codeStream.position = (this.position -= 3);
 				this.codeStream.classFileOffset -= 3;
 				this.forwardReferenceCount--;
