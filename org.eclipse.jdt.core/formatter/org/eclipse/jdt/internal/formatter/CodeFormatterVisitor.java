@@ -175,19 +175,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public Scribe scribe;
 
 	public CodeFormatterVisitor(DefaultCodeFormatterOptions preferences, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
-// TODO (olivier) remove commented code after review
-//		if (settings != null) {
-//			Object assertModeSetting = settings.get(JavaCore.COMPILER_SOURCE);
-//			long sourceLevel = ClassFileConstants.JDK1_3;
-//			if (JavaCore.VERSION_1_4.equals(assertModeSetting)) {
-//				sourceLevel = ClassFileConstants.JDK1_4;
-//			} else if (JavaCore.VERSION_1_5.equals(assertModeSetting)) {
-//				sourceLevel = ClassFileConstants.JDK1_5;
-//			}		
-//			this.localScanner = new Scanner(true, false, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-//		} else {
-//			this.localScanner = new Scanner(true, false, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-//		}
 		long sourceLevel = settings == null
 			? ClassFileConstants.JDK1_3
 			: CompilerOptions.versionToJdkLevel(settings.get(JavaCore.COMPILER_SOURCE));

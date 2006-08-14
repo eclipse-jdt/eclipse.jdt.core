@@ -8889,7 +8889,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test625", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=152725
-	// TODO (olivier) review the fix
 	public void test626() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);

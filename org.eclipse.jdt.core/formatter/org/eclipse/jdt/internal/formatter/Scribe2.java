@@ -14,16 +14,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -82,20 +79,9 @@ public class Scribe2 {
 
     /** indent empty lines*/
     private final boolean indentEmptyLines;
-    
-	Scribe2(CodeFormatterVisitor2 formatter, Map settings, int offset, int length, CompilationUnit unit) {
-		if (settings != null) {
-			Object sourceLevelOption = settings.get(JavaCore.COMPILER_SOURCE);
-			long sourceLevel = ClassFileConstants.JDK1_3;
-			if (JavaCore.VERSION_1_4.equals(sourceLevelOption)) {
-				sourceLevel = ClassFileConstants.JDK1_4;
-			} else if (JavaCore.VERSION_1_5.equals(sourceLevelOption)) {
-				sourceLevel = ClassFileConstants.JDK1_5;
-			}
-			this.scanner = new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		} else {
-			this.scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		}
+
+	Scribe2(CodeFormatterVisitor2 formatter, long sourceLevel, int offset, int length, CompilationUnit unit) {
+		this.scanner = new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 		this.formatter = formatter;
 		this.pageWidth = formatter.preferences.page_width;
 		this.tabLength = formatter.preferences.tab_size;
