@@ -105,9 +105,11 @@ class PackageBinding implements IPackageBinding {
 							int total = allInstances.length;
 							IAnnotationBinding[] domInstances = new AnnotationBinding[total];
 							for (int a = 0; a < total; a++) {
-								domInstances[a] = this.resolver.getAnnotationInstance(allInstances[a]);
-								if (domInstances[a] == null) // not resolving binding
+								final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(allInstances[a]);
+								if (annotationInstance == null) {// not resolving binding
 									return AnnotationBinding.NoAnnotations; 
+								}
+								domInstances[a] = annotationInstance;
 							}
 							return domInstances;
 						}

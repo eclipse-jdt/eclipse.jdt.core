@@ -84,8 +84,13 @@ class TypeBinding implements ITypeBinding {
 			int length = internalAnnotations == null ? 0 : internalAnnotations.length;
 			if (length > 0) {
 				domInstances = new AnnotationBinding[length];
-				for (int i = 0; i < length; i++)
-					domInstances[i] = this.resolver.getAnnotationInstance(internalAnnotations[i]);
+				for (int i = 0; i < length; i++) {
+					final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotations[i]);
+					if (annotationInstance == null) {
+						return AnnotationBinding.NoAnnotations;
+					}
+					domInstances[i] = annotationInstance;
+				}
 			}
 		}
 		return domInstances;
