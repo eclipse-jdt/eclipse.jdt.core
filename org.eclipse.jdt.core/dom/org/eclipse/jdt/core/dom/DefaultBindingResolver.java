@@ -1595,4 +1595,67 @@ class DefaultBindingResolver extends BindingResolver {
 			this.newAstToOldAst.put(newNode, astNode);
 		}
 	}
+
+	/**
+	 * Answer an array type binding with the given type binding and the given
+	 * dimensions.
+	 * 
+	 * <p>If the given type binding is an array binding, then the resulting dimensions is the given dimensions
+	 * plus the existing dimensions of the array binding. Otherwise the resulting dimensions is the given
+	 * dimensions.</p>
+	 *
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param typeBinding the given type binding
+	 * @param dimensions the given dimensions
+	 * @return an array type binding with the given type binding and the given
+	 * dimensions
+	 * @throws IllegalArgumentException if the type binding represents the <code>void</code> type binding
+	 */
+	ITypeBinding resolveArrayType(ITypeBinding typeBinding, int dimensions) {
+		ITypeBinding leafComponentType = typeBinding;
+		int actualDimensions = dimensions; 
+		if (typeBinding.isArray()) {
+			leafComponentType = typeBinding.getElementType();
+			actualDimensions += typeBinding.getDimensions();
+		}
+ 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding leafTypeBinding = null;
+ 		if (leafComponentType.isPrimitive()) {
+ 	 		String name = leafComponentType.getBinaryName();
+			switch(name.charAt(0)) {
+				case 'I' :
+					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.INT;
+					break;
+				case 'B' :
+					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.BYTE;
+					break;
+				case 'Z' :
+					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.BOOLEAN;
+					break;
+				case 'C' :
+					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.CHAR;
+					break;
+				case 'J' :
+					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.LONG;
+					break;
+				case 'S' :
+					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.SHORT;
+					break;
+				case 'D' :
+					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.DOUBLE;
+					break;
+				case 'F' :
+					leafTypeBinding = org.eclipse.jdt.internal.compiler.lookup.TypeBinding.FLOAT;
+					break;
+				case 'V' :
+					throw new IllegalArgumentException();
+			}
+ 		} else {
+ 			leafTypeBinding = ((TypeBinding) leafComponentType).binding;
+ 		}
+		return this.getTypeBinding(this.lookupEnvironment().createArrayType(leafTypeBinding, actualDimensions));
+	}
 }

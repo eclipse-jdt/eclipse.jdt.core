@@ -2781,6 +2781,32 @@ public final class AST {
 		this.setEventHandler(this.rewriter);
 	}
 	
+
+	/**
+	 * Answer an array type binding with the given type binding and the given
+	 * dimension.
+	 * 
+	 * <p>If the given type binding is an array binding, then the resulting dimension is the given dimension
+	 * plus the dimension of the array binding. Otherwise the resulting dimension is the given
+	 * dimension.</p>
+	 * 
+	 * @param binding the given type binding
+	 * @param dimensions the given dimension
+	 * @return an array type binding
+	 * @throws IllegalArgumentException:<ul>
+	 * <li>if the given type binding represents the void type</li>
+	 * <li>if the resulting dimensions is lower than one or greater than 255</li>
+	 * </ul>
+	 */
+	public ITypeBinding resolveArrayType(ITypeBinding binding, int dimensions) {
+		int realDimensions = dimensions;
+		realDimensions += binding.getDimensions();
+		if (realDimensions < 1 || realDimensions > 255) {
+			throw new IllegalArgumentException();
+		}
+		return this.getBindingResolver().resolveArrayType(binding, dimensions);
+	}
+
 	/**
 	 * Converts all modifications recorded into an object
 	 * representing the corresponding text edits to the

@@ -94,6 +94,7 @@ import org.eclipse.jdt.core.tests.model.CancelCounter;
 import org.eclipse.jdt.core.tests.model.Canceler;
 import org.eclipse.jdt.core.tests.model.ReconcilerTests;
 import org.eclipse.jdt.core.tests.util.Util;
+
 public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	
 	public void setUpSuite() throws Exception {
@@ -8013,5 +8014,111 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		FieldAccess fieldAccess = (FieldAccess) expression;
 		IVariableBinding variableBinding = fieldAccess.resolveFieldBinding();
 		assertNotNull("No variable binding", variableBinding);
+	}
+	
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=148224
+	 */
+	public void test0654() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	int i;\n" +
+				"	public void foo(int[] a) {\n" + 
+				"	}\n" + 
+				"	String s;\n" +
+				"	public String[][] bar() {\n" + 
+				"		return null;\n" +
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false,
+				true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0);
+			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			FieldDeclaration declaration = (FieldDeclaration) node;
+			Type type = declaration.getType();
+			ITypeBinding typeBinding = type.resolveBinding();
+			assertTrue("Not a primitive type", typeBinding.isPrimitive());
+			assertEquals("Not int", "int", typeBinding.getName());
+			AST localAst = unit.getAST();
+			try {
+				localAst.resolveArrayType(typeBinding, -1);
+				assertTrue("Should throw an exception", false);
+			} catch(IllegalArgumentException exception) {
+				// ignore
+			}
+			try {
+				localAst.resolveArrayType(typeBinding, 0);
+				assertTrue("Should throw an exception", false);
+			} catch(IllegalArgumentException exception) {
+				// ignore
+			}
+			try {
+				localAst.resolveArrayType(typeBinding, 256);
+				assertTrue("Should throw an exception", false);
+			} catch(IllegalArgumentException exception) {
+				// ignore
+			}
+			ITypeBinding binding = localAst.resolveArrayType(typeBinding, 2);
+			assertEquals("Wrong dimensions", 2, binding.getDimensions());
+			assertTrue("Not an array type binding", binding.isArray());
+			ITypeBinding componentType = binding.getComponentType();
+			assertTrue("Not an array type binding", componentType.isArray());
+			assertEquals("Wrong dimensions", 1, componentType.getDimensions());
+			componentType = componentType.getComponentType();
+			assertFalse("An array type binding", componentType.isArray());
+			assertEquals("Wrong dimensions", 0, componentType.getDimensions());
+			
+			binding = localAst.resolveArrayType(typeBinding, 1);
+			node = getASTNode(unit, 0, 1);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			List parameters = methodDeclaration.parameters();
+			assertEquals("Wrong size", 1, parameters.size());
+			SingleVariableDeclaration parameter = (SingleVariableDeclaration) parameters.get(0);
+			Type type2 = parameter.getType();
+			ITypeBinding typeBinding2 = type2.resolveBinding();
+			assertNotNull("No binding", typeBinding2);
+			assertTrue("Not an array binding", typeBinding2.isArray());
+			assertEquals("Wrong dimension", 1, typeBinding2.getDimensions());
+			assertEquals("Wrong type", "int", typeBinding2.getElementType().getName());
+			assertTrue("Should be equals", binding == typeBinding2);
+
+			node = getASTNode(unit, 0, 2);
+			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			declaration = (FieldDeclaration) node;
+			type = declaration.getType();
+			typeBinding = type.resolveBinding();
+			assertTrue("A primitive type", !typeBinding.isPrimitive());
+			assertEquals("Not String", "String", typeBinding.getName());
+
+			binding = localAst.resolveArrayType(typeBinding, 1);
+			node = getASTNode(unit, 0, 3);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			methodDeclaration = (MethodDeclaration) node;
+			type = methodDeclaration.getReturnType2();
+			assertNotNull("No return type", type);
+			typeBinding2 = type.resolveBinding();
+			assertNotNull("No binding", typeBinding2);
+			assertTrue("Not an array binding", typeBinding2.isArray());
+			assertEquals("Wrong dimension", 2, typeBinding2.getDimensions());
+			assertEquals("Wrong type", "String", typeBinding2.getElementType().getName());
+			typeBinding2 = typeBinding2.getComponentType();
+			assertTrue("Not an array binding", typeBinding2.isArray());
+			assertEquals("Wrong dimension", 1, typeBinding2.getDimensions());
+			assertTrue("Should be equals", binding == typeBinding2);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }

@@ -66,7 +66,7 @@ class TypeBinding implements ITypeBinding {
 	private static final int VALID_MODIFIERS = Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE |
 		Modifier.ABSTRACT | Modifier.STATIC | Modifier.FINAL | Modifier.STRICTFP;
 	
-	private org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding;
+	org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding;
 	private String key;
 	private BindingResolver resolver;
 	

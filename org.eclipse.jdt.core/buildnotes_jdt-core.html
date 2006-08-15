@@ -50,9 +50,33 @@ Eclipse SDK 3.3M2 - 15th August 2006
 <br>Project org.eclipse.jdt.core v_709
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_709">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Add new DOM API method to resolve array bindings using an existing type binding. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148224">148224</a>.<br>
+<pre>	/**
+	 * Answer an array type binding with the given type binding and the given
+	 * dimension.
+	 * 
+	 * If the given type binding is an array binding, then the resulting dimension is the given dimension
+	 * plus the dimension of the array binding. Otherwise the resulting dimension is the given
+	 * dimension.
+	 * 
+	 * @param binding the given type binding
+	 * @param dimensions the given dimension
+	 * @return an array type binding
+	 * @throws IllegalArgumentException:
+	 *   if the given type binding represents the void type
+	 *   if the resulting dimensions is lower than one or greater than 255
+	 *
+	 */
+	public ITypeBinding resolveArrayType(ITypeBinding binding, int dimensions)
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=153303">153303</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148224">148224</a>
+AST API request: have binding for int, need int[], int[][] ....
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=153303">153303</a>
 IBinding.getAnnotations() returns array with null element
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148661">148661</a>
 [formatter] leverage CombinedBinaryExpression in BinaryExpressionFragmentBuilder#visit(BinaryExpression, BlockScope)

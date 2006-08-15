@@ -868,6 +868,29 @@ class BindingResolver {
 	IAnnotationBinding resolveAnnotation(Annotation annotation) {
 		return null;
 	}
+	
+	/**
+	 * Answer an array type binding with the given type binding and the given
+	 * dimensions.
+	 * 
+	 * <p>If the given type binding is an array binding, then the resulting dimensions is the given dimensions
+	 * plus the existing dimensions of the array binding. Otherwise the resulting dimensions is the given
+	 * dimensions.</p>
+	 *
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param typeBinding the given type binding
+	 * @param dimensions the given dimensions
+	 * @return an array type binding with the given type binding and the given
+	 * dimensions
+	 * @throws IllegalArgumentException if the type binding represents the <code>void</code> type binding
+	 */
+	ITypeBinding resolveArrayType(ITypeBinding typeBinding, int dimensions) {
+		return null;
+	}
 
 	/**
 	 * Returns the compilation unit scope used by this binding resolver.
