@@ -158,7 +158,17 @@ class MethodBinding implements IMethodBinding {
 		} else {
 			this.parameterTypes = new ITypeBinding[length];
 			for (int i = 0; i < length; i++) {
-				this.parameterTypes[i] = this.resolver.getTypeBinding(parameters[i]);
+				final TypeBinding parameterBinding = parameters[i];
+				if (parameterBinding != null) {
+					this.parameterTypes[i] = this.resolver.getTypeBinding(parameterBinding);
+				} else {
+					// log error
+					StringBuffer message = new StringBuffer("Report method binding where a parameter is null:\n");  //$NON-NLS-1$
+					message.append(this.toString());
+					Util.log(new IllegalArgumentException(), message.toString());
+					// report no binding since one or more parameter has no binding
+					return this.parameterTypes = NO_TYPE_BINDINGS;
+				}
 			}
 		}
 		return this.parameterTypes;
