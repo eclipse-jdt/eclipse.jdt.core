@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 222 };
+//		TESTS_NUMBERS = new int[] { 223, 224, 225, 226 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -6999,6 +6999,99 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Expression expression = forStatement.getExpression();
 		assertNotNull("No expression", expression);
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
-		
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=153303
+	 */
+	public void test0223() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X {\n" + 
+    		"    @Zork\n" + 
+    		"    public void foo( ) {\n" + 
+    		"    }\n" + 
+    		"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "Zork cannot be resolved to a type");
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+		IAnnotationBinding[] annotations = methodBinding.getAnnotations();
+		assertEquals("Wrong size", 0, annotations.length);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=153303
+	 */
+	public void test0224() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"@Zork\n" + 
+    		"public class X {\n" +
+    		"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "Zork cannot be resolved to a type");
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+		assertEquals("Wrong size", 0, annotations.length);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=153303
+	 */
+	public void test0225() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X {\n" +
+    		"    public void foo(@Zork String s) {\n" + 
+    		"    }\n" + 
+    		"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "Zork cannot be resolved to a type");
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		List parameters = methodDeclaration.parameters();
+		assertEquals("wrong size", 1, parameters.size());
+		SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		IVariableBinding variableBinding = singleVariableDeclaration.resolveBinding();
+		IAnnotationBinding[] bindings = variableBinding.getAnnotations();
+		assertEquals("Wrong size", 0, bindings.length);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=153303
+	 */
+	public void test0226() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/p/package-info.java", true/*resolve*/);
+    	String contents =
+    		"@Zork package p;";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "Zork cannot be resolved to a type");
+		PackageDeclaration packageDeclaration = unit.getPackage();
+		IPackageBinding packageBinding = packageDeclaration.resolveBinding();
+		IAnnotationBinding[] annotations = packageBinding.getAnnotations();
+		assertEquals("Wrong size", 0, annotations.length);
 	}
 }
