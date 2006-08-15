@@ -42,6 +42,42 @@
 	</td>
   </tr>
 </table>
+<a name="v_710"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.3M2 - 15th August 2006
+<br>Project org.eclipse.jdt.core v_710
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_710">cvs</a>).
+<h2>What's new in this drop</h2>
+<ul>
+<li>Add new DOM API method to create array bindings using an existing type binding has been moved to the <code>org.eclipse.jdt.core.dom.ITypeBinding</code> class
+and rename <code>createArrayType</code>. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148224">148224</a>.<br>
+<pre>		/**
+	 * Answer an array type binding using the receiver and the given
+	 * dimension.
+	 * 
+	 * If the receiver is an array binding, then the resulting dimension is the given dimension
+	 * plus the dimension of the receiver. Otherwise the resulting dimension is the given
+	 * dimension.
+	 * 
+	 * @param dimension the given dimension
+	 * @return an array type binding
+	 * @throws IllegalArgumentException:
+	 *   if the receiver represents the void type
+	 *   if the resulting dimensions is lower than one or greater than 255
+	 *
+	 * @since 3.3
+	 */
+	public ITypeBinding createArrayType(int dimension);
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148224">148224</a>
+AST API request: have binding for int, need int[], int[][] ....
+
 <a name="v_709"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes<br>

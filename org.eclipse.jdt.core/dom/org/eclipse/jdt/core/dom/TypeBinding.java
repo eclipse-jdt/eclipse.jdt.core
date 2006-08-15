@@ -75,6 +75,15 @@ class TypeBinding implements ITypeBinding {
 		this.resolver = resolver;
 	}
 
+	public ITypeBinding createArrayType(int dimension) {
+		int realDimensions = dimension;
+		realDimensions += this.getDimensions();
+		if (realDimensions < 1 || realDimensions > 255) {
+			throw new IllegalArgumentException();
+		}
+		return this.resolver.resolveArrayType(this, dimension);
+	}
+
 	public IAnnotationBinding[] getAnnotations() { 
 		IAnnotationBinding[] domInstances = AnnotationBinding.NoAnnotations;
 		if (this.binding.isAnnotationType() || this.binding.isClass() || this.binding.isEnum() || this.binding.isInterface()) {

@@ -47,6 +47,25 @@ package org.eclipse.jdt.core.dom;
  */
 public interface ITypeBinding extends IBinding {
 	
+
+	/**
+	 * Answer an array type binding using the receiver and the given
+	 * dimension.
+	 * 
+	 * <p>If the receiver is an array binding, then the resulting dimension is the given dimension
+	 * plus the dimension of the receiver. Otherwise the resulting dimension is the given
+	 * dimension.</p>
+	 * 
+	 * @param dimension the given dimension
+	 * @return an array type binding
+	 * @throws IllegalArgumentException:<ul>
+	 * <li>if the receiver represents the void type</li>
+	 * <li>if the resulting dimensions is lower than one or greater than 255</li>
+	 * </ul>
+	 * @since 3.3
+	 */
+	public ITypeBinding createArrayType(int dimension);
+	
 	/**
 	 * Returns the binary name of this type binding.
 	 * The binary name of a class is defined in the Java Language 

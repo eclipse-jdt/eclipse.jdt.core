@@ -108,7 +108,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 654 };
+		TESTS_NUMBERS =  new int[] { 654 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8049,26 +8049,25 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			ITypeBinding typeBinding = type.resolveBinding();
 			assertTrue("Not a primitive type", typeBinding.isPrimitive());
 			assertEquals("Not int", "int", typeBinding.getName());
-			AST localAst = unit.getAST();
 			try {
-				localAst.resolveArrayType(typeBinding, -1);
+				typeBinding.createArrayType(-1);
 				assertTrue("Should throw an exception", false);
 			} catch(IllegalArgumentException exception) {
 				// ignore
 			}
 			try {
-				localAst.resolveArrayType(typeBinding, 0);
+				typeBinding.createArrayType(0);
 				assertTrue("Should throw an exception", false);
 			} catch(IllegalArgumentException exception) {
 				// ignore
 			}
 			try {
-				localAst.resolveArrayType(typeBinding, 256);
+				typeBinding.createArrayType(256);
 				assertTrue("Should throw an exception", false);
 			} catch(IllegalArgumentException exception) {
 				// ignore
 			}
-			ITypeBinding binding = localAst.resolveArrayType(typeBinding, 2);
+			ITypeBinding binding = typeBinding.createArrayType(2);
 			assertEquals("Wrong dimensions", 2, binding.getDimensions());
 			assertTrue("Not an array type binding", binding.isArray());
 			ITypeBinding componentType = binding.getComponentType();
@@ -8078,7 +8077,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertFalse("An array type binding", componentType.isArray());
 			assertEquals("Wrong dimensions", 0, componentType.getDimensions());
 			
-			binding = localAst.resolveArrayType(typeBinding, 1);
+			binding = typeBinding.createArrayType(1);
 			node = getASTNode(unit, 0, 1);
 			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -8092,6 +8091,10 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertEquals("Wrong dimension", 1, typeBinding2.getDimensions());
 			assertEquals("Wrong type", "int", typeBinding2.getElementType().getName());
 			assertTrue("Should be equals", binding == typeBinding2);
+			
+			binding = typeBinding2.createArrayType(3);
+			assertTrue("Not an array binding", binding.isArray());
+			assertEquals("Wrong dimension", 4, binding.getDimensions());
 
 			node = getASTNode(unit, 0, 2);
 			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
@@ -8101,7 +8104,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertTrue("A primitive type", !typeBinding.isPrimitive());
 			assertEquals("Not String", "String", typeBinding.getName());
 
-			binding = localAst.resolveArrayType(typeBinding, 1);
+			binding = typeBinding.createArrayType(1);
 			node = getASTNode(unit, 0, 3);
 			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 			methodDeclaration = (MethodDeclaration) node;
