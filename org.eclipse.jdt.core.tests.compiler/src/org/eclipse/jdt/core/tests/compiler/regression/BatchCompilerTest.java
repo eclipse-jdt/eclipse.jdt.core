@@ -3039,8 +3039,8 @@ public void test056(){
 			"/out/p cannot be used as output directory\n",
 		true);
 }
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=147461
-// TODO (maxime) finish and activate when fixed
 public void _test057_access_restrictions_separator(){
 	String oppositeSeparator = File.pathSeparatorChar == ':' ?
 			";" : ":";
