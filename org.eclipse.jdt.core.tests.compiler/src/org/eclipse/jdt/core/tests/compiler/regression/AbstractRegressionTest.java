@@ -1025,7 +1025,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	 * Run Sun compilation using javac.
 	 * Launch compilation in a thread and verify that it does not take more than 5s
 	 * to perform it. Otherwise abort the process and log in console.
-	 * WORK not sure we really do that 5s cap any more.
+	 * TODO (maxime) not sure we really do that 5s cap any more.
 	 * A semi verbose output is sent to the console that analyzes differences
 	 * of behaviors between javac and Eclipse on a per test basis. A more 
 	 * verbose output is produced into a file which name is printed on the
