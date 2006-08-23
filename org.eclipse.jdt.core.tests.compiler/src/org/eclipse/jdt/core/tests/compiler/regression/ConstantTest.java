@@ -1097,6 +1097,46 @@ public void test018() {
 		},
 		"n: 2.0");
 }
+
+// http://bugs.eclipse.org/bugs/show_bug.cgi?id=154822
+// null is not a constant - again
+public void test019() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    static class Enclosed {\n" +
+			"		 static final String constant = \"\";\n" +
+			"		 static final String notAConstant;\n" +
+			"        static {\n" +
+			"		     notAConstant = null;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}",
+		},
+		"");
+}
+
+// http://bugs.eclipse.org/bugs/show_bug.cgi?id=154822
+// null is not a constant - again
+public void test020() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    class Inner {\n" +
+			"		 static final String constant = \"\";\n" +
+			"		 static final String notAConstant = null;\n" +
+			"    }\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	static final String notAConstant = null;\n" + 
+		"	                    ^^^^^^^^^^^^\n" + 
+		"The field notAConstant cannot be declared static; static fields can only be declared in static or top level types\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return ConstantTest.class;
 }
