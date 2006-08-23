@@ -22,7 +22,6 @@ import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -32,6 +31,8 @@ import com.sun.mirror.apt.Filer;
 
 public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnotationProcessorEnvironment{
 	
+	private final ICompilationUnit _workingCopy;
+	
 	/**
 	 * Create a reconcile environment from the given context. 
 	 * @param reconcileContext
@@ -39,27 +40,24 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 	 */
 	static ReconcileEnv newEnv(ReconcileContext reconcileContext)
     {	
-		CompilationUnit compilationUnit = null;
-		try{
-			compilationUnit = reconcileContext.getAST3();
-		}
-		catch( JavaModelException e){ /* TODO: log error */ }
-		
-		if (compilationUnit == null)
-			compilationUnit = EMPTY_AST_UNIT;
-		
 		final ICompilationUnit workingCopy = reconcileContext.getWorkingCopy();
 		IJavaProject javaProject = workingCopy.getJavaProject();
 		final IFile file = (IFile)workingCopy.getResource();
-       	return new ReconcileEnv(compilationUnit, file, javaProject);
+       	return new ReconcileEnv(workingCopy, file, javaProject);
     }
 	
 	private ReconcileEnv(
-			CompilationUnit astCompilationUnit,
+			ICompilationUnit workingCopy,
 		    IFile file,
 		    IJavaProject javaProj)
 	{
-		super(astCompilationUnit, file, javaProj, Phase.RECONCILE);
+		// See bug 133744: calling ReconcileContext.getAST3() here would result in 
+		// a typesystem whose types are not comparable with the types we get after 
+		// openPipeline().  Instead, we start the env with an EMPTY_AST_UNIT, and 
+		// replace it with the real thing inside the openPipeline() ASTRequestor's 
+		// acceptAST() callback.
+		super(EMPTY_AST_UNIT, file, javaProj, Phase.RECONCILE);
+		_workingCopy = workingCopy;
 	}
 	
 	void addMessage(
@@ -142,10 +140,18 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 	}
 
 	void openPipeline() {
-		createASTs(_javaProject, NO_UNIT, _requestor = new CallbackRequestor());
+		_requestor = new CallbackRequestor();
+		createASTs(_javaProject, new ICompilationUnit[]{_workingCopy}, _requestor);
 	}
 	
 	class CallbackRequestor extends ASTRequestor {
+		@Override
+		public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+			// Use the AST from the pipeline's parser, not the one from ReconcileContext.getAST3().
+			_astRoot = ast;
+		}
+
+		@Override
 		public void acceptBinding(String bindingKey, IBinding binding) {
 			// This is called when the only binding has been passed, hence it is time
 			// to dispatch
