@@ -111,6 +111,39 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	protected void checkDisassembledClassFile(String fileName, String className, String source, String expectedOutput) throws ClassFormatException, IOException {
+		this.checkDisassembledClassFile(fileName, className, source, expectedOutput, ClassFileBytesDisassembler.DETAILED);
+	}
+	
+	protected void checkDisassembledClassFile(String fileName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+		File classFile = new File(fileName);
+		if (!classFile.exists()) {
+			assertTrue(".class file doesn't exist", false);
+		}
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(classFile);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", mode);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 2));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+		
+		try {
+			FileInputStream stream = new FileInputStream(classFile);
+			ClassFileReader.read(stream, className + ".class", true);
+			stream.close();
+		} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
+			e.printStackTrace();
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			e.printStackTrace();
+			assertTrue("IOException", false);
+		}
+	}
+	
 	protected void compileAndDeploy(String source, String directoryName, String className) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {

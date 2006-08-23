@@ -285,7 +285,7 @@ public void test011() {
 			"    21  invokevirtual java.io.PrintStream.println(java.lang.String) : void [26]\n" + 
 			"    24  return\n" + 
 			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 15] -> 15 when : java.lang.ArrayStoreException\n" + 
+			"        [pc: 0, pc: 12] -> 15 when : java.lang.ArrayStoreException\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 4]\n" + 
 			"        [pc: 5, line: 5]\n" + 

@@ -248,6 +248,10 @@ public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
 		System.arraycopy(visibleLocals, 0, visibleLocals = new LocalVariableBinding[visibleLocalsCount * 2], 0, visibleLocalsCount);
 	visibleLocals[visibleLocalsCount++] = localBinding;
 }
+
+public void addVariable(LocalVariableBinding localBinding) {
+	/* do nothing */
+}
 public void aload(int iArg) {
 	if (DEBUG) System.out.println(position + "\t\taload:"+iArg); //$NON-NLS-1$
 	countLabels = 0;
@@ -1030,18 +1034,41 @@ public void exitUserScope(BlockScope currentScope) {
 	if (((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
 			&& ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) == 0))
 		return;
-	while (visibleLocalsCount > 0) {
-		LocalVariableBinding visibleLocal = visibleLocals[this.visibleLocalsCount - 1];
+	int index = this.visibleLocalsCount - 1;
+	while (index >= 0) {
+		LocalVariableBinding visibleLocal = visibleLocals[index];
 		if (visibleLocal == null || visibleLocal.declaringScope != currentScope) {
 			// left currentScope
-			break;
+			index--;
+			continue;
 		}
 
 		// there may be some preserved locals never initialized
 		if (visibleLocal.initializationCount > 0 && ((this.generateAttributes & ClassFileConstants.ATTR_VARS) != 0)){
 			visibleLocal.recordInitializationEndPC(position);
 		}
-		visibleLocals[--this.visibleLocalsCount] = null; // this variable is no longer visible afterwards
+		visibleLocals[index--] = null; // this variable is no longer visible afterwards
+	}
+}
+public void exitUserScope(BlockScope currentScope, LocalVariableBinding binding) {
+	// mark all the scope's locals as losing their definite assignment
+
+	if (((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
+			&& ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) == 0))
+		return;
+	int index = this.visibleLocalsCount - 1;
+	while (index >= 0) {
+		LocalVariableBinding visibleLocal = visibleLocals[index];
+		if (visibleLocal == null || visibleLocal.declaringScope != currentScope || visibleLocal == binding) {
+			// left currentScope
+			index--;
+			continue;
+		}
+		// there may be some preserved locals never initialized
+		if (visibleLocal.initializationCount > 0 && ((this.generateAttributes & ClassFileConstants.ATTR_VARS) != 0)){
+			visibleLocal.recordInitializationEndPC(position);
+		}
+		visibleLocals[index--] = null; // this variable is no longer visible afterwards
 	}
 }
 public void f2d() {
@@ -2941,7 +2968,7 @@ public void getTYPE(int baseTypeID) {
 /**
  * We didn't call it goto, because there is a conflit with the goto keyword
  */
-final public void goto_(BranchLabel label) {
+public void goto_(BranchLabel label) {
 	if (this.wideMode) {
 		this.goto_w(label);
 		return;
@@ -2994,7 +3021,7 @@ final public void goto_(BranchLabel label) {
 	label.branch();
 	this.lastAbruptCompletion = this.position;
 }
-final public void goto_w(BranchLabel label) {
+public void goto_w(BranchLabel label) {
 	if (DEBUG) System.out.println(position + "\t\tgotow:"+label); //$NON-NLS-1$
 	if (classFileOffset >= bCodeStream.length) {
 		resizeByteArray();
@@ -5834,7 +5861,6 @@ public void registerExceptionHandler(ExceptionLabel anExceptionLabel) {
 	// no need to resize. So just add the new exception label
 	exceptionLabels[exceptionLabelsCounter++] = anExceptionLabel;
 }
-
 public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// given some flow info, make sure we did not loose some variables initialization
 	// if this happens, then we must update their pc entries to reflect it in debug attributes
@@ -5853,6 +5879,19 @@ public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex
 		LocalVariableBinding localBinding = visibleLocals[i];
 		if (localBinding != null && !isDefinitelyAssigned(scope, initStateIndex, localBinding) && localBinding.initializationCount > 0) {
 			localBinding.recordInitializationEndPC(position);
+		}
+	}
+}
+public void removeVariable(LocalVariableBinding localBinding) {
+	if (localBinding == null) return;
+	if (localBinding.initializationCount > 0) {
+		localBinding.recordInitializationEndPC(position);
+	}
+	for (int i = visibleLocalsCount - 1; i >= 0; i--) {
+		LocalVariableBinding visibleLocal = visibleLocals[i];
+		if (visibleLocal == localBinding){
+			visibleLocals[i] = null; // this variable is no longer visible afterwards
+			return;
 		}
 	}
 }

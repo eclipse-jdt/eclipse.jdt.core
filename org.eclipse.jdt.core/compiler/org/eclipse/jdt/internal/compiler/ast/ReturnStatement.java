@@ -23,6 +23,7 @@ public class ReturnStatement extends Statement {
 	public SubRoutineStatement[] subroutines;
 	public boolean isAnySubRoutineEscaping = false;
 	public LocalVariableBinding saveValueVariable;
+	public int initStateIndex = -1;
 	
 public ReturnStatement(Expression expression, int sourceStart, int sourceEnd) {
 	this.sourceStart = sourceStart;
@@ -37,6 +38,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	if (this.expression != null) {
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
+		this.initStateIndex =
+			currentScope.methodScope().recordInitializationStates(flowInfo);
 	}
 	// compute the return sequence (running the finally blocks)
 	FlowContext traversedContext = flowContext;
@@ -130,6 +133,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			SubRoutineStatement sub = this.subroutines[i];
 			boolean didEscape = sub.generateSubRoutineInvocation(currentScope, codeStream, reusableJSRTarget);
 			if (didEscape) {
+					if (this.initStateIndex != -1) {
+						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
+						codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
+					}
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
 					SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, i, codeStream);
 					return;
@@ -137,6 +144,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 	}
 	if (this.saveValueVariable != null) {
+		codeStream.addVariable(this.saveValueVariable);
 		codeStream.load(this.saveValueVariable);
 	}
 	if (this.expression != null && !alreadyGeneratedExpression) {
@@ -145,6 +153,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	// output the suitable return bytecode or wrap the value inside a descriptor for doits
 	this.generateReturnBytecode(codeStream);
+	if (this.saveValueVariable != null) {
+		codeStream.removeVariable(this.saveValueVariable);
+	}	
+	if (this.initStateIndex != -1) {
+		codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
+		codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
+	}	
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 	SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, -1, codeStream);
 }

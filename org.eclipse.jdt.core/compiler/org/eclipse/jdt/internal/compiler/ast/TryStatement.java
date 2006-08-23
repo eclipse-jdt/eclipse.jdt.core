@@ -55,8 +55,9 @@ public class TryStatement extends SubRoutineStatement {
 	private final static int FINALLY_INLINE = 3;								// finally block must be inlined since cannot use jsr/ret bytecodes >1.5	
 	
 	// for local variables table attributes
-	int preTryInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
+	int preTryInitStateIndex = -1;
+	int postTryInitStateIndex = -1;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -94,10 +95,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		FlowInfo tryInfo;
 		if (this.tryBlock.isEmptyBlock()) {
 			tryInfo = flowInfo;
+			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
 		} else {
 			tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
 			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
 				this.bits |= ASTNode.IsTryBlockExiting;
+			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
 		}
 
 		// check unreachable catch blocks
@@ -203,10 +206,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		FlowInfo tryInfo;
 		if (this.tryBlock.isEmptyBlock()) {
 			tryInfo = flowInfo;
+			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
 		} else {
 			tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
 			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
 				this.bits |= ASTNode.IsTryBlockExiting;
+			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
 		}
 
 		// check unreachable catch blocks
@@ -341,6 +346,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	int finallyMode = finallyMode();
 	
 	boolean requiresNaturalExit = false;
+	boolean requiresCatchesExit = false;
 	// preparing exception labels
 	int maxCatches = this.catchArguments == null ? 0 : this.catchArguments.length;
 	ExceptionLabel[] exceptionLabels;
@@ -372,14 +378,28 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (tryBlockHasSomeCode) {
 		// natural exit may require subroutine invocation (if finally != null)
 		BranchLabel naturalExitLabel = new BranchLabel(codeStream);
+		BranchLabel catchesExitLabel = null;
+		BranchLabel postCatchesFinallyLabel = null;		
+		for (int i = 0; i < maxCatches; i++) {
+			exceptionLabels[i].placeEnd();
+		}
 		if ((this.bits & ASTNode.IsTryBlockExiting) == 0) {
 			int position = codeStream.position;
 			switch(finallyMode) {
 				case FINALLY_SUBROUTINE :
 				case FINALLY_INLINE :
 					requiresNaturalExit = true;
-					// fall through
+					if (this.postTryInitStateIndex != -1) {
+						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+						codeStream.addDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+					}
+					codeStream.goto_(naturalExitLabel);
+					break;
 				case NO_FINALLY :
+					if (this.postTryInitStateIndex != -1) {
+						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+						codeStream.addDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+					}
 					codeStream.goto_(naturalExitLabel);
 					break;
 				case FINALLY_DOES_NOT_COMPLETE :
@@ -389,18 +409,19 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			codeStream.updateLastRecordedEndPC(this.tryBlock.scope, position);
 			//goto is tagged as part of the try block
 		}
-		for (int i = 0; i < maxCatches; i++) {
-			exceptionLabels[i].placeEnd();
-		}
 		/* generate sequence of handler, all starting by storing the TOS (exception
 		thrown) into their own catch variables, the one specified in the source
 		that must denote the handled exception.
 		*/
 		if (this.catchArguments != null) {
+			catchesExitLabel = new BranchLabel(codeStream);
+			postCatchesFinallyLabel = new BranchLabel(codeStream);
+			
 			for (int i = 0; i < maxCatches; i++) {
 				// May loose some local variable initializations : affecting the local variable attributes
 				if (this.preTryInitStateIndex != -1) {
 					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
+					codeStream.addDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
 				}
 				codeStream.pushOnStack(exceptionLabels[i].exceptionType);
 				exceptionLabels[i].place();
@@ -420,11 +441,18 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				this.catchBlocks[i].generateCode(this.scope, codeStream);
 				if (!this.catchExits[i]) {
 					switch(finallyMode) {
-						case FINALLY_SUBROUTINE :
 						case FINALLY_INLINE :
+							requiresCatchesExit = true;
+							codeStream.goto_(catchesExitLabel);
+							break;
+						case FINALLY_SUBROUTINE :
 							requiresNaturalExit = true;
 							// fall through
 						case NO_FINALLY :
+							if (this.postTryInitStateIndex != -1) {
+								codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+								codeStream.addDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+							}
 							codeStream.goto_(naturalExitLabel);
 							break;
 						case FINALLY_DOES_NOT_COMPLETE :
@@ -452,8 +480,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			this.placeAllAnyExceptionHandler();
 			if (naturalExitExceptionHandler != null) naturalExitExceptionHandler.place();
 			
-//				CaseLabel defaultReturnLocationLabel = null; // only used when emulating RET instruction
-//				CaseLabel naturalExitReturnLocationLabel = null; // only used when emulating RET instruction
 			switch(finallyMode) {
 				case FINALLY_SUBROUTINE :
 					// any exception handler
@@ -485,6 +511,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					this.finallyBlock.generateCode(currentScope, codeStream);
 					position = codeStream.position;
 					codeStream.throwAnyException(this.anyExceptionVariable);
+					if (this.preTryInitStateIndex != -1) {
+						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
+					}
 					this.subRoutineStartLabel.place();
 					codeStream.recordPositionsFrom(position, this.finallyBlock.sourceEnd);
 					break;
@@ -497,11 +526,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					this.finallyBlock.generateCode(this.scope, codeStream);
 					break;
 			}
+			
 			// will naturally fall into subsequent code after subroutine invocation
-			naturalExitLabel.place();
 			if (requiresNaturalExit) {
 				switch(finallyMode) {
 					case FINALLY_SUBROUTINE :
+						naturalExitLabel.place();
 						int position = codeStream.position;
 						naturalExitExceptionHandler.placeStart();
 						codeStream.jsr(this.subRoutineStartLabel);
@@ -511,21 +541,46 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 							this.finallyBlock.sourceEnd);	
 						break;
 					case FINALLY_INLINE :
-						// May loose some local variable initializations : affecting the local variable attributes
-						// needed since any exception handler got inlined subroutine
-						if (this.preTryInitStateIndex != -1) {
-							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
+						// inlined finally here can see all merged variables
+						if (this.postTryInitStateIndex != -1) {
+							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+							codeStream.addDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
 						}
+						naturalExitLabel.place();
 						// entire sequence for finally is associated to finally block
 						this.finallyBlock.generateCode(this.scope, codeStream);
+						if (postCatchesFinallyLabel != null && requiresCatchesExit) {
+							codeStream.goto_(postCatchesFinallyLabel);
+						}
 						break;
 					case FINALLY_DOES_NOT_COMPLETE :
+						break;
+					default :
+						naturalExitLabel.place();
+						break;
+				}
+			}
+			if (requiresCatchesExit) {
+				switch(finallyMode) {
+					case FINALLY_INLINE :
+						// inlined finally here can see all merged variables
+						if (this.preTryInitStateIndex != -1) {
+							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
+							codeStream.addDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
+						}
+						catchesExitLabel.place();
+						// entire sequence for finally is associated to finally block
+						this.finallyBlock.generateCode(this.scope, codeStream);
+						postCatchesFinallyLabel.place();
 						break;
 				}
 			}
 		} else {
 			// no subroutine, simply position end label (natural exit == end)
 			naturalExitLabel.place();
+			if (catchesExitLabel != null) {
+				catchesExitLabel.place();
+			}
 		}
 	} else {
 		// try block had no effect, only generate the body of the finally block if any

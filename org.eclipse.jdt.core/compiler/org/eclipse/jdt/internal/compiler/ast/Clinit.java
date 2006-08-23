@@ -155,6 +155,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			codeStream.ifne(falseLabel);
 			codeStream.iconst_1();
 			BranchLabel jumpLabel = new BranchLabel(codeStream);
+			codeStream.decrStackSize(1);
 			codeStream.goto_(jumpLabel);
 			falseLabel.place();
 			codeStream.iconst_0();

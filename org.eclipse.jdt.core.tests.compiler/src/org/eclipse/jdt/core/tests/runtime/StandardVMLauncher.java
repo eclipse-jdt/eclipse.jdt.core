@@ -114,6 +114,12 @@ public String[] getCommandLine() {
 		}
 	}
 
+	String vmVersion = System.getProperty("java.vm.version");
+	if (vmVersion != null && vmVersion.startsWith("1.6")) {
+		commandLine.addElement("-XX:-FailOverToOldVerifier");
+		commandLine.addElement("-Xverify:all");
+	}
+
 	// debug mode
 	if (this.debugPort != -1) {
 		commandLine.addElement("-Xdebug");

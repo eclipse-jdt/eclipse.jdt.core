@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -28,9 +32,11 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class StackMapFrameCodeStream extends CodeStream {
 	public StackMapFrame currentFrame;
-	public StackMapFrame frames;
+	public ArrayList frames;
 
-	public int framesCounter;
+	public Set framePositions;
+	
+	public ArrayList variablesModificationsPositions;
 	
 public StackMapFrameCodeStream(ClassFile givenClassFile) {
 	super(givenClassFile);
@@ -70,7 +76,17 @@ public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 			}
 		}
 	}
+	Integer newValue = new Integer(this.position);
+	if (this.variablesModificationsPositions.size() == 0 || !this.variablesModificationsPositions.get(this.variablesModificationsPositions.size() - 1).equals(newValue)) {
+		this.variablesModificationsPositions.add(newValue);
+	}
+	storeStackMapFrame();
 	super.addDefinitelyAssignedVariables(scope, initStateIndex);
+}
+public void addVariable(LocalVariableBinding localBinding) {
+	currentFrame.putLocal(localBinding.resolvedPosition, new VerificationTypeInfo(localBinding.type));	
+	storeStackMapFrame();
+	super.addVariable(localBinding);
 }
 public void aload(int iArg) {
 	super.aload(iArg);
@@ -100,6 +116,7 @@ public void anewarray(TypeBinding typeBinding) {
 public void areturn() {
 	super.areturn();
 	this.currentFrame.numberOfStackItems--;
+	framePositions.add(new Integer(this.position));
 }
 public void arraylength() {
 	super.arraylength();
@@ -133,6 +150,7 @@ public void astore_3() {
 public void athrow() {
 	super.athrow();
 	this.currentFrame.numberOfStackItems--;
+	framePositions.add(new Integer(this.position));
 }
 public void baload() {
 	super.baload();
@@ -274,6 +292,7 @@ public void drem() {
 public void dreturn() {
 	super.dreturn();
 	this.currentFrame.numberOfStackItems--;	
+	this.framePositions.add(new Integer(this.position));
 }
 public void dstore(int iArg) {
 	super.dstore(iArg);
@@ -436,11 +455,12 @@ public void dup2_x2() {
 	}
 }
 public void exitUserScope(BlockScope currentScope) {
-	int index = this.visibleLocalsCount;
-	while (index > 0) {
-		LocalVariableBinding visibleLocal = visibleLocals[index - 1];
+	int index = this.visibleLocalsCount - 1;
+	while (index >= 0) {
+		LocalVariableBinding visibleLocal = visibleLocals[index];
 		if (visibleLocal == null) {
-			return;
+			index--;
+			continue;
 		}
 		if (visibleLocal.declaringScope != currentScope) // left currentScope
 			break;
@@ -463,6 +483,37 @@ public void exitUserScope(BlockScope currentScope) {
 		}
 	}
 	super.exitUserScope(currentScope);
+}
+public void exitUserScope(BlockScope currentScope, LocalVariableBinding binding) {
+	int index = this.visibleLocalsCount - 1;
+	while (index >= 0) {
+		LocalVariableBinding visibleLocal = visibleLocals[index];
+		if (visibleLocal == null || visibleLocal == binding) {
+			index--;
+			continue;
+		}
+		if (visibleLocal.declaringScope != currentScope) // left currentScope
+			break;
+
+		// there may be some preserved locals never initialized
+		if (visibleLocal.initializationCount > 0){
+			this.currentFrame.removeLocals(visibleLocal.resolvedPosition);
+		}
+		index--;
+	}
+	if (currentScope != null) {
+		int localIndex = currentScope.localIndex;
+		if (localIndex != 0) {
+			for (int i = 0; i < localIndex; i++) {
+				LocalVariableBinding variableBinding = currentScope.locals[i];
+				if (variableBinding != null && variableBinding != binding && variableBinding.useFlag == LocalVariableBinding.USED && variableBinding.resolvedPosition != -1) {
+					this.currentFrame.removeLocals(variableBinding.resolvedPosition);
+				}
+			}
+		}
+	}
+	this.storeStackMapFrame();	
+	super.exitUserScope(currentScope, binding);
 }
 public void f2d() {
 	super.f2d();
@@ -546,6 +597,7 @@ public void frem() {
 public void freturn() {
 	super.freturn();
 	this.currentFrame.numberOfStackItems--;
+	this.framePositions.add(new Integer(this.position));
 }
 public void fstore(int iArg) {
 	super.fstore(iArg);
@@ -716,26 +768,25 @@ public void getfield(FieldBinding fieldBinding) {
 	this.currentFrame.stackItems[this.currentFrame.numberOfStackItems - 1] = new VerificationTypeInfo(fieldBinding.type);
 }
 private VerificationTypeInfo getLocal(int resolvedPosition, StackMapFrame frame) {
-	return frame.locals[resolvedPosition];
+	final VerificationTypeInfo verificationTypeInfo = frame.locals[resolvedPosition];
+	if (verificationTypeInfo == null) {
+		return null;
+	}
+	try {
+		if (verificationTypeInfo.tag == VerificationTypeInfo.ITEM_UNINITIALIZED_THIS
+				|| verificationTypeInfo.tag == VerificationTypeInfo.ITEM_UNINITIALIZED) {
+			return verificationTypeInfo;
+		}
+		return (VerificationTypeInfo) verificationTypeInfo.clone();
+	} catch (CloneNotSupportedException e) {
+		return verificationTypeInfo;
+	}
 }
 protected int getPosition() {
 	// need to record a new stack frame at this position
 	int pos = super.getPosition();
-	try {
-		if (this.frames.pc != pos) {
-			StackMapFrame newFrame = (StackMapFrame) this.currentFrame.clone();
-			this.frames.nextFrame = newFrame;
-			newFrame.pc = pos;
-			newFrame.prevFrame = this.frames;
-			this.frames = newFrame;
-			framesCounter++;
-		} else {
-			// the frame already exists
-			this.frames.tagBits |= StackMapFrame.USED;
-		}
-	} catch (CloneNotSupportedException e) {
-		e.printStackTrace();
-	}		
+	this.framePositions.add(new Integer(this.position));
+	storeStackMapFrame();
 	return pos;
 }
 public void getstatic(FieldBinding fieldBinding) {
@@ -745,6 +796,17 @@ public void getstatic(FieldBinding fieldBinding) {
 public void getTYPE(int baseTypeID) {
 	super.getTYPE(baseTypeID);
 	this.currentFrame.addStackItem(new VerificationTypeInfo(TypeIds.T_JavaLangClass, ConstantPool.JavaLangClassConstantPoolName));
+}
+/**
+ * We didn't call it goto, because there is a conflit with the goto keyword
+ */
+public void goto_(BranchLabel label) {
+	super.goto_(label);
+	this.framePositions.add(new Integer(this.position));
+}
+public void goto_w(BranchLabel label) {
+	super.goto_w(label);
+	this.framePositions.add(new Integer(this.position));
 }
 public void i2b() {
 	super.i2b();
@@ -952,7 +1014,6 @@ public boolean inlineForwardReferencesFromLabelsTargeting(BranchLabel targetLabe
 
 public void init(ClassFile targetClassFile) {
 	super.init(targetClassFile);
-	this.framesCounter = 0;
 	this.frames = null;
 	this.currentFrame = null;
 }
@@ -960,7 +1021,6 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
 	super.initializeMaxLocals(methodBinding);
 	StackMapFrame frame = new StackMapFrame();
 	frame.pc = -1;
-	this.framesCounter = 1;
 	
 	if (this.maxLocals != 0) {		
 		int resolvedPosition = 0;
@@ -1028,11 +1088,14 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
 		}
 	}
 	try {
-		this.frames = (StackMapFrame) frame.clone();
+		this.frames = new ArrayList();
+		this.frames.add(frame.clone());
 	} catch (CloneNotSupportedException e) {
 		e.printStackTrace();
 	}
 	this.currentFrame = frame;
+	this.framePositions = new HashSet();
+	this.variablesModificationsPositions = new ArrayList();
 }
 public void instance_of(TypeBinding typeBinding) {
 	super.instance_of(typeBinding);
@@ -1270,6 +1333,7 @@ public void irem() {
 public void ireturn() {
 	super.ireturn();
 	this.currentFrame.numberOfStackItems--;
+	this.framePositions.add(new Integer(this.position));
 }
 public void ishl() {
 	super.ishl();
@@ -1425,6 +1489,7 @@ public void lrem() {
 public void lreturn() {
 	super.lreturn();
 	this.currentFrame.numberOfStackItems--;
+	this.framePositions.add(new Integer(this.position));
 }
 public void lshl() {
 	super.lshl();
@@ -1602,44 +1667,28 @@ public void newWrapperFor(int typeID) {
 }
 public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 	super.optimizeBranch(oldPosition, lbl);
-	if (lbl.forwardReferenceCount() > 0) {
-		StackMapFrame frame = this.frames;
-		loop: while (frame != null) {
-			if (frame.pc == oldPosition) {
-				frame.pc = this.position;
-				if (frame.prevFrame.pc == this.position) {
-					// remove the current frame
-					StackMapFrame prev = frame.prevFrame;
-					frame.prevFrame = null;
-					prev.nextFrame = null;
-					this.frames = prev;
-				}
-				break loop;
+	int frameIndex = this.frames.size() - 1;
+	loop: while(frameIndex > 0) {
+		StackMapFrame frame = (StackMapFrame) this.frames.get(frameIndex);
+		if (frame.pc == oldPosition) {
+			if (this.framePositions.remove(new Integer(oldPosition))) {
+				this.framePositions.add(new Integer(this.position));
 			}
-		}
-	} else {
-		StackMapFrame frame = this.frames;
-		loop: while (frame != null) {
-			if (frame.pc == oldPosition) {
-				if ((frame.tagBits & StackMapFrame.USED) != 0) {
-					frame.pc = this.position;
-					if (frame.prevFrame.pc == this.position) {
-						// remove the current frame
-						StackMapFrame prev = frame.prevFrame;
-						frame.prevFrame = null;
-						prev.nextFrame = null;
-						this.frames = prev;
-					}
-				} else {
-					// we completely remove this entry if the prevFrame has the same position
-					StackMapFrame prev = frame.prevFrame;
-					frame.prevFrame = null;
-					prev.nextFrame = null;
-					this.frames = prev;
-				}
-				break loop;
+			if (this.variablesModificationsPositions.remove(new Integer(oldPosition))) {
+				this.variablesModificationsPositions.add(new Integer(this.position));
 			}
+			frame.pc = this.position;
+			StackMapFrame previousFrame = (StackMapFrame) this.frames.get(frameIndex - 1);
+			if (previousFrame.pc == this.position) {
+				// remove the current frame
+				this.frames.set(frameIndex - 1, frame);
+				this.frames.remove(frameIndex);
+			}
+			break loop;
+		} else if (frame.pc > oldPosition) {
+			return;
 		}
+		frameIndex--;
 	}
 }
 public void pop() {
@@ -1673,6 +1722,10 @@ public void recordExpressionType(TypeBinding typeBinding) {
 	super.recordExpressionType(typeBinding);
 	this.currentFrame.setTopOfStack(typeBinding);
 }
+public void removeVariable(LocalVariableBinding localBinding) {
+	this.currentFrame.removeLocals(localBinding.resolvedPosition);
+	super.removeVariable(localBinding);
+}
 public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	int index = this.visibleLocalsCount;
 	for (int i = 0; i < index; i++) {
@@ -1682,7 +1735,36 @@ public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex
 			this.currentFrame.removeLocals(localBinding.resolvedPosition);
 		}
 	}
+	Integer newValue = new Integer(this.position);
+	if (this.variablesModificationsPositions.size() == 0 || !this.variablesModificationsPositions.get(this.variablesModificationsPositions.size() - 1).equals(newValue)) {
+		this.variablesModificationsPositions.add(newValue);
+	}
+	storeStackMapFrame();
 	super.removeNotDefinitelyAssignedVariables(scope, initStateIndex);
+}
+public void storeStackMapFrame() {
+	int frameSize = this.frames.size();
+	StackMapFrame mapFrame = null;
+	try {
+		mapFrame = (StackMapFrame) this.currentFrame.clone();
+		mapFrame.pc = this.position;
+	} catch(CloneNotSupportedException e) {
+		// ignore
+	}
+	if (frameSize == 0) {
+			this.frames.add(mapFrame);
+	} else {
+		StackMapFrame lastFrame = (StackMapFrame) this.frames.get(frameSize - 1);
+		if (lastFrame.pc == this.position) {
+			this.frames.set(frameSize - 1, mapFrame);
+		} else {
+			this.frames.add(mapFrame);
+		}
+	}
+}
+public void return_() {
+	super.return_();
+	this.framePositions.add(new Integer(this.position));
 }
 public void saload() {
 	super.saload();
@@ -1703,7 +1785,7 @@ public void store(LocalVariableBinding localBinding, boolean valueRequired) {
 	switch(typeBinding.id) {
 		default:
 			// Reference object
-			this.currentFrame.locals[localBinding.resolvedPosition].setBinding(typeBinding);
+			this.currentFrame.locals[localBinding.resolvedPosition] = new VerificationTypeInfo(typeBinding);
 	}
 }
 public void swap() {
@@ -1722,36 +1804,30 @@ public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, i
 	this.currentFrame.numberOfStackItems--;
 }
 public void throwAnyException(LocalVariableBinding anyExceptionVariable) {
+	this.currentFrame.putLocal(anyExceptionVariable.resolvedPosition, new VerificationTypeInfo(VerificationTypeInfo.ITEM_OBJECT, anyExceptionVariable.type));
 	super.throwAnyException(anyExceptionVariable);
 	this.currentFrame.removeLocals(anyExceptionVariable.resolvedPosition);
 }
 public void removeStackFrameFor(int pos) {
-	StackMapFrame frame = this.frames;
-	while (frame.prevFrame != null && frame.pc >= pos) {
-		if (frame.pc == pos) {
-			StackMapFrame next = frame.nextFrame;
-			StackMapFrame prev = frame.prevFrame;
-			prev.nextFrame = next;
-			if (next != null) {
-				next.prevFrame = prev;
-			}
-			frame.nextFrame = null;
-			frame.prevFrame = null;
-			frame = prev;
-			while (frame.nextFrame != null) {
-				frame = frame.nextFrame;
-			}
-			this.frames = frame;
-			this.framesCounter--;
-			return;
-		}
-		frame = frame.prevFrame;
-	}
+	// TODO (olivier) need to see how to get rid of some unnecessary frames
 }
 public void reset(ClassFile givenClassFile) {
 	super.reset(givenClassFile);
-	this.framesCounter = 0;
 	this.frames = null;
 	this.currentFrame = null;
+	this.framePositions = null;
+	this.variablesModificationsPositions = null;
+}
+protected void writePosition(BranchLabel label) {
+	super.writePosition(label);
+	framePositions.add(new Integer(label.position));
+}
+protected void writeWidePosition(BranchLabel label) {
+	super.writeWidePosition(label);
+	framePositions.add(new Integer(label.position));
+}
+protected void writePosition(BranchLabel label, int forwardReference) {
+	super.writePosition(label, forwardReference);
+	framePositions.add(new Integer(label.position));
 }
 }

@@ -2846,6 +2846,67 @@ public void test087() {
 		);
 }
 public void test088() {
+	String errorMessage =
+		"----------\n" + 
+		"1. WARNING in p\\X.java (at line 4)\n" + 
+		"	public class X extends Date implements Runnable{\n" + 
+		"	             ^\n" + 
+		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 12)\n" + 
+		"	this.super();\n" + 
+		"	^^^^\n" + 
+		"Illegal enclosing instance specification for type Object\n" + 
+		"----------\n" + 
+		"3. WARNING in p\\X.java (at line 25)\n" + 
+		"	private void a() { System.out.println(\"A\");} \n" + 
+		"	             ^^^\n" + 
+		"The method a() from the type X is never used locally\n" + 
+		"----------\n" + 
+		"4. WARNING in p\\X.java (at line 31)\n" + 
+		"	Class c = b.getClass();\n" + 
+		"	^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in p\\X.java (at line 39)\n" + 
+		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
+		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" + 
+		"----------\n";
+	if (System.getProperty("java.version").startsWith("1.6")) {
+		errorMessage =
+			"----------\n" + 
+			"1. WARNING in p\\X.java (at line 4)\n" + 
+			"	public class X extends Date implements Runnable{\n" + 
+			"	             ^\n" + 
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in p\\X.java (at line 12)\n" + 
+			"	this.super();\n" + 
+			"	^^^^\n" + 
+			"Illegal enclosing instance specification for type Object\n" + 
+			"----------\n" + 
+			"3. WARNING in p\\X.java (at line 25)\n" + 
+			"	private void a() { System.out.println(\"A\");} \n" + 
+			"	             ^^^\n" + 
+			"The method a() from the type X is never used locally\n" + 
+			"----------\n" + 
+			"4. WARNING in p\\X.java (at line 31)\n" + 
+			"	Class c = b.getClass();\n" + 
+			"	^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in p\\X.java (at line 39)\n" + 
+			"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
+			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" + 
+			"----------\n" + 
+			"6. WARNING in p\\X.java (at line 39)\n" + 
+			"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
+			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method getMethod(String, Class...) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n";
+	}
 	this.runNegativeTest(
 		new String[] {
 			"p/X.java",
@@ -2897,32 +2958,7 @@ public void test088() {
 			" public void run() {System.out.println(\"RUN\");} \n" + 
 			"}",
 		}, 
-		"----------\n" + 
-		"1. WARNING in p\\X.java (at line 4)\n" + 
-		"	public class X extends Date implements Runnable{\n" + 
-		"	             ^\n" + 
-		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n" + 
-		"2. ERROR in p\\X.java (at line 12)\n" + 
-		"	this.super();\n" + 
-		"	^^^^\n" + 
-		"Illegal enclosing instance specification for type Object\n" + 
-		"----------\n" + 
-		"3. WARNING in p\\X.java (at line 25)\n" + 
-		"	private void a() { System.out.println(\"A\");} \n" + 
-		"	             ^^^\n" + 
-		"The method a() from the type X is never used locally\n" + 
-		"----------\n" + 
-		"4. WARNING in p\\X.java (at line 31)\n" + 
-		"	Class c = b.getClass();\n" + 
-		"	^^^^^\n" + 
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-		"----------\n" + 
-		"5. WARNING in p\\X.java (at line 39)\n" + 
-		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
-		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" + 
-		"----------\n");
+		errorMessage);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78089

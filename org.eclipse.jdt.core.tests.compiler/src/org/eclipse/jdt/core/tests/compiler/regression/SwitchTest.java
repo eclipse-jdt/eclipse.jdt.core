@@ -322,7 +322,7 @@ public void test012() {
 		"    42  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
 		"    45  return\n" + 
 		"      Exception Table:\n" + 
-		"        [pc: 2, pc: 36] -> 36 when : java.lang.Exception\n" + 
+		"        [pc: 2, pc: 33] -> 36 when : java.lang.Exception\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
 		"        [pc: 2, line: 5]\n" + 

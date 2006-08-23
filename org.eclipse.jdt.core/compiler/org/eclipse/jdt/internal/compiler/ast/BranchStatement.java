@@ -18,7 +18,8 @@ public abstract class BranchStatement extends Statement {
 	public char[] label;
 	public BranchLabel targetLabel;
 	public SubRoutineStatement[] subroutines;
-	
+	public int initStateIndex = -1;
+
 /**
  * BranchStatement constructor comment.
  */
@@ -48,6 +49,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			if (didEscape) {
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
 					SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, i, codeStream);
+					if (this.initStateIndex != -1) {
+						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
+						codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
+					}					
 					return;
 			}
 		}
@@ -55,6 +60,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	codeStream.goto_(this.targetLabel);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 	SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, -1, codeStream);
+	if (this.initStateIndex != -1) {
+		codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
+		codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
+	}					
 }
 
 public void resolve(BlockScope scope) {
