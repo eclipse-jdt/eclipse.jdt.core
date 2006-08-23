@@ -26,6 +26,10 @@ public class SynchronizedStatement extends SubRoutineStatement {
 	public LocalVariableBinding synchroVariable;
 	static final char[] SecretLocalDeclarationName = " syncValue".toCharArray(); //$NON-NLS-1$
 
+	// for local variables table attributes
+	int preSynchronizedInitStateIndex = -1;
+	int mergedSynchronizedInitStateIndex = -1;
+
 public SynchronizedStatement(
 	Expression expression,
 	Block statement,
@@ -43,6 +47,8 @@ public FlowInfo analyseCode(
 	FlowContext flowContext,
 	FlowInfo flowInfo) {
 
+	this.preSynchronizedInitStateIndex =
+		currentScope.methodScope().recordInitializationStates(flowInfo);
     // TODO (philippe) shouldn't it be protected by a check whether reachable statement ?
     
 	// mark the synthetic variable as being used
@@ -54,6 +60,9 @@ public FlowInfo analyseCode(
 			scope,
 			new InsideSubRoutineFlowContext(flowContext, this),
 			expression.analyseCode(scope, flowContext, flowInfo));
+
+	this.mergedSynchronizedInitStateIndex =
+		currentScope.methodScope().recordInitializationStates(flowInfo);
 
 	// optimizing code gen
 	this.blockExit = (flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
@@ -104,6 +113,11 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		// generate  the body of the synchronized block
 		this.enterAnyExceptionHandler(codeStream);
 		block.generateCode(scope, codeStream);
+		if (scope != currentScope) {
+			// close all locals defined in the synchronized block except the secret local
+			codeStream.exitUserScope(scope, synchroVariable);
+		}
+
 		BranchLabel endLabel = new BranchLabel(codeStream);
 		if (!blockExit) {
 			codeStream.load(synchroVariable);
@@ -114,13 +128,21 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 		// generate the body of the exception handler
 		codeStream.pushOnStack(scope.getJavaLangThrowable());
+		if (this.preSynchronizedInitStateIndex != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSynchronizedInitStateIndex);
+		}
 		this.placeAllAnyExceptionHandler();
 		codeStream.load(synchroVariable);
 		codeStream.monitorexit();
 		this.exitAnyExceptionHandler();
 		codeStream.athrow();
+		// May loose some local variable initializations : affecting the local variable attributes
+		if (this.mergedSynchronizedInitStateIndex != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.mergedSynchronizedInitStateIndex);
+			codeStream.addDefinitelyAssignedVariables(currentScope, this.mergedSynchronizedInitStateIndex);
+		}
 		if (scope != currentScope) {
-			codeStream.exitUserScope(scope);
+			codeStream.removeVariable(this.synchroVariable);
 		}
 		if (!blockExit) {
 			endLabel.place();

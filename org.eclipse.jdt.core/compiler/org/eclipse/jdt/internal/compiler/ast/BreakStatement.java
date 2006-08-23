@@ -39,6 +39,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		return flowInfo; // pretend it did not break since no actual target
 	}
 	
+	this.initStateIndex =
+		currentScope.methodScope().recordInitializationStates(flowInfo);
+	
 	this.targetLabel = targetContext.breakLabel();
 	FlowContext traversedContext = flowContext;
 	int subCount = 0;

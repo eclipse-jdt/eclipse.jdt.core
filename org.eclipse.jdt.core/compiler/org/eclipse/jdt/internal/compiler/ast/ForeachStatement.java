@@ -282,7 +282,10 @@ public class ForeachStatement extends Statement {
 		if (!hasEmptyAction) {
 			this.action.generateCode(scope, codeStream);
 		}
-
+		codeStream.removeVariable(this.elementVariable.binding);
+		if (this.postCollectionInitStateIndex != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postCollectionInitStateIndex);
+		}
 		// continuation point
 		if (this.continueLabel != null) {
 			this.continueLabel.place();
@@ -298,10 +301,6 @@ public class ForeachStatement extends Statement {
 					break;
 			}
 			codeStream.recordPositionsFrom(continuationPC, this.elementVariable.sourceStart);
-		}
-		
-		if (this.postCollectionInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(currentScope, postCollectionInitStateIndex);
 		}
 		// generate the condition
 		conditionLabel.place();

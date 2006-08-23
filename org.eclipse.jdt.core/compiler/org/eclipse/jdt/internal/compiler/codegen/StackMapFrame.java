@@ -31,8 +31,6 @@ public class StackMapFrame implements Cloneable {
 	public int localIndex;
 	public VerificationTypeInfo[] locals;
 	public VerificationTypeInfo[] stackItems;
-	public StackMapFrame nextFrame;
-	public StackMapFrame prevFrame;
 	private int numberOfDifferentLocals = -1;
 	public int tagBits;
 
@@ -40,11 +38,11 @@ public StackMapFrame() {
 	this.numberOfLocals = -1;
 	this.numberOfDifferentLocals = -1;
 }
-public int getFrameType() {
-	final int offsetDelta = this.getOffsetDelta();
+public int getFrameType(StackMapFrame prevFrame) {
+	final int offsetDelta = this.getOffsetDelta(prevFrame);
 	switch(this.numberOfStackItems) {
 		case 0 :
-			switch(this.numberOfDifferentLocals()) {
+			switch(this.numberOfDifferentLocals(prevFrame)) {
 				case 0 :
 					return offsetDelta <= 63 ? SAME_FRAME : SAME_FRAME_EXTENDED;
 				case 1 :
@@ -58,7 +56,7 @@ public int getFrameType() {
 			}
 			break;
 		case 1 :
-			switch(this.numberOfDifferentLocals()) {
+			switch(this.numberOfDifferentLocals(prevFrame)) {
 				case 0 :
 					return offsetDelta <= 63 ? SAME_LOCALS_1_STACK_ITEMS : SAME_LOCALS_1_STACK_ITEMS_EXTENDED;
 			}
@@ -119,21 +117,23 @@ public Object clone() throws CloneNotSupportedException {
 	}
 	return result;
 }
-public int numberOfDiffentStackItems() {
-	if (this.prevFrame == null) return this.numberOfStackItems;
-	return this.numberOfStackItems - this.prevFrame.numberOfStackItems;
+public int numberOfDiffentStackItems(StackMapFrame prevFrame) {
+	if (prevFrame == null) {
+		return this.numberOfStackItems;
+	}
+	return this.numberOfStackItems - prevFrame.numberOfStackItems;
 }
-public int numberOfDifferentLocals() {
+public int numberOfDifferentLocals(StackMapFrame prevFrame) {
 	if (this.numberOfDifferentLocals != -1) return this.numberOfDifferentLocals;
-	if (this.prevFrame == null) {
+	if (prevFrame == null) {
 		this.numberOfDifferentLocals = 0;
 		return 0;
 	}
-	VerificationTypeInfo[] prevLocals = this.prevFrame.locals;
+	VerificationTypeInfo[] prevLocals = prevFrame.locals;
 	VerificationTypeInfo[] currentLocals = this.locals;
 	int prevLocalsLength = prevLocals == null ? 0 : prevLocals.length;
 	int currentLocalsLength = currentLocals == null ? 0 : currentLocals.length;
-	int prevNumberOfLocals = this.prevFrame.getNumberOfLocals();
+	int prevNumberOfLocals = prevFrame.getNumberOfLocals();
 	int currentNumberOfLocals = this.getNumberOfLocals();
 
 	int result = 0;
@@ -287,9 +287,9 @@ public int getNumberOfLocals() {
 	this.numberOfLocals = result;
 	return result;
 }
-public int getOffsetDelta() {
-	if (this.prevFrame == null) return this.pc;
-	return this.prevFrame.pc == -1 ? this.pc : this.pc - this.prevFrame.pc - 1;
+public int getOffsetDelta(StackMapFrame prevFrame) {
+	if (prevFrame == null) return this.pc;
+	return prevFrame.pc == -1 ? this.pc : this.pc - prevFrame.pc - 1;
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
@@ -309,11 +309,6 @@ private void printFrame(StringBuffer buffer, StackMapFrame frame) {
 			print(frame.stackItems, frame.numberOfStackItems)
 		}
 	));
-	final StackMapFrame next = frame.nextFrame;
-	if (next != null) {
-		buffer.append('\n');
-		printFrame(buffer, next);
-	}
 }
 private String print(VerificationTypeInfo[] infos, int length) {
 	StringBuffer buffer = new StringBuffer();
@@ -355,7 +350,7 @@ public void initializeReceiver() {
 	}
 }
 public void removeLocals(int resolvedPosition) {
-	if (this.locals == null) return;
+	if (this.locals == null || resolvedPosition < 0) return;
 	if (resolvedPosition < this.locals.length) {
 		this.locals[resolvedPosition] = null;
 	}
@@ -403,5 +398,26 @@ private boolean equals(VerificationTypeInfo info, VerificationTypeInfo info2) {
 	}
 	if (info2 == null) return false;
 	return info.equals(info2);
+}
+public void mergeLocals(StackMapFrame currentFrame) {
+	int currentFrameLocalsLength = currentFrame.locals == null ? 0 : currentFrame.locals.length;
+	int localsLength = this.locals == null ? 0 : this.locals.length;
+	for (int i = 0, max = Math.min(currentFrameLocalsLength, localsLength); i < max; i++) {
+		VerificationTypeInfo info = this.locals[i];
+		VerificationTypeInfo info2 = currentFrame.locals[i];
+		if (info == null) {
+			if (info2 != null) {
+				this.locals[i] = info2;
+			}
+		} else if (info2 == null) {
+			this.locals[i] = null;
+		} else {
+			int tag1 = info.tag;
+			int tag2 = info2.tag;
+			if (tag1 != tag2) {
+				this.locals[i] = null;
+			}
+		}
+	}
 }
 }

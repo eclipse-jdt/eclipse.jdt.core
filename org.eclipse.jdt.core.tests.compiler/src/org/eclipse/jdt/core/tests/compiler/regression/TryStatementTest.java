@@ -2354,7 +2354,7 @@ public void test043() {
 			"     60  return\n" + 
 			"     61  astore 4 [npe]\n" + 
 			"     63  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
-			"     66  aload_3\n" + 
+			"     66  aload_3 [contexts]\n" + 
 			"     67  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [21]\n" + 
 			"     70  goto 13\n" + 
 			"     73  astore 5\n" + 
@@ -2418,7 +2418,9 @@ public void test043() {
 			"        [pc: 0, pc: 134] local: this index: 0 type: X\n" + 
 			"        [pc: 2, pc: 134] local: a index: 1 type: int\n" + 
 			"        [pc: 4, pc: 35] local: warnings index: 2 type: java.lang.Object\n" + 
+			"        [pc: 61, pc: 100] local: warnings index: 2 type: java.lang.Object\n" + 
 			"        [pc: 6, pc: 35] local: contexts index: 3 type: java.lang.Object\n" + 
+			"        [pc: 61, pc: 100] local: contexts index: 3 type: java.lang.Object\n" + 
 			"        [pc: 63, pc: 73] local: npe index: 4 type: java.lang.NullPointerException\n" + 
 			"        [pc: 101, pc: 104] local: e index: 2 type: java.lang.Exception\n" + 
 			"        [pc: 38, pc: 60] local: var index: 7 type: int\n" + 
@@ -2706,7 +2708,7 @@ public void test045() {
 			"    44  ldc <String \"[npe]\"> [38]\n" + 
 			"    46  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
 			"    49  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
-			"    52  aload_2\n" + 
+			"    52  aload_2 [contexts]\n" + 
 			"    53  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [29]\n" + 
 			"    56  goto 19\n" + 
 			"    59  astore_1 [e]\n" + 
@@ -2759,7 +2761,9 @@ public void test045() {
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 96] local: this index: 0 type: X\n" + 
 			"        [pc: 2, pc: 19] local: warnings index: 1 type: java.lang.Object\n" + 
+			"        [pc: 40, pc: 59] local: warnings index: 1 type: java.lang.Object\n" + 
 			"        [pc: 4, pc: 19] local: contexts index: 2 type: java.lang.Object\n" + 
+			"        [pc: 40, pc: 59] local: contexts index: 2 type: java.lang.Object\n" + 
 			"        [pc: 41, pc: 59] local: npe index: 3 type: java.lang.NullPointerException\n" + 
 			"        [pc: 60, pc: 71] local: e index: 1 type: java.lang.Exception\n" + 
 			"        [pc: 22, pc: 39] local: var index: 5 type: int\n" + 

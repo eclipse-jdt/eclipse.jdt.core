@@ -14,6 +14,9 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -1785,8 +1788,13 @@ public class ClassFile
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
-			if (numberOfFrames >=2) {
+			final Set framesPositions = ((StackMapFrameCodeStream) codeStream).framePositions;
+			final int framesPositionsSize = framesPositions.size();
+			int numberOfFrames = framesPositionsSize - 1; // -1 because last return doesn't count
+			if (numberOfFrames > 0) {
+				ArrayList framePositions = new ArrayList(framesPositionsSize);
+				framePositions.addAll(framesPositions);
+				Collections.sort(framePositions);
 				int stackMapTableAttributeOffset = localContentsOffset;
 				// add the stack map table attribute
 				if (localContentsOffset + 8 >= this.contents.length) {
@@ -1809,23 +1817,32 @@ public class ClassFile
 				if (localContentsOffset + 2 >= this.contents.length) {
 					resizeContents(2);
 				}
-				// generate all frames
-				StackMapFrame currentFrame = ((StackMapFrameCodeStream) codeStream).frames;
-				while (currentFrame.prevFrame != null) {
-					currentFrame = currentFrame.prevFrame;
-				}
-				currentFrame = currentFrame.nextFrame;
-				while (currentFrame != null && currentFrame.pc < code_length) {
+				ArrayList frames = ((StackMapFrameCodeStream) codeStream).frames;
+				StackMapFrame currentFrame = (StackMapFrame) frames.get(0);
+				StackMapFrame prevFrame = null;
+				int framesSize = frames.size();
+				int frameIndex = 0;
+				for (int j = 0; j < framesPositionsSize && ((Integer) framePositions.get(j)).intValue() < code_length; j++) {
+					// select next frame
+					prevFrame = currentFrame;
+					currentFrame = null;
+					for (; frameIndex < framesSize; frameIndex++) {
+						currentFrame = (StackMapFrame) frames.get(frameIndex);
+						if (currentFrame.pc == ((Integer) framePositions.get(j)).intValue()) {
+							break;
+						}
+					}
+					if (currentFrame == null) break;
 					// generate current frame
 					// need to find differences between the current frame and the previous frame
 					numberOfFrames++;
-					int offsetDelta = currentFrame.getOffsetDelta();
-					switch (currentFrame.getFrameType()) {
+					int offsetDelta = currentFrame.getOffsetDelta(prevFrame);
+					switch (currentFrame.getFrameType(prevFrame)) {
 						case StackMapFrame.APPEND_FRAME :
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals();
+							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 + numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;
@@ -1897,7 +1914,7 @@ public class ClassFile
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals();
+							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 - numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;							
@@ -2111,7 +2128,6 @@ public class ClassFile
 								}
 							}
 					}
-					currentFrame = currentFrame.nextFrame;
 				}
 				
 				if (numberOfFrames != 0) {
@@ -2416,8 +2432,13 @@ public class ClassFile
 		}
 		
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
-			if (numberOfFrames >=2) {
+			final Set framesPositions = ((StackMapFrameCodeStream) codeStream).framePositions;
+			final int framesPositionsSize = framesPositions.size();
+			int numberOfFrames = framesPositionsSize - 1; // -1 because last return doesn't count
+			if (numberOfFrames > 0) {
+				ArrayList framePositions = new ArrayList(framesPositionsSize);
+				framePositions.addAll(framesPositions);
+				Collections.sort(framePositions);
 				// add the stack map table attribute
 				if (localContentsOffset + 8 >= this.contents.length) {
 					resizeContents(8);
@@ -2434,22 +2455,30 @@ public class ClassFile
 				int numberOfFramesOffset = localContentsOffset;
 				localContentsOffset += 2;
 				// generate all frames
-				StackMapFrame currentFrame = ((StackMapFrameCodeStream) codeStream).frames;
-				while (currentFrame.prevFrame != null) {
-					currentFrame = currentFrame.prevFrame;
-				}
-				currentFrame = currentFrame.nextFrame;
-				while (currentFrame != null && currentFrame.pc < code_length) {
-					// generate current frame
-					// need to find differences between the current frame and the previous frame
+				ArrayList frames = ((StackMapFrameCodeStream) codeStream).frames;
+				StackMapFrame currentFrame = (StackMapFrame) frames.get(0);
+				StackMapFrame prevFrame = null;
+				int framesSize = frames.size();
+				int frameIndex = 0;
+				for (int j = 0; j < framesPositionsSize && ((Integer) framePositions.get(j)).intValue() < code_length; j++) {
+					// select next frame
+					prevFrame = currentFrame;
+					currentFrame = null;
+					for (; frameIndex < framesSize; frameIndex++) {
+						currentFrame = (StackMapFrame) frames.get(frameIndex);
+						if (currentFrame.pc == ((Integer) framePositions.get(j)).intValue()) {
+							break;
+						}
+					}
+					if (currentFrame == null) break;
 					numberOfFrames++;
-					int offsetDelta = currentFrame.getOffsetDelta();
-					switch (currentFrame.getFrameType()) {
+					int offsetDelta = currentFrame.getOffsetDelta(prevFrame);
+					switch (currentFrame.getFrameType(prevFrame)) {
 						case StackMapFrame.APPEND_FRAME :
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals();
+							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 + numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;
@@ -2521,7 +2550,7 @@ public class ClassFile
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals();
+							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 - numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;							
@@ -2733,7 +2762,6 @@ public class ClassFile
 								}
 							}
 					}
-					currentFrame = currentFrame.nextFrame;
 				}
 				
 				this.contents[numberOfFramesOffset++] = (byte) (numberOfFrames >> 8);
@@ -2863,8 +2891,13 @@ public class ClassFile
 		}
 		
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
-			if (numberOfFrames >=2) {
+			final Set framesPositions = ((StackMapFrameCodeStream) codeStream).framePositions;
+			final int framesPositionsSize = framesPositions.size();
+			int numberOfFrames = framesPositionsSize - 1; // -1 because last return doesn't count
+			if (numberOfFrames > 0) {
+				ArrayList framePositions = new ArrayList(framesPositionsSize);
+				framePositions.addAll(framesPositions);
+				Collections.sort(framePositions);
 				// add the stack map table attribute
 				if (localContentsOffset + 8 >= this.contents.length) {
 					resizeContents(8);
@@ -2881,22 +2914,32 @@ public class ClassFile
 				int numberOfFramesOffset = localContentsOffset;
 				localContentsOffset += 2;
 				// generate all frames
-				StackMapFrame currentFrame = ((StackMapFrameCodeStream) codeStream).frames;
-				while (currentFrame.prevFrame != null) {
-					currentFrame = currentFrame.prevFrame;
-				}
-				currentFrame = currentFrame.nextFrame;
-				while (currentFrame != null && currentFrame.pc < code_length) {
+				ArrayList frames = ((StackMapFrameCodeStream) codeStream).frames;
+				StackMapFrame currentFrame = (StackMapFrame) frames.get(0);
+				StackMapFrame prevFrame = null;
+				int framesSize = frames.size();
+				int frameIndex = 0;
+				for (int j = 0; j < framesPositionsSize && ((Integer) framePositions.get(j)).intValue() < code_length; j++) {
+					// select next frame
+					prevFrame = currentFrame;
+					currentFrame = null;
+					for (; frameIndex < framesSize; frameIndex++) {
+						currentFrame = (StackMapFrame) frames.get(frameIndex);
+						if (currentFrame.pc == ((Integer) framePositions.get(j)).intValue()) {
+							break;
+						}
+					}
+					if (currentFrame == null) break;
 					// generate current frame
 					// need to find differences between the current frame and the previous frame
 					numberOfFrames++;
-					int offsetDelta = currentFrame.getOffsetDelta();
-					switch (currentFrame.getFrameType()) {
+					int offsetDelta = currentFrame.getOffsetDelta(prevFrame);
+					switch (currentFrame.getFrameType(prevFrame)) {
 						case StackMapFrame.APPEND_FRAME :
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals();
+							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 + numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;
@@ -2968,7 +3011,7 @@ public class ClassFile
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals();
+							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 - numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;							
@@ -3180,7 +3223,6 @@ public class ClassFile
 								}
 							}
 					}
-					currentFrame = currentFrame.nextFrame;
 				}
 				
 				this.contents[numberOfFramesOffset++] = (byte) (numberOfFrames >> 8);
@@ -3281,8 +3323,13 @@ public class ClassFile
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
-			if (numberOfFrames >=2) {
+			final Set framesPositions = ((StackMapFrameCodeStream) codeStream).framePositions;
+			final int framesPositionsSize = framesPositions.size();
+			int numberOfFrames = framesPositionsSize - 1; // -1 because last return doesn't count
+			if (numberOfFrames > 0) {
+				ArrayList framePositions = new ArrayList(framesPositionsSize);
+				framePositions.addAll(framesPositions);
+				Collections.sort(framePositions);
 				// add the stack map table attribute
 				if (localContentsOffset + 8 >= this.contents.length) {
 					resizeContents(8);
@@ -3299,22 +3346,30 @@ public class ClassFile
 				int numberOfFramesOffset = localContentsOffset;
 				localContentsOffset += 2;
 				// generate all frames
-				StackMapFrame currentFrame = ((StackMapFrameCodeStream) codeStream).frames;
-				while (currentFrame.prevFrame != null) {
-					currentFrame = currentFrame.prevFrame;
-				}
-				currentFrame = currentFrame.nextFrame;
-				while (currentFrame != null && currentFrame.pc < code_length) {
-					// generate current frame
-					// need to find differences between the current frame and the previous frame
+				ArrayList frames = ((StackMapFrameCodeStream) codeStream).frames;
+				StackMapFrame currentFrame = (StackMapFrame) frames.get(0);
+				StackMapFrame prevFrame = null;
+				int framesSize = frames.size();
+				int frameIndex = 0;
+				for (int j = 0; j < framesPositionsSize && ((Integer) framePositions.get(j)).intValue() < code_length; j++) {
+					// select next frame
+					prevFrame = currentFrame;
+					currentFrame = null;
+					for (; frameIndex < framesSize; frameIndex++) {
+						currentFrame = (StackMapFrame) frames.get(frameIndex);
+						if (currentFrame.pc == ((Integer) framePositions.get(j)).intValue()) {
+							break;
+						}
+					}
+					if (currentFrame == null) break;
 					numberOfFrames++;
-					int offsetDelta = currentFrame.getOffsetDelta();
-					switch (currentFrame.getFrameType()) {
+					int offsetDelta = currentFrame.getOffsetDelta(prevFrame);
+					switch (currentFrame.getFrameType(prevFrame)) {
 						case StackMapFrame.APPEND_FRAME :
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals();
+							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 + numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;
@@ -3386,7 +3441,7 @@ public class ClassFile
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals();
+							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 - numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;							
@@ -3598,7 +3653,6 @@ public class ClassFile
 								}
 							}
 					}
-					currentFrame = currentFrame.nextFrame;
 				}
 				
 				this.contents[numberOfFramesOffset++] = (byte) (numberOfFrames >> 8);
@@ -3932,8 +3986,13 @@ public class ClassFile
 		}
 		
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
-			if (numberOfFrames >=2) {
+			final Set framesPositions = ((StackMapFrameCodeStream) codeStream).framePositions;
+			final int framesPositionsSize = framesPositions.size();
+			int numberOfFrames = framesPositionsSize - 1; // -1 because last return doesn't count
+			if (numberOfFrames > 0) {
+				ArrayList framePositions = new ArrayList(framesPositionsSize);
+				framePositions.addAll(framesPositions);
+				Collections.sort(framePositions);
 				// add the stack map table attribute
 				if (localContentsOffset + 8 >= this.contents.length) {
 					resizeContents(8);
@@ -3950,22 +4009,30 @@ public class ClassFile
 				int numberOfFramesOffset = localContentsOffset;
 				localContentsOffset += 2;
 				// generate all frames
-				StackMapFrame currentFrame = ((StackMapFrameCodeStream) codeStream).frames;
-				while (currentFrame.prevFrame != null) {
-					currentFrame = currentFrame.prevFrame;
-				}
-				currentFrame = currentFrame.nextFrame;
-				while (currentFrame != null && currentFrame.pc < code_length) {
-					// generate current frame
-					// need to find differences between the current frame and the previous frame
+				ArrayList frames = ((StackMapFrameCodeStream) codeStream).frames;
+				StackMapFrame currentFrame = (StackMapFrame) frames.get(0);
+				StackMapFrame prevFrame = null;
+				int framesSize = frames.size();
+				int frameIndex = 0;
+				for (int j = 0; j < framesPositionsSize && ((Integer) framePositions.get(j)).intValue() < code_length; j++) {
+					// select next frame
+					prevFrame = currentFrame;
+					currentFrame = null;
+					for (; frameIndex < framesSize; frameIndex++) {
+						currentFrame = (StackMapFrame) frames.get(frameIndex);
+						if (currentFrame.pc == ((Integer) framePositions.get(j)).intValue()) {
+							break;
+						}
+					}
+					if (currentFrame == null) break;
 					numberOfFrames++;
-					int offsetDelta = currentFrame.getOffsetDelta();
-					switch (currentFrame.getFrameType()) {
+					int offsetDelta = currentFrame.getOffsetDelta(prevFrame);
+					switch (currentFrame.getFrameType(prevFrame)) {
 						case StackMapFrame.APPEND_FRAME :
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals();
+							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 + numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;
@@ -4037,7 +4104,7 @@ public class ClassFile
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals();
+							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 - numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;							
@@ -4249,7 +4316,6 @@ public class ClassFile
 								}
 							}
 					}
-					currentFrame = currentFrame.nextFrame;
 				}
 				
 				this.contents[numberOfFramesOffset++] = (byte) (numberOfFrames >> 8);
@@ -4543,8 +4609,13 @@ public class ClassFile
 		}
 		
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			int numberOfFrames = ((StackMapFrameCodeStream) codeStream).framesCounter;
-			if (numberOfFrames >=2) {
+			final Set framesPositions = ((StackMapFrameCodeStream) codeStream).framePositions;
+			final int framesPositionsSize = framesPositions.size();
+			int numberOfFrames = framesPositionsSize - 1; // -1 because last return doesn't count
+			if (numberOfFrames > 0) {
+				ArrayList framePositions = new ArrayList(framesPositionsSize);
+				framePositions.addAll(framesPositions);
+				Collections.sort(framePositions);
 				// add the stack map table attribute
 				if (localContentsOffset + 8 >= this.contents.length) {
 					resizeContents(8);
@@ -4561,22 +4632,30 @@ public class ClassFile
 				int numberOfFramesOffset = localContentsOffset;
 				localContentsOffset += 2;
 				// generate all frames
-				StackMapFrame currentFrame = ((StackMapFrameCodeStream) codeStream).frames;
-				while (currentFrame.prevFrame != null) {
-					currentFrame = currentFrame.prevFrame;
-				}
-				currentFrame = currentFrame.nextFrame;
-				while (currentFrame != null && currentFrame.pc < code_length) {
-					// generate current frame
-					// need to find differences between the current frame and the previous frame
+				ArrayList frames = ((StackMapFrameCodeStream) codeStream).frames;
+				StackMapFrame currentFrame = (StackMapFrame) frames.get(0);
+				StackMapFrame prevFrame = null;
+				int framesSize = frames.size();
+				int frameIndex = 0;
+				for (int j = 0; j < framesPositionsSize && ((Integer) framePositions.get(j)).intValue() < code_length; j++) {
+					// select next frame
+					prevFrame = currentFrame;
+					currentFrame = null;
+					for (; frameIndex < framesSize; frameIndex++) {
+						currentFrame = (StackMapFrame) frames.get(frameIndex);
+						if (currentFrame.pc == ((Integer) framePositions.get(j)).intValue()) {
+							break;
+						}
+					}
+					if (currentFrame == null) break;
 					numberOfFrames++;
-					int offsetDelta = currentFrame.getOffsetDelta();
-					switch (currentFrame.getFrameType()) {
+					int offsetDelta = currentFrame.getOffsetDelta(prevFrame);
+					switch (currentFrame.getFrameType(prevFrame)) {
 						case StackMapFrame.APPEND_FRAME :
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals();
+							int numberOfDifferentLocals = currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 + numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;
@@ -4648,7 +4727,7 @@ public class ClassFile
 							if (localContentsOffset + 3 >= this.contents.length) {
 								resizeContents(3);
 							}							
-							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals();
+							numberOfDifferentLocals = -currentFrame.numberOfDifferentLocals(prevFrame);
 							this.contents[localContentsOffset++] = (byte) (251 - numberOfDifferentLocals);
 							this.contents[localContentsOffset++] = (byte) (offsetDelta >> 8);
 							this.contents[localContentsOffset++] = (byte) offsetDelta;							
@@ -4860,7 +4939,6 @@ public class ClassFile
 								}
 							}
 					}
-					currentFrame = currentFrame.nextFrame;
 				}
 				
 				this.contents[numberOfFramesOffset++] = (byte) (numberOfFrames >> 8);

@@ -269,7 +269,7 @@ public void test007() {
 		"    66  iaload\n" + 
 		"    67  istore_3 [e]\n" + 
 		"    68  iload_3 [e]\n" + 
-		"    69  istore_1 [i]\n" + 
+		"    69  istore_1\n" + 
 		"    70  iinc 4 1\n" + 
 		"    73  iload 4\n" + 
 		"    75  iload 5\n" + 
@@ -287,9 +287,8 @@ public void test007() {
 		"        [pc: 88, line: 10]\n" + 
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 89] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 70, pc: 73] local: i index: 1 type: int\n" + 
 		"        [pc: 48, pc: 89] local: tab index: 2 type: int[]\n" + 
-		"        [pc: 68, pc: 80] local: e index: 3 type: int\n";
+		"        [pc: 68, pc: 70] local: e index: 3 type: int\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -568,7 +567,7 @@ public void test015() {
 /*
  * Empty block action
  */
-public void test016() { 
+public void test016() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -717,7 +716,7 @@ public void test018() {
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 43] local: args index: 0 type: java.lang.String[]\n" + 
 		"        [pc: 8, pc: 43] local: tab index: 1 type: int[]\n" + 
-		"        [pc: 26, pc: 42] local: e index: 2 type: int\n";
+		"        [pc: 26, pc: 36] local: e index: 2 type: int\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1029,7 +1028,7 @@ public void test021() {
 		"        [pc: 48, pc: 119] local: tab index: 1 type: int[]\n" + 
 		"        [pc: 50, pc: 119] local: sum index: 2 type: int\n" + 
 		"        [pc: 52, pc: 119] local: i index: 3 type: int\n" + 
-		"        [pc: 76, pc: 108] local: e index: 4 type: int\n";
+		"        [pc: 76, pc: 98] local: e index: 4 type: int\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1131,7 +1130,7 @@ public void test022() {
 		"        [pc: 8, pc: 82] local: arrayList index: 1 type: java.util.ArrayList\n" + 
 		"        [pc: 10, pc: 35] local: i index: 2 type: int\n" + 
 		"        [pc: 37, pc: 82] local: sum index: 2 type: int\n" + 
-		"        [pc: 57, pc: 74] local: e index: 3 type: java.lang.Integer\n" + 
+		"        [pc: 57, pc: 64] local: e index: 3 type: java.lang.Integer\n" + 
 		"      Local variable type table:\n" + 
 		"        [pc: 8, pc: 82] local: arrayList index: 1 type: java.util.ArrayList<java.lang.Integer>\n";
 	
@@ -1269,8 +1268,8 @@ public void test024() {
 		"        [pc: 0, pc: 93] local: args index: 0 type: java.lang.String[]\n" + 
 		"        [pc: 10, pc: 93] local: tab index: 1 type: java.lang.String[]\n" + 
 		"        [pc: 18, pc: 93] local: list index: 2 type: java.util.List\n" + 
-		"        [pc: 38, pc: 56] local: arg index: 3 type: java.lang.String\n" + 
-		"        [pc: 75, pc: 92] local: arg index: 3 type: java.lang.Object\n";
+		"        [pc: 38, pc: 46] local: arg index: 3 type: java.lang.String\n" + 
+		"        [pc: 75, pc: 82] local: arg index: 3 type: java.lang.Object\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1560,7 +1559,7 @@ public void test028() {
 		"        [pc: 0, pc: 177] local: args index: 0 type: java.lang.String[]\n" + 
 		"        [pc: 8, pc: 177] local: slist index: 1 type: java.util.ArrayList\n" + 
 		"        [pc: 118, pc: 176] local: i index: 2 type: int\n" + 
-		"        [pc: 148, pc: 165] local: s index: 3 type: java.lang.String\n" + 
+		"        [pc: 148, pc: 155] local: s index: 3 type: java.lang.String\n" + 
 		"      Local variable type table:\n" + 
 		"        [pc: 8, pc: 177] local: slist index: 1 type: java.util.ArrayList<java.util.ArrayList<java.lang.String>>\n";
 	
@@ -1762,7 +1761,7 @@ public void test034() {
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 41] local: this index: 0 type: X\n" + 
 		"        [pc: 0, pc: 41] local: t index: 1 type: Bar\n" + 
-		"        [pc: 18, pc: 34] local: s index: 2 type: java.lang.String\n" + 
+		"        [pc: 18, pc: 25] local: s index: 2 type: java.lang.String\n" + 
 		"      Local variable type table:\n" + 
 		"        [pc: 0, pc: 41] local: this index: 0 type: X<T>\n" + 
 		"        [pc: 0, pc: 41] local: t index: 1 type: T\n";
@@ -1863,7 +1862,7 @@ public void test035() {
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 43] local: this index: 0 type: X\n" + 
 		"        [pc: 0, pc: 43] local: t index: 1 type: IFoo\n" + 
-		"        [pc: 20, pc: 36] local: s index: 2 type: java.lang.String\n" + 
+		"        [pc: 20, pc: 27] local: s index: 2 type: java.lang.String\n" + 
 		"      Local variable type table:\n" + 
 		"        [pc: 0, pc: 43] local: this index: 0 type: X<T>\n" + 
 		"        [pc: 0, pc: 43] local: t index: 1 type: T\n";
@@ -1940,7 +1939,7 @@ public void test036() {
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 37] local: this index: 0 type: X\n" + 
 		"        [pc: 0, pc: 37] local: t index: 1 type: java.lang.Runnable\n" + 
-		"        [pc: 20, pc: 36] local: s index: 2 type: java.lang.String\n" + 
+		"        [pc: 20, pc: 27] local: s index: 2 type: java.lang.String\n" + 
 		"      Local variable type table:\n" + 
 		"        [pc: 0, pc: 37] local: t index: 1 type: T\n";
 	
@@ -2015,7 +2014,7 @@ public void test037() {
 		"        [pc: 34, line: 10]\n" + 
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 35] local: t index: 0 type: java.util.ArrayList\n" + 
-		"        [pc: 18, pc: 34] local: s index: 1 type: java.lang.String\n" + 
+		"        [pc: 18, pc: 25] local: s index: 1 type: java.lang.String\n" + 
 		"      Local variable type table:\n" + 
 		"        [pc: 0, pc: 35] local: t index: 0 type: T\n";
 	
@@ -2086,7 +2085,7 @@ public void test038() {
 		"        [pc: 37, line: 13]\n" + 
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 38] local: this index: 0 type: X\n" + 
-		"        [pc: 21, pc: 37] local: o index: 1 type: java.lang.Object\n";
+		"        [pc: 21, pc: 28] local: o index: 1 type: java.lang.Object\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -2283,7 +2282,7 @@ public void test040() {
 		"     9  goto 19\n" + 
 		"    12  aload_2\n" + 
 		"    13  invokeinterface java.util.Iterator.next() : java.lang.Object [26] [nargs: 1]\n" + 
-		"    18  astore_1 [o]\n" + 
+		"    18  astore_1\n" + 
 		"    19  aload_2\n" + 
 		"    20  invokeinterface java.util.Iterator.hasNext() : boolean [32] [nargs: 1]\n" + 
 		"    25  ifne 12\n" + 
@@ -2292,8 +2291,7 @@ public void test040() {
 		"        [pc: 0, line: 8]\n" + 
 		"        [pc: 28, line: 10]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 29] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 19, pc: 28] local: o index: 1 type: java.lang.Object\n";
+		"        [pc: 0, pc: 29] local: args index: 0 type: java.lang.String[]\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -2398,7 +2396,7 @@ public void test042() {
 		"    14  aload 4\n" + 
 		"    16  iload_2\n" + 
 		"    17  iaload\n" + 
-		"    18  istore_1 [i]\n" + 
+		"    18  istore_1\n" + 
 		"    19  iinc 2 1\n" + 
 		"    22  iload_2\n" + 
 		"    23  iload_3\n" + 
@@ -2408,8 +2406,7 @@ public void test042() {
 		"        [pc: 0, line: 3]\n" + 
 		"        [pc: 27, line: 5]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 28] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 19, pc: 27] local: i index: 1 type: int\n";
+		"        [pc: 0, pc: 28] local: args index: 0 type: java.lang.String[]\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -2523,7 +2520,7 @@ public void test044() {
 		"    12  aload_3\n" + 
 		"    13  iload_1\n" + 
 		"    14  iaload\n" + 
-		"    15  istore_0 [i]\n" + 
+		"    15  istore_0\n" + 
 		"    16  iinc 1 1\n" + 
 		"    19  iload_1\n" + 
 		"    20  iload_2\n" + 
@@ -2531,9 +2528,7 @@ public void test044() {
 		"    24  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 6]\n" + 
-		"        [pc: 24, line: 8]\n" + 
-		"      Local variable table:\n" + 
-		"        [pc: 16, pc: 24] local: i index: 0 type: int\n";
+		"        [pc: 24, line: 8]\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -2610,7 +2605,7 @@ public void test045() {
 		"        [pc: 35, line: 6]\n" + 
 		"      Local variable table:\n" + 
 		"        [pc: 0, pc: 36] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 19, pc: 35] local: i index: 1 type: int\n";
+		"        [pc: 19, pc: 27] local: i index: 1 type: int\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");

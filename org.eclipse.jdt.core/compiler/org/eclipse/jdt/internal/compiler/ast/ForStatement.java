@@ -33,6 +33,7 @@ public class ForStatement extends Statement {
 
 	// for local variables table attributes
 	int preCondInitStateIndex = -1;
+	int preIncrementsInitStateIndex = -1;
 	int condIfTrueInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
 
@@ -166,6 +167,8 @@ public class ForStatement extends Statement {
 					new LoopingFlowContext(flowContext, flowInfo, this, null, 
 						null, scope);
 				FlowInfo incrementInfo = actionInfo;
+				this.preIncrementsInitStateIndex =
+					currentScope.methodScope().recordInitializationStates(incrementInfo);
 				for (int i = 0, count = increments.length; i < count; i++) {
 					incrementInfo = increments[i].
 						analyseCode(scope, incrementContext, incrementInfo);
@@ -270,6 +273,10 @@ public class ForStatement extends Statement {
 			action.generateCode(scope, codeStream);
 		} else {
 			actionLabel.place();
+		}
+		if (this.preIncrementsInitStateIndex != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preIncrementsInitStateIndex);
+			codeStream.addDefinitelyAssignedVariables(currentScope, this.preIncrementsInitStateIndex);
 		}
 		// continuation point
 		if (continueLabel != null) {

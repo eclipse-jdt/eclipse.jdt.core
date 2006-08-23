@@ -26,7 +26,7 @@ public abstract class SubRoutineStatement extends Statement {
 			SubRoutineStatement sub = subroutines[i];
 			sub.enterAnyExceptionHandler(codeStream);
 			sub.enterDeclaredExceptionHandlers(codeStream);
-		}	
+		}
 	}
 	
 	ExceptionLabel anyExceptionLabel;

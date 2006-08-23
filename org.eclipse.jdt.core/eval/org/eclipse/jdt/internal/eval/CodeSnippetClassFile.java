@@ -116,6 +116,7 @@ public CodeSnippetClassFile(
 	this.creatingProblemType = creatingProblemType;
 	if (this.targetJDK >= ClassFileConstants.JDK1_6) {
 		this.codeStream = new StackMapFrameCodeStream(this);
+		this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
 	} else {
 		this.codeStream = new CodeStream(this);
 	}
