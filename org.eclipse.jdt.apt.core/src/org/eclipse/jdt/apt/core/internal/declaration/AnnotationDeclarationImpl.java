@@ -34,7 +34,8 @@ public class AnnotationDeclarationImpl extends InterfaceDeclarationImpl implemen
         visitor.visitAnnotationTypeDeclaration(this);
     }
 
-    public Collection<AnnotationTypeElementDeclaration> getMethods()
+    @SuppressWarnings("unchecked") // _getMethods() return type is too broadly specified 
+	public Collection<AnnotationTypeElementDeclaration> getMethods()
     {
         return (Collection<AnnotationTypeElementDeclaration>)_getMethods();
     }

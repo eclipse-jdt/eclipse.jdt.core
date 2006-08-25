@@ -470,7 +470,7 @@ public class AnnotationProcessorFactoryLoader {
 		AnnotationProcessorFactory f = null;
 		try
 		{
-			Class c = cl.loadClass( factoryName );
+			Class<?> c = cl.loadClass( factoryName );
 			f = (AnnotationProcessorFactory)c.newInstance();
 		}
 		catch( Exception e )

@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 /**
  * Home for ast visitors of various flavors.
  */
+@SuppressWarnings("unchecked") // JDT DOM AST API returns raw collections
 public class Visitors {
 	
 	/**
@@ -106,7 +107,7 @@ public class Visitors {
 		/**
 		 * visit package declaration
 		 */
-        public boolean visit(org.eclipse.jdt.core.dom.PackageDeclaration node)
+		public boolean visit(org.eclipse.jdt.core.dom.PackageDeclaration node)
         {
 			final List<Annotation> annotations = node.annotations();
 			if( !annotations.isEmpty() )

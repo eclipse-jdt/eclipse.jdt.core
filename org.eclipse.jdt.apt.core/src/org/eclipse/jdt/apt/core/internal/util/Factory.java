@@ -367,7 +367,7 @@ public class Factory
         return performNecessaryTypeConversion(expectedType, returnValue, name, parent, env);
     }
     
-    public static Object getMatchingDummyValue(final Class expectedType){
+    public static Object getMatchingDummyValue(final Class<?> expectedType){
     	if( expectedType.isPrimitive() ){
     		if(expectedType == boolean.class)
     			return Boolean.FALSE;
@@ -433,7 +433,7 @@ public class Factory
      * 
      */
     public static Object performNecessaryPrimitiveTypeConversion(
-    		final Class expectedType,
+    		final Class<?> expectedType,
     		final Object value,
     		final boolean avoidReflectException)
     {
@@ -619,7 +619,7 @@ public class Factory
 			return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
     }
     
-    private static Class getJavaLangClass_Primitive(final PrimitiveType primitiveType){
+    private static Class<?> getJavaLangClass_Primitive(final PrimitiveType primitiveType){
     	switch( primitiveType.getKind() ){
 		case BOOLEAN: return boolean.class;	
 		case BYTE: return byte.class;
@@ -652,7 +652,7 @@ public class Factory
     	if( expectedType == null )return value;
     	if( expectedType instanceof PrimitiveType )
     	{    	
-    		final Class primitiveClass = getJavaLangClass_Primitive( (PrimitiveType)expectedType );
+    		final Class<?> primitiveClass = getJavaLangClass_Primitive( (PrimitiveType)expectedType );
     		return performNecessaryPrimitiveTypeConversion(primitiveClass, value, false);
     	}
     	// handle auto-boxing

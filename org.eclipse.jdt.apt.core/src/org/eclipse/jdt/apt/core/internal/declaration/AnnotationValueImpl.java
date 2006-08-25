@@ -92,6 +92,7 @@ public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 		assert _parent != null : "missing element"; //$NON-NLS-1$
 	}
 	
+	@SuppressWarnings("unchecked") // DOM AST API returns raw collections
     public SourcePosition getPosition()
     {		
 		final MirrorKind kind = _parent.kind();

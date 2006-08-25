@@ -34,7 +34,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
 {	
 	private static final String JAVA_LANG_CLASS = "java.lang.Class"; //$NON-NLS-1$
     private final AnnotationMirrorImpl _instance;
-    private final Class _clazz;
+    private final Class<?> _clazz;
 
     public AnnotationInvocationHandler(final AnnotationMirrorImpl annotation,
     								   final Class clazz)

@@ -95,26 +95,27 @@ public class GeneratedFileManager {
 	/**
 	 * map from IFile of parent file to Set <IFile>of generated files
 	 */
-	private Map<IFile, Set<IFile>> _parentFile2GeneratedFiles = new HashMap();
+	private final Map<IFile, Set<IFile>> _parentFile2GeneratedFiles = new HashMap<IFile, Set<IFile>>();
 
 	/**
 	 * map from IFile of generated file to Set <IFile>of parent files
 	 */
-	private Map<IFile, Set<IFile>> _generatedFile2ParentFiles = new HashMap();
+	private final Map<IFile, Set<IFile>> _generatedFile2ParentFiles = new HashMap<IFile, Set<IFile>>();
 	
 	/**
 	 * Map from a the working copy of a generated file to its *open* parents.  Note that
 	 * the set of parent files are only those parent files that have an open editor.
 	 * This set should be a subset for a correpsonding entry in the _generatedFile2Parents map.
 	 */
-	private Map<ICompilationUnit, Set<IFile>> _generatedWorkingCopy2OpenParentFiles = new HashMap();
+	private final Map<ICompilationUnit, Set<IFile>> _generatedWorkingCopy2OpenParentFiles = 
+		new HashMap<ICompilationUnit, Set<IFile>>();
 	
 	/**
 	 * Map from type name to the working copy in memory of that type name
 	 * 
 	 * Map<String, ICompilationUnit>
 	 */
-	private Map<IFile, ICompilationUnit> _generatedFile2WorkingCopy = new HashMap();	
+	private final Map<IFile, ICompilationUnit> _generatedFile2WorkingCopy = new HashMap<IFile, ICompilationUnit>();	
 
 	private final IJavaProject _jProject;
 	
@@ -920,7 +921,7 @@ public class GeneratedFileManager {
 			Set<IFile> fileSet = _parentFile2GeneratedFiles.get( parentFile );
 			if ( fileSet == null )
 			{
-				fileSet = new HashSet();
+				fileSet = new HashSet<IFile>();
 				_parentFile2GeneratedFiles.put( parentFile, fileSet );
 			}
 			if (fileSet.add( generatedFile )) {
@@ -932,7 +933,7 @@ public class GeneratedFileManager {
 			fileSet = _generatedFile2ParentFiles.get( generatedFile );
 			if ( fileSet == null )
 			{ 
-				fileSet = new HashSet();
+				fileSet = new HashSet<IFile>();
 				_generatedFile2ParentFiles.put( generatedFile, fileSet );
 			}
 			if (fileSet.add( parentFile )) {
