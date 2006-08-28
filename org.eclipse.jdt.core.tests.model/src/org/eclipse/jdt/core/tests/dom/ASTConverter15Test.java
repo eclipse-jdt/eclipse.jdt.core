@@ -12,6 +12,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 223, 224, 225, 226 };
+//		TESTS_NUMBERS = new int[] { 227 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -7094,4 +7095,67 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IAnnotationBinding[] annotations = packageBinding.getAnnotations();
 		assertEquals("Wrong size", 0, annotations.length);
 	}
+	
+	public void _test0227() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"import anno.Anno;\n" + 
+    		"import binary.B;\n" + 
+    		"import intf.IFoo;\n" + 
+    		"\n" + 
+    		"public class X extends B {\n" + 
+    		"	@Anno(clz=IFoo.IBar.class)\n" + 
+    		"	public void f() {}\n" + 
+    		"}";
+    	class TestASTRequestor extends ASTRequestor {
+    		public ArrayList asts = new ArrayList();
+    		public void acceptAST(ICompilationUnit source, CompilationUnit compilationUnit) {
+    			this.asts.add(compilationUnit);
+    		}
+    		public void acceptBinding(String bindingKey, IBinding binding) {
+    		}
+    	}
+    	this.workingCopy.getBuffer().setContents(contents);
+    	this.workingCopy.save(null, true);
+    	TestASTRequestor requestor = new TestASTRequestor();
+    	resolveASTs(new ICompilationUnit[] { this.workingCopy } , new String[0], requestor, this.getJavaProject("Converter15"), null);
+    	ArrayList asts = requestor.asts;
+		assertEquals("Wrong size", 1, asts.size());
+		CompilationUnit compilationUnit = (CompilationUnit) asts.get(0);
+		assertNotNull("No compilation unit", compilationUnit);
+		List types = compilationUnit.types();
+		assertEquals("Wrong size", 1, types.size());
+		AbstractTypeDeclaration abstractTypeDeclaration = (AbstractTypeDeclaration) types.get(0);
+		assertEquals("Wrong type", ASTNode.TYPE_DECLARATION, abstractTypeDeclaration.getNodeType());
+		TypeDeclaration declaration = (TypeDeclaration) abstractTypeDeclaration;
+		Type superclass = declaration.getSuperclassType();
+		assertNotNull("No superclass", superclass);
+		ITypeBinding typeBinding = superclass.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		IMethodBinding[] methods = typeBinding.getDeclaredMethods();
+		assertNotNull("No methods", methods);
+		assertEquals("Wrong size", 2, methods.length);
+		IMethodBinding methodBinding = null;
+		for(int i = 0; i < 2; i++) {
+			methodBinding = methods[i];
+			if (methodBinding.getName().equals("f")) {
+				break;
+			}
+		}
+		assertEquals("Wrong name", "f", methodBinding.getName());
+		IAnnotationBinding[] annotationBindings = methodBinding.getAnnotations();
+		assertNotNull("No annotations", annotationBindings);
+		assertEquals("Wrong size", 1, annotationBindings.length);
+		IAnnotationBinding annotationBinding = annotationBindings[0];
+		IMemberValuePairBinding[] pairs = annotationBinding.getAllMemberValuePairs();
+		assertNotNull("no pairs", pairs);
+		assertEquals("Wrong size", 1, pairs.length);
+		IMemberValuePairBinding memberValuePairBinding = pairs[0];
+		assertEquals("Wrong kind", IBinding.MEMBER_VALUE_PAIR, memberValuePairBinding.getKind());
+		Object value = memberValuePairBinding.getValue();
+		assertNotNull("No value", value);
+		assertTrue("not a type binding", value instanceof ITypeBinding);
+		ITypeBinding typeBinding2 = (ITypeBinding) value;
+		assertEquals("Wrong qualified name", "intf.IFoo.IBar", typeBinding2.getQualifiedName());
+	}	
 }
