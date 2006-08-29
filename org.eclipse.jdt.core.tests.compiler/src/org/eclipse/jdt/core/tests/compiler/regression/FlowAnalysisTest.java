@@ -10,10 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -776,6 +781,255 @@ public void test027() {
 			"}"
 		},
 		"s-s-s-s-s-s-s-s-s-s-s-s-s-s-s-");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423
+public void test028() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"   {\n" + 
+			"      if (true) throw new NullPointerException();\n" + 
+			"   }\n" + 
+			"}\n" // =================
+		},
+		"");
+	// check no default return opcode is appended
+	String expectedOutput =
+		"  public X();\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [8]\n" + 
+		"     4  new java.lang.NullPointerException [10]\n" + 
+		"     7  dup\n" + 
+		"     8  invokespecial java.lang.NullPointerException() [12]\n" + 
+		"    11  athrow\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 1]\n" + 
+		"        [pc: 4, line: 3]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 12] local: this index: 0 type: X\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+public void test029() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"   {\n" + 
+			"      if (true) throw new NullPointerException();\n" + 
+			"   }\n" + 
+			"   X() {\n" + 
+			"      System.out.println();\n" + 
+			"   }\n" + 
+			"}\n", // =================
+		},
+		"");
+	// check no default return opcode is appended
+	String expectedOutput =
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 2, Locals: 1\n" + 
+		"  X();\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [8]\n" + 
+		"     4  new java.lang.NullPointerException [10]\n" + 
+		"     7  dup\n" + 
+		"     8  invokespecial java.lang.NullPointerException() [12]\n" + 
+		"    11  athrow\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 4, line: 3]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 12] local: this index: 0 type: X\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+public void test030() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Y {\n" + 
+			"	Y(Object o) {\n" + 
+			"		System.out.print(o);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends Y {\n" + 
+			"	{\n" + 
+			"		if (true)\n" + 
+			"			throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	X() {\n" + 
+			"		super(new Object() {\n" + 
+			"			public String toString() {\n" + 
+			"				return \"SUCCESS:\";\n" + 
+			"			}\n" + 
+			"		});\n" + 
+			"		System.out.println();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			new X();\n" + 
+			"		} catch(NullPointerException e) {\n" + 
+			"			System.out.println(\"caught:NPE\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS:caught:NPE");
+	// check no default return opcode is appended
+	String expectedOutput =
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 3, Locals: 1\n" + 
+		"  X();\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  new X$1 [8]\n" + 
+		"     4  dup\n" + 
+		"     5  invokespecial X$1() [10]\n" + 
+		"     8  invokespecial Y(java.lang.Object) [12]\n" + 
+		"    11  new java.lang.NullPointerException [15]\n" + 
+		"    14  dup\n" + 
+		"    15  invokespecial java.lang.NullPointerException() [17]\n" + 
+		"    18  athrow\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 14]\n" + 
+		"        [pc: 11, line: 10]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 19] local: this index: 0 type: X\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+public void test031() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y {\n" + 
+			"	Y(Object o) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends Y {\n" + 
+			"	final int blank;\n" + 
+			"	{\n" + 
+			"		if (true)\n" + 
+			"			throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	X() {\n" + 
+			"		super(new Object() {});\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	X() {\n" + 
+		"	^^^\n" + 
+		"The blank final field blank may not have been initialized\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+public void test032() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y {\n" + 
+			"	Y(int i) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends Y {\n" + 
+			"	final int blank;\n" + 
+			"	{\n" + 
+			"		if (true)\n" + 
+			"			throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	X() {\n" + 
+			"		super(blank = 0);\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	super(blank = 0);\n" + 
+		"	      ^^^^^\n" + 
+		"Cannot refer to an instance field blank while explicitly invoking a constructor\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
+public void test033() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Y {\n" + 
+			"	Y(int i) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X extends Y {\n" + 
+			"	final int blank;\n" + 
+			"	{\n" + 
+			"		if (true)\n" + 
+			"			throw new NullPointerException();\n" + 
+			"	}\n" + 
+			"	X() {\n" + 
+			"		super(0);\n" + 
+			"		blank = 0;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;
