@@ -4712,6 +4712,44 @@ public void test0562_try_catch_unchecked_exception() {
 		"The variable o may be null\n" + 
 		"----------\n");
 }
+
+// null analysis - try/catch
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=155117
+public void test0563_try_catch() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void foo(boolean b) {\n" +
+			"    Exception ex = null;\n" + 
+			"    if (b) {\n" + 
+			"      try {\n" + 
+			"        System.out.println();\n" + 
+			"        return;\n" + 
+			"      } catch (Exception e) {\n" + 
+			"        ex = e;\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    else {\n" + 
+			"      try {\n" + 
+			"        System.out.println();\n" + 
+			"        return;\n" + 
+			"      } catch (Exception e) {\n" + 
+			"        ex = e;\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    if (ex == null) {\n" + // complain: ex cannot be null\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 20)\n" + 
+		"	if (ex == null) {\n" + 
+		"	    ^^\n" + 
+		"The variable ex cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n");
+}
+
 // null analysis -- do while
 public void test0601_do_while() {
 	this.runNegativeTest(
