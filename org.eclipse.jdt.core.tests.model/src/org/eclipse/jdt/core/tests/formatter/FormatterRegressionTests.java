@@ -54,7 +54,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 620 } ;
+//		TESTS_NUMBERS = new int[] { 622 } ;
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -8808,4 +8808,26 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=152725
+	public void test622() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		Hashtable javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+			JavaCore.setOptions(newJavaCoreOptions);
+		
+			Map compilerOptions = new HashMap();
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);		
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+			runTest(codeFormatter, "test622", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}	
 }
