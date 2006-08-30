@@ -1779,80 +1779,78 @@ public class DeltaProcessor {
 	 */
 	public void resourceChanged(IResourceChangeEvent event) {
 	
-		if (event.getSource() instanceof IWorkspace) {
-			int eventType = this.overridenEventType == -1 ? event.getType() : this.overridenEventType;
-			IResource resource = event.getResource();
-			IResourceDelta delta = event.getDelta();
-			
-			switch(eventType){
-				case IResourceChangeEvent.PRE_DELETE :
+		int eventType = this.overridenEventType == -1 ? event.getType() : this.overridenEventType;
+		IResource resource = event.getResource();
+		IResourceDelta delta = event.getDelta();
+		
+		switch(eventType){
+			case IResourceChangeEvent.PRE_DELETE :
+				try {
+					if(resource.getType() == IResource.PROJECT 
+						&& ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
+							
+						deleting((IProject)resource);
+					}
+				} catch(CoreException e){
+					// project doesn't exist or is not open: ignore
+				}
+				return;
+				
+			case IResourceChangeEvent.POST_CHANGE :
+				if (isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
 					try {
-						if(resource.getType() == IResource.PROJECT 
-							&& ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
-								
-							deleting((IProject)resource);
-						}
-					} catch(CoreException e){
-						// project doesn't exist or is not open: ignore
-					}
-					return;
-					
-				case IResourceChangeEvent.POST_CHANGE :
-					if (isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
 						try {
-							try {
-								stopDeltas();
-								checkProjectsBeingAddedOrRemoved(delta);
-								if (this.refreshedElements != null) {
-									createExternalArchiveDelta(null);
-								}
-								IJavaElementDelta translatedDelta = processResourceDelta(delta);
-								if (translatedDelta != null) { 
-									registerJavaModelDelta(translatedDelta);
-								}
-							} finally {
-								this.sourceElementParserCache = null; // don't hold onto parser longer than necessary
-								startDeltas();
+							stopDeltas();
+							checkProjectsBeingAddedOrRemoved(delta);
+							if (this.refreshedElements != null) {
+								createExternalArchiveDelta(null);
 							}
-							IElementChangedListener[] listeners;
-							int listenerCount;
-							synchronized (this.state) {
-								listeners = this.state.elementChangedListeners;
-								listenerCount = this.state.elementChangedListenerCount;
+							IJavaElementDelta translatedDelta = processResourceDelta(delta);
+							if (translatedDelta != null) { 
+								registerJavaModelDelta(translatedDelta);
 							}
-							notifyTypeHierarchies(listeners, listenerCount);
-							fire(null, ElementChangedEvent.POST_CHANGE);
 						} finally {
-							// workaround for bug 15168 circular errors not reported 
-							this.state.resetOldJavaProjectNames();
-							this.removedRoots = null;
+							this.sourceElementParserCache = null; // don't hold onto parser longer than necessary
+							startDeltas();
 						}
+						IElementChangedListener[] listeners;
+						int listenerCount;
+						synchronized (this.state) {
+							listeners = this.state.elementChangedListeners;
+							listenerCount = this.state.elementChangedListenerCount;
+						}
+						notifyTypeHierarchies(listeners, listenerCount);
+						fire(null, ElementChangedEvent.POST_CHANGE);
+					} finally {
+						// workaround for bug 15168 circular errors not reported 
+						this.state.resetOldJavaProjectNames();
+						this.removedRoots = null;
 					}
-					return;
-					
-				case IResourceChangeEvent.PRE_BUILD :
-				    DeltaProcessingState.ProjectUpdateInfo[] updates = this.state.removeAllProjectUpdates();
-					if (updates != null) {
-					    for (int i = 0, length = updates.length; i < length; i++) {
-					        try {
-						        updates[i].updateProjectReferencesIfNecessary();
-					        } catch(JavaModelException e) {
-					            // do nothing
-					        }
-					    }
-					}
-					// this.processPostChange = false;
-					if(isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
-						updateClasspathMarkers(delta, updates);
-						JavaBuilder.buildStarting();
-					}
-					// does not fire any deltas
-					return;
+				}
+				return;
+				
+			case IResourceChangeEvent.PRE_BUILD :
+			    DeltaProcessingState.ProjectUpdateInfo[] updates = this.state.removeAllProjectUpdates();
+				if (updates != null) {
+				    for (int i = 0, length = updates.length; i < length; i++) {
+				        try {
+					        updates[i].updateProjectReferencesIfNecessary();
+				        } catch(JavaModelException e) {
+				            // do nothing
+				        }
+				    }
+				}
+				// this.processPostChange = false;
+				if(isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
+					updateClasspathMarkers(delta, updates);
+					JavaBuilder.buildStarting();
+				}
+				// does not fire any deltas
+				return;
 
-				case IResourceChangeEvent.POST_BUILD :
-					JavaBuilder.buildFinished();
-					return;
-			}
+			case IResourceChangeEvent.POST_BUILD :
+				JavaBuilder.buildFinished();
+				return;
 		}
 	}
 	/*
