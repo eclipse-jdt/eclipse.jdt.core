@@ -4711,4 +4711,141 @@ public void test135() {
 		"The local variable b may not have been initialized\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=151368
+public void test136() {
+ this.runConformTest(
+     new String[] {
+        "X.java",
+        "import p.BeanName;\n" +
+		"public class X {\n" + 
+		"	Object o = BeanName.CreateStepApiOperation;\n" +
+		"}",
+		"p/BeanName.java",
+		"package p;\n" +
+		"public enum BeanName {\n" + 
+		"\n" + 
+		"    //~ Enum constants ---------------------------------------------------------\n" + 
+		"\n" + 
+		"    AbortAllJobsOperation,\n" + 
+		"    AbortJobApiOperation,\n" + 
+		"    AbortStepOperation,\n" + 
+		"    AclVoter,\n" + 
+		"    AcquireNamedLockApiOperation,\n" + 
+		"    AuthenticationManager,\n" + 
+		"    BeginStepOperation,\n" + 
+		"    CloneApiOperation,\n" + 
+		"    CommanderDao,\n" + 
+		"    CommanderServer,\n" + 
+		"    ConfigureQuartzOperation,\n" + 
+		"    CreateAclEntryApiOperation,\n" + 
+		"    CreateActualParameterApiOperation,\n" + 
+		"    CreateFormalParameterApiOperation,\n" + 
+		"    CreateProcedureApiOperation,\n" + 
+		"    CreateProjectApiOperation,\n" + 
+		"    CreateResourceApiOperation,\n" + 
+		"    CreateScheduleApiOperation,\n" + 
+		"    CreateStepApiOperation,\n" + 
+		"    DeleteAclEntryApiOperation,\n" + 
+		"    DeleteActualParameterApiOperation,\n" + 
+		"    DeleteFormalParameterApiOperation,\n" + 
+		"    DeleteJobApiOperation,\n" + 
+		"    DeleteProcedureApiOperation,\n" + 
+		"    DeleteProjectApiOperation,\n" + 
+		"    DeletePropertyApiOperation,\n" + 
+		"    DeleteResourceApiOperation,\n" + 
+		"    DeleteScheduleApiOperation,\n" + 
+		"    DeleteStepApiOperation,\n" + 
+		"    DispatchApiRequestOperation,\n" + 
+		"    DumpStatisticsApiOperation,\n" + 
+		"    ExpandJobStepAction,\n" + 
+		"    ExportApiOperation,\n" + 
+		"    FinishStepOperation,\n" + 
+		"    GetAccessApiOperation,\n" + 
+		"    GetAclEntryApiOperation,\n" + 
+		"    GetActualParameterApiOperation,\n" + 
+		"    GetActualParametersApiOperation,\n" + 
+		"    GetFormalParameterApiOperation,\n" + 
+		"    GetFormalParametersApiOperation,\n" + 
+		"    GetJobDetailsApiOperation,\n" + 
+		"    GetJobInfoApiOperation,\n" + 
+		"    GetJobStatusApiOperation,\n" + 
+		"    GetJobStepDetailsApiOperation,\n" + 
+		"    GetJobStepStatusApiOperation,\n" + 
+		"    GetJobsApiOperation,\n" + 
+		"    GetProcedureApiOperation,\n" + 
+		"    GetProceduresApiOperation,\n" + 
+		"    GetProjectApiOperation,\n" + 
+		"    GetProjectsApiOperation,\n" + 
+		"    GetPropertiesApiOperation,\n" + 
+		"    GetPropertyApiOperation,\n" + 
+		"    GetResourceApiOperation,\n" + 
+		"    GetResourcesApiOperation,\n" + 
+		"    GetResourcesInPoolApiOperation,\n" + 
+		"    GetScheduleApiOperation,\n" + 
+		"    GetSchedulesApiOperation,\n" + 
+		"    GetStepApiOperation,\n" + 
+		"    GetStepsApiOperation,\n" + 
+		"    GetVersionsApiOperation,\n" + 
+		"    GraphWorkflowApiOperation,\n" + 
+		"    HibernateFlushListener,\n" + 
+		"    ImportApiOperation,\n" + 
+		"    IncrementPropertyApiOperation,\n" + 
+		"    InvokeCommandOperation,\n" + 
+		"    InvokePostProcessorOperation,\n" + 
+		"    LoginApiOperation,\n" + 
+		"    LogManager,\n" + 
+		"    LogMessageApiOperation,\n" + 
+		"    ModifyAclEntryApiOperation,\n" + 
+		"    ModifyActualParameterApiOperation,\n" + 
+		"    ModifyFormalParameterApiOperation,\n" + 
+		"    ModifyProcedureApiOperation,\n" + 
+		"    ModifyProjectApiOperation,\n" + 
+		"    ModifyPropertyApiOperation,\n" + 
+		"    ModifyResourceApiOperation,\n" + 
+		"    ModifyScheduleApiOperation,\n" + 
+		"    ModifyStepApiOperation,\n" + 
+		"    MoveStepApiOperation,\n" + 
+		"    PauseSchedulerApiOperation,\n" + 
+		"    QuartzQueue,\n" + 
+		"    QuartzScheduler,\n" + 
+		"    ReleaseNamedLockApiOperation,\n" + 
+		"    ResourceInvoker,\n" + 
+		"    RunProcedureApiOperation,\n" + 
+		"    RunQueryApiOperation,\n" + 
+		"    SaxReader,\n" + 
+		"    ScheduleStepsOperation,\n" + 
+		"    SessionCache,\n" + 
+		"    SetJobNameApiOperation,\n" + 
+		"    SetPropertyApiOperation,\n" + 
+		"    SetStepStatusAction,\n" + 
+		"    StartWorkflowOperation,\n" + 
+		"    StateRefreshOperation,\n" + 
+		"    StepCompletionPrecondition,\n" + 
+		"    StepOutcomePrecondition,\n" + 
+		"    StepScheduler,\n" + 
+		"    TemplateOperation,\n" + 
+		"    TimeoutWatchdog,\n" + 
+		"    UpdateConfigurationOperation,\n" + 
+		"    Workspace,\n" + 
+		"    XmlRequestHandler;\n" + 
+		"\n" + 
+		"    //~ Static fields/initializers ---------------------------------------------\n" + 
+		"\n" + 
+		"    public static final int MAX_BEAN_NAME_LENGTH = 33;\n" + 
+		"\n" + 
+		"    //~ Methods ----------------------------------------------------------------\n" + 
+		"\n" + 
+		"    /**\n" + 
+		"     * Get this bean name as a property name, i.e. uncapitalized.\n" + 
+		"     *\n" + 
+		"     * @return String\n" + 
+		"     */\n" + 
+		"    public String getPropertyName()\n" + 
+		"    {\n" + 
+		"        return null;\n" + 
+		"    }\n" + 
+		"}\n", // =================,
+     },
+	"");
+}
 }
