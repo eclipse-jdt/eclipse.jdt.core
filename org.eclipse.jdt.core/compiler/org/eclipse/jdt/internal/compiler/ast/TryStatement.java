@@ -538,7 +538,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 						naturalExitExceptionHandler.placeEnd();
 						codeStream.recordPositionsFrom(
 							position,
-							this.finallyBlock.sourceEnd);	
+							this.finallyBlock.sourceEnd);
 						break;
 					case FINALLY_INLINE :
 						// inlined finally here can see all merged variables
@@ -550,7 +550,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 						// entire sequence for finally is associated to finally block
 						this.finallyBlock.generateCode(this.scope, codeStream);
 						if (postCatchesFinallyLabel != null && requiresCatchesExit) {
+							position = codeStream.position;
+							// entire sequence for finally is associated to finally block
 							codeStream.goto_(postCatchesFinallyLabel);
+							codeStream.recordPositionsFrom(
+									position,
+									this.finallyBlock.sourceEnd);
 						}
 						break;
 					case FINALLY_DOES_NOT_COMPLETE :
