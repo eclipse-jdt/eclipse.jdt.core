@@ -1508,7 +1508,7 @@ public void testResilienceToMissingBinaries() throws CoreException {
 			);
 		IType type = getCompilationUnit("P", "src", "tools", "DisplayTestResult2.java").getType("DisplayTestResult2");		
 		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
-		System.out.println(hierarchy.getSupertypes(type));
+		assertNotNull(hierarchy.getSupertypes(type));
 		assertHierarchyEquals(
 				"Focus: DisplayTestResult2 [in DisplayTestResult2.java [in tools [in src [in P]]]]\n" + 
 				"Super types:\n" + 
