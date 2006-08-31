@@ -312,7 +312,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 51, line: 19]\n" + 
 				"        [pc: 53, line: 20]\n" + 
 				"        [pc: 56, line: 19]\n" + 
-				"        [pc: 61, line: 18]\n" + 
+				"        [pc: 58, line: 20]\n" + 
+				"        [pc: 61, line: 19]\n" + 
 				"        [pc: 63, line: 21]\n" + 
 				"        [pc: 69, line: 22]\n" + 
 				"        [pc: 74, line: 23]\n" + 
@@ -441,7 +442,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 33, line: 12]\n" + 
 				"        [pc: 41, line: 13]\n" + 
 				"        [pc: 43, line: 12]\n" + 
-				"        [pc: 54, line: 11]\n" + 
+				"        [pc: 51, line: 13]\n" + 
+				"        [pc: 54, line: 12]\n" + 
 				"        [pc: 62, line: 14]\n" + 
 				"      Local variable table:\n" + 
 				"        [pc: 0, pc: 63] local: b index: 0 type: boolean\n" + 
@@ -2009,5 +2011,60 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
         		"}",
             },
 			"SUCCESS");
-	}	
+	}
+	// 155423
+	public void test021() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"public class X {\n" + 
+        		"   {\n" + 
+        		"      if (true) throw new NullPointerException();\n" + 
+        		"   }\n" + 
+        		"   X() {\n" + 
+        		"      System.out.println();\n" + 
+        		"   }\n" + 
+        		"}",
+            },
+			"");
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			actualOutput =
+				disassembler.disassemble(
+                     classFileBytes,
+                     "\n",
+                     ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+
+		String expectedOutput = 
+			"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 2, Locals: 1\n" + 
+			"  X();\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  invokespecial java.lang.Object() [8]\n" + 
+			"     4  new java.lang.NullPointerException [10]\n" + 
+			"     7  dup\n" + 
+			"     8  invokespecial java.lang.NullPointerException() [12]\n" + 
+			"    11  athrow\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"        [pc: 4, line: 3]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 12] local: this index: 0 type: X\n";
+
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 2));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, actualOutput);
+		}
+	}
 }
