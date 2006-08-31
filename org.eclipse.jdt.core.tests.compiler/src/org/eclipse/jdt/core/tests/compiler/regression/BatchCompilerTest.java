@@ -3328,6 +3328,29 @@ public void test063(){
 		false /* do not flush output directory */);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=155809
+// per sourcepath directory default encoding
+public void _test064_per_sourcepath_directory_default_encoding(){
+	String source1 = "src1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 
+        + "[UTF-8]\"",
+		"", 
+		"",
+		true);
+}
+
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
