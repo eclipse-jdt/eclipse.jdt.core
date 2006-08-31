@@ -32514,4 +32514,26 @@ public void test1024() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753
+public void test1025() {
+	this.runConformTest(
+		new String[] {
+			"GenericBaseClass.java",
+			"public class GenericBaseClass<P, C> {\n" + 
+			"  public GenericBaseClass() {\n" + 
+			"    if (!(this instanceof ASubGenericClass)) {\n" + 
+			"      System.out.println(\"I\'m not ASubClass\");\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class ASubGenericClass extends GenericBaseClass<GenericBaseClass, GenericBaseClass> {\n" + 
+			"  public ASubGenericClass() {\n" + 
+			"    // This compiles with both\n" + 
+			"    GenericBaseClass<GenericBaseClass, GenericBaseClass> hey = this;\n" + 
+			"  }\n" + 
+			"}", // =================
+		},
+		"");
+}
 }
