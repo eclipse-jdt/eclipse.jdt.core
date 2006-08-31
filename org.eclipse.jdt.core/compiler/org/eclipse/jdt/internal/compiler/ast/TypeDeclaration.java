@@ -665,12 +665,9 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 					method.analyseCode(
 						this.scope, 
 						staticInitializerContext,  
-						staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo).setReachMode(flowInfo.reachMode()));  // reset reach mode in case initializers did abrupt completely
+						staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
 				} else { // constructor
-					method.analyseCode(this.scope, initializerContext, constructorInfo.copy().setReachMode(flowInfo.reachMode())); // reset reach mode in case initializers did abrupt completely
-					if (method.needFreeReturn) {
-						method.needFreeReturn = (constructorInfo.tagBits & FlowInfo.UNREACHABLE) == 0;
-					}
+					((ConstructorDeclaration)method).analyseCode(this.scope, initializerContext, constructorInfo.copy(), flowInfo.reachMode());
 				}
 			} else { // regular method
 				method.analyseCode(this.scope, null, flowInfo.copy());
