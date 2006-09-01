@@ -973,15 +973,25 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public CompilerOptions compilerOptions; // read-only
 
 	public String destinationPath;
+		// destination path for compilation units that get no more specific
+		// one (through directory arguments or various classpath options); 
+		// coding is:
+		// == null: unspecified, write class files close to their respective
+		//          source files;
+		// == Main.NONE: absorbent element, do not output class files;
+		// else: use as the path of the directory into which class files must
+		//       be written.
 	private boolean didSpecifySource;
 	private boolean didSpecifyTarget;
-	public String[] encodings;
 	// need to pass the compiler messages output to the delegate compiler
 		// do not user directly (use logger)
 		// TODO (maxime) this is used in one instance - check reason with olivier
+		// WORK this comments make no more sense, investigate
 	public int exportedClassFilesCounter; 
-		public String[] filenames;
-	public boolean generatePackagesStructure;
+	public String[] filenames;
+	public String[] encodings;
+	public String[] destinationPaths;
+		// overrides of destinationPath on a directory argument basis
 	public int globalErrorsCount;
 	public int globalProblemsCount;
 	public int globalTasksCount;
@@ -1014,6 +1024,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public final static String bundleName =
 		"org.eclipse.jdt.internal.compiler.batch.messages"; 	//$NON-NLS-1$
 
+	public static final String NONE = "none"; //$NON-NLS-1$
+		// two uses: recognize 'none' in options; code the singleton none
+		// for the '-d none' option (wherever it may be found)
 	static {
 		relocalize();
 	}
@@ -1171,7 +1184,10 @@ public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhen
 	}
 }
 
-private void addNewEntry(ArrayList paths, String currentClasspathName, ArrayList currentRuleSpecs, String customEncoding, boolean isSourceOnly) {
+private void addNewEntry(ArrayList paths, String currentClasspathName, 
+		ArrayList currentRuleSpecs, String customEncoding, 
+		String destPath, boolean isSourceOnly, 
+		boolean rejectDestinationPathOnJars) throws InvalidInputException {
 	AccessRule[] accessRules = new AccessRule[currentRuleSpecs.size()];
 	boolean rulesOK = true;
 	Iterator i = currentRuleSpecs.iterator();
@@ -1223,11 +1239,22 @@ private void addNewEntry(ArrayList paths, String currentClasspathName, ArrayList
 			"template.restrictedAccess.field", //$NON-NLS-1$
 			new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$ 
 		AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules, templates);
+		if (NONE.equals(destPath)) {
+			destPath = NONE; // keep == comparison valid
+		}
+		if (rejectDestinationPathOnJars && destPath != null &&
+				(currentClasspathName.endsWith(".jar") || //$NON-NLS-1$ 
+					currentClasspathName.endsWith(".zip"))) { //$NON-NLS-1$ 
+			throw new InvalidInputException(
+				Main.bind("configure.unexpectedDestinationPathEntryFile", //$NON-NLS-1$ 
+							currentClasspathName));
+		}
 		FileSystem.Classpath currentClasspath = FileSystem.getClasspath(
 				currentClasspathName,
 				customEncoding,
 				isSourceOnly,
-				accessRuleSet);
+				accessRuleSet,
+				destPath);
 		if (currentClasspath != null) {
 			paths.add(currentClasspath);
 		} else {
@@ -1312,22 +1339,28 @@ public void configure(String[] argv) throws InvalidInputException {
 		printUsage();
 		return;
 	}
-	final int INSIDE_CLASSPATH = 1;
-	final int INSIDE_DESTINATION_PATH = 2;
-	final int INSIDE_TARGET = 3;
-	final int INSIDE_LOG = 4;
-	final int INSIDE_REPETITION = 5;
-	final int INSIDE_SOURCE = 6;
-	final int INSIDE_DEFAULT_ENCODING = 7;
-	final int INSIDE_BOOTCLASSPATH = 8;
-	final int INSIDE_MAX_PROBLEMS = 9;
-	final int INSIDE_EXT_DIRS = 10;
-	final int INSIDE_SOURCE_PATH = 11;
-	final int INSIDE_ENDORSED_DIRS = 12;
+	final int INSIDE_CLASSPATH_start = 1;
+	final int INSIDE_CLASSPATH_bracket = 2;
+	final int INSIDE_DESTINATION_PATH = 3;
+	final int INSIDE_TARGET = 4;
+	final int INSIDE_LOG = 5;
+	final int INSIDE_REPETITION = 6;
+	final int INSIDE_SOURCE = 7;
+	final int INSIDE_DEFAULT_ENCODING = 8;
+	final int INSIDE_BOOTCLASSPATH_start = 9;
+	final int INSIDE_BOOTCLASSPATH_bracket = 10;
+	final int INSIDE_MAX_PROBLEMS = 11;
+	final int INSIDE_EXT_DIRS = 12;
+	final int INSIDE_SOURCE_PATH_start = 13;
+	final int INSIDE_SOURCE_PATH_bracket = 14;
+	final int INSIDE_ENDORSED_DIRS = 15;
+	final int INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH = 16;
 
 	final int DEFAULT = 0;
 	final int DEFAULT_SIZE_CLASSPATH = 4;
 	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+	String sourcepathClasspathArg = null;
+	String classpathArg = null;
 	ArrayList sourcepathClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	ArrayList extdirsClasspaths = null;
@@ -1347,6 +1380,8 @@ public void configure(String[] argv) throws InvalidInputException {
 	boolean didSpecifyCompliance = false;	
 
 	String customEncoding = null;
+	String customDestinationPath = null;
+	String currentSourceDirectory = null;
 	String currentArg = ""; //$NON-NLS-1$
 
 	// expand the command line if necessary
@@ -1412,10 +1447,20 @@ public void configure(String[] argv) throws InvalidInputException {
 		switch(mode) {
 			case DEFAULT :
 				customEncoding = null;
-				if (currentArg.endsWith("]") && !(mode == INSIDE_BOOTCLASSPATH || mode == INSIDE_CLASSPATH || //$NON-NLS-1$ 
-						mode == INSIDE_SOURCE_PATH) ) {
+				
+				if (currentArg.startsWith("[")) { //$NON-NLS-1$
+					throw new InvalidInputException(
+						Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+									currentArg));
+				}
+				
+				if (currentArg.endsWith("]")) { //$NON-NLS-1$
 					// look for encoding specification
 					int encodingStart = currentArg.indexOf('[') + 1;
+					if (encodingStart <= 1) {
+						throw new InvalidInputException(
+								Main.bind("configure.unexpectedBracket", currentArg)); //$NON-NLS-1$
+					}
 					int encodingEnd = currentArg.length() - 1;
 					if (encodingStart >= 1) {
 						if (encodingStart < encodingEnd) {
@@ -1435,6 +1480,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					if (this.filenames == null) {
 						this.filenames = new String[argCount - index];
 						this.encodings = new String[argCount - index];
+						this.destinationPaths = new String[argCount - index];
 					} else if (filesCount == this.filenames.length) {
 						int length = this.filenames.length;
 						System.arraycopy(
@@ -1449,9 +1495,16 @@ public void configure(String[] argv) throws InvalidInputException {
 							(this.encodings = new String[length + argCount - index]),
 							0,
 							length);
+						System.arraycopy(
+							this.destinationPaths,
+							0,
+							(this.destinationPaths = new String[length + argCount - index]),
+							0,
+							length);
 					}
 					this.filenames[filesCount] = currentArg;
 					this.encodings[filesCount++] = customEncoding;
+					// destination path cannot be specified upon an individual file
 					customEncoding = null;
 					mode = DEFAULT;
 					continue;
@@ -1537,12 +1590,11 @@ public void configure(String[] argv) throws InvalidInputException {
 							Main.bind("configure.duplicateOutputPath", errorMessage.toString())); //$NON-NLS-1$
 					}
 					mode = INSIDE_DESTINATION_PATH;
-					this.generatePackagesStructure = true;
 					continue;
 				}
 				if (currentArg.equals("-classpath") //$NON-NLS-1$
 					|| currentArg.equals("-cp")) { //$NON-NLS-1$
-					mode = INSIDE_CLASSPATH;
+					mode = INSIDE_CLASSPATH_start;
 					continue;
 				}
 				if (currentArg.equals("-bootclasspath")) {//$NON-NLS-1$
@@ -1556,11 +1608,11 @@ public void configure(String[] argv) throws InvalidInputException {
 						throw new InvalidInputException(
 							Main.bind("configure.duplicateBootClasspath", errorMessage.toString())); //$NON-NLS-1$
 					}
-					mode = INSIDE_BOOTCLASSPATH;
+					mode = INSIDE_BOOTCLASSPATH_start;
 					continue;
 				}
 				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
-					if (sourcepathClasspaths.size() > 0) {
+					if (sourcepathClasspathArg != null) {
 						StringBuffer errorMessage = new StringBuffer();
 						errorMessage.append(currentArg);
 						if ((index + 1) < argCount) {
@@ -1570,7 +1622,7 @@ public void configure(String[] argv) throws InvalidInputException {
 						throw new InvalidInputException(
 							Main.bind("configure.duplicateSourcepath", errorMessage.toString())); //$NON-NLS-1$
 					}
-					mode = INSIDE_SOURCE_PATH;
+					mode = INSIDE_SOURCE_PATH_start;
 					continue;
 				}
 				if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
@@ -1692,7 +1744,7 @@ public void configure(String[] argv) throws InvalidInputException {
 						this.options.put(
 							CompilerOptions.OPTION_SourceFileAttribute,
 							CompilerOptions.DO_NOT_GENERATE);
-						if (length == 7 && debugOption.equals("-g:none")) //$NON-NLS-1$
+						if (length == 7 && debugOption.equals("-g:" + NONE)) //$NON-NLS-1$
 							continue;
 						StringTokenizer tokenizer =
 							new StringTokenizer(debugOption.substring(3, debugOption.length()), ","); //$NON-NLS-1$
@@ -1729,7 +1781,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					mode = DEFAULT;
 					String warningOption = currentArg;
 					int length = currentArg.length();
-					if (length == 10 && warningOption.equals("-warn:none")) { //$NON-NLS-1$
+					if (length == 10 && warningOption.equals("-warn:" + NONE)) { //$NON-NLS-1$
 						disableWarnings();
 						continue;
 					}
@@ -2219,51 +2271,240 @@ public void configure(String[] argv) throws InvalidInputException {
 				mode = DEFAULT;
 				continue;
 			case INSIDE_DESTINATION_PATH :
-				this.destinationPath = currentArg;
+				if (currentArg.equals(NONE)) {
+					this.destinationPath = NONE; 
+						// this.destinationPath == NONE must answer true
+				} else {
+					this.destinationPath = currentArg;
+				}
 				mode = DEFAULT;
 				continue;
-			case INSIDE_CLASSPATH:
-				classpaths.add(currentArg);
+			case INSIDE_CLASSPATH_start: 
 				mode = DEFAULT;
+				char[] currentArgChars = currentArg.toCharArray();
+				for (int i = 0, length = currentArgChars.length; i < length; 
+						i++) {
+					switch (currentArgChars[i]) {
+						case '[':
+							if (mode == INSIDE_CLASSPATH_bracket) {
+								throw new InvalidInputException(
+									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+												currentArg));
+							} else {
+								mode = INSIDE_CLASSPATH_bracket;
+							}
+							break;
+						case ']':
+							if (mode != INSIDE_CLASSPATH_bracket) {
+								throw new InvalidInputException(
+									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+											currentArg));
+							} else {
+								mode = DEFAULT;
+							}
+							break;
+					}
+				}
+				if (mode == DEFAULT) {
+					classpaths.add(currentArg);
+				} else {
+					classpathArg = currentArg;
+				}
 				continue;
-			case INSIDE_BOOTCLASSPATH:
-				bootclasspaths.add(currentArg);
+			case INSIDE_CLASSPATH_bracket:
+				currentArgChars = currentArg.toCharArray();
+				for (int i = 0, length = currentArgChars.length; i < length; 
+						i++) {
+					switch (currentArgChars[i]) {
+						case '[':
+							throw new InvalidInputException(
+								Main.bind("configure.accessRuleAfterDestinationPath", //$NON-NLS-1$ 
+											"[-d " + currentArg)); //$NON-NLS-1$ 
+						case ']':
+							if (mode != INSIDE_CLASSPATH_bracket) {
+								throw new InvalidInputException(
+									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+												currentArg));
+							} else {
+								mode = DEFAULT;
+							}
+							break;
+					}
+				}
+				if (mode == DEFAULT) {
+					classpaths.add(classpathArg + " " + currentArg); //$NON-NLS-1$
+				}
+				continue;
+			case INSIDE_BOOTCLASSPATH_start: 
 				mode = DEFAULT;
+				currentArgChars = currentArg.toCharArray();
+				for (int i = 0, length = currentArgChars.length; i < length; 
+						i++) {
+					switch (currentArgChars[i]) {
+						case '[':
+							if (mode == INSIDE_BOOTCLASSPATH_bracket) {
+								throw new InvalidInputException(
+									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+												currentArg));
+							} else {
+								mode = INSIDE_BOOTCLASSPATH_bracket;
+							}
+							break;
+						case ']':
+							if (mode != INSIDE_BOOTCLASSPATH_bracket) {
+								throw new InvalidInputException(
+									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+												currentArg));
+							} else {
+								mode = DEFAULT;
+							}
+							break;
+					}
+				}
+				if (mode == DEFAULT) {
+					bootclasspaths.add(currentArg);
+				} else {
+					classpathArg = currentArg;
+				}
 				continue;
-			case INSIDE_SOURCE_PATH :
-				sourcepathClasspaths.add(currentArg);
+			case INSIDE_BOOTCLASSPATH_bracket:
+				currentArgChars = currentArg.toCharArray();
+				for (int i = 0, length = currentArgChars.length; i < length; 
+						i++) {
+					switch (currentArgChars[i]) {
+						case '[':
+							throw new InvalidInputException(
+								Main.bind("configure.accessRuleAfterDestinationPath", //$NON-NLS-1$ 
+											"[-d " + currentArg)); //$NON-NLS-1$ 
+						case ']':
+							if (mode != INSIDE_BOOTCLASSPATH_bracket) {
+								throw new InvalidInputException(
+									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+												currentArg));
+							} else {
+								mode = DEFAULT;
+							}
+							break;
+					}
+				}
+				if (mode == DEFAULT) {
+					bootclasspaths.add(classpathArg + " " + currentArg); //$NON-NLS-1$
+				}
+				continue;
+			case INSIDE_SOURCE_PATH_start:
+				sourcepathClasspathArg = currentArg;
 				mode = DEFAULT;
+				currentArgChars = currentArg.toCharArray();
+				for (int i = 0, length = currentArgChars.length; i < length; 
+						i++) {
+					switch (currentArgChars[i]) {
+						case '[':
+							if (mode == INSIDE_SOURCE_PATH_bracket) {
+								throw new InvalidInputException(
+									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+												currentArg));
+							} else {
+								mode = INSIDE_SOURCE_PATH_bracket;
+							}
+							break;
+						case ']':
+							if (mode != INSIDE_SOURCE_PATH_bracket) {
+								throw new InvalidInputException(
+									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+												currentArg));
+							} else {
+								mode = DEFAULT;
+							}
+							break;
+					}
+				}
 				continue;
-			case INSIDE_EXT_DIRS :
+			case INSIDE_SOURCE_PATH_bracket:
+				sourcepathClasspathArg += " " + currentArg; //$NON-NLS-1$
+				currentArgChars = currentArg.toCharArray();
+				for (int i = 0, length = currentArgChars.length; i < length; 
+						i++) {
+					switch (currentArgChars[i]) {
+						case '[':
+							throw new InvalidInputException(
+								Main.bind("configure.accessRuleAfterDestinationPath", //$NON-NLS-1$ 
+											"[-d " + currentArg)); //$NON-NLS-1$ 
+						case ']':
+							if (mode != INSIDE_SOURCE_PATH_bracket) {
+								throw new InvalidInputException(
+									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+												currentArg));
+							} else {
+								mode = DEFAULT;
+							}
+							break;
+					}
+				}
+				continue;
+			case INSIDE_EXT_DIRS:
+				if (currentArg.indexOf("[-d") != -1) { //$NON-NLS-1$ 
+					throw new InvalidInputException(
+						Main.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$ 
+							"-extdir")); //$NON-NLS-1$ 
+				}
 				StringTokenizer tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
 				extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 				while (tokenizer.hasMoreTokens())
 					extdirsClasspaths.add(tokenizer.nextToken());
 				mode = DEFAULT;
 				continue;
-			case INSIDE_ENDORSED_DIRS :
-				tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
+			case INSIDE_ENDORSED_DIRS:
+				if (currentArg.indexOf("[-d") != -1) { //$NON-NLS-1$ 
+					throw new InvalidInputException(
+						Main.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$ 
+							"-endorseddirs")); //$NON-NLS-1$ 
+				}				tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
 				endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 				while (tokenizer.hasMoreTokens())
 					endorsedDirClasspaths.add(tokenizer.nextToken());
 				mode = DEFAULT;
 				continue;
+			case INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH:
+				if (currentArg.endsWith("]")) { //$NON-NLS-1$
+					customDestinationPath = currentArg.substring(0,
+						currentArg.length() - 1);
+				} else {
+					throw new InvalidInputException(
+						Main.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$ 
+							"[-d " + currentArg)); //$NON-NLS-1$
+				}
+				// continue; fall through on purpose
 		}
 
-		//default is input directory
-		currentArg = currentArg.replace('/', File.separatorChar);
-		if (currentArg.endsWith(File.separator))
-			currentArg =
-				currentArg.substring(0, currentArg.length() - File.separator.length());
-		File dir = new File(currentArg);
-		if (!dir.isDirectory())
+		// default is input directory, if no custom destination path exists
+		if (customDestinationPath == null) {
+			currentArg = currentArg.replace('/', File.separatorChar);
+			if (currentArg.endsWith("[-d")) { //$NON-NLS-1$
+				currentSourceDirectory = currentArg.substring(0, 
+					currentArg.length() - 3);
+				mode = INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH;
+				continue;
+			} else {
+				currentSourceDirectory = currentArg;
+			}
+		}
+		if (currentSourceDirectory.endsWith(File.separator)) {
+			currentSourceDirectory = currentSourceDirectory.substring(0, 
+					currentSourceDirectory.length() - File.separator.length());
+		}
+		File dir = new File(currentSourceDirectory);
+		if (!dir.isDirectory()) {
 			throw new InvalidInputException(
-				Main.bind("configure.directoryNotExist", currentArg)); //$NON-NLS-1$
+				Main.bind("configure.directoryNotExist", currentSourceDirectory)); //$NON-NLS-1$
+		}
 		FileFinder finder = new FileFinder();
 		try {
 			finder.find(dir, SuffixConstants.SUFFIX_STRING_JAVA, this.verbose);
 		} catch (Exception e) {
-			throw new InvalidInputException(Main.bind("configure.IOError", currentArg)); //$NON-NLS-1$
+			throw new InvalidInputException(Main.bind("configure.IOError", currentSourceDirectory)); //$NON-NLS-1$
+		}
+		if (NONE.equals(customDestinationPath)) {
+			customDestinationPath = NONE; // ensure == comparison
 		}
 		if (this.filenames != null) {
 			// some source files were specified explicitly
@@ -2281,20 +2522,33 @@ public void configure(String[] argv) throws InvalidInputException {
 				(this.encodings = new String[length + filesCount]),
 				0,
 				filesCount);
+			System.arraycopy(
+				this.destinationPaths,
+				0,
+				(this.destinationPaths = new String[length + filesCount]),
+				0,
+				filesCount);
 			System.arraycopy(results, 0, this.filenames, filesCount, length);
 			for (int i = 0; i < length; i++) {
 				this.encodings[filesCount + i] = customEncoding;
+				this.destinationPaths[filesCount + i] = customDestinationPath;
 			}
 			filesCount += length;
 			customEncoding = null;
+			customDestinationPath = null;
+			currentSourceDirectory = null;
 		} else {
 			this.filenames = finder.resultFiles;
 			filesCount = this.filenames.length;
 			this.encodings = new String[filesCount];
+			this.destinationPaths = new String[filesCount];
 			for (int i = 0; i < filesCount; i++) {
 				this.encodings[i] = customEncoding;
+				this.destinationPaths[i] = customDestinationPath;
 			}
 			customEncoding = null;
+			customDestinationPath = null;
+			currentSourceDirectory = null;
 		}
 		mode = DEFAULT;
 		continue;
@@ -2325,7 +2579,8 @@ public void configure(String[] argv) throws InvalidInputException {
 		bootclasspaths.toArray(paths);
 		bootclasspaths.clear();
 		for (int i = 0; i < bootclasspathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, paths[i], customEncoding, false);
+			processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, 
+				paths[i], customEncoding, false, true);
 		}
 	} else {
 		/* no bootclasspath specified
@@ -2360,9 +2615,8 @@ public void configure(String[] argv) throws InvalidInputException {
 					if (current != null) {
 						for (int j = 0, max2 = current.length; j < max2; j++) {
 							FileSystem.Classpath classpath = 
-								FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
-									null, false, null); 
+								FileSystem.getClasspath(current[j].getAbsolutePath(),
+									null, false, null, null); 
 							if (classpath != null) {
 								bootclasspaths.add(classpath);
 							}
@@ -2378,7 +2632,8 @@ public void configure(String[] argv) throws InvalidInputException {
 		classpaths.toArray(paths);
 		classpaths.clear();
 		for (int i = 0; i < classpathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, classpaths, paths[i], customEncoding, false);
+			processPathEntries(DEFAULT_SIZE_CLASSPATH, classpaths, paths[i], 
+					customEncoding, false, true);
 		}			
 	} else {
 		// no user classpath specified.
@@ -2402,14 +2657,9 @@ public void configure(String[] argv) throws InvalidInputException {
 			}
 		}
 	}
-	final int sourcepathClasspathsSize = sourcepathClasspaths.size();
-	if (sourcepathClasspathsSize != 0) {
-		String[] paths = new String[sourcepathClasspathsSize];
-		sourcepathClasspaths.toArray(paths);
-		sourcepathClasspaths.clear();
-		for (int i = 0; i < sourcepathClasspathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, sourcepathClasspaths, paths[i], customEncoding, true);
-		}			
+	if (sourcepathClasspathArg != null) {
+		processPathEntries(DEFAULT_SIZE_CLASSPATH, sourcepathClasspaths, 
+			sourcepathClasspathArg, customEncoding, true, false);
 	}
 	
 	if (filesCount != 0)
@@ -2536,12 +2786,6 @@ public void configure(String[] argv) throws InvalidInputException {
 	this.checkedClasspaths = new FileSystem.Classpath[classpaths.size()];
 	classpaths.toArray(this.checkedClasspaths);
 
-	if (this.destinationPath == null) {
-		this.generatePackagesStructure = false;
-	} else if ("none".equals(this.destinationPath)) { //$NON-NLS-1$
-		this.destinationPath = null;
-	}
-	
 	if (didSpecifyCompliance) {
 		Object version = this.options.get(CompilerOptions.OPTION_Compliance);
 		if (CompilerOptions.VERSION_1_3.equals(version)) {
@@ -2732,7 +2976,8 @@ public CompilationUnit[] getCompilationUnits()
 		String encoding = this.encodings[i];
 		if (encoding == null)
 			encoding = defaultEncoding;
-		units[i] = new CompilationUnit(null, this.filenames[i], encoding);
+		units[i] = new CompilationUnit(null, this.filenames[i], encoding,
+				this.destinationPaths[i]);
 	}
 	return units;
 }
@@ -2798,14 +3043,28 @@ public FileSystem getLibraryAccess() {
 public IProblemFactory getProblemFactory() {
 	return new DefaultProblemFactory(Locale.getDefault());
 }
-// Dump classfiles onto disk for all compilation units that where successfull.
+// Dump classfiles onto disk for all compilation units that where successful
+// and do not carry a -d none spec, either directly or inherited from Main.
 public void outputClassFiles(CompilationResult unitResult) {
 	if (!((unitResult == null) || (unitResult.hasErrors() && !this.proceedOnError))) {
 		ClassFile[] classFiles = unitResult.getClassFiles();
-		if (!this.generatePackagesStructure) {
-			this.destinationPath = extractDestinationPathFromSourceFile(unitResult);
-		}
-		if (this.destinationPath != null) {
+		String currentDestinationPath = null;
+		boolean generateClasspathStructure = false;
+		CompilationUnit compilationUnit = 
+			(CompilationUnit) unitResult.compilationUnit;
+		if (compilationUnit.destinationPath == null) {
+			if (this.destinationPath == null) {
+				currentDestinationPath = 
+					extractDestinationPathFromSourceFile(unitResult);
+			} else if (this.destinationPath != NONE) {
+				currentDestinationPath = this.destinationPath;
+				generateClasspathStructure = true;
+			} // else leave currentDestinationPath null
+		} else if (compilationUnit.destinationPath != NONE) {
+			currentDestinationPath = compilationUnit.destinationPath;
+			generateClasspathStructure = true;
+		} // else leave currentDestinationPath null
+		if (currentDestinationPath != null) {
 			for (int i = 0, fileCount = classFiles.length; i < fileCount; i++) {
 				// retrieve the key and the corresponding classfile
 				ClassFile classFile = classFiles[i];
@@ -2826,19 +3085,19 @@ public void outputClassFiles(CompilationResult unitResult) {
 									relativeStringName
 								}));
 					ClassFile.writeToDisk(
-						this.generatePackagesStructure,
-						this.destinationPath,
+						generateClasspathStructure,
+						currentDestinationPath,
 						relativeStringName,
 						classFile);
 					LookupEnvironment env = this.batchCompiler.lookupEnvironment;
 					if (classFile.isShared) env.classFilePool.release(classFile);
 					this.logger.logClassFile(
-						this.generatePackagesStructure,
-						this.destinationPath,
+						generateClasspathStructure,
+						currentDestinationPath,
 						relativeStringName);
 					this.exportedClassFilesCounter++;
 				} catch (IOException e) {
-					this.logger.logNoClassFileCreated(this.destinationPath, relativeStringName, e);
+					this.logger.logNoClassFileCreated(currentDestinationPath, relativeStringName, e);
 				}
 			}
 		}
@@ -2896,8 +3155,12 @@ private void printUsage(String sectionID) {
 	this.logger.flush();
 }
 
-private void processPathEntries(final int defaultSize, final ArrayList paths, final String currentPath, String customEncoding, boolean isSourceOnly) {
+private void processPathEntries(final int defaultSize, final ArrayList paths, 
+			final String currentPath, String customEncoding, boolean isSourceOnly,
+			boolean rejectDestinationPathOnJars) 
+		throws InvalidInputException {
 	String currentClasspathName = null;
+	String currentDestinationPath = null;
 	ArrayList currentRuleSpecs = new ArrayList(defaultSize);
 	StringTokenizer tokenizer = new StringTokenizer(currentPath,
 			File.pathSeparator + "[]", true); //$NON-NLS-1$
@@ -2915,25 +3178,38 @@ private void processPathEntries(final int defaultSize, final ArrayList paths, fi
 	// 'path[' 'path1;path2['
 	final int rulesReadyToClose = 6;
 	// 'path[rule' 'path[rule1;rule2'
+	final int destinationPathReadyToClose = 7;
+	// 'path[-d bin'
+	final int readyToCloseEndingWithDestinationPath = 8;
+	// 'path[-d bin]' 'path[rule][-d bin]'
+	final int destinatonPathStart = 9;
+	// 'path[rule]['
 	final int error = 99;
 	int state = start;
 	String token = null;
-	while (tokenizer.hasMoreTokens()) {
+	while (tokenizer.hasMoreTokens() && state != error) {
 		token = tokenizer.nextToken();
 		if (token.equals(File.pathSeparator)) {
 			switch (state) {
 			case start:
+			case readyToCloseOrOtherEntry:
 				break;
 			case readyToClose:
 			case readyToCloseEndingWithRules:
-			case readyToCloseOrOtherEntry:
+			case readyToCloseEndingWithDestinationPath:
 				state = readyToCloseOrOtherEntry;
-				addNewEntry(paths, currentClasspathName, currentRuleSpecs, customEncoding, isSourceOnly);
+				addNewEntry(paths, currentClasspathName, currentRuleSpecs, 
+						customEncoding, currentDestinationPath, isSourceOnly,
+						rejectDestinationPathOnJars);
 				currentRuleSpecs.clear();
 				break;
 			case rulesReadyToClose:
 				state = rulesNeedAnotherRule;
 				break;
+			case destinationPathReadyToClose:
+				throw new InvalidInputException(
+					Main.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$ 
+						currentPath));				
 			default:
 				state = error;
 			}
@@ -2941,6 +3217,9 @@ private void processPathEntries(final int defaultSize, final ArrayList paths, fi
 			switch (state) {
 			case readyToClose:
 				state = rulesStart;
+				break;
+			case readyToCloseEndingWithRules:
+				state = destinatonPathStart;
 				break;
 			default:
 				state = error;
@@ -2950,10 +3229,12 @@ private void processPathEntries(final int defaultSize, final ArrayList paths, fi
 			case rulesReadyToClose:
 				state = readyToCloseEndingWithRules;
 				break;
+			case destinationPathReadyToClose:
+				state = readyToCloseEndingWithDestinationPath;
+				break;
 			default:
 				state = error;
 			}
-
 		} else {
 			// regular word
 			switch (state) {
@@ -2962,10 +3243,23 @@ private void processPathEntries(final int defaultSize, final ArrayList paths, fi
 				state = readyToClose;
 				currentClasspathName = token;
 				break;
-			case rulesNeedAnotherRule:
 			case rulesStart:
+				if (token.startsWith("-d ")) { //$NON-NLS-1$
+					currentDestinationPath = token.substring(3).trim();
+					state = destinationPathReadyToClose;
+					break;
+				} // else we proceed with a rule
+			case rulesNeedAnotherRule:
 				state = rulesReadyToClose;
 				currentRuleSpecs.add(token);
+				break;
+			case destinatonPathStart:
+				if (!token.startsWith("-d ")) { //$NON-NLS-1$
+					state = error;
+				} else {
+					currentDestinationPath = token.substring(3).trim();
+					state = destinationPathReadyToClose;
+				}
 				break;
 			default:
 				state = error;
@@ -2973,10 +3267,14 @@ private void processPathEntries(final int defaultSize, final ArrayList paths, fi
 		}
 	}
 	switch(state) {
-		case readyToClose :
-		case readyToCloseEndingWithRules :
-		case readyToCloseOrOtherEntry :
-			addNewEntry(paths, currentClasspathName, currentRuleSpecs, customEncoding, isSourceOnly);
+		case readyToCloseOrOtherEntry:
+			break;
+		case readyToClose:
+		case readyToCloseEndingWithRules:
+		case readyToCloseEndingWithDestinationPath:
+			addNewEntry(paths, currentClasspathName, currentRuleSpecs, 
+				customEncoding, currentDestinationPath, isSourceOnly,
+				rejectDestinationPathOnJars);
 			break;
 		default :
 			// we go on anyway

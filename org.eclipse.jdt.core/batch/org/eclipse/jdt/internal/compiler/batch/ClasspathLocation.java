@@ -25,8 +25,21 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 	
 	protected AccessRuleSet accessRuleSet;
 
-	protected ClasspathLocation(AccessRuleSet accessRuleSet) {
+	public String destinationPath;
+		// destination path for compilation units that are reached through this
+		// classpath location; the coding is consistent with the one of
+		// Main.destinationPath:
+		// == null: unspecified, use whatever value is set by the enclosing 
+		//          context, id est Main;
+		// == Main.NONE: absorbent element, do not output class files;
+		// else: use as the path of the directory into which class files must
+		//       be written.
+		// potentially carried by any entry that contains to be compiled files 
+		
+	protected ClasspathLocation(AccessRuleSet accessRuleSet, 
+			String destinationPath) {
 		this.accessRuleSet = accessRuleSet;
+		this.destinationPath = destinationPath;
 	}
 
 	/**

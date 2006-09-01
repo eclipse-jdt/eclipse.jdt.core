@@ -23,8 +23,20 @@ public class CompilationUnit implements ICompilationUnit {
 	public char[] fileName;
 	public char[] mainTypeName;
 	String encoding;
-	
+	public String destinationPath;
+		// a specific destination path for this compilation unit; coding is
+		// aligned with Main.destinationPath:
+		// == null: unspecified, use whatever value is set by the enclosing 
+		//          context, id est Main;
+		// == Main.NONE: absorbent element, do not output class files;
+		// else: use as the path of the directory into which class files must
+		//       be written.
+
 public CompilationUnit(char[] contents, String fileName, String encoding) {
+	this(contents, fileName, encoding, null);
+}
+public CompilationUnit(char[] contents, String fileName, String encoding,
+		String destinationPath) {
 	this.contents = contents;
 	char[] fileNameCharArray = fileName.toCharArray();
 	switch(File.separatorChar) {
@@ -48,6 +60,7 @@ public CompilationUnit(char[] contents, String fileName, String encoding) {
 
 	this.mainTypeName = CharOperation.subarray(fileNameCharArray, start, end);
 	this.encoding = encoding;
+	this.destinationPath = destinationPath;
 }
 public char[] getContents() {
 	if (this.contents != null)

@@ -21,8 +21,10 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class ClasspathSourceJar extends ClasspathJar {
 	private String encoding;
 
-	public ClasspathSourceJar(File file, boolean closeZipFileAtEnd, AccessRuleSet accessRuleSet, String encoding) {
-		super(file, closeZipFileAtEnd, accessRuleSet);
+	public ClasspathSourceJar(File file, boolean closeZipFileAtEnd, 
+			AccessRuleSet accessRuleSet, String encoding, 
+			String destinationPath) {
+		super(file, closeZipFileAtEnd, accessRuleSet, destinationPath);
 		this.encoding = encoding;
 	}
 
@@ -33,8 +35,12 @@ public class ClasspathSourceJar extends ClasspathJar {
 		ZipEntry sourceEntry = this.zipFile.getEntry(qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java);
 		if (sourceEntry != null) {
 			try {
-				return new NameEnvironmentAnswer(new CompilationUnit(Util.getInputStreamAsCharArray(this.zipFile.getInputStream(sourceEntry), -1, this.encoding),
-						qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java, this.encoding),
+				return new NameEnvironmentAnswer(
+						new CompilationUnit(
+								Util.getInputStreamAsCharArray(this.zipFile.getInputStream(sourceEntry),
+										-1, this.encoding),
+						qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java, 
+						this.encoding, this.destinationPath),
 						fetchAccessRestriction(qualifiedBinaryFileName));
 			} catch (IOException e) {
 				// treat as if source file is missing

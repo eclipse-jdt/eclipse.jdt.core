@@ -263,7 +263,7 @@ public static Test suite() {
 					errOutputString);
 		}
 	}
-
+	
 /**
  * Check that no line of message extends beyond width columns. Tabs count for
  * 4 characters.
@@ -889,17 +889,21 @@ public void test012(){
         "    -sourcepath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
         "                       specify location for application sources. Each directory\n" + 
         "                       or file can specify access rules for types between ''[''\n" + 
-        "                       and '']''.\n" + 
+        "                       and '']''. Each directory can further specify a specific\n" + 
+        "                       destination directory using a ''-d'' option between ''[''\n" +
+        "                       and '']''; this overrides the general ''-d'' option.\n" +
         "                       .class files created from source files contained in a\n" + 
         "                       jar file are put in the user.dir folder in case no\n" + 
-        "                       destination directory is specified.\n" + 
+        "                       general ''-d'' option is specified. zip/jar files cannot\n" +
+        "                       override the general ''-d'' option\n" + 
         "    -extdirs <directories separated by " + File.pathSeparator + ">\n" + 
         "                       specify location for extension zip/jar files\n" + 
         "    -endorseddirs <directories separated by " + File.pathSeparator + ">\n" + 
         "                       specify location for endorsed zip/jar files\n" + 
         "    -d <dir>           destination directory (if omitted, no directory is\n" + 
-        "                       created)\n" + 
-        "    -d none            generate no .class files\n" + 
+        "                       created); this option can be overridden per source\n" + 
+		"                       directory\n" +
+		"    -d none            generate no .class files\n" + 
         "    -encoding <enc>    specify custom encoding for all sources. Each\n" + 
         "                       file/directory can override it when suffixed with\n" + 
         "                       ''[''<enc>'']'' (e.g. X.java[utf8])\n" + 
@@ -3039,7 +3043,6 @@ public void test056(){
 			"/out/p cannot be used as output directory\n",
 		true);
 }
-
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=147461
 public void _test057_access_restrictions_separator(){
 	String oppositeSeparator = File.pathSeparatorChar == ':' ?
@@ -3348,6 +3351,1300 @@ public void _test064_per_sourcepath_directory_default_encoding(){
         + "[UTF-8]\"",
 		"", 
 		"",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// pre-existing case 1: using a single, definite output directory
+public void test065_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + " -d \"" + OUTPUT_DIR + File.separator + output1 + "\"",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// pre-existing case 2: using no definite output directory
+public void test066_per_source_output_directory(){
+	String source1 = "src1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\"",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// pre-existing case 3: -d none absorbs output
+public void test067_per_source_output_directory(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"X.java\""
+        + " -1.5"
+        + " -d none",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 1: overriding the default output directory for one of the sources
+// -sourcepath series
+public void test068_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1", output2 = "bin2";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 2: specifying an output directory for a given source directory only
+// -sourcepath series
+public void test069_per_source_output_directory(){
+	String source1 = "src1", 
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 3: [-d none] selectively absorbs output
+// -sourcepath series
+public void test070_per_source_output_directory(){
+	String source1 = "src1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d none]",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 4: overriding -d none for one of the sources
+// -sourcepath series
+public void test071_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -d none",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// [-d dir][rule] is forbidden
+// -sourcepath series
+public void test072_per_source_output_directory(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"X.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
+		"", 
+		"access rules cannot follow destination path entries: [-d dir][~**/internal/*]\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// [rule][-d dir] is ok
+// -sourcepath series
+public void test073_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
+        	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
+		"", 
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
+		"	X f;\n" + 
+		"	^\n" + 
+		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 1: overriding the default output directory for one of the sources
+// -classpath series
+public void test074_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1", output2 = "bin2";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 2: specifying an output directory for a given source directory only
+// -classpath series
+public void test075_per_source_output_directory(){
+	String source1 = "src1", 
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -cp \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 3: [-d none] selectively absorbs output
+// -classpath series
+public void test076_per_source_output_directory(){
+	String source1 = "src1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d none]",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 4: overriding -d none for one of the sources
+// -classpath series
+public void test077_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -d none",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// [-d dir][rule] is forbidden
+// -classpath series
+public void test078_per_source_output_directory(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"X.java\""
+        + " -1.5"
+        + " -classpath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
+		"", 
+		"access rules cannot follow destination path entries: [-d dir][~**/internal/*]\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// [rule][-d dir] is ok
+// -classpath series
+public void test079_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
+        	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
+		"", 
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
+		"	X f;\n" + 
+		"	^\n" + 
+		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 1: overriding the default output directory for one of the sources
+// -bootclasspath series
+public void test080_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1", output2 = "bin2";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" + 
+          OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 2: specifying an output directory for a given source directory only
+// -bootclasspath series
+public void test081_per_source_output_directory(){
+	String source1 = "src1", 
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" + 
+          OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 3: [-d none] selectively absorbs output
+// -bootclasspath series
+public void test082_per_source_output_directory(){
+	String source1 = "src1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" + 
+          OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d none]",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 4: overriding -d none for one of the sources
+// -bootclasspath series
+public void test083_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" + 
+          OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -d none",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + File.separator + "Z.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// [-d dir][rule] is forbidden
+// -bootclasspath series
+public void test084_per_source_output_directory(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"X.java\""
+        + " -1.5"
+        + " -bootclasspath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
+		"", 
+		"access rules cannot follow destination path entries: [-d dir][~**/internal/*]\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// [rule][-d dir] is ok
+// -bootclasspath series
+public void test085_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + 
+        	"\"" + OUTPUT_DIR + File.separator + source1 + "\"" +
+        	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
+		"", 
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
+		"	X f;\n" + 
+		"	^\n" + 
+		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// jar / zip files in sourcepath
+public void test086_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1", output2 = "bin2";
+	File outputDir = new File(OUTPUT_DIR),
+		sourceDir = new File(OUTPUT_DIR + File.separator + source1);
+	try {
+		if (outputDir.exists()) {
+			Util.flushDirectoryContent(outputDir);
+		} else {
+			outputDir.mkdirs();
+		}
+		sourceDir.mkdir();
+		Util.createFile(OUTPUT_DIR + File.separator + 
+			source1 + File.separator + "X.java",
+			"public class X {}");
+		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
+	} catch (IOException e) {
+		fail("could not create jar file");
+	}
+	this.runConformTest(
+		new String[] {
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + "X.jar\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
+		"", 
+		"",
+		false); // keep jar
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// jar / zip files in classpath are binaries only: no -d argument
+public void test087_per_source_output_directory(){
+	String output1 = "bin1", output2 = "bin2";
+	this.runNegativeTest(
+		new String[] {
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -classpath \"" + OUTPUT_DIR + File.separator + "X.jar\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
+		"", 
+		"unexpected destination path entry for file: ---OUTPUT_DIR_PLACEHOLDER---/X.jar\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// jar / zip files in bootclasspath are binaries only: no -d argument
+public void test088_per_source_output_directory(){
+	String output1 = "bin1", output2 = "bin2";
+	this.runNegativeTest(
+		new String[] {
+			"Z.java",
+			"public class Z {\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -bootclasspath \"" + OUTPUT_DIR + File.separator + "X.jar\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
+		"", 
+		"unexpected destination path entry for file: ---OUTPUT_DIR_PLACEHOLDER---/X.jar\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 2: specifying an output directory for a given source directory only
+// jar / zip files in sourcepath
+public void test089_per_source_output_directory(){
+	String source1 = "src1", 
+		output1 = "bin1";
+	File outputDir = new File(OUTPUT_DIR),
+		sourceDir = new File(OUTPUT_DIR + File.separator + source1),
+		standardXOutputFile = new File(System.getProperty("user.dir") + 
+			File.separator + "X.class");
+	try {
+		if (outputDir.exists()) {
+			Util.flushDirectoryContent(outputDir);
+		} else {
+			outputDir.mkdirs();
+		}
+		sourceDir.mkdir();
+		Util.createFile(OUTPUT_DIR + File.separator + 
+			source1 + File.separator + "X.java",
+			"public class X {}");
+		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
+		if (standardXOutputFile.exists()) {
+			standardXOutputFile.delete();
+		}
+	} catch (IOException e) {
+		fail("could not create jar file");
+	}
+	this.runConformTest(
+		new String[] {
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + "X.jar\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        ,
+		"", 
+		"",
+		false);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	assertFalse("extraneous file: " + standardXOutputFile.getPath(), 
+		standardXOutputFile.exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 3: [-d none] selectively absorbs output
+// jar / zip files
+public void test090_per_source_output_directory(){
+	String source1 = "src1";
+	File outputDir = new File(OUTPUT_DIR),
+		sourceDir = new File(OUTPUT_DIR + File.separator + source1),
+		standardXOutputFile = new File(System.getProperty("user.dir") + 
+			File.separator + "X.class");
+	try {
+		if (outputDir.exists()) {
+			Util.flushDirectoryContent(outputDir);
+		} else {
+			outputDir.mkdirs();
+		}
+		sourceDir.mkdir();
+		Util.createFile(OUTPUT_DIR + File.separator + 
+			source1 + File.separator + "X.java",
+			"public class X {}");
+		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
+		if (standardXOutputFile.exists()) {
+			standardXOutputFile.delete();
+		}
+	} catch (IOException e) {
+		fail("could not create jar file");
+	}
+	this.runConformTest(
+		new String[] {
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + "X.jar\""
+        + "[-d none]",
+		"", 
+		"",
+		false);
+	String fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	assertFalse("extraneous file: " + standardXOutputFile.getPath(), 
+		standardXOutputFile.exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 4: overriding -d none for one of the sources
+// jar / zip files
+public void test091_per_source_output_directory(){
+	String source1 = "src1", output1 = "bin1";
+	File outputDir = new File(OUTPUT_DIR),
+		sourceDir = new File(OUTPUT_DIR + File.separator + source1),
+		standardXOutputFile = new File(System.getProperty("user.dir") + 
+			File.separator + "X.class");
+	try {
+		if (outputDir.exists()) {
+			Util.flushDirectoryContent(outputDir);
+		} else {
+			outputDir.mkdirs();
+		}
+		sourceDir.mkdir();
+		Util.createFile(OUTPUT_DIR + File.separator + 
+			source1 + File.separator + "X.java",
+			"public class X {}");
+		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
+		if (standardXOutputFile.exists()) {
+			standardXOutputFile.delete();
+		}
+	} catch (IOException e) {
+		fail("could not create jar file");
+	}
+	this.runConformTest(
+		new String[] {
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -d none",
+		"", 
+		"",
+		false);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 1: overriding the default output directory for one of the sources
+// source directories series
+public void test092_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1", output2 = "bin2";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -1.5"
+        + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 2: specifying an output directory for a given source directory only
+// source directories series
+public void test093_per_source_output_directory(){
+	String source1 = "src1", 
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -1.5",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 3: [-d none] selectively absorbs output
+// source directories series
+public void test094_per_source_output_directory(){
+	String source1 = "src1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  // X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d none]"
+        + " -1.5",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 3: [-d none] selectively absorbs output
+// source directories series
+// variant: swap entries
+public void test095_per_source_output_directory(){
+	String source1 = "src1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  // X f;\n" +
+			"}",
+        },
+        " \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d none] "
+        + "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " -1.5",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 4: overriding -d none for one of the sources
+// source directories series
+public void test096_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			"Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"Z.java\""
+        + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -1.5"
+        + " -d none",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + "Z.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// new case 4: overriding -d none for one of the sources
+// source directories series
+// variant: two source folders
+public void test097_per_source_output_directory(){
+	String source1 = "src1", source2 = "src2",
+		output1 = "bin1", output2 = "bin2";
+	this.runConformTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+			source2 + File.separator + "Z.java",
+			"public class Z {\n" +
+			"  X f;\n" +
+			"}",
+        },
+        " \"" + OUTPUT_DIR + File.separator + source2 + "\""
+        + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -1.5"
+        + " -d none",
+		"", 
+		"",
+		true);
+	String fileName = OUTPUT_DIR + File.separator + output1 + 
+			File.separator + "X.class";
+	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source1 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + output2 + 
+			File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+	fileName = OUTPUT_DIR + File.separator + source2 + 
+			File.separator + "Z.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// [rule] is forbidden for source directories
+public void test098_per_source_output_directory(){
+	String source1 = "src1";
+	this.runNegativeTest(
+		new String[] {
+			source1 + File.separator + "X.java",
+			"public class X {\n" +
+			"  Zork z;\n" +
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + source1 + "\""
+        + "[~**/internal/*]"
+        + " -1.5",
+		"", 
+		"unsupported encoding format: ~**/internal/*\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// changing the coding of -d none option
+public void test099_per_source_output_directory() {
+	File none = new File(Main.NONE); 
+	if (none.exists()) {
+		fail("unexpected file: " + none.getAbsolutePath() + 
+				"; please cleanup the test environment");
+		// by design, we do not want to agressively destroy a directory that
+		// could well exist outside of our dedicated output area
+		// TODO (maxime) one more case that calls for a better management of the
+		//               current working directory in our batch compiler tests
+	}
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {}",
+        },
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"X.java\""
+        + " -1.5"
+        + " -d none",
+		"", 
+		"",
+		true);
+	String fileName = Main.NONE + File.separator + "X.class";
+	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// -extdirs cannot receive a -d option
+public void test100_per_source_output_directory(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"X.java\""
+        + " -1.5"
+        + " -extdirs \"" + OUTPUT_DIR + "\"" + "[-d dir]",
+		"", 
+		"unexpected destination path entry in -extdir option\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// -endorseddirs cannot receive a -d option
+public void test101_per_source_output_directory(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"X.java\""
+        + " -1.5"
+        + " -endorseddirs \"" + OUTPUT_DIR + "\"" + "[-d dir]",
+		"", 
+		"unexpected destination path entry in -endorseddirs option\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// bad syntax
+public void test102_per_source_output_directory(){
+	String source1 = "src1",
+		output1 = "bin1";
+	this.runNegativeTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+        },
+        " \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\""
+        + " -1.5"
+        + " -d none",
+		"", 
+		"incorrect destination path entry: [-d ---OUTPUT_DIR_PLACEHOLDER---/bin1\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// bad syntax
+public void test103_per_source_output_directory(){
+	String source1 = "src1", 
+		output1 = "bin1";
+	this.runNegativeTest(
+		new String[] {
+			source1 + File.separator + "/X.java",
+			"public class X {}",
+        },
+        " \"" + OUTPUT_DIR + File.separator + source1 + "\""
+        + " [-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
+        + " -1.5",
+		"", 
+		"unexpected bracket: [-d\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// bad syntax
+public void test104_per_source_output_directory(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"X.java\""
+        + " -1.5"
+        + " -sourcepath \"" + OUTPUT_DIR + "\"" + "[[-d dir]",
+		"", 
+		"unexpected bracket: ---OUTPUT_DIR_PLACEHOLDER---[[-d\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// bad syntax
+public void test105_per_source_output_directory(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"X.java\""
+        + " -1.5"
+        + " -cp \"" + OUTPUT_DIR + "\"" + "[-d dir]]",
+		"", 
+		"unexpected bracket: dir]]\n",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146554
+// per source directory output directory
+// bad syntax
+public void test106_per_source_output_directory(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"}"},
+        "\"" + OUTPUT_DIR +  File.separator + 
+        	"X.java\""
+        + " -1.5"
+        + " -cp \"" + OUTPUT_DIR + "\"" + "[-d dir1" + File.pathSeparator + 
+        	"dir2]",
+		"", 
+		"incorrect destination path entry: ---OUTPUT_DIR_PLACEHOLDER---" + 
+			"[-d dir1" + File.pathSeparator + "dir2]\n",
 		true);
 }
 

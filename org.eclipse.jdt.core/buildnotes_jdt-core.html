@@ -52,6 +52,19 @@ Eclipse SDK 3.3M2 - ?th August 2006
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
+
+<ul>
+<li>Added to the batch compiler the ability to redefine the destination path
+    on a source folder basis. Directories cited as sources, directly or as
+    arguments to the -classpath and other classpath related options, can bear
+    a [-d dir] specification that directs the generated class files to dir 
+    for source files fetched from the said directories. 
+</li>
+</ul>
+
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=146554">146554</a>
+[batch][compiler][options] Allow the batch compiler to output compiled files 
+into multiple output folders
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=155887">155887</a>
 Breakpoint in 'finally' not hit - test suite failing
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=155795">155795</a>

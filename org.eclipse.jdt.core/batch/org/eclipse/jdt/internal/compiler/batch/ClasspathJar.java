@@ -31,8 +31,9 @@ protected boolean closeZipFileAtEnd;
 protected Hashtable packageCache;
 protected char[] normalizedPath;
 
-public ClasspathJar(File file, boolean closeZipFileAtEnd, AccessRuleSet accessRuleSet) {
-	super(accessRuleSet);
+public ClasspathJar(File file, boolean closeZipFileAtEnd, 
+		AccessRuleSet accessRuleSet, String destinationPath) {
+	super(accessRuleSet, destinationPath);
 	this.file = file;
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
 }
