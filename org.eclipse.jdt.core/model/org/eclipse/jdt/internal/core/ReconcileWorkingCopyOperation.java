@@ -61,6 +61,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		}
 	
 		CompilationUnit workingCopy = getWorkingCopy();
+		boolean wasConsistent = workingCopy.isConsistent();
 		IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
 		this.resolveBindings |= problemRequestor != null && problemRequestor.isActive();
 		
@@ -78,7 +79,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			makeConsistent(workingCopy, problemRequestor);
 	
 		// report problems
-		if (this.problems != null) {
+		if (this.problems != null && (this.forceProblemDetection || !wasConsistent)) {
 			try {
 				problemRequestor.beginReporting();
 				for (Iterator iteraror = this.problems.values().iterator(); iteraror.hasNext();) {

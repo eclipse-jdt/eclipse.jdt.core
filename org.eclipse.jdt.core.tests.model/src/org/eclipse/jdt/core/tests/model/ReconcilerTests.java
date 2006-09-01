@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
@@ -2395,6 +2396,35 @@ public void testReconcileParticipant07() throws CoreException {
 	} finally {
 		project.setOption(JavaCore.COMPILER_SOURCE, originalSourceLevel);
 	}
+}
+/*
+ * Ensures that a problem reporting session is not started during reconcile if a participant reports an error
+ * and if the working copy is already consistent and the forceProblemDetection flag is false.
+ * (regression test for bug 154170 Printing warnings breaks in-editor quick fixes)
+ */
+public void testReconcileParticipant08() throws CoreException {
+	// set working copy contents and ensure it is consistent
+	String contents = 
+		"package p1;\n" +
+		"public class X {\n" +
+		"  public void bar() {\n" +
+		"  }\n" +
+		"}";
+	setWorkingCopyContents(contents);
+	this.workingCopy.makeConsistent(null);
+	this.problemRequestor.initialize(contents.toCharArray());
+	
+	// reconcile with a participant adding a list of problems
+	new ReconcileParticipant() {
+		public void reconcile(ReconcileContext context) {
+			context.putProblems("test.marker", new CategorizedProblem[] {});
+		}
+	};
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertProblems(
+		"Unexpected problems",
+		""
+	);
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current
