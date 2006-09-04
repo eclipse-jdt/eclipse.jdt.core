@@ -3575,4 +3575,77 @@ public void test120() {
 		"The expression of type int is boxed into Integer\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156108
+public void test121() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		final int i = -128;\n" + 
+			"		Byte b = i;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Byte no = 127; // warning: int boxed to Byte > fine\n" + 
+			"		switch (no) { // warning: Byte is unboxed into int > why in int??? output\n" + 
+			"			case -128: // error: cannot convert int to Byte > needs a explicit (byte)cast.\n" + 
+			"				break;\n" + 
+			"			case (byte) 127: // works\n" + 
+			"				break;\n" + 
+			"		}\n" + 
+			"		no = new Byte(127);\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	Byte b = i;\n" + 
+		"	         ^\n" + 
+		"The expression of type int is boxed into Byte\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	Byte no = 127; // warning: int boxed to Byte > fine\n" + 
+		"	          ^^^\n" + 
+		"The expression of type int is boxed into Byte\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	switch (no) { // warning: Byte is unboxed into int > why in int??? output\n" + 
+		"	        ^^\n" + 
+		"The expression of type Byte is unboxed into int\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 14)\n" + 
+		"	no = new Byte(127);\n" + 
+		"	     ^^^^^^^^^^^^^\n" + 
+		"The constructor Byte(int) is undefined\n" + 
+		"----------\n"
+);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156108 - variation
+public void test122() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	Byte foo() {\n" + 
+			"		final int i = -128;\n" + 
+			"		return i;\n" + 
+			"	}\n" + 
+			"	Byte bar() {\n" + 
+			"		final int i = 1000;\n" + 
+			"		return i;\n" + 
+			"	}	\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	return i;\n" + 
+		"	       ^\n" + 
+		"The expression of type int is boxed into Byte\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	return i;\n" + 
+		"	       ^\n" + 
+		"Type mismatch: cannot convert from int to Byte\n" + 
+		"----------\n");
+}
 }

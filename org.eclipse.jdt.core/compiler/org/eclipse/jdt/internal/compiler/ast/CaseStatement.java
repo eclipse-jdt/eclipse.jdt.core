@@ -123,8 +123,12 @@ public class CaseStatement extends Statement {
 			} else {
 				return constantExpression.constant;
 			}
-		} else if (scope.isBoxingCompatibleWith(caseType, switchExpressionType)) {
-			constantExpression.computeConversion(scope, caseType, switchExpressionType);
+		} else if (scope.isBoxingCompatibleWith(caseType, switchExpressionType)
+						|| (caseType.isBaseType()  // narrowing then boxing ?
+								&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
+								&& !switchExpressionType.isBaseType()
+								&& constantExpression.isConstantValueOfTypeAssignableToType(caseType, scope.environment().computeBoxingType(switchExpressionType)))) {
+			// constantExpression.computeConversion(scope, caseType, switchExpressionType); - do not report boxing/unboxing conversion
 			return constantExpression.constant;
 		}
 		scope.problemReporter().typeMismatchError(caseType, switchExpressionType, constantExpression);
