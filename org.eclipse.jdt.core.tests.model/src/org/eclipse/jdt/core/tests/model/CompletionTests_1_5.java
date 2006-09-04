@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.Hashtable;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
@@ -8853,6 +8854,38 @@ public void test0289() throws JavaModelException {
 
 	assertResults(
 			"test0.test1[PACKAGE_REF]{test0.test1., test0.test1, null, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
+public void testEC001() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test<T> {\n"+
+		"}");
+	
+	String start = "new test.Test<";
+	IJavaProject javaProject = getJavaProject("Completion");
+	IEvaluationContext context = javaProject.newEvaluationContext();
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false);
+	context.codeComplete(start, start.length(), requestor, this.wcOwner);
+	
+	int startOffset = start.length();
+	int endOffset = startOffset;
+	
+	assertResults(
+			"completion offset="+startOffset+"\n"+
+			"completion range=["+startOffset+", "+(endOffset-1)+"]\n"+
+			"completion token=\"\"\n"+
+			"completion token kind=TOKEN_KIND_NAME\n"+
+			"expectedTypesSignatures={Ljava.lang.Object;}\n"+
+			"expectedTypesKeys={Ljava/lang/Object;}",
+            requestor.getContext());
+    
+	assertResults(
+			"Test<T>[TYPE_REF]{, test, Ltest.Test<TT;>;, null, null, ["+startOffset+", "+endOffset+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 }

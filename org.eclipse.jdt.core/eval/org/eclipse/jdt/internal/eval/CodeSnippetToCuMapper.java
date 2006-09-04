@@ -177,9 +177,6 @@ public CompletionRequestor getCompletionRequestor(final CompletionRequestor orig
 							&& CharOperation.equals(selector, "run".toCharArray())) return; //$NON-NLS-1$
 					break;
 			}
-			proposal.setReplaceRange(
-					proposal.getReplaceStart() - CodeSnippetToCuMapper.this.startPosOffset,
-					proposal.getReplaceEnd() - CodeSnippetToCuMapper.this.startPosOffset);
 			originalRequestor.accept(proposal);
 		}
 		

@@ -1781,7 +1781,7 @@ public final class CompletionEngine
 				if(!contextAccepted) {
 					contextAccepted = true;
 					CompletionContext context = new CompletionContext();
-					context.setOffset(completionPosition);
+					context.setOffset(completionPosition - this.offset);
 					context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
 					this.requestor.acceptContext(context);
 				}
@@ -1827,7 +1827,7 @@ public final class CompletionEngine
 				contextAccepted = true;
 				CompletionContext context = new CompletionContext();
 				context.setTokenKind(CompletionContext.TOKEN_KIND_UNKNOWN);
-				context.setOffset(completionPosition);
+				context.setOffset(completionPosition - this.offset);
 				this.requestor.acceptContext(context);
 			}
 			this.requestor.endReporting();
