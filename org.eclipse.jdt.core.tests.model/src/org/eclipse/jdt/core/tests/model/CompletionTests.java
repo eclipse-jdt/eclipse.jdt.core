@@ -821,6 +821,107 @@ public void testEvaluationContextCompletion() throws JavaModelException {
 	
 	assertTrue("acceptContext() method isn't call", rc.acceptContext);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140123
+public void testEvaluationContextCompletion2() throws JavaModelException {
+	class EvaluationContextCompletionRequestor extends CompletionRequestor {
+		public boolean acceptContext;
+		public boolean beginReporting;
+		public boolean endReporting;
+		
+		public void acceptContext(CompletionContext context) {
+			this.acceptContext = context != null;
+		}
+		public void accept(CompletionProposal proposal) {
+			// Do nothing
+		}
+		
+		public void beginReporting() {
+			this.beginReporting = true;
+			super.beginReporting();
+		}
+		
+		public void endReporting() {
+			this.endReporting =  true;
+			super.endReporting();
+		}
+	}
+	String start = "";
+	IJavaProject javaProject = getJavaProject("Completion");
+	IEvaluationContext context = javaProject.newEvaluationContext();
+    EvaluationContextCompletionRequestor rc = new EvaluationContextCompletionRequestor();
+	context.codeComplete(start, start.length(), rc);
+	
+	assertTrue("acceptContext() method isn't call", rc.acceptContext);
+	assertTrue("beginReporting() method isn't call", rc.beginReporting);
+	assertTrue("endReporting() method isn't call", rc.endReporting);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140123
+public void testEvaluationContextCompletion3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TestEvaluationContextCompletion3.java",
+		"package test;"+
+		"public class TestEvaluationContextCompletion3 {\n"+
+		"}");
+	
+	String start = "TestEvaluationContextCompletion3";
+	IJavaProject javaProject = getJavaProject("Completion");
+	IEvaluationContext context = javaProject.newEvaluationContext();
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false);
+	context.codeComplete(start, start.length(), requestor, this.wcOwner);
+	
+	int startOffset = 0;
+	int endOffset = start.length();
+	
+	assertResults(
+			"completion offset="+endOffset+"\n"+
+			"completion range=["+startOffset+", "+(endOffset-1)+"]\n"+
+			"completion token=\"TestEvaluationContextCompletion3\"\n"+
+			"completion token kind=TOKEN_KIND_NAME\n"+
+			"expectedTypesSignatures=null\n"+
+			"expectedTypesKeys=null",
+            requestor.getContext());
+    
+	assertResults(
+			"TestEvaluationContextCompletion3[TYPE_REF]{test.TestEvaluationContextCompletion3, test, Ltest.TestEvaluationContextCompletion3;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140123
+public void testEvaluationContextCompletion4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TestEvaluationContextCompletion4.java",
+		"package test;"+
+		"public class TestEvaluationContextCompletion4 {\n"+
+		"}");
+	
+	String start = "TestEvaluationContextCompletion4";
+	IJavaProject javaProject = getJavaProject("Completion");
+	IEvaluationContext context = javaProject.newEvaluationContext();
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false);
+	requestor.setIgnored(CompletionProposal.TYPE_REF, true);
+	context.codeComplete(start, start.length(), requestor, this.wcOwner);
+	
+	int startOffset = 0;
+	int endOffset = start.length();
+	
+	assertResults(
+			"completion offset="+endOffset+"\n"+
+			"completion range=["+startOffset+", "+(endOffset-1)+"]\n"+
+			"completion token=\"TestEvaluationContextCompletion4\"\n"+
+			"completion token kind=TOKEN_KIND_NAME\n"+
+			"expectedTypesSignatures=null\n"+
+			"expectedTypesKeys=null",
+            requestor.getContext());
+    
+	assertResults(
+			"",
+			requestor.getResults());
+}
 
 /**
  * Ensures that completion is not case sensitive

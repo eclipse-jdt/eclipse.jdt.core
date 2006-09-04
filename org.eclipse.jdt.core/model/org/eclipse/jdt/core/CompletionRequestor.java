@@ -80,7 +80,7 @@ public abstract class CompletionRequestor {
 	 * @see #setIgnored(int, boolean)
 	 * @see CompletionProposal#getKind()
 	 */
-	public final boolean isIgnored(int completionProposalKind) {
+	public boolean isIgnored(int completionProposalKind) {
 		if (completionProposalKind < CompletionProposal.FIRST_KIND
 			|| completionProposalKind > CompletionProposal.LAST_KIND) {
 				throw new IllegalArgumentException("Unknown kind of completion proposal: "+completionProposalKind); //$NON-NLS-1$
@@ -99,7 +99,7 @@ public abstract class CompletionRequestor {
 	 * @see #isIgnored(int)
 	 * @see CompletionProposal#getKind()
 	 */
-	public final void setIgnored(int completionProposalKind, boolean ignore) {
+	public void setIgnored(int completionProposalKind, boolean ignore) {
 		if (completionProposalKind < CompletionProposal.FIRST_KIND
 			|| completionProposalKind > CompletionProposal.LAST_KIND) {
 				throw new IllegalArgumentException("Unknown kind of completion proposal: "+completionProposalKind); //$NON-NLS-1$

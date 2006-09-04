@@ -190,6 +190,22 @@ public CompletionRequestor getCompletionRequestor(final CompletionRequestor orig
 		public void acceptContext(CompletionContext context) {
 			originalRequestor.acceptContext(context);
 		}
+		
+		public void beginReporting() {
+			originalRequestor.beginReporting();
+		}
+		
+		public void endReporting() {
+			originalRequestor.endReporting();
+		}
+		
+		public boolean isIgnored(int completionProposalKind) {
+			return originalRequestor.isIgnored(completionProposalKind);
+		}
+		
+		public void setIgnored(int completionProposalKind, boolean ignore) {
+			originalRequestor.setIgnored(completionProposalKind, ignore);
+		}
 	};
 }
 public char[] getCUSource(String lineSeparator) {
