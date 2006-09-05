@@ -1212,15 +1212,11 @@ public final class CompletionEngine
 			
 			this.completionToken = memberValuePair.name;
 			
-			if (this.completionToken.length == 0) {
-				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-					this.setSourceRange(astNode.sourceStart, astNode.sourceStart - 1, false);
-
-					findAnnotationReference(annotation.type, scope);
-				}
-			} else {
+			ReferenceBinding annotationType = (ReferenceBinding)annotation.resolvedType;
+			
+			if (annotationType != null && annotationType.isAnnotationType()) {
 				if (!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
-					this.findAnnotationAttributes(this.completionToken, annotation.memberValuePairs(), (ReferenceBinding)annotation.resolvedType);
+					this.findAnnotationAttributes(this.completionToken, annotation.memberValuePairs(), annotationType);
 				}
 				if (this.assistNodeCanBeSingleMemberAnnotation) {
 					if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
@@ -1889,50 +1885,6 @@ public final class CompletionEngine
 				if(DEBUG) {
 					this.printDebug(proposal);
 				}
-			}
-		}
-	}
-	private void findAnnotationReference(TypeReference ref, Scope scope) {
-		ReferenceBinding refBinding = (ReferenceBinding) ref.resolvedType;
-		if(refBinding != null) {
-			char[] typeName = refBinding.qualifiedSourceName();
-			
-			if (this.options.checkDeprecation &&
-					refBinding.isViewedAsDeprecated() &&
-					!scope.isDefinedInSameUnit(refBinding)) {
-				return;
-			}
-			
-			int accessibility = IAccessRule.K_ACCESSIBLE;
-			if(refBinding.hasRestrictedAccess()) {
-				AccessRestriction accessRestriction = lookupEnvironment.getAccessRestriction(refBinding);
-				if(accessRestriction != null) {
-					switch (accessRestriction.getProblemId()) {
-						case IProblem.ForbiddenReference:
-							if (this.options.checkForbiddenReference) {
-								return;
-							}
-							accessibility = IAccessRule.K_NON_ACCESSIBLE;
-							break;
-						case IProblem.DiscouragedReference:
-							if (this.options.checkDiscouragedReference) {
-								return;
-							}
-							accessibility = IAccessRule.K_DISCOURAGED;
-							break;
-					}
-				}
-			}
-
-			int relevance = computeBaseRelevance();
-			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(refBinding.sourceName, refBinding.sourceName);
-			relevance += computeRelevanceForExpectingType(refBinding);
-			relevance += computeRelevanceForQualification(false);
-			relevance += computeRelevanceForRestrictions(accessibility); // no access restriction for type in the current unit
-			
-			if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-				createTypeProposal(refBinding, typeName, accessibility, CharOperation.NO_CHAR, relevance);
 			}
 		}
 	}

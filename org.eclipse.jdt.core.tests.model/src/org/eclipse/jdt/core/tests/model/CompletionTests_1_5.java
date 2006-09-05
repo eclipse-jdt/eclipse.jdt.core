@@ -6160,7 +6160,30 @@ public void test0196() throws JavaModelException {
             result.context);
     
     assertResults(
-            "ZZAnnot[TYPE_REF]{, test0196, Ltest0196.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            "",
+            result.proposals);
+}
+public void test0196b() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0196/Test.java",
+            "package test0196;\n" +
+            "@interface ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            "@ZZAnnot(\n" +
+            "public class Test {\n" +
+            "}",
+            "@ZZAnnot(");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+    		"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0196.ZZAnnot;, I, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+            "foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0196.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0197() throws JavaModelException {
@@ -6171,7 +6194,6 @@ public void test0197() throws JavaModelException {
             "  int foo1();\n" +
             "  int foo2();\n" +
             "}\n" +
-            
             "public class Test {\n" +
             "  @ZZAnnot(\n" +
             "  void foo(){}\n" +
@@ -6184,7 +6206,31 @@ public void test0197() throws JavaModelException {
             result.context);
     
     assertResults(
-            "ZZAnnot[TYPE_REF]{, test0197, Ltest0197.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            "",
+            result.proposals);
+}
+public void test0197b() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0197/Test.java",
+            "package test0197;\n" +
+            "@interface ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            "public class Test {\n" +
+            "  @ZZAnnot(\n" +
+            "  void foo(){}\n" +
+            "}",
+            "@ZZAnnot(");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+    		"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0197.ZZAnnot;, I, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+            "foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0197.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0198() throws JavaModelException {
@@ -6207,7 +6253,31 @@ public void test0198() throws JavaModelException {
             result.context);
     
     assertResults(
-            "ZZAnnot[TYPE_REF]{, test0198, Ltest0198.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            "",
+            result.proposals);
+}
+public void test0198b() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0198/Test.java",
+            "package test0198;\n" +
+            "@interface ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            
+            "public class Test {\n" +
+            "  @ZZAnnot(\n" +
+            "}",
+            "@ZZAnnot(");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+    		"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0198.ZZAnnot;, I, foo1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+            "foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0198.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0199() throws JavaModelException {
@@ -6229,7 +6299,29 @@ public void test0199() throws JavaModelException {
             result.context);
     
     assertResults(
-            "ZZAnnot[TYPE_REF]{, test0199, Ltest0199.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            "",
+            result.proposals);
+}
+public void test0199b() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0199/Test.java",
+            "package test0199;\n" +
+            "@interface ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            "@ZZAnnot(foo1=0,\n" +
+            "public class Test {\n" +
+            "}",
+            "@ZZAnnot(foo1=0,");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+    		"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0199.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0200() throws JavaModelException {
@@ -6240,7 +6332,6 @@ public void test0200() throws JavaModelException {
             "  int foo1();\n" +
             "  int foo2();\n" +
             "}\n" +
-            
             "public class Test {\n" +
             "  @ZZAnnot(foo1=0,\n" +
             "  void foo(){}\n" +
@@ -6253,7 +6344,30 @@ public void test0200() throws JavaModelException {
             result.context);
     
     assertResults(
-            "ZZAnnot[TYPE_REF]{, test0200, Ltest0200.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            "",
+            result.proposals);
+}
+public void test0200b() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0200/Test.java",
+            "package test0200;\n" +
+            "@interface ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            "public class Test {\n" +
+            "  @ZZAnnot(foo1=0,\n" +
+            "  void foo(){}\n" +
+            "}",
+            "@ZZAnnot(foo1=0,");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+    		"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0200.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0201() throws JavaModelException {
@@ -6276,7 +6390,30 @@ public void test0201() throws JavaModelException {
             result.context);
     
     assertResults(
-            "ZZAnnot[TYPE_REF]{, test0201, Ltest0201.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            "",
+            result.proposals);
+}
+public void test0201b() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0201/Test.java",
+            "package test0201;\n" +
+            "@interface ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            
+            "public class Test {\n" +
+            "  @ZZAnnot(foo1=0,\n" +
+            "}",
+            "@ZZAnnot(foo1=0,");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+    		"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0201.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0202() throws JavaModelException {
