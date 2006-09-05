@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -544,6 +545,78 @@ public void test021() {
 		"	}\n" + 
 		"	^\n" + 
 		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"----------\n",
+		null, // custom classpath
+		true, // flush previous output dir content
+		options // custom options
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156119
+ */
+public void test022() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n" + 
+			"    int f= 1;;\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	int f= 1;;\n" + 
+		"	         ^\n" + 
+		"Unnecessary semicolon\n" + 
+		"----------\n",
+		null, // custom classpath
+		true, // flush previous output dir content
+		options // custom options
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156119
+ */
+public void test023() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"    int f= 1;;\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	int f= 1;;\n" + 
+		"	         ^\n" + 
+		"Unnecessary semicolon\n" + 
+		"----------\n",
+		null, // custom classpath
+		true, // flush previous output dir content
+		options // custom options
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156119
+ */
+public void test024() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n" + 
+			"    int f= 1;\\u003B\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	int f= 1;\\u003B\n" + 
+		"	         ^^^^^^\n" + 
+		"Unnecessary semicolon\n" + 
 		"----------\n",
 		null, // custom classpath
 		true, // flush previous output dir content

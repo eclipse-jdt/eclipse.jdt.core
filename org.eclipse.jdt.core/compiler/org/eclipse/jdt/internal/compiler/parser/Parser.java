@@ -2655,12 +2655,6 @@ protected void consumeEmptyClassBodyDeclarationsopt() {
 	// ClassBodyDeclarationsopt ::= $empty
 	pushOnAstLengthStack(0);
 }
-protected void consumeEmptyClassMemberDeclaration() {
-	// ClassMemberDeclaration ::= ';'
-	pushOnAstLengthStack(0);
-	if(!this.statementRecoveryActivated) problemReporter().superfluousSemicolon(this.endPosition+1, this.endStatementPosition);
-	flushCommentsDefinedPriorTo(this.endStatementPosition);
-}
 protected void consumeEmptyMethodHeaderDefaultValue() {
 	// DefaultValueopt ::= $empty
 	AbstractMethodDeclaration method = (AbstractMethodDeclaration)this.astStack[this.astPtr];
@@ -2688,10 +2682,6 @@ protected void consumeEmptyForInitopt() {
 protected void consumeEmptyForUpdateopt() {
 	// ForUpdateopt ::= $empty
 	pushOnExpressionStackLengthStack(0);
-}
-protected void consumeEmptyInterfaceMemberDeclaration() {
-	// InterfaceMemberDeclaration ::= ';'
-	pushOnAstLengthStack(0);
 }
 protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 	// InterfaceMemberDeclarationsopt ::= $empty
@@ -2745,6 +2735,8 @@ protected void consumeEmptySwitchBlock() {
 	pushOnAstLengthStack(0);
 }
 protected void consumeEmptyTypeDeclaration() {
+	// ClassMemberDeclaration ::= ';'
+	// InterfaceMemberDeclaration ::= ';'
 	// TypeDeclaration ::= ';' 
 	pushOnAstLengthStack(0);
 	if(!this.statementRecoveryActivated) problemReporter().superfluousSemicolon(this.endPosition+1, this.endStatementPosition);
@@ -5055,7 +5047,7 @@ protected void consumeRule(int act) {
 			break;
  
     case 148 : if (DEBUG) { System.out.println("ClassMemberDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
-		    consumeEmptyClassMemberDeclaration();  
+		    consumeEmptyTypeDeclaration();  
 			break;
 
     case 151 : if (DEBUG) { System.out.println("FieldDeclaration ::= Modifiersopt Type..."); }  //$NON-NLS-1$
@@ -5249,7 +5241,7 @@ protected void consumeRule(int act) {
 			break;
  
     case 210 : if (DEBUG) { System.out.println("InterfaceMemberDeclaration ::= SEMICOLON"); }  //$NON-NLS-1$
-		    consumeEmptyInterfaceMemberDeclaration();  
+		    consumeEmptyTypeDeclaration();  
 			break;
  
     case 212 : if (DEBUG) { System.out.println("InterfaceMemberDeclaration ::= MethodHeader MethodBody"); }  //$NON-NLS-1$

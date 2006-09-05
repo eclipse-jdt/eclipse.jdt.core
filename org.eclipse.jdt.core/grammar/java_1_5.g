@@ -528,7 +528,7 @@ ClassMemberDeclaration -> AnnotationTypeDeclaration
 -- (in fact, some of the official tests contain this erroneous
 -- syntax)
 ClassMemberDeclaration ::= ';'
-/.$putCase consumeEmptyClassMemberDeclaration(); $break./
+/.$putCase consumeEmptyTypeDeclaration(); $break./
 
 GenericMethodDeclaration -> MethodDeclaration
 GenericMethodDeclaration -> ConstructorDeclaration
@@ -783,7 +783,7 @@ InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDecla
 
 --same as for class members
 InterfaceMemberDeclaration ::= ';'
-/.$putCase consumeEmptyInterfaceMemberDeclaration(); $break ./
+/.$putCase consumeEmptyTypeDeclaration(); $break ./
 /:$readableName InterfaceMemberDeclaration:/
 
 InterfaceMemberDeclaration -> ConstantDeclaration

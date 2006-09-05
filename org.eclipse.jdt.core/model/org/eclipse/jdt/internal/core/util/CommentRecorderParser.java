@@ -90,13 +90,6 @@ public class CommentRecorderParser extends Parser {
 		super.consumeClassHeader();
 	}
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeEmptyClassMemberDeclaration()
-	 */
-	protected void consumeEmptyClassMemberDeclaration() {
-		pushOnCommentsStack(0, this.scanner.commentPtr);
-		super.consumeEmptyClassMemberDeclaration();
-	}
-	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeEmptyTypeDeclaration()
 	 */
 	protected void consumeEmptyTypeDeclaration() {
