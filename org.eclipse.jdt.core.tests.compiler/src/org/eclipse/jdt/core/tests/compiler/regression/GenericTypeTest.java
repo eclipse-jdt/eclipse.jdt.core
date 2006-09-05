@@ -32536,4 +32536,85 @@ public void test1025() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753
+public void test1026() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.LinkedHashSet;\n" + 
+			"import java.util.Set;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    public class A {};\n" + 
+			"    public class B extends A {};\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"        X g = new X();\n" + 
+			"        Set<A> set = g.newSet(g.new B());\n" + 
+			"    }\n" + 
+			"    public <T, V extends T> Set<T> newSet(V v) {\n" + 
+			"        Set<T> set = new LinkedHashSet<T>();\n" + 
+			"        set.add(v);\n" + 
+			"        return set;\n" + 
+			"    }\n" + 
+			"}\n" // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753 - variation
+public void test1027() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.LinkedHashSet;\n" + 
+			"import java.util.Set;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    public class A {};\n" + 
+			"    public class B extends A {};\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        X g = new X();\n" + 
+			"        Set<A> set = g.newSet(g.new B());\n" + 
+			"    }\n" + 
+			"    public <T, V extends T> Set<T> newSet(V... objects) {\n" + 
+			"        Set<T> set = new LinkedHashSet<T>();\n" + 
+			"        for (T t : objects) {\n" + 
+			"            set.add(t);\n" + 
+			"        }\n" + 
+			"        return set;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753 - variation
+public void test1028() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.LinkedHashSet;\n" + 
+			"import java.util.Set;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"        X g = new X();\n" + 
+			"        Set<A> set = g.newSet(new B());\n" + 
+			"    }\n" + 
+			"    public <T, V extends T> Set<T> newSet(V v) {\n" + 
+			"        Set<T> set = new LinkedHashSet<T>();\n" + 
+			"        set.add(v);\n" + 
+			"        return set;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class A {};\n" + 
+			"class B extends A {};\n", // =================
+		},
+		"");
+}
 }

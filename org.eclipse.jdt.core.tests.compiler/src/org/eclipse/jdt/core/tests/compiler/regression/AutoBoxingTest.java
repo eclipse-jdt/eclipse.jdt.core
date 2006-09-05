@@ -3648,4 +3648,94 @@ public void test122() {
 		"Type mismatch: cannot convert from int to Byte\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155255
+public void test123() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo1();\n" + 
+			"		foo2();\n" + 
+			"		foo3();\n" + 
+			"		foo4();\n" + 
+			"		System.out.println(\"[done]\");\n" + 
+			"	}\n" + 
+			"	static void foo1() {\n" + 
+			"		Object x = true ? true : \"\";\n" + 
+			"		System.out.print(\"[1:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
+			"	}\n" + 
+			"	static void foo2() {\n" + 
+			"		Object x = Boolean.TRUE != null ? true : \"\";\n" + 
+			"		System.out.print(\"[2:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
+			"	}\n" + 
+			"	static void foo3() {\n" + 
+			"		Object x = false ? \"\" : false;\n" + 
+			"		System.out.print(\"[3:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
+			"	}\n" + 
+			"	static void foo4() {\n" + 
+			"		Object x = Boolean.TRUE == null ? \"\" : false;\n" + 
+			"		System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"[1:true,java.lang.Boolean][2:true,java.lang.Boolean][3:false,java.lang.Boolean][4:false,java.lang.Boolean][done]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155255 - variation
+public void test124() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static void foo5() {\n" + 
+			"		boolean x = false ? \"\" : false;\n" + 
+			"		System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
+			"	}	\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	boolean x = false ? \"\" : false;\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object&Serializable&Comparable<?> to boolean\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	boolean x = false ? \"\" : false;\n" + 
+		"	                         ^^^^^\n" + 
+		"The expression of type boolean is boxed into Boolean\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
+		"	                                  ^^^^^^^^^^^^\n" + 
+		"Cannot invoke getClass() on the primitive type boolean\n" + 
+		"----------\n");
+	}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155255 - variation
+public void test125() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo1();\n" + 
+			"		foo2();\n" + 
+			"		foo3();\n" + 
+			"		System.out.println(\"[done]\");\n" + 
+			"	}\n" + 
+			"	static void foo1() {\n" + 
+			"		Object x = true ? 3.0f : false;\n" + 
+			"		System.out.print(\"[1:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
+			"	}\n" + 
+			"	static void foo2() {\n" + 
+			"		Object x = true ? 2 : false;\n" + 
+			"		System.out.print(\"[2:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
+			"	}\n" + 
+			"	static void foo3() {\n" + 
+			"		Object x = false ? 2 : false;\n" + 
+			"		System.out.print(\"[3:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"[1:3.0,java.lang.Float][2:2,java.lang.Integer][3:false,java.lang.Boolean][done]");
+	}
 }

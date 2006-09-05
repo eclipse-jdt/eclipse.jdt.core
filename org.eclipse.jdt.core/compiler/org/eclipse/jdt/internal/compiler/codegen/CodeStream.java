@@ -1733,37 +1733,34 @@ final public void generateCodeAttributeForProblemMethod(String problemMessage) {
 }
 public void generateConstant(Constant constant, int implicitConversionCode) {
 	int targetTypeID = (implicitConversionCode & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
-	if (targetTypeID != 0) {
-		switch (targetTypeID) {
-			case TypeIds.T_boolean :
-				generateInlinedValue(constant.booleanValue());
-				break;
-			case TypeIds.T_char :
-				generateInlinedValue(constant.charValue());
-				break;
-			case TypeIds.T_byte :
-				generateInlinedValue(constant.byteValue());
-				break;
-			case TypeIds.T_short :
-				generateInlinedValue(constant.shortValue());
-				break;
-			case TypeIds.T_int :
-				generateInlinedValue(constant.intValue());
-				break;
-			case TypeIds.T_long :
-				generateInlinedValue(constant.longValue());
-				break;
-			case TypeIds.T_float :
-				generateInlinedValue(constant.floatValue());
-				break;
-			case TypeIds.T_double :
-				generateInlinedValue(constant.doubleValue());
-				break;
-			case TypeIds.T_JavaLangString :
-				ldc(constant.stringValue());
-		}
-	} else {
-		ldc(constant.stringValue());
+	if (targetTypeID == 0) targetTypeID = constant.typeID(); // use default constant type
+	switch (targetTypeID) {
+		case TypeIds.T_boolean :
+			generateInlinedValue(constant.booleanValue());
+			break;
+		case TypeIds.T_char :
+			generateInlinedValue(constant.charValue());
+			break;
+		case TypeIds.T_byte :
+			generateInlinedValue(constant.byteValue());
+			break;
+		case TypeIds.T_short :
+			generateInlinedValue(constant.shortValue());
+			break;
+		case TypeIds.T_int :
+			generateInlinedValue(constant.intValue());
+			break;
+		case TypeIds.T_long :
+			generateInlinedValue(constant.longValue());
+			break;
+		case TypeIds.T_float :
+			generateInlinedValue(constant.floatValue());
+			break;
+		case TypeIds.T_double :
+			generateInlinedValue(constant.doubleValue());
+			break;
+		case TypeIds.T_JavaLangString :
+			ldc(constant.stringValue());
 	}
 	if ((implicitConversionCode & TypeIds.BOXING) != 0) {
 		// need boxing

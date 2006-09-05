@@ -2724,8 +2724,8 @@ public void test045() {
 			"    79  ldc <String \"[finally]\"> [32]\n" + 
 			"    81  invokevirtual java.io.PrintStream.print(java.lang.String) : void [23]\n" + 
 			"    84  aconst_null\n" + 
-			"    85  astore 6\n" + 
-			"    87  aload 6\n" + 
+			"    85  astore 6 [o]\n" + 
+			"    87  aload 6 [o]\n" + 
 			"    89  invokevirtual java.lang.Object.toString() : java.lang.String [34]\n" + 
 			"    92  pop\n" + 
 			"    93  aload 4\n" + 
@@ -2769,7 +2769,8 @@ public void test045() {
 			"        [pc: 60, pc: 71] local: e index: 1 type: java.lang.Exception\n" + 
 			"        [pc: 22, pc: 39] local: var index: 5 type: int\n" + 
 			"        [pc: 76, pc: 93] local: var index: 5 type: int\n" + 
-			"        [pc: 33, pc: 39] local: o index: 6 type: java.lang.Object\n"
+			"        [pc: 33, pc: 39] local: o index: 6 type: java.lang.Object\n" + 
+			"        [pc: 87, pc: 93] local: o index: 6 type: java.lang.Object\n"
 	: 		"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 8\n" + 
 			"  public void save();\n" + 
