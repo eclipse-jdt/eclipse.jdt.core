@@ -80,6 +80,16 @@ Eclipse SDK 3.3M2 - 5th September 2006
     <code>bin2/Y.class</code>, while the command <code>ecj src[-d bin] -d 
     none</code> will only produce the file <code>bin/X.class</code>.
 </li>
+<li>Code Assist: Annotation arguments names are proposed even there is no prefix.
+<pre>
+   public @interface MyAnnot {
+      int foo();
+   }
+   @MyAnnot(|
+   public class AClass {} 
+</pre>
+'foo' is proposed if you do code assist at '|' location.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
