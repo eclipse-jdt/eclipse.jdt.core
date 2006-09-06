@@ -53,21 +53,76 @@ import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
-	public final static String PACKAGE_INFO_NAME = new String(TypeConstants.PACKAGE_INFO_NAME);
-	public static final String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
-	protected static final String EVAL_DIRECTORY = Util.getOutputDirectory()  + File.separator + "eval";
-	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
-	public static int INDENT = 2;
-	public static boolean SHIFT = false;
+	// javac comparison related types, fields and methods - see runJavac for
+	// details
+	class Logger extends Thread { 
+		StringBuffer buffer;
+		InputStream inputStream;
+		String type;
+		Logger(InputStream inputStream, String type) {
+			this.inputStream = inputStream;
+			this.type = type;
+			this.buffer = new StringBuffer();
+		}
 
-	protected INameEnvironment javaClassLib;
+		public void run() {
+			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(this.inputStream));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					this.buffer./*append(this.type).append("->").*/append(line).append("\n");
+				}
+				reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	protected static int[] DIFF_COUNTERS = new int[3];
+	protected static final String EVAL_DIRECTORY = Util.getOutputDirectory()  + File.separator + "eval";
+	public static int INDENT = 2;
+	protected static final String JAVA_NAME = 
+		File.pathSeparatorChar == ':' ? "java" : "java.exe";
+	protected static final String JAVAC_NAME = 
+		File.pathSeparatorChar == ':' ? "javac" : "javac.exe";
+
+	protected static String JAVAC_OUTPUT_DIR = 
+		Util.getOutputDirectory() + File.separator + "javac";
+	protected static String javacCommandLineHeader;
+	protected static PrintWriter javacFullLog;
+	// flags errors so that any error in a test case prevents
+	  // java execution
+	private static String javacFullLogFileName;
+	protected static String javaCommandLineHeader;
+		
+	// needed for multiple test calls within a single test method
+	protected static boolean javacTestErrorFlag;
+
+	protected static String javacTestName;
+
+	protected static IPath jdkRootDirPath;
+
+	public static final String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
+
+	public final static String PACKAGE_INFO_NAME = new String(TypeConstants.PACKAGE_INFO_NAME);
+	
+	public static boolean SHIFT = false;
+	
+	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
+
 	protected String[] classpaths;
-	protected TestVerifier verifier;
 	protected boolean createdVerifier;
+	protected INameEnvironment javaClassLib;
+	protected TestVerifier verifier;
 	public AbstractRegressionTest(String name) {
 		super(name);
 	}
-		
+	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
+		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	protected void checkClassFile(String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+		this.checkClassFile("", className, source, expectedOutput, mode);
+	}
 	protected void checkClassFile(String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
 		compileAndDeploy(source, directoryName, className);
 		try {
@@ -103,26 +158,26 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		}
 	}
 
-	protected void checkClassFile(String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
-		this.checkClassFile("", className, source, expectedOutput, mode);
+	protected void checkDisassembledClassFile(String fileName, String className, String expectedOutput) {
+		this.checkDisassembledClassFile(fileName, className, expectedOutput, ClassFileBytesDisassembler.DETAILED);
 	}
-
-	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
-		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-	}
-
-	protected void checkDisassembledClassFile(String fileName, String className, String source, String expectedOutput) throws ClassFormatException, IOException {
-		this.checkDisassembledClassFile(fileName, className, source, expectedOutput, ClassFileBytesDisassembler.DETAILED);
-	}
-	
-	protected void checkDisassembledClassFile(String fileName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+	protected void checkDisassembledClassFile(String fileName, String className, String expectedOutput, int mode) {
 		File classFile = new File(fileName);
 		if (!classFile.exists()) {
 			assertTrue(".class file doesn't exist", false);
 		}
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(classFile);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", mode);
+		String result = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(classFile);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			result = disassembler.disassemble(classFileBytes, "\n", mode);
+		} catch (IOException e) {
+			e.printStackTrace();
+			assertTrue("Should not happen : ", false);
+		} catch (ClassFormatException e) {
+			e.printStackTrace();
+			assertTrue("Should not happen : ", false);
+		}
 		int index = result.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
 			System.out.println(Util.displayString(result, 2));
@@ -143,7 +198,32 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			assertTrue("IOException", false);
 		}
 	}
-	
+
+	/*######################################
+	 * Specific method to let tests Sun javac compilation available...
+	 #######################################*/
+	/*
+	 * Cleans up the given directory by removing all the files it contains as well
+	 * but leaving the directory.
+	 * @throws TargetException if the target path could not be cleaned up
+	 */
+	protected void cleanupDirectory(File directory) {
+		if (!directory.exists()) {
+			return;
+		}
+		String[] fileNames = directory.list();
+		for (int i = 0; i < fileNames.length; i++) {
+			File file = new File(directory, fileNames[i]);
+			if (file.isDirectory()) {
+				cleanupDirectory(file);
+			} else {
+				if (!file.delete())
+					System.out.println("Could not delete file " + file.getPath());
+			}
+		}
+		if (!directory.delete())
+			System.out.println("Could not delete directory " + directory.getPath());
+	}
 	protected void compileAndDeploy(String source, String directoryName, String className) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
@@ -189,6 +269,49 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
 	}
 
+	protected void dualPrintln(String message) {
+		System.out.println(message);
+		javacFullLog.println(message);
+	}
+	protected void executeClass(
+			String sourceFile, 
+			String expectedSuccessOutputString, 
+			String[] classLib,
+			boolean shouldFlushOutputDirectory, 
+			String[] vmArguments, 
+			Map customOptions,
+			ICompilerRequestor clientRequestor) {
+
+		// Compute class name by removing ".java" and replacing slashes with dots
+		String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
+		if (className.endsWith(PACKAGE_INFO_NAME)) return;
+
+		if (vmArguments != null) {
+			if (this.verifier != null) {
+				this.verifier.shutDown();
+			}
+			this.verifier = new TestVerifier(false);
+			this.createdVerifier = true;
+		}
+		boolean passed = 
+			this.verifier.verifyClassFiles(
+				sourceFile, 
+				className, 
+				expectedSuccessOutputString,
+				this.classpaths, 
+				null, 
+				vmArguments);
+		assertTrue(this.verifier.failureReason, // computed by verifyClassFiles(...) action
+				passed);
+		if (vmArguments != null) {
+			if (this.verifier != null) {
+				this.verifier.shutDown();
+			}
+			this.verifier = new TestVerifier(false);
+			this.createdVerifier = true;
+		}
+	}
+
 	/*
 	 * Returns the references in the given .class file.
 	 */
@@ -231,6 +354,27 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		String computedReferences = references.toString();
 		return computedReferences;
 	}
+	
+	protected ClassFileReader getClassFileReader(String fileName, String className) {
+		File classFile = new File(fileName);
+		if (!classFile.exists()) {
+			assertTrue(".class file doesn't exist", false);
+		}
+		try {
+			FileInputStream stream = new FileInputStream(classFile);
+			ClassFileReader reader = ClassFileReader.read(stream, className + ".class", true);
+			stream.close();
+			return reader;
+		} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
+			e.printStackTrace();
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			e.printStackTrace();
+			assertTrue("IOException", false);
+		}
+		return null;
+	}
+
 	protected INameEnvironment[] getClassLibs() {
 		String encoding = (String)getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(encoding))
@@ -254,6 +398,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.WARNING );
 		return defaultOptions;
 	}
+
 	protected String[] getDefaultClassPaths() {
 		return Util.concatWithClassLibs(OUTPUT_DIR, false);
 	}
@@ -277,6 +422,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected IProblemFactory getProblemFactory() {
 		return new DefaultProblemFactory(Locale.getDefault());
 	}
+	
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 		if (setUp instanceof RegressionTestSetup) {
@@ -286,6 +432,41 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		}
 	}
 
+	/*
+	 * Write given source test files in current output sub-directory.
+	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
+	 */
+	protected void printFiles(String[] testFiles) {
+		for (int i=0, length=testFiles.length; i<length; i++) {
+			System.out.println(testFiles[i++]);
+			System.out.println(testFiles[i]);
+		}
+		System.out.println("");
+	}
+	protected void	printJavacResultsSummary() {
+		if (RUN_JAVAC) {
+			Integer count = (Integer)TESTS_COUNTERS.get(CURRENT_CLASS_NAME);
+			if (count != null) {
+				int newCount = count.intValue()-1;
+				TESTS_COUNTERS.put(CURRENT_CLASS_NAME, new Integer(newCount));
+				if (newCount == 0) {
+					if (DIFF_COUNTERS[0]!=0 || DIFF_COUNTERS[1]!=0 || DIFF_COUNTERS[2]!=0) {
+						dualPrintln("===========================================================================");
+						dualPrintln("Results summary:");
+					}
+					if (DIFF_COUNTERS[0]!=0)
+						dualPrintln("	- "+DIFF_COUNTERS[0]+" test(s) where Javac found errors/warnings but Eclipse did not");
+					if (DIFF_COUNTERS[1]!=0)
+						dualPrintln("	- "+DIFF_COUNTERS[1]+" test(s) where Eclipse found errors/warnings but Javac did not");
+					if (DIFF_COUNTERS[2]!=0)
+						dualPrintln("	- "+DIFF_COUNTERS[2]+" test(s) where Eclipse and Javac did not have same output");
+					System.out.println("\n");
+				}
+			}
+			dualPrintln("\n\nFull results sent to " + javacFullLogFileName);
+			javacFullLog.flush();
+		}
+	}
 	protected void removeTempClass(String className) {
 		File dir = new File(SOURCE_DIRECTORY);
 		String[] fileNames = dir.list();
@@ -308,6 +489,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		}
 	
 	}
+	
 	protected void runConformTest(String[] testFiles) {
 		runConformTest(
 			testFiles, 
@@ -319,18 +501,19 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			null /* no custom requestor*/,
 		  	false /* do not skip javac for this peculiar test */);	
 	}
-
-	protected void runConformTest(String[] testFiles, String[] vmArguments) {
+	
+	protected void runConformTest(String[] testFiles, String expectedSuccessOutputString) {
 		runConformTest(
 			testFiles, 
-			null /* no expected output string */, 
+			expectedSuccessOutputString, 
 			null /* no extra class libraries */, 
 			true /* flush output directory */, 
-			vmArguments,
+			null /* no vm arguments */,
 			null /* no custom options*/,
 			null /* no custom requestor*/,
-		  	false /* do not skip javac for this peculiar test */);	
+		  	false /* do not skip javac for this peculiar test */); 
 	}
+		
 	protected void runConformTest(
 		String[] testFiles, 
 		String expectedSuccessOutputString, 
@@ -345,18 +528,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			null /* no custom requestor*/,
 		  	false /* do not skip javac for this peculiar test */);	
 		}
-
-	protected void runConformTest(String[] testFiles, String expectedSuccessOutputString) {
-		runConformTest(
-			testFiles, 
-			expectedSuccessOutputString, 
-			null /* no extra class libraries */, 
-			true /* flush output directory */, 
-			null /* no vm arguments */,
-			null /* no custom options*/,
-			null /* no custom requestor*/,
-		  	false /* do not skip javac for this peculiar test */); 
-	}
 	protected void runConformTest(
 		String[] testFiles, 
 		String expectedSuccessOutputString, 
@@ -373,7 +544,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			null /* no custom requestor*/,
 		  	false /* do not skip javac for this peculiar test */); 
 	}
-
 	protected void runConformTest(
 		String[] testFiles, 
 		String expectedSuccessOutputString, 
@@ -392,7 +562,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		  clientRequestor,
 		  false /* do not skip javac for this peculiar test */); 
 	}
-	
 	protected void runConformTest(
 		String[] testFiles, 
 		String expectedSuccessOutputString, 
@@ -508,7 +677,17 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			  //                far; may consider skipping the execution step only
 		}
 	}
-
+	protected void runConformTest(String[] testFiles, String[] vmArguments) {
+		runConformTest(
+			testFiles, 
+			null /* no expected output string */, 
+			null /* no extra class libraries */, 
+			true /* flush output directory */, 
+			vmArguments,
+			null /* no custom options*/,
+			null /* no custom requestor*/,
+		  	false /* do not skip javac for this peculiar test */);	
+	}
 	// PREMATURE consider whether conform tests throwing errors should
 	//                implement javac comparison or not
 	protected void runConformTestThrowingError(
@@ -576,484 +755,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			}
 		}
 	}
-	/**
-	 * Log contains all problems (warnings+errors)
-	 */
-	protected void runNegativeTest(String[] testFiles, String expectedProblemLog) {
-		runNegativeTest(testFiles, expectedProblemLog, null, true);
-		runNegativeTest(
-			testFiles, 
-			expectedProblemLog, 
-			null /* no extra class libraries */, 
-			true /* flush output directory */, 
-			null /* no custom options */,
-			false /* do not generate output */,
-			false /* do not show category */, 
-			false /* do not show warning token */, 
-			false  /* do not skip javac for this peculiar test */,
-			false  /* do not perform statements recovery */);
-	}
-
-	/**
-	 * Log contains all problems (warnings+errors)
-	 */
-	protected void runNegativeTest(
-		String[] testFiles, 
-		String expectedProblemLog, 
-		String[] classLib,
-		boolean shouldFlushOutputDirectory) {
-		runNegativeTest(
-			testFiles, 
-			expectedProblemLog, 
-			classLib, 
-			shouldFlushOutputDirectory, 
-			null /* no custom options */,
-			false /* do not generate output */,
-			false /* do not show category */, 
-			false /* do not show warning token */, 
-			false  /* do not skip javac for this peculiar test */,
-			false  /* do not perform statements recovery */);
-	}
-	/**
-	 * Log contains all problems (warnings+errors)
-	 */
-	protected void runNegativeTest(
-		String[] testFiles, 
-		String expectedProblemLog, 
-		String[] classLib,
-		boolean shouldFlushOutputDirectory, 
-		Map customOptions) {
-		runNegativeTest(
-			testFiles, 
-			expectedProblemLog, 
-			classLib, 
-			shouldFlushOutputDirectory, 
-			customOptions, 
-			false /* do not generate output */,
-			false /* do not show category */, 
-			false /* do not show warning token */, 
-			false  /* do not skip javac for this peculiar test */,
-			false  /* do not perform statements recovery */);
-	}
-	/**
-	 * Log contains all problems (warnings+errors)
-	 */
-	protected void runNegativeTest(
-		String[] testFiles, 
-		String expectedProblemLog, 
-		String[] classLib,
-		boolean shouldFlushOutputDirectory, 
-		Map customOptions, 
-		boolean generateOutput,
-		boolean showCategory,
-		boolean showWarningToken) {
-    runNegativeTest(
-		  testFiles, 
-		  expectedProblemLog, 
-		  classLib,
-		  shouldFlushOutputDirectory, 
-		  customOptions, 
-		  generateOutput,
-		  showCategory,
-		  showWarningToken,
-		  false  /* do not skip javac for this peculiar test */,
-		  false  /* do not perform statements recovery */);
-	}
-	/**
-	 * Log contains all problems (warnings+errors)
-	 */
-	protected void runNegativeTest(
-		String[] testFiles, 
-		String expectedProblemLog, 
-		String[] classLib,
-		boolean shouldFlushOutputDirectory, 
-		Map customOptions, 
-		boolean generateOutput,
-		boolean showCategory,
-		boolean showWarningToken,
-		boolean skipJavac,
-		boolean performStatementsRecovery) {
-		// Non-javac part
-		try {
-			if (shouldFlushOutputDirectory)
-				Util.flushDirectoryContent(new File(OUTPUT_DIR));
-	
-			IProblemFactory problemFactory = getProblemFactory();
-			Requestor requestor = 
-				new Requestor(
-					problemFactory, 
-					OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
-					generateOutput,
-					null/*no custom requestor*/,
-					showCategory,
-					showWarningToken);
-			Map options = getCompilerOptions();
-			if (customOptions != null) {
-				options.putAll(customOptions);
-			}
-			CompilerOptions compilerOptions = new CompilerOptions(options);
-			compilerOptions.performMethodsFullRecovery = performStatementsRecovery;
-			compilerOptions.performStatementsRecovery = performStatementsRecovery;
-			Compiler batchCompiler = 
-				new Compiler(
-					getNameEnvironment(new String[]{}, classLib), 
-					getErrorHandlingPolicy(), 
-					compilerOptions,
-					requestor, 
-					problemFactory);
-			batchCompiler.options.produceReferenceInfo = true;
-			Throwable exception = null;
-			try {
-				batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
-			} catch(RuntimeException e){
-				exception = e;
-				throw e;
-			} catch(Error e) {
-				exception = e;
-				throw e;
-			} finally {
-				String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
-				String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);
-				if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
-					System.out.println(getClass().getName() + '#' + getName());
-					System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
-					for (int i = 0; i < testFiles.length; i += 2) {
-						System.out.print(testFiles[i]);
-						System.out.println(" ["); //$NON-NLS-1$
-						System.out.println(testFiles[i + 1]);
-						System.out.println("]"); //$NON-NLS-1$
-					}
-				}
-				if (exception == null)
-					assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
-			}
-		// javac part
-		} catch (AssertionFailedError e) {
-			throw e;
-		} finally {
-			if (RUN_JAVAC && !skipJavac)
-				runJavac(testFiles, expectedProblemLog, null, shouldFlushOutputDirectory);
-		}
-	}
-	
-	protected void runNegativeTestWithExecution(
-			String[] testFiles, 
-			String expectedProblemLog, 
-			String expectedSuccessOutputString, 
-			String[] classLib,
-			boolean shouldFlushOutputDirectory, 
-			String[] vmArguments, 
-			Map customOptions,
-			ICompilerRequestor clientRequestor) {
-
-		if (shouldFlushOutputDirectory)
-			Util.flushDirectoryContent(new File(OUTPUT_DIR));
-
-		IProblemFactory problemFactory = getProblemFactory();
-		Requestor requestor = 
-			new Requestor(
-				problemFactory, 
-				OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
-				true,
-				clientRequestor,
-				false /*show category*/,
-				false /*show warning token*/);
-
-		Map options = getCompilerOptions();
-		if (customOptions != null) {
-			options.putAll(customOptions);
-		}
-		CompilerOptions compilerOptions = new CompilerOptions(options);
-		compilerOptions.performMethodsFullRecovery = false;
-		compilerOptions.performStatementsRecovery = false;
-		Compiler batchCompiler = 
-			new Compiler(
-				getNameEnvironment(new String[]{}, classLib), 
-				getErrorHandlingPolicy(), 
-				compilerOptions,
-				requestor, 
-				problemFactory);
-		batchCompiler.options.produceReferenceInfo = true;
-		try {
-			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
-		} catch(RuntimeException e) {
-			System.out.println(getClass().getName() + '#' + getName());
-			e.printStackTrace();
-			for (int i = 0; i < testFiles.length; i += 2) {
-				System.out.print(testFiles[i]);
-				System.out.println(" ["); //$NON-NLS-1$
-				System.out.println(testFiles[i + 1]);
-				System.out.println("]"); //$NON-NLS-1$
-			}
-			throw e;
-		}
-		assertTrue("Must have errors", requestor.hasErrors);
-		
-		String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
-		String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);
-		if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
-			System.out.println(getClass().getName() + '#' + getName());
-			System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
-			for (int i = 0; i < testFiles.length; i += 2) {
-				System.out.print(testFiles[i]);
-				System.out.println(" ["); //$NON-NLS-1$
-				System.out.println(testFiles[i + 1]);
-				System.out.println("]"); //$NON-NLS-1$
-			}
-			assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
-		}
-		
-		String sourceFile = testFiles[0];
-
-		// Compute class name by removing ".java" and replacing slashes with dots
-		String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
-		if (className.endsWith(PACKAGE_INFO_NAME)) return;
-
-		if (vmArguments != null) {
-			if (this.verifier != null) {
-				this.verifier.shutDown();
-			}
-			this.verifier = new TestVerifier(false);
-			this.createdVerifier = true;
-		}
-		boolean passed = 
-			this.verifier.verifyClassFiles(
-				sourceFile, 
-				className, 
-				expectedSuccessOutputString,
-				this.classpaths, 
-				null, 
-				vmArguments);
-		if (!passed) {
-			String platformIndependantExpectedSuccessOutputString = Util.convertToIndependantLineDelimiter(expectedSuccessOutputString);
-			String platformIndependantFailureReason = Util.convertToIndependantLineDelimiter(this.verifier.failureReason);
-			if (platformIndependantFailureReason.indexOf(platformIndependantExpectedSuccessOutputString) == -1) {
-				System.out.println(getClass().getName() + '#' + getName());
-				System.out.println(Util.displayString(platformIndependantFailureReason, INDENT, SHIFT));
-				assertEquals("Invalid runtime log ", platformIndependantExpectedSuccessOutputString, platformIndependantFailureReason);
-				System.out.println(getClass().getName() + '#' + getName());
-				for (int i = 0; i < testFiles.length; i += 2) {
-					System.out.print(testFiles[i]);
-					System.out.println(" ["); //$NON-NLS-1$
-					System.out.println(testFiles[i + 1]);
-					System.out.println("]"); //$NON-NLS-1$
-				}
-			}
-		} else if (vmArguments != null) {
-			if (this.verifier != null) {
-				this.verifier.shutDown();
-			}
-			this.verifier = new TestVerifier(false);
-			this.createdVerifier = true;
-		}
-	}
-
-	protected void setUp() throws Exception {
-		super.setUp();
-		if (this.verifier == null) {
-			this.verifier = new TestVerifier(true);
-			this.createdVerifier = true;
-		}
-		if (RUN_JAVAC) {
-			if (!getClass().getName().equals(CURRENT_CLASS_NAME)) {
-				if (javacFullLog == null) {
-					// One time initialization of javac related concerns
-					// compute command lines and extract javac version
-					String jdkRootDirectory = System.getProperty("jdk.root");
-					if (jdkRootDirectory == null)
-					  jdkRootDirPath = (new Path(Util.getJREDirectory())).removeLastSegments(1);
-					else 
-						jdkRootDirPath = new Path(jdkRootDirectory);
-		
-					StringBuffer cmdLineHeader = new StringBuffer(jdkRootDirPath.
-							append("bin").append(JAVA_NAME).toString()); // PREMATURE replace JAVA_NAME and JAVAC_NAME with locals? depends on potential reuse
-					javaCommandLineHeader = cmdLineHeader.toString();
-					cmdLineHeader = new StringBuffer(jdkRootDirPath.
-							append("bin").append(JAVAC_NAME).toString());
-					cmdLineHeader.append(" -classpath . ");
-					  // start with the current directory which contains the source files
-					Process compileProcess = Runtime.getRuntime().exec(
-						cmdLineHeader.toString() + " -version", null, null);
-	        Logger versionLogger = new Logger(compileProcess.getErrorStream(), "");
-	        // PREMATURE implement consistent error policy
-	        versionLogger.start();
-	        compileProcess.waitFor();
-					versionLogger.join(); // make sure we get the whole output
-					String version = versionLogger.buffer.toString();
-					int eol = version.indexOf('\n');
-					version = version.substring(0, eol);
-					cmdLineHeader.append(" -d ");
-					cmdLineHeader.append(JAVAC_OUTPUT_DIR.indexOf(" ") != -1 ? "\"" + JAVAC_OUTPUT_DIR + "\"" : JAVAC_OUTPUT_DIR);
-					cmdLineHeader.append(" -source 1.5 -deprecation -Xlint:unchecked "); // enable recommended warnings
-					// REVIEW consider enabling all warnings instead? Philippe does not see
-					//        this as ez to use (too many changes in logs)
-					javacCommandLineHeader = cmdLineHeader.toString();
-
-					javacFullLogFileName = Util.getOutputDirectory() +	File.separatorChar + 
-                    							version.replace(' ', '_') + "_" + 
-                    					    (new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()) +
-                    					    ".txt";
-					javacFullLog = 
-					  	new PrintWriter(new FileOutputStream(javacFullLogFileName));
-					javacFullLog.println(version); // so that the contents is self sufficient
-					System.out.println("***************************************************************************");
-					System.out.println("* Sun Javac compiler output archived into file:");
-					System.out.println("* " + javacFullLogFileName);
-					System.out.println("***************************************************************************");
-				}
-				// per class initialization
-				CURRENT_CLASS_NAME = getClass().getName();
-				dualPrintln("***************************************************************************");
-				System.out.print("* Comparison with Sun Javac compiler for class ");
-				dualPrintln(CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.lastIndexOf('.')+1) + 
-						" (" + TESTS_COUNTERS.get(CURRENT_CLASS_NAME) + " tests)");
-				System.out.println("***************************************************************************");
-				DIFF_COUNTERS[0] = 0;
-				DIFF_COUNTERS[1] = 0;
-				DIFF_COUNTERS[2] = 0;
-			}
-		}
-	}
-	public void stop() {
-		this.verifier.shutDown();
-	}
-	protected void tearDown() throws Exception {
-		if (this.createdVerifier) {
-			this.stop();
-		}
-		// clean up output dir
-		File outputDir = new File(OUTPUT_DIR);
-		if (outputDir.exists()) {
-			Util.flushDirectoryContent(outputDir);
-			outputDir.delete();
-		}
-		super.tearDown();
-		if (RUN_JAVAC) {
-			printJavacResultsSummary();
-		}
-	}
-	
-	protected void executeClass(
-			String sourceFile, 
-			String expectedSuccessOutputString, 
-			String[] classLib,
-			boolean shouldFlushOutputDirectory, 
-			String[] vmArguments, 
-			Map customOptions,
-			ICompilerRequestor clientRequestor) {
-
-		// Compute class name by removing ".java" and replacing slashes with dots
-		String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
-		if (className.endsWith(PACKAGE_INFO_NAME)) return;
-
-		if (vmArguments != null) {
-			if (this.verifier != null) {
-				this.verifier.shutDown();
-			}
-			this.verifier = new TestVerifier(false);
-			this.createdVerifier = true;
-		}
-		boolean passed = 
-			this.verifier.verifyClassFiles(
-				sourceFile, 
-				className, 
-				expectedSuccessOutputString,
-				this.classpaths, 
-				null, 
-				vmArguments);
-		assertTrue(this.verifier.failureReason, // computed by verifyClassFiles(...) action
-				passed);
-		if (vmArguments != null) {
-			if (this.verifier != null) {
-				this.verifier.shutDown();
-			}
-			this.verifier = new TestVerifier(false);
-			this.createdVerifier = true;
-		}
-	}
-	
-	// javac comparison related types, fields and methods - see runJavac for
-	// details
-	class Logger extends Thread { 
-		StringBuffer buffer;
-		InputStream inputStream;
-		String type;
-		Logger(InputStream inputStream, String type) {
-			this.inputStream = inputStream;
-			this.type = type;
-			this.buffer = new StringBuffer();
-		}
-
-		public void run() {
-			try {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(this.inputStream));
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					this.buffer./*append(this.type).append("->").*/append(line).append("\n");
-				}
-				reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-		
-	protected static IPath jdkRootDirPath;
-	protected static final String JAVA_NAME = 
-		File.pathSeparatorChar == ':' ? "java" : "java.exe";
-	protected static final String JAVAC_NAME = 
-		File.pathSeparatorChar == ':' ? "javac" : "javac.exe";
-	protected static String JAVAC_OUTPUT_DIR = 
-		Util.getOutputDirectory() + File.separator + "javac";
-	protected static int[] DIFF_COUNTERS = new int[3];
-	protected static PrintWriter javacFullLog;
-	protected static String javacCommandLineHeader;
-	protected static String javaCommandLineHeader;
-	protected static String javacTestName; 
-	  // needed for multiple test calls within a single test method
-	protected static boolean javacTestErrorFlag;
-	  // flags errors so that any error in a test case prevents
-	  // java execution
-	private static String javacFullLogFileName;
-	 
-	/*######################################
-	 * Specific method to let tests Sun javac compilation available...
-	 #######################################*/
-	/*
-	 * Cleans up the given directory by removing all the files it contains as well
-	 * but leaving the directory.
-	 * @throws TargetException if the target path could not be cleaned up
-	 */
-	protected void cleanupDirectory(File directory) {
-		if (!directory.exists()) {
-			return;
-		}
-		String[] fileNames = directory.list();
-		for (int i = 0; i < fileNames.length; i++) {
-			File file = new File(directory, fileNames[i]);
-			if (file.isDirectory()) {
-				cleanupDirectory(file);
-			} else {
-				if (!file.delete())
-					System.out.println("Could not delete file " + file.getPath());
-			}
-		}
-		if (!directory.delete())
-			System.out.println("Could not delete directory " + directory.getPath());
-	}
-
-	/*
-	 * Write given source test files in current output sub-directory.
-	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
-	 */
-	protected void printFiles(String[] testFiles) {
-		for (int i=0, length=testFiles.length; i<length; i++) {
-			System.out.println(testFiles[i++]);
-			System.out.println(testFiles[i]);
-		}
-		System.out.println("");
-	}
-
 	/*
 	 * Run Sun compilation using javac.
 	 * Launch compilation in a thread and verify that it does not take more than 5s
@@ -1261,34 +962,362 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			cleanupDirectory(outputTestDirectoryPath.toFile());
 		}
 	}
-
-	protected void	printJavacResultsSummary() {
-		if (RUN_JAVAC) {
-			Integer count = (Integer)TESTS_COUNTERS.get(CURRENT_CLASS_NAME);
-			if (count != null) {
-				int newCount = count.intValue()-1;
-				TESTS_COUNTERS.put(CURRENT_CLASS_NAME, new Integer(newCount));
-				if (newCount == 0) {
-					if (DIFF_COUNTERS[0]!=0 || DIFF_COUNTERS[1]!=0 || DIFF_COUNTERS[2]!=0) {
-						dualPrintln("===========================================================================");
-						dualPrintln("Results summary:");
-					}
-					if (DIFF_COUNTERS[0]!=0)
-						dualPrintln("	- "+DIFF_COUNTERS[0]+" test(s) where Javac found errors/warnings but Eclipse did not");
-					if (DIFF_COUNTERS[1]!=0)
-						dualPrintln("	- "+DIFF_COUNTERS[1]+" test(s) where Eclipse found errors/warnings but Javac did not");
-					if (DIFF_COUNTERS[2]!=0)
-						dualPrintln("	- "+DIFF_COUNTERS[2]+" test(s) where Eclipse and Javac did not have same output");
-					System.out.println("\n");
-				}
+	/**
+	 * Log contains all problems (warnings+errors)
+	 */
+	protected void runNegativeTest(String[] testFiles, String expectedProblemLog) {
+		runNegativeTest(testFiles, expectedProblemLog, null, true);
+		runNegativeTest(
+			testFiles, 
+			expectedProblemLog, 
+			null /* no extra class libraries */, 
+			true /* flush output directory */, 
+			null /* no custom options */,
+			false /* do not generate output */,
+			false /* do not show category */, 
+			false /* do not show warning token */, 
+			false  /* do not skip javac for this peculiar test */,
+			false  /* do not perform statements recovery */);
+	}
+	/**
+	 * Log contains all problems (warnings+errors)
+	 */
+	protected void runNegativeTest(
+		String[] testFiles, 
+		String expectedProblemLog, 
+		String[] classLib,
+		boolean shouldFlushOutputDirectory) {
+		runNegativeTest(
+			testFiles, 
+			expectedProblemLog, 
+			classLib, 
+			shouldFlushOutputDirectory, 
+			null /* no custom options */,
+			false /* do not generate output */,
+			false /* do not show category */, 
+			false /* do not show warning token */, 
+			false  /* do not skip javac for this peculiar test */,
+			false  /* do not perform statements recovery */);
+	} 
+	/**
+	 * Log contains all problems (warnings+errors)
+	 */
+	protected void runNegativeTest(
+		String[] testFiles, 
+		String expectedProblemLog, 
+		String[] classLib,
+		boolean shouldFlushOutputDirectory, 
+		Map customOptions) {
+		runNegativeTest(
+			testFiles, 
+			expectedProblemLog, 
+			classLib, 
+			shouldFlushOutputDirectory, 
+			customOptions, 
+			false /* do not generate output */,
+			false /* do not show category */, 
+			false /* do not show warning token */, 
+			false  /* do not skip javac for this peculiar test */,
+			false  /* do not perform statements recovery */);
+	}
+	/**
+	 * Log contains all problems (warnings+errors)
+	 */
+	protected void runNegativeTest(
+		String[] testFiles, 
+		String expectedProblemLog, 
+		String[] classLib,
+		boolean shouldFlushOutputDirectory, 
+		Map customOptions, 
+		boolean generateOutput,
+		boolean showCategory,
+		boolean showWarningToken) {
+    runNegativeTest(
+		  testFiles, 
+		  expectedProblemLog, 
+		  classLib,
+		  shouldFlushOutputDirectory, 
+		  customOptions, 
+		  generateOutput,
+		  showCategory,
+		  showWarningToken,
+		  false  /* do not skip javac for this peculiar test */,
+		  false  /* do not perform statements recovery */);
+	}
+	 
+	/**
+	 * Log contains all problems (warnings+errors)
+	 */
+	protected void runNegativeTest(
+		String[] testFiles, 
+		String expectedProblemLog, 
+		String[] classLib,
+		boolean shouldFlushOutputDirectory, 
+		Map customOptions, 
+		boolean generateOutput,
+		boolean showCategory,
+		boolean showWarningToken,
+		boolean skipJavac,
+		boolean performStatementsRecovery) {
+		// Non-javac part
+		try {
+			if (shouldFlushOutputDirectory)
+				Util.flushDirectoryContent(new File(OUTPUT_DIR));
+	
+			IProblemFactory problemFactory = getProblemFactory();
+			Requestor requestor = 
+				new Requestor(
+					problemFactory, 
+					OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
+					generateOutput,
+					null/*no custom requestor*/,
+					showCategory,
+					showWarningToken);
+			Map options = getCompilerOptions();
+			if (customOptions != null) {
+				options.putAll(customOptions);
 			}
-			dualPrintln("\n\nFull results sent to " + javacFullLogFileName);
-			javacFullLog.flush();
+			CompilerOptions compilerOptions = new CompilerOptions(options);
+			compilerOptions.performMethodsFullRecovery = performStatementsRecovery;
+			compilerOptions.performStatementsRecovery = performStatementsRecovery;
+			Compiler batchCompiler = 
+				new Compiler(
+					getNameEnvironment(new String[]{}, classLib), 
+					getErrorHandlingPolicy(), 
+					compilerOptions,
+					requestor, 
+					problemFactory);
+			batchCompiler.options.produceReferenceInfo = true;
+			Throwable exception = null;
+			try {
+				batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
+			} catch(RuntimeException e){
+				exception = e;
+				throw e;
+			} catch(Error e) {
+				exception = e;
+				throw e;
+			} finally {
+				String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
+				String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);
+				if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
+					System.out.println(getClass().getName() + '#' + getName());
+					System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
+					for (int i = 0; i < testFiles.length; i += 2) {
+						System.out.print(testFiles[i]);
+						System.out.println(" ["); //$NON-NLS-1$
+						System.out.println(testFiles[i + 1]);
+						System.out.println("]"); //$NON-NLS-1$
+					}
+				}
+				if (exception == null)
+					assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
+			}
+		// javac part
+		} catch (AssertionFailedError e) {
+			throw e;
+		} finally {
+			if (RUN_JAVAC && !skipJavac)
+				runJavac(testFiles, expectedProblemLog, null, shouldFlushOutputDirectory);
 		}
 	}
+
+	protected void runNegativeTestWithExecution(
+			String[] testFiles, 
+			String expectedProblemLog, 
+			String expectedSuccessOutputString, 
+			String[] classLib,
+			boolean shouldFlushOutputDirectory, 
+			String[] vmArguments, 
+			Map customOptions,
+			ICompilerRequestor clientRequestor) {
+
+		if (shouldFlushOutputDirectory)
+			Util.flushDirectoryContent(new File(OUTPUT_DIR));
+
+		IProblemFactory problemFactory = getProblemFactory();
+		Requestor requestor = 
+			new Requestor(
+				problemFactory, 
+				OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator, 
+				true,
+				clientRequestor,
+				false /*show category*/,
+				false /*show warning token*/);
+
+		Map options = getCompilerOptions();
+		if (customOptions != null) {
+			options.putAll(customOptions);
+		}
+		CompilerOptions compilerOptions = new CompilerOptions(options);
+		compilerOptions.performMethodsFullRecovery = false;
+		compilerOptions.performStatementsRecovery = false;
+		Compiler batchCompiler = 
+			new Compiler(
+				getNameEnvironment(new String[]{}, classLib), 
+				getErrorHandlingPolicy(), 
+				compilerOptions,
+				requestor, 
+				problemFactory);
+		batchCompiler.options.produceReferenceInfo = true;
+		try {
+			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
+		} catch(RuntimeException e) {
+			System.out.println(getClass().getName() + '#' + getName());
+			e.printStackTrace();
+			for (int i = 0; i < testFiles.length; i += 2) {
+				System.out.print(testFiles[i]);
+				System.out.println(" ["); //$NON-NLS-1$
+				System.out.println(testFiles[i + 1]);
+				System.out.println("]"); //$NON-NLS-1$
+			}
+			throw e;
+		}
+		assertTrue("Must have errors", requestor.hasErrors);
+		
+		String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
+		String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);
+		if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
+			System.out.println(getClass().getName() + '#' + getName());
+			System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
+			for (int i = 0; i < testFiles.length; i += 2) {
+				System.out.print(testFiles[i]);
+				System.out.println(" ["); //$NON-NLS-1$
+				System.out.println(testFiles[i + 1]);
+				System.out.println("]"); //$NON-NLS-1$
+			}
+			assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
+		}
+		
+		String sourceFile = testFiles[0];
+
+		// Compute class name by removing ".java" and replacing slashes with dots
+		String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
+		if (className.endsWith(PACKAGE_INFO_NAME)) return;
+
+		if (vmArguments != null) {
+			if (this.verifier != null) {
+				this.verifier.shutDown();
+			}
+			this.verifier = new TestVerifier(false);
+			this.createdVerifier = true;
+		}
+		boolean passed = 
+			this.verifier.verifyClassFiles(
+				sourceFile, 
+				className, 
+				expectedSuccessOutputString,
+				this.classpaths, 
+				null, 
+				vmArguments);
+		if (!passed) {
+			String platformIndependantExpectedSuccessOutputString = Util.convertToIndependantLineDelimiter(expectedSuccessOutputString);
+			String platformIndependantFailureReason = Util.convertToIndependantLineDelimiter(this.verifier.failureReason);
+			if (platformIndependantFailureReason.indexOf(platformIndependantExpectedSuccessOutputString) == -1) {
+				System.out.println(getClass().getName() + '#' + getName());
+				System.out.println(Util.displayString(platformIndependantFailureReason, INDENT, SHIFT));
+				assertEquals("Invalid runtime log ", platformIndependantExpectedSuccessOutputString, platformIndependantFailureReason);
+				System.out.println(getClass().getName() + '#' + getName());
+				for (int i = 0; i < testFiles.length; i += 2) {
+					System.out.print(testFiles[i]);
+					System.out.println(" ["); //$NON-NLS-1$
+					System.out.println(testFiles[i + 1]);
+					System.out.println("]"); //$NON-NLS-1$
+				}
+			}
+		} else if (vmArguments != null) {
+			if (this.verifier != null) {
+				this.verifier.shutDown();
+			}
+			this.verifier = new TestVerifier(false);
+			this.createdVerifier = true;
+		}
+	}
+
+	protected void setUp() throws Exception {
+		super.setUp();
+		if (this.verifier == null) {
+			this.verifier = new TestVerifier(true);
+			this.createdVerifier = true;
+		}
+		if (RUN_JAVAC) {
+			if (!getClass().getName().equals(CURRENT_CLASS_NAME)) {
+				if (javacFullLog == null) {
+					// One time initialization of javac related concerns
+					// compute command lines and extract javac version
+					String jdkRootDirectory = System.getProperty("jdk.root");
+					if (jdkRootDirectory == null)
+					  jdkRootDirPath = (new Path(Util.getJREDirectory())).removeLastSegments(1);
+					else 
+						jdkRootDirPath = new Path(jdkRootDirectory);
+		
+					StringBuffer cmdLineHeader = new StringBuffer(jdkRootDirPath.
+							append("bin").append(JAVA_NAME).toString()); // PREMATURE replace JAVA_NAME and JAVAC_NAME with locals? depends on potential reuse
+					javaCommandLineHeader = cmdLineHeader.toString();
+					cmdLineHeader = new StringBuffer(jdkRootDirPath.
+							append("bin").append(JAVAC_NAME).toString());
+					cmdLineHeader.append(" -classpath . ");
+					  // start with the current directory which contains the source files
+					Process compileProcess = Runtime.getRuntime().exec(
+						cmdLineHeader.toString() + " -version", null, null);
+	        Logger versionLogger = new Logger(compileProcess.getErrorStream(), "");
+	        // PREMATURE implement consistent error policy
+	        versionLogger.start();
+	        compileProcess.waitFor();
+					versionLogger.join(); // make sure we get the whole output
+					String version = versionLogger.buffer.toString();
+					int eol = version.indexOf('\n');
+					version = version.substring(0, eol);
+					cmdLineHeader.append(" -d ");
+					cmdLineHeader.append(JAVAC_OUTPUT_DIR.indexOf(" ") != -1 ? "\"" + JAVAC_OUTPUT_DIR + "\"" : JAVAC_OUTPUT_DIR);
+					cmdLineHeader.append(" -source 1.5 -deprecation -Xlint:unchecked "); // enable recommended warnings
+					// REVIEW consider enabling all warnings instead? Philippe does not see
+					//        this as ez to use (too many changes in logs)
+					javacCommandLineHeader = cmdLineHeader.toString();
+
+					javacFullLogFileName = Util.getOutputDirectory() +	File.separatorChar + 
+                    							version.replace(' ', '_') + "_" + 
+                    					    (new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()) +
+                    					    ".txt";
+					javacFullLog = 
+					  	new PrintWriter(new FileOutputStream(javacFullLogFileName));
+					javacFullLog.println(version); // so that the contents is self sufficient
+					System.out.println("***************************************************************************");
+					System.out.println("* Sun Javac compiler output archived into file:");
+					System.out.println("* " + javacFullLogFileName);
+					System.out.println("***************************************************************************");
+				}
+				// per class initialization
+				CURRENT_CLASS_NAME = getClass().getName();
+				dualPrintln("***************************************************************************");
+				System.out.print("* Comparison with Sun Javac compiler for class ");
+				dualPrintln(CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.lastIndexOf('.')+1) + 
+						" (" + TESTS_COUNTERS.get(CURRENT_CLASS_NAME) + " tests)");
+				System.out.println("***************************************************************************");
+				DIFF_COUNTERS[0] = 0;
+				DIFF_COUNTERS[1] = 0;
+				DIFF_COUNTERS[2] = 0;
+			}
+		}
+	}
+
+	public void stop() {
+		this.verifier.shutDown();
+	}
 	
-	protected void dualPrintln(String message) {
-		System.out.println(message);
-		javacFullLog.println(message);
+	protected void tearDown() throws Exception {
+		if (this.createdVerifier) {
+			this.stop();
+		}
+		// clean up output dir
+		File outputDir = new File(OUTPUT_DIR);
+		if (outputDir.exists()) {
+			Util.flushDirectoryContent(outputDir);
+			outputDir.delete();
+		}
+		super.tearDown();
+		if (RUN_JAVAC) {
+			printJavacResultsSummary();
+		}
 	}
 }

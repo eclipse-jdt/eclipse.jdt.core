@@ -41,6 +41,7 @@ public static Test suite() {
 	standardTests.add(LookupTest.class);
 	standardTests.add(NumericTest.class);
 	standardTests.add(ProblemConstructorTest.class);
+	standardTests.add(ProblemTypeAndMethodTest.class);
 	standardTests.add(ScannerTest.class);
 	standardTests.add(SwitchTest.class);
 	standardTests.add(TryStatementTest.class);

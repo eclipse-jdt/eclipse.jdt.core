@@ -5527,6 +5527,9 @@ public class ClassFile
 	 */
 	public void generateMissingAbstractMethods(MethodDeclaration[] methodDeclarations, CompilationResult compilationResult) {
 		if (methodDeclarations != null) {
+			TypeDeclaration currentDeclaration = this.referenceBinding.scope.referenceContext;
+			int typeDeclarationSourceStart = currentDeclaration.sourceStart();
+			int typeDeclarationSourceEnd = currentDeclaration.sourceEnd();
 			for (int i = 0, max = methodDeclarations.length; i < max; i++) {
 				MethodDeclaration methodDeclaration = methodDeclarations[i];
 				MethodBinding methodBinding = methodDeclaration.binding;
@@ -5536,11 +5539,13 @@ public class ClassFile
 				for (int j = 0; j < problemsCount; j++) {
 					CategorizedProblem problem = problems[j];
 					if (problem != null
-						&& problem.getID() == IProblem.AbstractMethodMustBeImplemented
-						&& problem.getMessage().indexOf(readableName) != -1) {
-							// we found a match
-							addMissingAbstractProblemMethod(methodDeclaration, methodBinding, problem, compilationResult);
-						}
+    						&& problem.getID() == IProblem.AbstractMethodMustBeImplemented
+    						&& problem.getMessage().indexOf(readableName) != -1
+    						&& problem.getSourceStart() >= typeDeclarationSourceStart
+    						&& problem.getSourceEnd() <= typeDeclarationSourceEnd) {
+						// we found a match
+						addMissingAbstractProblemMethod(methodDeclaration, methodBinding, problem, compilationResult);
+					}
 				}
 			}
 		}
