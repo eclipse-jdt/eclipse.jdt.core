@@ -74,7 +74,6 @@ public final class CompletionEngine
 	
 	// temporary constants to quickly disabled polish features if necessary
 	public final static boolean NO_TYPE_COMPLETION_ON_EMPTY_TOKEN = false;
-	public final static boolean PROPOSE_MEMBER_TYPES = true;
 	
 	private final static char[] ERROR_PATTERN = "*error*".toCharArray();  //$NON-NLS-1$
 	private final static char[] EXCEPTION_PATTERN = "*exception*".toCharArray();  //$NON-NLS-1$
@@ -562,14 +561,12 @@ public final class CompletionEngine
 	}
 
 	private void proposeType(char[] packageName, char[] simpleTypeName, int modifiers, int accessibility, char[] typeName, char[] fullyQualifiedName, boolean isQualified) {
-		if(PROPOSE_MEMBER_TYPES) {
-			if(this.assistNodeIsClass) {
-				if((modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation | ClassFileConstants.AccEnum)) != 0 ) return;
-			} else if(this.assistNodeIsInterface) {
-				if((modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation)) == 0) return;
-			} else if (this.assistNodeIsAnnotation) {
-				if((modifiers & ClassFileConstants.AccAnnotation) == 0) return;
-			}
+		if(this.assistNodeIsClass) {
+			if((modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation | ClassFileConstants.AccEnum)) != 0 ) return;
+		} else if(this.assistNodeIsInterface) {
+			if((modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation)) == 0) return;
+		} else if (this.assistNodeIsAnnotation) {
+			if((modifiers & ClassFileConstants.AccAnnotation) == 0) return;
 		}
 		
 		char[] completionName = fullyQualifiedName;
@@ -2834,7 +2831,7 @@ public final class CompletionEngine
 		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 			this.nameEnvironment.findTypes(
 					importName,
-					findMembers && PROPOSE_MEMBER_TYPES, 
+					findMembers, 
 					this.options.camelCaseMatch,
 					this);
 			acceptTypes();
@@ -3329,7 +3326,7 @@ public final class CompletionEngine
 
 			typesFound.add(memberType);
 
-			if(!this.insideQualifiedReference && PROPOSE_MEMBER_TYPES) {
+			if(!this.insideQualifiedReference) {
 				if(this.assistNodeIsClass) {
 					if(!memberType.isClass()) continue next;
 				} else if(this.assistNodeIsInterface) {
@@ -4847,14 +4844,12 @@ public final class CompletionEngine
 										&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, localType.sourceName)))
 									continue next;
 								
-								if(PROPOSE_MEMBER_TYPES) {
-									if(this.assistNodeIsClass) {
-										if(!localType.isClass()) continue next;
-									} else if(this.assistNodeIsInterface) {
-										if(!localType.isInterface() && !localType.isAnnotationType()) continue next;
-									} else if (this.assistNodeIsAnnotation) {
-										if(!localType.isAnnotationType()) continue next;
-									}
+								if(this.assistNodeIsClass) {
+									if(!localType.isClass()) continue next;
+								} else if(this.assistNodeIsInterface) {
+									if(!localType.isInterface() && !localType.isAnnotationType()) continue next;
+								} else if (this.assistNodeIsAnnotation) {
+									if(!localType.isAnnotationType()) continue next;
 								}
 
 								int relevance = computeBaseRelevance();
@@ -5011,7 +5006,7 @@ public final class CompletionEngine
 		
 		boolean proposeType = !this.requestor.isIgnored(CompletionProposal.TYPE_REF);
 		
-		boolean proposeAllMemberTypes = !this.assistNodeIsConstructor && PROPOSE_MEMBER_TYPES;
+		boolean proposeAllMemberTypes = !this.assistNodeIsConstructor;
 		
 		ObjectVector typesFound = new ObjectVector();
 		
@@ -5042,8 +5037,7 @@ public final class CompletionEngine
 				if(isForbidden(sourceType)) continue;
 				
 				if(proposeAllMemberTypes &&
-					sourceType != outerInvocationType &&
-					PROPOSE_MEMBER_TYPES) {
+					sourceType != outerInvocationType) {
 					findSubMemberTypes(
 							token,
 							sourceType,
@@ -5065,14 +5059,12 @@ public final class CompletionEngine
 	
 				this.knownTypes.put(CharOperation.concat(sourceType.qualifiedPackageName(), sourceType.sourceName(), '.'), this);
 				
-				if(PROPOSE_MEMBER_TYPES) {
-					if(this.assistNodeIsClass) {
-						if(!sourceType.isClass()) continue;
-					} else if(this.assistNodeIsInterface) {
-						if(!sourceType.isInterface() && !sourceType.isAnnotationType()) continue;
-					} else if (this.assistNodeIsAnnotation) {
-						if(!sourceType.isAnnotationType()) continue;
-					}
+				if(this.assistNodeIsClass) {
+					if(!sourceType.isClass()) continue;
+				} else if(this.assistNodeIsInterface) {
+					if(!sourceType.isInterface() && !sourceType.isAnnotationType()) continue;
+				} else if (this.assistNodeIsAnnotation) {
+					if(!sourceType.isAnnotationType()) continue;
 				}
 				
 				int relevance = computeBaseRelevance();
@@ -5157,14 +5149,12 @@ public final class CompletionEngine
 								}
 							}
 							
-							if(PROPOSE_MEMBER_TYPES) {
-								if(this.assistNodeIsClass) {
-									if(!refBinding.isClass()) continue next;
-								} else if(this.assistNodeIsInterface) {
-									if(!refBinding.isInterface() && !refBinding.isAnnotationType()) continue next;
-								} else if (this.assistNodeIsAnnotation) {
-									if(!refBinding.isAnnotationType()) continue next;
-								}
+							if(this.assistNodeIsClass) {
+								if(!refBinding.isClass()) continue next;
+							} else if(this.assistNodeIsInterface) {
+								if(!refBinding.isInterface() && !refBinding.isAnnotationType()) continue next;
+							} else if (this.assistNodeIsAnnotation) {
+								if(!refBinding.isAnnotationType()) continue next;
 							}
 							
 							int relevance = computeBaseRelevance();
@@ -5375,14 +5365,12 @@ public final class CompletionEngine
 							
 							typesFound.add(typeBinding);
 							
-							if(PROPOSE_MEMBER_TYPES) {
-								if(this.assistNodeIsClass) {
-									if(!typeBinding.isClass()) continue;
-								} else if(this.assistNodeIsInterface) {
-									if(!typeBinding.isInterface() && !typeBinding.isAnnotationType()) continue;
-								} else if (this.assistNodeIsAnnotation) {
-									if(!typeBinding.isAnnotationType()) continue;
-								}
+							if(this.assistNodeIsClass) {
+								if(!typeBinding.isClass()) continue;
+							} else if(this.assistNodeIsInterface) {
+								if(!typeBinding.isInterface() && !typeBinding.isAnnotationType()) continue;
+							} else if (this.assistNodeIsAnnotation) {
+								if(!typeBinding.isAnnotationType()) continue;
 							}
 							
 							int relevance = computeBaseRelevance();

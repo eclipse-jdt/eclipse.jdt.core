@@ -1433,16 +1433,9 @@ public void testCompletionFindSuperInterface() throws JavaModelException {
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
     this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
-    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-	    assertResults(
-	           "SuperInterface[TYPE_REF]{SuperInterface, , LSuperInterface;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
-				requestor.getResults());
-    } else {
-    	assertResults(
-	            "SuperClass[TYPE_REF]{SuperClass, , LSuperClass;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-				"SuperInterface[TYPE_REF]{SuperInterface, , LSuperInterface;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
-				requestor.getResults());
-    }
+    assertResults(
+           "SuperInterface[TYPE_REF]{SuperInterface, , LSuperInterface;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
 }
 
 /**
@@ -2506,19 +2499,10 @@ public void testCompletionSuperType2() throws JavaModelException {
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-			assertResults(
-				"CompletionSuperClass[TYPE_REF]{CompletionSuperClass, , LCompletionSuperClass;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperClass2[TYPE_REF]{CompletionSuperClass2, , LCompletionSuperClass2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
-				requestor.getResults());
-	    } else {
-	    	assertResults(
-				"CompletionSuperInterface[TYPE_REF]{CompletionSuperInterface, , LCompletionSuperInterface;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperInterface2[TYPE_REF]{CompletionSuperInterface2, , LCompletionSuperInterface2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperClass[TYPE_REF]{CompletionSuperClass, , LCompletionSuperClass;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperClass2[TYPE_REF]{CompletionSuperClass2, , LCompletionSuperClass2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
-				requestor.getResults());
-	    }
+		assertResults(
+			"CompletionSuperClass[TYPE_REF]{CompletionSuperClass, , LCompletionSuperClass;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"CompletionSuperClass2[TYPE_REF]{CompletionSuperClass2, , LCompletionSuperClass2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
 	} finally {
 		if(superClass != null) {
 			superClass.discardWorkingCopy();
@@ -2581,19 +2565,10 @@ public void testCompletionSuperType3() throws JavaModelException {
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-			assertResults(
-				"CompletionSuperInterface[TYPE_REF]{CompletionSuperInterface, , LCompletionSuperInterface;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperInterface2[TYPE_REF]{CompletionSuperInterface2, , LCompletionSuperInterface2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
-				requestor.getResults());
-	    } else {
-	    	assertResults(
-				"CompletionSuperClass[TYPE_REF]{CompletionSuperClass, , LCompletionSuperClass;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperClass2[TYPE_REF]{CompletionSuperClass2, , LCompletionSuperClass2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperInterface[TYPE_REF]{CompletionSuperInterface, , LCompletionSuperInterface;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperInterface2[TYPE_REF]{CompletionSuperInterface2, , LCompletionSuperInterface2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
-				requestor.getResults());
-	    }
+		assertResults(
+			"CompletionSuperInterface[TYPE_REF]{CompletionSuperInterface, , LCompletionSuperInterface;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"CompletionSuperInterface2[TYPE_REF]{CompletionSuperInterface2, , LCompletionSuperInterface2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
 	} finally {
 		if(superClass != null) {
 			superClass.discardWorkingCopy();
@@ -2720,19 +2695,10 @@ public void testCompletionSuperType6() throws JavaModelException {
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-			assertResults(
+		assertResults(
 				"CompletionSuperInterface[TYPE_REF]{CompletionSuperInterface, , LCompletionSuperInterface;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_INTERFACE + R_NON_RESTRICTED)+"}\n" +
 				"CompletionSuperInterface2[TYPE_REF]{CompletionSuperInterface2, , LCompletionSuperInterface2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_INTERFACE+ R_NON_RESTRICTED)+"}",
 				requestor.getResults());
-	    } else {
-	    	assertResults(
-				"CompletionSuperClass[TYPE_REF]{CompletionSuperClass, , LCompletionSuperClass;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperClass2[TYPE_REF]{CompletionSuperClass2, , LCompletionSuperClass2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperInterface[TYPE_REF]{CompletionSuperInterface, , LCompletionSuperInterface;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_INTERFACE + R_NON_RESTRICTED)+"}\n" +
-				"CompletionSuperInterface2[TYPE_REF]{CompletionSuperInterface2, , LCompletionSuperInterface2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_INTERFACE+ R_NON_RESTRICTED)+"}",
-				requestor.getResults());
-	    }
 	} finally {
 		if(superClass != null) {
 			superClass.discardWorkingCopy();
@@ -11097,18 +11063,11 @@ public void testCompletionInsideExtends10() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-		assertResults(
-				"CompletionInsideExtends10.CompletionInsideExtends10Inner.CompletionInsideExtends10InnerInner[TYPE_REF]{test.CompletionInsideExtends10.CompletionInsideExtends10Inner.CompletionInsideExtends10InnerInner, test, Ltest.CompletionInsideExtends10$CompletionInsideExtends10Inner$CompletionInsideExtends10InnerInner;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"CompletionInsideExtends10[TYPE_REF]{CompletionInsideExtends10, test, Ltest.CompletionInsideExtends10;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionInsideExtends10TopLevel[TYPE_REF]{CompletionInsideExtends10TopLevel, test, Ltest.CompletionInsideExtends10TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} else {
-		assertResults(
-				"CompletionInsideExtends10[TYPE_REF]{CompletionInsideExtends10, test, Ltest.CompletionInsideExtends10;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionInsideExtends10TopLevel[TYPE_REF]{CompletionInsideExtends10TopLevel, test, Ltest.CompletionInsideExtends10TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	}
+	assertResults(
+			"CompletionInsideExtends10.CompletionInsideExtends10Inner.CompletionInsideExtends10InnerInner[TYPE_REF]{test.CompletionInsideExtends10.CompletionInsideExtends10Inner.CompletionInsideExtends10InnerInner, test, Ltest.CompletionInsideExtends10$CompletionInsideExtends10Inner$CompletionInsideExtends10InnerInner;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"CompletionInsideExtends10[TYPE_REF]{CompletionInsideExtends10, test, Ltest.CompletionInsideExtends10;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionInsideExtends10TopLevel[TYPE_REF]{CompletionInsideExtends10TopLevel, test, Ltest.CompletionInsideExtends10TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
 public void testCompletionInsideExtends11() throws JavaModelException {
@@ -11133,13 +11092,9 @@ public void testCompletionInsideExtends11() throws JavaModelException {
 		assertResults(
 				"",
 				requestor.getResults());
-	} else if (CompletionEngine.PROPOSE_MEMBER_TYPES) {
-		assertResults(
-				"",
-				requestor.getResults());
 	} else {
 		assertResults(
-				"CompletionInsideExtends11TopLevel[TYPE_REF]{CompletionInsideExtends11TopLevel, test, Ltest.CompletionInsideExtends11TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"",
 				requestor.getResults());
 	}
 }
@@ -11162,15 +11117,9 @@ public void testCompletionInsideExtends12() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-		assertResults(
-				"",
-				requestor.getResults());
-	} else {
-		assertResults(
-				"CompletionInsideExtends12TopLevel[TYPE_REF]{CompletionInsideExtends12TopLevel, test, Ltest.CompletionInsideExtends12TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	}
+	assertResults(
+			"",
+			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84690
 public void testCompletionArrayLength() throws JavaModelException {
@@ -11241,18 +11190,11 @@ public void testCompletionAllMemberTypes() throws JavaModelException {
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
     this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
-    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-    	assertResults(
-	            "CompletionAllMemberTypes.Member1.Member2.Member3[TYPE_REF]{test.CompletionAllMemberTypes.Member1.Member2.Member3, test, Ltest.CompletionAllMemberTypes$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-	            requestor.getResults());
-    } else {
-    	assertResults(
-	            "CompletionAllMemberTypes.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-	            requestor.getResults());
-    }
+	assertResults(
+            "CompletionAllMemberTypes.Member1.Member2.Member3[TYPE_REF]{test.CompletionAllMemberTypes.Member1.Member2.Member3, test, Ltest.CompletionAllMemberTypes$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+            requestor.getResults());
 }
 public void testCompletionAllMemberTypes2() throws JavaModelException {
     this.wc = getWorkingCopy(
@@ -11283,23 +11225,14 @@ public void testCompletionAllMemberTypes2() throws JavaModelException {
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
     this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
-    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-    	assertResults(
-	            "CompletionAllMemberTypes2.Member1.Member2.Member3.Member4[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member2.Member3.Member4, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3$Member4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member5.Member6[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member5.Member6, test, Ltest.CompletionAllMemberTypes2$Member1$Member5$Member6;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes2$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes2$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member2.Member3[TYPE_REF]{Member3, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member5[TYPE_REF]{Member5, test, Ltest.CompletionAllMemberTypes2$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-	            requestor.getResults());
-    } else {
-    	assertResults(
-	            "CompletionAllMemberTypes2.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes2$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes2$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member2.Member3[TYPE_REF]{Member3, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member5[TYPE_REF]{Member5, test, Ltest.CompletionAllMemberTypes2$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-	            requestor.getResults());
-    }
+	assertResults(
+            "CompletionAllMemberTypes2.Member1.Member2.Member3.Member4[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member2.Member3.Member4, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3$Member4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1.Member5.Member6[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member5.Member6, test, Ltest.CompletionAllMemberTypes2$Member1$Member5$Member6;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes2$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes2$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1.Member2.Member3[TYPE_REF]{Member3, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1.Member5[TYPE_REF]{Member5, test, Ltest.CompletionAllMemberTypes2$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+            requestor.getResults());
 }
 public void testCompletionAllMemberTypes3() throws JavaModelException {
     this.wc = getWorkingCopy(
@@ -11328,25 +11261,15 @@ public void testCompletionAllMemberTypes3() throws JavaModelException {
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
     this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
-    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-    	assertResults(
-	            "Member[POTENTIAL_METHOD_DECLARATION]{Member, Ltest.CompletionAllMemberTypes2$Member1$Member2;, ()V, Member, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member2.Member3.Member4[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member2.Member3.Member4, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3$Member4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member5.Member6[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member5.Member6, test, Ltest.CompletionAllMemberTypes2$Member1$Member5$Member6;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes2$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes2$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member2.Member3[TYPE_REF]{Member3, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member5[TYPE_REF]{Member5, test, Ltest.CompletionAllMemberTypes2$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-	            requestor.getResults());
-    } else {
-    	assertResults(
-	            "Member[POTENTIAL_METHOD_DECLARATION]{Member, Ltest.CompletionAllMemberTypes2$Member1$Member2;, ()V, Member, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes2$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes2$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member2.Member3[TYPE_REF]{Member3, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"CompletionAllMemberTypes2.Member1.Member5[TYPE_REF]{Member5, test, Ltest.CompletionAllMemberTypes2$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-	            requestor.getResults());
-    }
+	assertResults(
+            "Member[POTENTIAL_METHOD_DECLARATION]{Member, Ltest.CompletionAllMemberTypes2$Member1$Member2;, ()V, Member, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1.Member2.Member3.Member4[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member2.Member3.Member4, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3$Member4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1.Member5.Member6[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member5.Member6, test, Ltest.CompletionAllMemberTypes2$Member1$Member5$Member6;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes2$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes2$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1.Member2.Member3[TYPE_REF]{Member3, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"CompletionAllMemberTypes2.Member1.Member5[TYPE_REF]{Member5, test, Ltest.CompletionAllMemberTypes2$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+            requestor.getResults());
 }
 public void testCompletionAllMemberTypes4() throws JavaModelException {
 	ICompilationUnit anInterface = null;
@@ -11398,30 +11321,20 @@ public void testCompletionAllMemberTypes4() throws JavaModelException {
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-	    	assertResults(
-		            "AnInterface.Member1.Member2[TYPE_REF]{test.AnInterface.Member1.Member2, test, Ltest.AnInterface$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"AnInterface.Member1.Member2.Member3[TYPE_REF]{test.AnInterface.Member1.Member2.Member3, test, Ltest.AnInterface$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"AnInterface.Member1.Member2.Member3.Member4[TYPE_REF]{test.AnInterface.Member1.Member2.Member3.Member4, test, Ltest.AnInterface$Member1$Member2$Member3$Member4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"AnInterface.Member1.Member5[TYPE_REF]{test.AnInterface.Member1.Member5, test, Ltest.AnInterface$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"AnInterface.Member1.Member5.Member6[TYPE_REF]{test.AnInterface.Member1.Member5.Member6, test, Ltest.AnInterface$Member1$Member5$Member6;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"CompletionAllMemberTypes2.Member1.Member2.Member3.Member4[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member2.Member3.Member4, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3$Member4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"CompletionAllMemberTypes2.Member1.Member5.Member6[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member5.Member6, test, Ltest.CompletionAllMemberTypes2$Member1$Member5$Member6;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"AnInterface.Member1[TYPE_REF]{Member1, test, Ltest.AnInterface$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-					"CompletionAllMemberTypes2.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes2$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-					"CompletionAllMemberTypes2.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes2$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-					"CompletionAllMemberTypes2.Member1.Member2.Member3[TYPE_REF]{Member3, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-					"CompletionAllMemberTypes2.Member1.Member5[TYPE_REF]{Member5, test, Ltest.CompletionAllMemberTypes2$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-		            requestor.getResults());
-	    } else {
-	    	assertResults(
-		            "AnInterface.Member1[TYPE_REF]{Member1, test, Ltest.AnInterface$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-					"CompletionAllMemberTypes2.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes2$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-					"CompletionAllMemberTypes2.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes2$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-					"CompletionAllMemberTypes2.Member1.Member2.Member3[TYPE_REF]{Member3, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-					"CompletionAllMemberTypes2.Member1.Member5[TYPE_REF]{Member5, test, Ltest.CompletionAllMemberTypes2$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-		            requestor.getResults());
-	    }
+    	assertResults(
+	            "AnInterface.Member1.Member2[TYPE_REF]{test.AnInterface.Member1.Member2, test, Ltest.AnInterface$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"AnInterface.Member1.Member2.Member3[TYPE_REF]{test.AnInterface.Member1.Member2.Member3, test, Ltest.AnInterface$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"AnInterface.Member1.Member2.Member3.Member4[TYPE_REF]{test.AnInterface.Member1.Member2.Member3.Member4, test, Ltest.AnInterface$Member1$Member2$Member3$Member4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"AnInterface.Member1.Member5[TYPE_REF]{test.AnInterface.Member1.Member5, test, Ltest.AnInterface$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"AnInterface.Member1.Member5.Member6[TYPE_REF]{test.AnInterface.Member1.Member5.Member6, test, Ltest.AnInterface$Member1$Member5$Member6;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"CompletionAllMemberTypes2.Member1.Member2.Member3.Member4[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member2.Member3.Member4, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3$Member4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"CompletionAllMemberTypes2.Member1.Member5.Member6[TYPE_REF]{test.CompletionAllMemberTypes2.Member1.Member5.Member6, test, Ltest.CompletionAllMemberTypes2$Member1$Member5$Member6;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"AnInterface.Member1[TYPE_REF]{Member1, test, Ltest.AnInterface$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"CompletionAllMemberTypes2.Member1[TYPE_REF]{Member1, test, Ltest.CompletionAllMemberTypes2$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"CompletionAllMemberTypes2.Member1.Member2[TYPE_REF]{Member2, test, Ltest.CompletionAllMemberTypes2$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"CompletionAllMemberTypes2.Member1.Member2.Member3[TYPE_REF]{Member3, test, Ltest.CompletionAllMemberTypes2$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"CompletionAllMemberTypes2.Member1.Member5[TYPE_REF]{Member5, test, Ltest.CompletionAllMemberTypes2$Member1$Member5;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+	            requestor.getResults());
 	} finally {
 		if(anInterface != null) {
 			anInterface.discardWorkingCopy();
@@ -11466,19 +11379,13 @@ public void testCompletionAllMemberTypes5() throws JavaModelException {
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-	    	// AType.Member1.Member2.Member3 and AType.Member1.Member2.Member3.Member4 should not be proposed because they are not visible.
-	    	// But visibility need modifiers of enclosing types to be computed. 
-	    	assertResults(
-		            "AType.Member1[TYPE_REF]{test.AType.Member1, test, Ltest.AType$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"AType.Member1.Member2.Member3[TYPE_REF]{test.AType.Member1.Member2.Member3, test, Ltest.AType$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"AType.Member1.Member2.Member3.Member4[TYPE_REF]{test.AType.Member1.Member2.Member3.Member4, test, Ltest.AType$Member1$Member2$Member3$Member4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-		            requestor.getResults());
-	    } else {
-	    	assertResults(
-		            "",
-		            requestor.getResults());
-	    }
+    	// AType.Member1.Member2.Member3 and AType.Member1.Member2.Member3.Member4 should not be proposed because they are not visible.
+    	// But visibility need modifiers of enclosing types to be computed. 
+    	assertResults(
+	            "AType.Member1[TYPE_REF]{test.AType.Member1, test, Ltest.AType$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"AType.Member1.Member2.Member3[TYPE_REF]{test.AType.Member1.Member2.Member3, test, Ltest.AType$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"AType.Member1.Member2.Member3.Member4[TYPE_REF]{test.AType.Member1.Member2.Member3.Member4, test, Ltest.AType$Member1$Member2$Member3$Member4;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+	            requestor.getResults());
 	} finally {
 		if(aType != null) {
 			aType.discardWorkingCopy();
@@ -11517,15 +11424,9 @@ public void testCompletionAllMemberTypes6() throws JavaModelException {
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-	    	assertResults(
-		            "AType.Member1[TYPE_REF]{test.AType.Member1, test, Ltest.AType$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-		            requestor.getResults());
-	    } else {
-	    	assertResults(
-		            "",
-		            requestor.getResults());
-	    }
+    	assertResults(
+	            "AType.Member1[TYPE_REF]{test.AType.Member1, test, Ltest.AType$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+	            requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldCurrentOptions);
 	}
@@ -11559,17 +11460,11 @@ public void testCompletionAllMemberTypes7() throws JavaModelException {
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
-	    	assertResults(
-		            "AType.Member1.Member2[TYPE_REF]{test.AType.Member1.Member2, test, Ltest.AType$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"AType.Member1.Member2.Member3[TYPE_REF]{test.AType.Member1.Member2.Member3, test, Ltest.AType$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-					"AType.Member1[TYPE_REF]{Member1, test, Ltest.AType$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-		            requestor.getResults());
-	    } else {
-	    	assertResults(
-		            "AType.Member1[TYPE_REF]{Member1, test, Ltest.AType$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-		            requestor.getResults());
-	    }
+    	assertResults(
+	            "AType.Member1.Member2[TYPE_REF]{test.AType.Member1.Member2, test, Ltest.AType$Member1$Member2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"AType.Member1.Member2.Member3[TYPE_REF]{test.AType.Member1.Member2.Member3, test, Ltest.AType$Member1$Member2$Member3;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"AType.Member1[TYPE_REF]{Member1, test, Ltest.AType$Member1;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+	            requestor.getResults());
 	} finally {
 		JavaCore.setOptions(oldCurrentOptions);
 	}
