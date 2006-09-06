@@ -1098,10 +1098,17 @@ public class SourceMapper
 							break;
 						default:
 							if (sigStart) {
-								if (current == Signature.C_TYPE_VARIABLE) {
-									unqualifiedName.append(Signature.C_UNRESOLVED);
-								} else {
-									unqualifiedName.append(current);
+								switch(current) {
+									case Signature.C_TYPE_VARIABLE :
+										unqualifiedName.append(Signature.C_UNRESOLVED);
+										break;
+									case Signature.C_GENERIC_END :
+									case Signature.C_STAR :
+										unqualifiedName.append(current);
+										break;
+									default:
+										unqualifiedName.append(Signature.C_UNRESOLVED);
+										unqualifiedName.append(current);
 								}
 								sigStart = false;
 							} else {

@@ -39,7 +39,7 @@ static {
 	// Prefix for tests names to run
 //	TESTS_PREFIX =  "testGetTypeErasure";
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] { "testGetTypeParameters4" };
+//	TESTS_NAMES = new String[] { "testGetSimpleName" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	TESTS_NUMBERS = new int[] { 8 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -740,6 +740,7 @@ public void testGetSimpleName() {
 	assertEquals("Unexpected simple name", "List<?>", Signature.getSimpleName("List<?>"));
 	assertEquals("Unexpected simple name", "List<? extends E>", Signature.getSimpleName("List<?extends E>"));
 	assertEquals("Unexpected simple name", "List<? super E>", Signature.getSimpleName("List<?super E>"));
+	assertEquals("Unexpected simple name", "List<+Comparable<-TT;>;>;", Signature.getSimpleName("	java.util.List<+Ljava.lang.Comparable<-TT;>;>;"));
 }
 /**
  * @see Signature
