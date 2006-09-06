@@ -2325,6 +2325,59 @@ public void test068() {
 			options,
 			null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099
+public void test068a() {
+	Map options = this.getCompilerOptions();
+	CompilerOptions compOptions = new CompilerOptions(options);
+	if (compOptions.complianceLevel < ClassFileConstants.JDK1_5) return;
+
+	this.runConformTest(
+		new String[] {
+			"X1.java",
+			"public class X1 { X1 foo() { return null; } }\n" + 
+			"class X2 extends X1 { X2 foo() { return null; } }\n" + 
+			"class Y { public X2 foo() { return null; } }\n" + 
+			"interface I { X1 foo(); }\n" + 
+			"class Z extends Y implements I {}",
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"Test.java",//===================
+			"public class Test {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        X1 x = new X2().foo();\n" + 
+			"        X2 xx = new X2().foo();\n" + 
+			"        X1 z = new Z().foo();\n" + 
+			"        X2 zz = new Z().foo();\n" + 
+			"    }\n" + 
+			"}", // =================,
+		},
+		"",
+		null,
+		false,
+		null);
+
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	this.runConformTest(
+		new String[] {
+			"Test14.java",//===================
+			"public class Test14 {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        X1 x = new X2().foo();\n" + 
+			"        X2 xx = new X2().foo();\n" + 
+			"        X1 z = new Z().foo();\n" + 
+			"        X2 zz = new Z().foo();\n" + 
+			"    }\n" + 
+			"}", // =================,
+		},
+		"",
+		null,
+		false,
+		null,
+		options,
+		null);
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099 - variation
 public void test069() {
 	this.runConformTest(

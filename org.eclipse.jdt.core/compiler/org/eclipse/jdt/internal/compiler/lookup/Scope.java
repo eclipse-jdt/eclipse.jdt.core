@@ -759,8 +759,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReferences(argumentTypes);
 		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, unitScope);
-		if (exactMethod != null && exactMethod.typeVariables == Binding.NO_TYPE_VARIABLES) {
+		if (exactMethod != null && exactMethod.typeVariables == Binding.NO_TYPE_VARIABLES && !exactMethod.isBridge()) {
 			// must find both methods for this case: <S extends A> void foo() {}  and  <N extends B> N foo() { return null; }
+			// or find an inherited method when the exact match is to a bridge method
 			unitScope.recordTypeReferences(exactMethod.thrownExceptions);
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
@@ -1086,6 +1087,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 										continue nextMethod; // keep inherited substituted methods to detect anonymous errors
 									if (matchingMethod.hasSubstitutedParameters() && !currentMethod.original().areParametersEqual(matchingMethod.original()))
 										continue nextMethod; // keep inherited substituted methods to detect anonymous errors
+									if (matchingMethod.isBridge() && !currentMethod.isBridge())
+										continue nextMethod; // keep inherited methods to find concrete method over a bridge method
 								}
 								currentLength--;
 								currentMethods[i] = null;
@@ -3226,6 +3229,10 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						continue nextVisible;
 					if (!isAcceptableMethod(tiebreakMethod, acceptable))
 						continue nextVisible;
+					// pick a concrete method over a bridge method when parameters are equal since the return type of the concrete method is more specific
+					if (current.isBridge() && !next.isBridge())
+						if (tiebreakMethod.areParametersEqual(acceptable))
+							continue nextVisible; // skip current so acceptable wins over this bridge method
 				}
 				moreSpecific[i] = current;
 				count++;

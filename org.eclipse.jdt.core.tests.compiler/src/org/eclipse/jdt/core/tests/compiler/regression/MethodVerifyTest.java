@@ -5171,6 +5171,28 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			assertTrue(false);
 		} catch (IOException e) {
 			assertTrue(false);
-		}		
-	}	
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=153874
+	public void test099() {
+		Map customOptions= getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+		this.runConformTest(
+			new String[] {
+				"TestCharset.java",
+				"import java.nio.charset.*;\n" + 
+				"public class TestCharset extends Charset {\n" + 
+				"	protected TestCharset(String n, String[] a) { super(n, a); }\n" + 
+				"	public boolean contains(Charset cs) { return false; }\n" + 
+				"	public CharsetDecoder newDecoder() { return null; }\n" + 
+				"	public CharsetEncoder newEncoder() { return null; }\n" + 
+				"}\n" ,
+			},
+			"",
+			null,
+			true,
+			null,
+			customOptions,
+			null/*no custom requestor*/);
+	}
 }
