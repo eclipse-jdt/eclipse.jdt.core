@@ -32617,4 +32617,35 @@ public void test1028() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156016
+public void test1029() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"        public static <T extends Number> List<T> makeNumberList(T a, T b) {\n" + 
+			"                return Arrays.asList(a, b);\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        public static void main(String... args) {\n" + 
+			"                List<Number> name = makeNumberList(5, 5D);\n" + 
+			"        }\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	return Arrays.asList(a, b);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of T is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	List<Number> name = makeNumberList(5, 5D);\n" + 
+		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Number&Comparable<?>> to List<Number>\n" + 
+		"----------\n");
+}
+
 }
