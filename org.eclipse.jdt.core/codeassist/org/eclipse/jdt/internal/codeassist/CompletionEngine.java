@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 
 import org.eclipse.jdt.internal.codeassist.complete.*;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
@@ -561,12 +562,9 @@ public final class CompletionEngine
 	}
 
 	private void proposeType(char[] packageName, char[] simpleTypeName, int modifiers, int accessibility, char[] typeName, char[] fullyQualifiedName, boolean isQualified) {
-		if(this.assistNodeIsClass) {
-			if((modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation | ClassFileConstants.AccEnum)) != 0 ) return;
-		} else if(this.assistNodeIsInterface) {
+		if(this.assistNodeIsInterface) {
+			//TODO(david) remove this code once bug 157177 will be fixed. 
 			if((modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation)) == 0) return;
-		} else if (this.assistNodeIsAnnotation) {
-			if((modifiers & ClassFileConstants.AccAnnotation) == 0) return;
 		}
 		
 		char[] completionName = fullyQualifiedName;
@@ -2833,6 +2831,7 @@ public final class CompletionEngine
 					importName,
 					findMembers, 
 					this.options.camelCaseMatch,
+					IJavaSearchConstants.TYPE,
 					this);
 			acceptTypes();
 		}
@@ -5094,7 +5093,8 @@ public final class CompletionEngine
 			this.findTypesFromStaticImports(token, scope, proposeAllMemberTypes, typesFound);
 		}
 		
-		if (token.length == 0) {
+		boolean isEmptyPrefix = token.length == 0;
+		if (isEmptyPrefix && !this.assistNodeIsAnnotation) {
 			if(proposeType && this.expectedTypesPtr > -1) {
 				next : for (int i = 0; i <= this.expectedTypesPtr; i++) {
 					if(this.expectedTypes[i] instanceof ReferenceBinding) {
@@ -5194,7 +5194,7 @@ public final class CompletionEngine
 				}
 			} 
 		} else {
-			if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+			if(!isEmptyPrefix && !this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 				if (this.assistNodeInJavadoc == 0 || (this.assistNodeInJavadoc & CompletionOnJavadoc.BASE_TYPES) != 0) {
 					findKeywords(token, BASE_TYPE_NAMES, false, false);
 				}
@@ -5210,14 +5210,27 @@ public final class CompletionEngine
 								'.');
 					this.knownTypes.put(fullyQualifiedTypeName, this);
 				}
+				int searchFor = IJavaSearchConstants.TYPE;
+				if(this.assistNodeIsClass) {
+					searchFor = IJavaSearchConstants.CLASS;
+				} else if(this.assistNodeIsInterface) {
+					//TODO(david) update this code once bug 157177 will be fixed. 
+					//searchFor = IJavaSearchConstants.INTERFACE;
+					searchFor = IJavaSearchConstants.TYPE;
+				} else if(this.assistNodeIsEnum) {
+					searchFor = IJavaSearchConstants.ENUM;
+				} else if(this.assistNodeIsAnnotation) {
+					searchFor = IJavaSearchConstants.ANNOTATION_TYPE;
+				}
 				this.nameEnvironment.findTypes(
 						token,
 						proposeAllMemberTypes,
 						this.options.camelCaseMatch,
+						searchFor,
 						this);
 				acceptTypes();
 			}
-			if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+			if(!isEmptyPrefix && !this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
 				this.nameEnvironment.findPackages(token, this);
 			}
 		}
@@ -5315,10 +5328,23 @@ public final class CompletionEngine
 		}
 		
 		if(proposeType) {
+			int searchFor = IJavaSearchConstants.TYPE;
+			if(this.assistNodeIsClass) {
+				searchFor = IJavaSearchConstants.CLASS;
+			} else if(this.assistNodeIsInterface) {
+				//TODO(david) update this code once bug 157177 will be fixed. 
+				//searchFor = IJavaSearchConstants.INTERFACE;
+				searchFor = IJavaSearchConstants.TYPE;
+			} else if(this.assistNodeIsEnum) {
+				searchFor = IJavaSearchConstants.ENUM;
+			} else if(this.assistNodeIsAnnotation) {
+				searchFor = IJavaSearchConstants.ANNOTATION_TYPE;
+			}
 			this.nameEnvironment.findTypes(
 					qualifiedName,
 					false,
 					this.options.camelCaseMatch,
+					searchFor,
 					this);
 			acceptTypes();
 		}

@@ -52,10 +52,22 @@ Eclipse SDK 3.3M2 - ?th September 2006
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_712">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>Code Assist: Annotation types are proposed even there is no prefix.
+<pre>
+   public @interface MyAnnot {
+      int foo();
+   }
+   @|
+   public class AClass {} 
+</pre>
+'MyAnnot' is proposed if you do code assist at '|' location.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=156194">156194</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=129983">129983</a>
+[1.5][assist] Need partial word for annotation autocompletion
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=156194">156194</a>
 [codeassist] PROPOSE_MEMBER_TYPES can be removed
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=155115">155115</a>
 UnresolvedReferenceBindings surfacing through DOM AST

@@ -2091,61 +2091,81 @@ public void test0074() throws JavaModelException {
 	}
 }
 public void test0075() throws JavaModelException {
-	this.wc = getWorkingCopy(
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test0075/Test.java",
 			"package test0075;\n" +
 			"public @QQAnnot class Test {\n" +
 			"}");
 	
-	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/pkgannotations/QQAnnotation.java",
+		"package pkgannotations;"+
+		"public @interface QQAnnotation {\n"+
+		"}");
+
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "@QQAnnot";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
-public void test0076() throws JavaModelException {
-	this.wc = getWorkingCopy(
+public void test0076() throws JavaModelException {	
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test0076/Test.java",
 			"package test0076;\n" +
 			"public @QQAnnot class Test\n" +
 			"");
 	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/pkgannotations/QQAnnotation.java",
+		"package pkgannotations;"+
+		"public @interface QQAnnotation {\n"+
+		"}");
 	
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "@QQAnnot";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0077() throws JavaModelException {
-	this.wc = getWorkingCopy(
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test0077/Test.java",
 			"package test0077;\n" +
 			"public @QQAnnot\n" +
 			"");
 	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/pkgannotations/QQAnnotation.java",
+		"package pkgannotations;"+
+		"public @interface QQAnnotation {\n"+
+		"}");
+	
 	
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "@QQAnnot";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0078() throws JavaModelException {
-	this.wc = getWorkingCopy(
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test0078/Test.java",
 			"package test0078;\n" +
 			"public class Test {\n" +
@@ -2153,107 +2173,144 @@ public void test0078() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/pkgannotations/QQAnnotation.java",
+		"package pkgannotations;"+
+		"public @interface QQAnnotation {\n"+
+		"}");
 	
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "@QQAnnot";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0079() throws JavaModelException {
-	this.wc = getWorkingCopy(
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test0078/Test.java",
 			"package test0078;\n" +
 			"public class Test {\n" +
 			"  public @QQAnnot void foo(\n" +
 			"}");
 	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/pkgannotations/QQAnnotation.java",
+		"package pkgannotations;"+
+		"public @interface QQAnnotation {\n"+
+		"}");
 	
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "@QQAnnot";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0080() throws JavaModelException {
-	this.wc = getWorkingCopy(
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test0078/Test.java",
 			"package test0078;\n" +
 			"public class Test {\n" +
 			"  public @QQAnnot int var;\n" +
 			"}");
 	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/pkgannotations/QQAnnotation.java",
+		"package pkgannotations;"+
+		"public @interface QQAnnotation {\n"+
+		"}");
 	
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "@QQAnnot";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0081() throws JavaModelException {
-	this.wc = getWorkingCopy(
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test0078/Test.java",
 			"package test0078;\n" +
 			"public class Test {\n" +
 			"  public @QQAnnot int var\n" +
 			"}");
 	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/pkgannotations/QQAnnotation.java",
+		"package pkgannotations;"+
+		"public @interface QQAnnotation {\n"+
+		"}");
 	
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "@QQAnnot";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0082() throws JavaModelException {
-	this.wc = getWorkingCopy(
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test0078/Test.java",
 			"package test0078;\n" +
 			"public class Test {\n" +
 			"  void foo(@QQAnnot int i) {}\n" +
 			"}");
 	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/pkgannotations/QQAnnotation.java",
+		"package pkgannotations;"+
+		"public @interface QQAnnotation {\n"+
+		"}");
+	
 	
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "@QQAnnot";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0083() throws JavaModelException {
-	this.wc = getWorkingCopy(
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src3/test0078/Test.java",
 			"package test0078;\n" +
 			"public class Test {\n" +
 			"  void foo() {@QQAnnot int i}\n" +
 			"}");
 	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/pkgannotations/QQAnnotation.java",
+		"package pkgannotations;"+
+		"public @interface QQAnnotation {\n"+
+		"}");
+	
 	
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.wc.getSource();
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "@QQAnnot";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
@@ -8924,6 +8981,33 @@ public void test0289() throws JavaModelException {
 
 	assertResults(
 			"test0.test1[PACKAGE_REF]{test0.test1., test0.test1, null, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=129983
+public void test0290() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test0290/Test.java",
+			"package test0290;\n" +
+			"@\n" +
+			"public class Test {\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/pkgannotations/QQAnnotation.java",
+		"package pkgannotations;"+
+		"public @interface QQAnnotation {\n"+
+		"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130

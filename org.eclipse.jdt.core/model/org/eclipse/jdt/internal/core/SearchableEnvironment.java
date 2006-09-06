@@ -67,6 +67,24 @@ public class SearchableEnvironment
 		this(project, owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary WCs*/));
 	}
 
+	private static int convertSearchFilterToModelFilter(int searchFilter) {
+		switch (searchFilter) {
+			case IJavaSearchConstants.CLASS:
+				return NameLookup.ACCEPT_CLASSES;
+			case IJavaSearchConstants.INTERFACE:
+				return NameLookup.ACCEPT_INTERFACES;
+			case IJavaSearchConstants.ENUM:
+				return NameLookup.ACCEPT_ENUMS;
+			case IJavaSearchConstants.ANNOTATION_TYPE:
+				return NameLookup.ACCEPT_ANNOTATIONS;
+			case IJavaSearchConstants.CLASS_AND_ENUM:
+				return NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_ENUMS;
+			case IJavaSearchConstants.CLASS_AND_INTERFACE:
+				return NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES;
+			default:
+				return NameLookup.ACCEPT_ALL;
+		}
+	}
 	/**
 	 * Returns the given type in the the given package if it exists,
 	 * otherwise <code>null</code>.
@@ -166,7 +184,7 @@ public class SearchableEnvironment
 	}
 
 	/**
-	 * Find the top-level types (classes and interfaces) that are defined
+	 * Find the top-level types that are defined
 	 * in the current environment and whose name starts with the
 	 * given prefix. The prefix is a qualified name separated by periods
 	 * or a simple name (ex. java.util.V or V).
@@ -180,7 +198,7 @@ public class SearchableEnvironment
 	 * This method can not be used to find member types... member
 	 * types are found relative to their enclosing type.
 	 */
-	public void findTypes(char[] prefix, final boolean findMembers, boolean camelCaseMatch, final ISearchRequestor storage) {
+	public void findTypes(char[] prefix, final boolean findMembers, boolean camelCaseMatch, int searchFor, final ISearchRequestor storage) {
 
 		/*
 			if (true){
@@ -196,7 +214,7 @@ public class SearchableEnvironment
 					findTypes(
 						new String(prefix),
 						storage,
-						NameLookup.ACCEPT_ALL);
+						convertSearchFilterToModelFilter(searchFor));
 					return;
 				}
 				excludePath = ((IJavaElement) this.unitToSkip).getPath().toString();
@@ -265,9 +283,9 @@ public class SearchableEnvironment
 				new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
 					qualification,
 					SearchPattern.R_EXACT_MATCH,
-					simpleName,
+					simpleName.length == 0 ? null : simpleName, //TODO(david) remove once bug 156340 will be fixed
 					matchRule, // not case sensitive
-					IJavaSearchConstants.TYPE,
+					searchFor,
 					this.searchScope,
 					typeRequestor,
 					CANCEL_IF_NOT_READY_TO_SEARCH,
@@ -276,13 +294,13 @@ public class SearchableEnvironment
 				findTypes(
 					new String(prefix),
 					storage,
-					NameLookup.ACCEPT_ALL);
+					convertSearchFilterToModelFilter(searchFor));
 			}
 		} catch (JavaModelException e) {
 			findTypes(
 				new String(prefix),
 				storage,
-				NameLookup.ACCEPT_ALL);
+				convertSearchFilterToModelFilter(searchFor));
 		}
 	}
 
