@@ -7158,6 +7158,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Object value = memberValuePairBinding.getValue();
 		assertNotNull("No value", value);
 		assertTrue("Not a type binding", value instanceof ITypeBinding);
+		assertEquals("Wrong qualified name", "intf.IFoo.IBar", 
+				((ITypeBinding) value).getQualifiedName());		
 		IVariableBinding[] fields = 
 			declaration.resolveBinding().getDeclaredFields();
 		assertTrue("Bad field definition", fields != null && fields.length == 1);
