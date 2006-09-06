@@ -28,6 +28,19 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Reconcile a working copy and signal the changes through a delta.
+ * <p>
+ * High level summmary of what a reconcile does:
+ * <ul>
+ * <li>populates the model with the new working copy contents</li>
+ * <li>fires a fine grained delta (flag F_FINE_GRAINED) describing the difference between the previous content 
+ *      and the new content (which method was added/removed, which field was changed, etc.)</li>
+ * <li>computes problems and reports them to the IProblemRequestor (begingReporting(), n x acceptProblem(...), endReporting()) iff
+ *     	(working copy is not consistent with its buffer || forceProblemDetection is set)
+ * 		&& problem requestor is active 
+ * </li>
+ * <li>produces a DOM AST (either JLS_2, JLS_3 or NO_AST) that is resolved if flag is set</li>
+ * <li>notifies compilation participants of the reconcile allowing them to participate in this operation and report problems</li>
+ * </ul>
  */
 public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	public static boolean PERF = false;
