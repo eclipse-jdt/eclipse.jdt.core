@@ -13,26 +13,12 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.ArrayList;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ElementChangedEvent;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IElementChangedListener;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
 
 import junit.framework.Test;
 
@@ -2311,6 +2297,35 @@ public void testWorkingCopyCommit() throws CoreException {
 	} finally {
 		stopDeltas();
 		deleteProject("P");
+	}
+}
+
+/**
+ * @bug 154880: DeltaProcessor does not set project references if first build is a project build
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=154880"
+ */
+// TODO (frederic) This test must be rewritten as it currently does not fail without the bug fix!
+public void testBug154880() throws CoreException {
+	try {
+		ResourcesPlugin.getWorkspace().run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					createJavaProject("P1");
+					createFile("/P1/X.java", "public class X {}");
+					IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "");
+					createFile("/P2/Y.java", "public class Y extends X {}");
+					p2.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+				}
+			},
+			null);
+		IProject project = getProject("P2");
+		IProject[] references = project.getDescription().getDynamicReferences();
+		assertResourcesEqual("Invalid project P2 referenced projects!",
+			"/P1",
+			references);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 }
