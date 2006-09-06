@@ -39,6 +39,20 @@ import org.eclipse.jdt.internal.core.util.Util;
  * <code>IResourceDelta</code>s into <code>IJavaElementDelta</code>s.
  * It also does some processing on the <code>JavaElement</code>s involved
  * (e.g. closing them or updating classpaths).
+ * <p>
+ * High level summary of what the delta processor does:
+ * <ul>
+ * <li>reacts to resource deltas</li>
+ * <li>fires corresponding Java element deltas</li>
+ * <li>deltas also contain non-Java resources changes</li>
+ * <li>updates the model to reflect the Java element changes</li>
+ * <li>notifies type hierarchies of the changes</li>
+ * <li>triggers indexing of the changed elements</li>
+ * <li>refresh external archives (delta, model update, indexing)</li>
+ * <li>is thread safe (one delta processor instance per thread, see DeltaProcessingState#resourceChanged(...))</li>
+ * <li>handles .classpath changes (updates package fragment roots, update project references, validate classpath (.classpath format, 
+ * 		resolved classpath, cycles))</li>
+ * </ul>
  */
 public class DeltaProcessor {
 	
