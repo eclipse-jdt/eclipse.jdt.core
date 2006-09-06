@@ -7096,7 +7096,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 0, annotations.length);
 	}
 	
-	public void _test0227() throws JavaModelException {
+	public void test0227() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
     		"import anno.Anno;\n" + 
@@ -7105,7 +7105,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		"\n" + 
     		"public class X extends B {\n" + 
     		"	@Anno(clz=IFoo.IBar.class)\n" + 
-    		"	public void f() {}\n" + 
+    			// the annotation we chase up is not this one, but the one
+    			// carried by B#f
+    		"	public void f() {}\n" +
+    		"   IFoo.IBar m;\n" + 
     		"}";
     	class TestASTRequestor extends ASTRequestor {
     		public ArrayList asts = new ArrayList();
@@ -7154,8 +7157,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong kind", IBinding.MEMBER_VALUE_PAIR, memberValuePairBinding.getKind());
 		Object value = memberValuePairBinding.getValue();
 		assertNotNull("No value", value);
-		assertTrue("not a type binding", value instanceof ITypeBinding);
-		ITypeBinding typeBinding2 = (ITypeBinding) value;
-		assertEquals("Wrong qualified name", "intf.IFoo.IBar", typeBinding2.getQualifiedName());
+		assertTrue("Not a type binding", value instanceof ITypeBinding);
+		IVariableBinding[] fields = 
+			declaration.resolveBinding().getDeclaredFields();
+		assertTrue("Bad field definition", fields != null && fields.length == 1);
+		assertEquals("Type binding mismatch", value, fields[0].getType());
 	}	
 }

@@ -83,7 +83,7 @@ static AnnotationBinding createAnnotation(IBinaryAnnotation annotationInfo, Look
 
 	char[] typeName = annotationInfo.getTypeName();
 	ReferenceBinding annotationType = env.getTypeFromConstantPoolName(typeName, 1, typeName.length - 1, false);
-	return AnnotationBinding.createUnresolvedAnnotation(annotationType, pairs, env);
+	return new UnresolvedAnnotationBinding(annotationType, pairs, env);
 }
 public static AnnotationBinding[] createAnnotations(IBinaryAnnotation[] annotationInfos, LookupEnvironment env) {
 	int length = annotationInfos == null ? 0 : annotationInfos.length;

@@ -16,6 +16,8 @@ import org.eclipse.jdt.internal.compiler.ast.Annotation;
  * Represents JSR 175 Annotation instances in the type-system.
  */ 
 public class AnnotationBinding{
+	// do not access directly - use getters instead (UnresolvedAnnotationBinding
+	// resolves types for type and pair contents just in time)
 	ReferenceBinding type;
 	ElementValuePair[] pairs;
 
@@ -74,7 +76,9 @@ private static AnnotationBinding buildMarkerAnnotation(char[][] compoundName, Lo
 }
 
 private static AnnotationBinding buildRetentionAnnotation(long bits, LookupEnvironment env) {
-	ReferenceBinding retentionPolicy = env.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY, null);
+	ReferenceBinding retentionPolicy = 
+		env.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY, 
+			null);
 	Object value = null;
 	if ((bits & TagBits.AnnotationRuntimeRetention) != 0)
 		value = retentionPolicy.getField(TypeConstants.UPPER_RUNTIME, true);
@@ -82,10 +86,11 @@ private static AnnotationBinding buildRetentionAnnotation(long bits, LookupEnvir
 		value = retentionPolicy.getField(TypeConstants.UPPER_CLASS, true);
 	else if ((bits & TagBits.AnnotationSourceRetention) != 0)
 		value = retentionPolicy.getField(TypeConstants.UPPER_SOURCE, true);
-
-	ReferenceBinding retention = env.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_RETENTION, null);
-	ElementValuePair[] pairs = new ElementValuePair[] { new ElementValuePair(TypeConstants.VALUE, value, null) };
-	return createUnresolvedAnnotation(retention, pairs, env);
+	return (new AnnotationBinding(
+		env.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_RETENTION, null),
+		new ElementValuePair[] { 
+			new ElementValuePair(TypeConstants.VALUE, value, null)})).
+				setMethodBindings();
 }
 
 private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironment env) {
@@ -131,21 +136,11 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 		if ((bits & TagBits.AnnotationForType) != 0)
 			value[index++] = elementType.getField(TypeConstants.TYPE, true);
 	}
-
-	ElementValuePair[] pairs = new ElementValuePair[] { new ElementValuePair(TypeConstants.VALUE, value, null) };
-	return createUnresolvedAnnotation(target, pairs, env);
+	return (new AnnotationBinding(target,
+				new ElementValuePair[] { 
+					new ElementValuePair(TypeConstants.VALUE, value, null)}).
+						setMethodBindings());
 }
-
-public static AnnotationBinding createUnresolvedAnnotation(ReferenceBinding type, ElementValuePair[] pairs, LookupEnvironment env) {
-	// if type is unresolved then answer a lazy instance that will resolve the type & fault in the method of each pair when requested
-	if (type instanceof UnresolvedReferenceBinding)
-		return new UnresolvedAnnotationBinding(type, pairs, env);
-
-	AnnotationBinding newInstance = new AnnotationBinding(type, pairs);
-	newInstance.setMethodBindings();
-	return newInstance;
-}
-
 
 public AnnotationBinding(ReferenceBinding type, ElementValuePair[] pairs) {
 	this.type = type;
@@ -164,9 +159,8 @@ public ElementValuePair[] getElementValuePairs() {
 	return this.pairs;
 }
 
-protected void setMethodBindings() {
+private AnnotationBinding setMethodBindings() {
 	// set the method bindings of each element value pair
-	if (this.type == null) return;
 	for (int i = this.pairs.length; --i >= 0;) {
 		ElementValuePair pair = this.pairs[i];
 		MethodBinding[] methods = this.type.getMethods(pair.getName());
@@ -174,5 +168,6 @@ protected void setMethodBindings() {
 		if (methods != null && methods.length == 1)
 			pair.setMethodBinding(methods[0]);
 	}
+	return this;
 }
 }
