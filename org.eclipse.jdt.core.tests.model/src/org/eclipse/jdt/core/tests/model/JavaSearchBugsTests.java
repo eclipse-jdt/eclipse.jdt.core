@@ -5680,6 +5680,41 @@ public void testBug110422b() throws CoreException {
 }
 
 /**
+ * Bug 113671: [search] AIOOBE in SearchEngine#searchAllTypeNames
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113671"
+ */
+public void testBug113671() throws CoreException {
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+	   "java.lang".toCharArray(),
+		SearchPattern.R_EXACT_MATCH,
+		CharOperation.NO_CHAR,
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		getJavaSearchScopeBugs(),
+		requestor,
+		WAIT_UNTIL_READY_TO_SEARCH,
+		null
+   );
+	assertSearchResults(
+		"Unexpected all type names",
+		"java.lang.CharSequence\n" + 
+		"java.lang.Class\n" + 
+		"java.lang.CloneNotSupportedException\n" + 
+		"java.lang.Comparable\n" + 
+		"java.lang.Enum\n" + 
+		"java.lang.Error\n" + 
+		"java.lang.Exception\n" + 
+		"java.lang.IllegalMonitorStateException\n" + 
+		"java.lang.InterruptedException\n" + 
+		"java.lang.Object\n" + 
+		"java.lang.RuntimeException\n" + 
+		"java.lang.String\n" + 
+		"java.lang.Throwable",
+		requestor);
+}
+
+/**
  * @test Bug 114539: [search] Internal error when refactoring code with errors
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114539"
  */
@@ -6794,5 +6829,39 @@ public void testBug148215_Fields() throws CoreException {
 	finally {
 		removeLibraryEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/b148215.jar"));
 	}
+}
+
+/**
+ * Bug 156340: [search] searchAllTypeNames return nothing for empty prefix
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156340"
+ */
+public void testBug156340() throws CoreException {
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	IPackageFragment fragment = getPackageFragment("JavaSearchBugs", getExternalJCLPathString(), "java.lang");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { fragment });
+	new SearchEngine().searchAllTypeNames(
+	   null,
+		SearchPattern.R_EXACT_MATCH,
+		CharOperation.NO_CHAR,
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		scope,
+		requestor,
+		WAIT_UNTIL_READY_TO_SEARCH,
+		null
+   );
+	assertSearchResults(
+		"Unexpected all type names",
+		"java.lang.Class\n" + 
+		"java.lang.CloneNotSupportedException\n" + 
+		"java.lang.Error\n" + 
+		"java.lang.Exception\n" + 
+		"java.lang.IllegalMonitorStateException\n" + 
+		"java.lang.InterruptedException\n" + 
+		"java.lang.Object\n" + 
+		"java.lang.RuntimeException\n" + 
+		"java.lang.String\n" + 
+		"java.lang.Throwable",
+		requestor);
 }
 }
