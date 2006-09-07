@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResult
  * Tests the Java search engine accross multiple projects.
  */
 public class JavaSearchMultipleProjectsTests extends ModifyingResourceTests implements IJavaSearchConstants {
+	private final static int UI_DECLARATIONS = DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE;
 public JavaSearchMultipleProjectsTests(String name) {
 	super(name);
 }
@@ -658,6 +659,134 @@ public void testTypeDeclarationInJar() throws CoreException {
 		assertSearchResults(
 			"Unexpected result in scope of P2",
 			getExternalJCLPathString() + " [in P2] java.lang.Object", 
+			resultCollector);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+/**
+ * Bug 151189: [search] Declaration search does not find all matches
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=151189"
+ */
+public void testBug151189_Workspace() throws CoreException {
+	try {
+		// setup project P1
+		/*IJavaProject p1 = */createJavaProject("P1");
+		createFolder("/P1/pack");
+		createFile(
+			"/P1/pack/Declaration.java",
+			"package pack;\n" + 
+			"public class Declaration implements Interface {\n" + 
+			"	public void doOperation(int val) {}\n" + 
+			"}\n"
+		);
+		createFile(
+			"/P1/pack/Interface.java",
+			"package pack;\n" + 
+			"public interface Interface {\n" + 
+			"	void doOperation(int val);\n" + 
+			"}\n"
+		);
+
+		// setup project P2
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "");
+		createFolder("/P2/test");
+		createFile(
+			"/P2/test/Declaration_bis.java",
+			"package test;\n" + 
+			"import pack.Interface;\n" + 
+			"public class Declaration_bis implements Interface {\n" + 
+			"	public void doOperation(int val) {}\n" + 
+			"}\n"
+		);
+
+		// Get method
+		IMethod method = getCompilationUnit("/P2/test/Declaration_bis.java").getType("Declaration_bis").getMethod("doOperation", new String[] {"I"});
+
+		// search method declaration in workspace scope
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); //JavaSearchScope(new IJavaElement[] {p1, p2});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		search(
+			method, 
+			DECLARATIONS,
+			scope, 
+			resultCollector);
+		assertSearchResults(
+			"Unexpected declarations of method test.Declaration_bis.doOperation(int)",
+			"test/Declaration_bis.java [in P2] void test.Declaration_bis.doOperation(int) [doOperation]",
+			resultCollector);
+
+		// search method declaration in workspace scope with JDT-UI flags
+		resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		search(
+			method, 
+			UI_DECLARATIONS,
+			scope, 
+			resultCollector);
+		assertSearchResults(
+			"Unexpected declarations of method test.Declaration_bis.doOperation(int)",
+			"pack/Declaration.java [in P1] void pack.Declaration.doOperation(int) [doOperation]\n" + 
+			"pack/Interface.java [in P1] void pack.Interface.doOperation(int) [doOperation]\n" + 
+			"test/Declaration_bis.java [in P2] void test.Declaration_bis.doOperation(int) [doOperation]",
+			resultCollector);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+public void testBug151189_Project() throws CoreException {
+	try {
+		// setup project P1
+		createJavaProject("P1");
+		createFolder("/P1/pack");
+		createFile(
+			"/P1/pack/Declaration.java",
+			"package pack;\n" + 
+			"public class Declaration implements Interface {\n" + 
+			"	public void doOperation(int val) {}\n" + 
+			"}\n"
+		);
+		createFile(
+			"/P1/pack/Interface.java",
+			"package pack;\n" + 
+			"public interface Interface {\n" + 
+			"	void doOperation(int val);\n" + 
+			"}\n"
+		);
+
+		// setup project P2
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "");
+		createFolder("/P2/test");
+		createFile(
+			"/P2/test/Declaration_bis.java",
+			"package test;\n" + 
+			"import pack.Interface;\n" + 
+			"public class Declaration_bis implements Interface {\n" + 
+			"	public void doOperation(int val) {}\n" + 
+			"}\n"
+		);
+
+		// Get method
+		IMethod method = getCompilationUnit("/P2/test/Declaration_bis.java").getType("Declaration_bis").getMethod("doOperation", new String[] {"I"});
+
+		// search method declaration in project scope
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p2});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		search(
+			method, 
+			UI_DECLARATIONS,
+			scope, 
+			resultCollector);
+		assertSearchResults(
+			"Unexpected declarations of method test.Declaration_bis.doOperation(int)",
+			"pack/Declaration.java [in P1] void pack.Declaration.doOperation(int) [doOperation]\n" + 
+			"pack/Interface.java [in P1] void pack.Interface.doOperation(int) [doOperation]\n" + 
+			"test/Declaration_bis.java [in P2] void test.Declaration_bis.doOperation(int) [doOperation]",
 			resultCollector);
 	} finally {
 		deleteProject("P1");

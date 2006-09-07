@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
+import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 
 /**
  * Selects the indexes that correspond to projects in a given search scope
@@ -135,7 +136,7 @@ private void initializeIndexLocations() {
 			int projectIndex = 0;
 			SimpleSet jarsToCheck = new SimpleSet(length);
 			IClasspathEntry[] focusEntries = null;
-			if (this.pattern != null && MatchLocator.isPolymorphicSearch(this.pattern)) { // isPolymorphicSearch
+			if (this.pattern instanceof MethodPattern) { // should consider polymorphic search for method patterns
 				JavaProject focusProject = focus instanceof JarPackageFragmentRoot ? (JavaProject) focus.getParent() : (JavaProject) focus;
 				focusEntries = focusProject.getExpandedClasspath();
 			}

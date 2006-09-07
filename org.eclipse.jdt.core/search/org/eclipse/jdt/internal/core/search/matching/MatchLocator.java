@@ -332,10 +332,6 @@ public static IJavaElement getProjectOrJar(IJavaElement element) {
 	return element;
 }
 
-public static boolean isPolymorphicSearch(InternalSearchPattern pattern) {
-	return pattern.isPolymorphicSearch();
-}
-
 public static IJavaElement projectOrJarFocus(InternalSearchPattern pattern) {
 	return pattern == null || pattern.focus == null ? null : getProjectOrJar(pattern.focus);
 }

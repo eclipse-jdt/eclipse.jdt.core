@@ -19,10 +19,8 @@ import junit.framework.Test;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
-import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 /**
  * Tests the Java search engine where results are JavaElements and source positions.
@@ -3687,62 +3685,6 @@ public void testCamelCaseTypePattern09() throws CoreException {
 		"d8.AA\n" + 
 		"p6.AA\n" + 
 		"q1.AA",
-		requestor);
-}
-
-/**
- * Bug 113671: [search] AIOOBE in SearchEngine#searchAllTypeNames
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113671"
- */
-public void testBug113671a() throws CoreException {
-	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	new SearchEngine(this.workingCopies).searchAllTypeNames(
-		null,
-		CharOperation.NO_CHAR,
-		SearchPattern.R_CAMELCASE_MATCH,
-		TYPE,
-		getJavaSearchScope(),
-		requestor,
-		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-		null
-	);
-	assertSearchResults(
-		"Unexpected all type names",
-		"",
-		requestor);
-}
-public void testBug113671b() throws CoreException {
-	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	new SearchEngine(this.workingCopies).searchAllTypeNames(
-		CharOperation.NO_CHAR,
-		CharOperation.NO_CHAR,
-		SearchPattern.R_CAMELCASE_MATCH,
-		TYPE,
-		getJavaSearchScope(),
-		requestor,
-		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-		null
-	);
-	assertSearchResults(
-		"Unexpected all type names",
-		"",
-		requestor);
-}
-public void testBug113671c() throws CoreException {
-	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-	new SearchEngine(this.workingCopies).searchAllTypeNames(
-		IIndexConstants.ONE_STAR,
-		CharOperation.NO_CHAR,
-		SearchPattern.R_CAMELCASE_MATCH,
-		TYPE,
-		getJavaSearchScope(),
-		requestor,
-		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-		null
-	);
-	assertSearchResults(
-		"Unexpected all type names",
-		"",
 		requestor);
 }
 }
