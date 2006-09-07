@@ -268,6 +268,8 @@ boolean matchTypeDeclaration(TypeDeclarationPattern pattern, Object binaryInfo, 
 			return kind == TypeDeclaration.CLASS_DECL || kind == TypeDeclaration.INTERFACE_DECL;
 		case CLASS_AND_ENUM_SUFFIX:
 			return kind == TypeDeclaration.CLASS_DECL || kind == TypeDeclaration.ENUM_DECL;
+		case INTERFACE_AND_ANNOTATION_SUFFIX:
+			return kind == TypeDeclaration.INTERFACE_DECL || kind == TypeDeclaration.ANNOTATION_TYPE_DECL;
 		case TYPE_SUFFIX: // nothing
 	}
 	return true;

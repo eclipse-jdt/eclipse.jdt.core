@@ -19,10 +19,11 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
 
-public class JavaSearchPattern extends SearchPattern {
+public class JavaSearchPattern extends SearchPattern implements IIndexConstants {
 	
 	/*
 	 * Whether this pattern is case sensitive.
@@ -181,6 +182,69 @@ public class JavaSearchPattern extends SearchPattern {
 		return !hasSignatures() && hasTypeArguments();
 	}
 	
+	/**
+	 * Return whether two suffixes are compatible.
+	 * 
+	 * Note that obvious compatibility values as equals and {@link IIndexConstants#TYPE_SUFFIX}
+	 * has to be tested by caller to avoid unnecessary method call...
+	 * 
+	 * @param typeSuffix
+	 * @param patternSuffix
+	 * @return true if suffixes are compatible, false otherwise
+	 */
+	boolean matchDifferentTypeSuffixes(int typeSuffix, int patternSuffix) {
+		switch(typeSuffix) {
+			case CLASS_SUFFIX :
+				switch (patternSuffix) {
+					case CLASS_AND_INTERFACE_SUFFIX :
+					case CLASS_AND_ENUM_SUFFIX :
+						return true;
+				}
+				return false;
+
+			case INTERFACE_SUFFIX :
+				switch (patternSuffix) {
+					case CLASS_AND_INTERFACE_SUFFIX :
+					case INTERFACE_AND_ANNOTATION_SUFFIX:
+						return true;
+				}
+				return false;
+
+			case ENUM_SUFFIX :
+				return patternSuffix == CLASS_AND_ENUM_SUFFIX;
+
+			case ANNOTATION_TYPE_SUFFIX :
+				return patternSuffix == INTERFACE_AND_ANNOTATION_SUFFIX;
+
+			case CLASS_AND_INTERFACE_SUFFIX :
+				switch (patternSuffix) {
+					case CLASS_SUFFIX :
+					case INTERFACE_SUFFIX :
+						return true;
+				}
+				return false;
+
+			case CLASS_AND_ENUM_SUFFIX :
+				switch (patternSuffix) {
+					case CLASS_SUFFIX :
+					case ENUM_SUFFIX :
+						return true;
+				}
+				return false;
+
+			case INTERFACE_AND_ANNOTATION_SUFFIX :
+				switch (patternSuffix) {
+					case INTERFACE_SUFFIX :
+					case ANNOTATION_TYPE_SUFFIX :
+						return true;
+				}
+				return false;
+		}
+		
+		// Default behavior is to match suffixes
+		return true;
+	}
+
 	protected StringBuffer print(StringBuffer output) {
 		output.append(", "); //$NON-NLS-1$
 		if (hasTypeArguments() && hasSignatures()) {

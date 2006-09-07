@@ -16,9 +16,8 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.index.*;
-import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class TypeDeclarationPattern extends JavaSearchPattern implements IIndexConstants {
+public class TypeDeclarationPattern extends JavaSearchPattern {
 
 public char[] simpleName;
 public char[] pkg;
@@ -228,60 +227,15 @@ public char[][] getIndexCategories() {
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	TypeDeclarationPattern pattern = (TypeDeclarationPattern) decodedPattern;
-	switch(this.typeSuffix) {
-		case CLASS_SUFFIX :
-			switch (pattern.typeSuffix) {
-				case CLASS_SUFFIX :
-				case CLASS_AND_INTERFACE_SUFFIX :
-				case CLASS_AND_ENUM_SUFFIX :
-					break;
-				default:
-					return false;
-			}
-			break;
-		case INTERFACE_SUFFIX :
-			switch (pattern.typeSuffix) {
-				case INTERFACE_SUFFIX :
-				case CLASS_AND_INTERFACE_SUFFIX :
-					break;
-				default:
-					return false;
-			}
-			break;
-		case ENUM_SUFFIX :
-			switch (pattern.typeSuffix) {
-				case ENUM_SUFFIX :
-				case CLASS_AND_ENUM_SUFFIX :
-					break;
-				default:
-					return false;
-			}
-			break;
-		case ANNOTATION_TYPE_SUFFIX :
-			if (this.typeSuffix != pattern.typeSuffix) return false;
-			break;
-		case CLASS_AND_INTERFACE_SUFFIX :
-			switch (pattern.typeSuffix) {
-				case CLASS_SUFFIX :
-				case INTERFACE_SUFFIX :
-				case CLASS_AND_INTERFACE_SUFFIX :
-					break;
-				default:
-					return false;
-			}
-			break;
-		case CLASS_AND_ENUM_SUFFIX :
-			switch (pattern.typeSuffix) {
-				case CLASS_SUFFIX :
-				case ENUM_SUFFIX :
-				case CLASS_AND_ENUM_SUFFIX :
-					break;
-				default:
-					return false;
-			}
-			break;
+	
+	// check type suffix
+	if (this.typeSuffix != pattern.typeSuffix && typeSuffix != TYPE_SUFFIX) {
+		if (!matchDifferentTypeSuffixes(this.typeSuffix, pattern.typeSuffix)) {
+			return false;
+		}
 	}
 
+	// check name
 	if (!matchesName(this.simpleName, pattern.simpleName))
 		return false;
 
@@ -331,6 +285,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 						case ANNOTATION_TYPE_SUFFIX :
 						case CLASS_AND_INTERFACE_SUFFIX :
 						case CLASS_AND_ENUM_SUFFIX :
+						case INTERFACE_AND_ANNOTATION_SUFFIX :
 							// null key already returns all types
 							// key = new char[] {ONE_STAR[0],  SEPARATOR, ONE_STAR[0]};
 							break;
@@ -364,6 +319,9 @@ protected StringBuffer print(StringBuffer output) {
 			break;
 		case INTERFACE_SUFFIX :
 			output.append("InterfaceDeclarationPattern: pkg<"); //$NON-NLS-1$
+			break;
+		case INTERFACE_AND_ANNOTATION_SUFFIX:
+			output.append("InterfaceAndAnnotationDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case ENUM_SUFFIX :
 			output.append("EnumDeclarationPattern: pkg<"); //$NON-NLS-1$

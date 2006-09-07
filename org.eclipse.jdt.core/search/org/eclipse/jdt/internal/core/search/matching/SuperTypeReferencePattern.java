@@ -14,10 +14,9 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.index.*;
 
-public class SuperTypeReferencePattern extends JavaSearchPattern implements IIndexConstants {
+public class SuperTypeReferencePattern extends JavaSearchPattern {
 
 public char[] superQualification;
 public char[] superSimpleName;
@@ -165,7 +164,7 @@ public SuperTypeReferencePattern(
 
 	this(superQualification, superSimpleName, superRefKind, matchRule);
 	this.typeSuffix = typeSuffix;
-	((InternalSearchPattern)this).mustResolve = superQualification != null || typeSuffix != IIndexConstants.TYPE_SUFFIX;
+	((InternalSearchPattern)this).mustResolve = superQualification != null || typeSuffix != TYPE_SUFFIX;
 }
 SuperTypeReferencePattern(int matchRule) {
 	super(SUPER_REF_PATTERN, matchRule);
@@ -231,10 +230,10 @@ public char[][] getIndexCategories() {
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	SuperTypeReferencePattern pattern = (SuperTypeReferencePattern) decodedPattern;
-	if (this.superRefKind == ONLY_SUPER_CLASSES && pattern.enclosingTypeName != IIndexConstants.ONE_ZERO/*not an anonymous*/) 
+	if (this.superRefKind == ONLY_SUPER_CLASSES && pattern.enclosingTypeName != ONE_ZERO/*not an anonymous*/) 
 		// consider enumerations as classes, reject interfaces and annotations
-		if (pattern.superClassOrInterface == IIndexConstants.INTERFACE_SUFFIX 
-			|| pattern.superClassOrInterface == IIndexConstants.ANNOTATION_TYPE_SUFFIX) 
+		if (pattern.superClassOrInterface == INTERFACE_SUFFIX 
+			|| pattern.superClassOrInterface == ANNOTATION_TYPE_SUFFIX) 
 			return false;
 
 	if (pattern.superQualification != null)

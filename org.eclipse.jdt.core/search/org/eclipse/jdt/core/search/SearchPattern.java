@@ -1088,6 +1088,8 @@ public static SearchPattern createPattern(String stringPattern, int searchFor, i
 			return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.CLASS_AND_ENUM_SUFFIX);
 		case IJavaSearchConstants.INTERFACE:
 			return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.INTERFACE_SUFFIX);
+		case IJavaSearchConstants.INTERFACE_AND_ANNOTATION:
+			return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.INTERFACE_AND_ANNOTATION_SUFFIX);
 		case IJavaSearchConstants.ENUM:
 			return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.ENUM_SUFFIX);
 		case IJavaSearchConstants.ANNOTATION_TYPE:

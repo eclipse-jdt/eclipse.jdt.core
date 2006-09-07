@@ -6864,4 +6864,36 @@ public void testBug156340() throws CoreException {
 		"java.lang.Throwable",
 		requestor);
 }
+
+/**
+ * Bug 156177: [1.5][search] interfaces and annotations could be found with only one requets of searchAllTypeName
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156177"
+ */
+public void testBug156177() throws CoreException {
+	resultCollector.showRule = true;
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b156177/Test.java",
+		"package b156177;\n" + 
+		"interface B156177_I {}\n" + 
+		"enum B156177_E {}\n" + 
+		"@interface B156177_A {}\n" + 
+		"public class B156177 {}\n"
+	);
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine(this.workingCopies).searchAllTypeNames(
+		null,
+		null,
+		SearchPattern.R_PATTERN_MATCH, // case insensitive
+		INTERFACE_AND_ANNOTATION,
+		getJavaSearchWorkingCopiesScope(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null
+	);
+	assertSearchResults(
+		"Unexpected all type names",
+		"b156177.B156177_A\n" + 
+		"b156177.B156177_I",
+		requestor);
+}
 }

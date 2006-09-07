@@ -96,6 +96,13 @@ public interface IJavaSearchConstants {
 	 * @since 3.1
 	 */
 	int CLASS_AND_INTERFACE= 10;
+	
+	/**
+	 * The searched element is an interface or annotation type.
+	 * More selective than using {@link #TYPE}.
+	 * @since 3.3
+	 */
+	int INTERFACE_AND_ANNOTATION= 11;
 
 	/* Nature of match */
 

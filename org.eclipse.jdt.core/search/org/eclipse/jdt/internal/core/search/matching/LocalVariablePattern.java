@@ -21,10 +21,9 @@ import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchScope;
-import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
-public class LocalVariablePattern extends VariablePattern implements IIndexConstants {
+public class LocalVariablePattern extends VariablePattern {
 	
 LocalVariable localVariable;
 

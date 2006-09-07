@@ -16,10 +16,9 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.index.*;
-import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
-public class MethodPattern extends JavaSearchPattern implements IIndexConstants {
+public class MethodPattern extends JavaSearchPattern {
 
 protected boolean findDeclarations;
 protected boolean findReferences;

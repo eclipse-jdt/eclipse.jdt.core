@@ -303,6 +303,8 @@ public class BasicSearchEngine {
 				return ("CLASS_AND_ENUM"); //$NON-NLS-1$
 			case IJavaSearchConstants.CLASS_AND_INTERFACE:
 				return ("CLASS_AND_INTERFACE"); //$NON-NLS-1$
+			case IJavaSearchConstants.INTERFACE_AND_ANNOTATION:
+				return ("INTERFACE_AND_ANNOTATION"); //$NON-NLS-1$
 		}
 		return "UNKNOWN"; //$NON-NLS-1$
 	}
@@ -411,6 +413,8 @@ public class BasicSearchEngine {
 				return (modifiers & (Flags.AccAnnotation | Flags.AccInterface)) == 0;
 			case IIndexConstants.INTERFACE_SUFFIX :
 				return (modifiers & Flags.AccInterface) != 0;
+			case IIndexConstants.INTERFACE_AND_ANNOTATION_SUFFIX:
+				return (modifiers & (Flags.AccInterface | Flags.AccAnnotation)) != 0;
 			case IIndexConstants.ENUM_SUFFIX :
 				return (modifiers & Flags.AccEnum) != 0;
 			case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
@@ -432,6 +436,9 @@ public class BasicSearchEngine {
 				break;
 			case IIndexConstants.INTERFACE_SUFFIX :
 				if (typeKind != TypeDeclaration.INTERFACE_DECL) return false;
+				break;
+			case IIndexConstants.INTERFACE_AND_ANNOTATION_SUFFIX:
+				if (typeKind != TypeDeclaration.INTERFACE_DECL && typeKind != TypeDeclaration.ANNOTATION_TYPE_DECL) return false;
 				break;
 			case IIndexConstants.ENUM_SUFFIX :
 				if (typeKind != TypeDeclaration.ENUM_DECL) return false;
@@ -657,6 +664,9 @@ public class BasicSearchEngine {
 				break;
 			case IJavaSearchConstants.INTERFACE :
 				typeSuffix = IIndexConstants.INTERFACE_SUFFIX;
+				break;
+			case IJavaSearchConstants.INTERFACE_AND_ANNOTATION :
+				typeSuffix = IIndexConstants.INTERFACE_AND_ANNOTATION_SUFFIX;
 				break;
 			case IJavaSearchConstants.ENUM :
 				typeSuffix = IIndexConstants.ENUM_SUFFIX;
@@ -889,6 +899,9 @@ public class BasicSearchEngine {
 				break;
 			case IJavaSearchConstants.INTERFACE :
 				typeSuffix = IIndexConstants.INTERFACE_SUFFIX;
+				break;
+			case IJavaSearchConstants.INTERFACE_AND_ANNOTATION :
+				typeSuffix = IIndexConstants.INTERFACE_AND_ANNOTATION_SUFFIX;
 				break;
 			case IJavaSearchConstants.ENUM :
 				typeSuffix = IIndexConstants.ENUM_SUFFIX;

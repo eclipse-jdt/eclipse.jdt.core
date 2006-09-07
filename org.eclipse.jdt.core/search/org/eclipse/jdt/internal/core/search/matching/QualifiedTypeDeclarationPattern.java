@@ -82,60 +82,15 @@ public SearchPattern getBlankPattern() {
 }
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	QualifiedTypeDeclarationPattern pattern = (QualifiedTypeDeclarationPattern) decodedPattern;
-	switch(this.typeSuffix) {
-		case CLASS_SUFFIX :
-			switch (pattern.typeSuffix) {
-				case CLASS_SUFFIX :
-				case CLASS_AND_INTERFACE_SUFFIX :
-				case CLASS_AND_ENUM_SUFFIX :
-					break;
-				default:
-					return false;
-			}
-			break;
-		case INTERFACE_SUFFIX :
-			switch (pattern.typeSuffix) {
-				case INTERFACE_SUFFIX :
-				case CLASS_AND_INTERFACE_SUFFIX :
-					break;
-				default:
-					return false;
-			}
-			break;
-		case ENUM_SUFFIX :
-			switch (pattern.typeSuffix) {
-				case ENUM_SUFFIX :
-				case CLASS_AND_ENUM_SUFFIX :
-					break;
-				default:
-					return false;
-			}
-			break;
-		case ANNOTATION_TYPE_SUFFIX :
-			if (this.typeSuffix != pattern.typeSuffix) return false;
-			break;
-		case CLASS_AND_INTERFACE_SUFFIX :
-			switch (pattern.typeSuffix) {
-				case CLASS_SUFFIX :
-				case INTERFACE_SUFFIX :
-				case CLASS_AND_INTERFACE_SUFFIX :
-					break;
-				default:
-					return false;
-			}
-			break;
-		case CLASS_AND_ENUM_SUFFIX :
-			switch (pattern.typeSuffix) {
-				case CLASS_SUFFIX :
-				case ENUM_SUFFIX :
-				case CLASS_AND_ENUM_SUFFIX :
-					break;
-				default:
-					return false;
-			}
-			break;
+	
+	// check type suffix
+	if (this.typeSuffix != pattern.typeSuffix && typeSuffix != TYPE_SUFFIX) {
+		if (!matchDifferentTypeSuffixes(this.typeSuffix, pattern.typeSuffix)) {
+			return false;
+		}
 	}
 
+	// check name
 	return matchesName(this.simpleName, pattern.simpleName) &&
 		(this.qualification == null || this.packagePattern == null || this.packagePattern.matchesName(this.qualification, pattern.qualification));
 }
@@ -152,6 +107,9 @@ protected StringBuffer print(StringBuffer output) {
 			break;
 		case INTERFACE_SUFFIX :
 			output.append("InterfaceDeclarationPattern: qualification<"); //$NON-NLS-1$
+			break;
+		case INTERFACE_AND_ANNOTATION_SUFFIX:
+			output.append("InterfaceAndAnnotationDeclarationPattern: qualification<"); //$NON-NLS-1$
 			break;
 		case ENUM_SUFFIX :
 			output.append("EnumDeclarationPattern: qualification<"); //$NON-NLS-1$

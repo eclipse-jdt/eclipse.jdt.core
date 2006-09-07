@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchScope;
-import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -35,7 +34,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  * @since 3.1
  */
-public class TypeParameterPattern extends JavaSearchPattern implements IIndexConstants {
+public class TypeParameterPattern extends JavaSearchPattern {
 
 	protected boolean findDeclarations;
 	protected boolean findReferences;

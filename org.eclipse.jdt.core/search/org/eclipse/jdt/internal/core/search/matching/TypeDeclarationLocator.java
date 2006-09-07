@@ -63,6 +63,9 @@ public int resolveLevel(Binding binding) {
 		case INTERFACE_SUFFIX:
 			if (!type.isInterface() || type.isAnnotationType()) return IMPOSSIBLE_MATCH;
 			break;
+		case INTERFACE_AND_ANNOTATION_SUFFIX:
+			if (!(type.isInterface() || type.isAnnotationType())) return IMPOSSIBLE_MATCH;
+			break;
 		case ENUM_SUFFIX:
 			if (!type.isEnum()) return IMPOSSIBLE_MATCH;
 			break;

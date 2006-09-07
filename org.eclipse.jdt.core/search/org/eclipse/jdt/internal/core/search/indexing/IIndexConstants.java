@@ -35,6 +35,7 @@ public interface IIndexConstants {
 	char TYPE_SUFFIX = 0;
 	char CLASS_AND_ENUM_SUFFIX = IJavaSearchConstants.CLASS_AND_ENUM;
 	char CLASS_AND_INTERFACE_SUFFIX = IJavaSearchConstants.CLASS_AND_INTERFACE;
+	char INTERFACE_AND_ANNOTATION_SUFFIX = IJavaSearchConstants.INTERFACE_AND_ANNOTATION;
 	char SEPARATOR= '/';
 	char SECONDARY_SUFFIX = 'S';
 
