@@ -642,17 +642,6 @@ public class BasicSearchEngine {
 			Util.verbose("	- scope: "+scope); //$NON-NLS-1$
 		}
 
-		// Return on invalid combination of package and type names
-		if (packageName == null || packageName.length == 0) {
-			if (typeName != null && typeName.length == 0) {
-				// TODO (frederic) Throw a JME instead?
-				if (VERBOSE) {
-					Util.verbose("	=> return no result due to invalid empty values for package and type names!"); //$NON-NLS-1$
-				}
-				return;
-			}
-		}
-
 		// Create pattern
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		final char typeSuffix;
