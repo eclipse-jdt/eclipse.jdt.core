@@ -780,6 +780,178 @@ public class MultiProjectTests extends BuilderTests {
 		}
 	}
 	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=114349
+// this one fails; compare with testCycle7 (only one change in Object source),
+// which passes
+public void _testCycle6() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Hashtable newOptions = JavaCore.getOptions();
+	newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
+	
+	JavaCore.setOptions(newOptions);
+	
+	//----------------------------
+	//         Project1
+	//----------------------------
+	IPath p1 = env.addProject("P1");
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p1, "");
+	IPath root1 = env.addPackageFragmentRoot(p1, "src");
+	env.setOutputFolder(p1, "bin");
+	
+	env.addClass(root1, "java/lang", "Object",
+		"package java.lang;\n" +
+		"public class Object {\n" +
+		"  Class getClass() { return null; }\n" +
+		"  String toString() { return \"\"; }\n" +	// the line that changes
+		"}\n"
+		);
+		
+	//----------------------------
+	//         Project2
+	//----------------------------
+	IPath p2 = env.addProject("P2");
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p2, "");
+	IPath root2 = env.addPackageFragmentRoot(p2, "src");
+	env.setOutputFolder(p2, "bin");
+	
+	env.addClass(root2, "java/lang", "Class",
+		"package java.lang;\n" +
+		"public class Class {\n" +
+		"  String getName() { return \"\"; };\n" +
+		"}\n"
+		);
+
+	//----------------------------
+	//         Project3
+	//----------------------------
+	IPath p3 = env.addProject("P3");
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p3, "");
+	IPath root3 = env.addPackageFragmentRoot(p3, "src");
+	env.setOutputFolder(p3, "bin");
+	
+	env.addClass(root3, "java/lang", "String",
+		"package java.lang;\n" +
+		"public class String {\n" +
+		"}\n"
+		);
+
+	// Dependencies
+	IPath[] accessiblePaths = new IPath[] {new Path("java/lang/*")};
+	IPath[] forbiddenPaths = new IPath[] {new Path("**/*")};
+	env.addRequiredProject(p1, p2, accessiblePaths, forbiddenPaths, false);
+	env.addRequiredProject(p1, p3, accessiblePaths, forbiddenPaths, false);
+	env.addRequiredProject(p2, p1, accessiblePaths, forbiddenPaths, false);
+	env.addRequiredProject(p2, p3, accessiblePaths, forbiddenPaths, false);
+	env.addRequiredProject(p3, p1, accessiblePaths, forbiddenPaths, false);
+	env.addRequiredProject(p3, p2, accessiblePaths, forbiddenPaths, false);
+
+	try {
+		fullBuild();
+
+		expectingOnlySpecificProblemsFor(p1,new Problem[]{
+			new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH)//$NON-NLS-1$ //$NON-NLS-2$
+		});
+		expectingOnlySpecificProblemsFor(p2,new Problem[]{
+			new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH)//$NON-NLS-1$ //$NON-NLS-2$
+		});
+		expectingOnlySpecificProblemsFor(p3,new Problem[]{
+			new Problem("p3", "A cycle was detected in the build path of project: P3", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH)//$NON-NLS-1$ //$NON-NLS-2$
+		});
+		
+	} finally {
+		JavaCore.setOptions(options);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=114349
+// this one passes; compare with testCycle6 (only one change in Object source),
+// which fails
+public void testCycle7() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Hashtable newOptions = JavaCore.getOptions();
+	newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
+	
+	JavaCore.setOptions(newOptions);
+	
+	//----------------------------
+	//         Project1
+	//----------------------------
+	IPath p1 = env.addProject("P1");
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p1, "");
+	IPath root1 = env.addPackageFragmentRoot(p1, "src");
+	env.setOutputFolder(p1, "bin");
+	
+	env.addClass(root1, "java/lang", "Object",
+		"package java.lang;\n" +
+		"public class Object {\n" +
+		"  Class getClass() { return null; }\n" +
+		"  String toString() { return null; }\n" +	// the line that changes
+		"}\n"
+		);
+		
+	//----------------------------
+	//         Project2
+	//----------------------------
+	IPath p2 = env.addProject("P2");
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p2, "");
+	IPath root2 = env.addPackageFragmentRoot(p2, "src");
+	env.setOutputFolder(p2, "bin");
+	
+	env.addClass(root2, "java/lang", "Class",
+		"package java.lang;\n" +
+		"public class Class {\n" +
+		"  String getName() { return \"\"; };\n" +
+		"}\n"
+		);
+
+	//----------------------------
+	//         Project3
+	//----------------------------
+	IPath p3 = env.addProject("P3");
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p3, "");
+	IPath root3 = env.addPackageFragmentRoot(p3, "src");
+	env.setOutputFolder(p3, "bin");
+	
+	env.addClass(root3, "java/lang", "String",
+		"package java.lang;\n" +
+		"public class String {\n" +
+		"}\n"
+		);
+
+	// Dependencies
+	IPath[] accessiblePaths = new IPath[] {new Path("java/lang/*")};
+	IPath[] forbiddenPaths = new IPath[] {new Path("**/*")};
+	env.addRequiredProject(p1, p2, accessiblePaths, forbiddenPaths, false);
+	env.addRequiredProject(p1, p3, accessiblePaths, forbiddenPaths, false);
+	env.addRequiredProject(p2, p1, accessiblePaths, forbiddenPaths, false);
+	env.addRequiredProject(p2, p3, accessiblePaths, forbiddenPaths, false);
+	env.addRequiredProject(p3, p1, accessiblePaths, forbiddenPaths, false);
+	env.addRequiredProject(p3, p2, accessiblePaths, forbiddenPaths, false);
+
+	try {
+		fullBuild();
+
+		expectingOnlySpecificProblemsFor(p1,new Problem[]{
+			new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH)//$NON-NLS-1$ //$NON-NLS-2$
+		});
+		expectingOnlySpecificProblemsFor(p2,new Problem[]{
+			new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH)//$NON-NLS-1$ //$NON-NLS-2$
+		});
+		expectingOnlySpecificProblemsFor(p3,new Problem[]{
+			new Problem("p3", "A cycle was detected in the build path of project: P3", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH)//$NON-NLS-1$ //$NON-NLS-2$
+		});
+		
+	} finally {
+		JavaCore.setOptions(options);
+	}
+}
+	
 	/*
 	 * Full buid case
 	 */
