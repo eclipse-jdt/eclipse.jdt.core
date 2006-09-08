@@ -4875,4 +4875,105 @@ public void test137() {
      },
 	"0");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156591
+public void test138() {
+ this.runNegativeTest(
+     new String[] {
+    	    "X.java",
+ 			"public enum X {\n" + 
+			"	PLUS {\n" + 
+			"		double eval(double x, double y) {\n" + 
+			"			return x + y;\n" + 
+			"		}\n" + 
+			"	},\n" + 
+			"	MINUS {\n" + 
+			"		@Override\n" +
+			"		abstract double eval(double x, double y);\n" + 
+			"	};\n" + 
+			"\n" + 
+			"	abstract double eval(double x, double y);\n" + 
+			"}\n" + 
+			"\n", // =================
+     },
+	"----------\n" + 
+	"1. WARNING in X.java (at line 3)\n" + 
+	"	double eval(double x, double y) {\n" + 
+	"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"The method eval(double, double) of type new X(){} should be tagged with @Override since it actually overrides a superclass method\n" + 
+	"----------\n" + 
+	"2. ERROR in X.java (at line 9)\n" + 
+	"	abstract double eval(double x, double y);\n" + 
+	"	                ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"The abstract method eval in type new X(){} can only be defined by an abstract class\n" + 
+	"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156591 - variation
+public void test139() {
+ this.runNegativeTest(
+     new String[] {
+    	    "X.java",
+ 			"public enum X {\n" + 
+			"	PLUS {\n" + 
+			"		double eval(double x, double y) {\n" + 
+			"			return x + y;\n" + 
+			"		}\n" + 
+			"	},\n" + 
+			"	MINUS {\n" + 
+			"		abstract double eval2(double x, double y);\n" + 
+			"	};\n" + 
+			"\n" + 
+			"	abstract double eval(double x, double y);\n" + 
+			"}\n" + 
+			"\n", // =================
+     },
+	"----------\n" + 
+	"1. WARNING in X.java (at line 3)\n" + 
+	"	double eval(double x, double y) {\n" + 
+	"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"The method eval(double, double) of type new X(){} should be tagged with @Override since it actually overrides a superclass method\n" + 
+	"----------\n" + 
+	"2. ERROR in X.java (at line 7)\n" + 
+	"	MINUS {\n" + 
+	"	      ^\n" + 
+	"The type new X(){} must implement the inherited abstract method X.eval(double, double)\n" + 
+	"----------\n" + 
+	"3. ERROR in X.java (at line 8)\n" + 
+	"	abstract double eval2(double x, double y);\n" + 
+	"	                ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"The abstract method eval2 in type new X(){} can only be defined by an abstract class\n" + 
+	"----------\n");
+}
+//check final modifier
+public void test140() {
+ this.runConformTest(
+     new String[] {
+    	        "X.java",
+    			"public enum X {\n" + 
+    			"	PLUS {/*ANONYMOUS*/}, MINUS;\n" + 
+    			"	void bar(X x) {\n" + 
+    			"		Runnable r = (Runnable)x;\n" + 
+    			"	}\n" + 
+    			"}", // =================
+     },
+	"");
+}
+//check final modifier
+public void test141() {
+ this.runNegativeTest(
+     new String[] {
+    	        "X.java",
+    			"public enum X {\n" + 
+    			"	PLUS, MINUS;\n" + 
+    			"	void bar(X x) {\n" + 
+    			"		Runnable r = (Runnable)x;\n" + 
+    			"	}\n" + 
+    			"}", // =================
+     },
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Runnable r = (Runnable)x;\n" + 
+		"	             ^^^^^^^^^^^\n" + 
+		"Cannot cast from X to Runnable\n" + 
+		"----------\n");
+}
 }
