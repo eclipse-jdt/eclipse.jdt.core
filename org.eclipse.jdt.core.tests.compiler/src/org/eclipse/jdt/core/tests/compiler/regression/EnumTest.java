@@ -4848,4 +4848,31 @@ public void test136() {
      },
 	"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156540
+public void test137() {
+ this.runConformTest(
+     new String[] {
+        "X.java",
+        "public class X {\n" + 
+        "\n" + 
+        "    interface Interface {\n" + 
+        "        public int value();\n" + 
+        "    }\n" + 
+        "\n" + 
+        "    public enum MyEnum implements Interface {\n" + 
+        "        ;\n" + 
+        "\n" + 
+        "        MyEnum(int value) { this.value = value; }        \n" + 
+        "        public int value() { return this.value; }\n" + 
+        "\n" + 
+        "        private int value;\n" + 
+        "    }\n" + 
+        "\n" + 
+        "    public static void main(String[] args) {\n" + 
+        "        System.out.println(MyEnum.values().length);\n" + 
+        "    }\n" + 
+        "}", // =================,
+     },
+	"0");
+}
 }

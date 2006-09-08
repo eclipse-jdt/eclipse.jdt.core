@@ -258,7 +258,7 @@ public class ClassScope extends Scope {
 		if (referenceContext.methods == null && !isEnum) {
 			referenceContext.binding.setMethods(Binding.NO_METHODS);
 			return;
-		} 
+		}
 
 		// iterate the method declarations to create the bindings
 		AbstractMethodDeclaration[] methods = referenceContext.methods;
@@ -475,15 +475,22 @@ public class ClassScope extends Scope {
 					for (int i = 0; i < methodsLength && !definesAbstractMethod; i++)
 						definesAbstractMethod = methods[i].isAbstract();
 					if (!definesAbstractMethod) break checkAbstractEnum; // all methods have bodies
+					boolean needAbstractBit = false;
 					for (int i = 0; i < fieldsLength; i++) {
 						FieldDeclaration fieldDecl = fields[i];
-						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
-							if (!(fieldDecl.initialization instanceof QualifiedAllocationExpression))
+						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+							if (!(fieldDecl.initialization instanceof QualifiedAllocationExpression)) {
 								break checkAbstractEnum;
+							} else {
+								needAbstractBit = true;
+							}
+						}
 					}
 					// tag this enum as abstract since an abstract method must be implemented AND all enum constants define an anonymous body
 					// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method					
-					modifiers |= ClassFileConstants.AccAbstract;
+					if (needAbstractBit) {
+						modifiers |= ClassFileConstants.AccAbstract;
+					}
 				}
 			}
 			modifiers |= ClassFileConstants.AccFinal;
