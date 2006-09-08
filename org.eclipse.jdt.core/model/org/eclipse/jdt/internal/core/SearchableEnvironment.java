@@ -283,7 +283,7 @@ public class SearchableEnvironment
 				new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
 					qualification,
 					SearchPattern.R_EXACT_MATCH,
-					simpleName.length == 0 ? null : simpleName, //TODO(david) remove once bug 156340 will be fixed
+					simpleName,
 					matchRule, // not case sensitive
 					searchFor,
 					this.searchScope,

@@ -562,11 +562,6 @@ public final class CompletionEngine
 	}
 
 	private void proposeType(char[] packageName, char[] simpleTypeName, int modifiers, int accessibility, char[] typeName, char[] fullyQualifiedName, boolean isQualified) {
-		if(this.assistNodeIsInterface) {
-			//TODO(david) remove this code once bug 157177 will be fixed. 
-			if((modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation)) == 0) return;
-		}
-		
 		char[] completionName = fullyQualifiedName;
 		if(isQualified) {
 			if (packageName == null || packageName.length == 0)
@@ -5214,9 +5209,7 @@ public final class CompletionEngine
 				if(this.assistNodeIsClass) {
 					searchFor = IJavaSearchConstants.CLASS;
 				} else if(this.assistNodeIsInterface) {
-					//TODO(david) update this code once bug 157177 will be fixed. 
-					//searchFor = IJavaSearchConstants.INTERFACE;
-					searchFor = IJavaSearchConstants.TYPE;
+					searchFor = IJavaSearchConstants.INTERFACE_AND_ANNOTATION;
 				} else if(this.assistNodeIsEnum) {
 					searchFor = IJavaSearchConstants.ENUM;
 				} else if(this.assistNodeIsAnnotation) {
@@ -5332,9 +5325,7 @@ public final class CompletionEngine
 			if(this.assistNodeIsClass) {
 				searchFor = IJavaSearchConstants.CLASS;
 			} else if(this.assistNodeIsInterface) {
-				//TODO(david) update this code once bug 157177 will be fixed. 
-				//searchFor = IJavaSearchConstants.INTERFACE;
-				searchFor = IJavaSearchConstants.TYPE;
+				searchFor = IJavaSearchConstants.INTERFACE_AND_ANNOTATION;
 			} else if(this.assistNodeIsEnum) {
 				searchFor = IJavaSearchConstants.ENUM;
 			} else if(this.assistNodeIsAnnotation) {
