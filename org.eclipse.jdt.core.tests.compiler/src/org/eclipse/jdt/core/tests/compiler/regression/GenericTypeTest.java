@@ -32647,5 +32647,37 @@ public void test1029() {
 		"Type mismatch: cannot convert from List<Number&Comparable<?>> to List<Number>\n" + 
 		"----------\n");
 }
+public void test1030() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public class PointList<W> extends Object implements Iterable<W> {\n" + 
+			"		private List<W> theList = new ArrayList<W>();\n" + 
+			"\n" + 
+			"		public Iterator<W> iterator() {\n" + 
+			"			return theList.iterator();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private PointList<Waypoint> waypoints = new PointList<Waypoint>();\n" + 
+			"\n" + 
+			"	public void printWaypoints() {\n" + 
+			"		for (Waypoint waypoint : waypoints) { // ***** This line does not compile *****\n" + 
+			"			System.out.println(waypoint.toString());\n" + 
+			"		}\n" + 
+			"		for (Iterator<Waypoint> it = waypoints.iterator(); it.hasNext();) {\n" + 
+			"			Waypoint waypoint = it.next();\n" + 
+			"			System.out.println(waypoint.toString());\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Waypoint {}", // =================
+		},
+		"");
+}
 
 }
