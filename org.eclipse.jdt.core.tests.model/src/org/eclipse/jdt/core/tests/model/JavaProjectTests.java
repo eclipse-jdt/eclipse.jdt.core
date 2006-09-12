@@ -1272,4 +1272,30 @@ public void testUserLibrary() throws JavaModelException {
 		"</userlibrary>\n", 
 		libraryPreference);
 }
+
+/**
+ * @bug 148859: [model][delta] Package Explorer only shows default package after import
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=148859"
+ */
+public void testBug148859() throws CoreException {
+	try {
+		ResourcesPlugin.getWorkspace().run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					IJavaProject project = createJavaProject("P");
+					project.findType("X");
+					createFolder("/P/pack");
+				}
+			},
+			null);
+		IPackageFragmentRoot root = getPackageFragmentRoot("P", "");
+		assertElementsEqual(
+			"Unexpected children size in 'P' default source folder",
+			"<default> [in <project root> [in P]]\n" + 
+			"pack [in <project root> [in P]]",
+			root.getChildren());
+	} finally {
+		deleteProject("P");
+	}
+}
 }

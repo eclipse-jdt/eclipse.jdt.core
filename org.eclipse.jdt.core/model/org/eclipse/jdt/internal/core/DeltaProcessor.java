@@ -997,6 +997,17 @@ public class DeltaProcessor {
 					Openable movedFromElement = (Openable)element.getJavaModel().getJavaProject(delta.getMovedFromPath().lastSegment());
 					currentDelta().movedTo(element, movedFromElement);
 				} else {
+					// Force the project to be closed as it might have been opened 
+					// before the resource modification came in and it might have a new child
+					// For example, in an IWorkspaceRunnable:
+					// 1. create a Java project P (where P=src)
+					// 2. open project P
+					// 3. add folder f in P's pkg fragment root
+					// When the resource delta comes in, only the addition of P is notified, 
+					// but the pkg fragment root of project P is already opened, thus its children are not recomputed
+					// and it appears to contain only the default package.
+					close(element);
+
 					currentDelta().added(element);
 				}
 				this.state.updateRoots(element.getPath(), delta, this);
