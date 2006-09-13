@@ -857,4 +857,82 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			""
 		);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
+	// These cases are non ambiguous (the static type determines the
+	// appropriate method).
+	public void test018() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Object> {\n" + 
+			"  public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"    return new X<U>();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<V extends String> extends X<V> {\n" + 
+			"  public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"    return new Y<W>();\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) throws Exception {\n" + 
+			"    Y.make(String.class);\n" + 
+			"  }\n" + 
+			"  public static Class getClazz() {\n" + 
+			"    return String.class;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
+	// These cases are non ambiguous (the static type determines the
+	// appropriate method).
+	public void _test019() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Object> {\n" + 
+			"  public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"    return new X<U>();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<V extends String> extends X<V> {\n" + 
+			"  public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"    return new Y<W>();\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) throws Exception {\n" + 
+			"    Y.make(getClazz());\n" + 
+			"  }\n" + 
+			"  public static Class getClazz() {\n" + 
+			"    return String.class;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
+	// These cases are non ambiguous (the static type determines the
+	// appropriate method).
+	public void test020() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Object> {\n" + 
+			"  public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"    return new X<U>();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<V extends String> extends X<V> {\n" + 
+			"  public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"    return new Y<W>();\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) throws Exception {\n" + 
+			"    Y.make(getClazz().newInstance().getClass());\n" + 
+			"  }\n" + 
+			"  public static Class getClazz() {\n" + 
+			"    return String.class;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+	}
 }
