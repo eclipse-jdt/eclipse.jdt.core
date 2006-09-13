@@ -13,9 +13,11 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -76,7 +78,7 @@ public class MemberValuePair extends ASTNode {
 			ArrayInitializer initializer = (ArrayInitializer) this.value;
 			valueType = initializer.resolveTypeExpecting(scope, this.binding.returnType);
 		} else if (this.value instanceof ArrayAllocationExpression) {
-			scope.problemReporter().annotationValueMustBeArrayInitializer(this.value);
+			scope.problemReporter().annotationValueMustBeArrayInitializer(this.binding.declaringClass, this.name, this.value);
 			this.value.resolveType(scope);
 			valueType = null; // no need to pursue
 		} else {
@@ -127,12 +129,16 @@ public class MemberValuePair extends ASTNode {
 						if (expressions != null) {
 							for (int i =0, max = expressions.length; i < max; i++) {
 								if (expressions[i].constant == Constant.NotAConstant) {
-									scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, expressions[i]);
+									scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, expressions[i], false);
 								}
 							}
 						}
 					} else if (this.value.constant == Constant.NotAConstant) {
-						scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value);
+						if (valueType.isArrayType()) {
+							scope.problemReporter().annotationValueMustBeArrayInitializer(this.binding.declaringClass, this.name, this.value);
+						} else {
+							scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value, false);
+						}
 					}
 					break checkAnnotationMethodType;
 				case T_JavaLangClass :
@@ -141,8 +147,9 @@ public class MemberValuePair extends ASTNode {
 						final Expression[] expressions = initializer.expressions;
 						if (expressions != null) {
 							for (int i =0, max = expressions.length; i < max; i++) {
-								if (!(expressions[i] instanceof ClassLiteralAccess)) {
-									scope.problemReporter().annotationValueMustBeClassLiteral(this.binding.declaringClass, this.name, expressions[i]);
+								Expression currentExpression = expressions[i];
+								if (!(currentExpression instanceof ClassLiteralAccess)) {
+									scope.problemReporter().annotationValueMustBeClassLiteral(this.binding.declaringClass, this.name, currentExpression);
 								}
 							}
 						}
@@ -153,8 +160,40 @@ public class MemberValuePair extends ASTNode {
 			}
 			if (leafType.isEnum()) {
 				if (this.value instanceof NullLiteral) {
-					// TODO (olivier) change message for annotation value must be an *enum* constant
-					scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value);
+					scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value, true);
+				} else if (this.value instanceof ArrayInitializer) {
+					ArrayInitializer initializer = (ArrayInitializer) this.value;
+					final Expression[] expressions = initializer.expressions;
+					if (expressions != null) {
+						for (int i =0, max = expressions.length; i < max; i++) {
+							Expression currentExpression = expressions[i];
+							if (currentExpression instanceof NullLiteral) {
+								scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, currentExpression, true);
+							} else if (currentExpression instanceof NameReference) {
+								NameReference nameReference = (NameReference) currentExpression;
+								final Binding nameReferenceBinding = nameReference.binding;
+								if (nameReferenceBinding.kind() == Binding.FIELD) {
+									FieldBinding fieldBinding = (FieldBinding) nameReferenceBinding;
+									if (!fieldBinding.declaringClass.isEnum()) {
+										scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, currentExpression, true);
+									}
+								}
+							}
+						}
+					}
+				} else if (this.value instanceof NameReference) {
+					NameReference nameReference = (NameReference) this.value;
+					final Binding nameReferenceBinding = nameReference.binding;
+					if (nameReferenceBinding.kind() == Binding.FIELD) {
+						FieldBinding fieldBinding = (FieldBinding) nameReferenceBinding;
+						if (!fieldBinding.declaringClass.isEnum()) {
+							if (!fieldBinding.type.isArrayType()) {
+								scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, this.value, true);
+							} else {
+								scope.problemReporter().annotationValueMustBeArrayInitializer(this.binding.declaringClass, this.name, this.value);
+							}
+						}
+					}
 				}
 				break checkAnnotationMethodType;
 			}

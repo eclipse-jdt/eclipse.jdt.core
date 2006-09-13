@@ -75,6 +75,25 @@
  *     IBM Corporation - added the following constants
  *								   ParameterAssignment
  *								   FallthroughCase
+ *     IBM Corporation - added the following constants
+ *                                 UnusedLabel
+ *                                 UnnecessaryNLSTag
+ *                                 LocalVariableMayBeNull
+ *                                 EnumConstantsCannotBeSurroundedByParenthesis
+ *                                 JavadocMissingIdentifier
+ *                                 JavadocNonStaticTypeFromStaticInvocation
+ *                                 RawTypeReference
+ *                                 NoAdditionalBoundAfterTypeVariable
+ *                                 UnsafeGenericArrayForVarargs
+ *                                 IllegalAccessFromTypeVariable
+ *                                 AnnotationValueMustBeArrayInitializer
+ *                                 InvalidEncoding
+ *                                 CannotReadSource
+ *                                 EnumStaticFieldInInInitializerContext
+ *                                 ExternalProblemNotFixable
+ *                                 ExternalProblemFixable
+ *     IBM Corporation - added the following constants
+ *                                 AnnotationValueMustBeAnEnumConstant
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -1097,6 +1116,8 @@ void setSourceStart(int sourceStart);
 	int UnhandledWarningToken = Internal + 631;
 	/** @since 3.2 */
 	int AnnotationValueMustBeArrayInitializer = Internal + 632;
+	/** @since 3.3 */
+	int AnnotationValueMustBeAnEnumConstant = Internal + 633;
 	
 	/**
 	 * Corrupted binaries

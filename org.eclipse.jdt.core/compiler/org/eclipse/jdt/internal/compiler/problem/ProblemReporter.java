@@ -585,13 +585,14 @@ public void annotationValueMustBeAnnotation(TypeBinding annotationType, char[] n
 		value.sourceStart,
 		value.sourceEnd);
 }
-public void annotationValueMustBeArrayInitializer(Expression value) {
+public void annotationValueMustBeArrayInitializer(TypeBinding annotationType, char[] name, Expression value) {
+	String str = new String(name);
 	this.handle(
-			IProblem.AnnotationValueMustBeArrayInitializer,
-			NoArgument,
-			NoArgument,
-			value.sourceStart,
-			value.sourceEnd);
+    	IProblem.AnnotationValueMustBeArrayInitializer,
+		new String[] { new String(annotationType.readableName()), str },
+		new String[] { new String(annotationType.shortReadableName()), str},
+    	value.sourceStart,
+    	value.sourceEnd);
 }
 public void annotationValueMustBeClassLiteral(TypeBinding annotationType, char[] name, Expression value) {
 	String str = new String(name);
@@ -602,14 +603,23 @@ public void annotationValueMustBeClassLiteral(TypeBinding annotationType, char[]
 		value.sourceStart,
 		value.sourceEnd);
 }
-public void annotationValueMustBeConstant(TypeBinding annotationType, char[] name, Expression value) {
-	String str = 	new String(name);
-	this.handle(
-		IProblem.AnnotationValueMustBeConstant,
-		new String[] { new String(annotationType.readableName()), str },
-		new String[] { new String(annotationType.shortReadableName()), str},
-		value.sourceStart,
-		value.sourceEnd);
+public void annotationValueMustBeConstant(TypeBinding annotationType, char[] name, Expression value, boolean isEnum) {
+	String str = new String(name);
+	if (isEnum) {
+    	this.handle(
+    		IProblem.AnnotationValueMustBeAnEnumConstant,
+    		new String[] { new String(annotationType.readableName()), str },
+    		new String[] { new String(annotationType.shortReadableName()), str},
+    		value.sourceStart,
+    		value.sourceEnd);
+	} else {
+    	this.handle(
+    		IProblem.AnnotationValueMustBeConstant,
+    		new String[] { new String(annotationType.readableName()), str },
+    		new String[] { new String(annotationType.shortReadableName()), str},
+    		value.sourceStart,
+    		value.sourceEnd);
+    }
 }
 public void anonymousClassCannotExtendFinalClass(Expression expression, TypeBinding type) {
 	this.handle(
