@@ -20,7 +20,8 @@
       <import plugin="org.eclipse.jdt.core.tests.compiler"/>
       <import plugin="org.eclipse.jdt.core.tests.builder"/>
       <import plugin="org.eclipse.team.core"/>
-      <import plugin="org.eclipse.text"/>    
+      <import plugin="org.eclipse.text"/>
+      <import plugin="com.ibm.icu"/>    
    </requires>
 
 	<!-- Classpath variable initializer -->

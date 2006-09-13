@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.text.Collator;
 import java.util.Comparator;
 import java.util.List;
 
@@ -33,6 +32,8 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.util.CompilationUnitSorter;
+
+import com.ibm.icu.text.Collator;
 
 /**
  * The class <code>DefaultJavaElementComparator</code> is a standard
