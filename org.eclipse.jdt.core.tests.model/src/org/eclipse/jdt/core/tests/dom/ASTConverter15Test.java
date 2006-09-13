@@ -6348,9 +6348,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
 		String problems =
-			"The array creation is unnecessary in an annotation value; only an array initializer is allowed\n" + 
-			"The array creation is unnecessary in an annotation value; only an array initializer is allowed\n" + 
-			"The array creation is unnecessary in an annotation value; only an array initializer is allowed";
+			"The value for annotation attribute A1.list must be an array initializer\n" + 
+			"The value for annotation attribute A2.list must be an array initializer\n" + 
+			"The value for annotation attribute A3.list must be an array initializer";
 		assertProblemsSize(compilationUnit, 3, problems);
 		List imports = compilationUnit.imports();
 		assertEquals("wrong size", 1, imports.size());
