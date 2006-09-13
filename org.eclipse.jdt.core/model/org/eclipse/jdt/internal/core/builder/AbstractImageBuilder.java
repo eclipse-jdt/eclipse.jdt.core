@@ -586,7 +586,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 			}
 		}
 		if (missingClassFile != null)
-			throw new AbortCompilation(true, new MissingClassFileException(missingClassFile));
+			throw new MissingClassFileException(missingClassFile);
 	}
 }
 
