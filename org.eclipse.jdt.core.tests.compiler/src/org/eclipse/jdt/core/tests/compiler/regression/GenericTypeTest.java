@@ -32679,5 +32679,43 @@ public void test1030() {
 		},
 		"");
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156765
+public void test1031() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"interface IValue extends Serializable {\n" + 
+			"	public <T extends Comparable<? super T>> T getComparableValue();\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void foo0() {\n" + 
+			"		IValue val1 = null;\n" + 
+			"		Object o = val1.getComparableValue(); // 0\n" + 
+			"	}\n" + 
+			"	public static void foo1() {\n" + 
+			"		IValue val1 = null;\n" + 
+			"		String s = val1.getComparableValue(); // 1\n" + 
+			"	}\n" + 
+			"	public static int foo2() {\n" + 
+			"		IValue val1 = null;\n" + 
+			"		IValue val2 = null;\n" + 
+			"		return val1.getComparableValue().compareTo(val2.getComparableValue()); // 2\n" + 
+			"	}	\n" + 
+			"	public static int foo3() {\n" + 
+			"		Comparable<? super String> c = \"aaa\"; // 3\n" + 
+			"		Comparable<? super Object> o = new Object(); // 4\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}", // =================		
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 23)\n" + 
+		"	Comparable<? super Object> o = new Object(); // 4\n" + 
+		"	                               ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to Comparable<? super Object>\n" + 
+		"----------\n");
+}
 }
