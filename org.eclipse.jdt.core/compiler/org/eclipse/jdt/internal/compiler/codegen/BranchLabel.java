@@ -221,8 +221,7 @@ public void place() { // Currently lacking wide support.
 					this.codeStream.pcToSourceMapSize-=2;
 				}
 				// end of new code
-				if ((this.codeStream.generateAttributes & ClassFileConstants.ATTR_VARS) != 0
-						|| (this.codeStream.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
+				if ((this.codeStream.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP)) != 0) {
 					LocalVariableBinding locals[] = this.codeStream.locals;
 					for (int i = 0, max = locals.length; i < max; i++) {
 						LocalVariableBinding local = locals[i];
