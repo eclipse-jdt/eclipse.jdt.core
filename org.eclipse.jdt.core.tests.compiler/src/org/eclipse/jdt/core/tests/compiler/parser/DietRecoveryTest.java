@@ -1933,7 +1933,7 @@ public void test24() {
 		"public class X {\n" + 
 		"  public int h;\n" + 
 		"  public X() {\n" + 
-		"    super();\n"+
+		"    super();\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
