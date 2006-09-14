@@ -96,6 +96,27 @@ public static void compile(String[] pathsAndContents, Map options, String output
 		batchCompiler.compile(compilationUnits(pathsAndContents)); // compile all files together
 		System.err.print(requestor.problemLog); // problem log empty if no problems
 }
+public static String[] concatWithClassLibs(String[] classpaths, boolean inFront) {
+	String[] classLibs = getJavaClassLibs();
+	if (classpaths == null) return classLibs;
+	final int classLibsLength = classLibs.length;
+	final int classpathsLength = classpaths.length;
+	String[] defaultClassPaths = new String[classLibsLength + classpathsLength];
+	if (inFront) {
+		System.arraycopy(classLibs, 0, defaultClassPaths, classpathsLength, classLibsLength);
+		System.arraycopy(classpaths, 0, defaultClassPaths, 0, classpathsLength);
+	} else {
+		System.arraycopy(classLibs, 0, defaultClassPaths, 0, classLibsLength);
+		System.arraycopy(classpaths, 0, defaultClassPaths, classLibsLength, classpathsLength);
+	}
+	for (int i = 0; i < classpathsLength; i++) {
+		File file = new File(classpaths[i]);
+		if (!file.exists()) {
+			file.mkdirs();
+		} 
+	}
+	return defaultClassPaths;
+}
 public static String[] concatWithClassLibs(String classpath, boolean inFront) {
 	String[] classLibs = getJavaClassLibs();
 	final int length = classLibs.length;
