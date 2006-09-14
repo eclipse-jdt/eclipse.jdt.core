@@ -80,8 +80,8 @@ public void test0500_synchronization() {
 			"}\n" + 
 			"class Lock extends Thread {\n" + 
 			"  byte step = 0;\n" + 
-			"  void logStep(String from) {\n" + 
-			"    System.out.println(from + \" \" + this.step); //$NON-NLS-1$\n" + 
+			"  void logStep(String start) {\n" + 
+			"    System.out.println(start + \" \" + this.step); //$NON-NLS-1$\n" + 
 			"  }\n" + 
 			"  public void run() {\n" + 
 			"    for (int i = 1; i < 3; i++) {\n" + 

@@ -17816,9 +17816,9 @@ public void test0500(){
 				"public class X<U> {\n" + 
 				"\n" + 
 				"	public Values<U> foo(Box<? extends U> box) {\n" + 
-				"		return select(box.getValues());\n" + 
+				"		return selectedValues(box.getValues());\n" + 
 				"	}\n" + 
-				"	public static <G> Values<G> select(Values<? extends G> v) {\n" + 
+				"	public static <G> Values<G> selectedValues(Values<? extends G> v) {\n" + 
 				"		return null;\n" + 
 				"	}\n" + 
 				"}\n" + 
@@ -18133,9 +18133,9 @@ public void test0500(){
 				"public class X<U> {\n" + 
 				"\n" + 
 				"	public Values<U> foo(Box<? extends U> box) {\n" + 
-				"		return select(box.getValues());\n" + 
+				"		return selectedValues(box.getValues());\n" + 
 				"	}\n" + 
-				"	public static <G> Values<G> select(Values<G> v) {\n" + 
+				"	public static <G> Values<G> selectedValues(Values<G> v) {\n" + 
 				"		return null;\n" + 
 				"	}\n" + 
 				"}\n" + 
@@ -18148,8 +18148,8 @@ public void test0500(){
             },
     		"----------\n" + 
     		"1. ERROR in X.java (at line 4)\n" + 
-    		"	return select(box.getValues());\n" + 
-    		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	return selectedValues(box.getValues());\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
     		"Type mismatch: cannot convert from Values<capture#1-of ? extends U> to Values<U>\n" + 
     		"----------\n");
 	}		
@@ -19737,9 +19737,9 @@ public void test0617() {
 				"	}\n" + 
 				"\n" + 
 				"	public Values<U> foo(Box<? extends U> box) {\n" + 
-				"		return select(box.getValues()); // 1\n" + 
+				"		return selectedValues(box.getValues()); // 1\n" + 
 				"	}\n" + 
-				"	public static <G> Values<G> select(Values<? extends G> v) {\n" + 
+				"	public static <G> Values<G> selectedValues(Values<? extends G> v) {\n" + 
 				"		return null;\n" + 
 				"	}\n" + 
 				"}\n" + 
@@ -29702,8 +29702,8 @@ public void test0945() {
 		"        transferBug(objArray, strList);\n" + 
 		"        String str = strList.get(0);\n" + 
 		"}\n" + 
-		"public static <Var> void  transferBug(Var[] from, Collection<Var> to){\n" + 
-		"    to.add(from[0]);\n" + 
+		"public static <Var> void  transferBug(Var[] src, Collection<Var> dest){\n" + 
+		"    dest.add(src[0]);\n" + 
 		"}\n" + 
 		"}\n",
 		},
@@ -30799,7 +30799,7 @@ public void test0977() {
 					"import java.util.HashSet;\n" + 
 					"import bug.ProtocolManager;\n" + 
 					"abstract class AbstractProtocol<R, O> implements ProtocolManager<R, O> {\n" + 
-					"    public AbstractProtocol(HashSet<O> manager, String group) {}\n" + 
+					"    public AbstractProtocol(HashSet<O> manager, String grp) {}\n" + 
 					"    AbstractProtocol(){} \n" + 
 					"     public void connect(ConnectType type) { }\n" + 
 					"}\n" +
@@ -30822,7 +30822,7 @@ public void test0977() {
 					"import java.util.HashSet;\n" + 
 					"import bug.ProtocolManager;\n" + 
 					"abstract class AbstractProtocol<R, O> implements ProtocolManager<R, O> {\n" + 
-					"    public AbstractProtocol(HashSet<O> manager, String group) {}\n" + 
+					"    public AbstractProtocol(HashSet<O> manager, String grp) {}\n" + 
 					"    AbstractProtocol(){} \n" + 
 					"     public void connect(ConnectType type) { }\n" + 
 					"}\n" +
