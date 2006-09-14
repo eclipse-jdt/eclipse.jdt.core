@@ -202,18 +202,10 @@ public void aconst_null() {
 }
 public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
-	if ((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
+	if (((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
+			&& ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) == 0))
 		return;
-/*	if (initStateIndex == lastInitStateIndexWhenAddingInits)
-		return;
-	lastInitStateIndexWhenAddingInits = initStateIndex;
-	if (lastInitStateIndexWhenRemovingInits != initStateIndex){
-		lastInitStateIndexWhenRemovingInits = -2; // reinitialize remove index 
-		// remove(1)-add(1)-remove(1) -> ignore second remove
-		// remove(1)-add(2)-remove(1) -> perform second remove
-	}
-	
-*/	for (int i = 0; i < visibleLocalsCount; i++) {
+	for (int i = 0; i < visibleLocalsCount; i++) {
 		LocalVariableBinding localBinding = visibleLocals[i];
 		if (localBinding != null) {
 			// Check if the local is definitely assigned
@@ -1044,7 +1036,7 @@ public void exitUserScope(BlockScope currentScope) {
 		}
 
 		// there may be some preserved locals never initialized
-		if (visibleLocal.initializationCount > 0 && ((this.generateAttributes & ClassFileConstants.ATTR_VARS) != 0)){
+		if (visibleLocal.initializationCount > 0) {
 			visibleLocal.recordInitializationEndPC(position);
 		}
 		visibleLocals[index--] = null; // this variable is no longer visible afterwards
@@ -1052,7 +1044,6 @@ public void exitUserScope(BlockScope currentScope) {
 }
 public void exitUserScope(BlockScope currentScope, LocalVariableBinding binding) {
 	// mark all the scope's locals as losing their definite assignment
-
 	if (((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
 			&& ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) == 0))
 		return;
@@ -1065,7 +1056,7 @@ public void exitUserScope(BlockScope currentScope, LocalVariableBinding binding)
 			continue;
 		}
 		// there may be some preserved locals never initialized
-		if (visibleLocal.initializationCount > 0 && ((this.generateAttributes & ClassFileConstants.ATTR_VARS) != 0)){
+		if (visibleLocal.initializationCount > 0) {
 			visibleLocal.recordInitializationEndPC(position);
 		}
 		visibleLocals[index--] = null; // this variable is no longer visible afterwards
@@ -5740,10 +5731,8 @@ public void record(LocalVariableBinding local) {
 		System.arraycopy(locals, 0, locals = new LocalVariableBinding[allLocalsCounter + LOCALS_INCREMENT], 0, allLocalsCounter);
 	}
 	locals[allLocalsCounter++] = local;
-	if ((this.generateAttributes & ClassFileConstants.ATTR_VARS) != 0) {
-		local.initializationPCs = new int[4];
-		local.initializationCount = 0;
-	}
+	local.initializationPCs = new int[4];
+	local.initializationCount = 0;
 }
 
 public void recordExpressionType(TypeBinding typeBinding) {
@@ -5861,7 +5850,8 @@ public void registerExceptionHandler(ExceptionLabel anExceptionLabel) {
 public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// given some flow info, make sure we did not loose some variables initialization
 	// if this happens, then we must update their pc entries to reflect it in debug attributes
-	if ((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
+	if (((this.generateAttributes & ClassFileConstants.ATTR_VARS) == 0)
+			&& ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) == 0))
 		return;
 /*	if (initStateIndex == lastInitStateIndexWhenRemovingInits)
 		return;
@@ -6315,7 +6305,8 @@ public void updateLastRecordedEndPC(Scope scope, int pos) {
 		this.lastEntryPC = pos;
 	}
 	// need to update the initialization endPC in case of generation of local variable attributes.
-	if ((this.generateAttributes & ClassFileConstants.ATTR_VARS) != 0) {
+	if (((this.generateAttributes & ClassFileConstants.ATTR_VARS) != 0)
+			|| ((this.generateAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0)) {
 		for (int i = 0, max = this.locals.length; i < max; i++) {
 			LocalVariableBinding local = this.locals[i];
 			if (local != null && local.declaringScope == scope && local.initializationCount > 0) {

@@ -2067,4 +2067,32 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			assertEquals("Wrong contents", expectedOutput, actualOutput);
 		}
 	}
+	
+	// 157247
+	public void test022() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"public class X {\n" + 
+        		"	public static void main(String[] args) {\n" + 
+        		"		String errorMessage;\n" + 
+        		"		try {\n" + 
+        		"			foo();\n" + 
+        		"			errorMessage = \"No exception thrown\";\n" + 
+        		"		} catch (Exception e) {\n" + 
+        		"			if (e instanceof NullPointerException) {\n" + 
+        		"				System.out.println(\"SUCCESS\");\n" + 
+        		"				return;\n" + 
+        		"			}\n" + 
+        		"			errorMessage = \"Exception thrown\" + e;\n" + 
+        		"		}\n" + 
+        		"		System.out.println(errorMessage);\n" + 
+        		"	}\n" + 
+        		"	public static void foo() {\n" + 
+        		"		throw new NullPointerException();\n" + 
+        		"	}\n" + 
+        		"}",
+            },
+			"SUCCESS");
+	}
 }
