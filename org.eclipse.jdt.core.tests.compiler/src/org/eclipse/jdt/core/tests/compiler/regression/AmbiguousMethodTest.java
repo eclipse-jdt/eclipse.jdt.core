@@ -858,8 +858,6 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
-	// These cases are non ambiguous (the static type determines the
-	// appropriate method).
 	public void test018() {
 	this.runConformTest(
 		new String[] {
@@ -884,8 +882,8 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
-	// These cases are non ambiguous (the static type determines the
-	// appropriate method).
+	// in fact, <W extends String> Y<W> make(Class<W> clazz) is the most
+	// specific method according to JLS 15.12.2.5
 	public void _test019() {
 	this.runConformTest(
 		new String[] {
@@ -910,8 +908,6 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
-	// These cases are non ambiguous (the static type determines the
-	// appropriate method).
 	public void test020() {
 	this.runConformTest(
 		new String[] {
@@ -935,4 +931,97 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		},
 		"");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
+	// variant: having both methods in the same class should not change anything
+	public void _test021() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Object> {\n" + 
+			"}\n" + 
+			"class Y<V extends String> extends X<V> {\n" + 
+			"  public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"    return new Y<W>();\n" + 
+			"  }\n" + 
+			"  public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"    return new X<U>();\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) throws Exception {\n" + 
+			"    Y.make(getClazz());\n" + 
+			"  }\n" + 
+			"  public static Class getClazz() {\n" + 
+			"    return String.class;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
+	// variant: using instances triggers raw methods, which are ambiguous
+	public void test022() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Object> {\n" + 
+			"}\n" + 
+			"class Y<V extends String> extends X<V> {\n" + 
+			"  public <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"    return new Y<W>();\n" + 
+			"  }\n" + 
+			"  public <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"    return new X<U>();\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) throws Exception {\n" + 
+			"    Y y = new Y();\n" + 
+			"    y.make(String.class);\n" + 
+			"    y.make(getClazz());\n" + 
+			"    y.make(getClazz().newInstance().getClass());\n" + 
+			"  }\n" + 
+			"  public static Class getClazz() {\n" + 
+			"    return String.class;\n" + 
+			"  }\n" + 
+			"}"			
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	class Y<V extends String> extends X<V> {\n" + 
+		"	                  ^^^^^^\n" + 
+		"The type parameter V should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	public <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+		"	                  ^^^^^^\n" + 
+		"The type parameter W should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 11)\n" + 
+		"	Y y = new Y();\n" + 
+		"	^\n" + 
+		"Y is a raw type. References to generic type Y<V> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 11)\n" + 
+		"	Y y = new Y();\n" + 
+		"	          ^\n" + 
+		"Y is a raw type. References to generic type Y<V> should be parameterized\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 12)\n" + 
+		"	y.make(String.class);\n" + 
+		"	  ^^^^\n" + 
+		"The method make(Class) is ambiguous for the type Y\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 13)\n" + 
+		"	y.make(getClazz());\n" + 
+		"	  ^^^^\n" + 
+		"The method make(Class) is ambiguous for the type Y\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 14)\n" + 
+		"	y.make(getClazz().newInstance().getClass());\n" + 
+		"	  ^^^^\n" + 
+		"The method make(Class) is ambiguous for the type Y\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 16)\n" + 
+		"	public static Class getClazz() {\n" + 
+		"	              ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n");
+	}	
 }
