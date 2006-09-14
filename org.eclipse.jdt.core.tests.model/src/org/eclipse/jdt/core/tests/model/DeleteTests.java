@@ -395,7 +395,7 @@ public void testDeleteField2() throws CoreException { // was testDeleteFieldWith
 	}
 }
 /*
- * Ensures that a field can be deleted inside a schduling rule that include the resource only.
+ * Ensures that a field can be deleted inside a scheduling rule that include the resource only.
  * (regression test for bug 73078 ISourceManipulation.delete() tries to run in WorkspaceRoot scheduling rule)
  */
 public void testDeleteField3() throws CoreException {
