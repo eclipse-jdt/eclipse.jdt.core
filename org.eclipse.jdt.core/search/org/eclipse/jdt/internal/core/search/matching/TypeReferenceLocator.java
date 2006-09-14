@@ -113,13 +113,13 @@ protected int matchLevel(ImportReference importRef) {
 		}
 		boolean matchFirstChar = !this.isCaseSensitive || (qualifiedPattern[0] == qualifiedTypeName[0]);
 		if (this.isCamelCase && matchFirstChar && CharOperation.camelCaseMatch(qualifiedPattern, qualifiedTypeName)) {
-			return POSSIBLE_CAMELCASE_MATCH;
+			return POSSIBLE_MATCH;
 		}
 		switch (this.matchMode) {
 			case SearchPattern.R_EXACT_MATCH:
 			case SearchPattern.R_PREFIX_MATCH:
 				if (CharOperation.prefixEquals(qualifiedPattern, qualifiedTypeName, this.isCaseSensitive)) {
-					return POSSIBLE_PREFIX_MATCH;
+					return POSSIBLE_MATCH;
 				}
 				break;
 

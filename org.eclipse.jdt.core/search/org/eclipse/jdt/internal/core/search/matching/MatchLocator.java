@@ -1401,7 +1401,8 @@ public SearchMatch newMethodReferenceMatch(
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
 	if (enclosingBinding != null)
 		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
-	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, isConstructor, isSynthetic, insideDocComment, participant, resource);
+	boolean isPolymorphic = (accuracy & PatternLocator.POLYMORPHIC_FLAVOR) != 0;
+	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, isConstructor, isSynthetic, isPolymorphic, insideDocComment, participant, resource);
 }
 
 public SearchMatch newPackageReferenceMatch(
@@ -1641,15 +1642,27 @@ protected void report(SearchMatch match) throws CoreException {
 			: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$
 		System.out.print("\tRule: "); //$NON-NLS-1$
 		if (match.isExact()) {
-			System.out.println("EXACT"); //$NON-NLS-1$
+			System.out.print("EXACT"); //$NON-NLS-1$
 		} else if (match.isEquivalent()) {
-			System.out.println("EQUIVALENT"); //$NON-NLS-1$
+			System.out.print("EQUIVALENT"); //$NON-NLS-1$
 		} else if (match.isErasure()) {
-			System.out.println("ERASURE"); //$NON-NLS-1$
+			System.out.print("ERASURE"); //$NON-NLS-1$
 		} else {
-			System.out.println("INVALID RULE"); //$NON-NLS-1$
+			System.out.print("INVALID RULE"); //$NON-NLS-1$
 		}
-		System.out.println("\tRaw: "+match.isRaw()); //$NON-NLS-1$
+		if (match instanceof MethodReferenceMatch) {
+			MethodReferenceMatch methodReferenceMatch = (MethodReferenceMatch) match;
+			if (methodReferenceMatch.isPolymorphic()) {
+				System.out.print("+POLYMORPHIC"); //$NON-NLS-1$
+			}
+			if (methodReferenceMatch.isImplicit()) {
+				System.out.print("+IMPLICIT"); //$NON-NLS-1$
+			}
+			if (methodReferenceMatch.isSynthetic()) {
+				System.out.print("+SYNTHETIC"); //$NON-NLS-1$
+			}
+		}
+		System.out.println("\n\tRaw: "+match.isRaw()); //$NON-NLS-1$
 	}
 	this.requestor.acceptSearchMatch(match);
 	if (BasicSearchEngine.VERBOSE)

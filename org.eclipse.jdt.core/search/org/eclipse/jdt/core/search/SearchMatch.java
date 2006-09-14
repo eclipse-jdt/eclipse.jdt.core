@@ -57,9 +57,10 @@ public class SearchMatch {
 	private boolean insideDocComment = false;
 	
 	// store the rule used while reporting the match
-	private int rule = SearchPattern.R_FULL_MATCH |
+	private final static int ALL_GENERIC_FLAVORS = SearchPattern.R_FULL_MATCH |
 								SearchPattern.R_EQUIVALENT_MATCH |
 								SearchPattern.R_ERASURE_MATCH;
+	private int rule = ALL_GENERIC_FLAVORS;
 	
 	// store other necessary information
 	private boolean raw = false;
@@ -91,7 +92,11 @@ public class SearchMatch {
 		this.length = length;
 		this.accuracy = accuracy & A_INACCURATE;
 		if (accuracy > A_INACCURATE) {
-			this.rule = accuracy & ~A_INACCURATE; // accuracy may have also some rule information
+			int genericFlavors = accuracy & ALL_GENERIC_FLAVORS;
+			if (genericFlavors > 0) {
+				this.rule &= ~ALL_GENERIC_FLAVORS; // reset generic flavors
+			}
+			this.rule |= accuracy & ~A_INACCURATE; // accuracy may have also some rule information
 		}
 		this.participant = participant;
 		this.resource = resource;

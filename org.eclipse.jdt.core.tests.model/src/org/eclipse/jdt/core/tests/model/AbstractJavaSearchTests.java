@@ -55,12 +55,15 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 		public boolean showPotential = true;
 		public boolean showProject;
 		public boolean showSynthetic;
+		public int showPolymorphic = 0;
 		public int count = 0;
 		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 			count++;
 			this.match = searchMatch;
 			writeLine();
-			writeLineToResult();
+			if (line != null) {
+				writeLineToResult();
+			}
 		}
 		protected void writeLineToResult() {
 			if (match.getAccuracy() == SearchMatch.A_ACCURATE || showPotential) {
@@ -208,6 +211,22 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 						MethodReferenceMatch methRef = (MethodReferenceMatch) match;
 						if (methRef.isSynthetic()) {
 							line.append(" SYNTHETIC");
+						}
+					}
+				}
+				if (match instanceof MethodReferenceMatch) {
+					MethodReferenceMatch methRef = (MethodReferenceMatch) match;
+					if (methRef.isPolymorphic()) {
+						if (match.getAccuracy() == SearchMatch.A_ACCURATE) {
+							if (this.showPolymorphic > 0) {
+								line.append(" POLYMORPHIC");
+							}
+						} else {
+							if (this.showPolymorphic <= 1) {
+								line = null; // do not show potential polymorphic matches
+							} else {
+								line.append(" POLYMORPHIC");
+							}
 						}
 					}
 				}

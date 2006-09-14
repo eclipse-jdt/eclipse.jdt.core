@@ -52,10 +52,33 @@ Eclipse SDK 3.3M2 - ?th September 2006
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_713">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>Added <code>isPolymorphic()</code> getters to MethodReferenceMatch (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73401">bug 73401</a>).
+<br>
+When a search requestor (<code>SearchRequestor</code>) accepts this kind of match,
+it knows if a method reference match is a polymorphic method (ie. implemented in a superclass or a subclass) or not.
+<br>
+In example below:
+<pre>
+public class X {
+	public String toString() {}
+}
+public class Test {
+	void foo(Object o) {
+		o.toString();
+	}
+}
+</pre>
+Searching for reference to <code>X.toString()</code> method will get a polymorphic MethodReferenceMatch 
+as the reference is in fact the <code>Object.toString()</code> method (found in a superclass of X)...
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=157247">157247</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=156491">156491</a>
+[search] Reference search unusable in some situations
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73401">73401</a>
+[search] Unable to search just for references to overridden method
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=157247">157247</a>
 [1.6] [compiler] VerifyError with StackMap frames when no local variable attributes are generated
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=157086">157086</a>
 should adopt ICU Collator and use new APIs on StructuredViewer

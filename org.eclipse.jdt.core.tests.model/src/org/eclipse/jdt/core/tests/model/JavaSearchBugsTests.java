@@ -55,7 +55,6 @@ class TestCollector extends JavaSearchResultCollector {
 	}
 }
 class TypeReferencesCollector extends JavaSearchResultCollector {
-
 	protected IJavaElement getElement(SearchMatch searchMatch) {
 		IJavaElement element = super.getElement(searchMatch);
 		IJavaElement localElement = null;
@@ -6895,5 +6894,68 @@ public void testBug156177() throws CoreException {
 		"b156177.B156177_A\n" + 
 		"b156177.B156177_I",
 		requestor);
+}
+
+/**
+ * Bug 156491: [1.5][search] interfaces and annotations could be found with only one requets of searchAllTypeName
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156491"
+ */
+public void testBug156491() throws CoreException {
+	resultCollector.showRule = true;
+	workingCopies = new ICompilationUnit[5];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/I.java",
+		"package pack;\n" + 
+		"public interface I {}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/pack/X.java",
+		"package pack;\n" + 
+		"public class X {\n" + 
+		"	public String toString() {\n" + 
+		"		return \"X\";\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/pack/Sub.java",
+		"package pack;\n" + 
+		"public class Sub extends X {}\n"
+	);
+	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/pack/Y.java",
+		"package pack;\n" + 
+		"public class Y {\n" + 
+		"	public String toString() {\n" + 
+		"		return \"Y\";\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
+		"package pack;\n" + 
+		"public class Test {\n" + 
+		"	void noMatch(Y y) {\n" + 
+		"		y.toString();\n" + 
+		"		toString();\n" + 
+		"	}\n" + 
+		"	void validMatches(X x) {\n" + 
+		"		x.toString();\n" + 
+		"	}\n" + 
+		"	void polymorphicSuper(Object o) {\n" + 
+		"		o.toString();\n" + 
+		"	}\n" + 
+		"	void polymorphicPotential(I i) {\n" + 
+		"		i.toString();\n" + 
+		"	}\n" + 
+		"	void polymorphicSub(Sub s) {\n" + 
+		"		s.toString();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	IMethod method = workingCopies[1].getType("X").getMethod("toString", new String[0]);
+	this.resultCollector.showPolymorphic = 2;
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/pack/Test.java void pack.Test.validMatches(X) [toString()] EXACT_MATCH\n" + 
+		"src/pack/Test.java void pack.Test.polymorphicSuper(Object) [toString()] EXACT_MATCH POLYMORPHIC\n" + 
+		"src/pack/Test.java void pack.Test.polymorphicPotential(I) [toString()] POTENTIAL_MATCH POLYMORPHIC\n" + 
+		"src/pack/Test.java void pack.Test.polymorphicSub(Sub) [toString()] EXACT_MATCH POLYMORPHIC"
+	);
 }
 }

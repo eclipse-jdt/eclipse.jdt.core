@@ -54,18 +54,32 @@ public MatchingNodeSet(boolean mustResolvePattern) {
 }
 
 public int addMatch(ASTNode node, int matchLevel) {
-	switch (matchLevel & PatternLocator.NODE_SET_MASK) {
+	int maskedLevel = matchLevel & PatternLocator.MATCH_LEVEL_MASK;
+	switch (maskedLevel) {
 		case PatternLocator.INACCURATE_MATCH:
-			addTrustedMatch(node, POTENTIAL_MATCH);
+			if (matchLevel != maskedLevel) {
+				addTrustedMatch(node, new Integer(SearchMatch.A_INACCURATE+(matchLevel & PatternLocator.FLAVORS_MASK)));
+			} else {
+				addTrustedMatch(node, POTENTIAL_MATCH);
+			}
 			break;
 		case PatternLocator.POSSIBLE_MATCH:
 			addPossibleMatch(node);
 			break;
 		case PatternLocator.ERASURE_MATCH:
-			addTrustedMatch(node, ERASURE_MATCH);
+			if (matchLevel != maskedLevel) {
+				addTrustedMatch(node, new Integer(SearchPattern.R_ERASURE_MATCH+(matchLevel & PatternLocator.FLAVORS_MASK)));
+			} else {
+				addTrustedMatch(node, ERASURE_MATCH);
+			}
 			break;
 		case PatternLocator.ACCURATE_MATCH:
-			addTrustedMatch(node, EXACT_MATCH);
+			if (matchLevel != maskedLevel) {
+				addTrustedMatch(node, new Integer(SearchMatch.A_ACCURATE+(matchLevel & PatternLocator.FLAVORS_MASK)));
+			} else {
+				addTrustedMatch(node, EXACT_MATCH);
+			}
+			break;
 	}
 	return matchLevel;
 }

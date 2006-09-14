@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 
 public class MethodLocator extends PatternLocator {
 
@@ -47,6 +48,10 @@ protected void clear() {
 	this.methodDeclarationsWithInvalidParam = new HashMap();
 }
 public void initializePolymorphicSearch(MatchLocator locator) {
+	long start = 0;
+	if (BasicSearchEngine.VERBOSE) {
+		start = System.currentTimeMillis();
+	}
 	try {
 		this.allSuperDeclaringTypeNames =
 			new SuperTypeNamesCollector(
@@ -58,6 +63,9 @@ public void initializePolymorphicSearch(MatchLocator locator) {
 				locator.progressMonitor).collect();
 	} catch (JavaModelException e) {
 		// inaccurate matches will be found
+	}
+	if (BasicSearchEngine.VERBOSE) {
+		System.out.println("Time to initialize polymorphic search: "+(System.currentTimeMillis()-start)); //$NON-NLS-1$
 	}
 }
 /*
@@ -621,17 +629,30 @@ protected int resolveLevel(MessageSend messageSend) {
 	if (qualifiedPattern == null) return methodLevel; // since any declaring class will do
 
 	int declaringLevel;
-	if (isVirtualInvoke(method, messageSend) && !(messageSend.actualReceiverType instanceof ArrayBinding)) {
-		declaringLevel = resolveLevelAsSubtype(qualifiedPattern, method.declaringClass);
+	if (isVirtualInvoke(method, messageSend) && (messageSend.actualReceiverType instanceof ReferenceBinding)) {
+		ReferenceBinding methodReceiverType = (ReferenceBinding) messageSend.actualReceiverType;
+		declaringLevel = resolveLevelAsSubtype(qualifiedPattern, methodReceiverType);
 		if (declaringLevel == IMPOSSIBLE_MATCH) {
 			if (method.declaringClass == null || this.allSuperDeclaringTypeNames == null) {
 				declaringLevel = INACCURATE_MATCH;
 			} else {
-				char[][] compoundName = method.declaringClass.compoundName;
-				for (int i = 0, max = this.allSuperDeclaringTypeNames.length; i < max; i++)
-					if (CharOperation.equals(this.allSuperDeclaringTypeNames[i], compoundName))
-						return methodLevel; // since this is an ACCURATE_MATCH so return the possibly weaker match
+				char[][] compoundName = methodReceiverType.compoundName;
+				for (int i = 0, max = this.allSuperDeclaringTypeNames.length; i < max; i++) {
+					if (CharOperation.equals(this.allSuperDeclaringTypeNames[i], compoundName)) {
+						return methodLevel // since this is an ACCURATE_MATCH so return the possibly weaker match
+							| POLYMORPHIC_FLAVOR; // this is a polymorphic method => add flavor to returned level
+					}
+				}
+				if (methodReceiverType.isInterface()) {
+					// all methods interface with same name and parameters are potential matches
+					// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=156491
+					return INACCURATE_MATCH | POLYMORPHIC_FLAVOR;
+				}
 			}
+		}
+		if ((declaringLevel & FLAVORS_MASK) != 0) {
+			// level got some flavors => return it
+			return declaringLevel;
 		}
 	} else {
 		declaringLevel = resolveLevelForType(qualifiedPattern, method.declaringClass);
@@ -654,7 +675,7 @@ protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding ty
 	// matches superclass
 	if (!type.isInterface() && !CharOperation.equals(type.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
 		level = resolveLevelAsSubtype(qualifiedPattern, type.superclass());
-		if (level != IMPOSSIBLE_MATCH) return level;
+		if (level != IMPOSSIBLE_MATCH) return level | POLYMORPHIC_FLAVOR; // this is a polymorphic method => add flavor to returned level
 	}
 
 	// matches interfaces
@@ -662,7 +683,7 @@ protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding ty
 	if (interfaces == null) return INACCURATE_MATCH;
 	for (int i = 0; i < interfaces.length; i++) {
 		level = resolveLevelAsSubtype(qualifiedPattern, interfaces[i]);
-		if (level != IMPOSSIBLE_MATCH) return level;
+		if (level != IMPOSSIBLE_MATCH) return level | POLYMORPHIC_FLAVOR; // this is a polymorphic method => add flavor to returned level
 	}
 	return IMPOSSIBLE_MATCH;
 }

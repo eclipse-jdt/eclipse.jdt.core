@@ -41,13 +41,14 @@ public static final int ERASURE_MATCH = 4;
 
 // Possible rule match flavors
 // see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=79866
-protected static final int POSSIBLE_FULL_MATCH = POSSIBLE_MATCH | (SearchPattern.R_FULL_MATCH<<16);
-protected static final int POSSIBLE_PREFIX_MATCH = POSSIBLE_MATCH | (SearchPattern.R_PREFIX_MATCH<<16);
-protected static final int POSSIBLE_PATTERN_MATCH = POSSIBLE_MATCH | (SearchPattern.R_PATTERN_MATCH<<16);
-protected static final int POSSIBLE_REGEXP_MATCH = POSSIBLE_MATCH | (SearchPattern.R_REGEXP_MATCH<<16);
-protected static final int POSSIBLE_CAMELCASE_MATCH = POSSIBLE_MATCH | (SearchPattern.R_CAMELCASE_MATCH<<16);
-protected static final int NODE_SET_MASK = 0xFF;
-protected static final int POSSIBLE_MATCH_MASK = ~NODE_SET_MASK;
+protected static final int EXACT_FLAVOR = 0x0010;
+protected static final int PREFIX_FLAVOR = 0x0020;
+protected static final int PATTERN_FLAVOR = 0x0040;
+protected static final int REGEXP_FLAVOR = 0x0080;
+protected static final int CAMELCASE_FLAVOR = 0x0100;
+protected static final int POLYMORPHIC_FLAVOR = 0x0200;
+protected static final int MATCH_LEVEL_MASK = 0x0F;
+protected static final int FLAVORS_MASK = ~MATCH_LEVEL_MASK;
 
 /* match container */
 public static final int COMPILATION_UNIT_CONTAINER = 1;
@@ -251,10 +252,16 @@ protected boolean matchesName(char[] pattern, char[] name) {
  * @param name
  * @return Possible values are:
  * <ul>
- * 	<li>{@link #POSSIBLE_FULL_MATCH}: Given name is equals to pattern</li>
- * 	<li>{@link #POSSIBLE_PREFIX_MATCH}: Given name prefix equals to pattern</li>
- * 	<li>{@link #POSSIBLE_CAMELCASE_MATCH}: Given name matches pattern as Camel Case</li>
- * 	<li>{@link #POSSIBLE_PATTERN_MATCH}: Given name matches pattern as Pattern (ie. using '*' and '?' characters)</li>
+ * 	<li> {@link #ACCURATE_MATCH}</li>
+ * 	<li> {@link #IMPOSSIBLE_MATCH}</li>
+ * 	<li> {@link #POSSIBLE_MATCH} which may be flavored with following values:
+ * 		<ul>
+ * 		<li>{@link #EXACT_FLAVOR}: Given name is equals to pattern</li>
+ * 		<li>{@link #PREFIX_FLAVOR}: Given name prefix equals to pattern</li>
+ * 		<li>{@link #CAMELCASE_FLAVOR}: Given name matches pattern as Camel Case</li>
+ * 		<li>{@link #PATTERN_FLAVOR}: Given name matches pattern as Pattern (ie. using '*' and '?' characters)</li>
+ * 		</ul>
+ * 	</li>
  * </ul>
  */
 protected int matchNameValue(char[] pattern, char[] name) {
@@ -272,20 +279,20 @@ protected int matchNameValue(char[] pattern, char[] name) {
 	boolean sameLength = pattern.length == name.length;
 	boolean canBePrefix = name.length >= pattern.length;
 	if (this.isCamelCase && matchFirstChar && CharOperation.camelCaseMatch(pattern, name)) {
-		return POSSIBLE_CAMELCASE_MATCH;
+		return POSSIBLE_MATCH;
 	}
 	switch (this.matchMode) {
 		case SearchPattern.R_EXACT_MATCH:
 			if (!this.isCamelCase) {
 				if (sameLength && matchFirstChar && CharOperation.equals(pattern, name, this.isCaseSensitive)) {
-					return POSSIBLE_FULL_MATCH;
+					return POSSIBLE_MATCH | EXACT_FLAVOR;
 				}
 				break;
 			}
 			// fall through next case to match as prefix if camel case failed
 		case SearchPattern.R_PREFIX_MATCH:
 			if (canBePrefix && matchFirstChar && CharOperation.prefixEquals(pattern, name, this.isCaseSensitive)) {
-				return POSSIBLE_PREFIX_MATCH;
+				return POSSIBLE_MATCH;
 			}
 			break;
 		case SearchPattern.R_PATTERN_MATCH:

@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.IJavaElement;
 public class MethodReferenceMatch extends SearchMatch {
 	private boolean constructor;
 	private boolean synthetic;
+	private boolean polymorphic;
 
 	/**
 	 * Creates a new method reference match.
@@ -67,6 +68,30 @@ public class MethodReferenceMatch extends SearchMatch {
 	}
 
 	/**
+	 * Creates a new method reference match.
+	 * 
+	 * @param enclosingElement the inner-most enclosing member that references this method
+	 * @param accuracy one of {@link #A_ACCURATE} or {@link #A_INACCURATE}
+	 * @param offset the offset the match starts at, or -1 if unknown
+	 * @param length the length of the match, or -1 if unknown
+	 * @param constructor <code>true</code> if this search matches a constructor
+	 * <code>false</code> otherwise
+	 * @param synthetic <code>true</code> if this search matches a synthetic element
+	 * <code>false</code> otherwise
+	 * @param polymorphic <code>true</code> if this search matches a polymorphic element
+	 * <code>false</code> otherwise
+	 * @param insideDocComment <code>true</code> if this search match is inside a doc
+	 * comment, and <code>false</code> otherwise
+	 * @param participant the search participant that created the match
+	 * @param resource the resource of the element
+	 * @since 3.3
+	 */
+	public MethodReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, int length, boolean constructor, boolean synthetic, boolean polymorphic, boolean insideDocComment, SearchParticipant participant, IResource resource) {
+		this(enclosingElement, accuracy, offset, length, constructor, synthetic, insideDocComment, participant, resource);
+		this.polymorphic = polymorphic;
+	}
+
+	/**
 	 * Returns whether the reference is on a constructor.
 	 *
 	 * @return Returns whether the reference is on a constructor or not.
@@ -86,5 +111,17 @@ public class MethodReferenceMatch extends SearchMatch {
 	 */
 	public final boolean isSynthetic() {
 		return this.synthetic;
+	}
+
+	/**
+	 * Returns whether the reference is on a polymorphic method or not.
+	 * Note that this field is only used for method reference. This happens when the reference
+	 * is not implemented on the declaring class pattern but only on one of its super or sub type.
+	 * 
+	 * @return <code>true</code> if the reference is a polymorphic method or not,
+	 * <code>false </code> otherwise
+	 */
+	public boolean isPolymorphic() {
+		return this.polymorphic;
 	}
 }

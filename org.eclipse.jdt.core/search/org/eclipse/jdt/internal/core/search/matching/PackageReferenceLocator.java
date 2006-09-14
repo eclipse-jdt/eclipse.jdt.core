@@ -99,7 +99,7 @@ protected int matchLevelForTokens(char[][] tokens) {
 	if (this.isCamelCase) {
 		packageName = CharOperation.concatWith(tokens, '.');
 		if (CharOperation.camelCaseMatch(this.pattern.pkgName, packageName)) {
-			return POSSIBLE_CAMELCASE_MATCH;
+			return POSSIBLE_MATCH;
 		}
 	}
 	switch (this.matchMode) {
@@ -107,7 +107,7 @@ protected int matchLevelForTokens(char[][] tokens) {
 		case SearchPattern.R_PREFIX_MATCH:
 			if (packageName==null) packageName = CharOperation.concatWith(tokens, '.');
 			if (CharOperation.prefixEquals(this.pattern.pkgName, packageName, this.isCaseSensitive)) {
-				return POSSIBLE_PREFIX_MATCH;
+				return POSSIBLE_MATCH;
 			}
 			break;
 		case SearchPattern.R_PATTERN_MATCH:
