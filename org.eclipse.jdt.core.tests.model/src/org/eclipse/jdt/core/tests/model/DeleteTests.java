@@ -13,9 +13,6 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.IOException;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -48,7 +45,7 @@ public static Test suite() {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "testDeleteField4" };
+//		TESTS_NAMES = new String[] { "testDeleteField5" };
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 //		TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -455,6 +452,31 @@ public void testDeleteField4() throws CoreException {
 			cu.getSource());
 	} finally {
 		deleteFile("P/X.java");
+	}
+}
+/**
+ * Delete enum
+ */
+public void testDeleteField5() throws CoreException {
+	try {
+		this.createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, null, "", "1.5");
+		createFile(
+			"P1/X.java",
+			"public enum X {\n" +
+			"  A, B, C\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P1/X.java");
+		IField field = cu.getType("X").getField("A");
+		field.delete(false, null);
+		assertSourceEquals(
+			"Unexpected source", 
+			"public enum X {\n" + 
+			"  B, C\n" + 
+			"}",
+			cu.getSource());
+	} finally {
+		deleteProject("P1");
 	}
 }
 /**
