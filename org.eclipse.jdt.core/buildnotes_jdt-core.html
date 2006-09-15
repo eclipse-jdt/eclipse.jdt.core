@@ -47,7 +47,7 @@
 <p><hr><h1>
 Eclipse Platform Build Notes<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.3M2 - ?th September 2006
+Eclipse SDK 3.3M2 - 15th September 2006 - 3.3 MILESTONE 2
 <br>Project org.eclipse.jdt.core v_713
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_713">cvs</a>).
 <h2>What's new in this drop</h2>
@@ -227,27 +227,6 @@ Eclipse SDK 3.3M2 - 29th August 2006
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_710">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
-<li>Add new DOM API method to create array bindings using an existing type binding has been moved to the <code>org.eclipse.jdt.core.dom.ITypeBinding</code> class
-and rename <code>createArrayType</code>. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148224">148224</a>.<br>
-<pre>	/**
-	 * Answer an array type binding using the receiver and the given
-	 * dimension.
-	 * 
-	 * If the receiver is an array binding, then the resulting dimension is the given dimension
-	 * plus the dimension of the receiver. Otherwise the resulting dimension is the given
-	 * dimension.
-	 * 
-	 * @param dimension the given dimension
-	 * @return an array type binding
-	 * @throws IllegalArgumentException:
-	 *   if the receiver represents the void type
-	 *   if the resulting dimensions is lower than one or greater than 255
-	 *
-	 * @since 3.3
-	 */
-	public ITypeBinding createArrayType(int dimension);
-</pre>
-</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -269,33 +248,11 @@ Eclipse SDK 3.3M2 - 15th August 2006
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_709">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
-<li>Add new DOM API method to resolve array bindings using an existing type binding. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148224">148224</a>.<br>
-<pre>	/**
-	 * Answer an array type binding with the given type binding and the given
-	 * dimension.
-	 * 
-	 * If the given type binding is an array binding, then the resulting dimension is the given dimension
-	 * plus the dimension of the array binding. Otherwise the resulting dimension is the given
-	 * dimension.
-	 * 
-	 * @param binding the given type binding
-	 * @param dimensions the given dimension
-	 * @return an array type binding
-	 * @throws IllegalArgumentException:
-	 *   if the given type binding represents the void type
-	 *   if the resulting dimensions is lower than one or greater than 255
-	 *
-	 */
-	public ITypeBinding resolveArrayType(ITypeBinding binding, int dimensions)
-</pre>
-</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=151756">151756</a>
 [compiler] unverifiable bytecode created with cvs head compiler
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148224">148224</a>
-AST API request: have binding for int, need int[], int[][] ....
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=153303">153303</a>
 IBinding.getAnnotations() returns array with null element
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=148661">148661</a>
