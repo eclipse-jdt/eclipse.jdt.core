@@ -60,27 +60,26 @@ it knows if a method reference match is a polymorphic method (ie. implemented in
 <p>
 For example, in example below:</p>
 <pre>
-public class X {}
-public class Y extends X {
-	public void foo() {}
-}
-public class Z extends Y {}
-public class Test {
-	void foo(X x, Y y, Z z) {
-		x.foo();
-		y.foo();
-		z.foo();
+class A { public void foo() {} }
+class B extends A {}
+class C extends B { public void foo() {} }
+class D extends C {}
+public class X {
+	void foo() {
+		new B().foo();
+		new C().foo();
+		new D().foo();
 	}
 }
 </pre>
 <p>
-Searching for all references to <code>Y.foo()</code> method get 3 matches
-(instance of <code>MethodReferenceMatch</code>). Two of them, <code>x.foo()</code> and
-<code>z.foo()</code> are flagged as polymorphic due to the fact that these are methods
+Searching for all references to <code>C.foo()</code> method get 3 matches
+(instance of <code>MethodReferenceMatch</code>). Two of them, <code>new B().foo()</code> and
+<code>new D().foo()</code> are flagged as polymorphic due to the fact that these are methods
 respectively of a superclass and of a subclass...
 </p>
 <p>
-Search view has been modified to let user filters this kind of matches when he/she only wants to focus
+Search view has been modified to filter this kind of matches when user wants to focus only 
 on exact references of the searched method.</p>
 </li>
 </ul>
