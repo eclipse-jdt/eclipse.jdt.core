@@ -148,8 +148,8 @@ public class Clinit extends AbstractMethodDeclaration {
 		if (this.assertionSyntheticFieldBinding != null) {
 			// generate code related to the activation of assertion for this class
 			codeStream.generateClassLiteralAccessForType(
-					classScope.enclosingSourceType(),
-				classLiteralSyntheticField);
+					classScope.outerMostClassScope().enclosingSourceType(),
+					this.classLiteralSyntheticField);
 			codeStream.invokeJavaLangClassDesiredAssertionStatus();
 			BranchLabel falseLabel = new BranchLabel(codeStream);
 			codeStream.ifne(falseLabel);
@@ -311,9 +311,9 @@ public class Clinit extends AbstractMethodDeclaration {
 		this.assertionSyntheticFieldBinding = assertionSyntheticFieldBinding;
 
 		// we need to add the field right now, because the field infos are generated before the methods
-		SourceTypeBinding sourceType =
-			this.scope.outerMostMethodScope().enclosingSourceType();
 		if (needClassLiteralField) {
+			SourceTypeBinding sourceType =
+				this.scope.outerMostMethodScope().enclosingSourceType();
 			this.classLiteralSyntheticField =
 				sourceType.addSyntheticFieldForClassLiteral(sourceType, scope);
 		}

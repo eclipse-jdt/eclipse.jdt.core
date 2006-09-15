@@ -9,23 +9,10 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
-import java.util.Map;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 public class AssertionTest extends AbstractRegressionTest {
-
-	/*
-	 * Toggle compiler in mode -1.4
-	 */
-	protected Map getCompilerOptions() {
-		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-		return options;
-	}
 
 	public AssertionTest(String name) {
 		super(name);
@@ -297,5 +284,29 @@ public class AssertionTest extends AbstractRegressionTest {
 			},
 			"SUCCESS"); // expected output
 	}
-
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=157389
+	 */
+	public void test013() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"        static class Y {\n" + 
+				"                public static void test() {\n" + 
+				"                        assert false;\n" + 
+				"                        System.out.println(\"SUCCESS\");\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"        public static void main(String[] args) {\n" + 
+				"                ClassLoader classLoader = new X().getClass().getClassLoader();\n" + 
+				"                // enable assertion for X.Y\n" + 
+				"                classLoader.setClassAssertionStatus(\"X$Y\", true);\n" + 
+				"                X.Y.test();\n" + 
+				"        }\n" + 
+				"}"
+			},
+			"SUCCESS"); // expected output
+	}
 }
