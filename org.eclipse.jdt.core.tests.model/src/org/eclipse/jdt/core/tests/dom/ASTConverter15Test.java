@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 227 };
+//		TESTS_NUMBERS = new int[] { 228 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -7164,5 +7164,49 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			declaration.resolveBinding().getDeclaredFields();
 		assertTrue("Bad field definition", fields != null && fields.length == 1);
 		assertEquals("Type binding mismatch", value, fields[0].getType());
-	}	
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=157403
+	 */
+	public void test0228() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"@interface Ann {\n" + 
+    		"  int foo();\n" + 
+    		"}\n" + 
+    		"@Ann(foo = bar())\n" + 
+    		"public class X {\n" + 
+    		"	public static int bar() {\n" +
+    		" 		return 0;\n" +
+    		"	}\n" + 
+    		"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "The method bar() is undefined for the type X");
+		List types = unit.types();
+		assertEquals("wrong size", 2, types.size());
+		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) types.get(1);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, typeDeclaration.getNodeType());
+		TypeDeclaration declaration = (TypeDeclaration) typeDeclaration;
+		List modifiers = declaration.modifiers();
+		assertEquals("wrong size", 2, modifiers.size());
+		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("not an annotation", modifier.isAnnotation());
+		Annotation annotation = (Annotation) modifier;
+		assertEquals("Not a normal annotation", ASTNode.NORMAL_ANNOTATION, annotation.getNodeType());
+		NormalAnnotation normalAnnotation = (NormalAnnotation) annotation;
+		List values = normalAnnotation.values();
+		assertEquals("wrong size", 1, values.size());
+		MemberValuePair pair = (MemberValuePair) values.get(0);
+		IBinding binding = pair.getName().resolveBinding();
+		assertNotNull("No binding", binding);
+		binding = pair.getValue().resolveTypeBinding();
+		assertNull("Got a binding", binding);
+		binding = pair.resolveMemberValuePairBinding();
+		assertNotNull("No binding", binding);		
+	}
 }

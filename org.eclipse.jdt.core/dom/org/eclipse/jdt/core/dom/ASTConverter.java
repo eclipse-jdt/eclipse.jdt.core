@@ -2072,6 +2072,7 @@ class ASTConverter {
 		pair.setSourceRange(start, end - start + 1);
 		if (this.resolveBindings) {
 			recordNodes(simpleName, memberValuePair);
+			recordNodes(pair, memberValuePair);
 		}
 		return pair;
 	}
