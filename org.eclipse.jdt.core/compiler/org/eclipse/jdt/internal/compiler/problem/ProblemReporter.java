@@ -405,14 +405,7 @@ public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IPr
 	super(policy, options, problemFactory);
 }
 public void abortDueToInternalError(String errorMessage) {
-	String[] arguments = new String[] {errorMessage};
-	this.handle(
-		IProblem.Unclassified,
-		arguments,
-		arguments,
-		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
-		0,
-		0);
+	abortDueToInternalError(errorMessage, null);
 }
 public void abortDueToInternalError(String errorMessage, ASTNode location) {
 	String[] arguments = new String[] {errorMessage};
@@ -421,8 +414,8 @@ public void abortDueToInternalError(String errorMessage, ASTNode location) {
 		arguments,
 		arguments,
 		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
-		location.sourceStart,
-		location.sourceEnd);
+		location == null ? 0 : location.sourceStart,
+		location == null ? 0 : location.sourceEnd);
 }
 public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBinding concreteMethod) {
 
