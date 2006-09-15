@@ -405,7 +405,7 @@ public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IPr
 	super(policy, options, problemFactory);
 }
 public void abortDueToInternalError(String errorMessage) {
-	abortDueToInternalError(errorMessage, null);
+	this.abortDueToInternalError(errorMessage, null);
 }
 public void abortDueToInternalError(String errorMessage, ASTNode location) {
 	String[] arguments = new String[] {errorMessage};
