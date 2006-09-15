@@ -172,28 +172,28 @@ public class AssertStatement extends Statement {
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 
 		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
-		
-		// need assertion flag: $assertionsDisabled on outer most source clas
-		// (in case of static member of interface, will use the outermost static member - bug 22334)
-		SourceTypeBinding outerMostClass = currentScope.enclosingSourceType();
-		while (outerMostClass.isLocalType()){
-			ReferenceBinding enclosing = outerMostClass.enclosingType();
-			if (enclosing == null || enclosing.isInterface()) break;
-			outerMostClass = (SourceTypeBinding) enclosing;
-		}
-
-		this.assertionSyntheticFieldBinding = outerMostClass.addSyntheticFieldForAssert(currentScope);
-
-		// find <clinit> and enable assertion support
-		TypeDeclaration typeDeclaration = outerMostClass.scope.referenceType();
-		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-		for (int i = 0, max = methods.length; i < max; i++) {
-			AbstractMethodDeclaration method = methods[i];
-			if (method.isClinit()) {
-				((Clinit) method).setAssertionSupport(assertionSyntheticFieldBinding, currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5);
-				break;
-			}
-		}
+    		
+    		// need assertion flag: $assertionsDisabled on outer most source clas
+    		// (in case of static member of interface, will use the outermost static member - bug 22334)
+    		SourceTypeBinding outerMostClass = currentScope.enclosingSourceType();
+    		while (outerMostClass.isLocalType()){
+    			ReferenceBinding enclosing = outerMostClass.enclosingType();
+    			if (enclosing == null || enclosing.isInterface()) break;
+    			outerMostClass = (SourceTypeBinding) enclosing;
+    		}
+    
+    		this.assertionSyntheticFieldBinding = outerMostClass.addSyntheticFieldForAssert(currentScope);
+    
+    		// find <clinit> and enable assertion support
+    		TypeDeclaration typeDeclaration = outerMostClass.scope.referenceType();
+    		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
+    		for (int i = 0, max = methods.length; i < max; i++) {
+    			AbstractMethodDeclaration method = methods[i];
+    			if (method.isClinit()) {
+    				((Clinit) method).setAssertionSupport(assertionSyntheticFieldBinding, currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5);
+    				break;
+    			}
+    		}
 		}
 	}
 
