@@ -52,24 +52,35 @@ Eclipse SDK 3.3M2 - ?th September 2006
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_713">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
-<li>Added <code>isPolymorphic()</code> getters to MethodReferenceMatch (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73401">bug 73401</a>).
+<li>Added <code>isPolymorphic()</code> getter to <code>MethodReferenceMatch</code> (see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73401">bug 73401</a>
+and <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=156491">bug 156491</a>).
 <br>
 When a search requestor (<code>SearchRequestor</code>) accepts this kind of match,
-it knows if a method reference match is a polymorphic method (ie. implemented in a superclass or a subclass) or not.
-<br>
-In example below:
+it knows if a method reference match is a polymorphic method (ie. implemented in a super or sub type) or not.
+<p>
+For example, in example below:
 <pre>
-public class X {
-	public String toString() {}
+public class X {}
+public class Y extends X {
+	public void foo() {}
 }
+public class Z extends Y {}
 public class Test {
-	void foo(Object o) {
-		o.toString();
+	void foo(X x, Y y, Z z) {
+		x.foo();
+		y.foo();
+		z.foo();
 	}
 }
 </pre>
-Searching for reference to <code>X.toString()</code> method will get a polymorphic MethodReferenceMatch 
-as the reference is in fact the <code>Object.toString()</code> method (found in a superclass of X)...
+Searching for all references to <code>Y.foo()</code> method get 3 matches
+(instance of <code>MethodReferenceMatch</code>). Two of them, <code>x.foo()</code> and
+<code>z.foo()</code> are flagged as polymorphic due to the fact that these are methods
+respectively of a superclass and of a subclass...
+</p>
+<p>
+Search view has been modified to let user filters this kind of matches when he/she only wants to focus
+on exact references of the searched method.</p>
 </li>
 </ul>
 
