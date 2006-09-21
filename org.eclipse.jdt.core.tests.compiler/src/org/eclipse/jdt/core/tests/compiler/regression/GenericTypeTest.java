@@ -32718,4 +32718,29 @@ public void test1031() {
 		"Type mismatch: cannot convert from Object to Comparable<? super Object>\n" + 
 		"----------\n");
 }
+
+public void test1032() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	<T> T test(String name) {\n" + 
+			"\n" + 
+			"		try {\n" + 
+			"			InputStream in = new FileInputStream(name);\n" + 
+			"			return (T) new ObjectInputStream(in).readObject();\n" + 
+			"		} catch (Exception e) {\n" + 
+			"		}\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	<U> U text() {\n" + 
+			"		return test(\"data\");\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"");
+}
 }
