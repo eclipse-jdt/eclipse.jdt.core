@@ -46,7 +46,8 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
         visitor.visitClassDeclaration(this);
     }
     
-    private void getASTConstructor(
+    @SuppressWarnings("unchecked")
+	private void getASTConstructor(
     		final AbstractTypeDeclaration typeDecl,
     		final List<ConstructorDeclaration> results){
     	
@@ -117,7 +118,8 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
 
     }
 
-    public Collection<MethodDeclaration> getMethods()
+    @SuppressWarnings("unchecked")
+	public Collection<MethodDeclaration> getMethods()
     {
         return (Collection<MethodDeclaration>)_getMethods();
     }

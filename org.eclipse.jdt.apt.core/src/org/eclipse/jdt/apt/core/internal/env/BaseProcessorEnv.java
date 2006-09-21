@@ -225,7 +225,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		return mirrorDecls;
     }
     
-    protected List<AbstractTypeDeclaration> searchLocallyForTypeDeclarations()
+    @SuppressWarnings("unchecked")
+	protected List<AbstractTypeDeclaration> searchLocallyForTypeDeclarations()
     {
     	return _astRoot.types();
     }
@@ -314,7 +315,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	 * @param decls the list to be populated.
 	 *        adding the declaration(s) corresponding to the ast node to this list.
 	 */
-    protected void getDeclarations(ASTNode node, List<Declaration>decls)
+    @SuppressWarnings("unchecked")
+	protected void getDeclarations(ASTNode node, List<Declaration>decls)
     {
     	if( node == null ) return;
         IBinding binding = null;

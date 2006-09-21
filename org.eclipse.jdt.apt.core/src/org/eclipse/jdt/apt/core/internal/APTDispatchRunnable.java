@@ -529,7 +529,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			Set<AnnotationTypeDeclaration> factoryDecls = getFactorySupportedAnnotations(factory, annotationDecls);
 			if( factoryDecls != null ){
 				if(factoryDecls.size() == 0 ){
-					factoryDecls = new HashSet(annotationDecls.values());
+					factoryDecls = new HashSet<AnnotationTypeDeclaration>(annotationDecls.values());
 					annotationDecls.clear();
 				}
 			}

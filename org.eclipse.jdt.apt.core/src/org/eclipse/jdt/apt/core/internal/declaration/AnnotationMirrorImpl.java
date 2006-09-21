@@ -242,6 +242,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
 		return null;
     }
 	
+	@SuppressWarnings("unchecked")
 	ASTNode getASTNodeForElement(String name)
 	{
 		if( name == null ) return null;

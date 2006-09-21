@@ -37,7 +37,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
     private final Class<?> _clazz;
 
     public AnnotationInvocationHandler(final AnnotationMirrorImpl annotation,
-    								   final Class clazz)
+    								   final Class<?> clazz)
     {
         _instance = annotation;
         _clazz = clazz;
@@ -111,14 +111,14 @@ public class AnnotationInvocationHandler implements InvocationHandler
     
     private Object getReflectionValueWithTypeConversion(
     		final Object domValue, 
-    		final Class expectedType )
+    		final Class<?> expectedType )
     {
     	
     	final Object actualValue = _getReflectionValue(domValue, expectedType);
     	return performNecessaryTypeConversion(expectedType, actualValue);
     }
 
-	private Object _getReflectionValue(final Object domValue, final Class expectedType)
+	private Object _getReflectionValue(final Object domValue, final Class<?> expectedType)
 	{
 		if( expectedType == null || domValue == null )
 			return null;
@@ -146,7 +146,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
 			final Object[] elements = (Object[])domValue;
 			if(!expectedType.isArray())
 				return null; // bad user source
-	        final Class componentType = expectedType.getComponentType();
+	        final Class<?> componentType = expectedType.getComponentType();
 	        final int length = elements.length;
 	        final Object array = Array.newInstance(componentType, length);
 	
@@ -223,7 +223,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
 	    	return domValue;	
 	}
 	
-	private Object performNecessaryTypeConversion(Class expectedType, Object actualValue){
+	private Object performNecessaryTypeConversion(Class<?> expectedType, Object actualValue){
 		if( actualValue == null )
 			return Factory.getMatchingDummyValue(expectedType);		
 		else if( expectedType.isPrimitive() )
@@ -242,11 +242,11 @@ public class AnnotationInvocationHandler implements InvocationHandler
 		else return null; 
 	}
 	
-	private Object arrayify(final Class expectedType, Object actualValue){
+	private Object arrayify(final Class<?> expectedType, Object actualValue){
 		assert expectedType.isArray() : "expected type must be an array"; //$NON-NLS-1$
 		assert ( !(actualValue instanceof Object[]) ) :
 			"actual value cannot be of type Object[]"; //$NON-NLS-1$
-		final Class componentType = expectedType.getComponentType();
+		final Class<?> componentType = expectedType.getComponentType();
 		final Object array = Array.newInstance(componentType, 1);
 		
 		if( componentType.isPrimitive() ){

@@ -77,7 +77,8 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 
     public ITypeBinding getTypeBinding(){ return (ITypeBinding)_binding; }
     
-    private void getASTFields(
+    @SuppressWarnings("unchecked")
+	private void getASTFields(
     		final AbstractTypeDeclaration typeDecl, 
     		final List<FieldDeclaration> results){
     	final List bodyDecls = typeDecl.bodyDeclarations();
@@ -236,7 +237,8 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     /**
      * create mirror methods that does not have a binding represention.
      */
-    protected void getASTMethods(
+    @SuppressWarnings("unchecked")
+	protected void getASTMethods(
     		final AbstractTypeDeclaration typeDecl, 
     		final List<MethodDeclaration> results){
     	final List bodyDecls = typeDecl.bodyDeclarations();

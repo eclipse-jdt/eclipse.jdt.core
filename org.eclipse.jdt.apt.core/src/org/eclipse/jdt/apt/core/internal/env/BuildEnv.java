@@ -446,6 +446,7 @@ public class BuildEnv extends AbstractCompilationEnv
 	 * if we are in batch mode. Otherwise, just the types from the file that's currently
 	 * being processed.
 	 */
+	@SuppressWarnings("unchecked")
 	protected List<AbstractTypeDeclaration> searchLocallyForTypeDeclarations()
     {
 		if( !_batchMode )
@@ -459,6 +460,7 @@ public class BuildEnv extends AbstractCompilationEnv
 		return typeDecls;
     }
 	
+	@SuppressWarnings("unchecked")
 	private void getTypeDeclarationsFromAdditionFiles(List<AbstractTypeDeclaration> typeDecls){
 		if( _additionFiles == null || _additionFiles.length == 0 ) return;
 	
