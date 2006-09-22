@@ -32743,4 +32743,43 @@ public void test1032() {
 		},
 		"");
 }
+public void test1033() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X x = new X();\n" + 
+			"		x.bar1(Integer.TYPE);\n" + 
+			"		x.bar2(Integer.TYPE);\n" + 
+			"		x.bar2(\"\");\n" + 
+			"	} \n" + 
+			"	 void bar1(Class<?>... classes) {}\n" + 
+			"	 void bar2(Class... classes) {}\n" + 
+			"	 \n" + 
+			"}", // =================
+
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	X x = new X();\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	X x = new X();\n" + 
+		"	          ^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	x.bar1(Integer.TYPE);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method bar1(Class...) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	x.bar2(\"\");\n" + 
+		"	  ^^^^\n" + 
+		"The method bar2(Class...) in the type X is not applicable for the arguments (String)\n" + 
+		"----------\n");
+}
 }
