@@ -32782,4 +32782,53 @@ public void test1033() {
 		"The method bar2(Class...) in the type X is not applicable for the arguments (String)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158519
+public void test1034() {
+	this.runNegativeTest(
+		new String[] {
+			"ChainedClosure.java",
+			"interface Closure<I> {\n" + 
+			"    public void execute(I input);\n" + 
+			"}\n" + 
+			"\n" + 
+			"class ChainedClosure<I> implements Closure<I> {\n" + 
+			"    private final Closure<? super I>[] iClosures;\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    public static <I> Closure<I> getInstance(Closure<? super I> closure1, Closure<? super I> closure2) {\n" + 
+			"        if (closure1 == null || closure2 == null) {\n" + 
+			"            throw new IllegalArgumentException(\"Closures must not be null\");\n" + 
+			"        }\n" + 
+			"        Closure<I>[] closures = new Closure[] { closure1, closure2 };\n" + 
+			"        return new ChainedClosure<I>(closures);\n" + 
+			"    }\n" + 
+			"    public ChainedClosure(Closure<? super I>[] closures) {\n" + 
+			"        super();\n" + 
+			"        iClosures = closures;\n" + 
+			"    }\n" + 
+			"    public void execute(I input) {\n" + 
+			"        for (int i = 0; i < iClosures.length; i++) {\n" + 
+			"            iClosures[i].execute(input);\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class ClosureUtils {\n" + 
+			"    public static <J> Closure<J> chainedClosure(Closure<? super J> closure1, Closure<? super J> closure2) {\n" + 
+			"        return ChainedClosure.getInstance(closure1, closure2);\n" + 
+			"    }\n" + 
+			"    public static Closure<String> chainedClosure2(Closure<? super String> closure1, Closure<? super String> closure2) {\n" + 
+			"        return ChainedClosure.getInstance(closure1, closure2);\n" + 
+			"    }\n" + 
+			"    public static <J> Closure<String> chainedClosure3(Closure<? super J> closure1, Closure<? super J> closure2) {\n" + 
+			"        return ChainedClosure.getInstance(closure1, closure2);\n" + 
+			"    }\n" + 
+			"}", // =================
+
+		},
+		"----------\n" + 
+		"1. ERROR in ChainedClosure.java (at line 33)\n" + 
+		"	return ChainedClosure.getInstance(closure1, closure2);\n" + 
+		"	                      ^^^^^^^^^^^\n" + 
+		"The method getInstance(Closure<? super I>, Closure<? super I>) in the type ChainedClosure is not applicable for the arguments (Closure<capture#10-of ? super J>, Closure<capture#11-of ? super J>)\n" + 
+		"----------\n");
+}
 }
