@@ -213,7 +213,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			Messages.AptConfigurationBlock_value
 		};
 		fProcessorOptionsField.setTableColumns(new ListDialogField.ColumnsDescription(columnHeaders, true));
-		fProcessorOptionsField.setViewerSorter(new ProcessorOptionSorter());
+		fProcessorOptionsField.setViewerComparator(new ProcessorOptionSorter());
 		fProcessorOptionsField.setLabelText(Messages.AptConfigurationBlock_options);
 		
 		updateControls();
