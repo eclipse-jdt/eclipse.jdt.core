@@ -10485,16 +10485,32 @@ public void testCompletionAfterSwitch() throws JavaModelException {
 			requestor.getResults());
 }
 public void testCompletionAfterSupercall1() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionAfterSupercall1.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionAfterSupercall1.java",
+		"public class CompletionAfterSupercall1 extends CompletionAfterSupercall1_1 {\n" +
+		"	public void foo(){\n" +
+		"		super.foo\n" +
+		"	}\n" +
+		"}\n" +
+		"abstract class CompletionAfterSupercall1_1 extends CompletionAfterSupercall1_2 implements CompletionAfterSupercall1_3 {\n" +
+		"	\n" +
+		"}\n" +
+		"class CompletionAfterSupercall1_2 implements CompletionAfterSupercall1_3 {\n" +
+		"	public void foo(){}\n" +
+		"}\n" +
+		"interface CompletionAfterSupercall1_3 {\n" +
+		"	public void foo();\n" +
+		"}");
 
-	String str = cu.getSource();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "super.foo";
-	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	assertEquals(
-			"element:foo    completion:foo()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC+ R_NON_RESTRICTED),
+	assertResults(
+			"foo[METHOD_REF]{foo(), LCompletionAfterSupercall1_2;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC+ R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionPackageAndClass1() throws JavaModelException {

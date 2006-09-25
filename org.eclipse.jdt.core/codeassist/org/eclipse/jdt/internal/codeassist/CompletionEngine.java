@@ -924,7 +924,7 @@ public final class CompletionEngine
 						ref,
 						scope,
 						false,
-						true);
+						false);
 				}
 
 				if (!isInsideAnnotationAttribute && !this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
@@ -942,7 +942,7 @@ public final class CompletionEngine
 						scope,
 						false,
 						false,
-						true);
+						false);
 				}
 
 			} else if (qualifiedBinding instanceof PackageBinding) {
@@ -1030,7 +1030,7 @@ public final class CompletionEngine
 					scope,
 					false,
 					messageSend.receiver instanceof SuperReference,
-					true);
+					false);
 			}
 		} else if (astNode instanceof CompletionOnExplicitConstructorCall) {
 			if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
@@ -2779,7 +2779,7 @@ public final class CompletionEngine
 				invocationSite,
 				invocationScope,
 				implicitCall,
-				true);
+				false);
 		}
 
 		if(proposeMethod) {
@@ -2797,7 +2797,7 @@ public final class CompletionEngine
 				invocationScope,
 				implicitCall,
 				superCall,
-				true);
+				false);
 		}
 	}
 
@@ -3821,45 +3821,40 @@ public final class CompletionEngine
 				ReferenceBinding otherReceiverType = (ReferenceBinding) other[1];
 				if (method == otherMethod && receiverType == otherReceiverType)
 					continue next;
-
-				if (CharOperation.equals(method.selector, otherMethod.selector, true)
-					&& lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
-
-					if (method.declaringClass.isSuperclassOf(otherMethod.declaringClass))
-						continue next;
-
-					if (otherMethod.declaringClass.isInterface()) {
-						if(method.declaringClass == scope.getJavaLangObject())
-							continue next;
-						
-						if (method.declaringClass.isInterface())
-							continue next;
-						
-						if (!superCall && method
-							.declaringClass
-							.implementsInterface(otherMethod.declaringClass, true))
-							continue next;
-					}
-
-					if (method.declaringClass.isInterface())
-						if(otherMethod
-							.declaringClass
-							.implementsInterface(method.declaringClass,true))
-							continue next;
-						
-					if(receiverType.isAnonymousType()) continue next;
-					
-					if(!superCall) {
-						if(canBePrefixed) {
-							prefixRequired = true;
-						} else {
-							continue next;
+				
+				if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
+					if (receiverType == otherReceiverType) {
+						if (lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
+							if (!superCall || !otherMethod.declaringClass.isInterface()) {
+								continue next;
+							}
+						}
+					} else {
+						if (lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
+							if(receiverType.isAnonymousType()) continue next;
+							
+							if(!superCall) {
+								if(!canBePrefixed) continue next;
+								
+								prefixRequired = true;
+							}
 						}
 					}
 				}
 			}
 
 			newMethodsFound.add(new Object[]{method, receiverType});
+			
+			ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeWithSameErasure(method.declaringClass);
+			if (method.declaringClass != superTypeWithSameErasure) {
+				MethodBinding[] otherMethods = superTypeWithSameErasure.getMethods(method.selector);
+				for (int i = 0; i < otherMethods.length; i++) {
+					if(otherMethods[i].original() == method.original()) {
+						method = otherMethods[i];
+					}
+				}
+			}
+			
 			int length = method.parameters.length;
 			char[][] parameterPackageNames = new char[length][];
 			char[][] parameterTypeNames = new char[length][];
@@ -4720,7 +4715,11 @@ public final class CompletionEngine
 			} else {
 				hasPotentialDefaultAbstractMethods = false;
 			}
-			currentType = currentType.superclass();
+			if(currentType.isParameterizedType()) {
+				currentType = ((ParameterizedTypeBinding)currentType).type.superclass();
+			} else {
+				currentType = currentType.superclass();
+			}
 		}
 	}
 	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames){

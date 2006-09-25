@@ -9010,6 +9010,160 @@ public void test0290() throws JavaModelException {
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123225
+public void test0291() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[5];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"  public void foo(){\n" +
+			"    new Test2<Test4>().foo\n" +
+			"  }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/Test1.java",
+			"package test;\n" +
+			"public class Test1<TTest1> {\n" +
+			"  public void foo(TTest1 t){}\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/test/Test2.java",
+			"package test;\n" +
+			"public class Test2<TTest2 extends Test3> extends Test1<TTest2> {\n" +
+			"  public void foo(Test3 t){}\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/test/Test3.java",
+			"package test;\n" +
+			"public class Test3 {\n" +
+			"}");
+	
+	this.workingCopies[4] = getWorkingCopy(
+			"/Completion/src3/test/Test4.java",
+			"package test;\n" +
+			"public class Test4 extends Test3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"foo[METHOD_REF]{foo(), Ltest.Test2<Ltest.Test4;>;, (Ltest.Test3;)V, foo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123225
+public void test0292() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[6];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"  public void foo(){\n" +
+			"    new Test5().foo\n" +
+			"  }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/Test1.java",
+			"package test;\n" +
+			"public class Test1<TTest1> {\n" +
+			"  public void foo(TTest1 t){}\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/test/Test2.java",
+			"package test;\n" +
+			"public class Test2<TTest2 extends Test3> extends Test1<TTest2> {\n" +
+			"  public void foo(Test3 t){}\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/test/Test3.java",
+			"package test;\n" +
+			"public class Test3 {\n" +
+			"}");
+	
+	this.workingCopies[4] = getWorkingCopy(
+			"/Completion/src3/test/Test4.java",
+			"package test;\n" +
+			"public class Test4 extends Test3 {\n" +
+			"}");
+	
+	this.workingCopies[5] = getWorkingCopy(
+			"/Completion/src3/test/Test5.java",
+			"package test;\n" +
+			"public class Test5 extends Test2<Test4> {\n" +
+			"  public void foo(Test4 t){}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"foo[METHOD_REF]{foo(), Ltest.Test2<Ltest.Test4;>;, (Ltest.Test3;)V, foo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"foo[METHOD_REF]{foo(), Ltest.Test5;, (Ltest.Test4;)V, foo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123225
+public void test0293() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[5];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test extends Test2<Test4> {\n" +
+			"  public void foo(Test4 t){}\n" +
+			"  public void bar(){\n" +
+			"    foo\n" +
+			"  }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/Test1.java",
+			"package test;\n" +
+			"public class Test1<TTest1> {\n" +
+			"  public void foo(TTest1 t){}\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/test/Test2.java",
+			"package test;\n" +
+			"public class Test2<TTest2 extends Test3> extends Test1<TTest2> {\n" +
+			"  public void foo(Test3 t){}\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/test/Test3.java",
+			"package test;\n" +
+			"public class Test3 {\n" +
+			"}");
+	
+	this.workingCopies[4] = getWorkingCopy(
+			"/Completion/src3/test/Test4.java",
+			"package test;\n" +
+			"public class Test4 extends Test3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"foo[METHOD_REF]{foo(), Ltest.Test2<Ltest.Test4;>;, (Ltest.Test3;)V, foo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"foo[METHOD_REF]{foo(), Ltest.Test;, (Ltest.Test4;)V, foo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
 public void testEC001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
