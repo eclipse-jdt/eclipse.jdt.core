@@ -32831,4 +32831,93 @@ public void test1034() {
 		"The method getInstance(Closure<? super I>, Closure<? super I>) in the type ChainedClosure is not applicable for the arguments (Closure<capture#10-of ? super J>, Closure<capture#11-of ? super J>)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158531
+public void test1035() {
+	this.runNegativeTest(
+		new String[] {
+			"ComparableComparator.java",
+			"import java.util.Comparator;\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unchecked\")\n" + 
+			"class ComparableComparator<T extends Comparable<? super T>> implements Comparator<T> {\n" + 
+			"\n" + 
+			"	static ComparableComparator instance = new ComparableComparator();\n" + 
+			"\n" + 
+			"public static <W extends Comparable<? super W>> ComparableComparator<W> getInstance() {\n" + 
+			"	return instance;\n" + 
+			"}\n" + 
+			"static <M extends Comparable<M>> Comparator<M> bar() {\n" + 
+			"	return null;\n" + 
+			"}\n" + 
+			"static <M extends String> Comparator<M> baz() {\n" + 
+			"	return null;\n" + 
+			"}\n" + 
+			"public int compare(T obj1, T obj2) {\n" + 
+			"	return obj1.compareTo(obj2);\n" + 
+			"}\n" + 
+			"}\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unchecked\")\n" + 
+			"class ComparatorUtils {\n" + 
+			"\n" + 
+			"	static Comparator BAR = ComparableComparator.bar();//0\n" + 
+			"	static Comparator NATURAL_COMPARATOR = ComparableComparator.getInstance();//1\n" + 
+			"	static Object BAR2 = ComparableComparator.bar();//1a\n" + 
+			"	static Comparator BAR3 = ComparableComparator.baz();//1b\n" + 
+			"\n" + 
+			"public static <T extends Comparable<? super T>> Comparator<T> naturalComparator() {\n" + 
+			"	return NATURAL_COMPARATOR;\n" + 
+			"}\n" + 
+			"\n" + 
+			"public static <U> Comparator<U> nullLowComparator(Comparator<U> comparator) {\n" + 
+			"	if (comparator == null)\n" + 
+			"		comparator = (Comparator<U>) naturalComparator();//2\n" + 
+			"	return new NullComparator<U>(comparator, false);\n" + 
+			"}\n" + 
+			"}\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unchecked\")\n" + 
+			"class NullComparator<V> implements Comparator<V> {\n" + 
+			"\n" + 
+			"	Comparator<V> nonNullComparator;\n" + 
+			"	boolean nullsAreHigh;\n" + 
+			"\n" + 
+			"public NullComparator() {\n" + 
+			"	this((Comparator<V>) ComparableComparator.getInstance(), true);//3\n" + 
+			"}\n" + 
+			"\n" + 
+			"public NullComparator(Comparator<V> nonNullComparator) {\n" + 
+			"	this(nonNullComparator, true);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public NullComparator(boolean nullsAreHigh) {\n" + 
+			"	this((Comparator<V>) ComparableComparator.getInstance(), nullsAreHigh);//4\n" + 
+			"}\n" + 
+			"\n" + 
+			"public NullComparator(Comparator<V> nonNullComparator, boolean nullsAreHigh) {\n" + 
+			"	this.nonNullComparator = nonNullComparator;\n" + 
+			"	this.nullsAreHigh = nullsAreHigh;\n" + 
+			"	if (nonNullComparator == null) {\n" + 
+			"		throw new NullPointerException(\"null nonNullComparator\");\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public int compare(V obj1, V obj2) {\n" + 
+			"	return 0;\n" + 
+			"}\n" + 
+			"}", // =================
+
+		},
+		"----------\n" + 
+		"1. WARNING in ComparableComparator.java (at line 14)\n" + 
+		"	static <M extends String> Comparator<M> baz() {\n" + 
+		"	                  ^^^^^^\n" + 
+		"The type parameter M should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in ComparableComparator.java (at line 27)\n" + 
+		"	static Object BAR2 = ComparableComparator.bar();//1a\n" + 
+		"	                                          ^^^\n" + 
+		"Bound mismatch: The generic method bar() of type ComparableComparator<T> is not applicable for the arguments (). The inferred type Comparable<Comparable<M>> is not a valid substitute for the bounded parameter <M extends Comparable<M>>\n" + 
+		"----------\n");
+}
 }
