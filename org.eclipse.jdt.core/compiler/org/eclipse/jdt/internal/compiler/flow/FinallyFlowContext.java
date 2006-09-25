@@ -82,36 +82,8 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 	// check inconsistent null checks
 	if (this.deferNullDiagnostic) { // within an enclosing loop, be conservative
 		for (int i = 0; i < this.nullCount; i++) {
-			Expression expression = this.nullReferences[i];
-			LocalVariableBinding local = this.nullLocals[i];
-			switch (this.nullCheckTypes[i]) {
-				case CAN_ONLY_NULL_NON_NULL :
-				case CAN_ONLY_NULL:
-					if (flowInfo.isProtectedNonNull(local)) {
-						if (nullCheckTypes[i] == CAN_ONLY_NULL_NON_NULL) {
-							scope.problemReporter().localVariableCannotBeNull(local, expression);
-						}
-						return; // WORK wrong, test second variable!
-					}
-					if (flowInfo.isProtectedNull(local)) {
-						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
-						return;
-					}
-					break;
-				case MAY_NULL :
-					if (flowInfo.isProtectedNonNull(local)) {
-						return;
-					}
-					if (flowInfo.isProtectedNull(local)) {
-						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
-						return;
-					}
-					break;
-				default:
-					// never happens
-			}
-			this.parent.recordUsingNullReference(scope, local, expression, 
-					this.nullCheckTypes[i], flowInfo);
+			this.parent.recordUsingNullReference(scope, this.nullLocals[i], 
+					this.nullReferences[i],	this.nullCheckTypes[i], flowInfo);
 		}
 	}
 	else { // no enclosing loop, be as precise as possible right now
@@ -123,22 +95,20 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 				case CAN_ONLY_NULL_NON_NULL :
 					if (flowInfo.isDefinitelyNonNull(local)) {
 						scope.problemReporter().localVariableCannotBeNull(local, expression);				
-						return;
+						continue;
 					}
 				case CAN_ONLY_NULL:
 					if (flowInfo.isDefinitelyNull(local)) {
 						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
-						return;
 					}
 					break;
 				case MAY_NULL :
 					if (flowInfo.isDefinitelyNull(local)) {
 						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
-						return;
+						continue;
 					}
 					if (flowInfo.isPotentiallyNull(local)) {
 						scope.problemReporter().localVariableMayBeNull(local, expression);
-						return;
 					}
 					break;
 				default:

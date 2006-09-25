@@ -4350,9 +4350,9 @@ public void test0521_try_finally() {
 		"");
 }
 
-//null analysis -- try/finally
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
-//variant
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+// variant
 public void test0522_try_finally() {
 	this.runNegativeTest(
 		new String[] {
@@ -4450,7 +4450,7 @@ public void test0524_try_finally() {
 }
 
 // null analysis -- try/finally
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=150082
 public void test0525_try_finally_unchecked_exception() {
 	this.runNegativeTest(
 		new String[] {
@@ -4485,7 +4485,7 @@ public void test0525_try_finally_unchecked_exception() {
 }
 
 // null analysis -- try/finally
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=150082
 // variant
 public void test0526_try_finally_unchecked_exception() {
 	this.runNegativeTest(
@@ -4520,7 +4520,7 @@ public void test0526_try_finally_unchecked_exception() {
 }
 
 //null analysis -- try/finally
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150082
 //variant
 public void test0527_try_finally_unchecked_exception() {
 	this.runNegativeTest(
@@ -4548,6 +4548,129 @@ public void test0527_try_finally_unchecked_exception() {
 		"	o.toString();\n" + 
 		"	^\n" + 
 		"The variable o may be null\n" + 
+		"----------\n");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
+public void test0528_try_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(X x) {\n" + 
+			"    x = null;\n" + 
+			"    X y = null;\n" + 
+			"    try {\n" + 
+			"    } finally {\n" + 
+			"      if (x != null) { /* */ }\n" + // complain null 
+			"      if (y != null) { /* */ }\n" + // complain null as well 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if (x != null) { /* */ }\n" + 
+		"	    ^\n" + 
+		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	if (y != null) { /* */ }\n" + 
+		"	    ^\n" + 
+		"The variable y can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+}
+
+// null analysis -- try finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
+public void test0529_try_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o) {\n" + 
+			"    o = null;\n" +
+			"    Object o2 = null;\n" +
+			"    try { /* */ }\n" + 
+			"    finally {\n" + 
+			"      o.toString();\n" +  // complain
+			"      o2.toString();\n" + // complain
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	o2.toString();\n" + 
+		"	^^\n" + 
+		"The variable o2 can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
+public void test0530_try_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			" void foo(X x) {\n" + 
+			"   x = null;\n" +
+			"   X y = null;\n" +
+			"   try {\n" + 
+			"     x = new X();\n" + 
+			"   } finally {\n" + 
+			"     x.toString();\n" +
+			"     y.toString();\n" + // complain
+			"   }\n" + 
+			" }\n" + 
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	x.toString();\n" + 
+		"	^\n" + 
+		"The variable x may be null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	y.toString();\n" + 
+		"	^\n" + 
+		"The variable y can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
+public void test0531_try_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			" void foo() {\n" + 
+			"   X x = new X();\n" +
+			"   X y = null;\n" +
+			"   try {\n" + 
+			"   } finally {\n" + 
+			"     if (x != null) {\n" +
+			"       x.toString();\n" +
+			"     }\n" +
+			"     y.toString();\n" + // complain
+			"   }\n" + 
+			" }\n" + 
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if (x != null) {\n" + 
+		"	    ^\n" + 
+		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	y.toString();\n" + 
+		"	^\n" + 
+		"The variable y can only be null; it was either set to null or checked for null when last used\n" + 
 		"----------\n");
 }
 
