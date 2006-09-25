@@ -1170,6 +1170,42 @@ public void testMethodDeclarationInInterface() throws JavaModelException {
 			elements
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142303
+public void testMethodInAnonymous1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/Test2.java",
+			"public class Test2 {\n" +
+			"\n" +
+			"    private void foo(boolean v) {\n" +
+			"    }\n" +
+			"\n" +
+			"    void function(boolean v) {\n" +
+			"        new Object() {\n" +
+			"            public void run() {\n" +
+			"                if (false) {\n" +
+			"                } else {\n" +
+			"                    foo(false); // <-- right-click, open declaration fails\n" +
+			"                }\n" +
+			"            }\n" +
+			"        };\n" +
+			"        new Object() {  public void run() {   } };\n" +
+			"        if (v) {}\n" +
+			"    }\n" +
+			"}");
+	
+	String str = this.workingCopies[0].getSource();
+	String selectAt = "foo(false)";
+	String selection = "foo";
+	int start = str.indexOf(selectAt);
+	int length = selection.length();
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(boolean) [in Test2 [in [Working copy] Test2.java [in <default> [in src [in Resolve]]]]]",
+			elements);
+}
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=57414
  */

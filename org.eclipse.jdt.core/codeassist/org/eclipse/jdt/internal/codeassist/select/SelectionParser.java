@@ -126,6 +126,9 @@ private void buildMoreCompletionContext(Expression expression) {
 		currentElement = currentElement.add((Statement)parentNode, 0);
 	} else {
 		currentElement = currentElement.add((Statement)wrapWithExplicitConstructorCallIfNeeded(expression), 0);
+		if(lastCheckPoint < expression.sourceEnd) {
+			lastCheckPoint = expression.sourceEnd + 1;
+		}
 	}
 }
 private boolean checkRecoveredType() {
