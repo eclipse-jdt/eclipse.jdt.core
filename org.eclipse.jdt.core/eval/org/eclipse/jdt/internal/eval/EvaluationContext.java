@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
+import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.jdt.core.CompletionRequestor;
@@ -20,9 +21,12 @@ import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
@@ -98,6 +102,20 @@ public GlobalVariable[] allVariables() {
  *		set of options used to configure the code assist engine.
  */
 public void complete(char[] codeSnippet, int completionPosition, SearchableEnvironment environment, CompletionRequestor requestor, Map options, IJavaProject project) {
+	try {
+		IRequestor variableRequestor = new IRequestor() {
+			public boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassName) {
+				// Do nothing
+				return true;
+			}
+			public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int fragmentKind) {
+				// Do nothing
+			}
+		};
+		this.evaluateVariables(environment, options, variableRequestor, new DefaultProblemFactory(Locale.getDefault()));
+	} catch (InstallException e) {
+		// Do nothing
+	}
 	final char[] className = "CodeSnippetCompletion".toCharArray(); //$NON-NLS-1$
 	final CodeSnippetToCuMapper mapper = new CodeSnippetToCuMapper(
 		codeSnippet, 
@@ -125,7 +143,28 @@ public void complete(char[] codeSnippet, int completionPosition, SearchableEnvir
 			return null;
 		}
 	};
+	
 	CompletionEngine engine = new CompletionEngine(environment, mapper.getCompletionRequestor(requestor), options, project);
+	
+	if (this.installedVars != null) {
+		IBinaryType binaryType = this.getRootCodeSnippetBinary();
+		if (binaryType != null) {
+			engine.lookupEnvironment.cacheBinaryType(binaryType, null /*no access restriction*/);
+		}
+		
+		ClassFile[] classFiles = installedVars.classFiles;
+		for (int i = 0; i < classFiles.length; i++) {
+			ClassFile classFile = classFiles[i];
+			IBinaryType binary = null;
+			try {
+				binary = new ClassFileReader(classFile.getBytes(), null);
+			} catch (ClassFormatException e) {
+				e.printStackTrace(); // Should never happen since we compiled this type
+			}
+			engine.lookupEnvironment.cacheBinaryType(binary, null /*no access restriction*/);
+		}
+	}
+	
 	engine.complete(sourceUnit, mapper.startPosOffset + completionPosition, mapper.startPosOffset);
 }
 /**

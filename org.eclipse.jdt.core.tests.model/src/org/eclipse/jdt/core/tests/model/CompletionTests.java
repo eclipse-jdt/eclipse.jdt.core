@@ -923,6 +923,41 @@ public void testEvaluationContextCompletion4() throws JavaModelException {
 			requestor.getResults());
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141518
+public void testEvaluationContextCompletion5() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TestEvaluationContextCompletion5.java",
+		"package test;"+
+		"public class TestEvaluationContextCompletion5 {\n"+
+		"}");
+	
+	String start = "someVariable.to";
+	IJavaProject javaProject = getJavaProject("Completion");
+	IEvaluationContext context = javaProject.newEvaluationContext();
+	
+	context.newVariable( "Object", "someVariable", null );
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false);
+	context.codeComplete(start, start.length(), requestor, this.wcOwner);
+	
+	int startOffset = start.length() - 2;
+	int endOffset = startOffset + 2 ;
+	
+	assertResults(
+			"completion offset="+endOffset+"\n"+
+			"completion range=["+startOffset+", "+(endOffset-1)+"]\n"+
+			"completion token=\"to\"\n"+
+			"completion token kind=TOKEN_KIND_NAME\n"+
+			"expectedTypesSignatures=null\n"+
+			"expectedTypesKeys=null",
+            requestor.getContext());
+    
+	assertResults(
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+
 /**
  * Ensures that completion is not case sensitive
  */
