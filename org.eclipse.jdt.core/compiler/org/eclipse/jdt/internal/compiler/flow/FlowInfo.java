@@ -69,7 +69,6 @@ abstract public FlowInfo addPotentialInitializationsFrom(FlowInfo otherInits);
  * @param local the variable to ckeck
  * @return true iff local cannot be null for this flow info
  */
-// WORK (maxime) implement fast version for UnconditionalFlowInfo
 public boolean cannotBeNull(LocalVariableBinding local) {
 	return isDefinitelyNonNull(local) || isProtectedNonNull(local);
 }
@@ -80,7 +79,6 @@ public boolean cannotBeNull(LocalVariableBinding local) {
  * @param local the variable to ckeck
  * @return true iff local can only be null for this flow info
  */
-// WORK (maxime) implement fast version for UnconditionalFlowInfo
 public boolean canOnlyBeNull(LocalVariableBinding local) {
 	return isDefinitelyNull(local) || isProtectedNull(local);
 }

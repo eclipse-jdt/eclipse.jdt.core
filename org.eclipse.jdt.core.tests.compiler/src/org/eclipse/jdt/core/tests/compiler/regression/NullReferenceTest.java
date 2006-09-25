@@ -4449,6 +4449,108 @@ public void test0524_try_finally() {
 		"----------\n");
 }
 
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+public void test0525_try_finally_unchecked_exception() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X\n" + 
+			"{\n" + 
+			"  String foo(Object p) {\n" + 
+			"    String s = null;\n" + 
+			"    Object o = null;\n" + 
+			"    try {\n" + 
+			"        o = p;\n" + 
+			"        if (o == null) {\n" + 
+			"          return null;\n" + 
+			"        }\n" + 
+			"        s = o.getClass().getName();\n" + 
+			"    } catch (RuntimeException e) {\n" + 
+			"            o.toString();\n" + 
+			"            s = null;\n" + 
+			"    } finally {\n" + 
+			"      if (o != null) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    return s;\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\r\n" + 
+		"	o.toString();\r\n" + 
+		"	^\n" + 
+		"The variable o may be null\n" + 
+		"----------\n");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+// variant
+public void test0526_try_finally_unchecked_exception() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X\n" + 
+			"{\n" + 
+			"  String foo(Object p) {\n" + 
+			"    String s = null;\n" + 
+			"    Object o = p;\n" + 
+			"    try {\n" + 
+			"        if (o == null) {\n" +  // shades doubts upon o
+			"          return null;\n" +	// may throw a RuntimeException by spec 
+			"        }\n" + 
+			"        s = o.getClass().getName();\n" + 
+			"    } catch (RuntimeException e) {\n" + 
+			"            o.toString();\n" + 
+			"            s = null;\n" + 
+			"    } finally {\n" + 
+			"      if (o != null) {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    return s;\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o may be null\n" + 
+		"----------\n");
+}
+
+//null analysis -- try/finally
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+//variant
+public void test0527_try_finally_unchecked_exception() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X\n" + 
+			"{\n" + 
+			"  String foo(Object p) {\n" + 
+			"    String s = null;\n" + 
+			"    Object o = p;\n" + 
+			"    try {\n" + 
+			"        if (o == null) {\n" +  // shades doubts upon o
+			"          return null;\n" +	// may throw a RuntimeException by spec 
+			"        }\n" + 
+			"        s = o.getClass().getName();\n" + 
+			"    } catch (RuntimeException e) {\n" + 
+			"            o.toString();\n" + 
+			"            s = null;\n" + 
+			"    }\n" + 
+			"    return s;\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	o.toString();\n" + 
+		"	^\n" + 
+		"The variable o may be null\n" + 
+		"----------\n");
+}
+
 // null analysis -- try/catch
 public void test0550_try_catch() {
 	this.runConformTest(

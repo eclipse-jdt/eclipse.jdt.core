@@ -112,16 +112,17 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.catchExits = new boolean[catchCount = this.catchBlocks.length];
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
-				
 				FlowInfo catchInfo;
-				if (this.caughtExceptionTypes[i].isUncheckedException(false)) {
+				if (this.caughtExceptionTypes[i].isUncheckedException(true)) {
 					catchInfo =
-						flowInfo.unconditionalCopy().
-							addPotentialInitializationsFrom(
-								handlingContext.initsOnException(
-									this.caughtExceptionTypes[i]))
-							.addPotentialInitializationsFrom(tryInfo)
-							.addPotentialInitializationsFrom(handlingContext.initsOnReturn);
+						handlingContext.initsOnFinally.mitigateNullInfoOf(
+							flowInfo.unconditionalCopy().
+								addPotentialInitializationsFrom(
+									handlingContext.initsOnException(
+										this.caughtExceptionTypes[i])).
+								addPotentialInitializationsFrom(tryInfo).
+								addPotentialInitializationsFrom(
+									handlingContext.initsOnReturn));
 				}
 				else {
 					catchInfo =
@@ -223,7 +224,20 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.catchExits = new boolean[catchCount = this.catchBlocks.length];
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
-				FlowInfo catchInfo =
+				FlowInfo catchInfo;
+				if (this.caughtExceptionTypes[i].isUncheckedException(true)) {
+					catchInfo =
+						handlingContext.initsOnFinally.mitigateNullInfoOf(
+							flowInfo.unconditionalCopy().
+								addPotentialInitializationsFrom(
+									handlingContext.initsOnException(
+										this.caughtExceptionTypes[i])).
+								addPotentialInitializationsFrom(tryInfo).
+								addPotentialInitializationsFrom(
+									handlingContext.initsOnReturn));
+				}
+				else {
+				catchInfo =
 					flowInfo.unconditionalCopy().
 						addPotentialInitializationsFrom(
 							handlingContext.initsOnException(
@@ -235,6 +249,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 						.addPotentialInitializationsFrom(
 							handlingContext.initsOnReturn.
 								nullInfoLessUnconditionalCopy());
+				}
 
 				// catch var is always set
 				LocalVariableBinding catchArg = this.catchArguments[i].binding;
