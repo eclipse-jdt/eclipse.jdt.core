@@ -6913,6 +6913,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=142793
+	 * updated for https://bugs.eclipse.org/bugs/show_bug.cgi?id=143001
 	 */
 	public void test0220() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -6938,9 +6939,28 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		Block body = methodDeclaration.getBody();
 		assertNotNull("No body", body);
-		assertEquals("Wrong size", 0, body.statements().size());
-		assertTrue("Not recovered", isRecovered(body));
+		List statements = body.statements();
+		assertEquals("Wrong size", 1, statements.size());
+		assertTrue("Recovered", !isRecovered(body));
 		assertFalse("Malformed", isMalformed(body));
+		
+		Statement statement = (Statement)statements.get(0);
+		assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, statement.getNodeType());
+		EnhancedForStatement enhancedForStatement = (EnhancedForStatement) statement;
+		Statement forBody = enhancedForStatement.getBody();
+		assertNotNull("No body", forBody);
+		assertEquals("Not a block", ASTNode.BLOCK, forBody.getNodeType());
+		
+		statements = ((Block)forBody).statements();
+		assertEquals("Wrong size", 1, statements.size());
+		statement = (Statement)statements.get(0);
+		assertEquals("Not an try statement", ASTNode.TRY_STATEMENT, statement.getNodeType());
+		TryStatement tryStatement = (TryStatement) statement;
+		Block finallyBlock = tryStatement.getFinally();
+		assertNotNull("No finally block", finallyBlock);
+		assertTrue("Not recovered", isRecovered(finallyBlock));
+		
+		
 	}
 	
 	/*

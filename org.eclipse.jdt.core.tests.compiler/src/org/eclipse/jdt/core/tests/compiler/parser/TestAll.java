@@ -89,6 +89,7 @@ public class TestAll extends junit.framework.TestCase {
 			tests_1_5.add(GenericDietRecoveryTest.class);
 			tests_1_5.add(EnumDietRecoveryTest.class);
 			tests_1_5.add(AnnotationDietRecoveryTest.class);
+			tests_1_5.add(StatementRecoveryTest_1_5.class);
 			// Reset forgotten subsets tests
 			TestCase.TESTS_PREFIX = null;
 			TestCase.TESTS_NAMES = null;
@@ -109,6 +110,7 @@ public class TestAll extends junit.framework.TestCase {
 			tests_1_6.add(GenericDietRecoveryTest.class);
 			tests_1_6.add(EnumDietRecoveryTest.class);
 			tests_1_6.add(AnnotationDietRecoveryTest.class);
+			tests_1_6.add(StatementRecoveryTest_1_5.class);
 			// Reset forgotten subsets tests
 			TestCase.TESTS_PREFIX = null;
 			TestCase.TESTS_NAMES = null;

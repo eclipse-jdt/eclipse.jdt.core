@@ -1094,6 +1094,7 @@ CatchClause ::= 'catch' '(' FormalParameter ')'    Block
 
 Finally ::= 'finally'    Block
 /:$readableName Finally:/
+/:$recovery_template finally { }:/
 
 --18.12 Productions from 14: Expressions
 
