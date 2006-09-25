@@ -5022,8 +5022,8 @@ public void _test0612_do_while() {
 }
 
 // null analysis - do while
-// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=147118
-public void _test0613_do_while() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147118
+public void test0613_do_while() {
 	this.runConformTest(
 		new String[] {
 			"X.java",

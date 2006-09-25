@@ -92,13 +92,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (!isConditionOptimizedFalse && this.continueLabel != null) {
 		loopingContext.complainOnDeferredFinalChecks(currentScope, condInfo);
 		condLoopContext.complainOnDeferredFinalChecks(currentScope, condInfo);
-		UnconditionalFlowInfo checkFlowInfo;
 		loopingContext.complainOnDeferredNullChecks(currentScope, 
-				checkFlowInfo = actionInfo.
-					addPotentialNullInfoFrom(
+				flowInfo.unconditionalCopy().addPotentialNullInfoFrom(
 					  condInfo.initsWhenTrue().unconditionalInits()));
 		condLoopContext.complainOnDeferredNullChecks(currentScope, 
-				checkFlowInfo);
+				actionInfo.addPotentialNullInfoFrom(
+				  condInfo.initsWhenTrue().unconditionalInits()));
 	}
 
 	// end of loop
