@@ -884,7 +884,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	// in fact, <W extends String> Y<W> make(Class<W> clazz) is the most
 	// specific method according to JLS 15.12.2.5
-	public void _test019() {
+	public void test019() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -933,7 +933,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	// variant: having both methods in the same class should not change anything
-	public void _test021() {
+	public void test021() {
 	this.runConformTest(
 		new String[] {
 			"X.java",

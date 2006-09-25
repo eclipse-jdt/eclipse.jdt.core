@@ -3211,7 +3211,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					MethodBinding methodToTest = next;
 					if (next instanceof ParameterizedGenericMethodBinding) {
 						ParameterizedGenericMethodBinding pNext = (ParameterizedGenericMethodBinding) next;
-						if (pNext.isRaw) {
+						if (pNext.isRaw && 
+								(pNext.modifiers & ClassFileConstants.AccStatic)
+									== 0) {
 							// hold onto the raw substituted method
 						} else {
 							methodToTest = pNext.originalMethod;
