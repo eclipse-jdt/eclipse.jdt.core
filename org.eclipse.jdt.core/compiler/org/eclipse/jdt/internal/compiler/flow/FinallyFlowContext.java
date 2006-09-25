@@ -91,7 +91,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						if (nullCheckTypes[i] == CAN_ONLY_NULL_NON_NULL) {
 							scope.problemReporter().localVariableCannotBeNull(local, expression);
 						}
-						return;
+						return; // WORK wrong, test second variable!
 					}
 					if (flowInfo.isProtectedNull(local)) {
 						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
@@ -193,22 +193,22 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 			switch (checkType) {
 				case CAN_ONLY_NULL_NON_NULL :
 				case CAN_ONLY_NULL:
-					if (flowInfo.isProtectedNonNull(local)) {
+					if (flowInfo.cannotBeNull(local)) {
 						if (checkType == CAN_ONLY_NULL_NON_NULL) {
 							scope.problemReporter().localVariableCannotBeNull(local, reference);
 						}
 						return;
 					}
-					if (flowInfo.isProtectedNull(local)) {
+					if (flowInfo.canOnlyBeNull(local)) {
 						scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
 						return;
 					}
 					break;
 				case MAY_NULL :
-					if (flowInfo.isProtectedNonNull(local)) {
+					if (flowInfo.cannotBeNull(local)) {
 						return;
 					}
-					if (flowInfo.isProtectedNull(local)) {
+					if (flowInfo.canOnlyBeNull(local)) {
 						scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
 						return;
 					}

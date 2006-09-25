@@ -62,6 +62,28 @@ abstract public FlowInfo addPotentialInitializationsFrom(FlowInfo otherInits);
 		// if (initsWhenTrue.equals(initsWhenFalse)) return initsWhenTrue; -- could optimize if #equals is defined
 		return new ConditionalFlowInfo(initsWhenTrue, initsWhenFalse);
 	}
+	
+/**
+ * Check whether a given local variable is known to be non null, either because 
+ * it is definitely non null, or because is has been tested against non null.
+ * @param local the variable to ckeck
+ * @return true iff local cannot be null for this flow info
+ */
+// WORK (maxime) implement fast version for UnconditionalFlowInfo
+public boolean cannotBeNull(LocalVariableBinding local) {
+	return isDefinitelyNonNull(local) || isProtectedNonNull(local);
+}
+
+/**
+ * Check whether a given local variable is known to be null, either because it
+ * is definitely null, or because is has been tested against null.
+ * @param local the variable to ckeck
+ * @return true iff local can only be null for this flow info
+ */
+// WORK (maxime) implement fast version for UnconditionalFlowInfo
+public boolean canOnlyBeNull(LocalVariableBinding local) {
+	return isDefinitelyNull(local) || isProtectedNull(local);
+}
 
 /**
  * Return a deep copy of the current instance.

@@ -4322,6 +4322,133 @@ public void test0520_try_finally_constructor_exc() {
 		"");
 }
 
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+// incorrect analysis within try finally with an embedded && expression
+public void test0521_try_finally() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X\n" + 
+			"{\n" + 
+			"  X m;\n" + 
+			"  public void foo() {\n" + 
+			"    for(int j = 0; j < 10; j++) {\n" + 
+			"      try {\n" + 
+			"        j++;\n" + 
+			"      } finally {\n" + 
+			"        X t = m;\n" + 
+			"        if( t != null && t.bar()) {\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"},
+		"");
+}
+
+//null analysis -- try/finally
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+//variant
+public void test0522_try_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X\n" + 
+			"{\n" + 
+			"  X m;\n" + 
+			"  public void foo() {\n" + 
+			"    for(int j = 0; j < 10; j++) {\n" + 
+			"      try {\n" + 
+			"        j++;\n" + 
+			"      } finally {\n" + 
+			"        X t = null;\n" + 
+			"        if(t.bar()) {\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	if(t.bar()) {\n" + 
+		"	   ^\n" + 
+		"The variable t can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+// variant
+public void test0523_try_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X\n" + 
+			"{\n" + 
+			"  X m;\n" + 
+			"  public void foo() {\n" + 
+			"    for(int j = 0; j < 10; j++) {\n" + 
+			"      try {\n" + 
+			"        j++;\n" + 
+			"      } finally {\n" + 
+			"        X t = m;\n" + 
+			"        if(t == null ? false : (t == null ? false : t.bar())) {\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	if(t == null ? false : (t == null ? false : t.bar())) {\n" + 
+		"	                        ^\n" + 
+		"The variable t cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"----------\n");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
+// variant
+public void test0524_try_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X\n" + 
+			"{\n" + 
+			"  X m;\n" + 
+			"  public void foo() {\n" + 
+			"    for(int j = 0; j < 10; j++) {\n" + 
+			"      try {\n" + 
+			"        j++;\n" + 
+			"      } finally {\n" + 
+			"        X t = m;\n" + 
+			"        if(t != null ? false : (t == null ? false : t.bar())) {\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  boolean bar() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	if(t != null ? false : (t == null ? false : t.bar())) {\n" + 
+		"	                        ^\n" + 
+		"The variable t can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+}
+
 // null analysis -- try/catch
 public void test0550_try_catch() {
 	this.runConformTest(
