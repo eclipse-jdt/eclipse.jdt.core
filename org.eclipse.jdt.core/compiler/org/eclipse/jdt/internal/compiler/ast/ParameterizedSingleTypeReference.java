@@ -99,6 +99,17 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			this.resolvedType = scope.getType(token);
 			if (!(this.resolvedType.isValidBinding())) {
 				reportInvalidType(scope);
+				// be resilient, still attempt resolving arguments
+			    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
+				int argLength = this.typeArguments.length;
+				for (int i = 0; i < argLength; i++) {
+				    TypeReference typeArgument = this.typeArguments[i];
+				    if (isClassScope) {
+				    	typeArgument.resolveType((ClassScope) scope);
+				    } else {
+				    	typeArgument.resolveType((BlockScope) scope, checkBounds);
+				    }
+				}				
 				return null;
 			}
 			enclosingType = this.resolvedType.enclosingType(); // if member type

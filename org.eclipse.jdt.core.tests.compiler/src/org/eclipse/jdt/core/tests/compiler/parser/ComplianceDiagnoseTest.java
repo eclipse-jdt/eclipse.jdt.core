@@ -403,6 +403,16 @@ public void test0010() {
 		"	Z<Y1, Y2> var;\n" + 
 		"	  ^^^^^^\n" + 
 		"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	Z<Y1, Y2> var;\n" + 
+		"	  ^^\n" + 
+		"Y1 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 2)\n" + 
+		"	Z<Y1, Y2> var;\n" + 
+		"	      ^^\n" + 
+		"Y2 cannot be resolved to a type\n" + 
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -413,6 +423,16 @@ public void test0010() {
 		"	Z<Y1, Y2> var;\n" + 
 		"	^\n" + 
 		"Z cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	Z<Y1, Y2> var;\n" + 
+		"	  ^^\n" + 
+		"Y1 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	Z<Y1, Y2> var;\n" + 
+		"	      ^^\n" + 
+		"Y2 cannot be resolved to a type\n" + 
 		"----------\n";
 	
 	runComplianceParserTest(
@@ -801,7 +821,17 @@ public void test0019() {
 		"	  ^^^^^^\n" + 
 		"Syntax error, parameterized types are only available if source level is 5.0\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 3)\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	Z<Y1, Y2> var;\n" + 
+		"	  ^^\n" + 
+		"Y1 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 2)\n" + 
+		"	Z<Y1, Y2> var;\n" + 
+		"	      ^^\n" + 
+		"Y2 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 3)\n" + 
 		"	#\n" + 
 		"	^\n" + 
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 
@@ -816,7 +846,17 @@ public void test0019() {
 		"	^\n" + 
 		"Z cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	Z<Y1, Y2> var;\n" + 
+		"	  ^^\n" + 
+		"Y1 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	Z<Y1, Y2> var;\n" + 
+		"	      ^^\n" + 
+		"Y2 cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 3)\n" + 
 		"	#\n" + 
 		"	^\n" + 
 		"Syntax error on token \"Invalid Character\", delete this token\n" + 

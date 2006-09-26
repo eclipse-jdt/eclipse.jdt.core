@@ -85,6 +85,20 @@ public class Wildcard extends SingleTypeReference {
 		return output;
 	}	
 	
+	// only invoked for improving resilience when unable to bind generic type from parameterized reference
+	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
+		if (this.bound != null) {
+			this.bound.resolveType(scope, checkBounds);
+		}
+		return null;
+	}
+	// only invoked for improving resilience when unable to bind generic type from parameterized reference
+	public TypeBinding resolveType(ClassScope scope) {
+		if (this.bound != null) {
+			this.bound.resolveType(scope);
+		}
+		return null;
+	}
 	public TypeBinding resolveTypeArgument(BlockScope blockScope, ReferenceBinding genericType, int rank) {
 	    return internalResolveType(blockScope, genericType, rank);
 	}

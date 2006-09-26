@@ -1093,6 +1093,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	public Z<T> var;\n" + 
 			"	       ^\n" + 
 			"Z cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	public Z<T> var;\n" + 
+			"	         ^\n" + 
+			"T cannot be resolved to a type\n" + 
 			"----------\n");
 	}
 	public void test0046() {
@@ -32918,6 +32923,129 @@ public void test1035() {
 		"	static Object BAR2 = ComparableComparator.bar();//1a\n" + 
 		"	                                          ^^^\n" + 
 		"Bound mismatch: The generic method bar() of type ComparableComparator<T> is not applicable for the arguments (). The inferred type Comparable<Comparable<M>> is not a valid substitute for the bounded parameter <M extends Comparable<M>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158548
+public void test1036() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends String> {\n" + 
+			"	\n" + 
+			"	List<Zork> list;\n" + 
+			"	Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry;\n" + 
+			"	jaavaa.util.Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry2;\n" + 
+			"	\n" + 
+			"	p.q.Map.Entry entry3;\n" + 
+			"	\n" + 
+			"	String<Object>.Y<List> y; // wrong\n" + 
+			"	X<Object>.Y<List> y1; // wrong\n" + 
+			"	X<String>.Y<List> y2;\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	public class X<T extends String> {\n" + 
+		"	                         ^^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	List<Zork> list;\n" + 
+		"	^^^^\n" + 
+		"List cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	List<Zork> list;\n" + 
+		"	     ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry;\n" + 
+		"	^^^\n" + 
+		"Map cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 4)\n" + 
+		"	Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry;\n" + 
+		"	    ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 4)\n" + 
+		"	Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry;\n" + 
+		"	         ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 5)\n" + 
+		"	jaavaa.util.Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry2;\n" + 
+		"	^^^^^^\n" + 
+		"jaavaa cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 7)\n" + 
+		"	p.q.Map.Entry entry3;\n" + 
+		"	^\n" + 
+		"p cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 9)\n" + 
+		"	String<Object>.Y<List> y; // wrong\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"The type String is not generic; it cannot be parameterized with arguments <Object>\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 10)\n" + 
+		"	X<Object>.Y<List> y1; // wrong\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"X.Y cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"11. ERROR in X.java (at line 10)\n" + 
+		"	X<Object>.Y<List> y1; // wrong\n" + 
+		"	  ^^^^^^\n" + 
+		"Bound mismatch: The type Object is not a valid substitute for the bounded parameter <T extends String> of the type X<T>\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 10)\n" + 
+		"	X<Object>.Y<List> y1; // wrong\n" + 
+		"	            ^^^^\n" + 
+		"List cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 11)\n" + 
+		"	X<String>.Y<List> y2;\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"X.Y cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"14. ERROR in X.java (at line 11)\n" + 
+		"	X<String>.Y<List> y2;\n" + 
+		"	            ^^^^\n" + 
+		"List cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158548 - variation
+public void test1037() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends String> {\n" + 
+			"	\n" + 
+			"	List<? extends Zork> list;\n" + 
+			"	Map.Entry<?,? super Zork>	entry;\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	public class X<T extends String> {\n" + 
+		"	                         ^^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	List<? extends Zork> list;\n" + 
+		"	^^^^\n" + 
+		"List cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	List<? extends Zork> list;\n" + 
+		"	               ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	Map.Entry<?,? super Zork>	entry;\n" + 
+		"	^^^\n" + 
+		"Map cannot be resolved to a type\n" + 
 		"----------\n");
 }
 }

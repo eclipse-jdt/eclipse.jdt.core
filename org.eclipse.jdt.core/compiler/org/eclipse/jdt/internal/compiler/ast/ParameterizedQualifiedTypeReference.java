@@ -118,21 +118,49 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			return this.resolvedType;
 		} 
 	    this.didResolve = true;
+	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 	    Binding binding = scope.getPackage(this.tokens);
 	    if (binding != null && !binding.isValidBinding()) {
 	    	this.resolvedType = (ReferenceBinding) binding;
 			reportInvalidType(scope);
+			// be resilient, still attempt resolving arguments
+			if (binding instanceof ProblemReferenceBinding) {
+			    TypeReference[] args = this.typeArguments[((ProblemReferenceBinding) binding).compoundName.length - 1];
+			    if (args != null) {
+					int argLength = args.length;
+					for (int j = 0; j < argLength; j++) {
+					    TypeReference typeArgument = args[j];
+					    if (isClassScope) {
+					    	typeArgument.resolveType((ClassScope) scope);
+					    } else {
+					    	typeArgument.resolveType((BlockScope) scope, checkBounds);
+					    }
+					}
+			    }				
+			}
 			return null;
 		}
 
 	    PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
-	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 		boolean typeIsConsistent = true;
 		ReferenceBinding qualifiedType = null;
 	    for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length; i < max; i++) {
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!(this.resolvedType.isValidBinding())) {
 				reportInvalidType(scope);
+				// be resilient, still attempt resolving arguments
+			    TypeReference[] args = this.typeArguments[i];
+			    if (args != null) {
+					int argLength = args.length;
+					for (int j = 0; j < argLength; j++) {
+					    TypeReference typeArgument = args[j];
+					    if (isClassScope) {
+					    	typeArgument.resolveType((ClassScope) scope);
+					    } else {
+					    	typeArgument.resolveType((BlockScope) scope);
+					    }
+					}
+			    }				
 				return null;
 			}
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;

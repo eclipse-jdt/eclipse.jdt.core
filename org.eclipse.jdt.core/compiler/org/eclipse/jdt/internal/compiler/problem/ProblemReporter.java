@@ -3296,6 +3296,14 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		if (isRecoveredName(ref.tokens)) return;
 		if (ref.indexOfFirstFieldBinding >= 1)
 			end = (int) ref.sourcePositions[ref.indexOfFirstFieldBinding - 1];
+	} else if (location instanceof ParameterizedQualifiedTypeReference) {
+		// must be before instanceof ArrayQualifiedTypeReference
+		ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) location;
+		if (isRecoveredName(ref.tokens)) return;
+		if (type instanceof ReferenceBinding) {
+			char[][] name = ((ReferenceBinding) type).compoundName;
+			end = (int) ref.sourcePositions[name.length - 1];
+		}
 	} else if (location instanceof ArrayQualifiedTypeReference) {
 		ArrayQualifiedTypeReference arrayQualifiedTypeReference = (ArrayQualifiedTypeReference) location;
 		if (isRecoveredName(arrayQualifiedTypeReference.tokens)) return;
