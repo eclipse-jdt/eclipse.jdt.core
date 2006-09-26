@@ -124,8 +124,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	    	this.resolvedType = (ReferenceBinding) binding;
 			reportInvalidType(scope);
 			// be resilient, still attempt resolving arguments
-			if (binding instanceof ProblemReferenceBinding) {
-			    TypeReference[] args = this.typeArguments[((ProblemReferenceBinding) binding).compoundName.length - 1];
+			for (int i = 0, max = this.tokens.length; i < max; i++) {
+			    TypeReference[] args = this.typeArguments[i];
 			    if (args != null) {
 					int argLength = args.length;
 					for (int j = 0; j < argLength; j++) {
@@ -149,18 +149,20 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			if (!(this.resolvedType.isValidBinding())) {
 				reportInvalidType(scope);
 				// be resilient, still attempt resolving arguments
-			    TypeReference[] args = this.typeArguments[i];
-			    if (args != null) {
-					int argLength = args.length;
-					for (int j = 0; j < argLength; j++) {
-					    TypeReference typeArgument = args[j];
-					    if (isClassScope) {
-					    	typeArgument.resolveType((ClassScope) scope);
-					    } else {
-					    	typeArgument.resolveType((BlockScope) scope);
-					    }
-					}
-			    }				
+				for (int j = i; j < max; j++) {
+				    TypeReference[] args = this.typeArguments[j];
+				    if (args != null) {
+						int argLength = args.length;
+						for (int k = 0; k < argLength; k++) {
+						    TypeReference typeArgument = args[k];
+						    if (isClassScope) {
+						    	typeArgument.resolveType((ClassScope) scope);
+						    } else {
+						    	typeArgument.resolveType((BlockScope) scope);
+						    }
+						}
+				    }				
+				}
 				return null;
 			}
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
