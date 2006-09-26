@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 979 };
+//		TESTS_NUMBERS = new int[] { 1036, 1037 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -32974,42 +32974,92 @@ public void test1036() {
 		"	         ^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"7. ERROR in X.java (at line 5)\n" + 
+		"7. ERROR in X.java (at line 4)\n" + 
+		"	Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry;\n" + 
+		"	                     ^^^^\n" + 
+		"List cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 4)\n" + 
+		"	Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry;\n" + 
+		"	                          ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 4)\n" + 
+		"	Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry;\n" + 
+		"	                                ^^^^\n" + 
+		"List cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 4)\n" + 
+		"	Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry;\n" + 
+		"	                                     ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"11. ERROR in X.java (at line 5)\n" + 
 		"	jaavaa.util.Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry2;\n" + 
 		"	^^^^^^\n" + 
 		"jaavaa cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"8. ERROR in X.java (at line 7)\n" + 
+		"12. ERROR in X.java (at line 5)\n" + 
+		"	jaavaa.util.Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry2;\n" + 
+		"	                ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 5)\n" + 
+		"	jaavaa.util.Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry2;\n" + 
+		"	                     ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"14. ERROR in X.java (at line 5)\n" + 
+		"	jaavaa.util.Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry2;\n" + 
+		"	                                 ^^^^\n" + 
+		"List cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"15. ERROR in X.java (at line 5)\n" + 
+		"	jaavaa.util.Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry2;\n" + 
+		"	                                      ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"16. ERROR in X.java (at line 5)\n" + 
+		"	jaavaa.util.Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry2;\n" + 
+		"	                                            ^^^^\n" + 
+		"List cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"17. ERROR in X.java (at line 5)\n" + 
+		"	jaavaa.util.Map<Zork,Zork>.Entry<List<Zork>,List<Zork>>	entry2;\n" + 
+		"	                                                 ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"18. ERROR in X.java (at line 7)\n" + 
 		"	p.q.Map.Entry entry3;\n" + 
 		"	^\n" + 
 		"p cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"9. ERROR in X.java (at line 9)\n" + 
+		"19. ERROR in X.java (at line 9)\n" + 
 		"	String<Object>.Y<List> y; // wrong\n" + 
 		"	^^^^^^^^^^^^^^^^\n" + 
 		"The type String is not generic; it cannot be parameterized with arguments <Object>\n" + 
 		"----------\n" + 
-		"10. ERROR in X.java (at line 10)\n" + 
+		"20. ERROR in X.java (at line 10)\n" + 
 		"	X<Object>.Y<List> y1; // wrong\n" + 
 		"	^^^^^^^^^^^\n" + 
 		"X.Y cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"11. ERROR in X.java (at line 10)\n" + 
+		"21. ERROR in X.java (at line 10)\n" + 
 		"	X<Object>.Y<List> y1; // wrong\n" + 
 		"	  ^^^^^^\n" + 
 		"Bound mismatch: The type Object is not a valid substitute for the bounded parameter <T extends String> of the type X<T>\n" + 
 		"----------\n" + 
-		"12. ERROR in X.java (at line 10)\n" + 
+		"22. ERROR in X.java (at line 10)\n" + 
 		"	X<Object>.Y<List> y1; // wrong\n" + 
 		"	            ^^^^\n" + 
 		"List cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"13. ERROR in X.java (at line 11)\n" + 
+		"23. ERROR in X.java (at line 11)\n" + 
 		"	X<String>.Y<List> y2;\n" + 
 		"	^^^^^^^^^^^\n" + 
 		"X.Y cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"14. ERROR in X.java (at line 11)\n" + 
+		"24. ERROR in X.java (at line 11)\n" + 
 		"	X<String>.Y<List> y2;\n" + 
 		"	            ^^^^\n" + 
 		"List cannot be resolved to a type\n" + 
@@ -33046,6 +33096,11 @@ public void test1037() {
 		"	Map.Entry<?,? super Zork>	entry;\n" + 
 		"	^^^\n" + 
 		"Map cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 4)\n" + 
+		"	Map.Entry<?,? super Zork>	entry;\n" + 
+		"	                    ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
 }
