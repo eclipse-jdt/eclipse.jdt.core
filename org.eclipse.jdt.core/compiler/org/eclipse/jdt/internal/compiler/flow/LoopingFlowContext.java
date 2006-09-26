@@ -332,7 +332,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
 				return;
 			}
-			if (flowInfo.isPotentiallyUnknown(local)) {
+			if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
 				return;
 			}
 			if (flowInfo.isPotentiallyNonNull(local)) {

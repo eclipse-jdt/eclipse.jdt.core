@@ -503,7 +503,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				scope.problemReporter().localVariableCannotBeNull(local, reference);				
 				return;
 			}
-			else if (flowInfo.isPotentiallyUnknown(local)) {
+			else if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
 				return;
 			}
 		case CAN_ONLY_NULL:
@@ -511,7 +511,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
 				return;
 			}
-			else if (flowInfo.isPotentiallyUnknown(local)) {
+			else if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
 				return;
 			}
 			break;

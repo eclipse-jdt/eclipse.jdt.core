@@ -470,6 +470,37 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 	return this;
 }
 
+final public boolean cannotBeDefinitelyNullOrNonNull(LocalVariableBinding local) {
+	if ((this.tagBits & NULL_FLAG_MASK) == 0 || 
+			(local.type.tagBits & TagBits.IsBaseType) != 0) {
+		return false;
+	}
+	int position;
+	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
+		// use bits
+		return (
+			(~this.nullBit1 
+					& (this.nullBit2 & this.nullBit3 | this.nullBit4)
+				| ~this.nullBit2 & ~this.nullBit3 & this.nullBit4)
+			& (1L << position)) != 0;
+	}
+	// use extra vector
+	if (this.extra == null) {
+		return false; // if vector not yet allocated, then not initialized
+	}
+	int vectorIndex;
+	if ((vectorIndex = (position / BitCacheSize) - 1) >= 
+			this.extra[0].length) {
+		return false; // if not enough room in vector, then not initialized
+	}
+	long a2, a3, a4;
+	return (
+			(~this.extra[2][vectorIndex] 
+					& ((a2 = this.extra[3][vectorIndex]) & (a3 = this.extra[4][vectorIndex]) | (a4 = this.extra[5][vectorIndex]))
+				| ~a2 & ~a3 & a4)
+		    & (1L << (position % BitCacheSize))) != 0;
+}
+
 final public boolean cannotBeNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 || 
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {

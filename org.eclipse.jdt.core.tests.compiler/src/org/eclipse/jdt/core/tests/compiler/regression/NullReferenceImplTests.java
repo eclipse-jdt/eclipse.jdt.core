@@ -648,10 +648,12 @@ public void test2400_state_consistency() {
 					isDefinitelyNonNull = state.isDefinitelyNonNull(TestLocalVariableBinding.local0),
 					isDefinitelyNull = state.isDefinitelyNull(TestLocalVariableBinding.local0),
 					isDefinitelyUnknown = state.isDefinitelyUnknown(TestLocalVariableBinding.local0),
+					isPotentiallyNonNull = state.isPotentiallyNonNull(TestLocalVariableBinding.local0),
 					isPotentiallyNull = state.isPotentiallyNull(TestLocalVariableBinding.local0),
 					isPotentiallyUnknown = state.isPotentiallyUnknown(TestLocalVariableBinding.local0),
 					isProtectedNonNull = state.isProtectedNonNull(TestLocalVariableBinding.local0),
 					isProtectedNull = state.isProtectedNull(TestLocalVariableBinding.local0),
+					cannotBeDefinitelyNullOrNonNull = state.cannotBeDefinitelyNullOrNonNull(TestLocalVariableBinding.local0),
 					cannotBeNull = state.cannotBeNull(TestLocalVariableBinding.local0),
 					canOnlyBeNull = state.canOnlyBeNull(TestLocalVariableBinding.local0);
 				if (isDefinitelyNonNull
@@ -691,6 +693,9 @@ public void test2400_state_consistency() {
 									|| isDefinitelyUnknown || isPotentiallyNull
 									|| isPotentiallyUnknown || isProtectedNonNull
 									|| isProtectedNull)
+						|| cannotBeDefinitelyNullOrNonNull != 
+							(isPotentiallyUnknown ||
+								isPotentiallyNull && isPotentiallyNonNull)
 						|| cannotBeNull != (isProtectedNonNull || 
 								isDefinitelyNonNull)
 						|| canOnlyBeNull != (isProtectedNull || 
@@ -717,10 +722,12 @@ public void test2400_state_consistency() {
 				isDefinitelyNonNull = state.isDefinitelyNonNull(TestLocalVariableBinding.local64),
 				isDefinitelyNull = state.isDefinitelyNull(TestLocalVariableBinding.local64),
 				isDefinitelyUnknown = state.isDefinitelyUnknown(TestLocalVariableBinding.local64),
+				isPotentiallyNonNull = state.isPotentiallyNonNull(TestLocalVariableBinding.local64),
 				isPotentiallyNull = state.isPotentiallyNull(TestLocalVariableBinding.local64),
 				isPotentiallyUnknown = state.isPotentiallyUnknown(TestLocalVariableBinding.local64),
 				isProtectedNonNull = state.isProtectedNonNull(TestLocalVariableBinding.local64),
 				isProtectedNull = state.isProtectedNull(TestLocalVariableBinding.local64),
+				cannotBeDefinitelyNullOrNonNull = state.cannotBeDefinitelyNullOrNonNull(TestLocalVariableBinding.local64),
 				cannotBeNull = state.cannotBeNull(TestLocalVariableBinding.local64),
 				canOnlyBeNull = state.canOnlyBeNull(TestLocalVariableBinding.local64);
 				if (isDefinitelyNonNull
@@ -760,6 +767,10 @@ public void test2400_state_consistency() {
 									|| isDefinitelyUnknown || isPotentiallyNull
 									|| isPotentiallyUnknown || isProtectedNonNull
 									|| isProtectedNull)
+									|| cannotBeDefinitelyNullOrNonNull != 
+										(isPotentiallyUnknown ||
+											isPotentiallyNull && 
+												isPotentiallyNonNull)
 									|| cannotBeNull != (isProtectedNonNull || 
 											isDefinitelyNonNull)
 									|| canOnlyBeNull != (isProtectedNull || 

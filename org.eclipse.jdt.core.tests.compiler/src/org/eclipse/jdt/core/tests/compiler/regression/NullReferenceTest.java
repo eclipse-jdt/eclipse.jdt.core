@@ -3759,6 +3759,35 @@ public void _test0456_while_nested_explicit_label() {
 		"");
 } 
 
+// null analysis - while
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=154995
+public void test0457_while_nested_break() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void test(String p, String q, boolean b) {\n" + 
+			"    while (b) {\n" + 
+			"      String e = q;\n" + 
+			"      e.trim();\n" + 
+			"      while (true) {\n" + 
+			"        if (b)\n" + 
+			"          e = q;\n" + 
+			"        else\n" + 
+			"          e = null;\n" + 
+			"        if (e == null || p != null) {\n" + 
+			"          if (e != null) {\n" + // should not complain here
+			"            // Do something\n" + 
+			"          }\n" + 
+			"          break;\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		"");
+} 
+
 // null analysis -- try/finally
 public void test0500_try_finally() {
 	this.runConformTest(

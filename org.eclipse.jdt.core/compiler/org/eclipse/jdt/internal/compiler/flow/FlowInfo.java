@@ -64,6 +64,22 @@ abstract public FlowInfo addPotentialInitializationsFrom(FlowInfo otherInits);
 	}
 	
 /**
+ * Check whether a given local variable is known to be unable to gain a definite
+ * non null or definite null status by the use of an enclosing flow info. The
+ * semantics are that if the current flow info marks the variable as potentially
+ * unknown or else as being both potentially null and potentially non null,
+ * then it won't ever be promoted as definitely null or definitely non null. (It
+ * could still get promoted to definite unknown).
+ * @param local the variable to ckeck
+ * @return true iff this flow info prevents local from being promoted to 
+ *         definite non null or definite null against an enclosing flow info
+ */
+public boolean cannotBeDefinitelyNullOrNonNull(LocalVariableBinding local) {
+	return isPotentiallyUnknown(local) ||
+		isPotentiallyNonNull(local) && isPotentiallyNull(local);
+}
+
+/**
  * Check whether a given local variable is known to be non null, either because 
  * it is definitely non null, or because is has been tested against non null.
  * @param local the variable to ckeck
