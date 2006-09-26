@@ -3637,7 +3637,7 @@ public void test0451_while_nested() {
 		"----------\n");
 } 
 
-// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
 // variant - the bug is not specific to the do while loop
 public void _test0452_while() {
 	this.runNegativeTest(
@@ -3663,7 +3663,7 @@ public void _test0452_while() {
 	);
 }
 
-// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
 // variant - cannot refine the diagnostic without engaging into conditionals
 // dedicated flow context
 public void _test0453_while() {
@@ -5448,9 +5448,8 @@ public void test0611_do_while() {
 // the problem here is that a single pass cannot know for the return
 // embedded into the if; prior approach did use the upstream flow 
 // info to catch this, but this is inappropriate in many cases (eg
-// test0606); may be able to do better if keeping all deep returns
-// as we do for labeled continue
-// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
+// test0606)
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
 public void _test0612_do_while() {
 	this.runNegativeTest(
 		new String[] {
@@ -5495,6 +5494,59 @@ public void test0613_do_while() {
 			"}\n"},
 		"");
 } 
+
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
+// variant
+public void _test0614_do_while() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object doubt) {\n" + 
+			"    Object o = null;\n" + 
+			"    exit: do {\n" + 
+			"      if (o == null) {\n" +
+			"        continue exit;\n" +
+			"      }\n" + 
+			"      o = doubt;\n" + 
+			"    } while (true);\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (o == null) {\n" + 
+		"	    ^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n"
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
+// variant
+public void _test0615_do_while() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object doubt) {\n" + 
+			"    Object o = null;\n" + 
+			"    do {\n" + 
+			"      if (o == null) {\n" +
+			"        throw new RuntimeException();\n" +
+			"      }\n" + 
+			"      o = doubt;\n" + 
+			"    } while (true);\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (o == null) {\n" + 
+		"	    ^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n"
+	);
+}
 
 // null analysis -- for
 public void test0701_for() {
