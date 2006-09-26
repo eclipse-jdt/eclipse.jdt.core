@@ -3612,8 +3612,7 @@ public void test0450_while() {
 } 
 
 // null analysis - while
-// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=133131
-// fixed along 127570, do the reporting
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133131
 public void test0451_while_nested() {
 	this.runNegativeTest(
 		new String[] {
