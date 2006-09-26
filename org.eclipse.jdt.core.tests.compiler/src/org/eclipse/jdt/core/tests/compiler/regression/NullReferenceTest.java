@@ -5102,6 +5102,79 @@ public void test0563_try_catch() {
 		"----------\n");
 }
 
+// null analysis - try/catch
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
+public void test0564_try_catch_unchecked_exception() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static Object foo() {\n" + 
+			"    Object result = null;\n" + 
+			"    try {\n" + 
+			"      result = new Object();\n" + 
+			"    } catch (Exception e) {\n" + 
+			"      result = null;\n" + 
+			"    }\n" + 
+			"    return result;\n" + 
+			"  }\n" + 
+			"}"},
+		"");
+}
+
+// null analysis - try/catch
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
+// variant
+public void test0565_try_catch_unchecked_exception() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static Object foo() {\n" + 
+			"    Object result = null;\n" + 
+			"    try {\n" + 
+			"      result = new Object();\n" + 
+			"      result = new Object();\n" + 
+			"    } catch (Exception e) {\n" + 
+			"      result = null;\n" + 
+			"    }\n" + 
+			"    return result;\n" + 
+			"  }\n" + 
+			"}"},
+		"");
+}
+
+// null analysis - try/catch
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
+// variant
+public void test0566_try_catch_unchecked_exception() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static Object foo(Y y) {\n" + 
+			"    Object result = null;\n" + 
+			"    try {\n" + 
+			"      while (y.next()) {\n" + 
+			"        result = y.getObject();\n" + 
+			"      }\n" + 
+			"    } catch (Exception e) {\n" + 
+			"      result = null;\n" + 
+			"    }\n" + 
+			"    return result;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  boolean next() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"  Object getObject() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}"},
+		"");
+}
+
 // null analysis -- do while
 public void test0601_do_while() {
 	this.runNegativeTest(
