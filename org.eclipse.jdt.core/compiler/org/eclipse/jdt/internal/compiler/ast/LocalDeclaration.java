@@ -105,7 +105,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				// if binding unused generate then discard the value
 				initialization.generateCode(currentScope, codeStream, false);
 				break generateInit;
-			}			
+			}
 			initialization.generateCode(currentScope, codeStream, true);
 			// 26903, need extra cast to store null in array local var	
 			if (binding.type.isArrayType() 
