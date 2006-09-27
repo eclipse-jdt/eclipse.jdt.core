@@ -1520,6 +1520,44 @@ public void test040() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158855
+public void test041() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public abstract class X {\n" + 
+			"    class A extends X {\n" + 
+			"        public void callMe() {\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public abstract void callMe();\n" + 
+			"    class B {\n" + 
+			"        public void callSite() {\n" + 
+			"            // expect warning not there:\n" + 
+			"            ((A) this.getAA()).callMe();\n" + 
+			"            Integer max = new Integer(1);\n" + 
+			"            // execpted warning there:\n" + 
+			"            Integer other = (Integer) max;\n" + 
+			"        }\n" + 
+			"        public X getAA() {\n" + 
+			"            Zork z;\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}", // =================		
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 13)\n" + 
+		"	Integer other = (Integer) max;\n" + 
+		"	                ^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from Integer to Integer\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 16)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return CastTest.class;
 }
