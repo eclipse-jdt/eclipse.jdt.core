@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1036, 1037 };
+//		TESTS_NUMBERS = new int[] { 1036 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -33036,7 +33036,7 @@ public void test1036() {
 		"----------\n" + 
 		"19. ERROR in X.java (at line 9)\n" + 
 		"	String<Object>.Y<List> y; // wrong\n" + 
-		"	^^^^^^^^^^^^^^^^\n" + 
+		"	^^^^^^\n" + 
 		"The type String is not generic; it cannot be parameterized with arguments <Object>\n" + 
 		"----------\n" + 
 		"20. ERROR in X.java (at line 10)\n" + 
