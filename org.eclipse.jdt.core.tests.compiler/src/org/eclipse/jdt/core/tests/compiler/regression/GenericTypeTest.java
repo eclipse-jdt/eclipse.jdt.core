@@ -33103,4 +33103,271 @@ public void test1037() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159021 - variation
+public void test1038() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"    int CONST = A.foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"class A<U> {\n" + 
+			"        static int foo() {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"        return 0;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class B<V> implements I<V> {\n" + 
+			"	static int LOCAL_STATIC;\n" + 
+			"	int local_field;\n" + 
+			"    B(int param) {\n" + 
+			"        int i = CONST; // keep for possible <clinit>\n" + 
+			"        int j = param; // may optimize out\n" + 
+			"        int k = LOCAL_STATIC; // may optimize out\n" + 
+			"        int l = local_field; // may optimize out\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new B<String>(12);\n" + 
+			"    }\n" + 
+			"}", // =================
+		}, 
+		"SUCCESS",
+		null,
+		false,
+		null,
+		options,
+		null);
+	// check the reference to I.CONST still got generated (for <clinit> invocation side-effect)
+	String expectedOutput = 
+		"  // Method descriptor #10 (I)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  B(int param);\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  invokespecial java.lang.Object() [12]\n" + 
+		"    4  getstatic B.CONST : int [15]\n" + 
+		"    7  pop\n" + 
+		"    8  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 14]\n" + 
+		"        [pc: 4, line: 15]\n" + 
+		"        [pc: 8, line: 19]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 9] local: this index: 0 type: B\n" + 
+		"        [pc: 0, pc: 9] local: param index: 1 type: int\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "B.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159021 - variation
+public void test1039() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"	Value<String> CONST = A.foo(\"[I.CONST]\");\n" + 
+			"}\n" + 
+			"class Value<V> {\n" + 
+			"	static String NAME = \"\";\n" + 
+			"	V v;\n" + 
+			"	Value(V v) {\n" + 
+			"		this.v = v;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A {\n" + 
+			"	static Value<String> foo(String str) {\n" + 
+			"		System.out.print(str);\n" + 
+			"		return new Value<String>(\"str\");\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class B<V> implements I<V> {\n" + 
+			"	static Value<String> LOCAL_STATIC = A.foo(\"[B.LOCAL_STATIC]\");\n" + 
+			"	Value<String> local_field = A.foo(\"[B.local_field]\");\n" + 
+			"	B(Value<String> param) {\n" + 
+			"		String i = CONST.NAME; // keep for possible <clinit>\n" + 
+			"		String j = param.NAME; // may optimize out\n" + 
+			"		String k = LOCAL_STATIC.NAME; // may optimize out\n" + 
+			"		String l = local_field.NAME; // may optimize out\n" + 			
+			"	}\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new B<String>(new Value<String>(\"[PARAM]\"));\n" + 
+			"	}\n" + 
+			"}", // =================
+		}, 
+		"[B.LOCAL_STATIC][B.local_field][I.CONST]",
+		null,
+		false,
+		null,
+		options,
+		null);
+	// check the reference to I.CONST still got generated (for <clinit> invocation side-effect)
+	String expectedOutput = 
+		"  // Method descriptor #28 (LValue;)V\n" + 
+		"  // Signature: (LValue<Ljava/lang/String;>;)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  B(Value param);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [30]\n" + 
+		"     4  aload_0 [this]\n" + 
+		"     5  ldc <String \"[B.local_field]\"> [32]\n" + 
+		"     7  invokestatic A.foo(java.lang.String) : Value [17]\n" + 
+		"    10  putfield B.local_field : Value [34]\n" + 
+		"    13  getstatic I.CONST : Value [36]\n" + 
+		"    16  pop\n" + 
+		"    17  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    20  pop\n" + 
+		"    21  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    24  pop\n" + 
+		"    25  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    28  pop\n" + 
+		"    29  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    32  pop\n" + 
+		"    33  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 20]\n" + 
+		"        [pc: 4, line: 19]\n" + 
+		"        [pc: 13, line: 21]\n" + 
+		"        [pc: 21, line: 22]\n" + 
+		"        [pc: 25, line: 23]\n" + 
+		"        [pc: 29, line: 24]\n" + 
+		"        [pc: 33, line: 25]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 34] local: this index: 0 type: B\n" + 
+		"        [pc: 0, pc: 34] local: param index: 1 type: Value\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "B.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159021 - variation
+public void test1040() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"	Value<String> CONST = A.foo(\"[I.CONST]\");\n" + 
+			"}\n" + 
+			"class Value<V> {\n" + 
+			"	static String NAME = \"\";\n" + 
+			"	V v;\n" + 
+			"	Value(V v) {\n" + 
+			"		this.v = v;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A {\n" + 
+			"	static Value<String> foo(String str) {\n" + 
+			"		System.out.print(str);\n" + 
+			"		return new Value<String>(\"str\");\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class B<V> implements I<V> {\n" + 
+			"	static Value<String> LOCAL_STATIC = A.foo(\"[B.LOCAL_STATIC]\");\n" + 
+			"	Value<String> local_field = A.foo(\"[B.local_field]\");\n" + 
+			"	B(Value<String> param) {\n" + 
+			"		String i = this.CONST.NAME; // keep for possible <clinit>\n" + 
+			"		String k = this.LOCAL_STATIC.NAME; // may optimize out\n" + 
+			"		String l = this.local_field.NAME; // may optimize out\n" + 			
+			"	}\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new B<String>(new Value<String>(\"[PARAM]\"));\n" + 
+			"	}\n" + 
+			"}", // =================
+		}, 
+		"[B.LOCAL_STATIC][B.local_field][I.CONST]",
+		null,
+		false,
+		null,
+		options,
+		null);
+	// check the reference to I.CONST still got generated (for <clinit> invocation side-effect)
+	String expectedOutput = 
+		"  // Method descriptor #28 (LValue;)V\n" + 
+		"  // Signature: (LValue<Ljava/lang/String;>;)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  B(Value param);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [30]\n" + 
+		"     4  aload_0 [this]\n" + 
+		"     5  ldc <String \"[B.local_field]\"> [32]\n" + 
+		"     7  invokestatic A.foo(java.lang.String) : Value [17]\n" + 
+		"    10  putfield B.local_field : Value [34]\n" + 
+		"    13  getstatic B.CONST : Value [36]\n" + 
+		"    16  pop\n" + 
+		"    17  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    20  pop\n" + 
+		"    21  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    24  pop\n" + 
+		"    25  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    28  pop\n" + 
+		"    29  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 20]\n" + 
+		"        [pc: 4, line: 19]\n" + 
+		"        [pc: 13, line: 21]\n" + 
+		"        [pc: 21, line: 22]\n" + 
+		"        [pc: 25, line: 23]\n" + 
+		"        [pc: 29, line: 24]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 30] local: this index: 0 type: B\n" + 
+		"        [pc: 0, pc: 30] local: param index: 1 type: Value\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "B.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
 }
