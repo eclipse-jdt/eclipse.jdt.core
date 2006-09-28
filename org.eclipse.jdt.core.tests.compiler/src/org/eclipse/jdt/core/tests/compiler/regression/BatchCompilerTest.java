@@ -27,7 +27,8 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
 public class BatchCompilerTest extends AbstractRegressionTest {
 	public static final String OUTPUT_DIR_PLACEHOLDER = "---OUTPUT_DIR_PLACEHOLDER---";
 	static final String JRE_HOME_DIR = Util.getJREDirectory();
-
+	private static final Main MAIN = new Main(null, null, false);
+	
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 1 };
@@ -964,9 +965,9 @@ public void test012(){
         "\n";
 	String expandedExpectedOutput = 
 		MessageFormat.format(expectedOutput, new String[] {
-			Main.bind("compiler.name"),
-			Main.bind("compiler.version"),
-			Main.bind("compiler.copyright")
+				MAIN.bind("compiler.name"),
+				MAIN.bind("compiler.version"),
+				MAIN.bind("compiler.copyright")
 		// because misc.version is mono-line - reconsider if this changes
 //		MessageFormat.format(expectedOutput, new String[] {
 //				Main.bind("misc.version", new String[] {
@@ -1063,9 +1064,9 @@ public void test012b(){
         "\n";
 	String expandedExpectedOutput = 
 		MessageFormat.format(expectedOutput, new String[] {
-			Main.bind("compiler.name"),
-			Main.bind("compiler.version"),
-			Main.bind("compiler.copyright")
+				MAIN.bind("compiler.name"),
+				MAIN.bind("compiler.version"),
+				MAIN.bind("compiler.copyright")
 		// because misc.version is mono-line - reconsider if this changes
 //		MessageFormat.format(expectedOutput, new String[] {
 //				Main.bind("misc.version", new String[] {
@@ -1221,9 +1222,9 @@ public void test012b(){
 						expectedLogContents,
 						new String[] {
 								File.separator,
-								Main.bind("compiler.name"),
-								Main.bind("compiler.copyright"),
-								Main.bind("compiler.version")
+								MAIN.bind("compiler.name"),
+								MAIN.bind("compiler.copyright"),
+								MAIN.bind("compiler.version")
 						});
 		String normalizedLogContents =
 				xmlLogsNormalizer.normalized(logContents);
@@ -3586,7 +3587,7 @@ public void test072_per_source_output_directory(){
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
 		"", 
-		"access rules cannot follow destination path entries: [-d dir][~**/internal/*]\n",
+		"access rules cannot follow destination path entries: ---OUTPUT_DIR_PLACEHOLDER---[-d dir][~**/internal/*]\n",
 		true);
 }
 
@@ -3775,7 +3776,7 @@ public void test078_per_source_output_directory(){
         + " -1.5"
         + " -classpath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
 		"", 
-		"access rules cannot follow destination path entries: [-d dir][~**/internal/*]\n",
+		"access rules cannot follow destination path entries: ---OUTPUT_DIR_PLACEHOLDER---[-d dir][~**/internal/*]\n",
 		true);
 }
 
@@ -3968,7 +3969,7 @@ public void test084_per_source_output_directory(){
         + " -1.5"
         + " -bootclasspath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
 		"", 
-		"access rules cannot follow destination path entries: [-d dir][~**/internal/*]\n",
+		"access rules cannot follow destination path entries: ---OUTPUT_DIR_PLACEHOLDER---[-d dir][~**/internal/*]\n",
 		true);
 }
 

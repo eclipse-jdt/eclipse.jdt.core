@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler;
 
 import java.util.Locale;
 
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 /*
  * Factory used from inside the compiler to build the actual problems
@@ -33,7 +33,8 @@ public interface IProblemFactory {
 		int severity,
 		int startPosition,
 		int endPosition,
-		int lineNumber);
+		int lineNumber,
+		int columnNumber);
 		
 	Locale getLocale();
 	

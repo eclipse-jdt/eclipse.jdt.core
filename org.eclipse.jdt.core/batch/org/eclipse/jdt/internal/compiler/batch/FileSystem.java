@@ -25,7 +25,7 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 	Classpath[] classpaths;
 	Set knownFileNames;
 
-	interface Classpath {
+	public interface Classpath {
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName);
 		boolean isPackage(String qualifiedPackageName); 
 		/**
@@ -93,7 +93,7 @@ FileSystem(Classpath[] paths, String[] initialFileNames) {
 	}
 	initializeKnownFileNames(initialFileNames);
 }
-static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet) {
+public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet) {
 	return getClasspath(classpathName, encoding, false, accessRuleSet, null);
 }
 static Classpath getClasspath(String classpathName, String encoding, 

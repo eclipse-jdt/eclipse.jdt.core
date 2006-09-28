@@ -493,7 +493,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 						Error, // severity
 						0, // source start
 						0, // source end
-						0), // line number		
+						0, // line number
+						0),// column number
 					unit);
 
 			/* hand back the compilation result */

@@ -61,7 +61,8 @@ public CategorizedProblem createProblem(
 	int severity, 
 	int problemStartPosition, 
 	int problemEndPosition, 
-	int lineNumber) {
+	int lineNumber,
+	int columnNumber) {
 
 	return this.problemFactory.createProblem(
 		fileName, 
@@ -71,7 +72,8 @@ public CategorizedProblem createProblem(
 		severity, 
 		problemStartPosition, 
 		problemEndPosition, 
-		lineNumber); 
+		lineNumber,
+		columnNumber); 
 }
 public void handle(
 	int problemId, 
@@ -89,13 +91,19 @@ public void handle(
 	// if no reference context, we need to abort from the current compilation process
 	if (referenceContext == null) {
 		if ((severity & ProblemSeverities.Error) != 0) { // non reportable error is fatal
-			CategorizedProblem problem = this.createProblem(null, 	problemId, 	problemArguments, messageArguments, severity, 0, 0, 0);			
+			CategorizedProblem problem = this.createProblem(null, 	problemId, 	problemArguments, messageArguments, severity, 0, 0, 0, 0);			
 			throw new AbortCompilation(null, problem);
 		} else {
 			return; // ignore non reportable warning
 		}
 	}
 
+	int lineNumber = problemStartPosition >= 0
+			? searchLineNumber(unitResult.getLineSeparatorPositions(), problemStartPosition)
+			: 0;
+	int columnNumber = problemStartPosition >= 0
+			? searchColumnNumber(unitResult.getLineSeparatorPositions(), lineNumber, problemStartPosition)
+			: 0;
 	CategorizedProblem problem = 
 		this.createProblem(
 			unitResult.getFileName(), 
@@ -105,9 +113,9 @@ public void handle(
 			severity, 
 			problemStartPosition, 
 			problemEndPosition,
-			problemStartPosition >= 0
-				? searchLineNumber(unitResult.getLineSeparatorPositions(), problemStartPosition)
-				: 0);
+			lineNumber,
+			columnNumber);
+
 	if (problem == null) return; // problem couldn't be created, ignore
 	
 	switch (severity & ProblemSeverities.Error) {
@@ -178,5 +186,20 @@ public static final int searchLineNumber(int[] startLineIndexes, int position) {
 		return m+1;
 	}
 	return m+2;
+}
+public static final int searchColumnNumber(int[] startLineIndexes, int lineNumber, int position) {
+	switch(lineNumber) {
+		case 1 :
+			return position + 1;
+		case 2:
+			return position - startLineIndexes[0];
+		default:
+			int line = lineNumber - 2;
+    		int length = startLineIndexes.length;
+    		if (line >= length) {
+    			return position - startLineIndexes[length - 1];
+    		}
+    		return position - startLineIndexes[line];
+	}
 }
 }

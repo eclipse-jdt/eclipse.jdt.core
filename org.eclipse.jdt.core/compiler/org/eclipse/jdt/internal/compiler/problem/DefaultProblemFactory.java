@@ -36,15 +36,7 @@ public DefaultProblemFactory() {
  * @param loc the locale used to get the right message
  */
 public DefaultProblemFactory(Locale loc) {
-	this.locale = loc;
-	if (Locale.getDefault().equals(loc)){
-		if (DEFAULT_LOCALE_TEMPLATES == null){
-			DEFAULT_LOCALE_TEMPLATES = loadMessageTemplates(loc);
-		}
-		this.messageTemplates = DEFAULT_LOCALE_TEMPLATES;
-	} else {
-		this.messageTemplates = loadMessageTemplates(loc);
-	}
+	setLocale(loc);
 }
 /**
  * Answer a new IProblem created according to the parameters value
@@ -76,7 +68,8 @@ public CategorizedProblem createProblem(
 	int severity, 
 	int startPosition, 
 	int endPosition, 
-	int lineNumber) {
+	int lineNumber,
+	int columnNumber) {
 
 	return new DefaultProblem(
 		originatingFileName, 
@@ -98,6 +91,19 @@ private final static int keyFromID(int id) {
 public Locale getLocale() {
 	return this.locale;
 }
+public void setLocale(Locale locale) {
+	if (locale == this.locale) return;
+	this.locale = locale;
+	if (Locale.getDefault().equals(locale)){
+		if (DEFAULT_LOCALE_TEMPLATES == null){
+			DEFAULT_LOCALE_TEMPLATES = loadMessageTemplates(locale);
+		}
+		this.messageTemplates = DEFAULT_LOCALE_TEMPLATES;
+	} else {
+		this.messageTemplates = loadMessageTemplates(locale);
+	}
+}
+
 public final String getLocalizedMessage(int id, String[] problemArguments) {
 	String message = (String) this.messageTemplates.get(keyFromID(id & IProblem.IgnoreCategoriesMask)); 
 	if (message == null) {

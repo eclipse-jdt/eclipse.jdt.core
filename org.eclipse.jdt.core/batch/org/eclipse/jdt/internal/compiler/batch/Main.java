@@ -68,11 +68,6 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class Main implements ProblemSeverities, SuffixConstants {
 
 	public static class Logger {
-		private PrintWriter err;
-		private PrintWriter log;
-		private PrintWriter out;
-		private HashMap parameters;
-		int tagBits;
 		private static final String CLASS = "class"; //$NON-NLS-1$
 		private static final String CLASS_FILE = "classfile"; //$NON-NLS-1$
 		private static final String CLASSPATH = "classpath"; //$NON-NLS-1$
@@ -120,15 +115,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String SOURCE_END = "sourceEnd"; //$NON-NLS-1$
 		private static final String SOURCE_START = "sourceStart"; //$NON-NLS-1$
 		private static final String SOURCES = "sources"; //$NON-NLS-1$
-
 		private static final String STATS = "stats"; //$NON-NLS-1$
-		
 		private static final String TASK = "task"; //$NON-NLS-1$
 		private static final String TASKS = "tasks"; //$NON-NLS-1$
 		private static final String TIME = "time"; //$NON-NLS-1$
 		private static final String VALUE = "value"; //$NON-NLS-1$
 		private static final String WARNING = "WARNING"; //$NON-NLS-1$
+
 		public static final int XML = 1;
+		
 		private static final String XML_DTD_DECLARATION = "<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.002 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_002.dtd\">"; //$NON-NLS-1$
 		static {
 			try {
@@ -146,10 +141,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				e.printStackTrace();
 			}
 		}
-		public Logger(PrintWriter out, PrintWriter err) {
+		private PrintWriter err;
+		private PrintWriter log;
+		private Main main;
+		private PrintWriter out;
+		private HashMap parameters;
+		int tagBits;
+		public Logger(Main main, PrintWriter out, PrintWriter err) {
 			this.out = out;
 			this.err = err;
 			this.parameters = new HashMap();
+			this.main = main;
 		}
 
 		public String buildFileName(
@@ -185,19 +187,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
-		private void endTag(String name) {
-			((GenericXMLWriter) this.log).endTag(name, true, true);
-		}
-		
-		private void printTag(String name, HashMap params, boolean insertNewLine, boolean closeTag) {
-			((GenericXMLWriter) this.log).printTag(name, parameters, true, insertNewLine, closeTag);
-			this.parameters.clear();
-		}
 		/**
 		 * 
 		 */
 		public void compiling() {
-			this.printlnOut(Main.bind("progress.compiling")); //$NON-NLS-1$
+			this.printlnOut(this.main.bind("progress.compiling")); //$NON-NLS-1$
 		}
 		
 		/**
@@ -207,21 +201,25 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private void endLoggingProblems() {
 			this.endTag(Logger.PROBLEMS);
 		}
-		
 		public void endLoggingSource() {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.endTag(Logger.SOURCE);
 			}
 		}
+		
 		public void endLoggingSources() {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.endTag(Logger.SOURCES);
 			}
 		}
+		
 		public void endLoggingTasks() {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.endTag(Logger.TASKS);
 			}
+		}
+		private void endTag(String name) {
+			((GenericXMLWriter) this.log).endTag(name, true, true);
 		}
 		private void extractContext(CategorizedProblem problem, char[] unitSource) {
 			//sanity .....
@@ -262,7 +260,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.parameters.put(Logger.SOURCE_START, Integer.toString(startPosition - begin));
 			this.parameters.put(Logger.SOURCE_END, Integer.toString(endPosition - begin));
 		}
-		
 		public void flush() {
 			this.out.flush();
 			this.err.flush();
@@ -270,7 +267,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.log.flush();
 			}
 		}
-
+		
 		private String getFieldName(int id) {
 			return (String) Logger.FIELD_TABLE.get(new Integer(id));
 		}
@@ -283,13 +280,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				sum += times[i];
 			}
 			long time = sum / (length - 2);
-			this.printlnOut(Main.bind(
+			this.printlnOut(this.main.bind(
 				"compile.averageTime", //$NON-NLS-1$
 				new String[] {
 					String.valueOf(lineCount),
 					String.valueOf(time),
 					String.valueOf(((int) (lineCount * 10000.0 / time)) / 10.0) }));
 		}
+
 		public void logClassFile(boolean generatePackagesStructure, String outputPath, String relativeFileName) {
 			if ((this.tagBits & Logger.XML) != 0) {
 				String fileName = null;
@@ -357,7 +355,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			
 		}
-
 		public void logCommandLineArguments(String[] commandLineArguments) {
 			if (commandLineArguments == null) return;
 			if ((this.tagBits & Logger.XML) != 0) {
@@ -373,7 +370,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				}
 			}
 		}
-		
+
 		/**
 		 * @param e the given exception to log
 		 */
@@ -414,18 +411,31 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.printlnErr(message);
 			}
 		}
-
+		
 		/**
 		 * @param wrongClasspath
 		 *            the given wrong classpath entry
 		 */
 		public void logIncorrectClasspath(String wrongClasspath) {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.put(Logger.MESSAGE, Main.bind("configure.incorrectClasspath", wrongClasspath)); //$NON-NLS-1$
+				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.incorrectClasspath", wrongClasspath)); //$NON-NLS-1$
 				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
 			}
-			this.printlnErr(Main.bind(
+			this.printlnErr(this.main.bind(
 				"configure.incorrectClasspath", wrongClasspath)); //$NON-NLS-1$
+		}
+
+		/**
+		 * @param wrongPath
+		 *            the given wrong path entry
+		 */
+		public void logIncorrectEndorsedDirsEntry(String wrongPath) {
+			if ((this.tagBits & Logger.XML) != 0) {
+				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.incorrectEndorsedDirsEntry", wrongPath)); //$NON-NLS-1$
+				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
+			}
+			this.printlnErr(this.main.bind(
+				"configure.incorrectEndorsedDirsEntry", wrongPath)); //$NON-NLS-1$
 		}
 
 		/**
@@ -434,32 +444,19 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 */
 		public void logIncorrectExtDirsEntry(String wrongPath) {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.put(Logger.MESSAGE, Main.bind("configure.incorrectExtDirsEntry", wrongPath)); //$NON-NLS-1$
+				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.incorrectExtDirsEntry", wrongPath)); //$NON-NLS-1$
 				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
 			}
-			this.printlnErr(Main.bind(
+			this.printlnErr(this.main.bind(
 				"configure.incorrectExtDirsEntry", wrongPath)); //$NON-NLS-1$
 		}
 		
-		/**
-		 * @param wrongPath
-		 *            the given wrong path entry
-		 */
-		public void logIncorrectEndorsedDirsEntry(String wrongPath) {
-			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.put(Logger.MESSAGE, Main.bind("configure.incorrectEndorsedDirsEntry", wrongPath)); //$NON-NLS-1$
-				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
-			}
-			this.printlnErr(Main.bind(
-				"configure.incorrectEndorsedDirsEntry", wrongPath)); //$NON-NLS-1$
-		}
-
 		/**
 		 * 
 		 */
 		public void logNoClassFileCreated(String outputDir, String relativeFileName, IOException e) {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.put(Logger.MESSAGE, Main.bind("output.noClassFileCreated", //$NON-NLS-1$
+				this.parameters.put(Logger.MESSAGE, this.main.bind("output.noClassFileCreated", //$NON-NLS-1$
 					new String[] {
 						outputDir,
 						relativeFileName,
@@ -467,7 +464,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}));
 				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
 			}
-			this.printlnErr(Main.bind("output.noClassFileCreated", //$NON-NLS-1$
+			this.printlnErr(this.main.bind("output.noClassFileCreated", //$NON-NLS-1$
 				new String[] {
 					outputDir,
 					relativeFileName,
@@ -477,10 +474,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		public void logNoClasspath() {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.put(Logger.MESSAGE, Main.bind("configure.noClasspath")); //$NON-NLS-1$
+				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.noClasspath")); //$NON-NLS-1$
 				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
 			}
-			this.printlnErr(Main.bind("configure.noClasspath")); //$NON-NLS-1$
+			this.printlnErr(this.main.bind("configure.noClasspath")); //$NON-NLS-1$
 		}
 
 		/**
@@ -492,9 +489,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.printTag(Logger.NUMBER_OF_CLASSFILES, this.parameters, true, true);
 			}
 			if (exportedClassFilesCounter == 1) {
-				this.printlnOut(Main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
+				this.printlnOut(this.main.bind("compile.oneClassFileGenerated")); //$NON-NLS-1$
 			} else {
-				this.printlnOut(Main.bind("compile.severalClassFilesGenerated", //$NON-NLS-1$
+				this.printlnOut(this.main.bind("compile.severalClassFilesGenerated", //$NON-NLS-1$
 					String.valueOf(exportedClassFilesCounter)));
 			}
 		}
@@ -525,7 +522,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						+ ":" //$NON-NLS-1$
 						+ problem.getSourceLineNumber()
 						+ ": " //$NON-NLS-1$
-						+ (problem.isError() ? Main.bind("output.emacs.error") : Main.bind("output.emacs.warning")) //$NON-NLS-1$ //$NON-NLS-2$
+						+ (problem.isError() ? this.main.bind("output.emacs.error") : this.main.bind("output.emacs.warning")) //$NON-NLS-1$ //$NON-NLS-2$
 						+ ": " //$NON-NLS-1$
 						+ problem.getMessage());
 				this.printlnErr(result);
@@ -536,11 +533,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.printlnErr("----------"); //$NON-NLS-1$
 				}
 				this.printErr(problem.isError() ?
-						Main.bind(
+						this.main.bind(
 								"requestor.error", //$NON-NLS-1$
 								Integer.toString(globalErrorCount),
 								new String(problem.getOriginatingFileName()))
-								: Main.bind(
+								: this.main.bind(
 										"requestor.warning", //$NON-NLS-1$
 										Integer.toString(globalErrorCount),
 										new String(problem.getOriginatingFileName())));
@@ -549,7 +546,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.printlnErr(errorReportSource);
 					this.printlnErr(problem.getMessage());
 				} catch (Exception e) {
-					this.printlnErr(Main.bind(
+					this.printlnErr(this.main.bind(
 						"requestor.notRetrieveErrorMessage", problem.toString())); //$NON-NLS-1$
 				}
 				this.printlnErr("----------"); //$NON-NLS-1$
@@ -626,7 +623,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			return localErrorCount;
 		}
-		
+
 		/**
 		 * @param globalProblemsCount
 		 * @param globalErrorsCount
@@ -645,43 +642,43 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			if (globalProblemsCount == 1) {
 				String message = null;
 				if (globalErrorsCount == 1) {
-					message = Main.bind("compile.oneError"); //$NON-NLS-1$
+					message = this.main.bind("compile.oneError"); //$NON-NLS-1$
 				} else {
-					message = Main.bind("compile.oneWarning"); //$NON-NLS-1$
+					message = this.main.bind("compile.oneWarning"); //$NON-NLS-1$
 				}
-				this.printErr(Main.bind("compile.oneProblem", message)); //$NON-NLS-1$
+				this.printErr(this.main.bind("compile.oneProblem", message)); //$NON-NLS-1$
 			} else {
 				String errorMessage = null;
 				String warningMessage = null;
 				if (globalErrorsCount > 0) {
 					if (globalErrorsCount == 1) {
-						errorMessage = Main.bind("compile.oneError"); //$NON-NLS-1$
+						errorMessage = this.main.bind("compile.oneError"); //$NON-NLS-1$
 					} else {
-						errorMessage = Main.bind("compile.severalErrors", String.valueOf(globalErrorsCount)); //$NON-NLS-1$
+						errorMessage = this.main.bind("compile.severalErrors", String.valueOf(globalErrorsCount)); //$NON-NLS-1$
 					}
 				}
 				int warningsNumber = globalWarningsCount + globalTasksCount;
 				if (warningsNumber > 0) {
 					if (warningsNumber == 1) {
-						warningMessage = Main.bind("compile.oneWarning"); //$NON-NLS-1$
+						warningMessage = this.main.bind("compile.oneWarning"); //$NON-NLS-1$
 					} else {
-						warningMessage = Main.bind("compile.severalWarnings", String.valueOf(warningsNumber)); //$NON-NLS-1$
+						warningMessage = this.main.bind("compile.severalWarnings", String.valueOf(warningsNumber)); //$NON-NLS-1$
 					}
 				}
 				if (errorMessage == null || warningMessage == null) {
 					if (errorMessage == null) {
-						this.printErr(Main.bind(
+						this.printErr(this.main.bind(
 							"compile.severalProblemsErrorsOrWarnings", //$NON-NLS-1$
 							String.valueOf(globalProblemsCount),
 							warningMessage));
 					} else {
-						this.printErr(Main.bind(
+						this.printErr(this.main.bind(
 							"compile.severalProblemsErrorsOrWarnings", //$NON-NLS-1$
 							String.valueOf(globalProblemsCount),
 							errorMessage));
 					}
 				} else {
-					this.printErr(Main.bind(
+					this.printErr(this.main.bind(
 						"compile.severalProblemsErrorsAndWarnings", //$NON-NLS-1$
 						new String[] {
 							String.valueOf(globalProblemsCount),
@@ -694,14 +691,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.printlnErr();
 			}
 		}
-
+		
 		/**
 		 * 
 		 */
 		public void logProgress() {
 			this.printOut('.');
 		}
-		
+
 		/**
 		 * @param i
 		 *            the current repetition number
@@ -709,10 +706,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 *            the given number of repetitions
 		 */
 		public void logRepetition(int i, int repetitions) {
-			this.printlnOut(Main.bind("compile.repetition", //$NON-NLS-1$
+			this.printlnOut(this.main.bind("compile.repetition", //$NON-NLS-1$
 				String.valueOf(i + 1), String.valueOf(repetitions)));
 		}
-
+		
 		/**
 		 * @param time
 		 * @param lineCount
@@ -725,14 +722,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.printTag(Logger.NUMBER_OF_LINES, this.parameters, true, true);
 			}
 			if (lineCount != 0) {
-				this.printlnOut(Main.bind(
+				this.printlnOut(this.main.bind(
 					"compile.instantTime", //$NON-NLS-1$
 					new String[] {
 						String.valueOf(lineCount),
 						String.valueOf(time),
 						String.valueOf(((int) (lineCount * 10000.0 / time)) / 10.0) }));
 			} else {
-				this.printlnOut(Main.bind("compile.totalTime", String.valueOf(time))); //$NON-NLS-1$
+				this.printlnOut(this.main.bind("compile.totalTime", String.valueOf(time))); //$NON-NLS-1$
 			}
 		}
 
@@ -743,16 +740,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void logUsage(String usage) {
 			this.printlnOut(usage);
 		}
+
 		/**
 		 * Print the version of the compiler in the log and/or the out field
 		 */
 		public void logVersion(final boolean printToOut) {
 			if (this.log != null && (this.tagBits & Logger.XML) == 0) {
-				final String version = Main.bind("misc.version", //$NON-NLS-1$
+				final String version = this.main.bind("misc.version", //$NON-NLS-1$
 					new String[] {
-						Main.bind("compiler.name"), //$NON-NLS-1$
-						Main.bind("compiler.version"), //$NON-NLS-1$
-						Main.bind("compiler.copyright") //$NON-NLS-1$
+						this.main.bind("compiler.name"), //$NON-NLS-1$
+						this.main.bind("compiler.version"), //$NON-NLS-1$
+						this.main.bind("compiler.copyright") //$NON-NLS-1$
 					}
 				);
 				this.log.println("# " + version); //$NON-NLS-1$
@@ -761,27 +759,26 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.out.flush();
 				}
 			} else if (printToOut) {
-				final String version = Main.bind("misc.version", //$NON-NLS-1$
+				final String version = this.main.bind("misc.version", //$NON-NLS-1$
 					new String[] {
-						Main.bind("compiler.name"), //$NON-NLS-1$
-						Main.bind("compiler.version"), //$NON-NLS-1$
-						Main.bind("compiler.copyright") //$NON-NLS-1$
+						this.main.bind("compiler.name"), //$NON-NLS-1$
+						this.main.bind("compiler.version"), //$NON-NLS-1$
+						this.main.bind("compiler.copyright") //$NON-NLS-1$
 					}
 				);
 				this.out.println(version);
 				this.out.flush();
 			}
 		}
-
 		/**
 		 * Print the usage of wrong JDK
 		 */
 		public void logWrongJDK() {
 			if ((this.tagBits & Logger.XML) != 0) {
-				this.parameters.put(Logger.MESSAGE, Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
+				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
 				this.printTag(Logger.ERROR, this.parameters, true, true);				
 			}
-			this.printlnErr(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
+			this.printlnErr(this.main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
 		}
 
 		/**
@@ -840,6 +837,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.log.print(s);
 			}
 		}
+
 		private void printlnErr() {
 			this.err.println();
 			if ((this.tagBits & Logger.XML) == 0 && this.log != null) {
@@ -852,7 +850,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.log.println(s);
 			}
 		}
-
 		private void printlnOut(String s) {
 			this.out.println(s);
 			if ((this.tagBits & Logger.XML) == 0 && this.log != null) {
@@ -871,28 +868,33 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.out.print(c);
 		}
 
-		public void printStats(Main main) {
-			final boolean isTimed = main.timing;
+		public void printStats() {
+			final boolean isTimed = this.main.timing;
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.printTag(Logger.STATS, null, true, false);
 			}
 			if (isTimed) {
-				long time = System.currentTimeMillis() - main.startTime;
-				this.logTiming(time, main.lineCount);
-				if (main.times != null) {
-					main.times[main.timesCounter++] = time;
+				long time = System.currentTimeMillis() - this.main.startTime;
+				this.logTiming(time, this.main.lineCount);
+				if (this.main.times != null) {
+					this.main.times[this.main.timesCounter++] = time;
 				}
 			}
-			if (main.globalProblemsCount > 0) {
-				this.logProblemsSummary(main.globalProblemsCount, main.globalErrorsCount, main.globalWarningsCount, main.globalTasksCount);
+			if (this.main.globalProblemsCount > 0) {
+				this.logProblemsSummary(this.main.globalProblemsCount, this.main.globalErrorsCount, this.main.globalWarningsCount, main.globalTasksCount);
 			}
-			if (main.exportedClassFilesCounter != 0
-					&& (main.showProgress || isTimed || main.verbose)) {
-				this.logNumberOfClassFilesGenerated(main.exportedClassFilesCounter);
+			if (this.main.exportedClassFilesCounter != 0
+					&& (this.main.showProgress || isTimed || this.main.verbose)) {
+				this.logNumberOfClassFilesGenerated(this.main.exportedClassFilesCounter);
 			}
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.endTag(Logger.STATS);
 			}
+		}
+
+		private void printTag(String name, HashMap params, boolean insertNewLine, boolean closeTag) {
+			((GenericXMLWriter) this.log).printTag(name, parameters, true, insertNewLine, closeTag);
+			this.parameters.clear();
 		}
 
 		public void setEmacs() {
@@ -915,9 +917,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							e.printStackTrace();
 						}
 						this.log.println(Logger.XML_DTD_DECLARATION);
-						this.parameters.put(Logger.COMPILER_NAME, Main.bind("compiler.name")); //$NON-NLS-1$
-						this.parameters.put(Logger.COMPILER_VERSION, Main.bind("compiler.version")); //$NON-NLS-1$
-						this.parameters.put(Logger.COMPILER_COPYRIGHT, Main.bind("compiler.copyright")); //$NON-NLS-1$
+						this.parameters.put(Logger.COMPILER_NAME, this.main.bind("compiler.name")); //$NON-NLS-1$
+						this.parameters.put(Logger.COMPILER_VERSION, this.main.bind("compiler.version")); //$NON-NLS-1$
+						this.parameters.put(Logger.COMPILER_COPYRIGHT, this.main.bind("compiler.copyright")); //$NON-NLS-1$
 						this.printTag(Logger.COMPILER, this.parameters, true, false);
 					} else {
 						this.log = new PrintWriter(new FileOutputStream(logFileName, false));
@@ -928,7 +930,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$
 				}
 			} catch (FileNotFoundException e) {
-				throw new InvalidInputException(Main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
+				throw new InvalidInputException(this.main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
 			}
 		}
 
@@ -967,13 +969,113 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 	}
+	public final static String bundleName =
+		"org.eclipse.jdt.internal.compiler.batch.messages"; 	//$NON-NLS-1$
+
+	// two uses: recognize 'none' in options; code the singleton none
+		// for the '-d none' option (wherever it may be found)
+	public static final int DEFAULT_SIZE_CLASSPATH = 4;
+	public static final String NONE = "none"; //$NON-NLS-1$
+
+	/*
+	 * Internal IDE API
+	 */
+	public static boolean compile(String commandLine) {
+	
+		return compile(commandLine, new PrintWriter(System.out), new PrintWriter(System.err));
+	}
+		/*
+	 * Internal IDE API for test harness purpose
+	 */
+	public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter) {
+	
+		return new Main(outWriter, errWriter, false).compile(tokenize(commandLine));
+	}
+	public static File[][] getLibrariesFiles(File[] files) {
+		FilenameFilter filter = new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				String lowerCaseName = name.toLowerCase();
+				if (lowerCaseName.endsWith(SuffixConstants.SUFFIX_STRING_jar) || lowerCaseName.endsWith(SuffixConstants.SUFFIX_STRING_zip)) {
+					return true;
+				}
+				return false;
+			}
+		};
+		final int filesLength = files.length;
+		File[][] result = new File[filesLength][];
+		for (int i = 0; i < filesLength; i++) {
+			File currentFile = files[i];
+			if (currentFile.exists() && currentFile.isDirectory()) {
+				result[i] = currentFile.listFiles(filter);
+			}
+		}
+		return result;
+	}
+	public static void main(String[] argv) {
+		new Main(new PrintWriter(System.out), new PrintWriter(System.err), true).compile(argv);
+	} 
+	public static String[] tokenize(String commandLine) {
+	
+		int count = 0;
+		String[] arguments = new String[10];
+		StringTokenizer tokenizer = new StringTokenizer(commandLine, " \"", true); //$NON-NLS-1$
+		String token = ""; //$NON-NLS-1$
+		boolean insideQuotes = false;
+		boolean startNewToken = true;
+	
+		// take care to quotes on the command line
+		// 'xxx "aaa bbb";ccc yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+		// 'xxx "aaa bbb;ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+		// 'xxx "aaa bbb";"ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
+		// 'xxx/"aaa bbb";"ccc" yyy' --->  {"xxx/aaa bbb;ccc", "yyy" }
+		while (tokenizer.hasMoreTokens()) {
+			token = tokenizer.nextToken();
+	
+			if (token.equals(" ")) { //$NON-NLS-1$
+				if (insideQuotes) {
+					arguments[count - 1] += token;
+					startNewToken = false;
+				} else {
+					startNewToken = true;
+				}
+			} else if (token.equals("\"")) { //$NON-NLS-1$
+				if (!insideQuotes && startNewToken) {
+					if (count == arguments.length)
+						System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
+					arguments[count++] = ""; //$NON-NLS-1$
+				}
+				insideQuotes = !insideQuotes;
+				startNewToken = false;
+			} else {
+				if (insideQuotes) {
+					arguments[count - 1] += token;
+				} else {
+					if (token.length() > 0 && !startNewToken) {
+						arguments[count - 1] += token;
+					} else {
+						if (count == arguments.length)
+							System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
+						String trimmedToken = token.trim();
+						if (trimmedToken.length() != 0) {
+							arguments[count++] = trimmedToken;
+						}
+					}
+				}
+				startNewToken = false;
+			}
+		}
+		System.arraycopy(arguments, 0, arguments = new String[count], 0, count);
+		return arguments;
+	}
 	Compiler batchCompiler;
-
-	FileSystem.Classpath[] checkedClasspaths;
+	/* Bundle containing messages */
+	public ResourceBundle bundle;
+		protected FileSystem.Classpath[] checkedClasspaths;
+	public Locale compilerLocale;
 	public CompilerOptions compilerOptions; // read-only
-
 	public String destinationPath;
-		// destination path for compilation units that get no more specific
+	public String[] destinationPaths;
+	// destination path for compilation units that get no more specific
 		// one (through directory arguments or various classpath options); 
 		// coding is:
 		// == null: unspecified, write class files close to their respective
@@ -983,28 +1085,27 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		//       be written.
 	private boolean didSpecifySource;
 	private boolean didSpecifyTarget;
+
+	public String[] encodings;
+
 	// need to pass the compiler messages output to the delegate compiler
 		// do not user directly (use logger)
 		// TODO (maxime) this is used in one instance - check reason with olivier
 		// WORK this comments make no more sense, investigate
 	public int exportedClassFilesCounter; 
 	public String[] filenames;
-	public String[] encodings;
-	public String[] destinationPaths;
-		// overrides of destinationPath on a directory argument basis
+
+	// overrides of destinationPath on a directory argument basis
 	public int globalErrorsCount;
 	public int globalProblemsCount;
 	public int globalTasksCount;
 	public int globalWarningsCount;
 	private File javaHomeCache;
-	private boolean javaHomeChecked;
+	private boolean javaHomeChecked = false;
 	public long lineCount;
-
 	public String log;
-
-	public Logger logger; 
+	public Logger logger;
 	public int maxProblems;
-
 	public boolean noWarn = false;
 	public Map options;
 	PrintWriter out;
@@ -1012,37 +1113,128 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public boolean proceedOnError = false;
 	public boolean produceRefInfo = false;
 	public int repetitions;
+
 	public boolean showProgress = false;
-	public long startTime;
-	public boolean systemExitWhenFinished = true;
-	public long[] times;
-	public int timesCounter;
-	public boolean timing = false;
-	public boolean verbose = false;
-	/* Bundle containing messages */
-	public static ResourceBundle bundle;
-	public final static String bundleName =
-		"org.eclipse.jdt.internal.compiler.batch.messages"; 	//$NON-NLS-1$
+		public long startTime;
 
-	public static final String NONE = "none"; //$NON-NLS-1$
-		// two uses: recognize 'none' in options; code the singleton none
-		// for the '-d none' option (wherever it may be found)
-	static {
-		relocalize();
+public boolean systemExitWhenFinished = true;
+
+public long[] times;
+
+public int timesCounter;
+
+public boolean timing = false;
+
+public boolean verbose = false;
+
+public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
+	this(outWriter, errWriter, systemExitWhenFinished, null);
+}
+
+public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished, Map customDefaultOptions) {
+	this.initialize(outWriter, errWriter, systemExitWhenFinished, customDefaultOptions);
+	this.relocalize();
+}
+
+protected void addNewEntry(ArrayList paths, String currentClasspathName, 
+		ArrayList currentRuleSpecs, String customEncoding, 
+		String destPath, boolean isSourceOnly, 
+		boolean rejectDestinationPathOnJars) throws InvalidInputException {
+	
+	int rulesSpecsSize = currentRuleSpecs.size();
+	AccessRuleSet accessRuleSet = null;	
+	if (rulesSpecsSize != 0) {
+		AccessRule[] accessRules = new AccessRule[currentRuleSpecs.size()];
+    	boolean rulesOK = true;
+    	Iterator i = currentRuleSpecs.iterator();
+    	int j = 0;
+    	while (i.hasNext()) {
+    		String ruleSpec = (String) i.next();
+    		char key = ruleSpec.charAt(0);
+    		String pattern = ruleSpec.substring(1);
+    		if (pattern.length() > 0) {
+    			switch (key) {
+    			case '+':
+    				accessRules[j++] = new AccessRule(pattern
+    						.toCharArray(), 0);
+    				break;
+    			case '~':
+    				accessRules[j++] = new AccessRule(pattern
+    						.toCharArray(),
+    						IProblem.DiscouragedReference);
+    				break;
+    			case '-':
+    				accessRules[j++] = new AccessRule(pattern
+    						.toCharArray(),
+    						IProblem.ForbiddenReference);
+    				break;
+    			case '?':
+    				accessRules[j++] = new AccessRule(pattern
+    						.toCharArray(),
+    						IProblem.ForbiddenReference, true/*keep looking for accessible type*/);
+    				break;
+    			default:
+    				rulesOK = false;
+    			}
+    		} else {
+    			rulesOK = false;
+    		}
+    	}
+    	if (rulesOK) {
+    		String templates[] = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
+    		templates[0] = this.bind(
+    			"template.restrictedAccess.type", //$NON-NLS-1$
+    			new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$ 
+    		templates[1] = this.bind(
+    			"template.restrictedAccess.constructor", //$NON-NLS-1$
+    			new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$ 
+    		templates[2] = this.bind(
+    			"template.restrictedAccess.method", //$NON-NLS-1$
+    			new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$ 
+    		templates[3] = this.bind(
+    			"template.restrictedAccess.field", //$NON-NLS-1$
+    			new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$ 
+    		accessRuleSet = new AccessRuleSet(accessRules, templates);
+    	} else {
+    		// we go on anyway
+    		this.logger.logIncorrectClasspath(currentClasspathName);
+    		return;
+    	}
 	}
-
+	if (NONE.equals(destPath)) {
+		destPath = NONE; // keep == comparison valid
+	}
+	if (rejectDestinationPathOnJars && destPath != null &&
+			(currentClasspathName.endsWith(".jar") || //$NON-NLS-1$ 
+				currentClasspathName.endsWith(".zip"))) { //$NON-NLS-1$ 
+		throw new InvalidInputException(
+			this.bind("configure.unexpectedDestinationPathEntryFile", //$NON-NLS-1$ 
+						currentClasspathName));
+	}
+	FileSystem.Classpath currentClasspath = FileSystem.getClasspath(
+			currentClasspathName,
+			customEncoding,
+			isSourceOnly,
+			accessRuleSet,
+			destPath);
+	if (currentClasspath != null) {
+		paths.add(currentClasspath);
+	} else {
+		// we go on anyway
+		this.logger.logIncorrectClasspath(currentClasspathName);
+	}
+}
 /*
  * Lookup the message with the given ID in this catalog 
  */
-public static String bind(String id) {
+public String bind(String id) {
 	return bind(id, (String[]) null);
 }
-
 /*
  * Lookup the message with the given ID in this catalog and bind its
  * substitution locations with the given string.
  */
-public static String bind(String id, String binding) {
+public String bind(String id, String binding) {
 	return bind(id, new String[] { binding });
 }
 
@@ -1050,7 +1242,7 @@ public static String bind(String id, String binding) {
  * Lookup the message with the given ID in this catalog and bind its
  * substitution locations with the given strings.
  */
-public static String bind(String id, String binding1, String binding2) {
+public String bind(String id, String binding1, String binding2) {
 	return bind(id, new String[] { binding1, binding2 });
 }
 
@@ -1058,213 +1250,18 @@ public static String bind(String id, String binding1, String binding2) {
  * Lookup the message with the given ID in this catalog and bind its
  * substitution locations with the given string values.
  */
-public static String bind(String id, String[] arguments) {
+public String bind(String id, String[] arguments) {
 	if (id == null)
 		return "No message available"; //$NON-NLS-1$
 	String message = null;
 	try {
-		message = Main.bundle.getString(id);
+		message = this.bundle.getString(id);
 	} catch (MissingResourceException e) {
 		// If we got an exception looking for the message, fail gracefully by just returning
 		// the id we were looking for.  In most cases this is semi-informative so is not too bad.
 		return "Missing message: " + id + " in: " + Main.bundleName; //$NON-NLS-2$ //$NON-NLS-1$
 	}
 	return MessageFormat.format(message, arguments);
-}
-
-/*
- * Internal IDE API
- */
-public static boolean compile(String commandLine) {
-
-	return compile(commandLine, new PrintWriter(System.out), new PrintWriter(System.err));
-}
-
-/*
- * Internal IDE API for test harness purpose
- */
-public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter) {
-
-	return new Main(outWriter, errWriter, false).compile(tokenize(commandLine));
-}
-
-public static void main(String[] argv) {
-	new Main(new PrintWriter(System.out), new PrintWriter(System.err), true).compile(argv);
-}
-
-/**
- * Creates a NLS catalog for the given locale.
- */
-public static void relocalize() {
-	try {
-		Main.bundle = ResourceBundle.getBundle(Main.bundleName, Locale.getDefault());
-	} catch(MissingResourceException e) {
-		System.out.println("Missing resource : " + Main.bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
-		throw e;
-	}
-}
-
-/*
- * External API
- */
-
-public static String[] tokenize(String commandLine) {
-
-	int count = 0;
-	String[] arguments = new String[10];
-	StringTokenizer tokenizer = new StringTokenizer(commandLine, " \"", true); //$NON-NLS-1$
-	String token = ""; //$NON-NLS-1$
-	boolean insideQuotes = false;
-	boolean startNewToken = true;
-
-	// take care to quotes on the command line
-	// 'xxx "aaa bbb";ccc yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
-	// 'xxx "aaa bbb;ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
-	// 'xxx "aaa bbb";"ccc" yyy' --->  {"xxx", "aaa bbb;ccc", "yyy" }
-	// 'xxx/"aaa bbb";"ccc" yyy' --->  {"xxx/aaa bbb;ccc", "yyy" }
-	while (tokenizer.hasMoreTokens()) {
-		token = tokenizer.nextToken();
-
-		if (token.equals(" ")) { //$NON-NLS-1$
-			if (insideQuotes) {
-				arguments[count - 1] += token;
-				startNewToken = false;
-			} else {
-				startNewToken = true;
-			}
-		} else if (token.equals("\"")) { //$NON-NLS-1$
-			if (!insideQuotes && startNewToken) {
-				if (count == arguments.length)
-					System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
-				arguments[count++] = ""; //$NON-NLS-1$
-			}
-			insideQuotes = !insideQuotes;
-			startNewToken = false;
-		} else {
-			if (insideQuotes) {
-				arguments[count - 1] += token;
-			} else {
-				if (token.length() > 0 && !startNewToken) {
-					arguments[count - 1] += token;
-				} else {
-					if (count == arguments.length)
-						System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
-					String trimmedToken = token.trim();
-					if (trimmedToken.length() != 0) {
-						arguments[count++] = trimmedToken;
-					}
-				}
-			}
-			startNewToken = false;
-		}
-	}
-	System.arraycopy(arguments, 0, arguments = new String[count], 0, count);
-	return arguments;
-}
-
-public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
-	this(outWriter, errWriter, systemExitWhenFinished, null);
-}
-
-public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished, Map customDefaultOptions) {
-	this.logger = new Logger(outWriter, errWriter);
-	this.out = outWriter;
-	this.systemExitWhenFinished = systemExitWhenFinished;
-	this.options = new CompilerOptions().getMap();
-	if (customDefaultOptions != null) {
-		this.didSpecifySource = customDefaultOptions.get(CompilerOptions.OPTION_Source) != null;
-		this.didSpecifyTarget = customDefaultOptions.get(CompilerOptions.OPTION_TargetPlatform) != null;
-		for (Iterator iter = customDefaultOptions.keySet().iterator(); iter.hasNext();) {
-			Object key = iter.next();
-			this.options.put(key, customDefaultOptions.get(key));
-		}
-	} else {
-		this.didSpecifySource = false;
-		this.didSpecifyTarget = false;
-	}
-}
-
-private void addNewEntry(ArrayList paths, String currentClasspathName, 
-		ArrayList currentRuleSpecs, String customEncoding, 
-		String destPath, boolean isSourceOnly, 
-		boolean rejectDestinationPathOnJars) throws InvalidInputException {
-	AccessRule[] accessRules = new AccessRule[currentRuleSpecs.size()];
-	boolean rulesOK = true;
-	Iterator i = currentRuleSpecs.iterator();
-	int j = 0;
-	while (i.hasNext()) {
-		String ruleSpec = (String) i.next();
-		char key = ruleSpec.charAt(0);
-		String pattern = ruleSpec.substring(1);
-		if (pattern.length() > 0) {
-			switch (key) {
-			case '+':
-				accessRules[j++] = new AccessRule(pattern
-						.toCharArray(), 0);
-				break;
-			case '~':
-				accessRules[j++] = new AccessRule(pattern
-						.toCharArray(),
-						IProblem.DiscouragedReference);
-				break;
-			case '-':
-				accessRules[j++] = new AccessRule(pattern
-						.toCharArray(),
-						IProblem.ForbiddenReference);
-				break;
-			case '?':
-				accessRules[j++] = new AccessRule(pattern
-						.toCharArray(),
-						IProblem.ForbiddenReference, true/*keep looking for accessible type*/);
-				break;
-			default:
-				rulesOK = false;
-			}
-		} else {
-			rulesOK = false;
-		}
-	}
-	if (rulesOK) {
-		String templates[] = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
-		templates[0] = Main.bind(
-			"template.restrictedAccess.type", //$NON-NLS-1$
-			new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$ 
-		templates[1] = Main.bind(
-			"template.restrictedAccess.constructor", //$NON-NLS-1$
-			new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$ 
-		templates[2] = Main.bind(
-			"template.restrictedAccess.method", //$NON-NLS-1$
-			new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$ 
-		templates[3] = Main.bind(
-			"template.restrictedAccess.field", //$NON-NLS-1$
-			new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$ 
-		AccessRuleSet accessRuleSet = new AccessRuleSet(accessRules, templates);
-		if (NONE.equals(destPath)) {
-			destPath = NONE; // keep == comparison valid
-		}
-		if (rejectDestinationPathOnJars && destPath != null &&
-				(currentClasspathName.endsWith(".jar") || //$NON-NLS-1$ 
-					currentClasspathName.endsWith(".zip"))) { //$NON-NLS-1$ 
-			throw new InvalidInputException(
-				Main.bind("configure.unexpectedDestinationPathEntryFile", //$NON-NLS-1$ 
-							currentClasspathName));
-		}
-		FileSystem.Classpath currentClasspath = FileSystem.getClasspath(
-				currentClasspathName,
-				customEncoding,
-				isSourceOnly,
-				accessRuleSet,
-				destPath);
-		if (currentClasspath != null) {
-			paths.add(currentClasspath);
-		} else {
-			this.logger.logIncorrectClasspath(currentClasspathName);
-			// we go on anyway
-		}
-	} else {
-		this.logger.logIncorrectClasspath(currentClasspathName);
-		// we go on anyway
-	}
 }
 
 /*
@@ -1340,7 +1337,6 @@ public void configure(String[] argv) throws InvalidInputException {
 		return;
 	}
 	final int INSIDE_CLASSPATH_start = 1;
-	final int INSIDE_CLASSPATH_bracket = 2;
 	final int INSIDE_DESTINATION_PATH = 3;
 	final int INSIDE_TARGET = 4;
 	final int INSIDE_LOG = 5;
@@ -1348,19 +1344,15 @@ public void configure(String[] argv) throws InvalidInputException {
 	final int INSIDE_SOURCE = 7;
 	final int INSIDE_DEFAULT_ENCODING = 8;
 	final int INSIDE_BOOTCLASSPATH_start = 9;
-	final int INSIDE_BOOTCLASSPATH_bracket = 10;
 	final int INSIDE_MAX_PROBLEMS = 11;
 	final int INSIDE_EXT_DIRS = 12;
 	final int INSIDE_SOURCE_PATH_start = 13;
-	final int INSIDE_SOURCE_PATH_bracket = 14;
 	final int INSIDE_ENDORSED_DIRS = 15;
 	final int INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH = 16;
 
 	final int DEFAULT = 0;
-	final int DEFAULT_SIZE_CLASSPATH = 4;
 	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	String sourcepathClasspathArg = null;
-	String classpathArg = null;
 	ArrayList sourcepathClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	ArrayList extdirsClasspaths = null;
@@ -1414,7 +1406,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					newArgs = tokenize(buffer.toString());
 				} catch(IOException e) {
 					throw new InvalidInputException(
-						Main.bind("configure.invalidexpansionargumentname", arg)); //$NON-NLS-1$
+						this.bind("configure.invalidexpansionargumentname", arg)); //$NON-NLS-1$
 				}
 			}
 			if (newArgs != null) {
@@ -1439,7 +1431,7 @@ public void configure(String[] argv) throws InvalidInputException {
 
 		if (customEncoding != null) {
 			throw new InvalidInputException(
-				Main.bind("configure.unexpectedCustomEncoding", currentArg, customEncoding)); //$NON-NLS-1$
+				this.bind("configure.unexpectedCustomEncoding", currentArg, customEncoding)); //$NON-NLS-1$
 		}
 
 		currentArg = newCommandLineArgs[index];
@@ -1450,7 +1442,7 @@ public void configure(String[] argv) throws InvalidInputException {
 				
 				if (currentArg.startsWith("[")) { //$NON-NLS-1$
 					throw new InvalidInputException(
-						Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+						this.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
 									currentArg));
 				}
 				
@@ -1459,7 +1451,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					int encodingStart = currentArg.indexOf('[') + 1;
 					if (encodingStart <= 1) {
 						throw new InvalidInputException(
-								Main.bind("configure.unexpectedBracket", currentArg)); //$NON-NLS-1$
+								this.bind("configure.unexpectedBracket", currentArg)); //$NON-NLS-1$
 					}
 					int encodingEnd = currentArg.length() - 1;
 					if (encodingStart >= 1) {
@@ -1469,7 +1461,7 @@ public void configure(String[] argv) throws InvalidInputException {
 								new InputStreamReader(new ByteArrayInputStream(new byte[0]), customEncoding);
 							} catch (UnsupportedEncodingException e) {
 								throw new InvalidInputException(
-									Main.bind("configure.unsupportedEncoding", customEncoding)); //$NON-NLS-1$
+									this.bind("configure.unsupportedEncoding", customEncoding)); //$NON-NLS-1$
 							}
 						}
 						currentArg = currentArg.substring(0, encodingStart - 1);
@@ -1512,21 +1504,21 @@ public void configure(String[] argv) throws InvalidInputException {
 				if (currentArg.equals("-log")) { //$NON-NLS-1$
 					if (this.log != null)
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateLog", currentArg)); //$NON-NLS-1$
+							this.bind("configure.duplicateLog", currentArg)); //$NON-NLS-1$
 					mode = INSIDE_LOG;
 					continue;
 				}
 				if (currentArg.equals("-repeat")) { //$NON-NLS-1$
 					if (this.repetitions > 0)
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateRepeat", currentArg)); //$NON-NLS-1$
+							this.bind("configure.duplicateRepeat", currentArg)); //$NON-NLS-1$
 					mode = INSIDE_REPETITION;
 					continue;
 				}
 				if (currentArg.equals("-maxProblems")) { //$NON-NLS-1$
 					if (this.maxProblems > 0)
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateMaxProblems", currentArg)); //$NON-NLS-1$
+							this.bind("configure.duplicateMaxProblems", currentArg)); //$NON-NLS-1$
 					mode = INSIDE_MAX_PROBLEMS;
 					continue;
 				}
@@ -1541,7 +1533,7 @@ public void configure(String[] argv) throws InvalidInputException {
 				if (currentArg.equals("-1.3")) { //$NON-NLS-1$
 					if (didSpecifyCompliance) {
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateCompliance", currentArg));//$NON-NLS-1$
+							this.bind("configure.duplicateCompliance", currentArg));//$NON-NLS-1$
 					}
 					didSpecifyCompliance = true;
 					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
@@ -1551,7 +1543,7 @@ public void configure(String[] argv) throws InvalidInputException {
 				if (currentArg.equals("-1.4")) { //$NON-NLS-1$
 					if (didSpecifyCompliance) {
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
 					}
 					didSpecifyCompliance = true;
 					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
@@ -1561,7 +1553,7 @@ public void configure(String[] argv) throws InvalidInputException {
 				if (currentArg.equals("-1.5") || currentArg.equals("-5") || currentArg.equals("-5.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					if (didSpecifyCompliance) {
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
 					}
 					didSpecifyCompliance = true;
 					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
@@ -1571,7 +1563,7 @@ public void configure(String[] argv) throws InvalidInputException {
 				if (currentArg.equals("-1.6") || currentArg.equals("-6") || currentArg.equals("-6.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					if (didSpecifyCompliance) {
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
 					}
 					didSpecifyCompliance = true;
 					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
@@ -1587,7 +1579,7 @@ public void configure(String[] argv) throws InvalidInputException {
 							errorMessage.append(newCommandLineArgs[index + 1]);
 						}
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateOutputPath", errorMessage.toString())); //$NON-NLS-1$
+							this.bind("configure.duplicateOutputPath", errorMessage.toString())); //$NON-NLS-1$
 					}
 					mode = INSIDE_DESTINATION_PATH;
 					continue;
@@ -1606,7 +1598,7 @@ public void configure(String[] argv) throws InvalidInputException {
 							errorMessage.append(newCommandLineArgs[index + 1]);
 						}
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateBootClasspath", errorMessage.toString())); //$NON-NLS-1$
+							this.bind("configure.duplicateBootClasspath", errorMessage.toString())); //$NON-NLS-1$
 					}
 					mode = INSIDE_BOOTCLASSPATH_start;
 					continue;
@@ -1620,7 +1612,7 @@ public void configure(String[] argv) throws InvalidInputException {
 							errorMessage.append(newCommandLineArgs[index + 1]);
 						}
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateSourcepath", errorMessage.toString())); //$NON-NLS-1$
+							this.bind("configure.duplicateSourcepath", errorMessage.toString())); //$NON-NLS-1$
 					}
 					mode = INSIDE_SOURCE_PATH_start;
 					continue;
@@ -1634,7 +1626,7 @@ public void configure(String[] argv) throws InvalidInputException {
 							errorMessage.append(newCommandLineArgs[index + 1]);
 						}
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateExtDirs", errorMessage.toString())); //$NON-NLS-1$
+							this.bind("configure.duplicateExtDirs", errorMessage.toString())); //$NON-NLS-1$
 					}
 					mode = INSIDE_EXT_DIRS;
 					continue;
@@ -1648,7 +1640,7 @@ public void configure(String[] argv) throws InvalidInputException {
 							errorMessage.append(newCommandLineArgs[index + 1]);
 						}
 						throw new InvalidInputException(
-							Main.bind("configure.duplicateEndorsedDirs", errorMessage.toString())); //$NON-NLS-1$
+							this.bind("configure.duplicateEndorsedDirs", errorMessage.toString())); //$NON-NLS-1$
 					}
 					mode = INSIDE_ENDORSED_DIRS;
 					continue;
@@ -1764,13 +1756,13 @@ public void configure(String[] argv) throws InvalidInputException {
 									CompilerOptions.GENERATE);
 							} else {
 								throw new InvalidInputException(
-									Main.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
+									this.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
 							}
 						}
 						continue;
 					}
 					throw new InvalidInputException(
-						Main.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
+						this.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
 				}
 				if (currentArg.startsWith("-nowarn")) { //$NON-NLS-1$
 					disableWarnings();
@@ -1787,7 +1779,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					}
 					if (length <= 6) {
 						throw new InvalidInputException(
-							Main.bind("configure.invalidWarningConfiguration", warningOption)); //$NON-NLS-1$
+							this.bind("configure.invalidWarningConfiguration", warningOption)); //$NON-NLS-1$
 					}
 					int warnTokenStart;
 					boolean isEnabling;
@@ -2022,7 +2014,7 @@ public void configure(String[] argv) throws InvalidInputException {
 								taskTags = taskTags.replace('|',',');
 							}
 							if (taskTags.length() == 0){
-								throw new InvalidInputException(Main.bind("configure.invalidTaskTag", token)); //$NON-NLS-1$
+								throw new InvalidInputException(this.bind("configure.invalidTaskTag", token)); //$NON-NLS-1$
 							}
 							this.options.put(
 								CompilerOptions.OPTION_TaskTags,
@@ -2137,12 +2129,12 @@ public void configure(String[] argv) throws InvalidInputException {
 								CompilerOptions.OPTION_ReportFallthroughCase,
 								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 						} else {
-							throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
+							throw new InvalidInputException(this.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 						}
 					}
 					if (tokenCounter == 0)
 						throw new InvalidInputException(
-							Main.bind("configure.invalidWarningOption", currentArg)); //$NON-NLS-1$
+							this.bind("configure.invalidWarningOption", currentArg)); //$NON-NLS-1$
 					didSpecifyWarnings = true;
 					continue;
 				}
@@ -2187,7 +2179,7 @@ public void configure(String[] argv) throws InvalidInputException {
 			case INSIDE_TARGET :
 				if (this.didSpecifyTarget) {
 					throw new InvalidInputException(
-						Main.bind("configure.duplicateTarget", currentArg));//$NON-NLS-1$
+						this.bind("configure.duplicateTarget", currentArg));//$NON-NLS-1$
 				}				
 				this.didSpecifyTarget = true;
 				if (currentArg.equals("1.1")) { //$NON-NLS-1$
@@ -2205,7 +2197,7 @@ public void configure(String[] argv) throws InvalidInputException {
 				} else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_JSR14);
 				} else {
-					throw new InvalidInputException(Main.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
+					throw new InvalidInputException(this.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
 				}
 				mode = DEFAULT;
 				continue;
@@ -2217,10 +2209,10 @@ public void configure(String[] argv) throws InvalidInputException {
 				try {
 					this.repetitions = Integer.parseInt(currentArg);
 					if (this.repetitions <= 0) {
-						throw new InvalidInputException(Main.bind("configure.repetition", currentArg)); //$NON-NLS-1$
+						throw new InvalidInputException(this.bind("configure.repetition", currentArg)); //$NON-NLS-1$
 					}
 				} catch (NumberFormatException e) {
-					throw new InvalidInputException(Main.bind("configure.repetition", currentArg)); //$NON-NLS-1$
+					throw new InvalidInputException(this.bind("configure.repetition", currentArg)); //$NON-NLS-1$
 				}
 				mode = DEFAULT;
 				continue;
@@ -2228,18 +2220,18 @@ public void configure(String[] argv) throws InvalidInputException {
 				try {
 					this.maxProblems = Integer.parseInt(currentArg);
 					if (this.maxProblems <= 0) {
-						throw new InvalidInputException(Main.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
+						throw new InvalidInputException(this.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
 					}
 					this.options.put(CompilerOptions.OPTION_MaxProblemPerUnit, currentArg);
 				} catch (NumberFormatException e) {
-					throw new InvalidInputException(Main.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
+					throw new InvalidInputException(this.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
 				}
 				mode = DEFAULT;
 				continue;
 			case INSIDE_SOURCE :
 				if (this.didSpecifySource) {
 					throw new InvalidInputException(
-						Main.bind("configure.duplicateSource", currentArg));//$NON-NLS-1$
+						this.bind("configure.duplicateSource", currentArg));//$NON-NLS-1$
 				}				
 				this.didSpecifySource = true;
 				if (currentArg.equals("1.3")) { //$NON-NLS-1$
@@ -2251,20 +2243,20 @@ public void configure(String[] argv) throws InvalidInputException {
 				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 				} else {
-					throw new InvalidInputException(Main.bind("configure.source", currentArg)); //$NON-NLS-1$
+					throw new InvalidInputException(this.bind("configure.source", currentArg)); //$NON-NLS-1$
 				}
 				mode = DEFAULT;
 				continue;
 			case INSIDE_DEFAULT_ENCODING :
 				if (didSpecifyDefaultEncoding) {
 					throw new InvalidInputException(
-						Main.bind("configure.duplicateDefaultEncoding", currentArg)); //$NON-NLS-1$
+						this.bind("configure.duplicateDefaultEncoding", currentArg)); //$NON-NLS-1$
 				}
 				try { // ensure encoding is supported
 					new InputStreamReader(new ByteArrayInputStream(new byte[0]), currentArg);
 				} catch (UnsupportedEncodingException e) {
 					throw new InvalidInputException(
-						Main.bind("configure.unsupportedEncoding", currentArg)); //$NON-NLS-1$
+						this.bind("configure.unsupportedEncoding", currentArg)); //$NON-NLS-1$
 				}
 				this.options.put(CompilerOptions.OPTION_Encoding, currentArg);
 				didSpecifyDefaultEncoding = true;
@@ -2281,170 +2273,22 @@ public void configure(String[] argv) throws InvalidInputException {
 				continue;
 			case INSIDE_CLASSPATH_start: 
 				mode = DEFAULT;
-				char[] currentArgChars = currentArg.toCharArray();
-				for (int i = 0, length = currentArgChars.length; i < length; 
-						i++) {
-					switch (currentArgChars[i]) {
-						case '[':
-							if (mode == INSIDE_CLASSPATH_bracket) {
-								throw new InvalidInputException(
-									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
-												currentArg));
-							} else {
-								mode = INSIDE_CLASSPATH_bracket;
-							}
-							break;
-						case ']':
-							if (mode != INSIDE_CLASSPATH_bracket) {
-								throw new InvalidInputException(
-									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
-											currentArg));
-							} else {
-								mode = DEFAULT;
-							}
-							break;
-					}
-				}
-				if (mode == DEFAULT) {
-					classpaths.add(currentArg);
-				} else {
-					classpathArg = currentArg;
-				}
-				continue;
-			case INSIDE_CLASSPATH_bracket:
-				currentArgChars = currentArg.toCharArray();
-				for (int i = 0, length = currentArgChars.length; i < length; 
-						i++) {
-					switch (currentArgChars[i]) {
-						case '[':
-							throw new InvalidInputException(
-								Main.bind("configure.accessRuleAfterDestinationPath", //$NON-NLS-1$ 
-											"[-d " + currentArg)); //$NON-NLS-1$ 
-						case ']':
-							if (mode != INSIDE_CLASSPATH_bracket) {
-								throw new InvalidInputException(
-									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
-												currentArg));
-							} else {
-								mode = DEFAULT;
-							}
-							break;
-					}
-				}
-				if (mode == DEFAULT) {
-					classpaths.add(classpathArg + " " + currentArg); //$NON-NLS-1$
-				}
+				index += processPaths(newCommandLineArgs, index, currentArg, classpaths);
 				continue;
 			case INSIDE_BOOTCLASSPATH_start: 
 				mode = DEFAULT;
-				currentArgChars = currentArg.toCharArray();
-				for (int i = 0, length = currentArgChars.length; i < length; 
-						i++) {
-					switch (currentArgChars[i]) {
-						case '[':
-							if (mode == INSIDE_BOOTCLASSPATH_bracket) {
-								throw new InvalidInputException(
-									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
-												currentArg));
-							} else {
-								mode = INSIDE_BOOTCLASSPATH_bracket;
-							}
-							break;
-						case ']':
-							if (mode != INSIDE_BOOTCLASSPATH_bracket) {
-								throw new InvalidInputException(
-									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
-												currentArg));
-							} else {
-								mode = DEFAULT;
-							}
-							break;
-					}
-				}
-				if (mode == DEFAULT) {
-					bootclasspaths.add(currentArg);
-				} else {
-					classpathArg = currentArg;
-				}
-				continue;
-			case INSIDE_BOOTCLASSPATH_bracket:
-				currentArgChars = currentArg.toCharArray();
-				for (int i = 0, length = currentArgChars.length; i < length; 
-						i++) {
-					switch (currentArgChars[i]) {
-						case '[':
-							throw new InvalidInputException(
-								Main.bind("configure.accessRuleAfterDestinationPath", //$NON-NLS-1$ 
-											"[-d " + currentArg)); //$NON-NLS-1$ 
-						case ']':
-							if (mode != INSIDE_BOOTCLASSPATH_bracket) {
-								throw new InvalidInputException(
-									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
-												currentArg));
-							} else {
-								mode = DEFAULT;
-							}
-							break;
-					}
-				}
-				if (mode == DEFAULT) {
-					bootclasspaths.add(classpathArg + " " + currentArg); //$NON-NLS-1$
-				}
+				index += processPaths(newCommandLineArgs, index, currentArg, bootclasspaths);
 				continue;
 			case INSIDE_SOURCE_PATH_start:
-				sourcepathClasspathArg = currentArg;
 				mode = DEFAULT;
-				currentArgChars = currentArg.toCharArray();
-				for (int i = 0, length = currentArgChars.length; i < length; 
-						i++) {
-					switch (currentArgChars[i]) {
-						case '[':
-							if (mode == INSIDE_SOURCE_PATH_bracket) {
-								throw new InvalidInputException(
-									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
-												currentArg));
-							} else {
-								mode = INSIDE_SOURCE_PATH_bracket;
-							}
-							break;
-						case ']':
-							if (mode != INSIDE_SOURCE_PATH_bracket) {
-								throw new InvalidInputException(
-									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
-												currentArg));
-							} else {
-								mode = DEFAULT;
-							}
-							break;
-					}
-				}
-				continue;
-			case INSIDE_SOURCE_PATH_bracket:
-				sourcepathClasspathArg += " " + currentArg; //$NON-NLS-1$
-				currentArgChars = currentArg.toCharArray();
-				for (int i = 0, length = currentArgChars.length; i < length; 
-						i++) {
-					switch (currentArgChars[i]) {
-						case '[':
-							throw new InvalidInputException(
-								Main.bind("configure.accessRuleAfterDestinationPath", //$NON-NLS-1$ 
-											"[-d " + currentArg)); //$NON-NLS-1$ 
-						case ']':
-							if (mode != INSIDE_SOURCE_PATH_bracket) {
-								throw new InvalidInputException(
-									Main.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
-												currentArg));
-							} else {
-								mode = DEFAULT;
-							}
-							break;
-					}
-				}
+				String[] sourcePaths = new String[1];
+				index += processPaths(newCommandLineArgs, index, currentArg, sourcePaths);
+				sourcepathClasspathArg = sourcePaths[0];
 				continue;
 			case INSIDE_EXT_DIRS:
 				if (currentArg.indexOf("[-d") != -1) { //$NON-NLS-1$ 
 					throw new InvalidInputException(
-						Main.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$ 
+						this.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$ 
 							"-extdir")); //$NON-NLS-1$ 
 				}
 				StringTokenizer tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
@@ -2456,7 +2300,7 @@ public void configure(String[] argv) throws InvalidInputException {
 			case INSIDE_ENDORSED_DIRS:
 				if (currentArg.indexOf("[-d") != -1) { //$NON-NLS-1$ 
 					throw new InvalidInputException(
-						Main.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$ 
+						this.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$ 
 							"-endorseddirs")); //$NON-NLS-1$ 
 				}				tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
 				endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
@@ -2470,7 +2314,7 @@ public void configure(String[] argv) throws InvalidInputException {
 						currentArg.length() - 1);
 				} else {
 					throw new InvalidInputException(
-						Main.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$ 
+						this.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$ 
 							"[-d " + currentArg)); //$NON-NLS-1$
 				}
 				// continue; fall through on purpose
@@ -2495,21 +2339,15 @@ public void configure(String[] argv) throws InvalidInputException {
 		File dir = new File(currentSourceDirectory);
 		if (!dir.isDirectory()) {
 			throw new InvalidInputException(
-				Main.bind("configure.directoryNotExist", currentSourceDirectory)); //$NON-NLS-1$
+				this.bind("configure.directoryNotExist", currentSourceDirectory)); //$NON-NLS-1$
 		}
-		FileFinder finder = new FileFinder();
-		try {
-			finder.find(dir, SuffixConstants.SUFFIX_STRING_JAVA, this.verbose);
-		} catch (Exception e) {
-			throw new InvalidInputException(Main.bind("configure.IOError", currentSourceDirectory)); //$NON-NLS-1$
-		}
+		String[] result = FileFinder.find(dir, SuffixConstants.SUFFIX_STRING_JAVA);
 		if (NONE.equals(customDestinationPath)) {
 			customDestinationPath = NONE; // ensure == comparison
 		}
 		if (this.filenames != null) {
 			// some source files were specified explicitly
-			String results[] = finder.resultFiles;
-			int length = results.length;
+			int length = result.length;
 			System.arraycopy(
 				this.filenames,
 				0,
@@ -2528,7 +2366,7 @@ public void configure(String[] argv) throws InvalidInputException {
 				(this.destinationPaths = new String[length + filesCount]),
 				0,
 				filesCount);
-			System.arraycopy(results, 0, this.filenames, filesCount, length);
+			System.arraycopy(result, 0, this.filenames, filesCount, length);
 			for (int i = 0; i < length; i++) {
 				this.encodings[filesCount + i] = customEncoding;
 				this.destinationPaths[filesCount + i] = customDestinationPath;
@@ -2538,7 +2376,7 @@ public void configure(String[] argv) throws InvalidInputException {
 			customDestinationPath = null;
 			currentSourceDirectory = null;
 		} else {
-			this.filenames = finder.resultFiles;
+			this.filenames = result;
 			filesCount = this.filenames.length;
 			this.encodings = new String[filesCount];
 			this.destinationPaths = new String[filesCount];
@@ -2553,13 +2391,6 @@ public void configure(String[] argv) throws InvalidInputException {
 		mode = DEFAULT;
 		continue;
 	}
-
-	if (this.log != null) {
-		this.logger.setLog(this.log);
-	} else {
-		this.showProgress = false;
-	}
-	this.logger.logVersion(printVersionRequired);
 	
 	if (printUsageRequired || filesCount == 0) {
 		if (usageSection ==  null) {
@@ -2571,95 +2402,23 @@ public void configure(String[] argv) throws InvalidInputException {
 		return;
 	}
 
-	// process bootclasspath, classpath and sourcepaths
- 	final File javaHome = getJavaHome();
- 	final int bootclasspathsSize = bootclasspaths.size();
-	if (bootclasspathsSize != 0) {
-		String[] paths = new String[bootclasspathsSize];
-		bootclasspaths.toArray(paths);
-		bootclasspaths.clear();
-		for (int i = 0; i < bootclasspathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, 
-				paths[i], customEncoding, false, true);
-		}
+	if (this.log != null) {
+		this.logger.setLog(this.log);
 	} else {
-		/* no bootclasspath specified
-		 * we can try to retrieve the default librairies of the VM used to run
-		 * the batch compiler
-		 */
-		 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
-		 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
-			this.logger.logWrongJDK();
-			this.proceed = false;
-			return;
-		 }
+		this.showProgress = false;
+	}
+	this.logger.logVersion(printVersionRequired);
 
-	 	/*
-	 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
-	 	 */
-	 	 if (javaHome != null) {
-			File[] directoriesToCheck = null;
-			if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
-				directoriesToCheck = new File[] {
-					new File(javaHome, "../Classes"), //$NON-NLS-1$
-				};
-			} else {
-				directoriesToCheck = new File[] { 
-					new File(javaHome, "lib") //$NON-NLS-1$
-				};
-			}
-			File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
-			if (systemLibrariesJars != null) {
-				for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
-					File[] current = systemLibrariesJars[i];
-					if (current != null) {
-						for (int j = 0, max2 = current.length; j < max2; j++) {
-							FileSystem.Classpath classpath = 
-								FileSystem.getClasspath(current[j].getAbsolutePath(),
-									null, false, null, null); 
-							if (classpath != null) {
-								bootclasspaths.add(classpath);
-							}
-						}
-					}
-				}
-			}
- 		}
+	validateOptions(didSpecifyCompliance);
+	
+	this.logger.logCommandLineArguments(newCommandLineArgs);
+	this.logger.logOptions(this.options);
+	if (this.repetitions == 0) {
+		this.repetitions = 1;
 	}
-	final int classpathsSize = classpaths.size();
-	if (classpaths.size() != 0) {
-		String[] paths = new String[classpathsSize];
-		classpaths.toArray(paths);
-		classpaths.clear();
-		for (int i = 0; i < classpathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, classpaths, paths[i], 
-					customEncoding, false, true);
-		}			
-	} else {
-		// no user classpath specified.
-		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
-		if ((classProp == null) || (classProp.length() == 0)) {
-			this.logger.logNoClasspath();
-			classpaths.add(FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null));//$NON-NLS-1$
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
-			String token;
-			while (tokenizer.hasMoreTokens()) {
-				token = tokenizer.nextToken();
-				FileSystem.Classpath currentClasspath = FileSystem
-						.getClasspath(token, customEncoding, null);
-				if (currentClasspath != null) {
-					classpaths.add(currentClasspath);
-				} else {
-					this.logger.logIncorrectClasspath(token);
-					// should not happen - we go on anyway
-				}
-			}
-		}
-	}
-	if (sourcepathClasspathArg != null) {
-		processPathEntries(DEFAULT_SIZE_CLASSPATH, sourcepathClasspaths, 
-			sourcepathClasspathArg, customEncoding, true, false);
+	if (this.repetitions >= 3 && this.timing) {
+		this.times = new long[this.repetitions];
+		this.timesCounter = 0;
 	}
 	
 	if (filesCount != 0)
@@ -2670,211 +2429,15 @@ public void configure(String[] argv) throws InvalidInputException {
 			0,
 			filesCount);
 
-	/*
-	 * Feed endorsedDirClasspath according to:
-	 * - -extdirs first if present;
-	 * - else java.ext.dirs if defined;
-	 * - else default extensions directory for the platform.
-	 */
-	if (extdirsClasspaths == null) {
-		extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-		String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
-		if (extdirsStr == null) {
-			if (javaHome != null) {
-				extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
-			}
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
-			while (tokenizer.hasMoreTokens()) 
-				extdirsClasspaths.add(tokenizer.nextToken());
-		}
-	}
-	
-	/*
-	 * Feed extdirsClasspath with the entries found into the directories listed by
-	 * extdirsNames.
-	 */
-	if (extdirsClasspaths.size() != 0) {
-		File[] directoriesToCheck = new File[extdirsClasspaths.size()];
-		for (int i = 0; i < directoriesToCheck.length; i++) 
-			directoriesToCheck[i] = new File((String) extdirsClasspaths.get(i));
-		extdirsClasspaths.clear();
-		File[][] extdirsJars = getLibrariesFiles(directoriesToCheck);
-		if (extdirsJars != null) {
-			for (int i = 0, max = extdirsJars.length; i < max; i++) {
-				File[] current = extdirsJars[i];
-				if (current != null) {
-					for (int j = 0, max2 = current.length; j < max2; j++) {
-						FileSystem.Classpath classpath = 
-							FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
-									null, null); 
-						if (classpath != null) {
-							extdirsClasspaths.add(classpath);
-						}
-					}
-				} else if (directoriesToCheck[i].isFile()) {
-					this.logger.logIncorrectExtDirsEntry(directoriesToCheck[i].getAbsolutePath());
-				}
-			}
-		}
-	}
-
-	/*
-	 * Feed endorsedDirClasspath according to:
-	 * - -endorseddirs first if present;
-	 * - else java.endorsed.dirs if defined;
-	 * - else default extensions directory for the platform. (/lib/endorsed)
-	 */
-	if (endorsedDirClasspaths == null) {
-		endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-		String endorsedDirsStr = System.getProperty("java.endorsed.dirs"); //$NON-NLS-1$
-		if (endorsedDirsStr == null) {
-			if (javaHome != null) {
-				endorsedDirClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
-			}
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(endorsedDirsStr, File.pathSeparator);
-			while (tokenizer.hasMoreTokens()) 
-				endorsedDirClasspaths.add(tokenizer.nextToken());
-		}
-	}
-	
-	/*
-	 * Feed extdirsClasspath with the entries found into the directories listed by
-	 * extdirsNames.
-	 */
-	if (endorsedDirClasspaths.size() != 0) {
-		File[] directoriesToCheck = new File[endorsedDirClasspaths.size()];
-		for (int i = 0; i < directoriesToCheck.length; i++) 
-			directoriesToCheck[i] = new File((String) endorsedDirClasspaths.get(i));
-		endorsedDirClasspaths.clear();
-		File[][] endorsedDirsJars = getLibrariesFiles(directoriesToCheck);
-		if (endorsedDirsJars != null) {
-			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
-				File[] current = endorsedDirsJars[i];
-				if (current != null) {
-					for (int j = 0, max2 = current.length; j < max2; j++) {
-						FileSystem.Classpath classpath = 
-							FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
-									null, null); 
-						if (classpath != null) {
-							endorsedDirClasspaths.add(classpath);
-						}
-					}
-				} else if (directoriesToCheck[i].isFile()) {
-					this.logger.logIncorrectEndorsedDirsEntry(directoriesToCheck[i].getAbsolutePath());
-				}
-			}
-		}
-	}
-	
-	/* 
-	 * Concatenate classpath entries
-	 * We put the bootclasspath at the beginning of the classpath
-	 * entries, followed by the extension libraries, followed by
-	 * the sourcepath followed by the classpath.  All classpath
-	 * entries are searched for both sources and binaries except
-	 * the sourcepath entries which are searched for sources only.
-	 */
-	bootclasspaths.addAll(endorsedDirClasspaths);
-	bootclasspaths.addAll(extdirsClasspaths);
-	bootclasspaths.addAll(sourcepathClasspaths);
-	bootclasspaths.addAll(classpaths);
-	classpaths = bootclasspaths;
-	this.checkedClasspaths = new FileSystem.Classpath[classpaths.size()];
-	classpaths.toArray(this.checkedClasspaths);
-
-	if (didSpecifyCompliance) {
-		Object version = this.options.get(CompilerOptions.OPTION_Compliance);
-		if (CompilerOptions.VERSION_1_3.equals(version)) {
-			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-		} else if (CompilerOptions.VERSION_1_4.equals(version)) {
-			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-		} else if (CompilerOptions.VERSION_1_5.equals(version)) {
-			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-		} else if (CompilerOptions.VERSION_1_6.equals(version)) {
-			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-		}
-	}
-	if (this.didSpecifySource) {
-		Object version = this.options.get(CompilerOptions.OPTION_Source);
-		// default is source 1.3 target 1.2 and compliance 1.4
-		if (CompilerOptions.VERSION_1_4.equals(version)) {
-			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-		} else if (CompilerOptions.VERSION_1_5.equals(version)) {
-			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-		} else if (CompilerOptions.VERSION_1_6.equals(version)) {
-			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-		}
-	}
-
-	final Object sourceVersion = this.options.get(CompilerOptions.OPTION_Source);
-	final Object compliance = this.options.get(CompilerOptions.OPTION_Compliance);
-	if (sourceVersion.equals(CompilerOptions.VERSION_1_6)
-			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_6) {
-		// compliance must be 1.6 if source is 1.6
-		throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
-	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)
-			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_5) {
-		// compliance must be 1.5 if source is 1.5
-		throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
-	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)
-			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_4) {
-		// compliance must be 1.4 if source is 1.4
-		throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
-	}
-
-	// check and set compliance/source/target compatibilities
-	if (this.didSpecifyTarget) {
-		final Object targetVersion = this.options.get(CompilerOptions.OPTION_TargetPlatform); 
-		// tolerate jsr14 target
-		if (CompilerOptions.VERSION_JSR14.equals(targetVersion)) {
-			// expecting source >= 1.5
-			if (CompilerOptions.versionToJdkLevel(sourceVersion) < ClassFileConstants.JDK1_5) {
-				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForGenericSource", (String) targetVersion, (String) sourceVersion)); //$NON-NLS-1$
-			}
-		} else {
-			// target must be 1.6 if source is 1.6
-			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_6
-					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_6){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
-			}
-			// target must be 1.5 if source is 1.5
-			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_5
-					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_5){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
-			}
-	   		 // target must be 1.4 if source is 1.4
-	   		if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4
-					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_4){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
-	   		}
-			// target cannot be greater than compliance level
-			if (CompilerOptions.versionToJdkLevel(compliance) < CompilerOptions.versionToJdkLevel(targetVersion)){ 
-				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String) targetVersion)); //$NON-NLS-1$
-			}
-		}
-	}
-	this.logger.logCommandLineArguments(newCommandLineArgs);
-	this.logger.logOptions(this.options);
-	this.logger.logClasspath(this.checkedClasspaths);
-	if (this.repetitions == 0) {
-		this.repetitions = 1;
-	}
-	if (this.repetitions >= 3 && this.timing) {
-		this.times = new long[this.repetitions];
-		this.timesCounter = 0;
-	}
+	setPaths(bootclasspaths,
+			sourcepathClasspathArg,
+			sourcepathClasspaths,
+			classpaths,
+			extdirsClasspaths,
+			endorsedDirClasspaths,
+			customEncoding);
 }
+
 private void disableWarnings() {
 	Object[] entries = this.options.entrySet().toArray();
 	for (int i = 0, max = entries.length; i < max; i++) {
@@ -2940,7 +2503,7 @@ public ICompilerRequestor getBatchRequestor() {
 					}
 					Main.this.logger.endLoggingSource();
 					Main.this.logger.endLoggingSources();
-					Main.this.logger.printStats(Main.this);
+					Main.this.logger.printStats();
 					Main.this.logger.flush();
 					Main.this.logger.close();
 					System.exit(-1);
@@ -2968,11 +2531,11 @@ public CompilationUnit[] getCompilationUnits()
 	for (int i = 0; i < fileCount; i++) {
 		char[] charName = this.filenames[i].toCharArray();
 		if (knownFileNames.get(charName) != null)
-			throw new InvalidInputException(Main.bind("unit.more", this.filenames[i])); //$NON-NLS-1$
+			throw new InvalidInputException(this.bind("unit.more", this.filenames[i])); //$NON-NLS-1$
 		knownFileNames.put(charName, charName);
 		File file = new File(this.filenames[i]);
 		if (!file.exists())
-			throw new InvalidInputException(Main.bind("unit.missing", this.filenames[i])); //$NON-NLS-1$
+			throw new InvalidInputException(this.bind("unit.missing", this.filenames[i])); //$NON-NLS-1$
 		String encoding = this.encodings[i];
 		if (encoding == null)
 			encoding = defaultEncoding;
@@ -2981,6 +2544,7 @@ public CompilationUnit[] getCompilationUnits()
 	}
 	return units;
 }
+
 /*
  *  Low-level API performing the actual compilation
  */
@@ -2996,9 +2560,10 @@ public IErrorHandlingPolicy getHandlingPolicy() {
 		}
 	};
 }
-private File getJavaHome() {
-	if (!this.javaHomeChecked) {
-		this.javaHomeChecked = true;
+
+public File getJavaHome() {
+	if (!javaHomeChecked) {
+		javaHomeChecked = true;
 		String javaHome = System.getProperty("java.home");//$NON-NLS-1$
 		if (javaHome != null) {
 			this.javaHomeCache = new File(javaHome);
@@ -3009,39 +2574,41 @@ private File getJavaHome() {
 	return this.javaHomeCache;
 }
 
-private File[][] getLibrariesFiles(File[] files) {
-	FilenameFilter filter = new FilenameFilter() {
-		public boolean accept(File dir, String name) {
-			String lowerCaseName = name.toLowerCase();
-			if (lowerCaseName.endsWith(SuffixConstants.SUFFIX_STRING_jar) || lowerCaseName.endsWith(SuffixConstants.SUFFIX_STRING_zip)) {
-				return true;
-			}
-			return false;
-		}
-	};
-	final int filesLength = files.length;
-	File[][] result = new File[filesLength][];
-	for (int i = 0; i < filesLength; i++) {
-		File currentFile = files[i];
-		if (currentFile.exists() && currentFile.isDirectory()) {
-			result[i] = currentFile.listFiles(filter);
-		}
-	}
-	return result;
-}
-
 public FileSystem getLibraryAccess() {
-
-	String defaultEncoding = (String) this.options.get(CompilerOptions.OPTION_Encoding);
-	if ("".equals(defaultEncoding)) //$NON-NLS-1$
-		defaultEncoding = null;	
 	return new FileSystem(this.checkedClasspaths, this.filenames);
 }
+
 /*
  *  Low-level API performing the actual compilation
  */
 public IProblemFactory getProblemFactory() {
-	return new DefaultProblemFactory(Locale.getDefault());
+	return new DefaultProblemFactory(this.compilerLocale);
+}
+
+protected void initialize(PrintWriter outWriter,
+		PrintWriter errWriter,
+		boolean systemExit) {
+	this.initialize(outWriter, errWriter, systemExit, null);
+}
+protected void initialize(PrintWriter outWriter,
+		PrintWriter errWriter,
+		boolean systemExit,
+		Map customDefaultOptions) {
+	this.logger = new Logger(this, outWriter, errWriter);
+	this.out = outWriter;
+	this.systemExitWhenFinished = systemExit;
+	this.options = new CompilerOptions().getMap();
+	if (customDefaultOptions != null) {
+		this.didSpecifySource = customDefaultOptions.get(CompilerOptions.OPTION_Source) != null;
+		this.didSpecifyTarget = customDefaultOptions.get(CompilerOptions.OPTION_TargetPlatform) != null;
+		for (Iterator iter = customDefaultOptions.keySet().iterator(); iter.hasNext();) {
+			Object key = iter.next();
+			this.options.put(key, customDefaultOptions.get(key));
+		}
+	} else {
+		this.didSpecifySource = false;
+		this.didSpecifyTarget = false;
+	}
 }
 // Dump classfiles onto disk for all compilation units that where successful
 // and do not carry a -d none spec, either directly or inherited from Main.
@@ -3134,28 +2701,28 @@ public void performCompilation() throws InvalidInputException {
 		this.logger.endLoggingSources();
 	}
 
-	this.logger.printStats(this);
+	this.logger.printStats();
 	
 	// cleanup
 	environment.cleanup();
 }
+
 public void printUsage() {
 	printUsage("misc.usage"); //$NON-NLS-1$
 }
 private void printUsage(String sectionID) {
 	this.logger.logUsage(
-		Main.bind(
+		this.bind(
 			sectionID,
 			new String[] {
 				System.getProperty("path.separator"), //$NON-NLS-1$
-				Main.bind("compiler.name"), //$NON-NLS-1$
-				Main.bind("compiler.version"), //$NON-NLS-1$
-				Main.bind("compiler.copyright") //$NON-NLS-1$
+				this.bind("compiler.name"), //$NON-NLS-1$
+				this.bind("compiler.version"), //$NON-NLS-1$
+				this.bind("compiler.copyright") //$NON-NLS-1$
 			}));	
 	this.logger.flush();
 }
-
-private void processPathEntries(final int defaultSize, final ArrayList paths, 
+public void processPathEntries(final int defaultSize, final ArrayList paths, 
 			final String currentPath, String customEncoding, boolean isSourceOnly,
 			boolean rejectDestinationPathOnJars) 
 		throws InvalidInputException {
@@ -3208,8 +2775,8 @@ private void processPathEntries(final int defaultSize, final ArrayList paths,
 				break;
 			case destinationPathReadyToClose:
 				throw new InvalidInputException(
-					Main.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$ 
-						currentPath));				
+					this.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$ 
+						currentPath));
 			default:
 				state = error;
 			}
@@ -3220,6 +2787,9 @@ private void processPathEntries(final int defaultSize, final ArrayList paths,
 				break;
 			case readyToCloseEndingWithRules:
 				state = destinatonPathStart;
+				break;
+			case readyToCloseEndingWithDestinationPath:
+				state = rulesStart;
 				break;
 			default:
 				state = error;
@@ -3245,11 +2815,21 @@ private void processPathEntries(final int defaultSize, final ArrayList paths,
 				break;
 			case rulesStart:
 				if (token.startsWith("-d ")) { //$NON-NLS-1$
+					if (currentDestinationPath != null) {
+						throw new InvalidInputException(
+								this.bind("configure.duplicateDestinationPathEntry", //$NON-NLS-1$ 
+										currentPath));	
+					}
 					currentDestinationPath = token.substring(3).trim();
 					state = destinationPathReadyToClose;
 					break;
 				} // else we proceed with a rule
 			case rulesNeedAnotherRule:
+				if (currentDestinationPath != null) {
+					throw new InvalidInputException(
+							this.bind("configure.accessRuleAfterDestinationPath", //$NON-NLS-1$ 
+								currentPath));
+				}
 				state = rulesReadyToClose;
 				currentRuleSpecs.add(token);
 				break;
@@ -3279,6 +2859,446 @@ private void processPathEntries(final int defaultSize, final ArrayList paths,
 		default :
 			// we go on anyway
 			this.logger.logIncorrectClasspath(currentPath);
+	}
+}
+
+private int processPaths(String[] args, int index, String currentArg, ArrayList paths) throws InvalidInputException {
+	int localIndex = index;
+	int count = 0;
+	for (int i = 0, max = currentArg.length(); i < max; i++) {
+		switch(currentArg.charAt(i)) {
+			case '[' :
+				count++;
+				break;
+			case ']' :
+				count--;
+				break;
+		}
+	}
+	if (count == 0) {
+		paths.add(currentArg);
+	} else if (count > 1) {
+		throw new InvalidInputException(
+				this.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+							currentArg));
+	} else {
+		StringBuffer currentPath = new StringBuffer(currentArg);
+		while (true) {
+    		if (localIndex >= args.length) {
+    			throw new InvalidInputException(
+    					this.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+    								currentArg));
+    		}
+    		localIndex++;
+    		String nextArg = args[localIndex];
+    		for (int i = 0, max = nextArg.length(); i < max; i++) {
+    			switch(nextArg.charAt(i)) {
+    				case '[' :
+    					if (count > 1) {
+    						throw new InvalidInputException(
+    								this.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+    											nextArg));
+    					}
+    					count++;
+    					break;
+    				case ']' :
+    					count--;
+    					break;
+    			}
+    		}
+    		if (count == 0) {
+    			currentPath.append(' ');
+    			currentPath.append(nextArg);
+    			paths.add(currentPath.toString());
+    			return localIndex - index;
+    		} else if (count < 0) {
+				throw new InvalidInputException(
+						this.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+									nextArg));
+			} else {
+				currentPath.append(' ');
+				currentPath.append(nextArg);
+			}
+		}
+		
+	}
+	return localIndex - index;
+}
+private int processPaths(String[] args, int index, String currentArg, String[] paths) throws InvalidInputException {
+	int localIndex = index;
+	int count = 0;
+	for (int i = 0, max = currentArg.length(); i < max; i++) {
+		switch(currentArg.charAt(i)) {
+			case '[' :
+				count++;
+				break;
+			case ']' :
+				count--;
+				break;
+		}
+	}
+	if (count == 0) {
+		paths[0] = currentArg;
+	} else {
+		StringBuffer currentPath = new StringBuffer(currentArg);
+		while (true) {
+    		localIndex++;
+    		if (localIndex >= args.length) {
+    			throw new InvalidInputException(
+    					this.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+    								currentArg));
+    		}
+    		String nextArg = args[localIndex];
+    		for (int i = 0, max = nextArg.length(); i < max; i++) {
+    			switch(nextArg.charAt(i)) {
+    				case '[' :
+    					if (count > 1) {
+    						throw new InvalidInputException(
+    								this.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+    											currentArg));
+    					}
+    					count++;
+    					break;
+    				case ']' :
+    					count--;
+    					break;
+    			}
+    		}
+    		if (count == 0) {
+    			currentPath.append(' ');
+    			currentPath.append(nextArg);
+    			paths[0] = currentPath.toString();
+    			return localIndex - index;
+    		} else if (count < 0) {
+				throw new InvalidInputException(
+						this.bind("configure.unexpectedBracket", //$NON-NLS-1$ 
+									currentArg));
+			} else {
+				currentPath.append(' ');
+				currentPath.append(nextArg);
+			}
+		}
+		
+	}
+	return localIndex - index;
+}
+/**
+ * Creates a NLS catalog for the given locale.
+ */
+public void relocalize() {
+	relocalize(Locale.getDefault());
+}
+
+public void relocalize(Locale locale) {
+	this.compilerLocale = locale;
+	try {
+		this.bundle = ResourceBundle.getBundle(Main.bundleName, locale);
+	} catch(MissingResourceException e) {
+		System.out.println("Missing resource : " + Main.bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
+		throw e;
+	}
+}
+public void setLocale(Locale locale) {
+	relocalize(locale);
+}
+/*
+ * External API
+ */
+
+protected void setPaths(ArrayList bootclasspaths,
+		String sourcepathClasspathArg,
+		ArrayList sourcepathClasspaths,
+		ArrayList classpaths,
+		ArrayList extdirsClasspaths,
+		ArrayList endorsedDirClasspaths,
+		String customEncoding) throws InvalidInputException {
+	// process bootclasspath, classpath and sourcepaths
+ 	final File javaHome = getJavaHome();
+ 	final int bootclasspathsSize = bootclasspaths.size();
+	if (bootclasspathsSize != 0) {
+		String[] paths = new String[bootclasspathsSize];
+		bootclasspaths.toArray(paths);
+		bootclasspaths.clear();
+		for (int i = 0; i < bootclasspathsSize; i++) {
+			processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, 
+				paths[i], customEncoding, false, true);
+		}
+	} else {
+		/* no bootclasspath specified
+		 * we can try to retrieve the default librairies of the VM used to run
+		 * the batch compiler
+		 */
+		 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
+		 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
+			this.logger.logWrongJDK();
+			this.proceed = false;
+			return;
+		 }
+
+	 	/*
+	 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
+	 	 */
+	 	 if (javaHome != null) {
+			File[] directoriesToCheck = null;
+			if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
+				directoriesToCheck = new File[] {
+					new File(javaHome, "../Classes"), //$NON-NLS-1$
+				};
+			} else {
+				directoriesToCheck = new File[] { 
+					new File(javaHome, "lib") //$NON-NLS-1$
+				};
+			}
+			File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
+			if (systemLibrariesJars != null) {
+				for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
+					File[] current = systemLibrariesJars[i];
+					if (current != null) {
+						for (int j = 0, max2 = current.length; j < max2; j++) {
+							FileSystem.Classpath classpath = 
+								FileSystem.getClasspath(current[j].getAbsolutePath(),
+									null, false, null, null); 
+							if (classpath != null) {
+								bootclasspaths.add(classpath);
+							}
+						}
+					}
+				}
+			}
+ 		}
+	}
+	final int classpathsSize = classpaths.size();
+	if (classpaths.size() != 0) {
+		String[] paths = new String[classpathsSize];
+		classpaths.toArray(paths);
+		classpaths.clear();
+		for (int i = 0; i < classpathsSize; i++) {
+			processPathEntries(DEFAULT_SIZE_CLASSPATH, classpaths, paths[i], 
+					customEncoding, false, true);
+		}			
+	} else {
+		// no user classpath specified.
+		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
+		if ((classProp == null) || (classProp.length() == 0)) {
+			this.logger.logNoClasspath();
+			classpaths.add(FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null));//$NON-NLS-1$
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
+			String token;
+			while (tokenizer.hasMoreTokens()) {
+				token = tokenizer.nextToken();
+				FileSystem.Classpath currentClasspath = FileSystem
+						.getClasspath(token, customEncoding, null);
+				if (currentClasspath != null) {
+					classpaths.add(currentClasspath);
+				} else {
+					this.logger.logIncorrectClasspath(token);
+					// should not happen - we go on anyway
+				}
+			}
+		}
+	}
+	if (sourcepathClasspathArg != null) {
+		processPathEntries(DEFAULT_SIZE_CLASSPATH, sourcepathClasspaths, 
+			sourcepathClasspathArg, customEncoding, true, false);
+	}
+
+	/*
+	 * Feed endorsedDirClasspath according to:
+	 * - -extdirs first if present;
+	 * - else java.ext.dirs if defined;
+	 * - else default extensions directory for the platform.
+	 */
+	if (extdirsClasspaths == null) {
+		extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
+		if (extdirsStr == null) {
+			if (javaHome != null) {
+				extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
+			}
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
+			while (tokenizer.hasMoreTokens()) 
+				extdirsClasspaths.add(tokenizer.nextToken());
+		}
+	}
+	
+	/*
+	 * Feed extdirsClasspath with the entries found into the directories listed by
+	 * extdirsNames.
+	 */
+	if (extdirsClasspaths.size() != 0) {
+		File[] directoriesToCheck = new File[extdirsClasspaths.size()];
+		for (int i = 0; i < directoriesToCheck.length; i++) 
+			directoriesToCheck[i] = new File((String) extdirsClasspaths.get(i));
+		extdirsClasspaths.clear();
+		File[][] extdirsJars = getLibrariesFiles(directoriesToCheck);
+		if (extdirsJars != null) {
+			for (int i = 0, max = extdirsJars.length; i < max; i++) {
+				File[] current = extdirsJars[i];
+				if (current != null) {
+					for (int j = 0, max2 = current.length; j < max2; j++) {
+						FileSystem.Classpath classpath = 
+							FileSystem.getClasspath(
+									current[j].getAbsolutePath(),
+									null, null); 
+						if (classpath != null) {
+							extdirsClasspaths.add(classpath);
+						}
+					}
+				} else if (directoriesToCheck[i].isFile()) {
+					this.logger.logIncorrectExtDirsEntry(directoriesToCheck[i].getAbsolutePath());
+				}
+			}
+		}
+	}
+
+	/*
+	 * Feed endorsedDirClasspath according to:
+	 * - -endorseddirs first if present;
+	 * - else java.endorsed.dirs if defined;
+	 * - else default extensions directory for the platform. (/lib/endorsed)
+	 */
+	if (endorsedDirClasspaths == null) {
+		endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		String endorsedDirsStr = System.getProperty("java.endorsed.dirs"); //$NON-NLS-1$
+		if (endorsedDirsStr == null) {
+			if (javaHome != null) {
+				endorsedDirClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
+			}
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(endorsedDirsStr, File.pathSeparator);
+			while (tokenizer.hasMoreTokens()) {
+				endorsedDirClasspaths.add(tokenizer.nextToken());
+			}
+		}
+	}
+	
+	/*
+	 * Feed extdirsClasspath with the entries found into the directories listed by
+	 * extdirsNames.
+	 */
+	if (endorsedDirClasspaths.size() != 0) {
+		File[] directoriesToCheck = new File[endorsedDirClasspaths.size()];
+		for (int i = 0; i < directoriesToCheck.length; i++) 
+			directoriesToCheck[i] = new File((String) endorsedDirClasspaths.get(i));
+		endorsedDirClasspaths.clear();
+		File[][] endorsedDirsJars = getLibrariesFiles(directoriesToCheck);
+		if (endorsedDirsJars != null) {
+			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
+				File[] current = endorsedDirsJars[i];
+				if (current != null) {
+					for (int j = 0, max2 = current.length; j < max2; j++) {
+						FileSystem.Classpath classpath = 
+							FileSystem.getClasspath(
+									current[j].getAbsolutePath(),
+									null, null); 
+						if (classpath != null) {
+							endorsedDirClasspaths.add(classpath);
+						}
+					}
+				} else if (directoriesToCheck[i].isFile()) {
+					this.logger.logIncorrectEndorsedDirsEntry(directoriesToCheck[i].getAbsolutePath());
+				}
+			}
+		}
+	}
+	
+	/* 
+	 * Concatenate classpath entries
+	 * We put the bootclasspath at the beginning of the classpath
+	 * entries, followed by the extension libraries, followed by
+	 * the sourcepath followed by the classpath.  All classpath
+	 * entries are searched for both sources and binaries except
+	 * the sourcepath entries which are searched for sources only.
+	 */
+	bootclasspaths.addAll(endorsedDirClasspaths);
+	bootclasspaths.addAll(extdirsClasspaths);
+	bootclasspaths.addAll(sourcepathClasspaths);
+	bootclasspaths.addAll(classpaths);
+	classpaths = bootclasspaths;
+	this.checkedClasspaths = new FileSystem.Classpath[classpaths.size()];
+	classpaths.toArray(this.checkedClasspaths);
+	this.logger.logClasspath(this.checkedClasspaths);
+}
+protected void validateOptions(boolean didSpecifyCompliance) throws InvalidInputException {
+	if (didSpecifyCompliance) {
+		Object version = this.options.get(CompilerOptions.OPTION_Compliance);
+		if (CompilerOptions.VERSION_1_3.equals(version)) {
+			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
+		} else if (CompilerOptions.VERSION_1_4.equals(version)) {
+			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+		} else if (CompilerOptions.VERSION_1_5.equals(version)) {
+			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+		} else if (CompilerOptions.VERSION_1_6.equals(version)) {
+			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+		}
+	}
+	if (this.didSpecifySource) {
+		Object version = this.options.get(CompilerOptions.OPTION_Source);
+		// default is source 1.3 target 1.2 and compliance 1.4
+		if (CompilerOptions.VERSION_1_4.equals(version)) {
+			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+		} else if (CompilerOptions.VERSION_1_5.equals(version)) {
+			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+		} else if (CompilerOptions.VERSION_1_6.equals(version)) {
+			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+		}
+	}
+
+	final Object sourceVersion = this.options.get(CompilerOptions.OPTION_Source);
+	final Object compliance = this.options.get(CompilerOptions.OPTION_Compliance);
+	if (sourceVersion.equals(CompilerOptions.VERSION_1_6)
+			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_6) {
+		// compliance must be 1.6 if source is 1.6
+		throw new InvalidInputException(this.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
+	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)
+			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_5) {
+		// compliance must be 1.5 if source is 1.5
+		throw new InvalidInputException(this.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
+	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)
+			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_4) {
+		// compliance must be 1.4 if source is 1.4
+		throw new InvalidInputException(this.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
+	}
+
+	// check and set compliance/source/target compatibilities
+	if (this.didSpecifyTarget) {
+		final Object targetVersion = this.options.get(CompilerOptions.OPTION_TargetPlatform); 
+		// tolerate jsr14 target
+		if (CompilerOptions.VERSION_JSR14.equals(targetVersion)) {
+			// expecting source >= 1.5
+			if (CompilerOptions.versionToJdkLevel(sourceVersion) < ClassFileConstants.JDK1_5) {
+				throw new InvalidInputException(this.bind("configure.incompatibleTargetForGenericSource", (String) targetVersion, (String) sourceVersion)); //$NON-NLS-1$
+			}
+		} else {
+			// target must be 1.6 if source is 1.6
+			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_6
+					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_6){ 
+				throw new InvalidInputException(this.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
+			}
+			// target must be 1.5 if source is 1.5
+			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_5
+					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_5){ 
+				throw new InvalidInputException(this.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
+			}
+	   		 // target must be 1.4 if source is 1.4
+	   		if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4
+					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_4){ 
+				throw new InvalidInputException(this.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
+	   		}
+			// target cannot be greater than compliance level
+			if (CompilerOptions.versionToJdkLevel(compliance) < CompilerOptions.versionToJdkLevel(targetVersion)){ 
+				throw new InvalidInputException(this.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String) targetVersion)); //$NON-NLS-1$
+			}
+		}
 	}
 }
 }
