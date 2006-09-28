@@ -91,7 +91,7 @@ public void handle(
 	// if no reference context, we need to abort from the current compilation process
 	if (referenceContext == null) {
 		if ((severity & ProblemSeverities.Error) != 0) { // non reportable error is fatal
-			CategorizedProblem problem = this.createProblem(null, 	problemId, 	problemArguments, messageArguments, severity, 0, 0, 0, 0);			
+			CategorizedProblem problem = this.createProblem(null, problemId, problemArguments, messageArguments, severity, 0, 0, 0, 0);			
 			throw new AbortCompilation(null, problem);
 		} else {
 			return; // ignore non reportable warning
