@@ -32,11 +32,10 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		this.declarationEnd = sourceEnd;
 	}
 
-public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
-		FlowInfo flowInfo) {
+public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	// record variable initialization if any
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
-		bits |= IsLocalDeclarationReachable; // only set if actually reached
+		bits |= ASTNode.IsLocalDeclarationReachable; // only set if actually reached
 	}
 	if (this.initialization == null) { 
 		return flowInfo;
@@ -46,6 +45,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		this.initialization
 			.analyseCode(currentScope, flowContext, flowInfo)
 			.unconditionalInits();
+	if (!flowInfo.isDefinitelyAssigned(this.binding)){// for local variable debug attributes
+		this.bits |= FirstAssignmentToLocal;
+	} else {
+		this.bits &= ~FirstAssignmentToLocal;  // int i = (i = 0);
+	}	
 	flowInfo.markAsDefinitelyAssigned(binding);
 	if ((this.binding.type.tagBits & TagBits.IsBaseType) == 0) {
 		switch(nullStatus) {
@@ -89,49 +93,33 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			return;
 		}
 		int pc = codeStream.position;
-		Constant inlinedValue;
 
 		// something to initialize?
-		if (initialization != null) {
-			// initialize to constant value?
-			if ((inlinedValue = initialization.constant) != Constant.NotAConstant) {
-				// forget initializing unused or final locals set to constant value (final ones are inlined)
-				if (binding.resolvedPosition != -1) { // may need to preserve variable
-					int initPC = codeStream.position;
-					codeStream.generateConstant(inlinedValue, initialization.implicitConversion);
-					codeStream.recordPositionsFrom(initPC, initialization.sourceStart);
-					codeStream.store(binding, false);
-					binding.recordInitializationStartPC(codeStream.position);
-					//				codeStream.lastInitStateIndexWhenRemovingInits = -2; // reinitialize remove index 
-					//				codeStream.lastInitStateIndexWhenAddingInits = -2; // reinitialize add index		
-				}
-			} else { // initializing to non-constant value
-				initialization.generateCode(currentScope, codeStream, true);
+		generateInit: {
+			if (this.initialization == null) 
+				break generateInit;
+			// forget initializing unused or final locals set to constant value (final ones are inlined)
+			if (binding.resolvedPosition < 0) {
+				if (initialization.constant != Constant.NotAConstant) 
+					break generateInit;
 				// if binding unused generate then discard the value
-				if (binding.resolvedPosition != -1) {
-					// 26903, need extra cast to store null in array local var	
-					if (binding.type.isArrayType() 
-						&& (initialization.resolvedType == TypeBinding.NULL	// arrayLoc = null
-							|| ((initialization instanceof CastExpression)	// arrayLoc = (type[])null
-								&& (((CastExpression)initialization).innermostCastedExpression().resolvedType == TypeBinding.NULL)))){
-						codeStream.checkcast(binding.type); 
-					}					
-					codeStream.store(binding, false);
-					if (binding.initializationCount == 0) {
-						/* Variable may have been initialized during the code initializing it
-							e.g. int i = (i = 1);
-						*/
-						binding.recordInitializationStartPC(codeStream.position);
-						//					codeStream.lastInitStateIndexWhenRemovingInits = -2; // reinitialize remove index 
-						//					codeStream.lastInitStateIndexWhenAddingInits = -2; // reinitialize add index 
-					}
-				} else {
-					if ((binding.type == TypeBinding.LONG) || (binding.type == TypeBinding.DOUBLE)) {
-						codeStream.pop2();
-					} else {
-						codeStream.pop();
-					}
-				}
+				initialization.generateCode(currentScope, codeStream, false);
+				break generateInit;
+			}			
+			initialization.generateCode(currentScope, codeStream, true);
+			// 26903, need extra cast to store null in array local var	
+			if (binding.type.isArrayType() 
+				&& (initialization.resolvedType == TypeBinding.NULL	// arrayLoc = null
+					|| ((initialization instanceof CastExpression)	// arrayLoc = (type[])null
+						&& (((CastExpression)initialization).innermostCastedExpression().resolvedType == TypeBinding.NULL)))){
+				codeStream.checkcast(binding.type); 
+			}					
+			codeStream.store(binding, false);
+			if ((this.bits & ASTNode.FirstAssignmentToLocal) != 0) {
+				/* Variable may have been initialized during the code initializing it
+					e.g. int i = (i = 1);
+				*/
+				binding.recordInitializationStartPC(codeStream.position);
 			}
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);

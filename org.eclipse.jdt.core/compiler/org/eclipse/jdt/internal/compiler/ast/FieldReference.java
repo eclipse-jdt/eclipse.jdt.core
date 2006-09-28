@@ -168,67 +168,89 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		if (valueRequired) {
 			codeStream.generateConstant(constant, implicitConversion);
 		}
-	} else {
-		boolean isStatic = this.codegenBinding.isStatic();
-		boolean isThisReceiver = this.receiver instanceof ThisReference;
-		Constant fieldConstant = this.codegenBinding.constant();
-		if (fieldConstant != Constant.NotAConstant) {
-			if (!isThisReceiver) {
-				receiver.generateCode(currentScope, codeStream, !isStatic);
-				if (!isStatic){
-					codeStream.invokeObjectGetClass();
-					codeStream.pop();
-				}
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		return;
+	}
+	boolean isStatic = this.codegenBinding.isStatic();
+	boolean isThisReceiver = this.receiver instanceof ThisReference;
+	Constant fieldConstant = this.codegenBinding.constant();
+	if (fieldConstant != Constant.NotAConstant) {
+		if (!isThisReceiver) {
+			receiver.generateCode(currentScope, codeStream, !isStatic);
+			if (!isStatic){
+				codeStream.invokeObjectGetClass();
+				codeStream.pop();
 			}
+		}
+		if (valueRequired) {
+			codeStream.generateConstant(fieldConstant, implicitConversion);
+		}
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		return;
+	}
+	if (valueRequired || (!isThisReceiver && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)) {
+		receiver.generateCode(currentScope, codeStream, !isStatic);
+		if (this.codegenBinding.declaringClass == null) { // array length
+			codeStream.arraylength();
 			if (valueRequired) {
-				codeStream.generateConstant(fieldConstant, implicitConversion);
+				codeStream.generateImplicitConversion(implicitConversion);
+			} else {
+				// could occur if !valueRequired but compliance >= 1.4
+				codeStream.pop();
 			}
 		} else {
-			if (valueRequired || (!isThisReceiver && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)) {
-				receiver.generateCode(currentScope, codeStream, !isStatic);
-				if (this.codegenBinding.declaringClass == null) { // array length
-					codeStream.arraylength();
-					if (valueRequired) {
-						codeStream.generateImplicitConversion(implicitConversion);
-					} else {
-						// could occur if !valueRequired but compliance >= 1.4
-						codeStream.pop();
-					}
+			if (syntheticAccessors == null || syntheticAccessors[READ] == null) {
+				if (isStatic) {
+					codeStream.getstatic(this.codegenBinding);
 				} else {
-					if (syntheticAccessors == null || syntheticAccessors[READ] == null) {
-						if (isStatic) {
-							codeStream.getstatic(this.codegenBinding);
-						} else {
-							codeStream.getfield(this.codegenBinding);
-						}
-					} else {
-						codeStream.invokestatic(syntheticAccessors[READ]);
-					}
-					if (valueRequired) {
-						if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
-						codeStream.generateImplicitConversion(implicitConversion);
-					} else {
-						// could occur if !valueRequired but compliance >= 1.4
-						switch (this.codegenBinding.type.id) {
-							case T_long :
-							case T_double :
-								codeStream.pop2();
-								break;
-							default :
-								codeStream.pop();
-						}
-					}
+					codeStream.getfield(this.codegenBinding);
 				}
 			} else {
-				if (!isThisReceiver) {
-					receiver.generateCode(currentScope, codeStream, !isStatic);				
-					if (!isStatic){
-						codeStream.invokeObjectGetClass(); // perform null check
+				codeStream.invokestatic(syntheticAccessors[READ]);
+			}
+			if (valueRequired) {
+				if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
+				codeStream.generateImplicitConversion(implicitConversion);
+			} else {
+				// could occur if !valueRequired but compliance >= 1.4
+				switch (this.codegenBinding.type.id) {
+					case T_long :
+					case T_double :
+						codeStream.pop2();
+						break;
+					default :
 						codeStream.pop();
-					}
 				}
 			}
 		}
+	} else {
+		if (isThisReceiver) {
+			if (isStatic){
+				// if no valueRequired, still need possible side-effects of <clinit> invocation, if field belongs to different class
+				if (this.binding.original().declaringClass != this.receiverType.erasure()) {
+					MethodBinding accessor = syntheticAccessors == null ? null : syntheticAccessors[READ]; 
+					if (accessor == null) {
+						codeStream.getstatic(this.codegenBinding);
+					} else {
+						codeStream.invokestatic(accessor);
+					}
+					switch (this.codegenBinding.type.id) {
+						case T_long :
+						case T_double :
+							codeStream.pop2();
+							break;
+						default :
+							codeStream.pop();
+					}
+				}
+			}
+		} else {
+			receiver.generateCode(currentScope, codeStream, !isStatic);				
+			if (!isStatic){
+				codeStream.invokeObjectGetClass(); // perform null check
+				codeStream.pop();
+			}
+		}						
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
