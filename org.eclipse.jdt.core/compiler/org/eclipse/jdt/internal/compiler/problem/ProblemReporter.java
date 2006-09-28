@@ -601,7 +601,7 @@ public void annotationValueMustBeClassLiteral(TypeBinding annotationType, char[]
 		value.sourceEnd);
 }
 public void annotationValueMustBeConstant(TypeBinding annotationType, char[] name, Expression value) {
-	String str = 	new String(name);
+	String str = new String(name);
 	this.handle(
 		IProblem.AnnotationValueMustBeConstant,
 		new String[] { new String(annotationType.readableName()), str },
