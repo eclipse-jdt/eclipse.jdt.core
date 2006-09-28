@@ -33,8 +33,12 @@ public boolean equals(Object o) {
 public ASTNode findNode(org.eclipse.jdt.core.dom.CompilationUnit ast) {
 	// For field declarations, a variable declaration fragment is returned
 	// Return the FieldDeclaration instead
+	// For enum constant declaration, we return the node directly
 	ASTNode node = super.findNode(ast);
 	if (node == null) return null;
+	if (node.getNodeType() == ASTNode.ENUM_CONSTANT_DECLARATION) {
+		return node;
+	}
 	return node.getParent();
 }
 /**
