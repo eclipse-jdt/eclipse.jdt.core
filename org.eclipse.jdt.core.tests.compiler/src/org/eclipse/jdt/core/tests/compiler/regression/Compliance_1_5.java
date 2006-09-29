@@ -2845,7 +2845,7 @@ public void test087() {
 			"----------\n"
 		);
 }
-public void testONLY_088() {
+public void test088() {
 	String errorMessage =
 		"----------\n" + 
 		"1. WARNING in p\\X.java (at line 4)\n" + 
