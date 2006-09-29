@@ -7675,17 +7675,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	ArrayList<X> list = new ArrayList();\n" + 
-			"	          ^\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	X[] foo() {\n" + 
+			"	^\n" + 
 			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	ArrayList<X> list = new ArrayList();\n" + 
+			"	          ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	ArrayList<X> list = new ArrayList();\n" + 
 			"	                    ^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type ArrayList needs unchecked conversion to conform to ArrayList<X>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 4)\n" + 
+			"4. WARNING in X.java (at line 4)\n" + 
 			"	ArrayList<X> list = new ArrayList();\n" + 
 			"	                        ^^^^^^^^^\n" + 
 			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
@@ -13570,7 +13575,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 6)\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	Set[] sets = new Set[10];\n" + 
+			"	^^^\n" + 
+			"Set is a raw type. References to generic type Set<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
 			"	return sets;\n" + 
 			"	       ^^^^\n" + 
 			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
@@ -24592,17 +24602,22 @@ public void test0800() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 7)\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	Constructor[] constrs = X.class.getConstructors();\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
 		"	for (Constructor constructor  : constrs) {\n" + 
 		"	     ^^^^^^^^^^^\n" + 
 		"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 8)\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
 		"	final String message = constructor.getAnnotation(AnnClass).message();\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The method getAnnotation(Class) belongs to the raw type Constructor. References to generic type Constructor<T> should be parameterized\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
 		"	final String message = constructor.getAnnotation(AnnClass).message();\n" + 
 		"	                                                           ^^^^^^^\n" + 
 		"The method message() is undefined for the type Annotation\n" + 
@@ -25223,12 +25238,17 @@ public void test0817() {
 			"	    ^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot perform instanceof check against parameterized type List<? extends String>. Use instead its raw form List since generic type information will be erased at runtime\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 19)\n" + 
+			"7. WARNING in X.java (at line 18)\n" + 
+			"	void foo(List[] ls) {\n" + 
+			"	         ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 19)\n" + 
 			"	if (ls instanceof List<?>[]) {}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The expression of type List[] is already an instance of type List<?>\n" + 
 			"----------\n" + 
-			"8. ERROR in X.java (at line 20)\n" + 
+			"9. ERROR in X.java (at line 20)\n" + 
 			"	if (ls instanceof List<? extends String>[]) {}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot perform instanceof check against parameterized type List<? extends String>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" + 
@@ -28500,12 +28520,17 @@ public void test0912() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	void foo(List<? extends Collection<String>[]> l1, List<Collection[]> l2) {\n" + 
+		"	                                                       ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
 		"	l1 = l2;\n" + 
 		"	     ^^\n" + 
 		"Type mismatch: cannot convert from List<Collection[]> to List<? extends Collection<String>[]>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
 		"	l2 = l1;\n" + 
 		"	     ^^\n" + 
 		"Type mismatch: cannot convert from List<capture#2-of ? extends Collection<String>[]> to List<Collection[]>\n" + 
@@ -28539,42 +28564,52 @@ public void test0913() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	List<Collection[]> lc1 = null;\n" + 
+		"	     ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	List<? extends Collection[]> lc4 = null;\n" + 
+		"	               ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
 		"	lc1 = lc2; //1 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection<?>[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
 		"	lc1 = lc3; //2 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture#1-of ? extends Collection<?>[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 10)\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
 		"	lc1 = lc4; //3 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture#2-of ? extends Collection[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
 		"	lc2 = lc1; //4 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 12)\n" + 
+		"7. ERROR in X.java (at line 12)\n" + 
 		"	lc2 = lc3; //5 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture#3-of ? extends Collection<?>[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 13)\n" + 
+		"8. ERROR in X.java (at line 13)\n" + 
 		"	lc2 = lc4; //6 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture#4-of ? extends Collection[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"7. ERROR in X.java (at line 14)\n" + 
+		"9. ERROR in X.java (at line 14)\n" + 
 		"	lc3 = lc1; //7 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection[]> to List<? extends Collection<?>[]>\n" + 
 		"----------\n" + 
-		"8. ERROR in X.java (at line 16)\n" + 
+		"10. ERROR in X.java (at line 16)\n" + 
 		"	lc3 = lc4; //9 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture#8-of ? extends Collection[]> to List<? extends Collection<?>[]>\n" + 
@@ -28608,42 +28643,52 @@ public void test0914() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	List<Collection[]> lc1 = null;\n" + 
+		"	     ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	List<? super Collection[]> lc4 = null;\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
 		"	lc1 = lc2; //1 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection<?>[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
 		"	lc1 = lc3; //2 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture#1-of ? super Collection<?>[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 10)\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
 		"	lc1 = lc4; //3 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture#2-of ? super Collection[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
 		"	lc2 = lc1; //4 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 12)\n" + 
+		"7. ERROR in X.java (at line 12)\n" + 
 		"	lc2 = lc3; //5 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture#3-of ? super Collection<?>[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 13)\n" + 
+		"8. ERROR in X.java (at line 13)\n" + 
 		"	lc2 = lc4; //6 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture#4-of ? super Collection[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"7. ERROR in X.java (at line 18)\n" + 
+		"9. ERROR in X.java (at line 18)\n" + 
 		"	lc4 = lc2; //11 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection<?>[]> to List<? super Collection[]>\n" + 
 		"----------\n" + 
-		"8. ERROR in X.java (at line 19)\n" + 
+		"10. ERROR in X.java (at line 19)\n" + 
 		"	lc4 = lc3; //12 ko		\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture#12-of ? super Collection<?>[]> to List<? super Collection[]>\n" + 
@@ -32785,6 +32830,11 @@ public void test1033() {
 		"	x.bar2(\"\");\n" + 
 		"	  ^^^^\n" + 
 		"The method bar2(Class...) in the type X is not applicable for the arguments (String)\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 9)\n" + 
+		"	void bar2(Class... classes) {}\n" + 
+		"	          ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158519
@@ -33369,5 +33419,53 @@ public void test1040() {
 	} catch (IOException e) {
 		assertTrue(false);
 	}			
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159245
+public void test1041() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"	{\n" + 
+			"		X rawx = null;\n" + 
+			"		X[] rawxs = { rawx };\n" + 
+			"		System.out.println(rawxs.length);\n" + 
+			"	}\n" + 
+			"	{\n" + 
+			"		p.X rawx = null;\n" + 
+			"		p.X[] rawxs = { rawx };\n" + 
+			"		System.out.println(rawxs.length);\n" + 
+			"	}\n" + 
+			"	Zork z;\n" +
+			"}", // =================
+		}, 
+		"----------\n" + 
+		"1. WARNING in p\\X.java (at line 5)\n" + 
+		"	X rawx = null;\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in p\\X.java (at line 6)\n" + 
+		"	X[] rawxs = { rawx };\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in p\\X.java (at line 10)\n" + 
+		"	p.X rawx = null;\n" + 
+		"	^^^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in p\\X.java (at line 11)\n" + 
+		"	p.X[] rawxs = { rawx };\n" + 
+		"	^^^^^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"5. ERROR in p\\X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
 }
 }

@@ -3495,7 +3495,7 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n",
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. WARNING in X.java (at line 8)\n" + 
     		"	interface Iface extends Ann {\n" + 
     		"	                        ^^^\n" + 
@@ -3533,6 +3533,11 @@ public class AnnotationTest extends AbstractComparableTest {
     		"----------\n" + 
     		"8. WARNING in X.java (at line 30)\n" + 
     		"	Class c = SubKlass.class;\n" + 
+    		"	^^^^^\n" + 
+    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"----------\n" + 
+    		"9. WARNING in X.java (at line 41)\n" + 
+    		"	Class[] i = c.getInterfaces();\n" + 
     		"	^^^^^\n" + 
     		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
     		"----------\n");

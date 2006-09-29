@@ -485,7 +485,62 @@ public void test013() {
 			customOptions);
 	}
 }
-
+public void test014() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"/**\n" + 
+			" * @deprecated\n" + 
+			" */\n" + 
+			"public class X {\n" + 
+			"}\n",
+			"Y.java",
+			"import p.X;\n" +
+			"public class Y {\n" + 
+			"  Zork z;\n" +
+			"  void foo() {\n" + 
+			"    X x;\n" + 
+			"    X[] xs = { x };\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"    p.X x;\n" + 
+			"    p.X[] xs = { x };\n" + 
+			"  }\n" + 
+			"}\n",
+		}, 
+		"----------\n" + 
+		"1. WARNING in Y.java (at line 1)\n" + 
+		"	import p.X;\n" + 
+		"	       ^^^\n" + 
+		"The type X is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in Y.java (at line 3)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. WARNING in Y.java (at line 5)\n" + 
+		"	X x;\n" + 
+		"	^\n" + 
+		"The type X is deprecated\n" + 
+		"----------\n" + 
+		"4. WARNING in Y.java (at line 6)\n" + 
+		"	X[] xs = { x };\n" + 
+		"	^\n" + 
+		"The type X is deprecated\n" + 
+		"----------\n" + 
+		"5. WARNING in Y.java (at line 9)\n" + 
+		"	p.X x;\n" + 
+		"	^^^\n" + 
+		"The type X is deprecated\n" + 
+		"----------\n" + 
+		"6. WARNING in Y.java (at line 10)\n" + 
+		"	p.X[] xs = { x };\n" + 
+		"	^^^^^\n" + 
+		"The type X is deprecated\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return DeprecatedTest.class;
 }

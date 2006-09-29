@@ -1021,7 +1021,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class A<T> {}\n" 
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	class X { void foo(A[] a) {} }\n" + 
+			"	                   ^\n" + 
+			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
 			"	class Y extends X { void foo(A<String>[] a) {} }\n" + 
 			"	                         ^^^^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(A<String>[]) of type Y has the same erasure as foo(A[]) of type X but does not override it\n" + 
@@ -1101,10 +1106,15 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class A<T> {}\n" 
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\r\n" + 
-			"	abstract class X extends Y implements I { }\r\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	abstract class X extends Y implements I { }\n" + 
 			"	               ^\n" + 
 			"Name clash: The method foo(A<String>[]) of type Y has the same erasure as foo(A[]) of type I but does not override it\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 2)\n" + 
+			"	interface I { void foo(A[] a); }\n" + 
+			"	                       ^\n" + 
+			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
 			"----------\n"
 			// name clash: foo(A<java.lang.String>[]) in Y and foo(A[]) in I have the same erasure, yet neither overrides the other
 		);
@@ -1552,6 +1562,11 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 3)\n" + 
 			"	abstract class Z implements X { public abstract X[] x(); }\n" + 
 			"	                            ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 3)\n" + 
+			"	abstract class Z implements X { public abstract X[] x(); }\n" + 
+			"	                                                ^\n" + 
 			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n"
 		);
@@ -2430,12 +2445,22 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	abstract class Y<S> implements X<S> { public abstract X[] x(); }\n" + 
+			"	                                                      ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 2)\n" + 
+			"	abstract class Y<S> implements X<S> { public abstract X[] x(); }\n" + 
 			"	                                                      ^^^\n" + 
 			"Type safety: The return type X[] for x() from the type Y<S> needs unchecked conversion to conform to X<T>[] from the type X<T>\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 3)\n" + 
+			"3. WARNING in X.java (at line 3)\n" + 
 			"	abstract class Z implements X { public abstract X[] x(); }\n" + 
 			"	                            ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 3)\n" + 
+			"	abstract class Z implements X { public abstract X[] x(); }\n" + 
+			"	                                                ^\n" + 
 			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n"
 		);
@@ -3882,10 +3907,15 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in I3.java (at line 4)\r\n" + 
-			"	public static class TestClass implements I3 {\r\n" + 
+			"1. ERROR in I3.java (at line 4)\n" + 
+			"	public static class TestClass implements I3 {\n" + 
 			"	                    ^^^^^^^^^\n" + 
 			"The type I3.TestClass must implement the inherited abstract method I3.method(Iterator<Object>[])\n" + 
+			"----------\n" + 
+			"2. WARNING in I3.java (at line 5)\n" + 
+			"	public void method(Iterator[][] iter) {}\n" + 
+			"	                   ^^^^^^^^\n" + 
+			"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
 			"----------\n"
 			// does not override abstract method method(java.util.Iterator<java.lang.Object>[]) in I3
 		);
@@ -5541,11 +5571,15 @@ public void test094() {
 			"}\n", // =================
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	void foo(Y[] array)\n" + 
+		"	         ^\n" + 
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
 		"	y.addAll(Arrays.asList(array));\n" + 
 		"	  ^^^^^^\n" + 
-		"The method addAll(Collection<? extends Y<X>>) in the type ArrayList" +
-			"<Y<X>> is not applicable for the arguments (List<Y>)\n" + 
+		"The method addAll(Collection<? extends Y<X>>) in the type ArrayList<Y<X>> is not applicable for the arguments (List<Y>)\n" + 
 		"----------\n"
 	);
 }

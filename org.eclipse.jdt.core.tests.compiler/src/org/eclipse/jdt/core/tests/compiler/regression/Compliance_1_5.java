@@ -2868,10 +2868,25 @@ public void test088() {
 		"	^^^^^\n" + 
 		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 		"----------\n" + 
-		"5. WARNING in p\\X.java (at line 39)\n" + 
+		"5. WARNING in p\\X.java (at line 32)\n" + 
+		"	Class _getClasses [] = X.class.getClasses(); \n" + 
+		"	^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"6. WARNING in p\\X.java (at line 36)\n" + 
+		"	Constructor _getConstructors[] = c.getConstructors(); \n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
+		"----------\n" + 
+		"7. WARNING in p\\X.java (at line 39)\n" + 
 		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" + 
+		"----------\n" + 
+		"8. WARNING in p\\X.java (at line 39)\n" + 
+		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
+		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method getMethod(String, Class...) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
 		"----------\n";
 	if (System.getProperty("java.version").startsWith("1.6")) {
 		errorMessage =
@@ -2896,12 +2911,22 @@ public void test088() {
 			"	^^^^^\n" + 
 			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
-			"5. WARNING in p\\X.java (at line 39)\n" + 
+			"5. WARNING in p\\X.java (at line 32)\n" + 
+			"	Class _getClasses [] = X.class.getClasses(); \n" + 
+			"	^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in p\\X.java (at line 36)\n" + 
+			"	Constructor _getConstructors[] = c.getConstructors(); \n" + 
+			"	^^^^^^^^^^^\n" + 
+			"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in p\\X.java (at line 39)\n" + 
 			"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
 			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" + 
 			"----------\n" + 
-			"6. WARNING in p\\X.java (at line 39)\n" + 
+			"8. WARNING in p\\X.java (at line 39)\n" + 
 			"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
 			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The method getMethod(String, Class...) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 

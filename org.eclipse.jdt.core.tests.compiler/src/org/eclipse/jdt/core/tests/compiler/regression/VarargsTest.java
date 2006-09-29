@@ -1712,12 +1712,17 @@ public class VarargsTest extends AbstractComparableTest {
 					"}\n",
 				},
 				"----------\n" + 
-				"1. WARNING in X.java (at line 9)\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	void bar(Y... y) {\n" + 
+				"	         ^\n" + 
+				"Y is a raw type. References to generic type Y<E> should be parameterized\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 9)\n" + 
 				"	bar((Y[])foo());\n" + 
 				"	    ^^^^^^^^^^\n" + 
 				"Unnecessary cast from Y<String>[] to Y[]\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 10)\n" + 
+				"3. ERROR in X.java (at line 10)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 

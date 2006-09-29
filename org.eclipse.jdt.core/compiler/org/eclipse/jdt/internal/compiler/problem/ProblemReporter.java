@@ -1179,13 +1179,18 @@ public void deprecatedType(TypeBinding type, ASTNode location) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
 	int severity = computeSeverity(IProblem.UsingDeprecatedType);
 	if (severity == ProblemSeverities.Ignore) return;
+	type = type.leafComponentType();
+	int end = location.sourceEnd;
+	if (location instanceof ArrayTypeReference) {
+		end = ((ArrayTypeReference) location).originalSourceEnd;
+	}
 	this.handle(
 		IProblem.UsingDeprecatedType,
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
 		severity,
 		location.sourceStart,
-		location.sourceEnd);
+		end);
 }
 public void disallowedTargetForAnnotation(Annotation annotation) {
 	this.handle(
@@ -5276,12 +5281,17 @@ public void rawMemberTypeCannotBeParameterized(ASTNode location, ReferenceBindin
 		location.sourceEnd);
 }
 public void rawTypeReference(ASTNode location, TypeBinding type) {
+	type = type.leafComponentType();
+	int end = location.sourceEnd;
+	if (location instanceof ArrayTypeReference) {
+		end = ((ArrayTypeReference) location).originalSourceEnd;
+	}
     this.handle(
 		IProblem.RawTypeReference,
 		new String[] {new String(type.readableName()), new String(type.erasure().readableName()), },
 		new String[] {new String(type.shortReadableName()),new String(type.erasure().shortReadableName()),},
 		location.sourceStart,
-		location.sourceEnd);
+		end);
 }
 public void recursiveConstructorInvocation(ExplicitConstructorCall constructorCall) {
 
