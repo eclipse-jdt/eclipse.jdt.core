@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
@@ -170,6 +171,7 @@ public class SourceMapper
 	IType[] types;
 	int[] typeDeclarationStarts;
 	SourceRange[] typeNameRanges;
+	int[] typeModifiers;
 	int typeDepth;
 	
 	/**
@@ -626,6 +628,12 @@ public class SourceMapper
 				this.methodParameterNames = new char[this.typeDepth * 2][][],
 				0,
 				this.typeDepth);					
+			System.arraycopy(
+				this.typeModifiers,
+				0,
+				this.typeModifiers = new int[this.typeDepth * 2],
+				0,
+				this.typeDepth);
 		}
 		if (typeInfo.name.length == 0) {
 			this.anonymousCounter++;
@@ -659,6 +667,9 @@ public class SourceMapper
 			}
 		}
 		
+		// type modifiers
+		this.typeModifiers[typeDepth] = typeInfo.modifiers;
+
 		// categories
 		addCategories(currentType, typeInfo.categories);
 	}
@@ -717,8 +728,9 @@ public class SourceMapper
 				new SourceRange(methodInfo.nameSourceStart, methodInfo.nameSourceEnd - methodInfo.nameSourceStart + 1);
 			this.memberDeclarationStart[typeDepth] = methodInfo.declarationStart;
 			IType currentType = this.types[typeDepth];
+			int currenTypeModifiers = this.typeModifiers[typeDepth];
 			char[][] parameterTypes = methodInfo.parameterTypes;
-			if (parameterTypes != null && methodInfo.isConstructor && currentType.getDeclaringType() != null) {
+			if (parameterTypes != null && methodInfo.isConstructor && currentType.getDeclaringType() != null && !Flags.isStatic(currenTypeModifiers)) {
 				IType declaringType = currentType.getDeclaringType();
 				String declaringTypeName = declaringType.getElementName();
 				if (declaringTypeName.length() == 0) {
@@ -1220,6 +1232,7 @@ public class SourceMapper
 		this.types = new IType[1];
 		this.typeDeclarationStarts = new int[1];
 		this.typeNameRanges = new SourceRange[1];
+		this.typeModifiers = new int[1];
 		this.typeDepth = -1;
 		this.memberDeclarationStart = new int[1];
 		this.memberName = new String[1];

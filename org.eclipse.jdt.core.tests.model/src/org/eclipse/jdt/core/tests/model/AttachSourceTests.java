@@ -69,8 +69,9 @@ protected void setUp() throws Exception {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
-	IJavaProject project = setUpJavaProject("AttachSourceTests");
-	this.pkgFragmentRoot = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/attach.jar"));
+	setUpJavaProject("AttachSourceTests");
+	addLibraryEntry("/AttachSourceTests/b153133.jar", false);
+	this.pkgFragmentRoot = this.currentProject.getPackageFragmentRoot(this.getFile("/AttachSourceTests/attach.jar"));
 	setUpGenericJar();
 	setUpInnerClassesJar();
 }
@@ -106,10 +107,9 @@ private void setUpGenericJar() throws IOException, CoreException {
 		"class AType<E> {\n" + // type name containing character 'T'
 		"}"
 	};
-	IJavaProject project = getJavaProject("AttachSourceTests");
-	addLibrary(project, "generic.jar", "genericsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
+	addLibrary("generic.jar", "genericsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 	IFile jar = getFile("/AttachSourceTests/generic.jar");
-	this.genericType = project.getPackageFragmentRoot(jar).getPackageFragment("generic").getClassFile("X.class").getType();
+	this.genericType = this.currentProject.getPackageFragmentRoot(jar).getPackageFragment("generic").getClassFile("X.class").getType();
 }
 private void setUpInnerClassesJar() throws IOException, CoreException {
 	String[] pathAndContents = new String[] {
@@ -140,14 +140,12 @@ private void setUpInnerClassesJar() throws IOException, CoreException {
 		"  }\n" +
 		"}"
 	};
-	IJavaProject project = getJavaProject("AttachSourceTests");
-	addLibrary(project, "innerClasses.jar", "innerClassessrc.zip", pathAndContents, JavaCore.VERSION_1_4);
+	addLibrary("innerClasses.jar", "innerClassessrc.zip", pathAndContents, JavaCore.VERSION_1_4);
 	IFile jar = getFile("/AttachSourceTests/innerClasses.jar");
-	this.innerClasses = project.getPackageFragmentRoot(jar).getPackageFragment("inner");
+	this.innerClasses = this.currentProject.getPackageFragmentRoot(jar).getPackageFragment("inner");
 }
 protected void tearDown() throws Exception {
-	IJavaProject project = this.getJavaProject("/AttachSourceTests");
-	IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
+	IPackageFragmentRoot[] roots = this.currentProject.getAllPackageFragmentRoots();
 	for (int i = 0; i < roots.length; i++) {
 		IPackageFragmentRoot root = roots[i];
 		if (this.genericType != null && root.equals(this.genericType.getPackageFragment().getParent())) continue;
@@ -163,7 +161,7 @@ protected void tearDown() throws Exception {
  * Reset the jar placeholder and delete project.
  */
 public void tearDownSuite() throws Exception {
-	this.deleteProject("AttachSourceTests");
+	deleteProject(this.currentProject);
 	super.tearDownSuite();
 }
 
@@ -1007,9 +1005,9 @@ public void testRootPath12() throws JavaModelException {
 	root.close();
 }
 /**
- * http://bugs.eclipse.org/bugs/show_bug.cgi?id=110172
+ * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=110172"
  */
-public void test110172() throws JavaModelException {
+public void testBug110172() throws JavaModelException {
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/test6.jar"));
 	assertTrue("Root doesn't exist", root.exists());
@@ -1083,6 +1081,50 @@ public void test110172() throws JavaModelException {
 		}
 	} finally {
 		attachSource(root, null, null); // detach source
+		root.close();
+	}
+}
+/**
+ * @test bug 153133: [model] toggle breakpoint in constructor creates a class load breakpoint
+ * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=153133"
+ */
+public void testBug153133() throws JavaModelException {
+	IPackageFragmentRoot root = this.currentProject.getPackageFragmentRoot(this.getFile("/AttachSourceTests/b153133.jar"));
+	assertTrue("Root doesn't exist", root.exists());
+	
+	try {
+		// Get class file type from jar
+		IClassFile cf = root.getPackageFragment("test").getClassFile("Test.class");
+		assertNotNull(cf);
+		final String source = cf.getSource();
+		assertNotNull("No source", source);
+		IJavaElement[] children = cf.getChildren();
+		assertEquals("Wrong number of children", 1, children.length);
+		IJavaElement element = children[0];
+		assertTrue("Not a type", element instanceof IType);
+		IType type = (IType) element;
+		IJavaElement[] members = type.getChildren();
+		final int length = members.length;
+		assertEquals("Wrong number", 7, length);
+		
+		// Need to get type members constructors
+		for (int i = 0; i < length; i++) {
+			assertTrue(members[i] instanceof IMember);
+			if (((IMember)members[i]).getElementType() == IJavaElement.TYPE) {
+				IType typeMember = (IType) members[i];
+				String typeName = typeMember.getElementName();
+				IMethod[] methods = typeMember.getMethods();
+				assertEquals("Expected only one constructor defined in type "+typeName, 1, methods.length);
+				// Verify that source range is valid
+				assertTrue("Expected a constructor instead of a method in type "+typeName, methods[0].isConstructor());
+				IMethod constructor = methods[0];
+				ISourceRange sourceRange = constructor.getSourceRange();
+				assertTrue("Constructor "+constructor.getElementName()+" has invalid offset: "+sourceRange, sourceRange.getOffset() >= 0);
+				assertTrue("Constructor "+constructor.getElementName()+" has invalid length: "+sourceRange, sourceRange.getLength() > 0);
+			}
+		}
+	} finally {
+		removeLibraryEntry(new Path("/JavaSearchBugs/lib/b148215.jar"));
 		root.close();
 	}
 }

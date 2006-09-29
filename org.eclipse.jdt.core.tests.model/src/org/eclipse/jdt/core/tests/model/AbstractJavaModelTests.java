@@ -44,6 +44,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected static String EXTERNAL_JAR_DIR_PATH;
 
+	// used java project
+	protected IJavaProject currentProject;
+
 	// working copies usage
 	protected ICompilationUnit[] workingCopies;
 	protected WorkingCopyOwner wcOwner;
@@ -234,6 +237,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			actual
 		);
 	}
+	protected void addLibrary(String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
+		addLibrary(this.currentProject, jarName, sourceZipName, pathAndContents, null, null, compliance);
+	}
 	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
 		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, null, null, compliance);
 	}
@@ -256,6 +262,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			true
 		);
 	}
+	protected void addLibraryEntry(String path, boolean exported) throws JavaModelException {
+		addLibraryEntry(this.currentProject, new Path(path), null, null, null, null, exported);
+	} 
 	protected void addLibraryEntry(IJavaProject project, String path, boolean exported) throws JavaModelException {
 		addLibraryEntry(project, new Path(path), null, null, null, null, exported);
 	} 
@@ -1182,6 +1191,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		deleteResource(project);
 	}
+	protected void deleteProject(IJavaProject project) throws CoreException {
+		if (project.exists() && !project.isOpen()) { // force opening so that project can be deleted without logging (see bug 23629)
+			project.open(null);
+		}
+		deleteResource(project.getProject());
+	}
 	
 	/**
 	 * Batch deletion of projects
@@ -1691,6 +1706,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		project.getFile(jarName).delete(false, null);
 		project.getFile(sourceZipName).delete(false, null);
 	}
+	protected void removeLibraryEntry(Path path) throws JavaModelException {
+		removeLibraryEntry(this.currentProject, path);
+	}
 	protected void removeLibraryEntry(IJavaProject project, Path path) throws JavaModelException {
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
@@ -2046,7 +2064,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 	}
 	protected IJavaProject setUpJavaProject(final String projectName) throws CoreException, IOException {
-		return setUpJavaProject(projectName, "1.4");
+		this.currentProject = setUpJavaProject(projectName, "1.4");
+		return this.currentProject;
 	}
 	protected IJavaProject setUpJavaProject(final String projectName, String compliance) throws CoreException, IOException {
 		// copy files in project from source workspace to target workspace
