@@ -447,7 +447,7 @@ public interface IClasspathEntry {
 	 *	<p> 
 	 * Note that this deprecated API doesn't handle CPE_CONTAINER entries.
 	 * 
-	 * @deprecated - use JavaCore.getResolvedClasspathEntry(...)
+	 * @deprecated Use {@link JavaCore#getResolvedClasspathEntry(IClasspathEntry)} instead
 	 */
 	IClasspathEntry getResolvedEntry();	
 }

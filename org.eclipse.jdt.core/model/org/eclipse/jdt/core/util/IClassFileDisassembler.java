@@ -15,7 +15,7 @@ package org.eclipse.jdt.core.util;
  * IClassFileReader onto a String using the proper line separator.
  * 
  * @since 2.0
- * @deprecated - should use ClassFileBytesDisassembler instead
+ * @deprecated Use {@link ClassFileBytesDisassembler} instead
  */
 public interface IClassFileDisassembler {
 	

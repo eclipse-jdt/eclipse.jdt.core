@@ -54,7 +54,7 @@ public class ToolFactory {
 	 * @return an instance of a code formatter
 	 * @see ICodeFormatter
 	 * @see ToolFactory#createDefaultCodeFormatter(Map)
-	 * @deprecated - should use #createCodeFormatter(Map) instead. Extension point is discontinued
+	 * @deprecated Use {@link #createCodeFormatter(Map)} instead. Extension point is discontinued
 	 */
 	public static ICodeFormatter createCodeFormatter(){
 		
@@ -119,7 +119,7 @@ public class ToolFactory {
 	 * 
 	 * @return a classfile bytecode disassembler
 	 * @see org.eclipse.jdt.core.util.IClassFileDisassembler
-	 * @deprecated - should use factory method creating ClassFileBytesDisassembler instead 
+	 * @deprecated Use {@link #createDefaultClassFileBytesDisassembler()} instead 
 	 */
 	public static org.eclipse.jdt.core.util.IClassFileDisassembler createDefaultClassFileDisassembler(){
 		class DeprecatedDisassembler extends Disassembler implements org.eclipse.jdt.core.util.IClassFileDisassembler {
@@ -287,7 +287,7 @@ public class ToolFactory {
 	 * @see ICodeFormatter
 	 * @see ToolFactory#createCodeFormatter()
 	 * @see JavaCore#getOptions()
-	 * @deprecated - use #createCodeFormatter(Map) instead
+	 * @deprecated Use {@link #createCodeFormatter(Map)} instead
 	 */
 	public static ICodeFormatter createDefaultCodeFormatter(Map options){
 		if (options == null) options = JavaCore.getOptions();

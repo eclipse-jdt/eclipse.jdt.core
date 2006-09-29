@@ -147,7 +147,7 @@ ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProgressMonitor monitor
  * <li> This class file does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
  * @since 2.0
- * @deprecated Use getWorkingCopy(WorkingCopyOwner, IProgressMonitor) instead
+ * @deprecated Use {@link #getWorkingCopy(WorkingCopyOwner, IProgressMonitor)} instead
  */
 IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;
 /**

@@ -745,13 +745,13 @@ public final class JavaCore extends Plugin {
 	public static final String CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS = PLUGIN_ID + ".classpath.multipleOutputLocations"; //$NON-NLS-1$
 	/**
 	 * Default task tag
-	 * @deprecated - should use #DEFAULT_TASK_TAGS instead 
+	 * @deprecated Use {@link #DEFAULT_TASK_TAGS} instead 
 	 * @since 2.1
 	 */
 	public static final String DEFAULT_TASK_TAG = "TODO"; //$NON-NLS-1$
 	/**
 	 * Default task priority
-	 * @deprecated - should use #DEFAULT_TASK_PRIORITIES instead 
+	 * @deprecated Use {@link #DEFAULT_TASK_PRIORITIES} instead 
 	 * @since 2.1
 	 */
 	public static final String DEFAULT_TASK_PRIORITY = "NORMAL"; //$NON-NLS-1$
@@ -2782,9 +2782,8 @@ public final class JavaCore extends Plugin {
 	 * 
 	 * @param factory the given buffer factory
 	 * @return the list of shared working copies for a given buffer factory
-	 * @see IWorkingCopy
 	 * @since 2.0
-	 * @deprecated - should use #getWorkingCopies(WorkingCopyOwner) instead
+	 * @deprecated Use {@link #getWorkingCopies(WorkingCopyOwner)} instead
 	 */
 	public static IWorkingCopy[] getSharedWorkingCopies(IBufferFactory factory){
 		
@@ -3881,7 +3880,7 @@ public final class JavaCore extends Plugin {
 	 * @param variableName the name of the classpath variable
 	 * @see #setClasspathVariable(String, IPath)
 	 *
-	 * @deprecated - use version with extra IProgressMonitor
+	 * @deprecated Use {@link #removeClasspathVariable(String, IProgressMonitor)} instead
 	 */
 	public static void removeClasspathVariable(String variableName) {
 		removeClasspathVariable(variableName, null);
@@ -4090,7 +4089,7 @@ public final class JavaCore extends Plugin {
 	 * @throws JavaModelException
 	 * @see #getClasspathVariable(String)
 	 *
-	 * @deprecated - use API with IProgressMonitor
+	 * @deprecated Use {@link #setClasspathVariable(String, IPath, IProgressMonitor)} instead
 	 */
 	public static void setClasspathVariable(String variableName, IPath path)
 		throws JavaModelException {

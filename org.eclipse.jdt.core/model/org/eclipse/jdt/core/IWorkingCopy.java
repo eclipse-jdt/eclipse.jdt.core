@@ -49,7 +49,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * <p>
  * This interface is not intended to be implemented by clients.
  * </p>
- * @deprecated Use <code>ICompilationUnit</code>instead
+ * @deprecated Use {@link ICompilationUnit} instead
  */
 public interface IWorkingCopy {
 	
@@ -81,6 +81,7 @@ public interface IWorkingCopy {
 	 * <li> This element is not a working copy (INVALID_ELEMENT_TYPES)
 	 * <li> A update conflict (described above) (UPDATE_CONFLICT)
 	 * </ul>
+	 * @deprecated Use {@link ICompilationUnit#commitWorkingCopy(boolean, IProgressMonitor)} instead.
 	 */
 	void commit(boolean force, IProgressMonitor monitor) throws JavaModelException;
 	
@@ -97,6 +98,7 @@ public interface IWorkingCopy {
 	 * When it is destroyed, a REMOVED IJavaElementDelta is reported on this 
 	 * working copy.
 	 * </p>
+	 * @deprecated Use {@link ICompilationUnit#discardWorkingCopy()} instead.
 	 */
 	void destroy();
 	
@@ -111,6 +113,8 @@ public interface IWorkingCopy {
 	 * @return the found shared working copy for this element, <code>null</code> if none
 	 * @see IBufferFactory
 	 * @since 2.0
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#findWorkingCopy(WorkingCopyOwner)} instead.
 	 */
 	IJavaElement findSharedWorkingCopy(IBufferFactory bufferFactory);
 
@@ -122,6 +126,8 @@ public interface IWorkingCopy {
 	 * @param workingCopyElement the specified working copy element
 	 * @return the original element the specified working copy element was created from,
 	 * or <code>null</code> if this is not a working copy element
+	 * 
+	 * @deprecated Use {@link IJavaElement#getPrimaryElement()} instead.
 	 */
 	IJavaElement getOriginal(IJavaElement workingCopyElement);
 	
@@ -131,6 +137,8 @@ public interface IWorkingCopy {
 	 * 
 	 * @return the original element this working copy was created from,
 	 * or <code>null</code> if this is not a working copy
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#findPrimaryType()} instead.
 	 */
 	IJavaElement getOriginalElement();
 	
@@ -152,6 +160,8 @@ public interface IWorkingCopy {
 	 * @param element the given element
 	 * @return the found elements in this compilation unit that correspond to the given element
 	 * @since 2.0 
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#findElements(IJavaElement)} instead.
 	 */
 	IJavaElement[] findElements(IJavaElement element);
 	
@@ -161,6 +171,8 @@ public interface IWorkingCopy {
 	 * 
 	 * @return the found primary type of this compilation unit, or <code>null</code> if no such a type exists
 	 * @since 2.0
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#findPrimaryType()} instead.
 	 */
 	IType findPrimaryType();
 	
@@ -202,6 +214,8 @@ public interface IWorkingCopy {
 	 * @see IBufferFactory
 	 * @see IProblemRequestor
 	 * @since 2.0
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)} instead.
 	 */
 	IJavaElement getSharedWorkingCopy(
 		IProgressMonitor monitor,
@@ -227,6 +241,8 @@ public interface IWorkingCopy {
 	 *   not be determined. 
 	 * @return a new working copy of this element if this element is not
 	 * a working copy, or this element if this element is already a working copy
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#getWorkingCopy(IProgressMonitor)} instead.
 	 */
 	IJavaElement getWorkingCopy() throws JavaModelException;
 	
@@ -260,6 +276,8 @@ public interface IWorkingCopy {
 	 * @return a new working copy of this element using the given factory to create
 	 * the buffer, or this element if this element is already a working copy
 	 * @since 2.0
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)} instead.
 	 */
 	IJavaElement getWorkingCopy(
 		IProgressMonitor monitor,
@@ -274,6 +292,8 @@ public interface IWorkingCopy {
 	 * @param resource this working copy's resource
 	 * @return true if this working copy's original element's content
 	 * has not changed since the inception of this working copy, false otherwise
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#hasResourceChanged()} instead.
 	 */
 	boolean isBasedOn(IResource resource);
 	
@@ -281,6 +301,8 @@ public interface IWorkingCopy {
 	 * Returns whether this element is a working copy.
 	 * 
 	 * @return true if this element is a working copy, false otherwise
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#isWorkingCopy()} instead.
 	 */
 	boolean isWorkingCopy();
 	
@@ -307,6 +329,8 @@ public interface IWorkingCopy {
 	 * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * </ul>
 	 * @return <code>null</code>
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)} instead.
 	 */
 	IMarker[] reconcile() throws JavaModelException;
 	
@@ -336,6 +360,8 @@ public interface IWorkingCopy {
 	 * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * </ul>
 	 * @since 2.0
+	 * 
+	 * @deprecated Use {@link ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)} instead.
 	 */
 	void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException;
 
@@ -352,6 +378,7 @@ public interface IWorkingCopy {
 	 * <ul>
 	 * <li> The original Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * </ul>
+	 * @deprecated Use {@link ICompilationUnit#restore()} instead.
 	 */
 	void restore() throws JavaModelException;
 }

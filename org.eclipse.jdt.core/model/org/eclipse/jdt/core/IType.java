@@ -861,7 +861,7 @@ public interface IType extends IMember {
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @since 2.0
-	 * @deprecated use #newSupertypeHierarchy(ICompilationUnit[], IProgressMonitor) instead
+	 * @deprecated Use {@link #newSupertypeHierarchy(ICompilationUnit[], IProgressMonitor)} instead
 	 */
 	ITypeHierarchy newSupertypeHierarchy(IWorkingCopy[] workingCopies, IProgressMonitor monitor)
 		throws JavaModelException;
@@ -973,7 +973,7 @@ public interface IType extends IMember {
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @since 2.0
-	 * @deprecated use #newTypeHierarchy(ICompilationUnit[], IProgressMonitor) instead
+	 * @deprecated Use {@link #newTypeHierarchy(ICompilationUnit[], IProgressMonitor)} instead
 	 */
 	ITypeHierarchy newTypeHierarchy(IWorkingCopy[] workingCopies, IProgressMonitor monitor) throws JavaModelException;
 	

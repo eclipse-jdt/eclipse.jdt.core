@@ -16,7 +16,7 @@ package org.eclipse.jdt.core;
  * This interface may be implemented by clients.
  * </p>
  * @since 2.0
- * @deprecated Use <code>WorkingCopyOwner</code> instead
+ * @deprecated Use {@link WorkingCopyOwner} instead
  */
 public interface IBufferFactory {
 

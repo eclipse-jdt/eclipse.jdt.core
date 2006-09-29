@@ -101,7 +101,7 @@ public class Message {
 	 * @return the 0-based character index, or <code>-1</code>
 	 *    if no source position information is recorded for this
 	 *    message
-	 * @deprecated Use getStartPosition() instead.
+	 * @deprecated Use {@link #getStartPosition()} instead.
 	 * @see #getLength()
 	 */
 	public int getSourcePosition() {

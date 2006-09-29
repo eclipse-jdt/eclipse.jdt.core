@@ -65,7 +65,7 @@ String[] getExceptionTypes() throws JavaModelException;
  * in the order declared in the source, an empty array if none
  * @see Signature
  * @since 3.0
- * @deprecated Use #getTypeParameters() instead
+ * @deprecated Use {@link #getTypeParameters()} instead
  */
 String[] getTypeParameterSignatures() throws JavaModelException;
 /**

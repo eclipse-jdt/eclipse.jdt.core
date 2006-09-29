@@ -18,7 +18,7 @@ package org.eclipse.jdt.core;
  * @see ToolFactory#createCodeFormatter()
  * @see ToolFactory#createDefaultCodeFormatter(java.util.Map options)
  * @since 2.0
- * @deprecated - should use org.eclipse.jdt.core.formatter.CodeFormatter instead (note: options have changed)
+ * @deprecated Use {@link org.eclipse.jdt.core.formatter.CodeFormatter} instead (note: options have changed)
  */
 public interface ICodeFormatter {
 
