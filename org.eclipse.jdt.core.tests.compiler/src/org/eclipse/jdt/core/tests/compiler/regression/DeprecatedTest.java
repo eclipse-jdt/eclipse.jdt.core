@@ -485,6 +485,7 @@ public void test013() {
 			customOptions);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159243
 public void test014() {
 	this.runNegativeTest(
 		new String[] {
@@ -537,7 +538,7 @@ public void test014() {
 		"----------\n" + 
 		"6. WARNING in Y.java (at line 10)\n" + 
 		"	p.X[] xs = { x };\n" + 
-		"	^^^^^\n" + 
+		"	^^^\n" + 
 		"The type X is deprecated\n" + 
 		"----------\n");
 }

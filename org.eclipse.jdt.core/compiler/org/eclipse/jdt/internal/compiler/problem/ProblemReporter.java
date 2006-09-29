@@ -1180,17 +1180,13 @@ public void deprecatedType(TypeBinding type, ASTNode location) {
 	int severity = computeSeverity(IProblem.UsingDeprecatedType);
 	if (severity == ProblemSeverities.Ignore) return;
 	type = type.leafComponentType();
-	int end = location.sourceEnd;
-	if (location instanceof ArrayTypeReference) {
-		end = ((ArrayTypeReference) location).originalSourceEnd;
-	}
 	this.handle(
 		IProblem.UsingDeprecatedType,
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
 		severity,
 		location.sourceStart,
-		end);
+		nodeSourceEnd(null, location));
 }
 public void disallowedTargetForAnnotation(Annotation annotation) {
 	this.handle(
@@ -4584,7 +4580,9 @@ private int nodeSourceEnd(Binding field, ASTNode node) {
 	return nodeSourceEnd(field, node, 0);
 }
 private int nodeSourceEnd(Binding field, ASTNode node, int index) {
-	if (node instanceof QualifiedNameReference) {
+	if (node instanceof ArrayTypeReference) {
+		return ((ArrayTypeReference) node).originalSourceEnd;
+	} else if (node instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) node;
 		if (ref.binding == field) {
 			return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1]);
@@ -4602,6 +4600,10 @@ private int nodeSourceEnd(Binding field, ASTNode node, int index) {
 		if (index < reference.sourcePositions.length) {
 			return (int) reference.sourcePositions[index];
 		}
+	} else if (node instanceof ArrayQualifiedTypeReference) {
+		ArrayQualifiedTypeReference arrayQualifiedTypeReference = (ArrayQualifiedTypeReference) node;
+		int length = arrayQualifiedTypeReference.sourcePositions.length;
+		return (int) arrayQualifiedTypeReference.sourcePositions[length - 1];
 	}
 	return node.sourceEnd;
 }
@@ -5282,19 +5284,14 @@ public void rawMemberTypeCannotBeParameterized(ASTNode location, ReferenceBindin
 }
 public void rawTypeReference(ASTNode location, TypeBinding type) {
 	type = type.leafComponentType();
-	int end = location.sourceEnd;
-	if (location instanceof ArrayTypeReference) {
-		end = ((ArrayTypeReference) location).originalSourceEnd;
-	}
     this.handle(
 		IProblem.RawTypeReference,
 		new String[] {new String(type.readableName()), new String(type.erasure().readableName()), },
 		new String[] {new String(type.shortReadableName()),new String(type.erasure().shortReadableName()),},
 		location.sourceStart,
-		end);
+		nodeSourceEnd(null, location));
 }
 public void recursiveConstructorInvocation(ExplicitConstructorCall constructorCall) {
-
 	this.handle(
 		IProblem.RecursiveConstructorInvocation,
 		new String[] {

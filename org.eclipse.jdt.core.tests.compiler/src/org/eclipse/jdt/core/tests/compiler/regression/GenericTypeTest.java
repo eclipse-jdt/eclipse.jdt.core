@@ -33459,7 +33459,7 @@ public void test1041() {
 		"----------\n" + 
 		"4. WARNING in p\\X.java (at line 11)\n" + 
 		"	p.X[] rawxs = { rawx };\n" + 
-		"	^^^^^\n" + 
+		"	^^^\n" + 
 		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
 		"5. ERROR in p\\X.java (at line 14)\n" + 
