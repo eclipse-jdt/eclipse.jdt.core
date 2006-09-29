@@ -2845,7 +2845,7 @@ public void test087() {
 			"----------\n"
 		);
 }
-public void test088() {
+public void testONLY_088() {
 	String errorMessage =
 		"----------\n" + 
 		"1. WARNING in p\\X.java (at line 4)\n" + 
@@ -2882,11 +2882,6 @@ public void test088() {
 		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" + 
-		"----------\n" + 
-		"8. WARNING in p\\X.java (at line 39)\n" + 
-		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
-		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The method getMethod(String, Class...) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
 		"----------\n";
 	if (System.getProperty("java.version").startsWith("1.6")) {
 		errorMessage =
