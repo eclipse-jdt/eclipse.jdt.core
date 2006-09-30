@@ -29,12 +29,12 @@ public class PerformanceTestSuite extends TestSuite {
 		try {
 			getTestConstructor(theClass); // Avoid generating multiple error messages
 		} catch (NoSuchMethodException e) {
-			addTest(warning("Class "+theClass.getName()+" has no public constructor TestCase(String name) or TestCase()"));
+			addTest(addWarningTest("Class "+theClass.getName()+" has no public constructor TestCase(String name) or TestCase()"));
 			return;
 		}
 
 		if (!Modifier.isPublic(theClass.getModifiers())) {
-			addTest(warning("Class "+theClass.getName()+" is not public"));
+			addTest(addWarningTest("Class "+theClass.getName()+" is not public"));
 			return;
 		}
 
@@ -48,7 +48,7 @@ public class PerformanceTestSuite extends TestSuite {
 			superClass= superClass.getSuperclass();
 		}
 		if (countTestCases() == 0)
-			addTest(warning("No tests found in "+theClass.getName()));
+			addTest(addWarningTest("No tests found in "+theClass.getName()));
 	}
 	
 	public PerformanceTestSuite(String name) {
@@ -61,7 +61,7 @@ public class PerformanceTestSuite extends TestSuite {
 			return;
 		if (! isPublicTestMethod(m)) {
 			if (isTestMethod(m))
-				addTest(warning("Test method isn't public: "+m.getName()));
+				addTest(addWarningTest("Test method isn't public: "+m.getName()));
 			return;
 		}
 		names.addElement(name);
@@ -86,7 +86,7 @@ public class PerformanceTestSuite extends TestSuite {
 	/**
 	 * Returns a test which will fail and log a warning message.
 	 */
-	private static Test warning(final String message) {
+	private static Test addWarningTest(final String message) {
 		return new TestCase("warning") {
 			protected void runTest() {
 				fail(message);
