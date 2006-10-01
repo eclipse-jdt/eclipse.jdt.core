@@ -47,8 +47,8 @@ public TypeHierarchyTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	IJavaProject project = setUpJavaProject("TypeHierarchy");
-	addLibrary(project, "myLib.jar", "myLibsrc.zip", new String[] {
+	setUpJavaProject("TypeHierarchy");
+	addLibrary("myLib.jar", "myLibsrc.zip", new String[] {
 		"my/pkg/X.java",
 		"package my.pkg;\n" + 
 		"public class X {\n" + 
@@ -62,10 +62,10 @@ public void setUpSuite() throws Exception {
 		"}",
 	}, JavaCore.VERSION_1_4);
 	
-	IPackageFragmentRoot root = project.getPackageFragmentRoot(project.getProject().getFile("lib.jar"));
+	IPackageFragmentRoot root = this.currentProject.getPackageFragmentRoot(this.currentProject.getProject().getFile("lib.jar"));
 	IRegion region = JavaCore.newRegion();
 	region.add(root);
-	this.typeHierarchy = project.newTypeHierarchy(region, null);
+	this.typeHierarchy = this.currentProject.newTypeHierarchy(region, null);
 	
 	IJavaProject project15 = createJavaProject("TypeHierarchy15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 	addLibrary(project15, "lib15.jar", "lib15src.zip", new String[] {
@@ -1479,6 +1479,15 @@ public void testRegion4() throws CoreException {
 	} finally {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
 	}
+}
+/**
+ * @bug 150289: [hierarchy] NPE in hierarchy builder when region is empy
+ * @test Ensure that no NPE is thrown when IRegion has no associated project
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=150289"
+ */
+public void testRegion_Bug150289() throws JavaModelException {
+	ITypeHierarchy h = this.currentProject.newTypeHierarchy(JavaCore.newRegion(), null);
+	assertEquals("Unexpected number of types in hierarchy", 0, h.getAllTypes().length);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144976
 public void testResilienceToMissingBinaries() throws CoreException {
