@@ -88,6 +88,8 @@ public final class CompletionEngine
 	private final static char[] EXTENDS = "extends".toCharArray();  //$NON-NLS-1$
 	private final static char[] SUPER = "super".toCharArray();  //$NON-NLS-1$
 	
+	private final static char[] VARARGS = "...".toCharArray();  //$NON-NLS-1$
+	
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
 	
@@ -2251,10 +2253,15 @@ public final class CompletionEngine
 								javadocCompletion.append(selector);
 								javadocCompletion.append('(');
 								if (constructor.parameters != null) {
+									boolean isVarargs = constructor.isVarargs();
 									for (int p=0, ln=constructor.parameters.length; p<ln; p++) {
 										if (p>0) javadocCompletion.append(", "); //$NON-NLS-1$
 										TypeBinding argTypeBinding = constructor.parameters[p];
-										createType(argTypeBinding.erasure(), javadocCompletion);
+										if (isVarargs && p == ln - 1)  {
+											createVargsType(argTypeBinding.erasure(), javadocCompletion);
+										} else {
+											createType(argTypeBinding.erasure(), javadocCompletion);
+										}
 									}
 								}
 								javadocCompletion.append(')');
@@ -3907,10 +3914,15 @@ public final class CompletionEngine
 					// Append parameters types
 					javadocCompletion.append('(');
 					if (method.parameters != null) {
+						boolean isVarargs = method.isVarargs();
 						for (int p=0, ln=method.parameters.length; p<ln; p++) {
 							if (p>0) javadocCompletion.append(", "); //$NON-NLS-1$
 							TypeBinding argTypeBinding = method.parameters[p];
-							createType(argTypeBinding.erasure(), javadocCompletion);
+							if (isVarargs && p == ln - 1)  {
+								createVargsType(argTypeBinding.erasure(), javadocCompletion);
+							} else {
+								createType(argTypeBinding.erasure(), javadocCompletion);
+							}
 						}
 					}
 					javadocCompletion.append(')');
@@ -4499,6 +4511,20 @@ public final class CompletionEngine
 			} else {
 				completion.append(type.sourceName());
 			}
+		}
+	}
+	
+	private void createVargsType(TypeBinding type, StringBuffer completion) {
+		if (type.isArrayType()) {
+			createType(type.leafComponentType(), completion);
+			int dim = type.dimensions() - 1;
+			for (int i = 0; i < dim; i++) {
+				completion.append('[');
+				completion.append(']');
+			}
+			completion.append(VARARGS);
+		} else {
+			createType(type, completion);
 		}
 	}
 	private void createMethod(MethodBinding method, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, StringBuffer completion) {

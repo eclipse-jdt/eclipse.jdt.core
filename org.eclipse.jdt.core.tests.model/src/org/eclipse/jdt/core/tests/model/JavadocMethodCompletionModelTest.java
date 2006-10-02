@@ -2541,4 +2541,44 @@ public void test161() throws JavaModelException {
 		JavaCore.setOptions(oldOptions);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155824
+public void test162() throws JavaModelException {
+	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	
+	String source =
+		"package javadoc.methods.tags;\n" + 
+		"public class BasicTestMethods {\n" + 
+		"	public void oneTwoThree(Object... o) {}\n" + 
+		"	/**\n" + 
+		"	 * Completion after:\n" + 
+		"	 * 	@see #oneTwoT\n" + 
+		"	 * \n" + 
+		"	 */\n" + 
+		"	BasicTestMethods() {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "oneTwoT", 2);
+	assertResults(
+		"oneTwoThree[METHOD_REF]{oneTwoThree(Object...), Ljavadoc.methods.tags.BasicTestMethods;, ([Ljava.lang.Object;)V, oneTwoThree, (o), "+this.positions+R_DICNRNS+"}"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155824
+public void test163() throws JavaModelException {
+	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	
+	String source =
+		"package javadoc.methods.tags;\n" + 
+		"public class BasicTestMethods {\n" + 
+		"	public BasicTestMethods(Object... o) {}\n" + 
+		"	/**\n" + 
+		"	 * Completion after:\n" + 
+		"	 * 	@see #BasicTestMeth\n" + 
+		"	 * \n" + 
+		"	 */\n" + 
+		"	void foo() {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMeth", 3);
+	assertResults(
+		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(Object...), Ljavadoc.methods.tags.BasicTestMethods;, ([Ljava.lang.Object;)V, BasicTestMethods, (o), "+this.positions+JAVADOC_RELEVANCE+"}"
+	);
+}
 }
