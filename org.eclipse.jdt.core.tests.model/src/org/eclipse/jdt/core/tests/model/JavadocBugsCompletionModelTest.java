@@ -686,7 +686,7 @@ public void testBug118105() throws JavaModelException {
 }
 
 /**
- * Bug 118092: [javadoc][assist] Eclipse hangs on code assist when writing ¸<c
+ * Bug 118092: [javadoc][assist] Eclipse hangs on code assist when writing \u00B8<c
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118092"
  */
 public void testBug118092() throws JavaModelException {
@@ -694,7 +694,7 @@ public void testBug118092() throws JavaModelException {
 		"package bugs.b118092;\n" + 
 		"public class BasicTestBugs {\n" + 
 		"   /**\n" + 
-		"    * ¸<c\n" + 
+		"    * \u00B8<c\n" + 
 		"    */\n" + 
 		"   public void method() {}\n" + 
 		"}\n";

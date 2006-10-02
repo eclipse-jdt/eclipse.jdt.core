@@ -88,8 +88,8 @@ public void test003() {
 		"    System.out.println(System.getProperty(\"java.vm.info\", \"J9\"));\n" + 
 		"    System.out.write((byte) 0x89);\n" + 
 		"    System.out.println();\n" + 
-		"    System.out.println(\"â?°\");\n" + 
-		"    System.out.println(Integer.toHexString(\"â?°\".charAt(0)));\n" + 
+		"    System.out.println(\"\u00E2?\u00B0\");\n" + 
+		"    System.out.println(Integer.toHexString(\"\u00E2?\u00B0\".charAt(0)));\n" + 
 		"  }\n" + 
 		"}\n",
 	});
