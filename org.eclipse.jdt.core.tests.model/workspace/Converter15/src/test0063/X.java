@@ -8,6 +8,6 @@ public class X<T> {
 		return new X<String>();
 	}
 	
-	public void bar(List<? extends X> c) {
+	public void bar(List<? extends X<?>> c) {
 	}
 }

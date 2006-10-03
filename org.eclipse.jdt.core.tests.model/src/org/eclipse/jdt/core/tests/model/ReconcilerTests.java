@@ -213,6 +213,7 @@ public void setUpSuite() throws Exception {
 		JavaCore.VERSION_1_5
 	);
 	project15.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+	project15.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 }
 private void setUp15WorkingCopy() throws JavaModelException {
 	setUp15WorkingCopy("Reconciler15/src/p1/X.java", new WorkingCopyOwner() {});

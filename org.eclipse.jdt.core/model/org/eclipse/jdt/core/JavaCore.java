@@ -2067,7 +2067,7 @@ public final class JavaCore extends Plugin {
 	 *    reject raw references to generic types.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.rawTypeReference"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "ignore"
+	 *     - default:           "warning"
 	 * 
 	 * COMPILER / Reporting final Bound for Type Parameter
 	 *    When enabled, the compiler will issue an error or a warning whenever a generic type parameter is associated with a 

@@ -556,6 +556,7 @@ public void test006() throws CoreException {
 		p1.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
 		p1.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
 		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p1.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		this.problemRequestor = new ProblemRequestor();
 		x = getWorkingCopy(
 			"/P1/src/p/X.java",
@@ -578,6 +579,7 @@ public void test006() throws CoreException {
 		p2.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
 		p2.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
 		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p2.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
@@ -646,6 +648,7 @@ public void test007() throws CoreException {
 		p1.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
 		p1.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
 		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p1.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		this.problemRequestor = new ProblemRequestor();
 		x = getWorkingCopy(
 			"/P1/src/p/X.java",
@@ -671,6 +674,7 @@ public void test007() throws CoreException {
 		p2.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
 		p2.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
 		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");
+		p2.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
@@ -739,6 +743,7 @@ public void test008() throws CoreException {
 		p1.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
 		p1.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
 		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");		
+		p1.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
 			"/P1/src/p/X1.java",
@@ -828,6 +833,7 @@ public void test009() throws CoreException {
 		p1.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
 		p1.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
 		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");		
+		p1.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
 			"/P1/src/p/X1.java",
@@ -916,6 +922,7 @@ public void test010() throws CoreException {
 		p1.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
 		p1.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
 		p1.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");		
+		p1.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		this.problemRequestor = new ProblemRequestor();
 		x1 = getWorkingCopy(
 			"/P1/src/p/X1.java",
@@ -953,6 +960,7 @@ public void test010() throws CoreException {
 		p2.setOption("org.eclipse.jdt.core.compiler.compliance", "1.5");
 		p2.setOption("org.eclipse.jdt.core.compiler.source", "1.5");
 		p2.setOption("org.eclipse.jdt.core.compiler.targetPlatform", "1.5");		
+		p2.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);

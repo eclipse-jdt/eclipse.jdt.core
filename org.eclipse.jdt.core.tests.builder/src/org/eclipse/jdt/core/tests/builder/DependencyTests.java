@@ -1019,7 +1019,7 @@ public class DependencyTests extends BuilderTests {
 		fullBuild(projectPath);
 		expectingNoProblems();
 
-		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+		IPath aPath = env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
 			"public class A {}\n" //$NON-NLS-1$
 		);
@@ -1034,8 +1034,9 @@ public class DependencyTests extends BuilderTests {
 		);
 
 		incrementalBuild(projectPath);
-		expectingOnlyProblemsFor(new IPath[] {bPath});
+		expectingOnlyProblemsFor(new IPath[] {aPath, bPath});
 		expectingSpecificProblemFor(bPath, new Problem("B", "Bound mismatch: The type T is not a valid substitute for the bounded parameter <T extends Comparable> of the type A<T>", bPath, 43, 44, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(aPath, new Problem("A", "Comparable is a raw type. References to generic type Comparable<T> should be parameterized", aPath, 37, 47, CategorizedProblem.CAT_UNCHECKED_RAW)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$

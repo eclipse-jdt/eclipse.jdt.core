@@ -4,7 +4,7 @@ import java.util.*;
 import static java.io.File.*;
 
 public class X {
-	Map foo() {
+	Map<String, String> foo() {
 		return null;
 	}
 	

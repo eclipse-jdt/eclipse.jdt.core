@@ -523,7 +523,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, typeParameters.size());
 		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
 		checkSourceRange(typeParameter.getName(), "A", source);
-		checkSourceRange(typeParameter, "A extends Object & java.io.Serializable & Comparable", source);
+		checkSourceRange(typeParameter, "A extends Object & java.io.Serializable & Comparable<?>", source);
 		List typeBounds = typeParameter.typeBounds();
 		assertEquals("Wrong size", 3, typeBounds.size());
 		Type typeBound = (Type) typeBounds.get(0);
@@ -531,7 +531,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBound = (Type) typeBounds.get(1);
 		checkSourceRange(typeBound, "java.io.Serializable", source);
 		typeBound = (Type) typeBounds.get(2);
-		checkSourceRange(typeBound, "Comparable", source);		
+		checkSourceRange(typeBound, "Comparable<?>", source);		
 	}
 
 	public void test0016() throws JavaModelException {
@@ -1746,7 +1746,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"  <T extends Exception & Runnable> void foo(T t) {\n" +
 			"  }\n" +
 			"}/*end*/",
-			this.workingCopy);
+			this.workingCopy,
+			false);
 		MethodDeclaration[] methods = ((TypeDeclaration) node).getMethods();
 		int length = methods.length;
 		String[] keys = new String[length];
@@ -1787,7 +1788,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"public class X<T> {\n" +
 			"  /*start*/X<Class>/*end*/ f;\n" +
 			"}",
-			this.workingCopy);
+			this.workingCopy,
+			false);
 		IBinding binding = ((Type) node).resolveBinding();
 		assertBindingKeyEquals(
 			"Lp/X<Ljava/lang/Class<>;>;",
@@ -1824,7 +1826,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SingleVariableDeclaration declaration = (SingleVariableDeclaration) parameters.get(0);
 		Type type = declaration.getType();
 		typeBinding = type.resolveBinding();
-		assertEquals("Wrong qualified name", "java.util.List<? extends test0063.X>", typeBinding.getQualifiedName());				
+		assertEquals("Wrong qualified name", "java.util.List<? extends test0063.X<?>>", typeBinding.getQualifiedName());				
 	}
 	
 	/**
@@ -1858,7 +1860,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SingleVariableDeclaration declaration = (SingleVariableDeclaration) parameters.get(0);
 		Type type = declaration.getType();
 		typeBinding = type.resolveBinding();
-		assertEquals("Wrong qualified name", "java.util.List<? extends test0064.X>", typeBinding.getQualifiedName());				
+		assertEquals("Wrong qualified name", "java.util.List<? extends test0064.X<?,?>>", typeBinding.getQualifiedName());				
 	}
 	
 	/**
@@ -1885,7 +1887,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Expression expression = returnStatement.getExpression();
 		typeBinding = expression.resolveTypeBinding();
 		assertTrue("Not parameterized", typeBinding.isParameterizedType());
-		assertEquals("Wrong qualified name", "test0065.X<java.lang.String,java.util.List>", typeBinding.getQualifiedName());		
+		assertEquals("Wrong qualified name", "test0065.X<java.lang.String,java.util.List<?>>", typeBinding.getQualifiedName());		
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Wrong node", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1894,7 +1896,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SingleVariableDeclaration declaration = (SingleVariableDeclaration) parameters.get(0);
 		Type type = declaration.getType();
 		typeBinding = type.resolveBinding();
-		assertEquals("Wrong qualified name", "java.util.List<? extends test0065.X>", typeBinding.getQualifiedName());				
+		assertEquals("Wrong qualified name", "java.util.List<? extends test0065.X<?,?>>", typeBinding.getQualifiedName());				
 	}
 	
 	/*
@@ -1908,7 +1910,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"public class X<T> {\n" +
 			"  /*start*/X/*end*/ field;" +
 			"}",
-			this.workingCopy);
+			this.workingCopy,
+			false);
 		IBinding binding = ((Type) node).resolveBinding();
 		assertBindingKeyEquals(
 			"Lp/X<>;",
@@ -2412,8 +2415,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		String expectedOutput = "Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized";
-		assertProblemsSize(compilationUnit, 1, expectedOutput);
+		String expectedOutput =
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
+			"Y is a raw type. References to generic type Y<T> should be parameterized";
+		assertProblemsSize(compilationUnit, 4, expectedOutput);
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -2440,7 +2447,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 0);
+		String expectedOutput =
+			"Gen is a raw type. References to generic type Gen<X> should be parameterized\n" + 
+			"Gen.Inn is a raw type. References to generic type Gen<X>.Inn should be parameterized";
+		assertProblemsSize(compilationUnit, 2, expectedOutput);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -3472,7 +3482,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"public class X<E> {\n" +
 			"  /*start*/X<String>/*end*/ field;\n" +
 			"}",
-			this.workingCopy);
+			this.workingCopy,
+			false);
 		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
 			"LX<TE;>;",
@@ -3488,7 +3499,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"public class X<E> {\n" +
 			"  /*start*/X/*end*/ field;\n" +
 			"}",
-			this.workingCopy);
+			this.workingCopy,
+			false);
 		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
 			"LX<TE;>;",
@@ -3581,7 +3593,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"public class X<E> {\n" +
 			"  /*start*/X/*end*/ field;\n" +
 			"}",
-			this.workingCopy);
+			this.workingCopy,
+			false);
 		ITypeBinding binding = type.resolveBinding().getErasure();
 		assertBindingEquals(
 			"LX<TE;>;",
@@ -4430,11 +4443,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		"}";
     	ASTNode node = buildAST(
 				contents,
-    			this.workingCopy);
+    			this.workingCopy,
+    			false);
     	assertNotNull("No node", node);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
-    	assertProblemsSize(compilationUnit, 0);
+    	assertProblemsSize(compilationUnit, 1, "Iterator is a raw type. References to generic type Iterator<E> should be parameterized");
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -5317,7 +5331,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"}\n";
 	   	ASTNode node = buildAST(
 				contents,
-    			this.workingCopy);
+    			this.workingCopy,
+    			false);
 		ITypeBinding type = ((Expression)node).resolveTypeBinding();
 		assertTrue("Should be one bound", type.getTypeBounds().length == 1);
 		assertEquals("Invalid bound", "java.util.Collection", type.getTypeBounds()[0].getBinaryName());
@@ -5360,7 +5375,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"}\n";
 	   	ASTNode node = buildAST(
 				contents,
-    			this.workingCopy);
+    			this.workingCopy,
+    			false);
 		ITypeBinding type = ((Expression)node).resolveTypeBinding();
 		assertTrue("Should be one bound", type.getTypeBounds().length == 1);
 		assertEquals("Invalid bound", "java.util.Collection", type.getTypeBounds()[0].getBinaryName());
@@ -5603,7 +5619,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		final ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		final CompilationUnit compilationUnit = (CompilationUnit) result;
-	   	assertProblemsSize(compilationUnit, 1, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>");
+	   	assertProblemsSize(compilationUnit, 2, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>\n" + 
+	   			"ArrayList is a raw type. References to generic type ArrayList<T> should be parameterized");
 	}
 	
 	/*
@@ -5645,7 +5662,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"}";
     	ASTNode node = buildAST(
     			contents,
-    			this.workingCopy);
+    			this.workingCopy,
+    			false);
     	assertEquals("Not a type parameter", ASTNode.TYPE_PARAMETER, node.getNodeType());
     	ITypeBinding typeBinding = ((TypeParameter) node).resolveBinding();
     	assertNotNull("No binding", typeBinding);
@@ -5690,7 +5708,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"		return null;\n" + 
 				"	}\n" + 
 				"}",
-				this.workingCopy);
+				this.workingCopy,
+				false);
 			MethodInvocation method = (MethodInvocation) node;
 			IMethodBinding methodBinding = method.resolveMethodBinding();
 			assertBindingEquals(
@@ -5747,7 +5766,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"}";
     	ASTNode node = buildAST(
     			contents,
-    			this.workingCopy);
+    			this.workingCopy,
+    			false);
     	assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
     	VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
     	List modifiers = statement.modifiers();
@@ -5821,7 +5841,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"}";
     	ASTNode node = buildAST(
     			contents,
-    			this.workingCopy);
+    			this.workingCopy,
+    			false);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit unit = (CompilationUnit) node;
     	node = getASTNode(unit, 0, 0, 2);
@@ -5848,7 +5869,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"}";
     	ASTNode node = buildAST(
     			contents,
-    			this.workingCopy);
+    			this.workingCopy,
+    			false);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit unit = (CompilationUnit) node;
     	node = getASTNode(unit, 0, 0, 2);
@@ -6759,9 +6781,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
     			false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		String expectedOutput = "Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
-		"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized";
-		assertProblemsSize(unit, 2, expectedOutput);
+		String expectedOutput =
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
+			"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
+			"Y is a raw type. References to generic type Y<T> should be parameterized";
+		assertProblemsSize(unit, 7, expectedOutput);
 		node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -6807,7 +6835,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
     			false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		assertProblemsSize(unit, 0);
+		String expectedOutput =
+			"Generic is a raw type. References to generic type Generic<E> should be parameterized\n" + 
+			"Collection is a raw type. References to generic type Collection<T> should be parameterized";			
+		assertProblemsSize(unit, 2, expectedOutput);
 		node = getASTNode(unit, 1, 0);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
