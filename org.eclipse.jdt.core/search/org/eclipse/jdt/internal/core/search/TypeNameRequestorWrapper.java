@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
  * 	org.eclipse.core.runtime.IProgressMonitor monitor) }.
  * from  API method {@link org.eclipse.jdt.core.search.SearchEngine#searchAllTypeNames(
  * 	char[] packageName, 
+ * 	int packageMatchRule, 
  * 	char[] typeName,
  * 	int matchRule, 
  * 	int searchFor, 

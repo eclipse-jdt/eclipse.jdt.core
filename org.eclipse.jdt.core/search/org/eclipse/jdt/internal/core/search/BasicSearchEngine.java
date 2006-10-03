@@ -326,7 +326,7 @@ public class BasicSearchEngine {
 	 * Returns the list of working copies used by this search engine.
 	 * Returns null if none.
 	 */
-	private ICompilationUnit[] getWorkingCopies() {
+	public ICompilationUnit[] getWorkingCopies() {
 		ICompilationUnit[] copies;
 		if (this.workingCopies != null) {
 			if (this.workingCopyOwner == null) {
@@ -625,7 +625,7 @@ public class BasicSearchEngine {
 	 * The search can be selecting specific types (given a package or a type name
 	 * prefix and match modes). 
 	 * 
-	 * @see SearchEngine#searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, TypeNameRequestor, int, IProgressMonitor)
+	 * @see SearchEngine#searchAllTypeNames(char[], int, char[], int, int, IJavaSearchScope, TypeNameRequestor, int, IProgressMonitor)
 	 * 	for detailed comment
 	 */
 	public void searchAllTypeNames(

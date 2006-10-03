@@ -128,6 +128,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 		SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllTypeNames(
 			null,
+			SearchPattern.R_EXACT_MATCH,
 			null,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			TYPE,
@@ -159,6 +160,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 		SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllTypeNames(
 			null,
+			SearchPattern.R_EXACT_MATCH,
 			null,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			TYPE,
@@ -195,6 +197,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 			new SearchEngine().searchAllTypeNames(
 				"wc3".toCharArray(),
+				SearchPattern.R_EXACT_MATCH,
 				"X".toCharArray(),
 				SearchPattern.R_PREFIX_MATCH, // case insensitive
 				TYPE,
@@ -232,6 +235,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 			new SearchEngine().searchAllTypeNames(
 				"wc3".toCharArray(),
+				SearchPattern.R_EXACT_MATCH,
 				"X".toCharArray(),
 				SearchPattern.R_PREFIX_MATCH, // case insensitive
 				TYPE,
@@ -266,6 +270,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 		SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
 		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllTypeNames(
 			null,
+			SearchPattern.R_EXACT_MATCH,
 			"A*".toCharArray(),
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			TYPE,
@@ -308,6 +313,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			IJavaSearchScope scope = 	SearchEngine.createJavaSearchScope(new IJavaElement[] { projects[1] });
 			new SearchEngine(this.workingCopies).searchAllTypeNames(
 				null,
+				SearchPattern.R_EXACT_MATCH,
 				"A".toCharArray(),
 				SearchPattern.R_PREFIX_MATCH,
 				TYPE,

@@ -33,6 +33,8 @@ public class JavaSearchScope extends AbstractSearchScope {
 	/* The paths of the resources in this search scope 
 	    (or the classpath entries' paths if the resources are projects) 
 	*/
+	private ArrayList projectPaths = new ArrayList(); // container paths projects 
+	private int[] projectIndexes; // Indexes of projects in list
 	private String[] containerPaths; // path to the container (e.g. /P/src, /P/lib.jar, c:\temp\mylib.jar)
 	private String[] relativePaths; // path relative to the container (e.g. x/y/Z.class, x/y, (empty))
 	private boolean[] isPkgPath; // in the case of packages, matches must be direct children of the folder
@@ -124,7 +126,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
 								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
-								add("", pathToString, false/*not a package*/, access); //$NON-NLS-1$
+								add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
 								addEnclosingProjectOrJar(path);
 							}
 						}
@@ -137,7 +139,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
 								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
-								add("", pathToString, false/*not a package*/, access); //$NON-NLS-1$
+								add(projectPath.toString(), "", pathToString, false/*not a package*/, access); //$NON-NLS-1$
 								addEnclosingProjectOrJar(path);
 							}
 						}
@@ -156,7 +158,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 				if ((includeMask & SOURCES) != 0) {
 					IPath path = entry.getPath();
 					if (pathToAdd == null || pathToAdd.equals(path)) {
-						add(Util.relativePath(path,1/*remove project segment*/), projectPathString, false/*not a package*/, access);
+						add(null, Util.relativePath(path,1/*remove project segment*/), projectPathString, false/*not a package*/, access);
 					}
 				}
 				break;
@@ -187,9 +189,9 @@ public void add(IJavaElement element) throws JavaModelException {
 			IResource rootResource = root.getResource();
 			if (rootResource != null && rootResource.isAccessible()) {
 				String relativePath = Util.relativePath(rootResource.getFullPath(), containerPath.segmentCount());
-				add(relativePath, containerPathToString, false/*not a package*/, null);
+				add(null, relativePath, containerPathToString, false/*not a package*/, null);
 			} else {
-				add("", containerPathToString, false/*not a package*/, null); //$NON-NLS-1$
+				add(null, "", containerPathToString, false/*not a package*/, null); //$NON-NLS-1$
 			}
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
@@ -198,7 +200,7 @@ public void add(IJavaElement element) throws JavaModelException {
 				String relativePath = Util.concatWith(((PackageFragment) element).names, '/');
 				containerPath = root.getPath();
 				containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
-				add(relativePath, containerPathToString, true/*package*/, null);
+				add(null, relativePath, containerPathToString, true/*package*/, null);
 			} else {
 				IResource resource = element.getResource();
 				if (resource != null) {
@@ -210,7 +212,7 @@ public void add(IJavaElement element) throws JavaModelException {
 					}
 					containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 					String relativePath = Util.relativePath(resource.getFullPath(), containerPath.segmentCount());
-					add(relativePath, containerPathToString, true/*package*/, null);
+					add(null, relativePath, containerPathToString, true/*package*/, null);
 				}
 			}
 			break;
@@ -232,7 +234,7 @@ public void add(IJavaElement element) throws JavaModelException {
 				relativePath = getPath(element, true/*relative path*/).toString();
 			}
 			containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
-			add(relativePath, containerPathToString, false/*not a package*/, null);
+			add(null, relativePath, containerPathToString, false/*not a package*/, null);
 	}
 	
 	if (containerPath != null)
@@ -243,7 +245,7 @@ public void add(IJavaElement element) throws JavaModelException {
  * Adds the given path to this search scope. Remember if subfolders need to be included
  * and associated access restriction as well.
  */
-private void add(String relativePath, String containerPath, boolean isPackage, AccessRuleSet access) {
+private void add(String projectPath, String relativePath, String containerPath, boolean isPackage, AccessRuleSet access) {
 	// normalize containerPath and relativePath
 	containerPath = normalize(containerPath);
 	relativePath = normalize(relativePath);
@@ -257,6 +259,16 @@ private void add(String relativePath, String containerPath, boolean isPackage, A
 			index = 0;
 		}
 	}
+	int idx = -1;
+	if (projectPath != null && !containerPath.startsWith(projectPath)) {
+		idx = this.projectPaths.indexOf(projectPath);
+		if (idx == -1) {
+			// store project in separated list to minimize memory footprint
+			this.projectPaths.add(projectPath);
+			idx = this.projectPaths.indexOf(projectPath);
+		}
+	}
+	this.projectIndexes[index] = idx;
 	this.relativePaths[index] = relativePath;
 	this.containerPaths[index] = containerPath;
 	this.isPkgPath[index] = isPackage;
@@ -464,6 +476,8 @@ protected void initialize(int size) {
 		extraRoom++;
 	this.relativePaths = new String[extraRoom];
 	this.containerPaths = new String[extraRoom];
+	this.projectPaths = new ArrayList();
+	this.projectIndexes = new int[extraRoom];
 	this.isPkgPath = new boolean[extraRoom];
 	this.pathRestrictions = null; // null to optimize case where no access rules are used
 
@@ -526,15 +540,48 @@ public void processDelta(IJavaElementDelta delta) {
 	}
 }
 
+/**
+ * Returns the project path corresponding to a given resource path.
+ * 
+ * @param resourcePathString path of the resource
+ * @return the project path of the resource
+ */
+public String projectPathFor(String resourcePathString) {
+	int index = -1;
+	int separatorIndex = resourcePathString.indexOf(JAR_FILE_ENTRY_SEPARATOR);
+	if (separatorIndex != -1) {
+		// internal or external jar (case 3, 4, or 5)
+		String jarPath = resourcePathString.substring(0, separatorIndex);
+		String relativePath = resourcePathString.substring(separatorIndex+1);
+		index = indexOf(jarPath, relativePath);
+	} else {
+		// resource in workspace (case 1 or 2)
+		index = indexOf(resourcePathString);
+	}
+	if (index >= 0) {
+		int idx = projectIndexes[index];
+		if (idx != -1) {
+			return (String) this.projectPaths.get(idx);
+		}
+	}
+	return null;
+}
+
 private void rehash() {
 	JavaSearchScope newScope = new JavaSearchScope(this.pathsCount * 2);		// double the number of expected elements
+	newScope.projectPaths.ensureCapacity(this.projectPaths.size());
 	String currentPath;
 	for (int i = this.relativePaths.length; --i >= 0;)
-		if ((currentPath = this.relativePaths[i]) != null)
-			newScope.add(currentPath, this.containerPaths[i], this.isPkgPath[i], this.pathRestrictions == null ? null : this.pathRestrictions[i]);
+		if ((currentPath = this.relativePaths[i]) != null) {
+			int idx = this.projectIndexes[i];
+			String projectPath = idx == -1 ? null : (String)this.projectPaths.get(idx);
+			newScope.add(projectPath, currentPath, this.containerPaths[i], this.isPkgPath[i], this.pathRestrictions == null ? null : this.pathRestrictions[i]);
+		}
 
 	this.relativePaths = newScope.relativePaths;
 	this.containerPaths = newScope.containerPaths;
+	this.projectPaths = newScope.projectPaths;
+	this.projectIndexes = newScope.projectIndexes;
 	this.isPkgPath = newScope.isPkgPath;
 	this.pathRestrictions = newScope.pathRestrictions;
 	this.threshold = newScope.threshold;

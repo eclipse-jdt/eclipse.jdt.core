@@ -344,6 +344,34 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @since 3.2
 	 */
 	IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner, IProgressMonitor progressMonitor) throws JavaModelException;
+	/**
+	 * Returns the first type found following this project's classpath 
+	 * with the given package name and type qualified name
+	 * or <code>null</code> if none is found.
+	 * The package name is a dot-separated name.
+	 * The type qualified name is also a dot-separated name. For example,
+	 * a class B defined as a member type of a class A should have the 
+	 * type qualified name "A.B".
+	 * The returned type may be a part of one of the given compilation units.
+	 * If a package fragment root is specified, then the returned type, if any,
+	 * will belong to a package fragment which parent is the given package fragment root.
+	 * 
+	 * @param packageName the given package name
+	 * @param typeQualifiedName the given type qualified name
+	 * @param root Package fragment root which must include the search type.
+	 * 	May be <code>null</code>.
+	 * @param units Compilation units returned may be a part of.
+	 * 	May be <code>null</code>.
+	 * @param progressMonitor the progress monitor to report progress to,
+	 * 	or <code>null</code> if no progress monitor is provided
+	 * @exception JavaModelException if this project does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return the first type found following this project's classpath 
+	 * with the given fully qualified name or <code>null</code> if none is found
+	 * @see IType#getFullyQualifiedName(char)
+	 * @since 3.3
+	 */
+	IType findType(String packageName, String typeQualifiedName, IPackageFragmentRoot root, ICompilationUnit[] units, IProgressMonitor progressMonitor) throws JavaModelException;
 	
 	/**
 	 * Returns all of the existing package fragment roots that exist

@@ -3610,6 +3610,7 @@ public void testCamelCaseTypePattern06() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"CNS".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH,
 		TYPE,
@@ -3628,6 +3629,7 @@ public void testCamelCaseTypePattern07() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH,
 		TYPE,
@@ -3650,6 +3652,7 @@ public void testCamelCaseTypePattern08() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH,
 		TYPE,
@@ -3671,6 +3674,7 @@ public void testCamelCaseTypePattern09() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH,
 		TYPE,

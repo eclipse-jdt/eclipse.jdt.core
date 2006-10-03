@@ -148,6 +148,7 @@ protected void assertAllTypes(String message, IJavaProject project, int waitingP
 	SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 	searchEngine.searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,

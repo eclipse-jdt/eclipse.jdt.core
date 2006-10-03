@@ -1018,14 +1018,14 @@ public class JavaProject
 	}
 
 	/**
-	 * @see IJavaProject
+	 * @see IJavaProject#findElement(IPath)
 	 */
 	public IJavaElement findElement(IPath path) throws JavaModelException {
 		return findElement(path, DefaultWorkingCopyOwner.PRIMARY);
 	}
 
 	/**
-	 * @see IJavaProject
+	 * @see IJavaProject#findElement(IPath, WorkingCopyOwner)
 	 */
 	public IJavaElement findElement(IPath path, WorkingCopyOwner owner) throws JavaModelException {
 		
@@ -1218,14 +1218,15 @@ public class JavaProject
 	/*
 	 * Internal findType with instanciated name lookup
 	 */
-	IType findType(String packageName, String typeQualifiedName, NameLookup lookup, boolean considerSecondaryTypes, IProgressMonitor progressMonitor) throws JavaModelException {
+	IType findType(String packageName, String typeQualifiedName, IPackageFragmentRoot root, NameLookup lookup, boolean considerSecondaryTypes, IProgressMonitor progressMonitor) throws JavaModelException {
 		NameLookup.Answer answer = lookup.findType(
 			typeQualifiedName, 
 			packageName,
+			root,
 			false,
 			NameLookup.ACCEPT_ALL,
-			considerSecondaryTypes,
-			true, // wait for indexes (in case we need to consider secondary types)
+			considerSecondaryTypes, // wait for indexes (in case we need to consider secondary types)
+			true,
 			false/*don't check restrictions*/,
 			progressMonitor);
 		return answer == null ? null : answer.type;
@@ -1238,8 +1239,9 @@ public class JavaProject
 		return findType(
 			packageName,
 			typeQualifiedName, 
-			lookup,
-			false, // do not consider secondary types
+			null,
+			lookup, // do not consider secondary types
+			false,
 			null);
 	}	
 	
@@ -1251,8 +1253,23 @@ public class JavaProject
 		return findType(
 			packageName,
 			typeQualifiedName, 
-			lookup,
-			true, // consider secondary types
+			null,
+			lookup, // consider secondary types
+			true,
+			progressMonitor);
+	}
+	
+	/**
+	 * @see IJavaProject#findType(String, String, IPackageFragmentRoot, ICompilationUnit[], IProgressMonitor)
+	 */
+	public IType findType(String packageName, String typeQualifiedName, IPackageFragmentRoot root, ICompilationUnit[] workingCopies, IProgressMonitor progressMonitor) throws JavaModelException {
+		NameLookup lookup = newNameLookup(workingCopies);
+		return findType(
+			packageName,
+			typeQualifiedName,
+			root,
+			lookup, // consider secondary types
+			true,
 			progressMonitor);
 	}
 

@@ -2323,6 +2323,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		try {
 			engine.searchAllTypeNames(
 				null,
+				SearchPattern.R_EXACT_MATCH,
 				"!@$#!@".toCharArray(),
 				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 				IJavaSearchConstants.CLASS,

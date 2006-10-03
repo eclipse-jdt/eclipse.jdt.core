@@ -229,6 +229,7 @@ protected void searchAllTypeNames(IJavaSearchScope scope) throws CoreException {
 	TypeNameCounter requestor = new TypeNameCounter();
 	new SearchEngine().searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		null,
 		SearchPattern.R_PREFIX_MATCH, // not case sensitive
 		IJavaSearchConstants.TYPE,

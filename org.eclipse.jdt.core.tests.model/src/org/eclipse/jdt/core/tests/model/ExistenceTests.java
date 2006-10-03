@@ -12,14 +12,12 @@ package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.tests.util.Util;
 public class ExistenceTests extends ModifyingResourceTests {
 public ExistenceTests(String name) {
@@ -94,6 +92,43 @@ public void testClassFileInLibrary() throws CoreException {
 		assertTrue(classFile.exists());
 	} finally {
 		this.deleteProject("P");
+	}
+}
+public void testClassFileInLibraryInOtherProject() throws CoreException {
+	try {
+		this.createJavaProject("P2", new String[] {}, "bin");
+		this.createFolder("P2/lib");
+		String path = "P2/lib/X.class";
+		IFile file = this.createFile(path, "");
+		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"/P2/lib"}, "bin");
+		IClassFile nonExistingFile = getClassFile(path);
+		assertFalse("File '"+path+"' should not exist in P2!", nonExistingFile.exists());
+		IJavaElement element = JavaCore.create(getFolder("/P2/lib"));
+		assertTrue("folder '/P2/lib' should be found in P1!", element.exists());
+		IClassFile existingFile = (IClassFile)JavaCore.create(file, p1);
+		assertTrue("File '"+path+"' should exist in P1!", existingFile.exists());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
+public void testJarFile() throws Exception {
+	try {
+		IJavaProject p2 = createJavaProject("P2");
+		String[] pathsAndContents = new String[] {
+			"test/X.java", 
+			"package test;\n" +
+			"public class X {\n" + 
+			"}",
+		};
+		addLibrary(p2, "lib.jar", "libsrc.zip", pathsAndContents, JavaCore.VERSION_1_5);
+		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"/P2/lib.jar"}, "bin");
+		IPackageFragmentRoot root2 = getPackageFragmentRoot("/P2/lib.jar");
+		assertTrue(root2.exists());
+		assertEquals(p1.getPackageFragmentRoots()[0], root2);
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 	}
 }
 /*

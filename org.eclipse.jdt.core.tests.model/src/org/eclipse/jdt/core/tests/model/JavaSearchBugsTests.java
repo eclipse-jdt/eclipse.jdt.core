@@ -3017,6 +3017,7 @@ public void testBug92944_TYPE() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,
@@ -3039,6 +3040,7 @@ public void testBug92944_CLASS() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		IIndexConstants.ONE_STAR,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		CLASS,
@@ -3059,6 +3061,7 @@ public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		CLASS_AND_INTERFACE,
@@ -3080,6 +3083,7 @@ public void testBug92944_CLASS_AND_ENUM() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		CLASS_AND_ENUM,
@@ -3101,6 +3105,7 @@ public void testBug92944_INTERFACE() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		INTERFACE,
@@ -3120,6 +3125,7 @@ public void testBug92944_ENUM() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		ENUM,
@@ -3139,6 +3145,7 @@ public void testBug92944_ANNOTATION_TYPE() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		ANNOTATION_TYPE,
@@ -3674,6 +3681,7 @@ public void testBug97120() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"E*".toCharArray(),
 		SearchPattern.R_PATTERN_MATCH,
 		TYPE,
@@ -4870,6 +4878,7 @@ public void testBug110060_AllTypeNames01() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH,
 		TYPE,
@@ -4892,6 +4901,7 @@ public void testBug110060_AllTypeNames02() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH,
 		TYPE,
@@ -4914,6 +4924,7 @@ public void testBug110060_AllTypeNames03() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
@@ -4936,6 +4947,7 @@ public void testBug110060_AllTypeNames04() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"AA".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
@@ -4958,6 +4970,7 @@ public void testBug110060_AllTypeNames05() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"AA".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH,
 		TYPE,
@@ -4978,6 +4991,7 @@ public void testBug110060_AllTypeNames06() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"AA".toCharArray(),
 		SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
@@ -4997,6 +5011,7 @@ public void testBug110060_AllTypeNames07() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"AA".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
@@ -5017,6 +5032,7 @@ public void testBug110060_AllTypeNames08() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH,
 		TYPE,
@@ -5037,6 +5053,7 @@ public void testBug110060_AllTypeNames09() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH,
 		TYPE,
@@ -5057,6 +5074,7 @@ public void testBug110060_AllTypeNames10() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
@@ -5076,6 +5094,7 @@ public void testBug110060_AllTypeNames11() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"aa".toCharArray(),
 		SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
@@ -5095,6 +5114,7 @@ public void testBug110060_AllTypeNames12() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"aa".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH,
 		TYPE,
@@ -5115,6 +5135,7 @@ public void testBug110060_AllTypeNames13() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"aa".toCharArray(),
 		SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
@@ -5134,6 +5155,7 @@ public void testBug110060_AllTypeNames14() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		"aa".toCharArray(),
 		SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE,
 		TYPE,
@@ -6339,6 +6361,7 @@ public void testBug127628() throws CoreException {
 	TypeNameRequestor requestor =  new DeprecatedTypesRequestor();
 	new SearchEngine().searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		TYPE,
@@ -6831,6 +6854,106 @@ public void testBug148215_Fields() throws CoreException {
 }
 
 /**
+ * @bug 148380: [search] get IType from TypeNameRequestor result
+ * @test new SearchEngine.searchAllTypeName API method using {@link TypeNameMatchRequestor}
+ * 	instead of {@link TypeNameRequestor}
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=148380"
+ */
+public void testBug148380_SearchAllTypes_wc() throws CoreException {
+	resultCollector.showRule = true;
+	workingCopies = new ICompilationUnit[4];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b148380/I.java",
+		"package b148380;\n" + 
+		"public interface I {}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b148380/X.java",
+		"package b148380;\n" + 
+		"public class X {}\n"
+	);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b148380/Sub.java",
+		"package b148380;\n" + 
+		"public class Sub extends X {}\n"
+	);
+	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b148380/Y.java",
+		"package b148380;\n" + 
+		"public class Y {}\n"
+	);
+	IJavaSearchScope scope = getJavaSearchScopeBugs();
+	TestTypeNameMatchRequestor requestor1 = new TestTypeNameMatchRequestor();
+	new SearchEngine(this.workingCopies).searchAllTypeNames(
+		"b148380".toCharArray(),
+		SearchPattern.R_EXACT_MATCH,
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		IJavaSearchConstants.TYPE,
+		scope,
+		requestor1,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	assertSearchResults(
+		"interface I [in [Working copy] I.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
+		"class X [in [Working copy] X.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
+		"class Sub [in [Working copy] Sub.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
+		"class Y [in [Working copy] Y.java [in b148380 [in src [in JavaSearchBugs]]]]",
+		requestor1);
+	/* DISABLED as results order is not the same on different VM...
+	 *  Expected same result with the wc owner
+	TestTypeNameMatchRequestor requestor2 = new TestTypeNameMatchRequestor();
+	new SearchEngine(this.wcOwner).searchAllTypeNames(
+		"b148380".toCharArray(),
+		SearchPattern.R_EXACT_MATCH,
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		IJavaSearchConstants.TYPE,
+		scope,
+		requestor2,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	assertSearchResults("class Sub [in [Working copy] Sub.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
+		"class Y [in [Working copy] Y.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
+		"interface I [in [Working copy] I.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
+		"class X [in [Working copy] X.java [in b148380 [in src [in JavaSearchBugs]]]]",
+		requestor2);
+	*/
+}
+public void testBug148380_SearchAllTypes_cu() throws CoreException, JavaModelException {
+	IJavaSearchScope scope = getJavaSearchScopeBugs();
+	TestTypeNameMatchRequestor requestor = new TestTypeNameMatchRequestor();
+	new SearchEngine().searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		"Bug".toCharArray(),
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		scope,
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	assertSearchResults(
+		"Bug148380 (not open) [in Bug148380.class [in <default> [in lib [in JavaSearchBugs]]]]",
+		requestor
+	);
+}
+public void testBug148380_SearchAllTypes_cu_wksp() throws CoreException, JavaModelException {
+	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+	TestTypeNameMatchRequestor requestor = new TestTypeNameMatchRequestor();
+	new SearchEngine().searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		"Bug".toCharArray(),
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		scope,
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	assertSearchResults(
+		"Bug148380 (not open) [in Bug148380.class [in <default> [in lib [in JavaSearchBugs]]]]",
+		requestor
+	);
+}
+
+/**
  * Bug 156340: [search] searchAllTypeNames return nothing for empty prefix
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156340"
  */
@@ -6881,6 +7004,7 @@ public void testBug156177() throws CoreException {
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		null,
+		SearchPattern.R_EXACT_MATCH,
 		null,
 		SearchPattern.R_PATTERN_MATCH, // case insensitive
 		INTERFACE_AND_ANNOTATION,
@@ -6957,5 +7081,28 @@ public void testBug156491() throws CoreException {
 		"src/pack/Test.java void pack.Test.polymorphicPotential(I) [toString()] POTENTIAL_MATCH POLYMORPHIC\n" + 
 		"src/pack/Test.java void pack.Test.polymorphicSub(Sub) [toString()] EXACT_MATCH POLYMORPHIC"
 	);
+}
+
+/**
+ * Bug 156491: [1.5][search] interfaces and annotations could be found with only one requets of searchAllTypeName
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156491"
+ */
+class TestTypeNameMatchRequestor extends TypeNameMatchRequestor {
+	public StringBuffer results = new StringBuffer();
+	public void acceptTypeNameMatch(TypeNameMatch match) {
+		if (results.length() > 0) results.append('\n');
+		try {
+			IType type = match.resolvedType();
+			if (type != null) {
+				results.append(type.toString());
+			}
+		}
+		catch (JavaModelException jme) {
+			assertTrue("We should not have no JavaModel exception! Message:"+jme.getMessage(), false);
+		}
+	}
+	public String toString() {
+		return this.results.toString();
+	}
 }
 }
