@@ -54,7 +54,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 625 } ;
+//		TESTS_NUMBERS = new int[] { 627, 628, 629 } ;
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -8905,6 +8905,76 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);		
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test626", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158267
+	public void test627() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP;
+		Hashtable javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			JavaCore.setOptions(newJavaCoreOptions);
+		
+			Map compilerOptions = new HashMap();
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+			runTest(codeFormatter, "test627", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158267
+	public void test628() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP;
+		Hashtable javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			JavaCore.setOptions(newJavaCoreOptions);
+		
+			Map compilerOptions = new HashMap();
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+			runTest(codeFormatter, "test628", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158267
+	public void test629() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP;
+		Hashtable javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			JavaCore.setOptions(newJavaCoreOptions);
+		
+			Map compilerOptions = new HashMap();
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);		
+			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
+			runTest(codeFormatter, "test629", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
 			JavaCore.setOptions(javaCoreOptions);
 		}

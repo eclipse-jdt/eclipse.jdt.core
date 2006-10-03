@@ -877,10 +877,17 @@ public class CodeFormatterVisitor extends ASTVisitor {
          * Print comments to get proper line number
          */
         this.scribe.printComment();
-        final int line = this.scribe.line; 
-        
-        this.scribe.printModifiers(typeDeclaration.annotations, this);
-		/*
+        int line = this.scribe.line; 
+
+		this.scribe.printModifiers(typeDeclaration.annotations, this);
+
+		if (this.scribe.line > line) {
+        	// annotations introduced new line, but this is not a line wrapping
+			// see 158267
+			line = this.scribe.line;
+		}
+
+        /*
 		 * Type name
 		 */
         switch(TypeDeclaration.kind(typeDeclaration.modifiers)) {
@@ -3136,8 +3143,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
          * Print comments to get proper line number
          */
         this.scribe.printComment();
-        final int line = this.scribe.line;
+        int line = this.scribe.line;
 		this.scribe.printModifiers(constructorDeclaration.annotations, this);
+		if (this.scribe.line > line) {
+        	// annotations introduced new line, but this is not a line wrapping
+			// see 158267
+			line = this.scribe.line;
+		}
 		this.scribe.space();
 
 		TypeParameter[] typeParameters = constructorDeclaration.typeParameters;
@@ -4062,9 +4074,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
          * Print comments to get proper line number
          */
         this.scribe.printComment();
-        final int line = this.scribe.line;
+        int line = this.scribe.line;
         
         this.scribe.printModifiers(methodDeclaration.annotations, this);
+        
+		if (this.scribe.line > line) {
+        	// annotations introduced new line, but this is not a line wrapping
+			// see 158267
+			line = this.scribe.line;
+		}
 		this.scribe.space();
 		
 		TypeParameter[] typeParameters = methodDeclaration.typeParameters;
