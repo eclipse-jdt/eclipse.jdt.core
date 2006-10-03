@@ -2563,6 +2563,37 @@ public void test075() {
 			"");
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159543
+public void test076() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+		this.runNegativeTest(
+			new String[] {
+				"p/Y.java",	//===================
+				"package p;\n" + 
+				"public class Y {\n" + 
+				"  public static void foo(String s) {\n" + 
+				"  }\n" + 
+				"}\n",		//===================
+				"q/X.java",	//===================
+				"package q;\n" + 
+				"import static p.Y.foo;\n" + 
+				"public class X {\n" + 
+				"        void foo() {\n" + 
+				"        }\n" + 
+				"        void bar() {\n" + 
+				"          foo(\"\");\n" + 
+				"        }\n" + 
+				"}", 		// =================
+			},
+			"----------\n" + 
+			"1. ERROR in q\\X.java (at line 7)\n" + 
+			"	foo(\"\");\n" + 
+			"	^^^\n" + 
+			"The method foo() in the type X is not applicable for the arguments (String)\n" + 
+			"----------\n");
+	}
+}
+
 public static Class testClass() {	return LookupTest.class;
 }
 }
