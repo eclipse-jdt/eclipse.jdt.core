@@ -1637,7 +1637,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
 					IPath sourceAttachment = entry.getSourceAttachmentPath();
 					Object target = JavaModel.getTarget(workspaceRoot, path, true);
-					if (target != null && project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true) != JavaCore.IGNORE) {
+					if (target != null && !JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true))) {
 						long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 						long libraryJDK = Util.getJdkLevel(target);
 						if (libraryJDK != 0 && libraryJDK > projectTargetJDK) {
@@ -1704,7 +1704,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						if (!prereqProjectRsc.isOpen()){
 							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_closedProject, new String[] {path.segment(0)})); 
 						}
-						if (project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true) != JavaCore.IGNORE) {
+						if (!JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true))) {
 							long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 							long prereqProjectTargetJDK = CompilerOptions.versionToJdkLevel(prereqProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
 							if (prereqProjectTargetJDK > projectTargetJDK) {

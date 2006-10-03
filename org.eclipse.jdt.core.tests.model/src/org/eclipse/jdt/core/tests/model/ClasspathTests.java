@@ -1315,6 +1315,52 @@ public void testClasspathValidation27() throws CoreException {
 		this.deleteProjects(new String[]{"P1", "P2"});
 	}
 }
+/**
+ * @bug 159325: Any idea why ClasspathEntry checks for string object reference instead of equals
+ * @test Ensure that validation is correctly done even for other strings than JavaCore constants...
+ * 	Note that it's needed to change JavaCore options as "ignore" is the default value and set option
+ * 	to this value on java project will just remove it instead of putting another string object...
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=159325"
+ */
+public void testClasspathValidation27_Bug159325_project() throws CoreException {
+	Hashtable javaCoreOptions = JavaCore.getOptions();
+	try {
+		IJavaProject proj1 =  this.createJavaProject("P1", new String[] {}, "");
+		proj1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+
+		Hashtable options = JavaCore.getOptions();
+		options.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
+		JavaCore.setOptions(options);
+		IJavaProject proj2 =  this.createJavaProject("P2", new String[] {}, "");
+		proj2.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
+		proj2.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, new String("ignore".toCharArray()));
+
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj2, JavaCore.newProjectEntry(new Path("/P1")), false);
+		assertStatus("OK", status);
+	} finally {
+		JavaCore.setOptions(javaCoreOptions);
+		this.deleteProjects(new String[]{"P1", "P2"});
+	}
+}
+public void testClasspathValidation27_Bug159325_lib() throws CoreException {
+	Hashtable javaCoreOptions = JavaCore.getOptions();
+	try {
+		IJavaProject proj =  this.createJavaProject("P1", new String[] {}, "");
+		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
+
+		Hashtable options = JavaCore.getOptions();
+		options.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
+		JavaCore.setOptions(options);
+		proj.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, new String("ignore".toCharArray()));
+
+		IClasspathEntry library = JavaCore.newLibraryEntry(new Path(getExternalJCLPathString(JavaCore.VERSION_1_5)), null, null, ClasspathEntry.NO_ACCESS_RULES, null, false);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, library, false);
+		assertStatus("OK", status);
+	} finally {
+		JavaCore.setOptions(javaCoreOptions);
+		this.deleteProjects(new String[]{"P1", "P2"});
+	}
+}
 
 /**
  * Checks it is legal for an output folder to be an excluded subfolder of some source folder
