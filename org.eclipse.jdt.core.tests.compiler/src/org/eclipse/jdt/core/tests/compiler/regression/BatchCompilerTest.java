@@ -1032,7 +1032,7 @@ public void test012b(){
         "      over-ann             missing @Override annotation\n" + 
         "      paramAssign          assignment to a parameter\n" + 
         "      pkgDefaultMethod   + attempt to override package-default method\n" + 
-        "      raw                  usage of raw type\n" + 
+        "      raw                + usage of raw type\n" + 
         "      semicolon            unnecessary semicolon, empty statement\n" + 
         "      serial             + missing serialVersionUID\n" + 
         "      specialParamHiding   constructor or setter parameter hiding another field\n" + 
@@ -1171,7 +1171,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" + 
@@ -2025,32 +2025,47 @@ public void test032(){
 	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "",
 	        "----------\n" + 
-	        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)\n" + 
+	        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 8)\n" + 
+	        "	private final Map<Class<? extends X>, \n" + 
+	        "	                                  ^\n" + 
+	        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" + 
+	        "----------\n" + 
+	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 10)\n" + 
+	        "	m1 = new HashMap<Class<? extends X>, \n" + 
+	        "	                                 ^\n" + 
+	        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" + 
+	        "----------\n" + 
+	        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 22)\n" + 
+	        "	Y l1 = m1.get(p1);\n" + 
+	        "	^\n" + 
+	        "Y is a raw type. References to generic type Y<T,U,V> should be parameterized\n" + 
+	        "----------\n" + 
+	        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)\n" + 
 	        "	m1.put(p1, l1);\n" + 
 	        "	           ^^\n" + 
 	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
 	        "----------\n" + 
-	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)\n" + 
+	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)\n" + 
 	        "	return l1;\n" + 
 	        "	       ^^\n" + 
 	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
 	        "----------\n" + 
-	        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" + 
+	        "6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" + 
 	        "	m2.put((XX<?, XY>) p1, p2);\n" + 
 	        "	       ^^^^^^^^^^^^^^\n" + 
 	        "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
 	        "----------\n" + 
-	        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
+	        "7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
 	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
 	        "	                ^^\n" + 
 	        "The local variable l1 is never read\n" + 
 	        "----------\n" + 
-	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
+	        "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
 	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
 	        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-	        "Type safety: The cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" +
+	        "Type safety: The cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
 	        "----------\n" + 
-	        "5 problems (5 warnings)",
+	        "8 problems (8 warnings)",
 	        true);
 	// second series shows that a staged build - that simulates the auto build context - is OK as well
 	this.runConformTest(
@@ -2190,32 +2205,47 @@ public void test032(){
         + " -d \"" + OUTPUT_DIR + "\"",
         "",
         "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 8)\n" + 
+        "	private final Map<Class<? extends X>, \n" + 
+        "	                                  ^\n" + 
+        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" + 
+        "----------\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 10)\n" + 
+        "	m1 = new HashMap<Class<? extends X>, \n" + 
+        "	                                 ^\n" + 
+        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" + 
+        "----------\n" + 
+        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 22)\n" + 
+        "	Y l1 = m1.get(p1);\n" + 
+        "	^\n" + 
+        "Y is a raw type. References to generic type Y<T,U,V> should be parameterized\n" + 
+        "----------\n" + 
+        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)\n" + 
         "	m1.put(p1, l1);\n" + 
         "	           ^^\n" + 
         "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
         "----------\n" + 
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)\n" + 
+        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)\n" + 
         "	return l1;\n" + 
         "	       ^^\n" + 
         "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
         "----------\n" + 
-        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" + 
+        "6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" + 
         "	m2.put((XX<?, XY>) p1, p2);\n" + 
         "	       ^^^^^^^^^^^^^^\n" + 
         "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
         "----------\n" + 
-        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
+        "7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
         "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
         "	                ^^\n" + 
         "The local variable l1 is never read\n" + 
         "----------\n" + 
-        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
+        "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
         "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
         "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
         "Type safety: The cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
         "----------\n" + 
-        "5 problems (5 warnings)",
+        "8 problems (8 warnings)",
         false);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104664
@@ -2411,28 +2441,33 @@ public void test039(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" + 
-		"	X x1;\n" + 
-		"	^\n" + 
-		"Discouraged access: The type X<T> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
-		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
-		"	X<String> x2 = new X<String>();\n" + 
-		"	^\n" + 
-		"Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
-		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
-		"	X<String> x2 = new X<String>();\n" + 
-		"	               ^^^^^^^^^^^^^^^\n" + 
-		"Discouraged access: The constructor X<String>() is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
-		"----------\n" + 
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
-		"	X<String> x2 = new X<String>();\n" + 
-		"	                   ^\n" + 
-		"Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
-		"----------\n" + 
-		"4 problems (4 warnings)",
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" + 
+        "	X x1;\n" + 
+        "	^\n" + 
+        "Discouraged access: The type X<T> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
+        "----------\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" + 
+        "	X x1;\n" + 
+        "	^\n" + 
+        "X is a raw type. References to generic type X<T> should be parameterized\n" + 
+        "----------\n" + 
+        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
+        "	X<String> x2 = new X<String>();\n" + 
+        "	^\n" + 
+        "Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
+        "----------\n" + 
+        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
+        "	X<String> x2 = new X<String>();\n" + 
+        "	               ^^^^^^^^^^^^^^^\n" + 
+        "Discouraged access: The constructor X<String>() is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
+        "----------\n" + 
+        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
+        "	X<String> x2 = new X<String>();\n" + 
+        "	                   ^\n" + 
+        "Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
+        "----------\n" + 
+        "5 problems (5 warnings)",
         false);
 }
 

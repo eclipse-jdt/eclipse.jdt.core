@@ -205,6 +205,7 @@ public class CompilerOptions {
 		| AssertUsedAsAnIdentifier
 		| EnumUsedAsAnIdentifier
 		| UncheckedTypeOperation
+		| RawTypeReference
 		| MissingSerialVersion
 		| VarargsArgumentNeedCast
 		| ForbiddenReference

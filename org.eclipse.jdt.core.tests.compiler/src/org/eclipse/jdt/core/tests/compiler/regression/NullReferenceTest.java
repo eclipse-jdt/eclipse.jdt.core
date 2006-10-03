@@ -49,6 +49,7 @@ protected Map getCompilerOptions() {
     Map defaultOptions = super.getCompilerOptions();
 //    defaultOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
     defaultOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
+	defaultOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 //    defaultOptions.put(CompilerOptions.OPTION_ReportNoEffectAssignment, CompilerOptions.WARNING);
     return defaultOptions;
 }

@@ -238,6 +238,7 @@ public static void createJar(String[] pathsAndContents, String jarPath, String c
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	createJar(pathsAndContents, options, jarPath);
 }
 public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
