@@ -5685,4 +5685,35 @@ public void test099() {
 		customOptions,
 		null/*no custom requestor*/);
 }
+
+// name conflict
+public void test100() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Collection;\n" + 
+				"public class X<E> {\n" + 
+				"  boolean removeAll(Collection<? extends E> c) {\n" + 
+				"    return false;\n" + 
+				"  }\n" + 
+				"}\n",
+				"Y.java",
+				"import java.util.Collection;\n" + 
+				"public class Y<E> extends X<E>\n" + 
+				"{\n" + 
+				"  <T extends E> boolean removeAll(Collection<T> c) {\n" + 
+				"    return false;\n" + 
+				"  }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 4)\n" + 
+			"	<T extends E> boolean removeAll(Collection<T> c) {\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method removeAll(Collection<T>) of type Y<E> has the same erasure as removeAll(Collection<? extends E>) of type X<E> but does not override it\n" + 
+			"----------\n"
+		);
+	}
+}
 }
