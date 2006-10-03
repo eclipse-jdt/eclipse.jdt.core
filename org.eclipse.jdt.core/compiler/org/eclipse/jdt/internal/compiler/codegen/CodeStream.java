@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class CodeStream {
 	public static final boolean DEBUG = false;
@@ -5755,7 +5756,7 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 		// resize the array pcToSourceMap
 		System.arraycopy(pcToSourceMap, 0, pcToSourceMap = new int[pcToSourceMapSize << 1], 0, pcToSourceMapSize);
 	}
-	int lineNumber = ClassFile.searchLineNumber(lineSeparatorPositions, sourcePos);
+	int lineNumber = Util.searchLineNumber(lineSeparatorPositions, sourcePos);
 	// lastEntryPC represents the endPC of the lastEntry.
 	if (pcToSourceMapSize > 0) {
 		// in this case there is already an entry in the table

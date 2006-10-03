@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /*
  * Compiler error handler, responsible to determine whether
@@ -99,7 +100,7 @@ public void handle(
 	}
 
 	int lineNumber = problemStartPosition >= 0
-			? searchLineNumber(unitResult.getLineSeparatorPositions(), problemStartPosition)
+			? Util.searchLineNumber(unitResult.getLineSeparatorPositions(), problemStartPosition)
 			: 0;
 	int columnNumber = problemStartPosition >= 0
 			? searchColumnNumber(unitResult.getLineSeparatorPositions(), lineNumber, problemStartPosition)
@@ -160,32 +161,6 @@ public void handle(
 }
 public void record(CategorizedProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
 	unitResult.record(problem, referenceContext);
-}
-/**
- * Search the line number corresponding to a specific position
- */
-public static final int searchLineNumber(int[] startLineIndexes, int position) {
-	if (startLineIndexes == null)
-		return 1;
-	int length = startLineIndexes.length;
-	if (length == 0)
-		return 1;
-	int g = 0, d = length - 1;
-	int m = 0, start;
-	while (g <= d) {
-		m = (g + d) /2;
-		if (position < (start = startLineIndexes[m])) {
-			d = m-1;
-		} else if (position > start) {
-			g = m+1;
-		} else {
-			return m + 1;
-		}
-	}
-	if (position < startLineIndexes[m]) {
-		return m+1;
-	}
-	return m+2;
 }
 public static final int searchColumnNumber(int[] startLineIndexes, int lineNumber, int position) {
 	switch(lineNumber) {

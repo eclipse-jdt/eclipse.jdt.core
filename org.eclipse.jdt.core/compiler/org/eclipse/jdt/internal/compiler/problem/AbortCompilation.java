@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /*
  * Special unchecked exception type used 
@@ -60,7 +61,7 @@ public class AbortCompilation extends RuntimeException {
 		if (this.problem.getSourceStart() != 0 || this.problem.getSourceEnd() != 0) return;
 		this.problem.setSourceStart(invocationSite.sourceStart());
 		this.problem.setSourceEnd(invocationSite.sourceEnd());
-		this.problem.setSourceLineNumber(ProblemHandler.searchLineNumber(unitResult.getLineSeparatorPositions(), invocationSite.sourceStart()));
+		this.problem.setSourceLineNumber(Util.searchLineNumber(unitResult.getLineSeparatorPositions(), invocationSite.sourceStart()));
 		this.compilationResult = unitResult;
 	}
 
@@ -69,7 +70,7 @@ public class AbortCompilation extends RuntimeException {
 		if (this.problem.getSourceStart() != 0 || this.problem.getSourceEnd() != 0) return;
 		this.problem.setSourceStart(astNode.sourceStart());
 		this.problem.setSourceEnd(astNode.sourceEnd());
-		this.problem.setSourceLineNumber(ProblemHandler.searchLineNumber(unitResult.getLineSeparatorPositions(), astNode.sourceStart()));
+		this.problem.setSourceLineNumber(Util.searchLineNumber(unitResult.getLineSeparatorPositions(), astNode.sourceStart()));
 		this.compilationResult = unitResult;
 	}
 }

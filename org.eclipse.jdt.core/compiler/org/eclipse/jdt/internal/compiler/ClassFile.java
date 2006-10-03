@@ -66,6 +66,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Messages;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Represents a class file wrapper on bytes, it is aware of its actual
@@ -322,35 +323,6 @@ public class ClassFile
 	public static ClassFile getNewInstance(SourceTypeBinding typeBinding) {
 		LookupEnvironment env = typeBinding.scope.environment();
 		return env.classFilePool.acquire(typeBinding);
-	}
-	/**
-	 * INTERNAL USE-ONLY
-	 * Search the line number corresponding to a specific position
-	 */
-	public static final int searchLineNumber(int[] startLineIndexes, int position) {
-		// this code is completely useless, but it is the same implementation than
-		// org.eclipse.jdt.internal.compiler.problem.ProblemHandler.searchLineNumber(int[], int)
-		// if (startLineIndexes == null)
-		//	return 1;
-		int length = startLineIndexes.length;
-		if (length == 0)
-			return 1;
-		int g = 0, d = length - 1;
-		int m = 0, start;
-		while (g <= d) {
-			m = (g + d) / 2;
-			if (position < (start = startLineIndexes[m])) {
-				d = m - 1;
-			} else if (position > start) {
-				g = m + 1;
-			} else {
-				return m + 1;
-			}
-		}
-		if (position < startLineIndexes[m]) {
-			return m + 1;
-		}
-		return m + 2;
 	}
 	
 	/**
@@ -3311,7 +3283,7 @@ public class ClassFile
 			this.contents[localContentsOffset++] = 0;
 			this.contents[localContentsOffset++] = 1;
 			if (problemLine == 0) {
-				problemLine = searchLineNumber(startLineIndexes, binding.sourceStart());
+				problemLine = Util.searchLineNumber(startLineIndexes, binding.sourceStart());
 			}
 			// first entry at pc = 0
 			this.contents[localContentsOffset++] = 0;
@@ -3753,7 +3725,7 @@ public class ClassFile
 			this.contents[localContentsOffset++] = 0;
 			this.contents[localContentsOffset++] = 1;
 			if (problemLine == 0) {
-				problemLine = searchLineNumber(startLineIndexes, binding.sourceStart());
+				problemLine = Util.searchLineNumber(startLineIndexes, binding.sourceStart());
 			}
 			// first entry at pc = 0
 			this.contents[localContentsOffset++] = 0;
@@ -4472,7 +4444,7 @@ public class ClassFile
 			localContentsOffset += 6;
 			// leave space for attribute_length and line_number_table_length
 			// Seems like do would be better, but this preserves the existing behavior.
-			index = searchLineNumber(startLineIndexes, binding.sourceStart);
+			index = Util.searchLineNumber(startLineIndexes, binding.sourceStart);
 			contents[localContentsOffset++] = 0;
 			contents[localContentsOffset++] = 0;
 			contents[localContentsOffset++] = (byte) (index >> 8);
