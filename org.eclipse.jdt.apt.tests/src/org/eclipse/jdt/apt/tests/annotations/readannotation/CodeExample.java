@@ -124,8 +124,8 @@ public class CodeExample {
 		"	Color[] colors() default {Color.RED, Color.WHITE, Color.BLUE}; \n" +
 		"	SimpleAnnotation anno(); \n" +
 		"	SimpleAnnotation[] simpleAnnos() default { @SimpleAnnotation(\"org.eclipse.org\") }; \n" +
-		"	Class[] clazzes(); \n" +
-		"	Class clazz() default java.lang.String.class; \n" +
+		"	Class<?>[] clazzes(); \n" +
+		"	Class<?> clazz() default java.lang.String.class; \n" +
 		"\n }";
 	
 	public static final String SIMPLE_ANNOTATION_CLASS = "SimpleAnnotation";
