@@ -5716,4 +5716,43 @@ public void test100() {
 		);
 	}
 }
+
+// name conflict
+public void test101() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"    Integer getX(List<Integer> l) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"    String getX(List<String> l) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class Y {\n" + 
+				"    Integer getX(List<Integer> l) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"    String getX(List<Integer> l) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	Integer getX(List<Integer> l) {\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate method getX(List<Integer>) in type Y\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	String getX(List<Integer> l) {\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate method getX(List<Integer>) in type Y\n" + 
+			"----------\n"
+		);
+	}
+}
 }
