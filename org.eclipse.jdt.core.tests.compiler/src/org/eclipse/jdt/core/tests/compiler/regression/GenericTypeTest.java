@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1036 };
+//		TESTS_NUMBERS = new int[] { 370 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -10632,21 +10632,36 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// decoding raw binary type
 	public void test0370() {
 		this.runConformTest(
-			new String[] {
-				"X.java",	
-			"import java.lang.annotation.Annotation;\n" + 
-			"import java.util.Map;\n" + 
-			"\n" + 
-			"import sun.reflect.annotation.AnnotationParser;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	{\n" + 
-			"		Map<Class, Annotation> map = AnnotationParser.parseAnnotations(null, null, null);\n" + 
-			"	}\n" + 
-			"}\n",
-			},
+    		new String[] {
+				"p/B.java",
+				"package p;\n" +
+				"import java.util.Map;\n" +
+				"public class B {\n" +
+				"	public static Map<Class, String> foo(byte[] byteArray, Object o, Class c) {\n" +
+				"		return null;\n" +
+				"	}\n" + 
+				"}"
+    		},
 			"");
-	}		
+
+		this.runConformTest(
+    		new String[] {
+    			"X.java",
+				"import java.util.Map;\n" + 
+				"\n" + 
+				"import p.B;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	{\n" + 
+				"		Map<Class, String> map = B.foo(null, null, null);\n" + 
+				"	}\n" + 
+				"}\n",
+    		},
+			"",
+			null,
+			false,
+			null);
+	}
 	// X<? extends Y> is not compatible with X<Y>
 	public void test0371() {
 		this.runNegativeTest(
