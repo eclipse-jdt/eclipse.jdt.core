@@ -266,8 +266,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						if (varargsType.dimensions < dimensions) {
 							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
 						} else if (varargsType.dimensions == dimensions 
-										&& varargsType.leafComponentType.erasure() != lastArgType.leafComponentType().erasure()
-										&& lastArgType.isCompatibleWith(varargsType)) {
+										&& lastArgType != varargsType
+										&& lastArgType.leafComponentType().erasure() != varargsType.leafComponentType.erasure()
+										&& lastArgType.isCompatibleWith(varargsType.elementsType())
+										&& lastArgType.isCompatibleWith(varargsType)) {								
 							scope.problemReporter().varargsArgumentNeedCast(method, lastArgType, invocationSite);
 						}
 					}

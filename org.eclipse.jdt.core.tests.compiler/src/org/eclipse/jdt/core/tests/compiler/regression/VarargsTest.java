@@ -1795,5 +1795,174 @@ public class VarargsTest extends AbstractComparableTest {
 					"}",
 				},
 				"12");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159607
+	public void test052() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"class X {\n" + 
+					"	void addChildren(Widget w) {\n" + 
+					"		if (w instanceof Composite) {\n" + 
+					"			Composite composite = (Composite) w;\n" + 
+					"			addAll((Widget[]) composite.getChildren());\n" + 
+					"			addAll(composite.getChildren());\n" + 
+					"		}\n" + 
+					"		Zork z;\n" +
+					"	}\n" + 
+					"	void addAll(Widget... widgets) {\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"\n" + 
+					"class Widget {}\n" + 
+					"class Control extends Widget {}\n" + 
+					"class Composite extends Control {\n" + 
+					"	Control[] getChildren() {\n" + 
+					"		return null;\n" + 
+					"	}\n" + 
+					"}", // =================,
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	addAll((Widget[]) composite.getChildren());\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Unnecessary cast from Control[] to Widget[]\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
 	}		
-}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159607 - variation
+	public void test053() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"class X {\n" + 
+					"	void addChildren(Widget w) {\n" + 
+					"		if (w instanceof Composite) {\n" + 
+					"			Composite composite = (Composite) w;\n" + 
+					"			addAll((Control[]) composite.getChildren());\n" + 
+					"			addAll(composite.getChildren());\n" + 
+					"		}\n" + 
+					"		Zork z;\n" +
+					"	}\n" + 
+					"	void addAll(Control... widgets) {\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"\n" + 
+					"class Widget {}\n" + 
+					"class Control extends Widget {}\n" + 
+					"class Composite extends Control {\n" + 
+					"	Control[] getChildren() {\n" + 
+					"		return null;\n" + 
+					"	}\n" + 
+					"}", // =================,
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	addAll((Control[]) composite.getChildren());\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Unnecessary cast from Control[] to Control[]\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}		
+	public void test054() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	Zork z;\n" + 
+					"	public static void varargs(Object... args) {\n" + 
+					"		if (args == null) {\n" + 
+					"			System.out.println(\"args is null\");\n" + 
+					"			return;\n" + 
+					"		}\n" + 
+					"		if (args.length == 0) {\n" + 
+					"			System.out.println(\"args is of length 0\");\n" + 
+					"			return;\n" + 
+					"		}\n" + 
+					"\n" + 
+					"		System.out.println(args.length + \" \" + args[0]);\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		@SuppressWarnings(\"boxing\")\n" + 
+					"		Integer[] i = { 0, 1, 2, 3, 4 };\n" + 
+					"		varargs(i);\n" + 
+					"		varargs((Object[]) i);\n" + 
+					"		varargs((Object) i);\n" + 
+					"		varargs(i.clone());\n" + 
+					"	}\n" + 
+					"}\n", // =================
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 19)\n" + 
+				"	varargs(i);\n" + 
+				"	^^^^^^^^^^\n" + 
+				"The argument of type Integer[] should explicitly be cast to Object[] for the invocation of the varargs method varargs(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 22)\n" + 
+				"	varargs(i.clone());\n" + 
+				"	^^^^^^^^^^^^^^^^^^\n" + 
+				"The argument of type Integer[] should explicitly be cast to Object[] for the invocation of the varargs method varargs(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 
+				"----------\n");
+	}		
+	public void test055() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	private static int elementCount(Object... elements) {\n" + 
+					"     return elements == null ? 0 : elements.length;\n" + 
+					"   }\n" + 
+					"   public static void main(String... args) {\n" + 
+					"     System.out.print(\"null length array: \" + elementCount(null));\n" + 
+					"     System.out.print(\"/[null] length array: \" + elementCount((Object)null));\n" + 
+					"     System.out.print(\"/empty length array: \" + elementCount());\n" + 
+					"     System.out.println(\"/[a,b,c] length array: \" + elementCount(\"a\", \"b\", \"c\"));\n" + 
+					"   }\n" + 
+					"}", // =================
+				},
+				"null length array: 0/[null] length array: 1/empty length array: 0/[a,b,c] length array: 3");
+	}		
+	public void test056() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	Zork z;\n" +
+					"	private static int elementCount(Object... elements) {\n" + 
+					"     return elements == null ? 0 : elements.length;\n" + 
+					"   }\n" + 
+					"   public static void main(String... args) {\n" + 
+					"     System.out.print(\"null length array: \" + elementCount(null));\n" + 
+					"     System.out.print(\"/[null] length array: \" + elementCount((Object)null));\n" + 
+					"     System.out.print(\"/empty length array: \" + elementCount());\n" + 
+					"     System.out.println(\"/[a,b,c] length array: \" + elementCount(\"a\", \"b\", \"c\"));\n" + 
+					"   }\n" + 
+					"}", // =================
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 7)\n" + 
+				"	System.out.print(\"null length array: \" + elementCount(null));\n" + 
+				"	                                         ^^^^^^^^^^^^^^^^^^\n" + 
+				"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method elementCount(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 
+				"----------\n");
+	}		
+	}
