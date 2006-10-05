@@ -109,6 +109,13 @@ public class TestingEnvironment {
 		return addClass(packageFragmentRootPath, className, contents);
 	}
 
+/** 
+ * Add a class folder to the classpath of a project.
+ */
+public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isExported) throws JavaModelException {
+	addEntry(projectPath, JavaCore.newLibraryEntry(classFolderPath, null, null, isExported));
+}
+	
 	/** Adds a package to the given package fragment root
 	 * in the workspace.  The package fragment root is created
 	 * if necessary.  If a package with the same name already

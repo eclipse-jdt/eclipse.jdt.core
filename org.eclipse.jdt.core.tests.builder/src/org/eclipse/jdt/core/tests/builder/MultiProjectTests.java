@@ -1395,5 +1395,75 @@ public void testCycle7() throws JavaModelException {
 			env.setBuildOrder(null);
 		}
 	}
-	
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159118
+// contrast this with test101: get an error when the class folder is not
+// exported from the target project - P1 here
+public void test100_class_folder_exported() throws JavaModelException {
+	IPath P1 = env.addProject("P1");
+	env.setOutputFolder(P1, "bin");
+	env.addExternalJars(P1, Util.getJavaClassLibs());
+	env.addClass(
+		env.addPackage(
+			env.getPackageFragmentRootPath(P1, ""), "p"), 
+		"A",
+		"package p;\n" +
+		"public class A {\n" +
+		"}\n"
+		);
+	fullBuild();
+	expectingNoProblems();
+	env.removePackageFragmentRoot(P1, "");
+	env.addClassFolder(P1, P1.append("bin"), true);
+	IPath P2 = env.addProject("P2");
+	env.addExternalJars(P2, Util.getJavaClassLibs());
+	env.addRequiredProject(P2, P1);
+	env.addClass(
+		env.getPackageFragmentRootPath(P2, ""), 
+		"X", 
+		"import p.A;\n" +
+		"public class X {\n" +
+		"  A f;\n" +
+		"}");
+	fullBuild();
+	expectingNoProblems();
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159118
+// contrast this with test100: get an error when the class folder is not
+// exported from the target project - P1 here
+public void test101_class_folder_non_exported() throws JavaModelException {
+	IPath P1 = env.addProject("P1");
+	env.setOutputFolder(P1, "bin");
+	env.addExternalJars(P1, Util.getJavaClassLibs());
+	env.addClass(
+		env.addPackage(
+			env.getPackageFragmentRootPath(P1, ""), "p"), 
+		"A",
+		"package p;\n" +
+		"public class A {\n" +
+		"}\n"
+		);
+	fullBuild();
+	expectingNoProblems();
+	env.removePackageFragmentRoot(P1, "");
+	env.addClassFolder(P1, P1.append("bin"), false);
+	IPath P2 = env.addProject("P2");
+	env.addExternalJars(P2, Util.getJavaClassLibs());
+	env.addRequiredProject(P2, P1);
+	IPath c = env.addClass(
+		env.getPackageFragmentRootPath(P2, ""), 
+		"X", 
+		"import p.A;\n" +
+		"public class X {\n" +
+		"  A f;\n" +
+		"}");
+	fullBuild();
+	expectingSpecificProblemsFor(P2, 
+		new Problem[] {
+			new Problem("", "The import p cannot be resolved", 
+					c, 7 , 8, CategorizedProblem.CAT_IMPORT),
+			new Problem("", "A cannot be resolved to a type", 
+					c, 31 , 32, CategorizedProblem.CAT_TYPE)});
+}
 }

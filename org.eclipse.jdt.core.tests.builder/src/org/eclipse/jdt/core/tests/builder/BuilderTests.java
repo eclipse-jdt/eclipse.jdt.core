@@ -317,13 +317,16 @@ public class BuilderTests extends TestCase {
 					}
 				}
 			}
+			System.out.println("missing expected problem: " + problem);
 			for (int j = 0; j < rootProblems.length; j++) {
 				Problem pb = rootProblems[j];
-				System.out.print("got pb:		new Problem(\"" + pb.getLocation() + "\", \"" + pb.getMessage() + "\", \"" + pb.getResourcePath() + "\"");
-				System.out.print(", " + pb.getStart() + ", " + pb.getEnd() +  ", " + pb.getCategoryId());
-				System.out.println(")");
+				if (pb != null) {
+					System.out.print("got pb:		new Problem(\"" + pb.getLocation() + "\", \"" + pb.getMessage() + "\", \"" + pb.getResourcePath() + "\"");
+					System.out.print(", " + pb.getStart() + ", " + pb.getEnd() +  ", " + pb.getCategoryId());
+					System.out.println(")");
+				}
 			}
-			assertTrue("missing expected problem : " + problem, false);
+			assertTrue("missing expected problem: " + problem, false);
 		}
 	}
 
