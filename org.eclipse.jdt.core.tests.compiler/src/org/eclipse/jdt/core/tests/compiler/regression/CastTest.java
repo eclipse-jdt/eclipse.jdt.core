@@ -1559,6 +1559,7 @@ public void test041() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159654
 public void test042() {
 	this.runConformTest(
 		new String[] {
@@ -1578,6 +1579,7 @@ public void test042() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159654
 public void test043() {
 	this.runConformTest(
 		new String[] {
@@ -1596,6 +1598,25 @@ public void test043() {
 			"}",
 		},
 		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159822
+public void test044() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static String s;\n" + 
+			"    public static void main(String[] args) throws Throwable {\n" + 
+			"      if (args.length == 0) {\n" + 
+			"        Class c = Class.forName(\"X\");\n" + 
+			"        String s = ((X) c.newInstance()).s;\n" + 
+			"        System.out.println(s);\n" + 
+			"      }\n" + 
+			"      System.out.println();\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"null");
 }
 public static Class testClass() {
 	return CastTest.class;
