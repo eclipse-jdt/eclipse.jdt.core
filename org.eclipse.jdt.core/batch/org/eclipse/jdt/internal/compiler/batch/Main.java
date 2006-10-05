@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - Contribution for bug 125961
+ *     Tom Tromey - Contribution for bug 159641
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -1088,10 +1089,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	public String[] encodings;
 
-	// need to pass the compiler messages output to the delegate compiler
-		// do not user directly (use logger)
-		// TODO (maxime) this is used in one instance - check reason with olivier
-		// WORK this comments make no more sense, investigate
 	public int exportedClassFilesCounter; 
 	public String[] filenames;
 
@@ -1325,6 +1322,444 @@ public boolean compile(String[] argv) {
 	if (this.globalErrorsCount == 0)
 		return true;
 	return false;
+}
+
+/*
+Handle a single warning token.
+*/
+protected void handleWarningToken(String token, boolean isEnabling, boolean useEnableJavadoc) throws InvalidInputException {
+	if (token.equals("constructorName")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportMethodWithConstructorName,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("pkgDefaultMethod") || token.equals("packageDefaultMethod")/*backward compatible*/ ) { //$NON-NLS-1$ //$NON-NLS-2$
+		this.options.put(
+			CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("maskedCatchBlock") || token.equals("maskedCatchBlocks")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
+		this.options.put(
+			CompilerOptions.OPTION_ReportHiddenCatchBlock,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("deprecation")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportDeprecation, 
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+			CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
+			CompilerOptions.DISABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, 
+			CompilerOptions.DISABLED);						
+	} else if (token.equals("allDeprecation")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportDeprecation, 
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+			CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
+			isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+		this.options.put(
+			CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, 
+			isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+	} else if (token.equals("unusedLocal") || token.equals("unusedLocals")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedLocal, 
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("unusedArgument") || token.equals("unusedArguments")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedParameter,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("unusedImport") || token.equals("unusedImports")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedImport,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("unusedPrivate")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedPrivateMember,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("unusedLabel")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedLabel,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("localHiding")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportLocalVariableHiding,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("fieldHiding")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportFieldHiding,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("specialParamHiding")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportSpecialParameterHidingField,
+			isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+	} else if (token.equals("conditionAssign")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		} else if (token.equals("syntheticAccess") //$NON-NLS-1$
+				|| token.equals("synthetic-access")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("nls")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("staticReceiver")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("indirectStatic")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportIndirectStaticAccess,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("noEffectAssign")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportNoEffectAssignment,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("intfNonInherited") || token.equals("interfaceNonInherited")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
+		this.options.put(
+			CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("charConcat") || token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$ //$NON-NLS-2$
+		this.options.put(
+			CompilerOptions.OPTION_ReportNoImplicitStringConversion,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("semicolon")) {//$NON-NLS-1$ 
+		this.options.put(
+			CompilerOptions.OPTION_ReportEmptyStatement,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("serial")) {//$NON-NLS-1$ 
+		this.options.put(
+			CompilerOptions.OPTION_ReportMissingSerialVersion,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("emptyBlock")) {//$NON-NLS-1$ 
+		this.options.put(
+			CompilerOptions.OPTION_ReportUndocumentedEmptyBlock,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("uselessTypeCheck")) {//$NON-NLS-1$ 
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnnecessaryTypeCheck,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("unchecked") || token.equals("unsafe")) {//$NON-NLS-1$ //$NON-NLS-2$ 
+		this.options.put(
+			CompilerOptions.OPTION_ReportUncheckedTypeOperation,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("raw")) {//$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportRawTypeReference,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+	} else if (token.equals("finalBound")) {//$NON-NLS-1$ 
+		this.options.put(
+			CompilerOptions.OPTION_ReportFinalParameterBound,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("suppress")) {//$NON-NLS-1$ 
+		this.options.put(
+			CompilerOptions.OPTION_SuppressWarnings,
+			isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+	} else if (token.equals("warningToken")) {//$NON-NLS-1$ 
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnhandledWarningToken,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("unnecessaryElse")) {//$NON-NLS-1$ 
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnnecessaryElse,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("javadoc")) {//$NON-NLS-1$ 
+		if (!useEnableJavadoc) {
+			this.options.put(
+				CompilerOptions.OPTION_DocCommentSupport,
+				isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+		}
+		// if disabling then it's not necessary to set other javadoc options
+		if (isEnabling) {
+			this.options.put(
+				CompilerOptions.OPTION_ReportInvalidJavadoc,
+				CompilerOptions.WARNING);
+			this.options.put(
+				CompilerOptions.OPTION_ReportInvalidJavadocTags,
+				CompilerOptions.ENABLED);
+			this.options.put(
+				CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef,
+				CompilerOptions.DISABLED);
+			this.options.put(
+				CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef,
+				CompilerOptions.DISABLED);
+			this.options.put(
+				CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
+				CompilerOptions.PRIVATE);
+			this.options.put(
+				CompilerOptions.OPTION_ReportMissingJavadocTags,
+				CompilerOptions.WARNING);
+			this.options.put(
+				CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
+				CompilerOptions.PRIVATE);
+		}
+	} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
+		if (!useEnableJavadoc) {
+			this.options.put(
+				CompilerOptions.OPTION_DocCommentSupport,
+				isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
+		}
+		// if disabling then it's not necessary to set other javadoc options
+		if (isEnabling) {
+			this.options.put(
+			CompilerOptions.OPTION_ReportInvalidJavadoc,
+			CompilerOptions.WARNING);
+			this.options.put(
+				CompilerOptions.OPTION_ReportInvalidJavadocTags,
+				CompilerOptions.ENABLED);
+			this.options.put(
+				CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
+				CompilerOptions.PRIVATE);
+			this.options.put(
+				CompilerOptions.OPTION_ReportMissingJavadocTags,
+				CompilerOptions.WARNING);
+			this.options.put(
+				CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
+				CompilerOptions.PRIVATE);
+			this.options.put(
+				CompilerOptions.OPTION_ReportMissingJavadocComments,
+				CompilerOptions.WARNING);
+		}
+	} else if (token.startsWith("tasks")) { //$NON-NLS-1$
+		String taskTags = ""; //$NON-NLS-1$
+		int start = token.indexOf('(');
+		int end = token.indexOf(')');
+		if (start >= 0 && end >= 0 && start < end){
+			taskTags = token.substring(start+1, end).trim();
+			taskTags = taskTags.replace('|',',');
+		}
+		if (taskTags.length() == 0){
+			throw new InvalidInputException(this.bind("configure.invalidTaskTag", token)); //$NON-NLS-1$
+		}
+		this.options.put(
+			CompilerOptions.OPTION_TaskTags,
+			isEnabling ? taskTags : "");  //$NON-NLS-1$
+	} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportAssertIdentifier,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("enumIdentifier")) { //$NON-NLS-1$
+		this.options.put(
+				CompilerOptions.OPTION_ReportEnumIdentifier,
+				isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("finally")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("unusedThrown")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("unqualifiedField") //$NON-NLS-1$
+			|| token.equals("unqualified-field-access")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnqualifiedFieldAccess,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("typeHiding")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportTypeParameterHiding,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("varargsCast")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportVarargsArgumentNeedCast,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+	} else if (token.equals("null")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportNullReference,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+	} else if (token.equals("boxing")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportAutoboxing,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+	} else if (token.equals("over-ann")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+	} else if (token.equals("dep-ann")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+	} else if (token.equals("intfAnnotation")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportAnnotationSuperInterface,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+	} else if (token.equals("enumSwitch") //$NON-NLS-1$
+			|| token.equals("incomplete-switch")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportIncompleteEnumSwitch,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+	} else if (token.equals("hiding")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportHiddenCatchBlock,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+			CompilerOptions.OPTION_ReportLocalVariableHiding,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+			CompilerOptions.OPTION_ReportFieldHiding,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+			CompilerOptions.OPTION_ReportTypeParameterHiding,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("static-access")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+			CompilerOptions.OPTION_ReportIndirectStaticAccess,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("unused")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedLocal, 
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedParameter,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedImport,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedPrivateMember,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+			CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		this.options.put(
+				CompilerOptions.OPTION_ReportUnusedLabel,
+				isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("paramAssign")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportParameterAssignment,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("discouraged")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportDiscouragedReference,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("forbidden")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportForbiddenReference,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("fallthrough")) { //$NON-NLS-1$
+		this.options.put(
+			CompilerOptions.OPTION_ReportFallthroughCase,
+			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else {
+		throw new InvalidInputException(this.bind("configure.invalidWarning", token)); //$NON-NLS-1$
+	}
+}
+
+/*
+Handle extdirs processing
+*/
+protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
+ 	final File javaHome = getJavaHome();
+
+	/*
+	 * Feed extDirClasspath according to:
+	 * - -extdirs first if present;
+	 * - else java.ext.dirs if defined;
+	 * - else default extensions directory for the platform.
+	 */
+	if (extdirsClasspaths == null) {
+		extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
+		if (extdirsStr == null) {
+			extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
+			while (tokenizer.hasMoreTokens()) 
+				extdirsClasspaths.add(tokenizer.nextToken());
+		}
+	}
+	
+	/*
+	 * Feed extdirsClasspath with the entries found into the directories listed by
+	 * extdirsNames.
+	 */
+	if (extdirsClasspaths.size() != 0) {
+		File[] directoriesToCheck = new File[extdirsClasspaths.size()];
+		for (int i = 0; i < directoriesToCheck.length; i++) 
+			directoriesToCheck[i] = new File((String) extdirsClasspaths.get(i));
+		extdirsClasspaths.clear();
+		File[][] extdirsJars = getLibrariesFiles(directoriesToCheck);
+		if (extdirsJars != null) {
+			for (int i = 0, max = extdirsJars.length; i < max; i++) {
+				File[] current = extdirsJars[i];
+				if (current != null) {
+					for (int j = 0, max2 = current.length; j < max2; j++) {
+						FileSystem.Classpath classpath = 
+							FileSystem.getClasspath(
+									current[j].getAbsolutePath(),
+									null, null); 
+						if (classpath != null) {
+							extdirsClasspaths.add(classpath);
+						}
+					}
+				} else if (directoriesToCheck[i].isFile()) {
+					this.logger.logIncorrectExtDirsEntry(directoriesToCheck[i].getAbsolutePath());
+				}
+			}
+		}
+	}
+	
+	return extdirsClasspaths;
+}
+
+protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
+ 	final File javaHome = getJavaHome();
+	/*
+	 * Feed endorsedDirClasspath according to:
+	 * - -endorseddirs first if present;
+	 * - else java.endorsed.dirs if defined;
+	 * - else default extensions directory for the platform. (/lib/endorsed)
+	 */
+	if (endorsedDirClasspaths == null) {
+		endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		String endorsedDirsStr = System.getProperty("java.endorsed.dirs"); //$NON-NLS-1$
+		if (endorsedDirsStr == null) {
+			if (javaHome != null) {
+				endorsedDirClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
+			}
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(endorsedDirsStr, File.pathSeparator);
+			while (tokenizer.hasMoreTokens()) {
+				endorsedDirClasspaths.add(tokenizer.nextToken());
+			}
+		}
+	}
+	
+	/*
+	 * Feed extdirsClasspath with the entries found into the directories listed by
+	 * extdirsNames.
+	 */
+	if (endorsedDirClasspaths.size() != 0) {
+		File[] directoriesToCheck = new File[endorsedDirClasspaths.size()];
+		for (int i = 0; i < directoriesToCheck.length; i++) 
+			directoriesToCheck[i] = new File((String) endorsedDirClasspaths.get(i));
+		endorsedDirClasspaths.clear();
+		File[][] endorsedDirsJars = getLibrariesFiles(directoriesToCheck);
+		if (endorsedDirsJars != null) {
+			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
+				File[] current = endorsedDirsJars[i];
+				if (current != null) {
+					for (int j = 0, max2 = current.length; j < max2; j++) {
+						FileSystem.Classpath classpath = 
+							FileSystem.getClasspath(
+									current[j].getAbsolutePath(),
+									null, null); 
+						if (classpath != null) {
+							endorsedDirClasspaths.add(classpath);
+						}
+					}
+				} else if (directoriesToCheck[i].isFile()) {
+					this.logger.logIncorrectEndorsedDirsEntry(directoriesToCheck[i].getAbsolutePath());
+				}
+			}
+		}
+	}
+	return endorsedDirClasspaths;
 }
 
 /*
@@ -1811,326 +2246,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					while (tokenizer.hasMoreTokens()) {
 						String token = tokenizer.nextToken();
 						tokenCounter++;
-						if (token.equals("constructorName")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportMethodWithConstructorName,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("pkgDefaultMethod") || token.equals("packageDefaultMethod")/*backward compatible*/ ) { //$NON-NLS-1$ //$NON-NLS-2$
-							this.options.put(
-								CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("maskedCatchBlock") || token.equals("maskedCatchBlocks")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-							this.options.put(
-								CompilerOptions.OPTION_ReportHiddenCatchBlock,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("deprecation")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportDeprecation, 
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
-								CompilerOptions.DISABLED);
-							this.options.put(
-								CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, 
-								CompilerOptions.DISABLED);						
-						} else if (token.equals("allDeprecation")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportDeprecation, 
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
-								isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-							this.options.put(
-								CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, 
-								isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-						} else if (token.equals("unusedLocal") || token.equals("unusedLocals")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedLocal, 
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("unusedArgument") || token.equals("unusedArguments")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedParameter,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("unusedImport") || token.equals("unusedImports")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedImport,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("unusedPrivate")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedPrivateMember,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("unusedLabel")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedLabel,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("localHiding")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportLocalVariableHiding,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("fieldHiding")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportFieldHiding,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("specialParamHiding")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportSpecialParameterHidingField,
-								isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-						} else if (token.equals("conditionAssign")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-	   					} else if (token.equals("syntheticAccess") //$NON-NLS-1$
-	   							|| token.equals("synthetic-access")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("nls")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportNonExternalizedStringLiteral,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("staticReceiver")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("indirectStatic")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportIndirectStaticAccess,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("noEffectAssign")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportNoEffectAssignment,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("intfNonInherited") || token.equals("interfaceNonInherited")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
-							this.options.put(
-								CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("charConcat") || token.equals("noImplicitStringConversion")/*backward compatible*/) {//$NON-NLS-1$ //$NON-NLS-2$
-							this.options.put(
-								CompilerOptions.OPTION_ReportNoImplicitStringConversion,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("semicolon")) {//$NON-NLS-1$ 
-							this.options.put(
-								CompilerOptions.OPTION_ReportEmptyStatement,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("serial")) {//$NON-NLS-1$ 
-							this.options.put(
-								CompilerOptions.OPTION_ReportMissingSerialVersion,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("emptyBlock")) {//$NON-NLS-1$ 
-							this.options.put(
-								CompilerOptions.OPTION_ReportUndocumentedEmptyBlock,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("uselessTypeCheck")) {//$NON-NLS-1$ 
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnnecessaryTypeCheck,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("unchecked") || token.equals("unsafe")) {//$NON-NLS-1$ //$NON-NLS-2$ 
-							this.options.put(
-								CompilerOptions.OPTION_ReportUncheckedTypeOperation,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("raw")) {//$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportRawTypeReference,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-						} else if (token.equals("finalBound")) {//$NON-NLS-1$ 
-							this.options.put(
-								CompilerOptions.OPTION_ReportFinalParameterBound,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("suppress")) {//$NON-NLS-1$ 
-							this.options.put(
-								CompilerOptions.OPTION_SuppressWarnings,
-								isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-						} else if (token.equals("warningToken")) {//$NON-NLS-1$ 
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnhandledWarningToken,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("unnecessaryElse")) {//$NON-NLS-1$ 
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnnecessaryElse,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("javadoc")) {//$NON-NLS-1$ 
-							if (!useEnableJavadoc) {
-								this.options.put(
-									CompilerOptions.OPTION_DocCommentSupport,
-									isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
-							}
-							// if disabling then it's not necessary to set other javadoc options
-							if (isEnabling) {
-								this.options.put(
-									CompilerOptions.OPTION_ReportInvalidJavadoc,
-									CompilerOptions.WARNING);
-								this.options.put(
-									CompilerOptions.OPTION_ReportInvalidJavadocTags,
-									CompilerOptions.ENABLED);
-								this.options.put(
-									CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef,
-									CompilerOptions.DISABLED);
-								this.options.put(
-									CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef,
-									CompilerOptions.DISABLED);
-								this.options.put(
-									CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
-									CompilerOptions.PRIVATE);
-								this.options.put(
-									CompilerOptions.OPTION_ReportMissingJavadocTags,
-									CompilerOptions.WARNING);
-								this.options.put(
-									CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
-									CompilerOptions.PRIVATE);
-							}
-						} else if (token.equals("allJavadoc")) { //$NON-NLS-1$
-							if (!useEnableJavadoc) {
-								this.options.put(
-									CompilerOptions.OPTION_DocCommentSupport,
-									isEnabling ? CompilerOptions.ENABLED: CompilerOptions.DISABLED);
-							}
-							// if disabling then it's not necessary to set other javadoc options
-							if (isEnabling) {
-								this.options.put(
-								CompilerOptions.OPTION_ReportInvalidJavadoc,
-								CompilerOptions.WARNING);
-								this.options.put(
-									CompilerOptions.OPTION_ReportInvalidJavadocTags,
-									CompilerOptions.ENABLED);
-								this.options.put(
-									CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility,
-									CompilerOptions.PRIVATE);
-								this.options.put(
-									CompilerOptions.OPTION_ReportMissingJavadocTags,
-									CompilerOptions.WARNING);
-								this.options.put(
-									CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
-									CompilerOptions.PRIVATE);
-								this.options.put(
-									CompilerOptions.OPTION_ReportMissingJavadocComments,
-									CompilerOptions.WARNING);
-							}
-						} else if (token.startsWith("tasks")) { //$NON-NLS-1$
-							String taskTags = ""; //$NON-NLS-1$
-							int start = token.indexOf('(');
-							int end = token.indexOf(')');
-							if (start >= 0 && end >= 0 && start < end){
-								taskTags = token.substring(start+1, end).trim();
-								taskTags = taskTags.replace('|',',');
-							}
-							if (taskTags.length() == 0){
-								throw new InvalidInputException(this.bind("configure.invalidTaskTag", token)); //$NON-NLS-1$
-							}
-							this.options.put(
-								CompilerOptions.OPTION_TaskTags,
-								isEnabling ? taskTags : "");  //$NON-NLS-1$
-						} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportAssertIdentifier,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("enumIdentifier")) { //$NON-NLS-1$
-							this.options.put(
-									CompilerOptions.OPTION_ReportEnumIdentifier,
-									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("finally")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("unusedThrown")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("unqualifiedField") //$NON-NLS-1$
-								|| token.equals("unqualified-field-access")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnqualifiedFieldAccess,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("typeHiding")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportTypeParameterHiding,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("varargsCast")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportVarargsArgumentNeedCast,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-						} else if (token.equals("null")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportNullReference,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-						} else if (token.equals("boxing")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportAutoboxing,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-						} else if (token.equals("over-ann")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-						} else if (token.equals("dep-ann")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-						} else if (token.equals("intfAnnotation")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportAnnotationSuperInterface,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-						} else if (token.equals("enumSwitch") //$NON-NLS-1$
-								|| token.equals("incomplete-switch")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportIncompleteEnumSwitch,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-						} else if (token.equals("hiding")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportHiddenCatchBlock,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportLocalVariableHiding,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportFieldHiding,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportTypeParameterHiding,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("static-access")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportIndirectStaticAccess,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("unused")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedLocal, 
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedParameter,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedImport,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedPrivateMember,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-								CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-							this.options.put(
-									CompilerOptions.OPTION_ReportUnusedLabel,
-									isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("paramAssign")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportParameterAssignment,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("discouraged")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportDiscouragedReference,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("forbidden")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportForbiddenReference,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else if (token.equals("fallthrough")) { //$NON-NLS-1$
-							this.options.put(
-								CompilerOptions.OPTION_ReportFallthroughCase,
-								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						} else {
-							throw new InvalidInputException(this.bind("configure.invalidWarning", token)); //$NON-NLS-1$
-						}
+						handleWarningToken(token, isEnabling, useEnableJavadoc);
 					}
 					if (tokenCounter == 0)
 						throw new InvalidInputException(
@@ -2438,7 +2554,7 @@ public void configure(String[] argv) throws InvalidInputException {
 			customEncoding);
 }
 
-private void disableWarnings() {
+protected void disableWarnings() {
 	Object[] entries = this.options.entrySet().toArray();
 	for (int i = 0, max = entries.length; i < max; i++) {
 		Map.Entry entry = (Map.Entry) entries[i];
@@ -3109,100 +3225,9 @@ protected void setPaths(ArrayList bootclasspaths,
 	 * - else java.ext.dirs if defined;
 	 * - else default extensions directory for the platform.
 	 */
-	if (extdirsClasspaths == null) {
-		extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-		String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
-		if (extdirsStr == null) {
-			if (javaHome != null) {
-				extdirsClasspaths.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
-			}
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
-			while (tokenizer.hasMoreTokens()) 
-				extdirsClasspaths.add(tokenizer.nextToken());
-		}
-	}
-	
-	/*
-	 * Feed extdirsClasspath with the entries found into the directories listed by
-	 * extdirsNames.
-	 */
-	if (extdirsClasspaths.size() != 0) {
-		File[] directoriesToCheck = new File[extdirsClasspaths.size()];
-		for (int i = 0; i < directoriesToCheck.length; i++) 
-			directoriesToCheck[i] = new File((String) extdirsClasspaths.get(i));
-		extdirsClasspaths.clear();
-		File[][] extdirsJars = getLibrariesFiles(directoriesToCheck);
-		if (extdirsJars != null) {
-			for (int i = 0, max = extdirsJars.length; i < max; i++) {
-				File[] current = extdirsJars[i];
-				if (current != null) {
-					for (int j = 0, max2 = current.length; j < max2; j++) {
-						FileSystem.Classpath classpath = 
-							FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
-									null, null); 
-						if (classpath != null) {
-							extdirsClasspaths.add(classpath);
-						}
-					}
-				} else if (directoriesToCheck[i].isFile()) {
-					this.logger.logIncorrectExtDirsEntry(directoriesToCheck[i].getAbsolutePath());
-				}
-			}
-		}
-	}
+	extdirsClasspaths = handleExtdirs(extdirsClasspaths);
 
-	/*
-	 * Feed endorsedDirClasspath according to:
-	 * - -endorseddirs first if present;
-	 * - else java.endorsed.dirs if defined;
-	 * - else default extensions directory for the platform. (/lib/endorsed)
-	 */
-	if (endorsedDirClasspaths == null) {
-		endorsedDirClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-		String endorsedDirsStr = System.getProperty("java.endorsed.dirs"); //$NON-NLS-1$
-		if (endorsedDirsStr == null) {
-			if (javaHome != null) {
-				endorsedDirClasspaths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
-			}
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(endorsedDirsStr, File.pathSeparator);
-			while (tokenizer.hasMoreTokens()) {
-				endorsedDirClasspaths.add(tokenizer.nextToken());
-			}
-		}
-	}
-	
-	/*
-	 * Feed extdirsClasspath with the entries found into the directories listed by
-	 * extdirsNames.
-	 */
-	if (endorsedDirClasspaths.size() != 0) {
-		File[] directoriesToCheck = new File[endorsedDirClasspaths.size()];
-		for (int i = 0; i < directoriesToCheck.length; i++) 
-			directoriesToCheck[i] = new File((String) endorsedDirClasspaths.get(i));
-		endorsedDirClasspaths.clear();
-		File[][] endorsedDirsJars = getLibrariesFiles(directoriesToCheck);
-		if (endorsedDirsJars != null) {
-			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
-				File[] current = endorsedDirsJars[i];
-				if (current != null) {
-					for (int j = 0, max2 = current.length; j < max2; j++) {
-						FileSystem.Classpath classpath = 
-							FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
-									null, null); 
-						if (classpath != null) {
-							endorsedDirClasspaths.add(classpath);
-						}
-					}
-				} else if (directoriesToCheck[i].isFile()) {
-					this.logger.logIncorrectEndorsedDirsEntry(directoriesToCheck[i].getAbsolutePath());
-				}
-			}
-		}
-	}
+	endorsedDirClasspaths = handleEndorseddirs(endorsedDirClasspaths);
 	
 	/* 
 	 * Concatenate classpath entries
