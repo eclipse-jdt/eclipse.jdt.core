@@ -33483,4 +33483,22 @@ public void test1041() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159818
+public void test1042() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public <T extends Object> void foo(T x) {\n" + 
+			"	    Class<? extends T> c = x.getClass();\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Class<? extends T> c = x.getClass();\n" + 
+		"	                       ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<capture#1-of ? extends Object> to Class<? extends T>\n" + 
+		"----------\n");
+}
 }
