@@ -42,12 +42,16 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
  */
 public class OldEclipseFileManager implements StandardJavaFileManager {
 	private static final String NO_EXTENSION = "";
+	static final int HAS_EXT_DIRS = 1;
+	static final int HAS_BOOTCLASSPATH = 2;
+	static final int HAS_ENDORSED_DIRS = 4;
 
 	Map<File, Archive> archivesCache;
 	Charset charset;
 	Main compiler;
 	Locale locale;
 	Map<String, Iterable<? extends File>> locations;
+	int flags;
 	
 	public OldEclipseFileManager(Main eclipseCompiler, Locale locale, Charset charset) {
 		this.compiler = eclipseCompiler;
@@ -600,16 +604,22 @@ public class OldEclipseFileManager implements StandardJavaFileManager {
 				final Iterable<? extends File> bootclasspaths = getBootclasspathFrom(remaining.next());
 				if (bootclasspaths != null) {
 					Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-					if (iterable == null) {
-						// first bootclasspath entry
+					if ((this.flags & HAS_ENDORSED_DIRS) == 0
+							&& (this.flags & HAS_EXT_DIRS) == 0) {
+						// override default bootclasspath
 						setLocation(StandardLocation.PLATFORM_CLASS_PATH, bootclasspaths);
-					} else {
-						// extdirs or endorsed dirs have been processed first
+					} else if ((this.flags & HAS_ENDORSED_DIRS) != 0) {
+						// endorseddirs have been processed first
 						setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
 								concatFiles(iterable, bootclasspaths));
+					} else {
+						// extdirs have been processed first
+						setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
+								prependFiles(iterable, bootclasspaths));
 					}
 				}
 				remaining.remove();
+				this.flags |= HAS_BOOTCLASSPATH;
 				return true;
 			} else {
 				throw new IllegalArgumentException();
@@ -651,13 +661,10 @@ public class OldEclipseFileManager implements StandardJavaFileManager {
 			remaining.remove(); // remove the current option
 			if (remaining.hasNext()) {
 				Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-				if (iterable == null) {
-					setLocation(StandardLocation.PLATFORM_CLASS_PATH, getExtdirsFrom(remaining.next()));
-				} else {
-					setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
-							concatFiles(iterable,  getExtdirsFrom(remaining.next())));
-				}
+				setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
+						concatFiles(iterable, getExtdirsFrom(remaining.next())));
 				remaining.remove();
+				this.flags |= HAS_EXT_DIRS;
 				return true;
 			} else {
 				throw new IllegalArgumentException();
@@ -667,13 +674,10 @@ public class OldEclipseFileManager implements StandardJavaFileManager {
 			remaining.remove(); // remove the current option
 			if (remaining.hasNext()) {
 				Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-				if (iterable == null) {
-					setLocation(StandardLocation.PLATFORM_CLASS_PATH, getEndorsedDirsFrom(remaining.next()));
-				} else {
-					setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
-							prependFiles(iterable,  getEndorsedDirsFrom(remaining.next())));
-				}
+				setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
+						prependFiles(iterable, getEndorsedDirsFrom(remaining.next())));
 				remaining.remove();
+				this.flags |= HAS_ENDORSED_DIRS;
 				return true;
 			} else {
 				throw new IllegalArgumentException();

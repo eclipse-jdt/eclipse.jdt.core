@@ -41,12 +41,16 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
  */
 public class EclipseFileManager implements StandardJavaFileManager {
 	private static final String NO_EXTENSION = "";
+	static final int HAS_EXT_DIRS = 1;
+	static final int HAS_BOOTCLASSPATH = 2;
+	static final int HAS_ENDORSED_DIRS = 4;
 
 	Map<File, Archive> archivesCache;
 	Charset charset;
 	Locale locale;
 	Map<String, Iterable<? extends File>> locations;
 	Main compiler;
+	int flags;
 	
 	public EclipseFileManager(Main eclipseCompiler, Locale locale, Charset charset) {
 		this.compiler = eclipseCompiler;
@@ -78,29 +82,32 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			}
 		}
 	}
-	void addFilesFromExtDirs(File javaHome, ArrayList<File> files) {
-		// retrieve files from ext dirs
-		String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
-		File[][] extDirLibrariesJars = null;
+	
+	
+	private void addFilesFrom(File javaHome, String propertyName, String defaultPath, ArrayList<File> files) {
+		String extdirsStr = System.getProperty(propertyName); //$NON-NLS-1$
+		File[] directoriesToCheck = null;
 		if (extdirsStr == null) {
 			if (javaHome != null) {
-				extDirLibrariesJars = Main.getLibrariesFiles(new File[] { new File(javaHome, "/lib/ext") }); //$NON-NLS-1$
+				directoriesToCheck = new File[] { new File(javaHome, defaultPath) }; //$NON-NLS-1$
 			}
 		} else {
 			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
-			ArrayList<String> extDirsClasspathsPaths = new ArrayList<String>();
+			ArrayList<String> paths = new ArrayList<String>();
 			while (tokenizer.hasMoreTokens()) {
-				extDirsClasspathsPaths.add(tokenizer.nextToken());
+				paths.add(tokenizer.nextToken());
 			}
-			if (extDirsClasspathsPaths.size() != 0) {
-				File[] directoriesToCheck = new File[extDirsClasspathsPaths.size()];
+			if (paths.size() != 0) {
+				directoriesToCheck = new File[paths.size()];
 				for (int i = 0; i < directoriesToCheck.length; i++)  {
-					directoriesToCheck[i] = new File(extDirsClasspathsPaths.get(i));
+					directoriesToCheck[i] = new File(paths.get(i));
 				}
-				extDirLibrariesJars = Main.getLibrariesFiles(directoriesToCheck);
 			}
 		}
-		addFiles(extDirLibrariesJars, files);
+		if (directoriesToCheck != null) {
+			addFiles(Main.getLibrariesFiles(directoriesToCheck), files);
+		}
+		
 	}
 	
 	/* (non-Javadoc)
@@ -293,6 +300,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		 * Handle >= JDK 1.6
 		 */
 		File javaHome = this.compiler.getJavaHome();
+		addFilesFrom(javaHome, "java.endorsed.dirs", "/lib/endorsed", files);
 		if (javaHome != null) {
 			File[] directoriesToCheck = null;
 			if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
@@ -305,7 +313,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			File[][] jars = Main.getLibrariesFiles(directoriesToCheck);
 			addFiles(jars, files);
 		}
-		addFilesFromExtDirs(javaHome, files);
+		addFilesFrom(javaHome, "java.ext.dirs", "/lib/ext", files);
 		return files;
 	}
 
@@ -326,28 +334,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}
 			}
 		}
-		return files;
-	}
-	
-	Iterable<? extends File> getDefaultEndorsedDirs() {
-		ArrayList<String> paths = new ArrayList<String>();
-    	String endorsedDirsStr = System.getProperty("java.endorsed.dirs"); //$NON-NLS-1$
-    	if (endorsedDirsStr == null) {
-    		File javaHome = this.compiler.getJavaHome();
-    		if (javaHome != null) {
-    			paths.add(javaHome.getAbsolutePath() + "/lib/endorsed"); //$NON-NLS-1$
-    		}
-    	} else {
-    		StringTokenizer tokenizer = new StringTokenizer(endorsedDirsStr, File.pathSeparator);
-    		while (tokenizer.hasMoreTokens()) 
-    			paths.add(tokenizer.nextToken());
-    	}
-		File[] directoriesToCheck = new File[paths.size()];
-		for (int i = 0; i < directoriesToCheck.length; i++) 
-			directoriesToCheck[i] = new File(paths.get(i));
-		File[][] jars = Main.getLibrariesFiles(directoriesToCheck);
-		ArrayList<File> files = new ArrayList<File>();
-		addFiles(jars, files);
 		return files;
 	}
 
@@ -597,16 +583,22 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					final Iterable<? extends File> bootclasspaths = getBootclasspathFrom(remaining.next());
 					if (bootclasspaths != null) {
 						Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-						if (iterable == null) {
-							// first bootclasspath entry
+						if ((this.flags & HAS_ENDORSED_DIRS) == 0
+								&& (this.flags & HAS_EXT_DIRS) == 0) {
+							// override default bootclasspath
 							setLocation(StandardLocation.PLATFORM_CLASS_PATH, bootclasspaths);
-						} else {
-							// extdirs or endorsed dirs have been processed first
+						} else if ((this.flags & HAS_ENDORSED_DIRS) != 0) {
+							// endorseddirs have been processed first
 							setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
 									concatFiles(iterable, bootclasspaths));
+						} else {
+							// extdirs have been processed first
+							setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
+									prependFiles(iterable, bootclasspaths));
 						}
 					}
 					remaining.remove();
+					this.flags |= HAS_BOOTCLASSPATH;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
@@ -648,13 +640,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-					if (iterable == null) {
-						setLocation(StandardLocation.PLATFORM_CLASS_PATH, getExtdirsFrom(remaining.next()));
-					} else {
-						setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
-								concatFiles(iterable, getExtdirsFrom(remaining.next())));
-					}
+					setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
+							concatFiles(iterable, getExtdirsFrom(remaining.next())));
 					remaining.remove();
+					this.flags |= HAS_EXT_DIRS;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
@@ -664,13 +653,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-					if (iterable == null) {
-						setLocation(StandardLocation.PLATFORM_CLASS_PATH, getEndorsedDirsFrom(remaining.next()));
-					} else {
-						setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
-								prependFiles(iterable, getEndorsedDirsFrom(remaining.next())));
-					}
+					setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
+							prependFiles(iterable, getEndorsedDirsFrom(remaining.next())));
 					remaining.remove();
+					this.flags |= HAS_ENDORSED_DIRS;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
