@@ -652,7 +652,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						setLocation(StandardLocation.PLATFORM_CLASS_PATH, getExtdirsFrom(remaining.next()));
 					} else {
 						setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
-								concatFiles(iterable,  getExtdirsFrom(remaining.next())));
+								concatFiles(iterable, getExtdirsFrom(remaining.next())));
 					}
 					remaining.remove();
 					return true;
@@ -668,7 +668,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						setLocation(StandardLocation.PLATFORM_CLASS_PATH, getEndorsedDirsFrom(remaining.next()));
 					} else {
 						setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
-								prependFiles(iterable,  getEndorsedDirsFrom(remaining.next())));
+								prependFiles(iterable, getEndorsedDirsFrom(remaining.next())));
 					}
 					remaining.remove();
 					return true;
