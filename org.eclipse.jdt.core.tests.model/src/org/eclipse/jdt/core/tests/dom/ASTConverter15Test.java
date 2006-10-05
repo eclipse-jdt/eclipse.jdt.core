@@ -7147,6 +7147,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 0, annotations.length);
 	}
 	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=155115
 	public void test0227() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
