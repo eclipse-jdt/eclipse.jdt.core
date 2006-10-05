@@ -50,8 +50,8 @@ public class LabeledStatement extends Statement {
 			return flowInfo;
 		} else {
 			LabelFlowContext labelContext;
-			FlowInfo mergedInfo =
-				statement
+			FlowInfo statementInfo, mergedInfo;
+			if (((statementInfo = statement
 					.analyseCode(
 						currentScope,
 						(labelContext =
@@ -61,8 +61,17 @@ public class LabeledStatement extends Statement {
 								label,
 								(targetLabel = new BranchLabel()),
 								currentScope)),
-						flowInfo)
-					.mergedWith(labelContext.initsOnBreak);
+						flowInfo)).tagBits & FlowInfo.UNREACHABLE) != 0) {
+				if ((labelContext.initsOnBreak.tagBits & FlowInfo.UNREACHABLE) == 0) {
+					// an embedded loop has had no chance to reinject forgotten null info
+					mergedInfo = flowInfo.unconditionalCopy().
+						addInitializationsFrom(labelContext.initsOnBreak);
+				} else {
+					mergedInfo = labelContext.initsOnBreak;
+				}
+			} else {
+				mergedInfo = statementInfo.mergedWith(labelContext.initsOnBreak);
+			}
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(mergedInfo);
 			if ((this.bits & ASTNode.LabelUsed) == 0) {
