@@ -2862,13 +2862,11 @@ public static final char[] replace(
 
 	if (!equals(toBeReplaced, replacementChars)) {
 
-		next : for (int i = 0; i < max; i++) {
-			int j = 0;
-			while (j < replacedLength) {
-				if (i + j == max)
-					continue next;
-				if (array[i + j] != toBeReplaced[j++])
-					continue next;
+		next : for (int i = 0; i < max;) {
+			int index = indexOf(toBeReplaced, array, true, i);
+			if (index == -1) {
+				i++;
+				continue next;
 			}
 			if (occurrenceCount == starts.length) {
 				System.arraycopy(
@@ -2878,7 +2876,8 @@ public static final char[] replace(
 					0,
 					occurrenceCount);
 			}
-			starts[occurrenceCount++] = i;
+			starts[occurrenceCount++] = index;
+			i = index + replacedLength;
 		}
 	}
 	if (occurrenceCount == 0)

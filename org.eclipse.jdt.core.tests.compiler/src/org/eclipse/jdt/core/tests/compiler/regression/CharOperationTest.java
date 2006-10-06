@@ -74,6 +74,17 @@ public void test005() {
 		 assertEquals("Wrong value at " + i, result[i], array[i]);
 	 }
 }
+public void test006() {
+	 char[] array = { 'a' , 'a', 'a', 'a', 'a', 'b', 'c', 'a' };
+	 char[] toBeReplaced = { 'a', 'a' };
+	 char[] replacementChar = { 'a' };
+	 char[] result = CharOperation.replace(array, toBeReplaced, replacementChar);
+	 char[] expectedValue = { 'a' , 'a', 'a', 'b', 'c', 'a' };
+	 assertEquals("Wrong size", expectedValue.length, result.length);
+	 for (int i = 0, max = expectedValue.length; i < max; i++) {
+		 assertEquals("Wrong value at " + i, result[i], expectedValue[i]);
+	 }
+}
 public static Class testClass() {
 	return CharOperationTest.class;
 }
