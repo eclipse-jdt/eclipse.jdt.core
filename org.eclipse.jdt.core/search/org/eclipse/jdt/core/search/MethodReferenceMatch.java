@@ -133,7 +133,7 @@ public class MethodReferenceMatch extends SearchMatch {
 	 * 
 	 * @return <code>true</code> if the reference is a polymorphic method or not,
 	 * <code>false </code> otherwise
-	 * @deprecated Should be be removed...
+	 * @deprecated Will be removed when JDT/UI will use isOverridden() instead...
 	 */
 	public boolean isPolymorphic() {
 		return false;
