@@ -134,11 +134,10 @@ public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 		reportInvalidType(scope);
 		return null;
 	}
-	if (isTypeUseDeprecated(type, scope))
+	if (isTypeUseDeprecated(this.resolvedType, scope))
 		reportDeprecatedType(scope);
-	
 	type = scope.environment().convertToRawType(type);
-	if (type.leafComponentType().isRawType() 
+	if (type.isRawType() 
 			&& (this.bits & IgnoreRawTypeCheck) == 0 
 			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {	
 		scope.problemReporter().rawTypeReference(this, type);
@@ -158,11 +157,10 @@ public TypeBinding resolveType(ClassScope scope) {
 		reportInvalidType(scope);
 		return null;
 	}
-	if (isTypeUseDeprecated(type, scope))
+	if (isTypeUseDeprecated(this.resolvedType, scope))
 		reportDeprecatedType(scope);
-	
 	type = scope.environment().convertToRawType(type);
-	if (type.leafComponentType().isRawType() 
+	if (type.isRawType() 
 			&& (this.bits & IgnoreRawTypeCheck) == 0 
 			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 		scope.problemReporter().rawTypeReference(this, type);

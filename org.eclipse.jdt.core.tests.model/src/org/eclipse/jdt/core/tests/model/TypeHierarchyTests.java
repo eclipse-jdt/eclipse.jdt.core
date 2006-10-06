@@ -1391,16 +1391,6 @@ public void testRegion4() throws CoreException {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
 	}
 }
-/**
- * @bug 150289: [hierarchy] NPE in hierarchy builder when region is empy
- * @test Ensure that no NPE is thrown when IRegion has no associated project
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=150289"
- */
-public void testRegion_Bug150289() throws JavaModelException {
-	IJavaProject project = getJavaProject("TypeHierarchy");
-	ITypeHierarchy h = project.newTypeHierarchy(JavaCore.newRegion(), null);
-	assertEquals("Unexpected number of types in hierarchy", 0, h.getAllTypes().length);
-}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144976
 public void testResilienceToMissingBinaries() throws CoreException {
 	try {

@@ -456,15 +456,14 @@ public class ClassScope extends Scope {
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
-			if (!sourceType.isAnonymousType()) {
+
+			// what about inherited interface methods?
+			if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0) {
+				modifiers |= ClassFileConstants.AccAbstract;
+			} else if (!sourceType.isAnonymousType()) {
+				// body of enum constant must implement any inherited abstract methods
+				// enum type needs to implement abstract methods if one of its constants does not supply a body
 				checkAbstractEnum: {
-					// does define abstract methods ?
-					if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0) {
-						modifiers |= ClassFileConstants.AccAbstract;
-						break checkAbstractEnum;
-					} 					
-					// body of enum constant must implement any inherited abstract methods
-					// enum type needs to implement abstract methods if one of its constants does not supply a body
 					TypeDeclaration typeDeclaration = this.referenceContext;
 					FieldDeclaration[] fields = typeDeclaration.fields;
 					int fieldsLength = fields == null ? 0 : fields.length;
@@ -476,40 +475,18 @@ public class ClassScope extends Scope {
 					for (int i = 0; i < methodsLength && !definesAbstractMethod; i++)
 						definesAbstractMethod = methods[i].isAbstract();
 					if (!definesAbstractMethod) break checkAbstractEnum; // all methods have bodies
-					boolean needAbstractBit = false;
 					for (int i = 0; i < fieldsLength; i++) {
 						FieldDeclaration fieldDecl = fields[i];
-						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
-							if (fieldDecl.initialization instanceof QualifiedAllocationExpression) {
-								needAbstractBit = true;
-							} else {
+						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
+							if (!(fieldDecl.initialization instanceof QualifiedAllocationExpression))
 								break checkAbstractEnum;
-							}
-						}
 					}
 					// tag this enum as abstract since an abstract method must be implemented AND all enum constants define an anonymous body
 					// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method					
-					if (needAbstractBit) {
-						modifiers |= ClassFileConstants.AccAbstract;
-					}
+					modifiers |= ClassFileConstants.AccAbstract;
 				}
-				// final if no enum constant with anonymous body
-				checkFinalEnum: {
-					TypeDeclaration typeDeclaration = this.referenceContext;
-					FieldDeclaration[] fields = typeDeclaration.fields;
-					if (fields != null) {
-						for (int i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
-							FieldDeclaration fieldDecl = fields[i];
-							if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
-								if (fieldDecl.initialization instanceof QualifiedAllocationExpression) {
-									break checkFinalEnum;
-								}
-							}
-						}
-					}
-					modifiers |= ClassFileConstants.AccFinal;
-				}			
 			}
+			modifiers |= ClassFileConstants.AccFinal;
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
@@ -607,6 +584,8 @@ public class ClassScope extends Scope {
 		
 			// set the modifiers
 			final int IMPLICIT_MODIFIERS = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum;
+			if (fieldDecl.initialization instanceof QualifiedAllocationExpression)
+				declaringClass.modifiers &= ~ClassFileConstants.AccFinal;
 			fieldBinding.modifiers|= IMPLICIT_MODIFIERS;
 			return;
 		}

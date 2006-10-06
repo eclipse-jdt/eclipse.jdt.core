@@ -77,16 +77,14 @@ public abstract class HierarchyBuilder {
 		} else {
 			unitsToLookInside = workingCopies;
 		}
-		if (project != null) {
-			SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(unitsToLookInside);
-			this.nameLookup = searchableEnvironment.nameLookup;
-			this.hierarchyResolver =
-				new HierarchyResolver(
-					searchableEnvironment,
-					project.getOptions(true),
-					this,
-					new DefaultProblemFactory());
-		}
+		SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(unitsToLookInside);
+		this.nameLookup = searchableEnvironment.nameLookup;
+		this.hierarchyResolver =
+			new HierarchyResolver(
+				searchableEnvironment,
+				project.getOptions(true),
+				this,
+				new DefaultProblemFactory());
 		this.infoToHandle = new HashMap(5);
 		this.focusQualifiedName = focusType == null ? null : focusType.getFullyQualifiedName();
 	}
