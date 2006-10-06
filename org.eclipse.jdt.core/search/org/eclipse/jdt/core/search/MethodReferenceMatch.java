@@ -125,4 +125,17 @@ public class MethodReferenceMatch extends SearchMatch {
 	public boolean isOverridden() {
 		return this.overridden;
 	}
+
+	/**
+	 * Returns whether the reference is on a polymorphic method or not.
+	 * Note that this field is only used for method reference. This happens when the reference
+	 * is not implemented on the declaring class pattern but only on one of its super or sub type.
+	 * 
+	 * @return <code>true</code> if the reference is a polymorphic method or not,
+	 * <code>false </code> otherwise
+	 * @deprecated Should be be removed...
+	 */
+	public boolean isPolymorphic() {
+		return false;
+	}
 }
