@@ -39,7 +39,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 196 };
+//		TESTS_NUMBERS = new int[] { 212, 213 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -3495,7 +3495,7 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n",
             },
-            "----------\n" + 
+    		"----------\n" + 
     		"1. WARNING in X.java (at line 8)\n" + 
     		"	interface Iface extends Ann {\n" + 
     		"	                        ^^^\n" + 
@@ -3533,6 +3533,11 @@ public class AnnotationTest extends AbstractComparableTest {
     		"----------\n" + 
     		"8. WARNING in X.java (at line 30)\n" + 
     		"	Class c = SubKlass.class;\n" + 
+    		"	^^^^^\n" + 
+    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"----------\n" + 
+    		"9. WARNING in X.java (at line 41)\n" + 
+    		"	Class[] i = c.getInterfaces();\n" + 
     		"	^^^^^\n" + 
     		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
     		"----------\n");
@@ -6813,6 +6818,191 @@ public void test207() {
 		"	private NonExisting bar;\n" + 
 		"	        ^^^^^^^^^^^\n" + 
 		"NonExisting cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149751
+public void test208() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"import java.lang.annotation.Retention;\n" + 
+			"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+			"@Retention(RUNTIME) @interface MyAnnotation {\n" + 
+			"    public MyEnum value();\n" + 
+			"}\n" + 
+			"enum MyEnum {\n" + 
+			"    ONE, TWO, THREE\n" + 
+			"}\n" + 
+			"@MyAnnotation(X.FOO) class MyClass {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    public static final MyEnum FOO = MyEnum.TWO;\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        MyAnnotation annotation =\n" + 
+			"                MyClass.class.getAnnotation(MyAnnotation.class);\n" + 
+			"        System.out.println(annotation.value().toString());\n" + 
+			"    }\n" + 
+			"}",
+        },
+        "----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	@MyAnnotation(X.FOO) class MyClass {\n" + 
+		"	              ^^^^^\n" + 
+		"The value for annotation attribute MyAnnotation.value must be a constant expression\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149751
+public void test209() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"import java.lang.annotation.Retention;\n" + 
+			"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+			"@Retention(RUNTIME) @interface MyAnnotation {\n" + 
+			"    public MyEnum value();\n" + 
+			"}\n" + 
+			"enum MyEnum {\n" + 
+			"    ONE, TWO, THREE\n" + 
+			"}\n" + 
+			"@MyAnnotation(value=X.FOO) class MyClass {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    public static final MyEnum FOO = MyEnum.TWO;\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        MyAnnotation annotation =\n" + 
+			"                MyClass.class.getAnnotation(MyAnnotation.class);\n" + 
+			"        System.out.println(annotation.value().toString());\n" + 
+			"    }\n" + 
+			"}",
+        },
+        "----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	@MyAnnotation(value=X.FOO) class MyClass {\n" + 
+		"	                    ^^^^^\n" + 
+		"The value for annotation attribute MyAnnotation.value must be a constant expression\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149751
+public void test210() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"import java.lang.annotation.Retention;\n" + 
+			"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+			"@Retention(RUNTIME) @interface MyAnnotation {\n" + 
+			"    public MyEnum[] value();\n" + 
+			"}\n" + 
+			"enum MyEnum {\n" + 
+			"    ONE, TWO, THREE\n" + 
+			"}\n" + 
+			"@MyAnnotation(value= { X.FOO }) class MyClass {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    public static final MyEnum FOO = MyEnum.TWO;\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        MyAnnotation annotation =\n" + 
+			"                MyClass.class.getAnnotation(MyAnnotation.class);\n" + 
+			"        System.out.println(annotation.value().toString());\n" + 
+			"    }\n" + 
+			"}",
+        },
+        "----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	@MyAnnotation(value= { X.FOO }) class MyClass {\n" + 
+		"	                       ^^^^^\n" + 
+		"The value for annotation attribute MyAnnotation.value must be a constant expression\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=149751
+public void test211() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"import java.lang.annotation.Retention;\n" + 
+			"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+			"@Retention(RUNTIME) @interface MyAnnotation {\n" + 
+			"    public MyEnum[] value();\n" + 
+			"}\n" + 
+			"enum MyEnum {\n" + 
+			"    ONE, TWO, THREE\n" + 
+			"}\n" + 
+			"@MyAnnotation(value= { null }) class MyClass {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    public static final MyEnum FOO = MyEnum.TWO;\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        MyAnnotation annotation =\n" + 
+			"                MyClass.class.getAnnotation(MyAnnotation.class);\n" + 
+			"        System.out.println(annotation.value().toString());\n" + 
+			"    }\n" + 
+			"}",
+        },
+        "----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	@MyAnnotation(value= { null }) class MyClass {\n" + 
+		"	                       ^^^^\n" + 
+		"The value for annotation attribute MyAnnotation.value must be a constant expression\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156891
+public void test212() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"import java.lang.annotation.Retention;\n" + 
+			"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+			"@Retention(RUNTIME) @interface MyAnnotation {\n" + 
+			"    public MyEnum[] values();\n" + 
+			"}\n" + 
+			"enum MyEnum {\n" + 
+			"    ONE, TWO, THREE\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"		private static final MyEnum[] myValues = { MyEnum.ONE, MyEnum.TWO };\n" +
+			"       @MyAnnotation(values=myValues) \n" + 
+			"       public void dothetrick(){} \n" + 
+			"\n" + 
+			"        public static void main(String[] args)throws Exception {\n" + 
+			"                MyAnnotation sluck = X.class.getMethod(\"dothetrick\", new Class[0]).getAnnotation(MyAnnotation.class);\n" + 
+			"                System.out.println(sluck.values().length);\n" + 
+			"        }\n" + 
+			"}",
+        },
+        "----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	@MyAnnotation(values=myValues) \n" + 
+		"	                     ^^^^^^^^\n" + 
+		"The array creation is unnecessary in an annotation value; only an array initializer is allowed\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156891
+public void test213() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"import java.lang.annotation.Retention;\n" + 
+			"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+			"@Retention(RUNTIME) @interface MyAnnotation {\n" + 
+			"    public int[] values();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"		private static final int[] myValues = { 1, 2, 3 };\n" +
+			"       @MyAnnotation(values=myValues) \n" + 
+			"       public void dothetrick(){} \n" + 
+			"\n" + 
+			"        public static void main(String[] args)throws Exception {\n" + 
+			"                MyAnnotation sluck = X.class.getMethod(\"dothetrick\", new Class[0]).getAnnotation(MyAnnotation.class);\n" + 
+			"                System.out.println(sluck.values().length);\n" + 
+			"        }\n" + 
+			"}",
+        },
+        "----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	@MyAnnotation(values=myValues) \n" + 
+		"	                     ^^^^^^^^\n" + 
+		"The array creation is unnecessary in an annotation value; only an array initializer is allowed\n" + 
 		"----------\n");
 }
 }

@@ -7667,17 +7667,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	ArrayList<X> list = new ArrayList();\n" + 
-			"	          ^\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	X[] foo() {\n" + 
+			"	^\n" + 
 			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	ArrayList<X> list = new ArrayList();\n" + 
+			"	          ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	ArrayList<X> list = new ArrayList();\n" + 
 			"	                    ^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type ArrayList needs unchecked conversion to conform to ArrayList<X>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 4)\n" + 
+			"4. WARNING in X.java (at line 4)\n" + 
 			"	ArrayList<X> list = new ArrayList();\n" + 
 			"	                        ^^^^^^^^^\n" + 
 			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
@@ -13522,7 +13527,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 6)\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	Set[] sets = new Set[10];\n" + 
+			"	^^^\n" + 
+			"Set is a raw type. References to generic type Set<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
 			"	return sets;\n" + 
 			"	       ^^^^\n" + 
 			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
@@ -24535,17 +24545,22 @@ public void test0800() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 7)\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	Constructor[] constrs = X.class.getConstructors();\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
 		"	for (Constructor constructor  : constrs) {\n" + 
 		"	     ^^^^^^^^^^^\n" + 
 		"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 8)\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
 		"	final String message = constructor.getAnnotation(AnnClass).message();\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The method getAnnotation(Class) belongs to the raw type Constructor. References to generic type Constructor<T> should be parameterized\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
 		"	final String message = constructor.getAnnotation(AnnClass).message();\n" + 
 		"	                                                           ^^^^^^^\n" + 
 		"The method message() is undefined for the type Annotation\n" + 
@@ -25166,12 +25181,17 @@ public void test0817() {
 			"	    ^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot perform instanceof check against parameterized type List<? extends String>. Use instead its raw form List since generic type information will be erased at runtime\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 19)\n" + 
+			"7. WARNING in X.java (at line 18)\n" + 
+			"	void foo(List[] ls) {\n" + 
+			"	         ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 19)\n" + 
 			"	if (ls instanceof List<?>[]) {}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The expression of type List[] is already an instance of type List<?>\n" + 
 			"----------\n" + 
-			"8. ERROR in X.java (at line 20)\n" + 
+			"9. ERROR in X.java (at line 20)\n" + 
 			"	if (ls instanceof List<? extends String>[]) {}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot perform instanceof check against parameterized type List<? extends String>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" + 
@@ -28443,12 +28463,17 @@ public void test0912() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	void foo(List<? extends Collection<String>[]> l1, List<Collection[]> l2) {\n" + 
+		"	                                                       ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
 		"	l1 = l2;\n" + 
 		"	     ^^\n" + 
 		"Type mismatch: cannot convert from List<Collection[]> to List<? extends Collection<String>[]>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
 		"	l2 = l1;\n" + 
 		"	     ^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? extends Collection<String>[]> to List<Collection[]>\n" + 
@@ -28482,42 +28507,52 @@ public void test0913() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	List<Collection[]> lc1 = null;\n" + 
+		"	     ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	List<? extends Collection[]> lc4 = null;\n" + 
+		"	               ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
 		"	lc1 = lc2; //1 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection<?>[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
 		"	lc1 = lc3; //2 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? extends Collection<?>[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 10)\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
 		"	lc1 = lc4; //3 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? extends Collection[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
 		"	lc2 = lc1; //4 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 12)\n" + 
+		"7. ERROR in X.java (at line 12)\n" + 
 		"	lc2 = lc3; //5 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? extends Collection<?>[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 13)\n" + 
+		"8. ERROR in X.java (at line 13)\n" + 
 		"	lc2 = lc4; //6 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? extends Collection[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"7. ERROR in X.java (at line 14)\n" + 
+		"9. ERROR in X.java (at line 14)\n" + 
 		"	lc3 = lc1; //7 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection[]> to List<? extends Collection<?>[]>\n" + 
 		"----------\n" + 
-		"8. ERROR in X.java (at line 16)\n" + 
+		"10. ERROR in X.java (at line 16)\n" + 
 		"	lc3 = lc4; //9 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? extends Collection[]> to List<? extends Collection<?>[]>\n" + 
@@ -28551,42 +28586,52 @@ public void test0914() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	List<Collection[]> lc1 = null;\n" + 
+		"	     ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	List<? super Collection[]> lc4 = null;\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
 		"	lc1 = lc2; //1 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection<?>[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
 		"	lc1 = lc3; //2 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 10)\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
 		"	lc1 = lc4; //3 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? super Collection[]> to List<Collection[]>\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
 		"	lc2 = lc1; //4 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 12)\n" + 
+		"7. ERROR in X.java (at line 12)\n" + 
 		"	lc2 = lc3; //5 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 13)\n" + 
+		"8. ERROR in X.java (at line 13)\n" + 
 		"	lc2 = lc4; //6 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? super Collection[]> to List<Collection<?>[]>\n" + 
 		"----------\n" + 
-		"7. ERROR in X.java (at line 18)\n" + 
+		"9. ERROR in X.java (at line 18)\n" + 
 		"	lc4 = lc2; //11 ko\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<Collection<?>[]> to List<? super Collection[]>\n" + 
 		"----------\n" + 
-		"8. ERROR in X.java (at line 19)\n" + 
+		"10. ERROR in X.java (at line 19)\n" + 
 		"	lc4 = lc3; //12 ko		\n" + 
 		"	      ^^^\n" + 
 		"Type mismatch: cannot convert from List<capture-of ? super Collection<?>[]> to List<? super Collection[]>\n" + 
@@ -31983,4 +32028,272 @@ public void test1029() {
 		"Type mismatch: cannot convert from List<Number&Comparable<?>> to List<Number>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159021 - variation
+public void test1038() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"    int CONST = A.foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"class A<U> {\n" + 
+			"        static int foo() {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"        return 0;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class B<V> implements I<V> {\n" + 
+			"	static int LOCAL_STATIC;\n" + 
+			"	int local_field;\n" + 
+			"    B(int param) {\n" + 
+			"        int i = CONST; // keep for possible <clinit>\n" + 
+			"        int j = param; // may optimize out\n" + 
+			"        int k = LOCAL_STATIC; // may optimize out\n" + 
+			"        int l = local_field; // may optimize out\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new B<String>(12);\n" + 
+			"    }\n" + 
+			"}", // =================
+		}, 
+		"SUCCESS",
+		null,
+		false,
+		null,
+		options,
+		null);
+	// check the reference to I.CONST still got generated (for <clinit> invocation side-effect)
+	String expectedOutput = 
+		"  // Method descriptor #10 (I)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  B(int param);\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  invokespecial java.lang.Object() [12]\n" + 
+		"    4  getstatic B.CONST : int [15]\n" + 
+		"    7  pop\n" + 
+		"    8  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 14]\n" + 
+		"        [pc: 4, line: 15]\n" + 
+		"        [pc: 8, line: 19]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 9] local: this index: 0 type: B\n" + 
+		"        [pc: 0, pc: 9] local: param index: 1 type: int\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "B.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159021 - variation
+public void test1039() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"	Value<String> CONST = A.foo(\"[I.CONST]\");\n" + 
+			"}\n" + 
+			"class Value<V> {\n" + 
+			"	static String NAME = \"\";\n" + 
+			"	V v;\n" + 
+			"	Value(V v) {\n" + 
+			"		this.v = v;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A {\n" + 
+			"	static Value<String> foo(String str) {\n" + 
+			"		System.out.print(str);\n" + 
+			"		return new Value<String>(\"str\");\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class B<V> implements I<V> {\n" + 
+			"	static Value<String> LOCAL_STATIC = A.foo(\"[B.LOCAL_STATIC]\");\n" + 
+			"	Value<String> local_field = A.foo(\"[B.local_field]\");\n" + 
+			"	B(Value<String> param) {\n" + 
+			"		String i = CONST.NAME; // keep for possible <clinit>\n" + 
+			"		String j = param.NAME; // may optimize out\n" + 
+			"		String k = LOCAL_STATIC.NAME; // may optimize out\n" + 
+			"		String l = local_field.NAME; // may optimize out\n" + 			
+			"	}\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new B<String>(new Value<String>(\"[PARAM]\"));\n" + 
+			"	}\n" + 
+			"}", // =================
+		}, 
+		"[B.LOCAL_STATIC][B.local_field][I.CONST]",
+		null,
+		false,
+		null,
+		options,
+		null);
+	// check the reference to I.CONST still got generated (for <clinit> invocation side-effect)
+	String expectedOutput = 
+		"  // Method descriptor #28 (LValue;)V\n" + 
+		"  // Signature: (LValue<Ljava/lang/String;>;)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  B(Value param);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [30]\n" + 
+		"     4  aload_0 [this]\n" + 
+		"     5  ldc <String \"[B.local_field]\"> [32]\n" + 
+		"     7  invokestatic A.foo(java.lang.String) : Value [17]\n" + 
+		"    10  putfield B.local_field : Value [34]\n" + 
+		"    13  getstatic I.CONST : Value [36]\n" + 
+		"    16  pop\n" + 
+		"    17  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    20  pop\n" + 
+		"    21  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    24  pop\n" + 
+		"    25  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    28  pop\n" + 
+		"    29  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    32  pop\n" + 
+		"    33  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 20]\n" + 
+		"        [pc: 4, line: 19]\n" + 
+		"        [pc: 13, line: 21]\n" + 
+		"        [pc: 21, line: 22]\n" + 
+		"        [pc: 25, line: 23]\n" + 
+		"        [pc: 29, line: 24]\n" + 
+		"        [pc: 33, line: 25]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 34] local: this index: 0 type: B\n" + 
+		"        [pc: 0, pc: 34] local: param index: 1 type: Value\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "B.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159021 - variation
+public void test1040() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"	Value<String> CONST = A.foo(\"[I.CONST]\");\n" + 
+			"}\n" + 
+			"class Value<V> {\n" + 
+			"	static String NAME = \"\";\n" + 
+			"	V v;\n" + 
+			"	Value(V v) {\n" + 
+			"		this.v = v;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A {\n" + 
+			"	static Value<String> foo(String str) {\n" + 
+			"		System.out.print(str);\n" + 
+			"		return new Value<String>(\"str\");\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class B<V> implements I<V> {\n" + 
+			"	static Value<String> LOCAL_STATIC = A.foo(\"[B.LOCAL_STATIC]\");\n" + 
+			"	Value<String> local_field = A.foo(\"[B.local_field]\");\n" + 
+			"	B(Value<String> param) {\n" + 
+			"		String i = this.CONST.NAME; // keep for possible <clinit>\n" + 
+			"		String k = this.LOCAL_STATIC.NAME; // may optimize out\n" + 
+			"		String l = this.local_field.NAME; // may optimize out\n" + 			
+			"	}\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new B<String>(new Value<String>(\"[PARAM]\"));\n" + 
+			"	}\n" + 
+			"}", // =================
+		}, 
+		"[B.LOCAL_STATIC][B.local_field][I.CONST]",
+		null,
+		false,
+		null,
+		options,
+		null);
+	// check the reference to I.CONST still got generated (for <clinit> invocation side-effect)
+	String expectedOutput = 
+		"  // Method descriptor #28 (LValue;)V\n" + 
+		"  // Signature: (LValue<Ljava/lang/String;>;)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  B(Value param);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [30]\n" + 
+		"     4  aload_0 [this]\n" + 
+		"     5  ldc <String \"[B.local_field]\"> [32]\n" + 
+		"     7  invokestatic A.foo(java.lang.String) : Value [17]\n" + 
+		"    10  putfield B.local_field : Value [34]\n" + 
+		"    13  getstatic B.CONST : Value [36]\n" + 
+		"    16  pop\n" + 
+		"    17  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    20  pop\n" + 
+		"    21  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    24  pop\n" + 
+		"    25  getstatic Value.NAME : java.lang.String [39]\n" + 
+		"    28  pop\n" + 
+		"    29  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 20]\n" + 
+		"        [pc: 4, line: 19]\n" + 
+		"        [pc: 13, line: 21]\n" + 
+		"        [pc: 21, line: 22]\n" + 
+		"        [pc: 25, line: 23]\n" + 
+		"        [pc: 29, line: 24]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 30] local: this index: 0 type: B\n" + 
+		"        [pc: 0, pc: 30] local: param index: 1 type: Value\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "B.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
+
 }

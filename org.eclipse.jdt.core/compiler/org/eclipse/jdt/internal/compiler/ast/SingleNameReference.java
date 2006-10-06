@@ -346,43 +346,57 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						if (valueRequired) {
 							codeStream.generateConstant(fieldConstant, implicitConversion);
 						}
-					} else {
-						if (valueRequired) {
-							boolean isStatic = fieldBinding.isStatic();
-							if (!isStatic) {
-								if ((bits & DepthMASK) != 0) {
-									ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
-									Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
-									codeStream.generateOuterAccess(emulationPath, this, targetType, currentScope);
-								} else {
-									generateReceiver(codeStream);
-								}
+						break;
+					}
+					if (fieldBinding.isStatic()) {
+						if (!valueRequired) {
+							// if no valueRequired, still need possible side-effects of <clinit> invocation, if field belongs to different class
+							if (((FieldBinding)binding).original().declaringClass == this.actualReceiverType.erasure()) {
+								break;
 							}
-							// managing private access							
-							if ((syntheticAccessors == null) || (syntheticAccessors[READ] == null)) {
-								if (isStatic) {
-									codeStream.getstatic(fieldBinding);
-								} else {
-									codeStream.getfield(fieldBinding);
-								}
-							} else {
-								codeStream.invokestatic(syntheticAccessors[READ]);
-							}
-							if (valueRequired) {
-								if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
-								codeStream.generateImplicitConversion(implicitConversion);
-							} else {
-								// could occur if !valueRequired but compliance >= 1.4
-								switch (fieldBinding.type.id) {
-									case T_long :
-									case T_double :
-										codeStream.pop2();
-										break;
-									default :
-										codeStream.pop();
-								}
-							}							
 						}
+						// managing private access							
+						if ((syntheticAccessors == null) || (syntheticAccessors[READ] == null)) {
+							codeStream.getstatic(fieldBinding);
+						} else {
+							codeStream.invokestatic(syntheticAccessors[READ]);
+						}
+						if (valueRequired) {
+							if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
+							codeStream.generateImplicitConversion(implicitConversion);
+						} else {
+							// could occur if !valueRequired but static field belongs to different class
+							switch (fieldBinding.type.id) {
+								case T_long :
+								case T_double :
+									codeStream.pop2();
+									break;
+								default :
+									codeStream.pop();
+							}
+						}							
+					} else {
+						if (!valueRequired) {
+							// if no valueRequired, optimize out entire gen
+							break;
+						}
+						// managing enclosing instance access
+						if ((bits & DepthMASK) != 0) {
+							ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
+							Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
+							codeStream.generateOuterAccess(emulationPath, this, targetType, currentScope);
+						} else {
+							generateReceiver(codeStream);
+						}
+						// managing private access							
+						if ((syntheticAccessors == null) || (syntheticAccessors[READ] == null)) {
+							codeStream.getfield(fieldBinding);
+						} else {
+							codeStream.invokestatic(syntheticAccessors[READ]);
+						}
+						// managing generic cast
+						if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
+						codeStream.generateImplicitConversion(implicitConversion);
 					}
 					break;
 				case Binding.LOCAL : // reading a local

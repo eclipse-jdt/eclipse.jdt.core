@@ -1362,11 +1362,6 @@ public void testClasspathValidation27_Bug159325_lib() throws CoreException {
 	Hashtable javaCoreOptions = JavaCore.getOptions();
 	try {
 		IJavaProject proj =  this.createJavaProject("P1", new String[] {}, "");
-		try {
-			setupExternalJCL(JavaCore.VERSION_1_5);
-		} catch (IOException e) {
-			// skip
-		}
 		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
 
 		Hashtable options = JavaCore.getOptions();
@@ -1374,7 +1369,7 @@ public void testClasspathValidation27_Bug159325_lib() throws CoreException {
 		JavaCore.setOptions(options);
 		proj.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, new String("ignore".toCharArray()));
 
-		IClasspathEntry library = JavaCore.newLibraryEntry(new Path(getExternalJCLPathString(JavaCore.VERSION_1_5)), null, null, ClasspathEntry.NO_ACCESS_RULES, ClasspathEntry.NO_EXTRA_ATTRIBUTES, false);
+		IClasspathEntry library = JavaCore.newLibraryEntry(new Path(getExternalJCLPathString(JavaCore.VERSION_1_5)), null, null, ClasspathEntry.NO_ACCESS_RULES, null, false);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, library, false);
 		assertStatus("OK", status);
 	} finally {

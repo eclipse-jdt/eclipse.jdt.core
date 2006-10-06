@@ -26,7 +26,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit1 = 0x1; 						// return type (operator) | name reference kind (name ref) | add assertion (type decl) | useful empty statement (empty statement)
 	public final static int Bit2 = 0x2; 						// return type (operator) | name reference kind (name ref) | has local type (type, method, field decl)
 	public final static int Bit3 = 0x4; 						// return type (operator) | name reference kind (name ref) | implicit this (this ref)
-	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (local decl) | undocumented empty block (block, type and method decl)
+	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (name ref,local decl) | undocumented empty block (block, type and method decl)
 	public final static int Bit5 = 0x10; 						// value for return (expression) | has all method bodies (unit) | supertype ref (type ref)
 	public final static int Bit6 = 0x20; 						// depth (name ref, msg) | ignore need cast check (cast expression)
 	public final static int Bit7 = 0x40; 						// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression) | label used (labelStatement)
@@ -108,6 +108,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	
 	// for name references 
 	public static final int RestrictiveFlagMASK = Bit1|Bit2|Bit3;	
+	
+	// for name refs or local decls
 	public static final int FirstAssignmentToLocal = Bit4;
 	
 	// for this reference
@@ -119,9 +121,11 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	// for statements 
 	public static final int IsReachable = Bit32; 
-	public static final int IsLocalDeclarationReachable = Bit31; 
 	public static final int LabelUsed = Bit7;
 	public static final int DocumentedFallthrough = Bit30;
+	
+	// local decls
+	public static final int IsLocalDeclarationReachable = Bit31; 
 	
 	// try statements
 	public static final int IsSubRoutineEscaping = Bit15;

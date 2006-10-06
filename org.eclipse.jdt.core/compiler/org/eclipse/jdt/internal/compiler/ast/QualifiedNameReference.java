@@ -653,7 +653,20 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 								codeStream.pop();
 							}
 						} else {
-							if (this.codegenBinding != lastFieldBinding && !lastFieldBinding.isStatic()){
+							if (this.codegenBinding == lastFieldBinding) {
+								if (lastFieldBinding.isStatic()){
+									// if no valueRequired, still need possible side-effects of <clinit> invocation, if field belongs to different class
+									if (((FieldBinding)binding).original().declaringClass != this.actualReceiverType.erasure()) {
+										MethodBinding accessor = syntheticReadAccessors == null ? null : syntheticReadAccessors[i]; 
+										if (accessor == null) {
+											codeStream.getstatic(lastFieldBinding);
+										} else {
+											codeStream.invokestatic(accessor);
+										}
+										codeStream.pop();
+									}				
+								}
+							} else if (!lastFieldBinding.isStatic()){
 								codeStream.invokeObjectGetClass(); // perform null check
 								codeStream.pop();
 							}						
