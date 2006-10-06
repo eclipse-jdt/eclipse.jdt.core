@@ -765,7 +765,7 @@ public class SearchEngine {
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 		
-		TypeNameMatchRequestorWrapper requestorWrapper = new TypeNameMatchRequestorWrapper(nameMatchRequestor, scope, this.basicEngine.getWorkingCopies());
+		TypeNameMatchRequestorWrapper requestorWrapper = new TypeNameMatchRequestorWrapper(nameMatchRequestor, scope);
 		this.basicEngine.searchAllTypeNames(packageName, packageMatchRule, typeName, typeMatchRule, searchFor, scope, requestorWrapper, waitingPolicy, progressMonitor);
 	}
 

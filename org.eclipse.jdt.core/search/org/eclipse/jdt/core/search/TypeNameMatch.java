@@ -10,76 +10,89 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
- * A match collected while searching for all type names
- * using {@link SearchEngine#searchAllTypeNames(
- *		char[] packageName, 
- *		int packageMatchRule, 
- *		char[] typeName,
- *		int typeMatchRule, 
- *		int searchFor, 
- *		IJavaSearchScope scope, 
- *		TypeNameMatchRequestor nameMatchRequestor,
- *		int waitingPolicy,
- * 	org.eclipse.core.runtime.IProgressMonitor monitor)}
- * method
+ * A match collected while searching for all type names using
+ * {@link SearchEngine#searchAllTypeNames( char[] packageName, int
+ * packageMatchRule, char[] typeName, int typeMatchRule, int searchFor,
+ * IJavaSearchScope scope, TypeNameMatchRequestor nameMatchRequestor, int
+ * waitingPolicy, org.eclipse.core.runtime.IProgressMonitor monitor)} method
  * <p>
- * User can get type from this match using {@link #resolvedType()} method.
- * </p><p>
+ * User can get type from this match using {@link #getType()} method.
+ * </p>
+ * <p>
  * This class is not intended to be instantiated or subclassed by clients.
  * </p>
+ * 
  * @see TypeNameMatchRequestor
  * 
  * @since 3.3
  */
 public class TypeNameMatch {
 
-//private IType type;
-private int modifiers;
-private char[] packageName;
-private char[] simpleTypeName;
-private char[][] enclosingTypeNames;
-private String path;
-//private boolean initialized;
+private IType type;
+
+private int modifiers = -1; // store modifiers to avoid java model population
 
 /**
  * Creates a new type name match.
  */
-public TypeNameMatch(int modifiers, char[] packageName, char[] typeName, char[][] enclosingTypeNames, String path) {
+public TypeNameMatch(IType type) {
+	this.type = type;
+}
+
+public TypeNameMatch(IType type, int modifiers) {
+	this(type);
 	this.modifiers = modifiers;
-	this.packageName = packageName;
-	this.simpleTypeName = typeName;
-	this.enclosingTypeNames = enclosingTypeNames;
-	this.path = path;
 }
 
 /**
- * Returns the enclosing type names (if any) of the type.
+ * Returns the java model type corresponding to fully qualified type name (based
+ * on package, enclosing types and simple name).
  * 
- * @return the enclosing type names (if any) of the type
+ * @return the java model type
+ * @throws JavaModelException
+ *             happens when type stored information are not valid
  */
-public final char[][] getEnclosingTypeNames() {
-	return enclosingTypeNames;
+public IType getType() throws JavaModelException {
+	return this.type;
+}
+
+/*
+ * (non-Javadoc)
+ * 
+ * @see java.lang.Object#toString()
+ */
+public String toString() {
+	return this.type.toString();
+}
+
+public IPackageFragmentRoot getPackageFragmentRoot() {
+	return (IPackageFragmentRoot) this.type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 }
 
 /**
- * Fully qualified name of type (e.g. package name + '.' enclosing type names + '.' simple name)
+ * Fully qualified name of type (e.g. package name + '.' enclosing type names +
+ * '.' simple name)
  * 
  * @return Fully qualified type name of the type
  */
-public final char[] getFullyQualifiedName() {
-	return CharOperation.concat(this.packageName, getTypeContainerName(), '.');
+public String getFullyQualifiedName() {
+	return this.type.getFullyQualifiedName('.');
+}
+
+/**
+ * Fully qualified name of type (e.g. package name + '.' enclosing type names +
+ * '.' simple name)
+ * 
+ * @return Fully qualified type name of the type
+ */
+public String getTypeQualifiedName() {
+	return this.type.getTypeQualifiedName('.');
 }
 
 /**
@@ -87,15 +100,8 @@ public final char[] getFullyQualifiedName() {
  * 
  * @return the type modifiers
  */
-public final int getModifiers() {
-	return modifiers;
-}
-
-/*
- * Specific package fragment root while resolving type
- */
-protected IPackageFragmentRoot getPackageFragmentRoot() {
-	return null;
+public int getModifiers() {
+	return this.modifiers;
 }
 
 /**
@@ -103,26 +109,8 @@ protected IPackageFragmentRoot getPackageFragmentRoot() {
  * 
  * @return the package name
  */
-public final char[] getPackageName() {
-	return packageName;
-}
-
-/**
- * Returns the full path of the resource.
- * This path may include the jar file path following by '|' separator
- * if the type is a binary included in a jar.
- * 
- * @return the full path of the resource
- */
-public final String getPath() {
-	return path;
-}
-
-/*
- * Project used to resolve type
- */
-protected IProject getProject() {
-	return ResourcesPlugin.getWorkspace().getRoot().getProject(new Path(this.path).segment(0));
+public String getPackageName() {
+	return this.type.getPackageFragment().getElementName();
 }
 
 /**
@@ -130,21 +118,8 @@ protected IProject getProject() {
  * 
  * @return the type name
  */
-public final char[] getSimpleTypeName() {
-	return simpleTypeName;
-}
-
-/**
- * Returns the java model type corresponding to fully qualified type name
- * (based on package, enclosing types and simple name).
- * 
- * @return the java model type
- * @throws JavaModelException happens when type stored information are not valid
- */
-public IType resolvedType() throws JavaModelException {
-	IJavaProject javaProject = JavaCore.create(getProject());
-	if (javaProject == null) return null; // cannot initialize without a project
-	return javaProject.findType(new String(packageName), new String(getTypeContainerName()), getPackageFragmentRoot(), getWorkingCopies(), null);
+public String getSimpleTypeName() {
+	return this.type.getElementName();
 }
 
 /**
@@ -152,21 +127,12 @@ public IType resolvedType() throws JavaModelException {
  * 
  * @return Name of the type container
  */
-public final char[] getTypeContainerName() {
-	return this.enclosingTypeNames == null ? this.simpleTypeName : CharOperation.concatWith(this.enclosingTypeNames, this.simpleTypeName, '.');
-}
-
-/*
- * Working copies to look in while resolving type
- */
-protected ICompilationUnit[] getWorkingCopies() {
-	return null;
-}
-
-/* (non-Javadoc)
- * @see java.lang.Object#toString()
- */
-public String toString() {
-	return new String(getFullyQualifiedName());
+public String getTypeContainerName() {
+	IType outerType = this.type.getDeclaringType();
+	if (outerType != null) {
+		return outerType.getFullyQualifiedName('.');
+	} else {
+		return this.type.getPackageFragment().getElementName();
+	}
 }
 }

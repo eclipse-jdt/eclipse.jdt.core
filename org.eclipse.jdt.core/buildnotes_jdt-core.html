@@ -52,6 +52,19 @@ Eclipse SDK 3.3M3 - 3rd October 2006
 <h2>What's new in this drop</h2>
 <ul>
 <li>Raw type reference are now reported by default. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=159456">159456</a>.</li>
+<li>API of <code>TypeNameMatch</code> has been changed to improve memory consumption performance.
+It now creates IType handle while accepting the type information from indexes and stores their modifiers
+to avoid java element opening while getting this piece of information.<br>
+Note that there's no Java Model initialization nor populating while creating handles...<br>
+Note also that previously added API method on IJavaProject has been removed:
+<pre>
+IType findType(String packageName,
+	String typeQualifiedName,
+	IPackageFragmentRoot root,
+	ICompilationUnit[] units,
+	IProgressMonitor progressMonitor) throws JavaModelException;
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -138,44 +151,6 @@ Deprecated existing <code>SearchEngine</code> API helper method:
 		IProgressMonitor progressMonitor)  throws JavaModelException
 </pre>
 This should avoid to have too many similar <code>searchAllTypeNames</code> available methods...
-</li>
-<li>
-Added new <code>IJavaProject</code> API method to let clients finding types in a project with additional working copies
-and in a specific package fragment root:
-<pre>
-/**
- * Returns the first type found following this project's classpath 
- * with the given package name and type qualified name
- * or <code>null</code> if none is found.
- * The package name is a dot-separated name.
- * The type qualified name is also a dot-separated name. For example,
- * a class B defined as a member type of a class A should have the 
- * type qualified name "A.B".
- * The returned type may be a part of one of the given compilation units.
- * If a package fragment root is specified, then the returned type, if any,
- * will belong to a package fragment which parent is the given package fragment root.
- * 
- * @param packageName the given package name
- * @param typeQualifiedName the given type qualified name
- * @param root Package fragment root which must include the search type.
- * 	May be <code>null</code>.
- * @param units Compilation units returned may be a part of.
- * 	May be <code>null</code>.
- * @param progressMonitor the progress monitor to report progress to,
- * 	or <code>null</code> if no progress monitor is provided
- * @exception JavaModelException if this project does not exist or if an
- *		exception occurs while accessing its corresponding resource
- * @return the first type found following this project's classpath 
- * with the given fully qualified name or <code>null</code> if none is found
- * @see IType#getFullyQualifiedName(char)
- * @since 3.3
- */
-IType findType(String packageName,
-	String typeQualifiedName,
-	IPackageFragmentRoot root,
-	ICompilationUnit[] units,
-	IProgressMonitor progressMonitor) throws JavaModelException;
-</pre>
 </li>
 <li>
 Added new <code>JavaCore</code> API method to create a java element from an <code>IFile</code>

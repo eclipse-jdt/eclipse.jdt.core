@@ -1322,31 +1322,6 @@ public final class JavaCore extends Plugin {
 		return JavaModelManager.create(file, null/*unknown java project*/);
 	}
 	/**
-	 * Returns the Java element corresponding to the given file, its project being the given
-	 * project.
-	 * Returns <code>null</code> if unable to associate the given file
-	 * with a Java element.
-	 *
-	 * <p>The file must be one of:<ul>
-	 *	<li>a file with one of the {@link JavaCore#getJavaLikeExtensions() 
-	 *      Java-like extensions} - the element returned is the corresponding <code>ICompilationUnit</code></li>
-	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
-	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
-	 *	</ul>
-	 * <p>
-	 * Creating a Java element has the side effect of creating and opening all of the
-	 * element's parents if they are not yet open.
-	 * 
-	 * @param file the given file
-	 * @return the Java element corresponding to the given file, or
-	 * <code>null</code> if unable to associate the given file
-	 * with a Java element
-	 * @since 3.3
-	 */
-	public static IJavaElement create(IFile file, IJavaProject project) {
-		return JavaModelManager.create(file, project);
-	}
-	/**
 	 * Returns the package fragment or package fragment root corresponding to the given folder, or
 	 * <code>null</code> if unable to associate the given folder with a Java element.
 	 * <p>
@@ -1406,6 +1381,34 @@ public final class JavaCore extends Plugin {
 	 */
 	public static IJavaElement create(IResource resource) {
 		return JavaModelManager.create(resource, null/*unknown java project*/);
+	}
+	/**
+	 * Returns the Java element corresponding to the given file, its project being the given
+	 * project. Returns <code>null</code> if unable to associate the given resource
+	 * with a Java element.
+	 *<p>
+	 * The resource must be one of:<ul>
+	 *	<li>a project - the element returned is the corresponding <code>IJavaProject</code></li>
+	 *	<li>a file with one of the {@link JavaCore#getJavaLikeExtensions() 
+	 *      Java-like extensions} - the element returned is the corresponding <code>ICompilationUnit</code></li>
+	 *	<li>a <code>.class</code> file - the element returned is the corresponding <code>IClassFile</code></li>
+	 *	<li>a <code>.jar</code> file - the element returned is the corresponding <code>IPackageFragmentRoot</code></li>
+	 *  <li>a folder - the element returned is the corresponding <code>IPackageFragmentRoot</code>
+	 *    	or <code>IPackageFragment</code></li>
+	 *  <li>the workspace root resource - the element returned is the <code>IJavaModel</code></li>
+	 *	</ul>
+	 * <p>
+	 * Creating a Java element has the side effect of creating and opening all of the
+	 * element's parents if they are not yet open.
+	 * 
+	 * @param resource the given resource
+	 * @return the Java element corresponding to the given file, or
+	 * <code>null</code> if unable to associate the given file
+	 * with a Java element
+	 * @since 3.3
+	 */
+	public static IJavaElement create(IResource resource, IJavaProject project) {
+		return JavaModelManager.create(resource, project);
 	}
 	/**
 	 * Returns the Java model.

@@ -16,11 +16,26 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathContainer;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaModel;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -44,7 +59,7 @@ public class JavaSearchScope extends AbstractSearchScope {
 	
 	private IPath[] enclosingProjectsAndJars;
 	public final static AccessRuleSet NOT_ENCLOSED = new AccessRuleSet(null, null);
-	
+
 public JavaSearchScope() {
 	this(5);
 }
@@ -158,7 +173,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 				if ((includeMask & SOURCES) != 0) {
 					IPath path = entry.getPath();
 					if (pathToAdd == null || pathToAdd.equals(path)) {
-						add(null, Util.relativePath(path,1/*remove project segment*/), projectPathString, false/*not a package*/, access);
+						add(projectPath.toString(), Util.relativePath(path,1/*remove project segment*/), projectPathString, false/*not a package*/, access);
 					}
 				}
 				break;
@@ -187,20 +202,22 @@ public void add(IJavaElement element) throws JavaModelException {
 			containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : rootPath;
 			containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 			IResource rootResource = root.getResource();
+			String projectPath = root.getJavaProject().getPath().toString();
 			if (rootResource != null && rootResource.isAccessible()) {
 				String relativePath = Util.relativePath(rootResource.getFullPath(), containerPath.segmentCount());
-				add(null, relativePath, containerPathToString, false/*not a package*/, null);
+				add(projectPath, relativePath, containerPathToString, false/*not a package*/, null);
 			} else {
-				add(null, "", containerPathToString, false/*not a package*/, null); //$NON-NLS-1$
+				add(projectPath, "", containerPathToString, false/*not a package*/, null); //$NON-NLS-1$
 			}
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
 			root = (IPackageFragmentRoot)element.getParent();
+			projectPath = root.getJavaProject().getPath().toString();
 			if (root.isArchive()) {
 				String relativePath = Util.concatWith(((PackageFragment) element).names, '/');
 				containerPath = root.getPath();
 				containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
-				add(null, relativePath, containerPathToString, true/*package*/, null);
+				add(projectPath, relativePath, containerPathToString, true/*package*/, null);
 			} else {
 				IResource resource = element.getResource();
 				if (resource != null) {
@@ -212,7 +229,7 @@ public void add(IJavaElement element) throws JavaModelException {
 					}
 					containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 					String relativePath = Util.relativePath(resource.getFullPath(), containerPath.segmentCount());
-					add(null, relativePath, containerPathToString, true/*package*/, null);
+					add(projectPath, relativePath, containerPathToString, true/*package*/, null);
 				}
 			}
 			break;
@@ -225,6 +242,7 @@ public void add(IJavaElement element) throws JavaModelException {
 				this.elements.add(element);
 			}
 			root = (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+			projectPath = root.getJavaProject().getPath().toString();
 			String relativePath;
 			if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 				containerPath = root.getParent().getPath();
@@ -234,7 +252,7 @@ public void add(IJavaElement element) throws JavaModelException {
 				relativePath = getPath(element, true/*relative path*/).toString();
 			}
 			containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
-			add(null, relativePath, containerPathToString, false/*not a package*/, null);
+			add(projectPath, relativePath, containerPathToString, false/*not a package*/, null);
 	}
 	
 	if (containerPath != null)
@@ -259,14 +277,11 @@ private void add(String projectPath, String relativePath, String containerPath, 
 			index = 0;
 		}
 	}
-	int idx = -1;
-	if (projectPath != null && !containerPath.startsWith(projectPath)) {
+	int idx = this.projectPaths.indexOf(projectPath);
+	if (idx == -1) {
+		// store project in separated list to minimize memory footprint
+		this.projectPaths.add(projectPath);
 		idx = this.projectPaths.indexOf(projectPath);
-		if (idx == -1) {
-			// store project in separated list to minimize memory footprint
-			this.projectPaths.add(projectPath);
-			idx = this.projectPaths.indexOf(projectPath);
-		}
 	}
 	this.projectIndexes[index] = idx;
 	this.relativePaths[index] = relativePath;
@@ -546,10 +561,11 @@ public void processDelta(IJavaElementDelta delta) {
  * @param resourcePathString path of the resource
  * @return the project path of the resource
  */
-public String projectPathFor(String resourcePathString) {
+public IPackageFragmentRoot packageFragmentRoot(String resourcePathString) {
 	int index = -1;
 	int separatorIndex = resourcePathString.indexOf(JAR_FILE_ENTRY_SEPARATOR);
-	if (separatorIndex != -1) {
+	boolean isJarFile = separatorIndex != -1;
+	if (isJarFile) {
 		// internal or external jar (case 3, 4, or 5)
 		String jarPath = resourcePathString.substring(0, separatorIndex);
 		String relativePath = resourcePathString.substring(separatorIndex+1);
@@ -560,8 +576,16 @@ public String projectPathFor(String resourcePathString) {
 	}
 	if (index >= 0) {
 		int idx = projectIndexes[index];
-		if (idx != -1) {
-			return (String) this.projectPaths.get(idx);
+		String projectPath = idx == -1 ? null : (String) this.projectPaths.get(idx);
+		if (projectPath != null) {
+			IJavaProject project =JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject(projectPath));
+			if (isJarFile) {
+				return project.getPackageFragmentRoot(this.containerPaths[index]);
+			}
+			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(this.containerPaths[index]+'/'+this.relativePaths[index]), false);
+			if (target instanceof IResource) {
+				return project.getPackageFragmentRoot((IResource)target);
+			}
 		}
 	}
 	return null;

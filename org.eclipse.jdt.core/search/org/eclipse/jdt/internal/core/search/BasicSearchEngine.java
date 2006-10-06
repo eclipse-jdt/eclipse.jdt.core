@@ -326,7 +326,7 @@ public class BasicSearchEngine {
 	 * Returns the list of working copies used by this search engine.
 	 * Returns null if none.
 	 */
-	public ICompilationUnit[] getWorkingCopies() {
+	private ICompilationUnit[] getWorkingCopies() {
 		ICompilationUnit[] copies;
 		if (this.workingCopies != null) {
 			if (this.workingCopyOwner == null) {
@@ -779,7 +779,7 @@ public class BasicSearchEngine {
 			// add type names from working copies
 			if (copies != null) {
 				for (int i = 0; i < copiesLength; i++) {
-					ICompilationUnit workingCopy = copies[i];
+					final ICompilationUnit workingCopy = copies[i];
 					if (!scope.encloses(workingCopy)) continue;
 					final String path = workingCopy.getPath().toString();
 					if (workingCopy.isConsistent()) {
@@ -808,7 +808,11 @@ public class BasicSearchEngine {
 								kind = TypeDeclaration.INTERFACE_DECL;
 							}
 							if (match(typeSuffix, packageName, typeName, typeMatchRule, kind, packageDeclaration, simpleName)) {
-								nameRequestor.acceptType(type.getFlags(), packageDeclaration, simpleName, enclosingTypeNames, path, null);
+								if (nameRequestor instanceof TypeNameMatchRequestorWrapper) {
+									((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new TypeNameMatch(type));
+								} else {
+									nameRequestor.acceptType(type.getFlags(), packageDeclaration, simpleName, enclosingTypeNames, path, null);
+								}
 							}
 						}
 					} else {
@@ -824,7 +828,12 @@ public class BasicSearchEngine {
 								}
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
 									if (match(typeSuffix, packageName, typeName, typeMatchRule, TypeDeclaration.kind(typeDeclaration.modifiers), packageDeclaration, typeDeclaration.name)) {
-										nameRequestor.acceptType(typeDeclaration.modifiers, packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
+										if (nameRequestor instanceof TypeNameMatchRequestorWrapper) {
+											IType type = workingCopy.getType(new String(typeName));
+											((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new TypeNameMatch(type, typeDeclaration.modifiers));
+										} else {
+											nameRequestor.acceptType(typeDeclaration.modifiers, packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
+										}
 									}
 									return true;
 								}
@@ -842,7 +851,15 @@ public class BasicSearchEngine {
 											}
 										}
 										// report
-										nameRequestor.acceptType(memberTypeDeclaration.modifiers, packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
+										if (nameRequestor instanceof TypeNameMatchRequestorWrapper) {
+											IType type = workingCopy.getType(new String(enclosingTypeNames[0]));
+											for (int j=1, l=enclosingTypeNames.length; j<l; j++) {
+												type = type.getType(new String(enclosingTypeNames[j]));
+											}
+											((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new TypeNameMatch(type, 0));
+										} else {
+											nameRequestor.acceptType(memberTypeDeclaration.modifiers, packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
+										}
 									}
 									return true;
 								}

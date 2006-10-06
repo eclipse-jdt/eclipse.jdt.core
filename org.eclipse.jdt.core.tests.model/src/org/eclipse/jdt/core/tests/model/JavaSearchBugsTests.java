@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.Test;
@@ -82,6 +83,36 @@ class TypeReferencesCollector extends JavaSearchResultCollector {
 	}
 }
 
+class TypeNameMatchCollector extends TypeNameMatchRequestor {
+	private int index = -1;
+	public String[] results = new String[10];
+	public void acceptTypeNameMatch(TypeNameMatch match) {
+		int length = results.length;
+		if (++index > length) {
+			System.arraycopy(results, 0, results = new String[length+10], 0, length);
+		}
+		try {
+			IType type = match.getType();
+			if (type != null) {
+				results[index] = type.toString();
+			}
+		}
+		catch (JavaModelException jme) {
+			assertTrue("We should not have any JavaModel exception! Message:"+jme.getMessage(), false);
+		}
+	}
+	public String toString() {
+		String[] strings = new String[index+1];
+		System.arraycopy(results, 0, strings, 0, index+1);
+		Arrays.sort(strings);
+		StringBuffer buffer = new StringBuffer();
+		for (int i=0; i<=index; i++) {
+			if (i>0) buffer.append('\n');
+			buffer.append(strings[i]);
+		}
+		return buffer.toString();
+	}
+}
 IJavaSearchScope getJavaSearchScopeBugs() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
 }
@@ -6879,7 +6910,7 @@ public void testBug148380_SearchAllTypes_wc() throws CoreException {
 		"public class Y {}\n"
 	);
 	IJavaSearchScope scope = getJavaSearchScopeBugs();
-	TestTypeNameMatchRequestor requestor1 = new TestTypeNameMatchRequestor();
+	TypeNameMatchCollector requestor1 = new TypeNameMatchCollector();
 	new SearchEngine(this.workingCopies).searchAllTypeNames(
 		"b148380".toCharArray(),
 		SearchPattern.R_EXACT_MATCH,
@@ -6890,15 +6921,13 @@ public void testBug148380_SearchAllTypes_wc() throws CoreException {
 		requestor1,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
-	assertSearchResults(
-		"interface I [in [Working copy] I.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
+	String expected = "class Sub [in [Working copy] Sub.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
 		"class X [in [Working copy] X.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
-		"class Sub [in [Working copy] Sub.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
-		"class Y [in [Working copy] Y.java [in b148380 [in src [in JavaSearchBugs]]]]",
-		requestor1);
-	/* DISABLED as results order is not the same on different VM...
-	 *  Expected same result with the wc owner
-	TestTypeNameMatchRequestor requestor2 = new TestTypeNameMatchRequestor();
+		"class Y [in [Working copy] Y.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
+		"interface I [in [Working copy] I.java [in b148380 [in src [in JavaSearchBugs]]]]";
+	assertSearchResults(expected, requestor1);
+	//  Expected same result with the wc owner
+	TypeNameMatchCollector requestor2 = new TypeNameMatchCollector();
 	new SearchEngine(this.wcOwner).searchAllTypeNames(
 		"b148380".toCharArray(),
 		SearchPattern.R_EXACT_MATCH,
@@ -6909,16 +6938,11 @@ public void testBug148380_SearchAllTypes_wc() throws CoreException {
 		requestor2,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
-	assertSearchResults("class Sub [in [Working copy] Sub.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
-		"class Y [in [Working copy] Y.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
-		"interface I [in [Working copy] I.java [in b148380 [in src [in JavaSearchBugs]]]]\n" + 
-		"class X [in [Working copy] X.java [in b148380 [in src [in JavaSearchBugs]]]]",
-		requestor2);
-	*/
+	assertSearchResults(expected, requestor2);
 }
 public void testBug148380_SearchAllTypes_cu() throws CoreException, JavaModelException {
 	IJavaSearchScope scope = getJavaSearchScopeBugs();
-	TestTypeNameMatchRequestor requestor = new TestTypeNameMatchRequestor();
+	TypeNameMatchCollector requestor = new TypeNameMatchCollector();
 	new SearchEngine().searchAllTypeNames(
 		null,
 		SearchPattern.R_EXACT_MATCH,
@@ -6936,7 +6960,7 @@ public void testBug148380_SearchAllTypes_cu() throws CoreException, JavaModelExc
 }
 public void testBug148380_SearchAllTypes_cu_wksp() throws CoreException, JavaModelException {
 	IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-	TestTypeNameMatchRequestor requestor = new TestTypeNameMatchRequestor();
+	TypeNameMatchCollector requestor = new TypeNameMatchCollector();
 	new SearchEngine().searchAllTypeNames(
 		null,
 		SearchPattern.R_EXACT_MATCH,
@@ -7083,26 +7107,4 @@ public void testBug156491() throws CoreException {
 	);
 }
 
-/**
- * Bug 156491: [1.5][search] interfaces and annotations could be found with only one requets of searchAllTypeName
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156491"
- */
-class TestTypeNameMatchRequestor extends TypeNameMatchRequestor {
-	public StringBuffer results = new StringBuffer();
-	public void acceptTypeNameMatch(TypeNameMatch match) {
-		if (results.length() > 0) results.append('\n');
-		try {
-			IType type = match.resolvedType();
-			if (type != null) {
-				results.append(type.toString());
-			}
-		}
-		catch (JavaModelException jme) {
-			assertTrue("We should not have no JavaModel exception! Message:"+jme.getMessage(), false);
-		}
-	}
-	public String toString() {
-		return this.results.toString();
-	}
-}
 }
