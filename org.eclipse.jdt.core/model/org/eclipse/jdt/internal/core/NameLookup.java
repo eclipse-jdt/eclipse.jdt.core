@@ -571,7 +571,6 @@ public class NameLookup implements SuffixConstants {
 	public Answer findType(String typeName, String packageName, boolean partialMatch, int acceptFlags, boolean checkRestrictions) {
 		return findType(typeName,
 			packageName,
-			null,
 			partialMatch,
 			acceptFlags,
 			true/* consider secondary types */,
@@ -586,11 +585,10 @@ public class NameLookup implements SuffixConstants {
 	public Answer findType(
 			String typeName, 
 			String packageName, 
-			IPackageFragmentRoot root, 
 			boolean partialMatch, 
 			int acceptFlags, 
 			boolean considerSecondaryTypes, 
-			boolean waitForIndexes,
+			boolean waitForIndexes, 
 			boolean checkRestrictions,
 			IProgressMonitor monitor) {
 		if (packageName == null || packageName.length() == 0) {
@@ -612,10 +610,6 @@ public class NameLookup implements SuffixConstants {
 		IJavaProject javaProject = null;
 		Answer suggestedAnswer = null;
 		for (int i= 0; i < length; i++) {
-			if (root != null && !packages[i].getParent().equals(root)) {
-				// filter package which are not in same root
-				continue;
-			}
 			type = findType(typeName, packages[i], partialMatch, acceptFlags);
 			if (type != null) {
 				AccessRestriction accessRestriction = null;
@@ -770,7 +764,7 @@ public class NameLookup implements SuffixConstants {
 			packageName= name.substring(0, index);
 			className= name.substring(index + 1);
 		}
-		return findType(className, packageName, null, partialMatch, acceptFlags, considerSecondaryTypes, waitForIndexes, checkRestrictions, monitor);
+		return findType(className, packageName, partialMatch, acceptFlags, considerSecondaryTypes, waitForIndexes, checkRestrictions, monitor);
 	}
 
 	private IType getMemberType(IType type, String name, int dot) {

@@ -1218,15 +1218,14 @@ public class JavaProject
 	/*
 	 * Internal findType with instanciated name lookup
 	 */
-	IType findType(String packageName, String typeQualifiedName, IPackageFragmentRoot root, NameLookup lookup, boolean considerSecondaryTypes, IProgressMonitor progressMonitor) throws JavaModelException {
+	IType findType(String packageName, String typeQualifiedName, NameLookup lookup, boolean considerSecondaryTypes, IProgressMonitor progressMonitor) throws JavaModelException {
 		NameLookup.Answer answer = lookup.findType(
 			typeQualifiedName, 
 			packageName,
-			root,
 			false,
 			NameLookup.ACCEPT_ALL,
-			considerSecondaryTypes, // wait for indexes (in case we need to consider secondary types)
-			true,
+			considerSecondaryTypes,
+			true, // wait for indexes (in case we need to consider secondary types)
 			false/*don't check restrictions*/,
 			progressMonitor);
 		return answer == null ? null : answer.type;
@@ -1239,9 +1238,8 @@ public class JavaProject
 		return findType(
 			packageName,
 			typeQualifiedName, 
-			null,
-			lookup, // do not consider secondary types
-			false,
+			lookup,
+			false, // do not consider secondary types
 			null);
 	}	
 	
@@ -1253,23 +1251,8 @@ public class JavaProject
 		return findType(
 			packageName,
 			typeQualifiedName, 
-			null,
-			lookup, // consider secondary types
-			true,
-			progressMonitor);
-	}
-	
-	/**
-	 * @see IJavaProject#findType(String, String, IPackageFragmentRoot, ICompilationUnit[], IProgressMonitor)
-	 */
-	public IType findType(String packageName, String typeQualifiedName, IPackageFragmentRoot root, ICompilationUnit[] workingCopies, IProgressMonitor progressMonitor) throws JavaModelException {
-		NameLookup lookup = newNameLookup(workingCopies);
-		return findType(
-			packageName,
-			typeQualifiedName,
-			root,
-			lookup, // consider secondary types
-			true,
+			lookup,
+			true, // consider secondary types
 			progressMonitor);
 	}
 
