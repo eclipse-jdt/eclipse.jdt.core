@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 370 };
+//		TESTS_NUMBERS = new int[] { 1043, 1044, 1045 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -33500,5 +33500,53 @@ public void test1042() {
 		"	                       ^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Class<capture#1-of ? extends Object> to Class<? extends T>\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
+public void test1043() {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"class A<T extends Number, S extends T> {\n" + 
+			"  T t;\n" + 
+			"  S s;\n" + 
+			"  void test(A<? extends Long, ? extends S> a) {\n" + 
+			"    this.t = this.s; //fine\n" + 
+			"    a.t = a.s;\n" + 
+			"  }\n" + 
+			"}", // =================
+		}, 
+		"----------\n" + 
+		"1. ERROR in A.java (at line 6)\n" + 
+		"	a.t = a.s;\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from capture#4-of ? extends S to capture#1-of ? extends Long\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
+public void test1044() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T extends Number> {\n" + 
+			"    X<? extends Object> x;\n" + 
+			"}", // =================
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	X<? extends Object> x;\n" + 
+		"	  ^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends Object is not a valid substitute for the bounded parameter <T extends Number> of the type X<T>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
+public void test1045() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X<T extends Number, S extends T> {\n" + 
+			"        X<? extends Long,? extends S> x;\n" + 
+			"}",
+		}, 
+		"");
 }
 }
