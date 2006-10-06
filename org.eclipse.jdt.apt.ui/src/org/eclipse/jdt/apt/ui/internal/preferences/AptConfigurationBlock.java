@@ -41,7 +41,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -144,9 +144,10 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	/**
 	 * Sorts items in the Processor Options list control.
 	 */
-	private static class ProcessorOptionSorter extends ViewerSorter {
+	private static class ProcessorOptionSorter extends ViewerComparator {
+		@SuppressWarnings("unchecked") // getComparator() returns a raw Comparator rather than a Comparator<T>
 		public int compare(Viewer viewer, Object e1, Object e2) {
-			return collator.compare(((ProcessorOption) e1).key, ((ProcessorOption) e2).key);
+			return getComparator().compare(((ProcessorOption) e1).key, ((ProcessorOption) e2).key);
 		}
 	}
 	
