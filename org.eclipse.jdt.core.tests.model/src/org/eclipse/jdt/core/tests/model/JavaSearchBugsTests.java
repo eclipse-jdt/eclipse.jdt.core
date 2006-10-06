@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
+import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 
 /**
@@ -7085,25 +7086,24 @@ public void testBug156491() throws CoreException {
 		"	void validMatches(X x) {\n" + 
 		"		x.toString();\n" + 
 		"	}\n" + 
-		"	void polymorphicSuper(Object o) {\n" + 
+		"	void overriddenSuper(Object o) {\n" + 
 		"		o.toString();\n" + 
 		"	}\n" + 
-		"	void polymorphicPotential(I i) {\n" + 
+		"	void overriddenPotential(I i) {\n" + 
 		"		i.toString();\n" + 
 		"	}\n" + 
-		"	void polymorphicSub(Sub s) {\n" + 
+		"	void overriddenSub(Sub s) {\n" + 
 		"		s.toString();\n" + 
 		"	}\n" + 
 		"}\n"
 	);
 	IMethod method = workingCopies[1].getType("X").getMethod("toString", new String[0]);
-	this.resultCollector.showPolymorphic = 2;
+	this.resultCollector.showFlavors = PatternLocator.OVERRIDDEN_FLAVOR;
 	search(method, REFERENCES);
 	assertSearchResults(
 		"src/pack/Test.java void pack.Test.validMatches(X) [toString()] EXACT_MATCH\n" + 
-		"src/pack/Test.java void pack.Test.polymorphicSuper(Object) [toString()] EXACT_MATCH POLYMORPHIC\n" + 
-		"src/pack/Test.java void pack.Test.polymorphicPotential(I) [toString()] POTENTIAL_MATCH POLYMORPHIC\n" + 
-		"src/pack/Test.java void pack.Test.polymorphicSub(Sub) [toString()] EXACT_MATCH POLYMORPHIC"
+		"src/pack/Test.java void pack.Test.overriddenSuper(Object) [toString()] EXACT_MATCH OVERRIDDEN\n" + 
+		"src/pack/Test.java void pack.Test.overriddenSub(Sub) [toString()] EXACT_MATCH"
 	);
 }
 

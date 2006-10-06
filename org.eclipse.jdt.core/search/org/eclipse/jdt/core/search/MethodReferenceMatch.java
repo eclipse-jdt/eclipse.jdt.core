@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.IJavaElement;
 public class MethodReferenceMatch extends SearchMatch {
 	private boolean constructor;
 	private boolean synthetic;
-	private boolean polymorphic;
+	private boolean overridden;
 
 	/**
 	 * Creates a new method reference match.
@@ -78,7 +78,7 @@ public class MethodReferenceMatch extends SearchMatch {
 	 * <code>false</code> otherwise
 	 * @param synthetic <code>true</code> if this search matches a synthetic element
 	 * <code>false</code> otherwise
-	 * @param polymorphic <code>true</code> if this search matches a polymorphic element
+	 * @param overridden <code>true</code> if this search matches a polymorphic element
 	 * <code>false</code> otherwise
 	 * @param insideDocComment <code>true</code> if this search match is inside a doc
 	 * comment, and <code>false</code> otherwise
@@ -86,9 +86,9 @@ public class MethodReferenceMatch extends SearchMatch {
 	 * @param resource the resource of the element
 	 * @since 3.3
 	 */
-	public MethodReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, int length, boolean constructor, boolean synthetic, boolean polymorphic, boolean insideDocComment, SearchParticipant participant, IResource resource) {
+	public MethodReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, int length, boolean constructor, boolean synthetic, boolean overridden, boolean insideDocComment, SearchParticipant participant, IResource resource) {
 		this(enclosingElement, accuracy, offset, length, constructor, synthetic, insideDocComment, participant, resource);
-		this.polymorphic = polymorphic;
+		this.overridden = overridden;
 	}
 
 	/**
@@ -114,14 +114,15 @@ public class MethodReferenceMatch extends SearchMatch {
 	}
 
 	/**
-	 * Returns whether the reference is on a polymorphic method or not.
-	 * Note that this field is only used for method reference. This happens when the reference
-	 * is not implemented on the declaring class pattern but only on one of its super or sub type.
+	 * Returns whether the reference is on a method that is overridden by the
+	 * search target or not. If <code>true</code>, the method called at run-time
+	 * may or may not be the search target, depending on the run-time type
+	 * of the receiver object.
 	 * 
-	 * @return <code>true</code> if the reference is a polymorphic method or not,
-	 * <code>false </code> otherwise
+	 * @return <code>true</code> if the reference is on a method that is
+	 * overridden by the search target, <code>false </code> otherwise
 	 */
-	public boolean isPolymorphic() {
-		return this.polymorphic;
+	public boolean isOverridden() {
+		return this.overridden;
 	}
 }

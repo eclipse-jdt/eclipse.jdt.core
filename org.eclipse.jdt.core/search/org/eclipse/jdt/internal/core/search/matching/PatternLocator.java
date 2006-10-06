@@ -41,14 +41,15 @@ public static final int ERASURE_MATCH = 4;
 
 // Possible rule match flavors
 // see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=79866
-protected static final int EXACT_FLAVOR = 0x0010;
-protected static final int PREFIX_FLAVOR = 0x0020;
-protected static final int PATTERN_FLAVOR = 0x0040;
-protected static final int REGEXP_FLAVOR = 0x0080;
-protected static final int CAMELCASE_FLAVOR = 0x0100;
-protected static final int POLYMORPHIC_FLAVOR = 0x0200;
-protected static final int MATCH_LEVEL_MASK = 0x0F;
-protected static final int FLAVORS_MASK = ~MATCH_LEVEL_MASK;
+public static final int EXACT_FLAVOR = 0x0010;
+public static final int PREFIX_FLAVOR = 0x0020;
+public static final int PATTERN_FLAVOR = 0x0040;
+public static final int REGEXP_FLAVOR = 0x0080;
+public static final int CAMELCASE_FLAVOR = 0x0100;
+public static final int OVERRIDDEN_FLAVOR = 0x0200;
+public static final int SUB_TYPE_FLAVOR = 0x0400;
+public static final int MATCH_LEVEL_MASK = 0x0F;
+public static final int FLAVORS_MASK = ~MATCH_LEVEL_MASK;
 
 /* match container */
 public static final int COMPILATION_UNIT_CONTAINER = 1;

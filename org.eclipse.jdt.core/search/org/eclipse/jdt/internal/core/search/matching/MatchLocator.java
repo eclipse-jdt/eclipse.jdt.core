@@ -1401,8 +1401,8 @@ public SearchMatch newMethodReferenceMatch(
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
 	if (enclosingBinding != null)
 		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
-	boolean isPolymorphic = (accuracy & PatternLocator.POLYMORPHIC_FLAVOR) != 0;
-	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, isConstructor, isSynthetic, isPolymorphic, insideDocComment, participant, resource);
+	boolean isOverridden = (accuracy & PatternLocator.OVERRIDDEN_FLAVOR) != 0;
+	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, isConstructor, isSynthetic, isOverridden, insideDocComment, participant, resource);
 }
 
 public SearchMatch newPackageReferenceMatch(
@@ -1652,8 +1652,8 @@ protected void report(SearchMatch match) throws CoreException {
 		}
 		if (match instanceof MethodReferenceMatch) {
 			MethodReferenceMatch methodReferenceMatch = (MethodReferenceMatch) match;
-			if (methodReferenceMatch.isPolymorphic()) {
-				System.out.print("+POLYMORPHIC"); //$NON-NLS-1$
+			if (methodReferenceMatch.isOverridden()) {
+				System.out.print("+OVERRIDDEN"); //$NON-NLS-1$
 			}
 			if (methodReferenceMatch.isImplicit()) {
 				System.out.print("+IMPLICIT"); //$NON-NLS-1$

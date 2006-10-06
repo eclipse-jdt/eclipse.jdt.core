@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.core.PackageFragment;
 //import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 //import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.SourceRefElement;
+import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 
 /**
  * Abstract class for Java Search tests.
@@ -55,7 +56,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 		public boolean showPotential = true;
 		public boolean showProject;
 		public boolean showSynthetic;
-		public int showPolymorphic = 0;
+		public int showFlavors = 0;
 		public int count = 0;
 		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 			count++;
@@ -214,19 +215,11 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 						}
 					}
 				}
-				if (match instanceof MethodReferenceMatch) {
-					MethodReferenceMatch methRef = (MethodReferenceMatch) match;
-					if (methRef.isPolymorphic()) {
-						if (match.getAccuracy() == SearchMatch.A_ACCURATE) {
-							if (this.showPolymorphic > 0) {
-								line.append(" POLYMORPHIC");
-							}
-						} else {
-							if (this.showPolymorphic <= 1) {
-								line = null; // do not show potential polymorphic matches
-							} else {
-								line.append(" POLYMORPHIC");
-							}
+				if (this.showFlavors > 0) {
+					if (match instanceof MethodReferenceMatch) {
+						MethodReferenceMatch methRef = (MethodReferenceMatch) match;
+						if (methRef.isOverridden() && showOverridden()) {
+							line.append(" OVERRIDDEN");
 						}
 					}
 				}
@@ -234,6 +227,9 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 				results.append("\n");
 				results.append(e.toString());
 			}
+		}
+		private boolean showOverridden() {
+			return (this.showFlavors & PatternLocator.OVERRIDDEN_FLAVOR) != 0;
 		}
 		protected void append(IField field) throws JavaModelException {
 			append(field.getDeclaringType());
