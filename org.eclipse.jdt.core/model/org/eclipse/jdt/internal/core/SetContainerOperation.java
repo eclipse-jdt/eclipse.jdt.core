@@ -40,44 +40,8 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 		if (isCanceled()) 
 			return;
 		try {
-			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				Util.verbose(
-					"CPContainer SET  - setting container\n" + //$NON-NLS-1$
-					"	container path: " + this.containerPath + '\n' + //$NON-NLS-1$
-					"	projects: {" +//$NON-NLS-1$
-					org.eclipse.jdt.internal.compiler.util.Util.toString(
-						this.affectedProjects, 
-						new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
-							public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
-						}) +
-					"}\n	values: {\n"  +//$NON-NLS-1$
-					org.eclipse.jdt.internal.compiler.util.Util.toString(
-						this.respectiveContainers, 
-						new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
-							public String displayString(Object o) { 
-								StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
-								if (o == null) {
-									buffer.append("<null>"); //$NON-NLS-1$
-									return buffer.toString();
-								}
-								IClasspathContainer container = (IClasspathContainer) o;
-								buffer.append(container.getDescription());
-								buffer.append(" {\n"); //$NON-NLS-1$
-								IClasspathEntry[] entries = container.getClasspathEntries();
-								if (entries != null){
-									for (int i = 0; i < entries.length; i++){
-										buffer.append(" 			"); //$NON-NLS-1$
-										buffer.append(entries[i]); 
-										buffer.append('\n'); 
-									}
-								}
-								buffer.append(" 		}"); //$NON-NLS-1$
-								return buffer.toString();
-							}
-						}) +
-					"\n	}\n	invocation stack trace:"); //$NON-NLS-1$
-					new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
-			}
+			if (JavaModelManager.CP_RESOLVE_VERBOSE)
+				verbose_set_container();
 			
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			if (manager.containerPutIfInitializingWithSameEntries(this.containerPath, this.affectedProjects, this.respectiveContainers))
@@ -136,12 +100,8 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 					
 					JavaProject affectedProject = (JavaProject)modifiedProjects[i];
 					if (affectedProject == null) continue; // was filtered out
-					if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-						Util.verbose(
-							"CPContainer SET  - updating affected project due to setting container\n" + //$NON-NLS-1$
-							"	project: " + affectedProject.getElementName() + '\n' + //$NON-NLS-1$
-							"	container path: " + this.containerPath); //$NON-NLS-1$
-					}
+					if (JavaModelManager.CP_RESOLVE_VERBOSE)
+						verbose_update_project(affectedProject);
 		
 					// force resolved classpath to be recomputed
 					affectedProject.getPerProjectInfo().resetResolvedClasspath();
@@ -161,13 +121,8 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 					}
 				}
 			} catch(CoreException e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					Util.verbose(
-						"CPContainer SET  - FAILED DUE TO EXCEPTION\n" + //$NON-NLS-1$
-						"	container path: " + this.containerPath, //$NON-NLS-1$
-						System.err);
-					e.printStackTrace();
-				}
+				if (JavaModelManager.CP_RESOLVE_VERBOSE)
+					verbose_failure(e);
 				if (e instanceof JavaModelException) {
 					throw (JavaModelException)e;
 				} else {
@@ -183,6 +138,60 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 		} finally {		
 			done();
 		}
+	}
+
+	private void verbose_failure(CoreException e) {
+		Util.verbose(
+			"CPContainer SET  - FAILED DUE TO EXCEPTION\n" + //$NON-NLS-1$
+			"	container path: " + this.containerPath, //$NON-NLS-1$
+			System.err);
+		e.printStackTrace();
+	}
+
+	private void verbose_update_project(JavaProject affectedProject) {
+		Util.verbose(
+			"CPContainer SET  - updating affected project due to setting container\n" + //$NON-NLS-1$
+			"	project: " + affectedProject.getElementName() + '\n' + //$NON-NLS-1$
+			"	container path: " + this.containerPath); //$NON-NLS-1$
+	}
+
+	private void verbose_set_container() {
+		Util.verbose(
+			"CPContainer SET  - setting container\n" + //$NON-NLS-1$
+			"	container path: " + this.containerPath + '\n' + //$NON-NLS-1$
+			"	projects: {" +//$NON-NLS-1$
+			org.eclipse.jdt.internal.compiler.util.Util.toString(
+				this.affectedProjects, 
+				new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+					public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
+				}) +
+			"}\n	values: {\n"  +//$NON-NLS-1$
+			org.eclipse.jdt.internal.compiler.util.Util.toString(
+				this.respectiveContainers, 
+				new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+					public String displayString(Object o) { 
+						StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+						if (o == null) {
+							buffer.append("<null>"); //$NON-NLS-1$
+							return buffer.toString();
+						}
+						IClasspathContainer container = (IClasspathContainer) o;
+						buffer.append(container.getDescription());
+						buffer.append(" {\n"); //$NON-NLS-1$
+						IClasspathEntry[] entries = container.getClasspathEntries();
+						if (entries != null){
+							for (int i = 0; i < entries.length; i++){
+								buffer.append(" 			"); //$NON-NLS-1$
+								buffer.append(entries[i]); 
+								buffer.append('\n'); 
+							}
+						}
+						buffer.append(" 		}"); //$NON-NLS-1$
+						return buffer.toString();
+					}
+				}) +
+			"\n	}\n	invocation stack trace:"); //$NON-NLS-1$
+			new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 	}
 	
 }
