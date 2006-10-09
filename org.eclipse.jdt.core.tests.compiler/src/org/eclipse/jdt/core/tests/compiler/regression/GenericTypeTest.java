@@ -33550,7 +33550,7 @@ public void test1045() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132
-public void _test1046() {
+public void test1046() {
 	this.runConformTest(
 		new String[] {
 			"X.java", //========================
@@ -33585,7 +33585,7 @@ public void _test1046() {
 			null);	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132 - variation
-public void _test1047() {
+public void test1047() {
 	this.runConformTest(
 		new String[] {
 			"p/X.java", //========================
