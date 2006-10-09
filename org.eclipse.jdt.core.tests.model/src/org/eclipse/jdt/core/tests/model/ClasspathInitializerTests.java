@@ -99,6 +99,9 @@ public static class DefaultContainerInitializer implements ContainerInitializer.
 	protected DefaultContainer newContainer(final char[][] libPaths) {
 		return new DefaultContainer(libPaths);
 	}
+	public boolean allowFailureContainer() {
+		return true;
+	}
 	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 		if (containerValues == null) return;
 		try {
@@ -117,6 +120,9 @@ public static class DefaultContainerInitializer implements ContainerInitializer.
 // (30920 - stackoverflow when setting container to null)
 public class NullContainerInitializer implements ContainerInitializer.ITestInitializer {
 	public boolean hasRun = false;
+	public boolean allowFailureContainer() {
+		return false; // allow the initializer to run again
+	}
 	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 		hasRun = true;
 		JavaCore.setClasspathContainer(
@@ -713,6 +719,41 @@ public void testContainerInitializer13() throws CoreException {
 	} finally {
 		getWorkspace().removeResourceChangeListener(listener);
 		deleteProject("P1");
+	}
+}
+
+/*
+ * Ensures that a misbehaving container (that initializes another project than the one asked for) doesn't cause
+ * the container to be initialized again
+ * (regression test for bug 160005 Add protection about misbehaving container initializer)
+ */
+public void testContainerInitializer14() throws CoreException {
+	try {
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
+		class Container extends DefaultContainerInitializer {
+			int initializeCount = 0;
+			Container(String[] values) {
+				super(values);
+			}
+			public void initialize(IPath containerPath, IJavaProject project) 	throws CoreException {
+				this.initializeCount++;
+				super.initialize(containerPath, getJavaProject("P1"));
+			}
+		}
+		Container container = new Container(new String[] {"P2", "/P1/lib.jar"});
+		ContainerInitializer.setInitializer(container);
+		IJavaProject p2 = createJavaProject(
+				"P2", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		p2.getResolvedClasspath(true);
+		assertEquals("Unexpected number of initalizations", 1, container.initializeCount);
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 

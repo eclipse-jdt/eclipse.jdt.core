@@ -65,10 +65,14 @@ IType findType(String packageName,
 	IProgressMonitor progressMonitor) throws JavaModelException;
 </pre>
 </li>
+<li>Added new API <code>ClasspathContainerInitializer#getFailureContainer(...)</code> that returns the classpath container that
+     should be used if a container initializer fails to initialize a container.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86482">86482</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160005">160005</a>
+Add protection about misbehaving container initializer
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86482">86482</a>
 ISourceRange implementation does not implements value equals
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=157814">157814</a>
 [search] polymorphic matches in supertype hierarchy should be marked as potential

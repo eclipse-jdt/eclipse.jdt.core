@@ -1323,7 +1323,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 	
-	public IClasspathContainer getClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
+	public IClasspathContainer getClasspathContainer(final IPath containerPath, final IJavaProject project) throws JavaModelException {
 
 		IClasspathContainer container = containerGet(project, containerPath);
 
@@ -1332,9 +1332,25 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				// avoid deep recursion while initializaing container on workspace restart
 				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=60437)
 				this.batchContainerInitializations = false;
-				return initializeAllContainers(project, containerPath);
+				container = initializeAllContainers(project, containerPath);
+			} else {
+				container = initializeContainer(project, containerPath);
 			}
-			return initializeContainer(project, containerPath);
+			if (container == null) { // initializer failed to do its job: redirect to the failure container
+				ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
+				if (initializer == null) {
+					// create a dummy initializer and get the default failure container
+					container = (new ClasspathContainerInitializer() {
+						public void initialize(IPath path, IJavaProject javaProject) throws CoreException {
+							// not used
+						}
+					}).getFailureContainer(containerPath, project);
+				} else {
+					container = initializer.getFailureContainer(containerPath, project);
+				}
+				if (container != null)
+					containerPut(project, containerPath, container);
+			}
 		}
 		return container;			
 	}

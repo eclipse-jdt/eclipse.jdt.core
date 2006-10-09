@@ -111,6 +111,9 @@ public class CompletionTests2 extends ModifyingResourceTests implements Relevanc
 		protected DefaultContainer newContainer(final char[][] libPaths, final boolean[] areExperted, final String[] forbiddenRefrences) {
 			return new DefaultContainer(libPaths, areExperted, forbiddenRefrences);
 		}
+		public boolean allowFailureContainer() {
+			return true;
+		}
 		public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 			if (containerValues == null) return;
 			try {

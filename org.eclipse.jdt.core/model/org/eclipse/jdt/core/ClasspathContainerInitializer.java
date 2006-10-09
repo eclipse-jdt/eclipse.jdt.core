@@ -168,6 +168,44 @@ public abstract class ClasspathContainerInitializer {
     	// By default, a container path is the only available description
     	return containerPath.makeRelative().toString();
     }
+    
+    /**
+     * Returns a classpath container that is used after this initializer failed to bind a classpath container 
+     * to a <code>IClasspathContainer</code> for the given project. A non-<code>null</code>
+     * failure container indicates that there will be no more request to initialize the given container
+     * for the given project.
+     * <p>
+     * By default a non-<code>null</code> failure container with no classpath entries is returned.
+     * Clients wishing to get a chance to run the initializer again should override this method
+     * and return <code>null</code>.
+     * </p>
+     * 
+ 	 * @param containerPath the path of the container which failed to initialize
+	 * @param project the project from which the container is referenced
+	 * @return the default failure container, or <code>null</code> if wishing to run the initializer again
+    * @since 3.3
+     */
+    public IClasspathContainer getFailureContainer(final IPath containerPath, IJavaProject project) {
+    	final String description = getDescription(containerPath, project);
+    	return 
+    		new IClasspathContainer() {
+				public IClasspathEntry[] getClasspathEntries() { 
+					return null; 
+				}
+				public String getDescription() { 
+					return description;
+				}
+				public int getKind() { 
+					return 0; 
+				}
+				public IPath getPath() { 
+					return containerPath; 
+				}
+				public String toString() { 
+					return getDescription(); 
+				}
+			};
+	}
 
 	/**
 	 * Returns an object which identifies a container for comparison purpose. This allows
