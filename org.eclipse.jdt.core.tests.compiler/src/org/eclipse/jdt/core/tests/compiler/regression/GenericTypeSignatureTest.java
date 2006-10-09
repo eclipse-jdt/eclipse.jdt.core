@@ -1231,4 +1231,35 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132 - variation
+	public void test020() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public interface X<E extends Object & X.Entry> {\n" + 
+			"  interface Entry {\n" + 
+			"    interface Internal extends Entry {\n" + 
+			"      Internal createEntry();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		};
+		this.runConformTest(
+			testsSource,
+			"");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X$Entry$Internal.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 1, methods.length);
+			assertEquals("Wrong name", "createEntry", new String(methods[0].getSelector()));
+			char[] signature = methods[0].getGenericSignature();
+			assertNull("Unexpected signature", signature); // no generic signature should have been produced
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
+	
 }
