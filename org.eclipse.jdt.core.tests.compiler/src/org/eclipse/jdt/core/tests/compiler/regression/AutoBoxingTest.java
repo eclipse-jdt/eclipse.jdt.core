@@ -3738,4 +3738,39 @@ public void test125() {
 		},
 		"[1:3.0,java.lang.Float][2:2,java.lang.Integer][3:false,java.lang.Boolean][done]");
 	}
+public void test126() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(boolean b) {\n" + 
+			"		int i = 12;\n" + 
+			"		Integer r1 = b ? null : i;\n" + 
+			"		int r2 = b ? null : i;\n" + 
+			"	}\n" + 
+			"	Zork z;\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	Integer r1 = b ? null : i;\n" + 
+		"	                        ^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	int r2 = b ? null : i;\n" + 
+		"	         ^^^^^^^^^^^^\n" + 
+		"The expression of type Integer is unboxed into int\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	int r2 = b ? null : i;\n" + 
+		"	                    ^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+	}
 }
