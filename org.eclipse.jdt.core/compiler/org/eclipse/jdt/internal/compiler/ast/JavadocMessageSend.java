@@ -164,6 +164,9 @@ public class JavadocMessageSend extends MessageSend {
 					}
 				}
 			}
+		} else if (scope.parameterCompatibilityLevel(this.binding, argumentTypes) == Scope.AUTOBOX_COMPATIBLE) {
+			MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
+			scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
 		}
 		if (isMethodUseDeprecated(this.binding, scope, true)) {
 			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());

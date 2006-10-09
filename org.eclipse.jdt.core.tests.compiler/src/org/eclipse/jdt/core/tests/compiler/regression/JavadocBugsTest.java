@@ -4754,4 +4754,36 @@ public class JavadocBugsTest extends JavadocTest {
 			"----------\n"
 		);
 	}
+
+	/**
+	 * @bug 160015: [1.5][javadoc] Missing warning on autoboxing compatible methods
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=160015"
+	 */
+	public void testBug160015() {
+		runNegativeTest(new String[] {
+				"Test.java",
+				"/**\n" + 
+				" * @see #method(Long) Warning!\n" + 
+				" */\n" + 
+				"public class Test {\n" + 
+				"	public void method(long l) {}\n" + 
+				"	/**\n" + 
+				"	 * @see #method(Long) Warning!\n" + 
+				"	 */\n" + 
+				"	void bar() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see #method(Long) Warning!\n" + 
+			"	        ^^^^^^\n" + 
+			"Javadoc: The method method(long) in the type Test is not applicable for the arguments (Long)\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 7)\n" + 
+			"	* @see #method(Long) Warning!\n" + 
+			"	        ^^^^^^\n" + 
+			"Javadoc: The method method(long) in the type Test is not applicable for the arguments (Long)\n" + 
+			"----------\n"
+		);
+	}
 }

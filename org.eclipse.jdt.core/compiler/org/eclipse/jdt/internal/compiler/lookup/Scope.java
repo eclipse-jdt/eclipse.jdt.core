@@ -3406,7 +3406,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		return lastMethodScope; // may answer null if no method around
 	}
 
-	protected int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments) {
+	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments) {
 		TypeBinding[] parameters = method.parameters;
 		int paramLength = parameters.length;
 		int argLength = arguments.length;
