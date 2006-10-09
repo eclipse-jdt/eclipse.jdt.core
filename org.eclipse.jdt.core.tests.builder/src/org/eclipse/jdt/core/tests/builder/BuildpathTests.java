@@ -562,4 +562,31 @@ public class BuildpathTests extends BuilderTests {
 		JavaCore.setOptions(options);
 	}
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132
+public void _test0100() throws JavaModelException {
+	IPath projectPath = env.addProject("P", "1.5");
+	IPath defaultPackagePath = env.addPackage(projectPath, "");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	env.addClass(defaultPackagePath, "X",
+		"public interface X<E extends Object & X.Entry> {\n" +
+		"  interface Entry {\n" +
+		"    interface Internal extends Entry {\n" +
+		"      Internal createEntry();\n" +
+		"    }\n" +
+		"  }\n" +
+		"}"
+	);
+	String YContents =
+		"public class Y implements X.Entry.Internal {\n" +
+		"  public Internal createEntry() {\n" +
+		"    return null;\n" +
+		"  }\n" +
+		"}";
+	env.addClass(defaultPackagePath, "Y", YContents);
+	fullBuild();
+	expectingNoProblems();
+	env.addClass(defaultPackagePath, "Y", YContents);	
+	incrementalBuild();
+	expectingNoProblems();
+}
 }
