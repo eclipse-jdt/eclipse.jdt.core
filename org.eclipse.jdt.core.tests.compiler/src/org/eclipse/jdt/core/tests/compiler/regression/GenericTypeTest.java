@@ -33549,4 +33549,112 @@ public void test1045() {
 		}, 
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132
+public void _test1046() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //========================
+			"public interface X<E extends Object & X.Entry> {\n" + 
+			"  interface Entry {\n" + 
+			"    interface Internal extends Entry {\n" + 
+			"      Internal createEntry();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n", //========================
+			"Y.java",
+			"public class Y implements X.Entry.Internal {\n" + 
+			"  public Internal createEntry() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n" , //========================
+		}, 
+		"");
+	// compile Y against X binary
+	this.runConformTest(
+			new String[] {
+				"Y.java", //========================
+				"public class Y implements X.Entry.Internal {\n" + 
+				"  public Internal createEntry() {\n" + 
+				"    return null;\n" + 
+				"  }\n" + 
+				"}\n" , //========================
+			}, 
+			"",
+			null,
+			false,
+			null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132 - variation
+public void _test1047() {
+	this.runConformTest(
+		new String[] {
+			"p/X.java", //========================
+			"package p;\n" +
+			"public interface X<E extends Object & X.Entry> {\n" + 
+			"  interface Entry {\n" + 
+			"    interface Internal extends Entry {\n" + 
+			"      Internal createEntry();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n", //========================
+			"Y.java",
+			"import p.X.Entry.Internal;\n" +
+			"public class Y implements Internal {\n" + 
+			"  public Internal createEntry() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n" , //========================
+		}, 
+		"");
+	// compile Y against X binary
+	this.runConformTest(
+			new String[] {
+				"Y.java", //========================
+				"import p.X.Entry.Internal;\n" +
+				"public class Y implements Internal {\n" + 
+				"  public Internal createEntry() {\n" + 
+				"    return null;\n" + 
+				"  }\n" + 
+				"}\n" , //========================
+			}, 
+			"",
+			null,
+			false,
+			null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132 - variation
+public void test1048() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //========================
+			"public interface X {\n" + 
+			"  static class Entry {\n" + 
+			"    static abstract class Internal extends Entry {\n" + 
+			"      abstract Internal createEntry();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n", //========================
+			"Y.java",
+			"public class Y extends  X.Entry.Internal {\n" + 
+			"  @Override public Internal createEntry() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n" , //========================
+		}, 
+		"");
+	// compile Y against X binary
+	this.runConformTest(
+			new String[] {
+				"Y.java", //========================
+				"public class Y extends X.Entry.Internal {\n" + 
+				"  @Override public Internal createEntry() {\n" + 
+				"    return null;\n" + 
+				"  }\n" + 
+				"}\n" , //========================
+			}, 
+			"",
+			null,
+			false,
+			null);	
+}
 }

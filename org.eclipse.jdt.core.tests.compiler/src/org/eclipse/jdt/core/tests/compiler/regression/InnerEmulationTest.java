@@ -5090,6 +5090,41 @@ public void test128() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132 - variation
+public void test129() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //========================
+			"public interface X {\n" + 
+			"  interface Entry {\n" + 
+			"    interface Internal extends Entry {\n" + 
+			"      Internal createEntry();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n", //========================
+			"Y.java",
+			"public class Y implements X.Entry.Internal {\n" + 
+			"  public Internal createEntry() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n" , //========================
+		}, 
+		"");
+	// compile Y against X binary
+	this.runConformTest(
+			new String[] {
+				"Y.java", //========================
+				"public class Y implements X.Entry.Internal {\n" + 
+				"  public Internal createEntry() {\n" + 
+				"    return null;\n" + 
+				"  }\n" + 
+				"}\n" , //========================
+			}, 
+			"",
+			null,
+			false,
+			null);	
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
