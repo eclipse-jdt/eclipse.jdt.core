@@ -563,7 +563,7 @@ public class BuildpathTests extends BuilderTests {
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132
-public void _test0100() throws JavaModelException {
+public void test0100() throws JavaModelException {
 	IPath projectPath = env.addProject("P", "1.5");
 	IPath defaultPackagePath = env.addPackage(projectPath, "");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -576,16 +576,14 @@ public void _test0100() throws JavaModelException {
 		"  }\n" +
 		"}"
 	);
-	String YContents =
+	fullBuild();
+	expectingNoProblems();
+	env.addClass(defaultPackagePath, "Y", 		
 		"public class Y implements X.Entry.Internal {\n" +
 		"  public Internal createEntry() {\n" +
 		"    return null;\n" +
 		"  }\n" +
-		"}";
-	env.addClass(defaultPackagePath, "Y", YContents);
-	fullBuild();
-	expectingNoProblems();
-	env.addClass(defaultPackagePath, "Y", YContents);	
+		"}");	
 	incrementalBuild();
 	expectingNoProblems();
 }
