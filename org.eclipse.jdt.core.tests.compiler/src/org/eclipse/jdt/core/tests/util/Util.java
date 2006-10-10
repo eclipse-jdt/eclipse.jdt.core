@@ -10,20 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.zip.*;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.compiler.regression.Requestor;
@@ -38,7 +29,64 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class Util {
 	private static final boolean DEBUG = false;
-	public static String OUTPUT_DIRECTORY = "comptest";
+	private final static String OUTPUT_DIRECTORY;
+	/**
+	 * Let user specify the number of days after which subdirectories of {@link #OUTPUT_DIRECTORY}
+	 * are removed from file system. Default is 2 days.
+	 * <p>
+	 * By default output directory is located in System.getProperty("user.home")+"\comptest".
+	 * To allow user to run several compiler tests at the same time, main output directory
+	 * is now located in a sub-directory of "comptest" which name is current day date (yyyyMMdd).
+	 * <p>
+	 * While running compiler regression tests, test case are put in a specific sub-directory which
+	 * name is based on TestCase class partial qualified name (for example "compiler.regression.GenericTypeTest").
+	 */
+	private final static String DAYS_BEFORE_REMOVE = System.getProperty("days");
+	static {
+		long millisecondsPerDay = 1000L * 3600 * 24;
+		long delay = millisecondsPerDay * 2; // default to keep directories is 2 days
+		try {
+			if (DAYS_BEFORE_REMOVE != null) {
+				int days = Integer.parseInt(DAYS_BEFORE_REMOVE);
+				if (days >= 0) delay = millisecondsPerDay * days;
+			}
+		}
+		catch (NumberFormatException nfe) {
+			// use default
+		}
+		String container = System.getProperty("jdt.test.output_directory");
+		if (container == null){
+			container = System.getProperty("user.home");
+		}
+		if (container != null) {
+			if (Character.isLowerCase(container.charAt(0)) && container.charAt(1) == ':') {
+				container = Character.toUpperCase(container.charAt(0)) + container.substring(1);
+			}
+			File dir = new File(new File(container), "comptest");
+			if (dir.exists()) {
+				long now = System.currentTimeMillis();
+				if ((now - dir.lastModified()) > delay) {
+					// remove all directory content
+					flushDirectoryContent(dir);
+				} else {
+					// remove only old sub-dirs
+					File[] testDirs = dir.listFiles();
+					for (int i=0,l=testDirs.length; i<l; i++) {
+						if (testDirs[i].isDirectory()) {
+							if ((now - testDirs[i].lastModified()) > delay) {
+								rmdir(testDirs[i]);
+							}
+						}
+					}
+				}
+			}
+			Date date = new Date(System.currentTimeMillis());
+			File dateDir = new File(dir, new SimpleDateFormat("yyyyMMdd").format(date));
+			OUTPUT_DIRECTORY = dateDir.getPath();
+		} else {
+			OUTPUT_DIRECTORY = ""; // default is current directory
+		}
+	}
 
 public static void appendProblem(StringBuffer problems, IProblem problem, char[] source, int problemCount) {
 	problems.append(problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
@@ -465,6 +513,17 @@ public static void fileContentToDisplayString(String sourceFilePath, int indent,
 	writeToFile(displayString, destinationFilePath);
 }
 /**
+ * Delete a directory and all its hierarchy if not empty
+ * 
+ * @param dir The directory to delete
+ */
+public static void rmdir(File dir) {
+	// flush all directory content
+	flushDirectoryContent(dir);
+	// remove dir
+	dir.delete();
+}
+/**
  * Flush content of a given directory (leaving it empty),
  * no-op if not a directory.
  */
@@ -570,19 +629,7 @@ public static String getJREDirectory() {
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.getOutputDirectory()]
  */
 public static String getOutputDirectory() {
-	String container = System.getProperty("jdt.test.output_directory");
-	if (container == null){
-		container = System.getProperty("user.home");
-		if (container == null){
-			return null;
-		}
-	}
-	if (Character.isLowerCase(container.charAt(0)) && 
-			container.charAt(1) == ':') {
-		return toNativePath(Character.toUpperCase(container.charAt(0))
-				+ container.substring(1)) + File.separator + OUTPUT_DIRECTORY;
-	}
-	return toNativePath(container) + File.separator + OUTPUT_DIRECTORY;
+	return OUTPUT_DIRECTORY;
 }
 public static String indentString(String inputString, int indent) {
 	if (inputString == null)

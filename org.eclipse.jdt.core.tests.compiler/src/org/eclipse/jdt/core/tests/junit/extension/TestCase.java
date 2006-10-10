@@ -170,7 +170,10 @@ public class TestCase extends PerformanceTestCase {
 			System.out.println("	gc activated: "+RUN_GC);
 		}
 	}
-	boolean newClass;
+	/*
+	 * Flag telling if current test is the first of TestSuite it belongs or not.
+	 */
+	private boolean first;
 
 	// static variables for subsets tests
 	public static String TESTS_PREFIX = null; // prefix of test names to perform
@@ -298,8 +301,8 @@ public static void assertStringEquals(String message, String expected, String ac
  * 		}
  * 	}
  * </pre>
- * This will insure you that all tests will be put in TestAll test suite, whatever were static
- * variables values or test only methods...
+ * This will insure you that all tests will be put in TestAll test suite, even if static variables
+ * values are set or some methods start as testONLY_...
  * 
  * @param evaluationTestClass the test suite class
  * @return a list ({@link List}) of tests ({@link Test}).
@@ -316,7 +319,7 @@ public static List buildTestsList(Class evaluationTestClass) {
  * 
  * @param evaluationTestClass the test suite class
  * @param inheritedDepth level of recursion in top-level hierarchy to find other tests
- * @return a list ({@link List}) of tests ({@link Test}).
+ * @return a {@link List list} of {@link Test tests}.
  */
 public static List buildTestsList(Class evaluationTestClass, int inheritedDepth) {
 	return buildTestsList(evaluationTestClass, inheritedDepth, ORDERING);
@@ -364,7 +367,7 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth)
  * @param evaluationTestClass the test suite class
  * @param inheritedDepth level of recursion in top-level hierarchy to find other tests
  * @param ordering kind of sort use for the list (see {@link #ORDERING} for possible values)
- * @return a {@link List} a {@link Test}
+ * @return a {@link List list } of {@link Test tests}
  */
 public static List buildTestsList(Class evaluationTestClass, int inheritedDepth, long ordering) {
 	List tests = new ArrayList();
@@ -508,7 +511,7 @@ public static List buildTestsList(Class evaluationTestClass, int inheritedDepth,
  * Note that this lis maybe reduced using some mechanisms detailed in {@link #buildTestsList(Class)} method.
  * 
  * @param evaluationTestClass
- * @return a test suite ({@link Test}) 
+ * @return a {@link Test test suite} 
  */
 public static Test buildTestSuite(Class evaluationTestClass) {
 	return buildTestSuite(evaluationTestClass, null); //$NON-NLS-1$
@@ -626,7 +629,7 @@ public void assertPerformance() {
 
 /**
  * Clean test before run it.
- * Currently, clean is only perform a gc.
+ * Currently, clean only performs a gc.
  */
 protected void clean() {
 	System.out.println("Clean test "+getName());
@@ -657,19 +660,31 @@ public void commitMeasurements() {
 	super.commitMeasurements();
 }
 
+/**
+ * Return whether current test is on a new {@link Test test} class or not.
+ * 
+ * @return <code>true</code> if it's the first test of a {@link TestSuite},
+ * 	<code>false</code> otherwise.
+ */
+protected boolean isFirst() {
+	return first;
+}
+
 protected void setUp() throws Exception {
 	super.setUp();
 
+	// Store test class and its name when changing
+	first = false;
+	if (CURRENT_CLASS == null || CURRENT_CLASS != getClass()) {
+		if (CURRENT_CLASS != null && RUN_GC) clean();
+		CURRENT_CLASS = getClass();
+		first = true;
+		CURRENT_CLASS_NAME = getClass().getName();
+		CURRENT_CLASS_NAME = CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.indexOf(".tests.")+7, CURRENT_CLASS_NAME.length());
+	}
+
 	// Memory storage if specified
 	if (STORE_MEMORY != null && MEM_LOG_FILE != null) {
-		newClass = false;
-		if (CURRENT_CLASS == null || CURRENT_CLASS != getClass()) {
-			if (CURRENT_CLASS != null && RUN_GC) clean();
-			CURRENT_CLASS = getClass();
-			newClass = true;
-			CURRENT_CLASS_NAME = getClass().getName();
-			CURRENT_CLASS_NAME = CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.indexOf(".tests.")+7, CURRENT_CLASS_NAME.length());
-		}
 		if (ALL_TESTS_LOG && MEM_LOG_FILE.exists()) {
 			PrintStream stream = new PrintStream(new FileOutputStream(MEM_LOG_FILE, true));
 			stream.print(CURRENT_CLASS_NAME);
@@ -704,7 +719,7 @@ protected void tearDown() throws Exception {
 
 	// Memory storage if specified
 	if (STORE_MEMORY != null && MEM_LOG_FILE != null) {
-		if ((newClass || ALL_TESTS_LOG) && MEM_LOG_FILE.exists()) {
+		if ((first || ALL_TESTS_LOG) && MEM_LOG_FILE.exists()) {
 			PrintStream stream = new PrintStream(new FileOutputStream(MEM_LOG_FILE, true));
 			stream.print(CURRENT_CLASS_NAME);
 			stream.print('\t');
