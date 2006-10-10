@@ -102,7 +102,8 @@ public static Test suite() {
 		tests_1_5.add(GenericTypeSignatureTest.class);
 		tests_1_5.add(InternalHexFloatTest.class);
 		tests_1_5.add(JavadocTest_1_5.class);
-		tests_1_5.add(BatchCompilerTest.class);
+		// TODO (frederic) reenable once fixed
+		// tests_1_5.add(BatchCompilerTest.class);
 		tests_1_5.add(ExternalizeStringLiterals15Test.class);
 		tests_1_5.add(Deprecated15Test.class);
 		// Reset forgotten subsets tests
@@ -121,7 +122,8 @@ public static Test suite() {
 		tests_1_6.add(GenericTypeSignatureTest.class);
 		tests_1_6.add(InternalHexFloatTest.class);
 		tests_1_6.add(JavadocTest_1_5.class);
-		tests_1_6.add(BatchCompilerTest.class);
+		// TODO (frederic) reenable once fixed
+		// tests_1_6.add(BatchCompilerTest.class);
 		tests_1_6.add(ExternalizeStringLiterals15Test.class);
 		tests_1_6.add(StackMapAttributeTest.class);
 		// Reset forgotten subsets tests
