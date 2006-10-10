@@ -33657,4 +33657,72 @@ public void test1048() {
 			false,
 			null);	
 }
+public void test1049() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //========================
+			"import java.util.*;\n" + 
+			"public class X {\n" +
+			"}\n" +
+			"\n" + 
+			"//===================\n" + 
+			"interface FooHandle<T extends Foo<T>> extends BarHandle<T> {}\n" + 
+			"interface Foo<T extends Foo<T>> extends FooHandle<T>, Bar<T> {\n" + 
+			"	FooHandle<T> foo();\n" + 
+			"}\n" + 
+			"//===================\n" + 
+			"interface EveHandle<T extends Baz<T>> extends SimpleHandle {}\n" + 
+			"interface Eve<T extends Baz<T>> extends Simple, EveHandle<T> {\n" + 
+			"	List<BobHandle> foo();\n" + 
+			"	BazHandle<T> handles();\n" + 
+			"}\n" + 
+			"\n" + 
+			"//===================\n" + 
+			"interface BobHandle extends BillHandle {}\n" + 
+			"interface Bob extends BobHandle, Bill {}\n" + 
+			"\n" + 
+			"//===================\n" + 
+			"interface BarHandle<T extends Bar<T>> extends BazHandle<T> {\n" + 
+			"	boolean same(BarHandle<?> o);\n" + 
+			"}\n" + 
+			"interface Bar<T extends Bar<T>> extends Baz<T>, BarHandle<T> {\n" + 
+			"	BarHandle<T> handle();\n" + 
+			"}\n" + 
+			"\n" + 
+			"//===================\n" + 
+			"interface BazHandle<T extends Baz<T>> {\n" + 
+			"	T baz();\n" + 
+			"	boolean same(BazHandle<?> o);\n" + 
+			"}\n" + 
+			"interface Baz<T extends Baz<T>> extends BazHandle<T> {\n" + 
+			"	BazHandle<T> handle();\n" + 
+			"	T baz();\n" + 
+			"}\n" + 
+			"\n" + 
+			"//===================\n" + 
+			"interface BillHandle extends FooHandle<Bill> {}\n" + 
+			"interface Bill extends BillHandle, Foo<Bill> {}\n" + 
+			"\n" + 
+			"//===================\n" + 
+			"interface SimpleHandle extends BazHandle<Simple> {}\n" + 
+			"interface Simple extends Baz<Simple>, SimpleHandle {}\n" + 
+			"\n" + 
+			"//===================\n" + 
+			"interface KeyHandle extends FooHandle<Key> {}\n" + 
+			"interface Key extends Foo<Key>, KeyHandle {}\n" + 
+			"\n" + 
+			"//===================\n" + 
+			"interface ClydeHandle extends BillHandle {}\n" + 
+			"interface Clyde extends ClydeHandle, Bill {\n" + 
+			"	void add(BobHandle h);\n" + 
+			"	public List<BobHandle> handles();\n" + 
+			"}\n" + 
+			"\n" + 
+			"//===================\n" + 
+			"interface FredHandle<T extends Fred<T>> extends BarHandle<T> {}\n" + 
+			"interface Fred<T extends Fred<T>> extends FredHandle<T>, Bar<T> {}\n" + 
+			"\n", // =================
+		}, 
+		"");
+}
 }
