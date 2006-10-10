@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1052 };
+//		TESTS_NUMBERS = new int[] { 1053 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -33830,5 +33830,20 @@ public void test1052() {
 		null,
 		options,
 		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122163
+public void test1053() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X<V,R> {\n" + 
+			"    class innerclass {\n" + 
+			"        void foo() {\n" + 
+			"            X<V,R> c = X.this;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}",
+		}, 
+		"");
 }
 }
