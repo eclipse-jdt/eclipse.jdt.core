@@ -33777,4 +33777,31 @@ public void test1050() {
 		"Exception: java.lang.ClassCastException: [Ljava.lang.Object;\n" + 
 		"Exception: java.lang.ClassCastException: [Ljava.lang.Object;");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114088
+public void test1051() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public interface Intf<N> {\n" + 
+			"		void foo(List<Conc<N>.Inner> ls);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class Conc<N> {\n" + 
+			"		Intf<N> impl;\n" + 
+			"		public Conc(Intf<N> impl) {\n" + 
+			"			this.impl = impl;\n" + 
+			"		}\n" + 
+			"		public class Inner { }\n" + 
+			"\n" + 
+			"		public void bar(List<Conc<N>.Inner> ls) {\n" + 
+			"			impl.foo(ls);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		}, 
+		"");
+}
 }
