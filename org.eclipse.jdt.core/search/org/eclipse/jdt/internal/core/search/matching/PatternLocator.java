@@ -46,8 +46,8 @@ public static final int PREFIX_FLAVOR = 0x0020;
 public static final int PATTERN_FLAVOR = 0x0040;
 public static final int REGEXP_FLAVOR = 0x0080;
 public static final int CAMELCASE_FLAVOR = 0x0100;
-public static final int OVERRIDDEN_FLAVOR = 0x0200;
-public static final int SUB_TYPE_FLAVOR = 0x0400;
+public static final int SUPER_INVOCATION_FLAVOR = 0x0200;
+public static final int SUB_INVOCATION_FLAVOR = 0x0400;
 public static final int MATCH_LEVEL_MASK = 0x0F;
 public static final int FLAVORS_MASK = ~MATCH_LEVEL_MASK;
 

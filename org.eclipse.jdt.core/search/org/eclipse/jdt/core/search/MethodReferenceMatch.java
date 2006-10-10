@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.IJavaElement;
 public class MethodReferenceMatch extends SearchMatch {
 	private boolean constructor;
 	private boolean synthetic;
-	private boolean overridden;
+	private boolean superInvocation;
 
 	/**
 	 * Creates a new method reference match.
@@ -78,17 +78,17 @@ public class MethodReferenceMatch extends SearchMatch {
 	 * <code>false</code> otherwise
 	 * @param synthetic <code>true</code> if this search matches a synthetic element
 	 * <code>false</code> otherwise
-	 * @param overridden <code>true</code> if this search matches a polymorphic element
-	 * <code>false</code> otherwise
+	 * @param superInvocation <code>true</code> if this search matches a super-type invocation
+	 * element <code>false</code> otherwise
 	 * @param insideDocComment <code>true</code> if this search match is inside a doc
 	 * comment, and <code>false</code> otherwise
 	 * @param participant the search participant that created the match
 	 * @param resource the resource of the element
 	 * @since 3.3
 	 */
-	public MethodReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, int length, boolean constructor, boolean synthetic, boolean overridden, boolean insideDocComment, SearchParticipant participant, IResource resource) {
+	public MethodReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, int length, boolean constructor, boolean synthetic, boolean superInvocation, boolean insideDocComment, SearchParticipant participant, IResource resource) {
 		this(enclosingElement, accuracy, offset, length, constructor, synthetic, insideDocComment, participant, resource);
-		this.overridden = overridden;
+		this.superInvocation = superInvocation;
 	}
 
 	/**
@@ -114,16 +114,16 @@ public class MethodReferenceMatch extends SearchMatch {
 	}
 
 	/**
-	 * Returns whether the reference is on a method that is overridden by the
-	 * search target or not. If <code>true</code>, the method called at run-time
-	 * may or may not be the search target, depending on the run-time type
-	 * of the receiver object.
+	 * Returns whether the reference is on a message sent from a type
+	 * which is a super type of the searched method declaring type.
+	 * If <code>true</code>, the method called at run-time may or may not be
+	 * the search target, depending on the run-time type of the receiver object.
 	 * 
-	 * @return <code>true</code> if the reference is on a method that is
-	 * overridden by the search target, <code>false </code> otherwise
+	 * @return <code>true</code> if the reference is on a message sent from
+	 * a super-type of the searched method declaring class, <code>false </code> otherwise
 	 */
-	public boolean isOverridden() {
-		return this.overridden;
+	public boolean isSuperInvocation() {
+		return this.superInvocation;
 	}
 
 	/**
@@ -133,9 +133,9 @@ public class MethodReferenceMatch extends SearchMatch {
 	 * 
 	 * @return <code>true</code> if the reference is a polymorphic method or not,
 	 * <code>false </code> otherwise
-	 * @deprecated Will be removed when JDT/UI will use isOverridden() instead...
+	 * @deprecated Will be removed soon...
 	 */
 	public boolean isPolymorphic() {
-		return false;
+		return this.superInvocation;
 	}
 }

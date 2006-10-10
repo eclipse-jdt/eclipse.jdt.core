@@ -65,6 +65,20 @@ IType findType(String packageName,
 	IProgressMonitor progressMonitor) throws JavaModelException;
 </pre>
 </li>
+<li>While fixing bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=157814">157814</a>, new <code>MethodReferenceMatch.isPolymorphic()</code> API method has been renamed to:
+<pre>
+/**
+ * Returns whether the reference is on a message sent from a type
+ * which is a super type of the searched method declaring type.
+ * If <code>true</code>, the method called at run-time may or may not be
+ * the search target, depending on the run-time type of the receiver object.
+ * 
+ * @return <code>true</code> if the reference is on a message sent from
+ * a super-type of the search method declaring class, <code>false </code> otherwise
+ */
+public boolean isSuperInvocation()
+</pre>
+</li>
 <li>Added new API <code>ClasspathContainerInitializer#getFailureContainer(...)</code> that returns the classpath container that
      should be used if a container initializer fails to initialize a container.</li>
 </ul>

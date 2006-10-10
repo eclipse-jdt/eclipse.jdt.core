@@ -1401,7 +1401,7 @@ public SearchMatch newMethodReferenceMatch(
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
 	if (enclosingBinding != null)
 		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
-	boolean isOverridden = (accuracy & PatternLocator.OVERRIDDEN_FLAVOR) != 0;
+	boolean isOverridden = (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0;
 	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, isConstructor, isSynthetic, isOverridden, insideDocComment, participant, resource);
 }
 
@@ -1652,8 +1652,8 @@ protected void report(SearchMatch match) throws CoreException {
 		}
 		if (match instanceof MethodReferenceMatch) {
 			MethodReferenceMatch methodReferenceMatch = (MethodReferenceMatch) match;
-			if (methodReferenceMatch.isOverridden()) {
-				System.out.print("+OVERRIDDEN"); //$NON-NLS-1$
+			if (methodReferenceMatch.isSuperInvocation()) {
+				System.out.print("+SUPER INVOCATION"); //$NON-NLS-1$
 			}
 			if (methodReferenceMatch.isImplicit()) {
 				System.out.print("+IMPLICIT"); //$NON-NLS-1$

@@ -218,8 +218,8 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 				if (this.showFlavors > 0) {
 					if (match instanceof MethodReferenceMatch) {
 						MethodReferenceMatch methRef = (MethodReferenceMatch) match;
-						if (methRef.isOverridden() && showOverridden()) {
-							line.append(" OVERRIDDEN");
+						if (methRef.isSuperInvocation() && showOverridden()) {
+							line.append(" SUPER INVOCATION");
 						}
 					}
 				}
@@ -229,7 +229,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 			}
 		}
 		private boolean showOverridden() {
-			return (this.showFlavors & PatternLocator.OVERRIDDEN_FLAVOR) != 0;
+			return (this.showFlavors & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0;
 		}
 		protected void append(IField field) throws JavaModelException {
 			append(field.getDeclaringType());

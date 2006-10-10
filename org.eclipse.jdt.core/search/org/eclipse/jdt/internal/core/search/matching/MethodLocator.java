@@ -640,7 +640,7 @@ protected int resolveLevel(MessageSend messageSend) {
 				for (int i = 0, max = this.allSuperDeclaringTypeNames.length; i < max; i++) {
 					if (CharOperation.equals(this.allSuperDeclaringTypeNames[i], compoundName)) {
 						return methodLevel // since this is an ACCURATE_MATCH so return the possibly weaker match
-							| OVERRIDDEN_FLAVOR; // this is an overridden method => add flavor to returned level
+							| SUPER_INVOCATION_FLAVOR; // this is an overridden method => add flavor to returned level
 					}
 				}
 				/* Do not return interfaces potential matches
@@ -678,7 +678,7 @@ protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding ty
 	// matches superclass
 	if (!type.isInterface() && !CharOperation.equals(type.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
 		level = resolveLevelAsSubtype(qualifiedPattern, type.superclass());
-		if (level != IMPOSSIBLE_MATCH) return level | SUB_TYPE_FLAVOR; // add flavor to returned level
+		if (level != IMPOSSIBLE_MATCH) return level | SUB_INVOCATION_FLAVOR; // add flavor to returned level
 	}
 
 	// matches interfaces
@@ -686,7 +686,7 @@ protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding ty
 	if (interfaces == null) return INACCURATE_MATCH;
 	for (int i = 0; i < interfaces.length; i++) {
 		level = resolveLevelAsSubtype(qualifiedPattern, interfaces[i]);
-		if (level != IMPOSSIBLE_MATCH) return level | SUB_TYPE_FLAVOR; // add flavor to returned level
+		if (level != IMPOSSIBLE_MATCH) return level | SUB_INVOCATION_FLAVOR; // add flavor to returned level
 	}
 	return IMPOSSIBLE_MATCH;
 }

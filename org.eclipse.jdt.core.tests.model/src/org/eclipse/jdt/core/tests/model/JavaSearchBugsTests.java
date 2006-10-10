@@ -7051,32 +7051,8 @@ public void testBug156177() throws CoreException {
  */
 public void testBug156491() throws CoreException {
 	resultCollector.showRule = true;
-	workingCopies = new ICompilationUnit[5];
-	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/I.java",
-		"package pack;\n" + 
-		"public interface I {}\n"
-	);
-	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/pack/X.java",
-		"package pack;\n" + 
-		"public class X {\n" + 
-		"	public String toString() {\n" + 
-		"		return \"X\";\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/pack/Sub.java",
-		"package pack;\n" + 
-		"public class Sub extends X {}\n"
-	);
-	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/pack/Y.java",
-		"package pack;\n" + 
-		"public class Y {\n" + 
-		"	public String toString() {\n" + 
-		"		return \"Y\";\n" + 
-		"	}\n" + 
-		"}\n"
-	);
-	workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/Test.java",
 		"package pack;\n" + 
 		"public class Test {\n" + 
 		"	void noMatch(Y y) {\n" + 
@@ -7086,24 +7062,86 @@ public void testBug156491() throws CoreException {
 		"	void validMatches(X x) {\n" + 
 		"		x.toString();\n" + 
 		"	}\n" + 
-		"	void overriddenSuper(Object o) {\n" + 
+		"	void superInvocationMatches(Object o) {\n" + 
 		"		o.toString();\n" + 
 		"	}\n" + 
-		"	void overriddenPotential(I i) {\n" + 
+		"	void interfaceMatches(I i) {\n" + 
 		"		i.toString();\n" + 
 		"	}\n" + 
-		"	void overriddenSub(Sub s) {\n" + 
+		"	void subtypeMatches(Sub s) {\n" + 
 		"		s.toString();\n" + 
+		"	}\n" + 
+		"}\n" +
+		"interface I {}\n" +
+		"class X {\n" + 
+		"	public String toString() {\n" + 
+		"		return \"X\";\n" + 
+		"	}\n" + 
+		"}\n" +
+		"class Sub extends X {}\n" +
+		"class Y {\n" + 
+		"	public String toString() {\n" + 
+		"		return \"Y\";\n" + 
 		"	}\n" + 
 		"}\n"
 	);
-	IMethod method = workingCopies[1].getType("X").getMethod("toString", new String[0]);
-	this.resultCollector.showFlavors = PatternLocator.OVERRIDDEN_FLAVOR;
+	IMethod method = workingCopies[0].getType("X").getMethod("toString", new String[0]);
+	this.resultCollector.showFlavors = PatternLocator.SUPER_INVOCATION_FLAVOR;
 	search(method, REFERENCES);
 	assertSearchResults(
 		"src/pack/Test.java void pack.Test.validMatches(X) [toString()] EXACT_MATCH\n" + 
-		"src/pack/Test.java void pack.Test.overriddenSuper(Object) [toString()] EXACT_MATCH OVERRIDDEN\n" + 
-		"src/pack/Test.java void pack.Test.overriddenSub(Sub) [toString()] EXACT_MATCH"
+		"src/pack/Test.java void pack.Test.superInvocationMatches(Object) [toString()] EXACT_MATCH SUPER INVOCATION\n" + 
+		"src/pack/Test.java void pack.Test.subtypeMatches(Sub) [toString()] EXACT_MATCH"
+	);
+}
+private void setUpBug156491() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/other/Test.java",
+		"package other;\n" + 
+		"public class Test {\n" + 
+		"	void testInterface(I i) {\n" + 
+		"		i.test();\n" + 
+		"	}\n" + 
+		"	void testSuperInvocation(L1 l) {\n" + 
+		"		l.test();\n" + 
+		"	}\n" + 
+		"	void testInvocation(L2 l) {\n" + 
+		"		l.test();\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"class L1 implements I {\n" + 
+		"	public void test() {}\n" + 
+		"}\n" + 
+		"interface I {\n" + 
+		"	void test();\n" + 
+		"}\n" + 
+		"class L2 extends L1 {\n" + 
+		"	public void test() {}\n" + 
+		"}"
+	);
+}
+public void testBug156491a() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug156491();
+	IMethod method = workingCopies[0].getType("L2").getMethod("test", new String[0]);
+	this.resultCollector.showFlavors = PatternLocator.SUPER_INVOCATION_FLAVOR;
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/other/Test.java void other.Test.testInterface(I) [test()] EXACT_MATCH SUPER INVOCATION\n" + 
+		"src/other/Test.java void other.Test.testSuperInvocation(L1) [test()] EXACT_MATCH SUPER INVOCATION\n" + 
+		"src/other/Test.java void other.Test.testInvocation(L2) [test()] EXACT_MATCH"
+	);
+}
+public void testBug156491b() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug156491();
+	IMethod method = workingCopies[0].getType("L1").getMethod("test", new String[0]);
+	this.resultCollector.showFlavors = PatternLocator.SUPER_INVOCATION_FLAVOR;
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/other/Test.java void other.Test.testInterface(I) [test()] EXACT_MATCH SUPER INVOCATION\n" + 
+		"src/other/Test.java void other.Test.testSuperInvocation(L1) [test()] EXACT_MATCH\n" + 
+		"src/other/Test.java void other.Test.testInvocation(L2) [test()] EXACT_MATCH"
 	);
 }
 
