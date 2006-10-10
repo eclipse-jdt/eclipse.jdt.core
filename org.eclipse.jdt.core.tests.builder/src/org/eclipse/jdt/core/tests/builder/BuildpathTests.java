@@ -16,6 +16,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.*;
 
@@ -564,6 +565,10 @@ public class BuildpathTests extends BuilderTests {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132
 public void test0100() throws JavaModelException {
+	if ((AbstractCompilerTest.getPossibleComplianceLevels()  & AbstractCompilerTest.F_1_5) == 0) {
+		// expected to run only in 1.5 mode on top of a jre 1.5
+		return;
+	}
 	IPath projectPath = env.addProject("P", "1.5");
 	IPath defaultPackagePath = env.addPackage(projectPath, "");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
