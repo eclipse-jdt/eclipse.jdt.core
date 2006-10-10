@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1053 };
+//		TESTS_NUMBERS = new int[] { 1050 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -33726,6 +33726,21 @@ public void test1049() {
 		"");
 }
 public void test1050() {
+	String expectedOutput =
+		"xxx\n" + 
+    	"true\n" + 
+    	"Exception: java.lang.ClassCastException: [Ljava.lang.Object;\n" + 
+    	"Exception: java.lang.ClassCastException: [Ljava.lang.Object;";
+	
+	if (System.getProperty("java.version").startsWith("1.6")) {
+		expectedOutput =
+			"xxx\n" + 
+			"true\n" + 
+			"Exception: java.lang.ClassCastException: [Ljava.lang.Object; cannot be cast to [Ljava.lang.String;\n" + 
+			"Exception: java.lang.ClassCastException: [Ljava.lang.Object; cannot be cast to [Ljava.lang.String;";
+	}
+    	
+	
 	this.runConformTest(
 		new String[] {
 			"X.java", //========================
@@ -33772,10 +33787,7 @@ public void test1050() {
 			"  }\n" + 
 			"}", // =================
 		}, 
-		"xxx\n" + 
-		"true\n" + 
-		"Exception: java.lang.ClassCastException: [Ljava.lang.Object;\n" + 
-		"Exception: java.lang.ClassCastException: [Ljava.lang.Object;");
+		expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114088
 public void test1051() {
