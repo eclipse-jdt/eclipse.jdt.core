@@ -944,6 +944,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				if (exceptionTableEntry.getCatchTypeIndex() != 0) {
 					catchType = exceptionTableEntry.getCatchType();
 					CharOperation.replace(catchType, '/', '.');
+					catchType = returnClassName(catchType, '.', mode);
 				} else {
 					catchType = ANY_EXCEPTION;
 				}
@@ -961,6 +962,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			if (exceptionTableEntry.getCatchTypeIndex() != 0) {
 				catchType = exceptionTableEntry.getCatchType();
 				CharOperation.replace(catchType, '/', '.');
+				catchType = returnClassName(catchType, '.', mode);
 			} else {
 				catchType = ANY_EXCEPTION;
 			}

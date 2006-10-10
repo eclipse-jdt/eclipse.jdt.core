@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.util.ClassFormatException;
 public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 83 };
+		TESTS_NUMBERS = new int[] { 76 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -2754,5 +2754,23 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"  }\n" + 
 			"}";
 		checkClassFile("p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
+	public void test076() throws ClassFormatException, IOException {
+		String source =
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		try {\n" + 
+			"			System.out.println(\"Hello\");\n" + 
+			"		} catch(Exception e) {\n" + 
+			"			e.printStackTrace();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+		String expectedOutput =
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 8] -> 11 when : Exception\n";
+		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 }
