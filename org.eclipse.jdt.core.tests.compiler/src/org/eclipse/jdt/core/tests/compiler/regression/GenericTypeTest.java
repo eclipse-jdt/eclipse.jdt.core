@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1043, 1044, 1045 };
+//		TESTS_NUMBERS = new int[] { 1052 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -33803,5 +33803,32 @@ public void test1051() {
 			"}",
 		}, 
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=115691
+public void test1052() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends java.util.ArrayList<Integer> {\n" + 
+			"	private static final long serialVersionUID = 713223190582506215L;\n" + 
+			"	static void test() {\n" + 
+			"		java.util.ArrayList<?> a1 = new X();\n" + 
+			"		X b1 = (X) a1;\n" + 
+			"		X c1 = X.class.cast(a1);\n" + 
+			"		java.util.ArrayList<Integer> a2 = new X();\n" + 
+			"		X b2 = (X) a2;\n" + 
+			"	}\n" + 
+			"}",
+		}, 
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
 }
 }
