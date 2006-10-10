@@ -33725,4 +33725,56 @@ public void test1049() {
 		}, 
 		"");
 }
+public void test1050() {
+	this.runConformTest(
+		new String[] {
+			"X.java", //========================
+			"class Container<E> {\n" + 
+			"  public Container() {\n" + 
+			"    data = (E[]) new Object[100];\n" + 
+			"  }\n" + 
+			"  protected E[] data;\n" + 
+			"  protected int size;\n" + 
+			"  E get(int index) {\n" + 
+			"    return data[index];\n" + 
+			"  }\n" + 
+			"  void add(E object) {\n" + 
+			"    data[size++] = object;\n" + 
+			"  }\n" + 
+			"  E[] data() {\n" + 
+			"    return data;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class StringContainer extends Container<String> {\n" + 
+			"  public StringContainer() {\n" + 
+			"  }\n" + 
+			"  public void doSomething() {\n" + 
+			"    add(\"xxx\");\n" + 
+			"    System.out.println(get(0));\n" + 
+			"    System.out.println((\"\" + data()).\n" +
+			"      startsWith(\"[Ljava.lang.Object;@\"));\n" + 
+			"    try {\n" + 
+			"      System.out.println(data[0]);\n" + 
+			"    } catch (ClassCastException e) {\n" + 
+			"      System.out.println(\"Exception: \" + e);\n" + 
+			"    }\n" + 
+			"    try {\n" + 
+			"      System.out.println(data()[0]);\n" + 
+			"    } catch (ClassCastException e) {\n" + 
+			"      System.out.println(\"Exception: \" + e);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    StringContainer x = new StringContainer();\n" + 
+			"    x.doSomething();\n" + 
+			"  }\n" + 
+			"}", // =================
+		}, 
+		"xxx\n" + 
+		"true\n" + 
+		"Exception: java.lang.ClassCastException: [Ljava.lang.Object;\n" + 
+		"Exception: java.lang.ClassCastException: [Ljava.lang.Object;");
+}
 }
