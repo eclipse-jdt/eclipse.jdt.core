@@ -3223,6 +3223,14 @@ public TypeReference createParameterizedQualifiedAssistTypeReference(char[][] pr
 public NameReference createSingleAssistNameReference(char[] assistName, long position) {
 	int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
 	if(!isInsideMethod()) {
+		if (isInsideFieldInitialization()) {
+			return new CompletionOnSingleNameReference(
+					assistName,
+					position,
+					new char[][]{Keywords.FALSE, Keywords.TRUE},
+					false,
+					isInsideAttributeValue());
+		}
 		return new CompletionOnSingleNameReference(assistName, position, isInsideAttributeValue());
 	} else {
 		boolean canBeExplicitConstructorCall = false;
