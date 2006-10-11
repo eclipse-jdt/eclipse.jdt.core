@@ -51,8 +51,48 @@ Eclipse SDK 3.3M3 - ?th October 2006
 <br>Project org.eclipse.jdt.core v_717
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_717">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added new <code>SearchEngine</code> API method for search all type names with multiple qualifications and type names
+(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160324">160324</a>).<br>
+Only requestor differs from already existing corresponding <code>searchAllTypeNames</code> method:
+<pre>
+/**
+ * Searches for all top-level types and member types in the given scope matching any of the given qualifications
+ * and type names in a case sensitive way.
+ *
+ * Provided {@link TypeNameMatchRequestor} requestor will collect {@link TypeNameMatch}
+ * matches found during the search.
+...
+ * @param nameMatchRequestor the {@link TypeNameMatchRequestor requestor} that collects
+ * 				{@link TypeNameMatch matches} of the search.
+...
+ * @since 3.3
+ */
+public void searchAllTypeNames(
+	final char[][] qualifications, 
+	final char[][] typeNames,
+	IJavaSearchScope scope, 
+	final TypeNameMatchRequestor nameMatchRequestor,
+	int waitingPolicy,
+	IProgressMonitor progressMonitor)  throws JavaModelException
+</pre>
+Similarily to previous added <code>searchAllTypeNames</code> new API method, clients have to provide
+a new requestor: <code>TypeNameMatchRequestor</code> in order to get matches collected during the search.
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160494">160494</a>
+[search] searchAllTypeNames(char[][], char[][],...) fails to find types in default package
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160328">160328</a>
+[search] Remove constructor TypeNameMatch(IType)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160327">160327</a>
+[search] Add specification for TypeNameMatch.getType
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160324">160324</a>
+[search] SearchEngine.searchAllTypeNames(char[][], char[][], TypeNameMatchRequestor
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160323">160323</a>
+[search] TypeNameMatch: support hashCode/equals
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160352">160352</a>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=90600">90600</a>
 [model] CreateElementInCUOperation.apply: should use project options for rewriter
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160352">160352</a>
