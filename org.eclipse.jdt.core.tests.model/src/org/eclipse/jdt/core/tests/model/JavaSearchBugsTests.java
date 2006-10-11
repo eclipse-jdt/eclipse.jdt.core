@@ -85,33 +85,44 @@ class TypeReferencesCollector extends JavaSearchResultCollector {
 }
 
 class TypeNameMatchCollector extends TypeNameMatchRequestor {
-	private int index = -1;
-	public String[] results = new String[10];
+	List matches = new ArrayList();
 	public void acceptTypeNameMatch(TypeNameMatch match) {
-		int length = results.length;
-		if (++index > length) {
-			System.arraycopy(results, 0, results = new String[length+10], 0, length);
-		}
-		try {
-			IType type = match.getType();
-			if (type != null) {
-				results[index] = type.toString();
-			}
-		}
-		catch (JavaModelException jme) {
-			assertTrue("We should not have any JavaModel exception! Message:"+jme.getMessage(), false);
+		IType type = match.getType();
+		if (type != null) {
+			this.matches.add(type);
 		}
 	}
-	public String toString() {
-		String[] strings = new String[index+1];
-		System.arraycopy(results, 0, strings, 0, index+1);
+	public int size() {
+		return this.matches.size();
+	}
+	private String toString(int kind) {
+		int size = size();
+		if (size == 0) return "";
+		String[] strings = new String[size];
+		for (int i=0; i<size; i++) {
+			IType type = (IType) this.matches.get(i);
+			switch (kind) {
+				case 1: // fully qualified name
+					strings[i] = type.getFullyQualifiedName();
+					break;
+				case 0:
+				default:
+					strings[i] = type.toString();
+			}
+		}
 		Arrays.sort(strings);
 		StringBuffer buffer = new StringBuffer();
-		for (int i=0; i<=index; i++) {
+		for (int i=0; i<size; i++) {
 			if (i>0) buffer.append('\n');
 			buffer.append(strings[i]);
 		}
 		return buffer.toString();
+	}
+	public String toString() {
+		return toString(0);
+	}
+	public String toFullyQualifiedNamesString() {
+		return toString(1);
 	}
 }
 IJavaSearchScope getJavaSearchScopeBugs() {
@@ -7145,4 +7156,160 @@ public void testBug156491b() throws CoreException {
 	);
 }
 
+/**
+ * @bug 160323: [search] TypeNameMatch: support hashCode/equals
+ * @test Ensure that match equals and hashCode methods return same values than those of stored {@link IType}.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160323"
+ */
+public void testBug160323() throws CoreException {
+	// Search all type names with TypeNameMatchRequestor
+	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		public void acceptTypeNameMatch(TypeNameMatch match) {
+			assertTrue("Problem with equals method for match "+match, match.equals(match.getType()));
+			assertEquals("Problem with hashCode method for match "+match, match.getType().hashCode(), match.hashCode());
+			super.acceptTypeNameMatch(match);
+		}
+		public String toString(){
+			return toFullyQualifiedNamesString();
+		}
+	};
+	new SearchEngine().searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		null,
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		getJavaSearchScopeBugs(),
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Search all type names with TypeNameRequestor
+	TypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		null,
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Should have same types with these 2 searches
+	assertTrue("We should get some types!", collector.size() > 0);
+	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
+}
+/**
+ * @bug 160324: [search] SearchEngine.searchAllTypeNames(char[][], char[][], TypeNameMatchRequestor
+ * @test Ensure that types found using {@link SearchEngine#searchAllTypeNames(char[][], char[][], IJavaSearchScope, TypeNameMatchRequestor, int, org.eclipse.core.runtime.IProgressMonitor) new API method}
+ * 	are the same than with already existing API method using {@link TypeNameRequestor}...
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160324"
+ */
+public void testBug160324a() throws CoreException {
+	// Search all type names with new API
+	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		public void acceptTypeNameMatch(TypeNameMatch match) {
+			assertTrue("Problem with equals method for match "+match, match.equals(match.getType()));
+			assertEquals("Problem with hashCode method for match "+match, match.getType().hashCode(), match.hashCode());
+			super.acceptTypeNameMatch(match);
+		}
+		public String toString(){
+			return toFullyQualifiedNamesString();
+		}
+	};
+	new SearchEngine().searchAllTypeNames(
+		null,
+		null,
+		getJavaSearchScopeBugs(),
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	assertEquals("We should not find any type", "", collector.toString());
+	// Search all type names with old API
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		null,
+		null,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	assertEquals("We should not find any type", "", requestor.toString());
+}
+public void testBug160324b() throws CoreException {
+	// Search all type names with new API
+	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		public String toString(){
+			return toFullyQualifiedNamesString();
+		}
+	};
+	new SearchEngine().searchAllTypeNames(
+		null,
+		new char[][] { "Test".toCharArray() },
+		getJavaSearchScopeBugs(),
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Search all type names with old API
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		null,
+		new char[][] { "Test".toCharArray() },
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Should have same types with these 2 searches
+	assertTrue("We should get some types!", collector.size() > 0);
+	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
+}
+
+/**
+ * @bug 160494: [search] searchAllTypeNames(char[][], char[][],...) fails to find types in default package
+ * @test Ensure that types of default packge are found when empty package is specified in package lists
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160494"
+ */
+public void testBug160324c() throws CoreException {
+	boolean debug = false;
+	char[][] packagesList = new char[][] {
+			CharOperation.NO_CHAR,
+			"b110422".toCharArray(),
+			"b123679.test".toCharArray(),
+			"b89848".toCharArray(),
+			"b95794".toCharArray(),
+			"pack".toCharArray(),
+			"pack.age".toCharArray()
+	};
+	char[][] typesList = new char[][] {
+		"Test".toCharArray(),
+		"TestPrefix".toCharArray()
+	};
+	// Search all type names with new API
+	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		public String toString(){
+			return toFullyQualifiedNamesString();
+		}
+	};
+	new SearchEngine().searchAllTypeNames(
+		packagesList,
+		typesList,
+		getJavaSearchScopeBugs(),
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	if (debug) System.out.println("TypeNameMatchRequestor results: \n"+collector);
+	// Search all type names with old API
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		packagesList,
+		typesList,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	if (debug) System.out.println("TypeNameRequestor results: \n"+requestor);
+	// Should have same types with these 2 searches
+	assertEquals("Wrong number of found types!", packagesList.length, collector.size());
+	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
+}
 }
