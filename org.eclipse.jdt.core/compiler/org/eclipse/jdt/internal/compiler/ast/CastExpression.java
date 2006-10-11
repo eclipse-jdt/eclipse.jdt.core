@@ -319,10 +319,7 @@ public class CastExpression extends Expression {
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 * @param valueRequired boolean
 	 */
-	public void generateCode(
-		BlockScope currentScope,
-		CodeStream codeStream,
-		boolean valueRequired) {
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	
 		int pc = codeStream.position;
 		boolean needRuntimeCheckcast = (this.bits & GenerateCheckcast) != 0;
@@ -331,31 +328,23 @@ public class CastExpression extends Expression {
 				codeStream.generateConstant(constant, implicitConversion);
 				if (needRuntimeCheckcast) {
 					codeStream.checkcast(this.resolvedType);
-					if (valueRequired) {
-						codeStream.generateImplicitConversion(this.implicitConversion);
-					} else {
-						codeStream.pop();
-					}
+				}
+				if (!valueRequired) {
+					// the resolveType cannot be double or long
+					codeStream.pop();
 				}
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		expression.generateCode(
-			currentScope,
-			codeStream,
-			valueRequired || needRuntimeCheckcast);
-		if (needRuntimeCheckcast 
-				&& this.expression.postConversionType(currentScope) != this.resolvedType) { // no need to issue a checkcast if already done as genericCast
+		expression.generateCode(currentScope, codeStream, valueRequired || needRuntimeCheckcast);
+		if (needRuntimeCheckcast && this.expression.postConversionType(currentScope) != this.resolvedType) { // no need to issue a checkcast if already done as genericCast
 			codeStream.checkcast(this.resolvedType);
-			if (valueRequired) {
-				codeStream.generateImplicitConversion(implicitConversion);
-			} else {
-				codeStream.pop();
-			}
-		} else {
-			if (valueRequired)
-				codeStream.generateImplicitConversion(implicitConversion);
+		}
+		if (valueRequired) {
+			codeStream.generateImplicitConversion(implicitConversion);
+		} else if (needRuntimeCheckcast) {
+			codeStream.pop();
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
