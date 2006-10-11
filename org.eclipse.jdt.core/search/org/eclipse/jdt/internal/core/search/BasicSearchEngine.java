@@ -809,7 +809,7 @@ public class BasicSearchEngine {
 							}
 							if (match(typeSuffix, packageName, typeName, typeMatchRule, kind, packageDeclaration, simpleName)) {
 								if (nameRequestor instanceof TypeNameMatchRequestorWrapper) {
-									((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new TypeNameMatch(type));
+									((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new TypeNameMatch(type, type.getFlags()));
 								} else {
 									nameRequestor.acceptType(type.getFlags(), packageDeclaration, simpleName, enclosingTypeNames, path, null);
 								}
