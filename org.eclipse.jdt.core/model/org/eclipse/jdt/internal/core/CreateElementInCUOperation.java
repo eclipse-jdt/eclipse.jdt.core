@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Map;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
@@ -91,8 +93,8 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 		super(null, new IJavaElement[]{parentElement});
 		initializeDefaultPosition();
 	}
-	protected void apply(ASTRewrite rewriter, IDocument document) throws JavaModelException {
-		TextEdit edits = rewriter.rewriteAST(document, null);
+	protected void apply(ASTRewrite rewriter, IDocument document, Map options) throws JavaModelException {
+		TextEdit edits = rewriter.rewriteAST(document, options);
  		try {
 	 		edits.apply(document);
  		} catch (BadLocationException e) {
@@ -182,7 +184,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 			if (parent == null)
 				parent = this.cuAST;
 			insertASTNode(rewriter, parent, child);
-			apply(rewriter, document);
+			apply(rewriter, document, cu.getJavaProject().getOptions(true));
 		}
 		worked(1);
 	}
