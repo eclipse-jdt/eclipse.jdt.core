@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.util;
 
 import java.io.*;
 import java.net.ServerSocket;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.*;
 
@@ -29,63 +28,78 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class Util {
 	private static final boolean DEBUG = false;
+	/**
+	 * Initially, output directory was located in System.getProperty("user.home")+"\comptest".
+	 * To allow user to run several compiler tests at the same time, main output directory
+	 * is now located in a sub-directory of "comptest" which name is "run."+<code>System.currentMilliseconds</code>.
+	 * 
+	 * @see #DELAY_BEFORE_CLEAN_PREVIOUS
+	 */
 	private final static String OUTPUT_DIRECTORY;
 	/**
-	 * Let user specify the number of days after which subdirectories of {@link #OUTPUT_DIRECTORY}
-	 * are removed from file system. Default is 2 days.
+	 * Let user specify the delay in hours before output directories  are removed from file system
+	 * while starting a new test run. Default value is 2 hours.
 	 * <p>
-	 * By default output directory is located in System.getProperty("user.home")+"\comptest".
-	 * To allow user to run several compiler tests at the same time, main output directory
-	 * is now located in a sub-directory of "comptest" which name is current day date (yyyyMMdd).
-	 * <p>
-	 * While running compiler regression tests, test case are put in a specific sub-directory which
-	 * name is based on TestCase class partial qualified name (for example "compiler.regression.GenericTypeTest").
+	 * Note that this value may be a float and so have time less than one hour.
+	 * If value is 0 or negative, then all previous run directories will be removed...
+	 * 
+	 * @see #OUTPUT_DIRECTORY
 	 */
-	private final static String DAYS_BEFORE_REMOVE = System.getProperty("days");
+	private final static String DELAY_BEFORE_CLEAN_PREVIOUS = System.getProperty("delay");
+	/*
+	 * Static initializer to clean directories created while running previous test suites.
+	 */
 	static {
-		long millisecondsPerDay = 1000L * 3600 * 24;
-		long delay = millisecondsPerDay * 2; // default to keep directories is 2 days
+		// Get delay for cleaning sub-directories
+		long millisecondsPerHour = 1000L * 3600L;
+		long delay = millisecondsPerHour * 2; // default is to keep previous run directories for 2 hours
 		try {
-			if (DAYS_BEFORE_REMOVE != null) {
-				int days = Integer.parseInt(DAYS_BEFORE_REMOVE);
-				if (days >= 0) delay = millisecondsPerDay * days;
+			if (DELAY_BEFORE_CLEAN_PREVIOUS != null) {
+				float hours = Float.parseFloat(DELAY_BEFORE_CLEAN_PREVIOUS);
+				delay = (int) (millisecondsPerHour * hours);
 			}
 		}
 		catch (NumberFormatException nfe) {
 			// use default
 		}
+
+		// Get output directory root from system properties
 		String container = System.getProperty("jdt.test.output_directory");
 		if (container == null){
 			container = System.getProperty("user.home");
 		}
-		if (container != null) {
-			if (Character.isLowerCase(container.charAt(0)) && container.charAt(1) == ':') {
-				container = Character.toUpperCase(container.charAt(0)) + container.substring(1);
-			}
-			File dir = new File(new File(container), "comptest");
-			if (dir.exists()) {
-				long now = System.currentTimeMillis();
-				if ((now - dir.lastModified()) > delay) {
-					// remove all directory content
-					flushDirectoryContent(dir);
-				} else {
-					// remove only old sub-dirs
-					File[] testDirs = dir.listFiles();
-					for (int i=0,l=testDirs.length; i<l; i++) {
-						if (testDirs[i].isDirectory()) {
-							if ((now - testDirs[i].lastModified()) > delay) {
-								rmdir(testDirs[i]);
-							}
+		if (container == null) {
+			container = ".";	// use current directory
+		}
+		
+		// Get file for root directory
+		if (Character.isLowerCase(container.charAt(0)) && container.charAt(1) == ':') {
+			container = Character.toUpperCase(container.charAt(0)) + container.substring(1);
+		}
+		File dir = new File(new File(container), "comptest");
+
+		// If root directory already exists, clean it
+		if (dir.exists()) {
+			long now = System.currentTimeMillis();
+			if ((now - dir.lastModified()) > delay) {
+				// remove all directory content
+				flushDirectoryContent(dir);
+			} else {
+				// remove only old sub-dirs
+				File[] testDirs = dir.listFiles();
+				for (int i=0,l=testDirs.length; i<l; i++) {
+					if (testDirs[i].isDirectory()) {
+						if ((now - testDirs[i].lastModified()) > delay) {
+							rmdir(testDirs[i]);
 						}
 					}
 				}
 			}
-			Date date = new Date(System.currentTimeMillis());
-			File dateDir = new File(dir, new SimpleDateFormat("yyyyMMdd").format(date));
-			OUTPUT_DIRECTORY = dateDir.getPath();
-		} else {
-			OUTPUT_DIRECTORY = ""; // default is current directory
 		}
+
+		// Computed test run directory name based on current time
+		File dateDir = new File(dir, "run."+System.currentTimeMillis());
+		OUTPUT_DIRECTORY = dateDir.getPath();
 	}
 
 public static void appendProblem(StringBuffer problems, IProblem problem, char[] source, int problemCount) {

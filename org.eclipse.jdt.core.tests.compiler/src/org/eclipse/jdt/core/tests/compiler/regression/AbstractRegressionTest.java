@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import junit.framework.AssertionFailedError;
 
@@ -87,6 +86,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected static final String JAVAC_NAME = 
 		File.pathSeparatorChar == ':' ? "javac" : "javac.exe";
 
+	protected static String JAVAC_OUTPUT_DIR = 
+		Util.getOutputDirectory() + File.separator + "javac";
 	protected static String javacCommandLineHeader;
 	protected static PrintWriter javacFullLog;
 	// flags errors so that any error in a test case prevents
@@ -101,14 +102,13 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 
 	protected static IPath jdkRootDirPath;
 
-	protected static String JAVAC_OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "javac";
-	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression"; // default
-	protected static String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";// default
+	public static final String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
 
 	public final static String PACKAGE_INFO_NAME = new String(TypeConstants.PACKAGE_INFO_NAME);
 	
 	public static boolean SHIFT = false;
 	
+	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 
 	protected String[] classpaths;
 	protected boolean createdVerifier;
@@ -1235,32 +1235,11 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	}
 
 	protected void setUp() throws Exception {
-		String previousClassName = CURRENT_CLASS_NAME;
 		super.setUp();
 		if (this.verifier == null) {
 			this.verifier = new TestVerifier(true);
 			this.createdVerifier = true;
 		}
-		if (isFirst()) {
-			IPath dir = new Path(Util.getOutputDirectory());
-			if (previousClassName != null) {
-				// Minimize resilient files by removing previous test class global output dir
-				StringTokenizer tokenizer = new StringTokenizer(previousClassName, ".");
-				IPath previousDir = dir;
-				while (tokenizer.hasMoreTokens()) {
-					previousDir = previousDir.append(tokenizer.nextToken());
-				}
-				Util.rmdir(new File(previousDir.toOSString()));
-			}
-			StringTokenizer tokenizer = new StringTokenizer(CURRENT_CLASS_NAME, ".");
-			while (tokenizer.hasMoreTokens()) {
-				dir = dir.append(tokenizer.nextToken());
-			}
-			OUTPUT_DIR =  dir.append("output").toOSString();
-			SOURCE_DIRECTORY = dir.append("source").toOSString();
-			JAVAC_OUTPUT_DIR = dir.append("javac").toOSString();
-		}
-
 		if (RUN_JAVAC) {
 			if (isFirst()) {
 				if (javacFullLog == null) {
