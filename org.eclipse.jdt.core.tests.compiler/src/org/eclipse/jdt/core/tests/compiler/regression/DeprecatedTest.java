@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -541,6 +542,179 @@ public void test014() {
 		"	^^^\n" + 
 		"The type X is deprecated\n" + 
 		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
+// the order of the CUs must not modify the behavior, see also test016 
+public void _test015() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"p/M1.java",
+			"package p;\n" +
+			"public class M1 {\n" +
+			"  void bar() {\n" +
+			"    a.N1.N2.N3 m = null;\n" +
+			"    m.foo();\n" +
+			"  }\n" + 
+			"}\n",
+			"a/N1.java",
+			"package a;\n" +
+			"public class N1 {\n" +
+			"  /** @deprecated */\n" + 
+			"  public class N2 {" +
+			"    public class N3 {" +
+			"      public void foo() {}" +
+			"    }" +
+			"  }" +
+			"}\n",
+		}, 
+		"----------\n" + 
+		"1. ERROR in p\\M1.java (at line 4)\n" + 
+		"	a.N1.N2.N3 m = null;\n" + 
+		"	^^^^^^^^^^\n" + 
+		"The type N1.N2.N3 is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\M1.java (at line 5)\n" + 
+		"	m.foo();\n" + 
+		"	^^^^^^^\n" + 
+		"The method foo() from the type N1.N2.N3 is deprecated\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions,
+		true,
+		false,
+		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
+public void test016() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"a/N1.java",
+			"package a;\n" +
+			"public class N1 {\n" +
+			"  /** @deprecated */\n" + 
+			"  public class N2 {" +
+			"    public class N3 {" +
+			"      public void foo() {}" +
+			"    }" +
+			"  }" +
+			"}\n",
+			"p/M1.java",
+			"package p;\n" +
+			"public class M1 {\n" +
+			"  void bar() {\n" +
+			"    a.N1.N2.N3 m = null;\n" +
+			"    m.foo();\n" +
+			"  }\n" + 
+			"}\n",
+		}, 
+		"----------\n" + 
+		"1. ERROR in p\\M1.java (at line 4)\n" + 
+		"	a.N1.N2.N3 m = null;\n" + 
+		"	^^^^^^^^^^\n" + 
+		"The type N1.N2.N3 is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\M1.java (at line 5)\n" + 
+		"	m.foo();\n" + 
+		"	^^^^^^^\n" + 
+		"The method foo() from the type N1.N2.N3 is deprecated\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions,
+		true,
+		false,
+		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
+// variant: self-contained case
+public void _test017() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"a/N1.java",
+			"package a;\n" +
+			"public class N1 {\n" +
+			"  /** @deprecated */\n" + 
+			"  public class N2 {" +
+			"    public class N3 {" +
+			"      public void foo() {}" +
+			"    }" +
+			"  }" +
+			"  void bar() {\n" +
+			"    a.N1.N2.N3 m = null;\n" +
+			"    m.foo();\n" +
+			"  }\n" + 
+			"}\n"
+		}, 
+		"2 ERRs expected",
+		null,
+		true,
+		customOptions,
+		true,
+		false,
+		false);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
+// variant: using a binary class
+public void test018() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"a/N1.java",
+			"package a;\n" +
+			"public class N1 {\n" +
+			"  /** @deprecated */\n" + 
+			"  public class N2 {" +
+			"    public class N3 {" +
+			"      public void foo() {}" +
+			"    }" +
+			"  }" +
+			"}\n"
+		}, 
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null,
+		false);
+	this.runNegativeTest(
+		new String[] {
+			"p/M1.java",
+			"package p;\n" +
+			"public class M1 {\n" +
+			"  void bar() {\n" +
+			"    a.N1.N2.N3 m = null;\n" +
+			"    m.foo();\n" +
+			"  }\n" + 
+			"}\n"
+		}, 
+		"----------\n" + 
+		"1. ERROR in p\\M1.java (at line 4)\n" + 
+		"	a.N1.N2.N3 m = null;\n" + 
+		"	^^^^^^^^^^\n" + 
+		"The type N1.N2.N3 is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\M1.java (at line 5)\n" + 
+		"	m.foo();\n" + 
+		"	^^^^^^^\n" + 
+		"The method foo() from the type N1.N2.N3 is deprecated\n" + 
+		"----------\n",
+		null,
+		false /* do not flush */,
+		customOptions,
+		true,
+		false,
+		false);
 }
 public static Class testClass() {
 	return DeprecatedTest.class;

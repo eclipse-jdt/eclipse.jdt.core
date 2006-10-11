@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -103,6 +104,41 @@ public void test001() {
 		null,
 		true,
 		options);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
+// guard variant for DeprecatedTest#test015 using an annotation 
+public void _test002() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"p/M1.java",
+			"package p;\n" +
+			"public class M1 {\n" +
+			"  void bar() {\n" +
+			"    a.N1.N2.N3 m = null;\n" +
+			"    m.foo();\n" +
+			"  }\n" + 
+			"}\n",
+			"a/N1.java",
+			"package a;\n" +
+			"public class N1 {\n" +
+			"  @Deprecated\n" + 
+			"  public class N2 {" +
+			"    public void foo() {}" +
+			"    public class N3 {" +
+			"      public void foo() {}" +
+			"    }" +
+			"  }" +
+			"}\n",
+		}, 
+		"2 ERRS expected",
+		null,
+		true,
+		customOptions,
+		true,
+		false,
+		false);
 }
 public static Class testClass() {
 	return Deprecated15Test.class;

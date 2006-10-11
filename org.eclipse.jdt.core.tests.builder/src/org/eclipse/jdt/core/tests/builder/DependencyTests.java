@@ -1046,4 +1046,63 @@ public class DependencyTests extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingNoProblems();
 	}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
+// Full build and incremental build behave differently for deprecation
+// warnings, which is unexpected. Guard test for DeprecatedTest#test015 (the
+// builder is not the cause of the bug, but we want to ensure that the end to
+// end behavior is OK).
+public void _test0100() throws JavaModelException {
+	IPath projectPath = env.addProject("P");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	IPath rootPath = env.getPackageFragmentRootPath(projectPath, "");
+	env.addClass(rootPath, "a", "N1",
+		"package a;\n" +
+		"public class N1 {\n" +
+		"  public void foo() {}\n" + 
+		"  /** @deprecated */\n" + 
+		"  public class N2 {" +
+		"    public void foo() {}" +
+		"    public class N3 {" +
+		"      public void foo() {}" +
+		"    }" +
+		"  }" +
+		"  void bar() {}\n" + 
+		"}\n"
+	);
+	String M1Contents = 
+		"package p;\n" +
+		"public class M1 {\n" +
+		"  public void foo() {}\n" + 
+		"  /** @deprecated */\n" + 
+		"  public class M2 {" +
+		"    public void foo() {}" +
+		"    public class M3 {" +
+		"      public void foo() {}" +
+		"    }" +
+		"  }" +
+		"  void bar() {\n" +
+		"    a.N1.N2.N3 m = null;\n" +
+		"    m.foo();\n" +
+		"  }\n" + 
+		"}\n";
+	IPath M1Path = env.addClass(rootPath, "p", "M1", M1Contents);
+	fullBuild(projectPath);
+	expectingOnlyProblemsFor(new IPath[] {M1Path});
+	expectingSpecificProblemFor(M1Path, 
+		new Problem("", "The type N1.N2.N3 is deprecated", 
+			M1Path, 190, 200, CategorizedProblem.CAT_DEPRECATION));
+	expectingSpecificProblemFor(M1Path, 
+		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated", 
+			M1Path, 215, 222, CategorizedProblem.CAT_DEPRECATION));
+	M1Path = env.addClass(rootPath, "p", "M1", M1Contents);
+	incrementalBuild(projectPath);
+	expectingOnlyProblemsFor(new IPath[] {M1Path});
+	expectingSpecificProblemFor(M1Path, 
+		new Problem("", "The type N1.N2.N3 is deprecated", 
+			M1Path, 190, 200, CategorizedProblem.CAT_DEPRECATION));
+	expectingSpecificProblemFor(M1Path, 
+		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated", 
+			M1Path, 215, 222, CategorizedProblem.CAT_DEPRECATION));
+}
 }
