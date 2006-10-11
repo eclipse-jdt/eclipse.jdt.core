@@ -2883,7 +2883,7 @@ public void test088() {
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" + 
 		"----------\n";
-	if (System.getProperty("java.version").startsWith("1.6")) {
+	if (isJRELevel("1.6")) {
 		errorMessage =
 			"----------\n" + 
 			"1. WARNING in p\\X.java (at line 4)\n" + 

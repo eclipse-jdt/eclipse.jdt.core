@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1054, 1055 };
+		TESTS_NUMBERS = new int[] { 1050, 1054 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -33732,7 +33732,7 @@ public void test1050() {
     	"Exception: java.lang.ClassCastException: [Ljava.lang.Object;\n" + 
     	"Exception: java.lang.ClassCastException: [Ljava.lang.Object;";
 	
-	if (System.getProperty("java.version").startsWith("1.6")) {
+	if (isJRELevel("1.6")) {
 		expectedOutput =
 			"xxx\n" + 
 			"true\n" + 
@@ -33876,7 +33876,7 @@ public void test1054() {
 		"Type mismatch: cannot convert from Annotation to Bar\n" + 
 		"----------\n";
 	
-	if (System.getProperty("java.version").startsWith("1.6")) {
+	if (isJRELevel("1.6")) {
 		expectedOutput =
 			"----------\n" + 
 			"1. WARNING in X.java (at line 10)\n" + 

@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.tests.compiler.regression.RegressionTestSetup;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AbstractCompilerTest extends TestCase {
@@ -372,6 +373,20 @@ public class AbstractCompilerTest extends TestCase {
 		return test;
 	}
 
+	
+	public static boolean isJRELevel(String level) {
+		int compliance = AbstractCompilerTest.F_1_3;
+		final long versionToJdkLevel = CompilerOptions.versionToJdkLevel(level);
+		if (versionToJdkLevel == ClassFileConstants.JDK1_4) {
+			compliance = AbstractCompilerTest.F_1_4;
+		} else if (versionToJdkLevel == ClassFileConstants.JDK1_5) {
+			compliance = AbstractCompilerTest.F_1_5;
+		} else if (versionToJdkLevel == ClassFileConstants.JDK1_6) {
+			compliance = AbstractCompilerTest.F_1_6;
+		}
+		return (AbstractCompilerTest.getPossibleComplianceLevels() & compliance) != 0;
+	}
+	
 	public AbstractCompilerTest(String name) {
 		super(name);
 	}
