@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1050 };
+//		TESTS_NUMBERS = new int[] { 1054, 1055 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -33739,8 +33739,6 @@ public void test1050() {
 			"Exception: java.lang.ClassCastException: [Ljava.lang.Object; cannot be cast to [Ljava.lang.String;\n" + 
 			"Exception: java.lang.ClassCastException: [Ljava.lang.Object; cannot be cast to [Ljava.lang.String;";
 	}
-    	
-	
 	this.runConformTest(
 		new String[] {
 			"X.java", //========================
@@ -33854,6 +33852,102 @@ public void test1053() {
 			"            X<V,R> c = X.this;\n" + 
 			"        }\n" + 
 			"    }\n" + 
+			"}",
+		}, 
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142935
+public void test1054() {
+	String expectedOutput =
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	Class clazz= X.class;\n" + 
+		"	^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 11)\n" + 
+		"	Bar bar= clazz.getAnnotation(Bar.class);\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method getAnnotation(Class) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	Bar bar= clazz.getAnnotation(Bar.class);\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Annotation to Bar\n" + 
+		"----------\n";
+	
+	if (System.getProperty("java.version").startsWith("1.6")) {
+		expectedOutput =
+			"----------\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	Class clazz= X.class;\n" + 
+			"	^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 11)\n" + 
+			"	Bar bar= clazz.getAnnotation(Bar.class);\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method getAnnotation(Class) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 11)\n" + 
+			"	Bar bar= clazz.getAnnotation(Bar.class);\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Annotation to Bar\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 12)\n" + 
+			"	Method method= clazz.getMethod(\"bar\");\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method getMethod(String, Class...) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n";
+	}
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.Retention;\r\n" + 
+			"import java.lang.annotation.RetentionPolicy;\r\n" + 
+			"import java.lang.reflect.Method;\r\n" + 
+			"\r\n" + 
+			"@Bar\r\n" + 
+			"public class X {\r\n" + 
+			"\r\n" + 
+			"        @Bar\r\n" + 
+			"        public void bar() throws Exception {\r\n" + 
+			"                Class clazz= X.class;\r\n" + 
+			"                Bar bar= clazz.getAnnotation(Bar.class);\n" +
+			"                Method method= clazz.getMethod(\"bar\");\r\n" + 
+			"                Bar bar2= method.getAnnotation(Bar.class);\r\n" + 
+			"        }\r\n" + 
+			"}\r\n" + 
+			"\r\n" + 
+			"@Retention(RetentionPolicy.RUNTIME)\r\n" + 
+			"@interface Bar {\r\n" + 
+			"}",
+		}, 
+		expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=142935
+public void test1055() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.Retention;\r\n" + 
+			"import java.lang.annotation.RetentionPolicy;\r\n" + 
+			"import java.lang.reflect.Method;\r\n" + 
+			"\r\n" + 
+			"@Bar\r\n" + 
+			"public class X {\r\n" + 
+			"\r\n" + 
+			"        @Bar\r\n" + 
+			"        public void bar() throws Exception {\r\n" + 
+			"                Class<X> clazz= X.class;\r\n" + 
+			"                Bar bar= clazz.getAnnotation(Bar.class);\n" +
+			"                Method method= clazz.getMethod(\"bar\");\r\n" + 
+			"                Bar bar2= method.getAnnotation(Bar.class);\r\n" + 
+			"        }\r\n" + 
+			"}\r\n" + 
+			"\r\n" + 
+			"@Retention(RetentionPolicy.RUNTIME)\r\n" + 
+			"@interface Bar {\r\n" + 
 			"}",
 		}, 
 		"");
