@@ -83,10 +83,15 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	if (this.qualifications != null) {
 		int count = 0;
 		int max = this.qualifications.length;
-		for (; count < max; count++)
-			if (matchesName(this.qualifications[count], pattern.qualification))
-				break;
-		if (count == max) return false;
+		if (max == 0 && pattern.qualification.length > 0) {
+			return false;
+		}
+		if (max > 0) {
+			for (; count < max; count++)
+				if (matchesName(this.qualifications[count], pattern.qualification))
+					break;
+			if (count == max) return false;
+		}
 	}
 
 	// chekc simple name
