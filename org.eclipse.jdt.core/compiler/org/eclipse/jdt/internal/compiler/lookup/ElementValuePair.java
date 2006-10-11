@@ -95,4 +95,9 @@ void setMethodBinding(MethodBinding binding) {
 	// lazily set after annotation type was resolved
 	this.binding = binding;
 }
+
+void setValue(Object value) {
+	// can be modified after the initialization if holding an unresolved ref
+	this.value = value;
+}
 }
