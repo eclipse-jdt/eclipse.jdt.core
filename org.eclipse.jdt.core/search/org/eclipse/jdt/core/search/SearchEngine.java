@@ -774,9 +774,9 @@ public class SearchEngine {
 	 * and type names in a case sensitive way.
 	 * 
 	 * @param qualifications the qualified name of the package/enclosing type of the searched types.
-	 *					May be <code>null</code>, then any package name is accepted.
+	 *					If this parameter is <code>null</code>, then no type will be found.
 	 * @param typeNames the simple names of the searched types.
-	 *					May be <code>null</code>, then any type name is accepted.
+	 *					If this parameter is <code>null</code>, then no type will be found.
 	 * @param scope the scope to search in
 	 * @param nameRequestor the requestor that collects the results of the search
 	 * @param waitingPolicy one of
@@ -804,6 +804,57 @@ public class SearchEngine {
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 
 		TypeNameRequestorWrapper requestorWrapper = new TypeNameRequestorWrapper(nameRequestor);
+		this.basicEngine.searchAllTypeNames(
+			qualifications,
+			typeNames,
+			SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE,
+			IJavaSearchConstants.TYPE,
+			scope,
+			requestorWrapper,
+			waitingPolicy,
+			progressMonitor);
+	}
+
+	/**
+	 * Searches for all top-level types and member types in the given scope matching any of the given qualifications
+	 * and type names in a case sensitive way.
+	 * <p>
+	 * Provided {@link TypeNameMatchRequestor} requestor will collect {@link TypeNameMatch}
+	 * matches found during the search.
+	 * </p>
+	 * 
+	 * @param qualifications the qualified name of the package/enclosing type of the searched types.
+	 *					If this parameter is <code>null</code>, then no type will be found.
+	 * @param typeNames the simple names of the searched types.
+	 *					If this parameter is <code>null</code>, then no type will be found.
+	 * @param scope the scope to search in
+	 * @param nameMatchRequestor the {@link TypeNameMatchRequestor requestor} that collects
+	 * 				{@link TypeNameMatch matches} of the search.
+	 * @param waitingPolicy one of
+	 * <ul>
+	 *		<li>{@link IJavaSearchConstants#FORCE_IMMEDIATE_SEARCH} if the search should start immediately</li>
+	 *		<li>{@link IJavaSearchConstants#CANCEL_IF_NOT_READY_TO_SEARCH} if the search should be cancelled if the
+	 *			underlying indexer has not finished indexing the workspace</li>
+	 *		<li>{@link IJavaSearchConstants#WAIT_UNTIL_READY_TO_SEARCH} if the search should wait for the
+	 *			underlying indexer to finish indexing the workspace</li>
+	 * </ul>
+	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
+	 *							monitor is provided
+	 * @exception JavaModelException if the search failed. Reasons include:
+	 *	<ul>
+	 *		<li>the classpath is incorrectly set</li>
+	 *	</ul>
+	 * @since 3.3
+	 */
+	public void searchAllTypeNames(
+		final char[][] qualifications, 
+		final char[][] typeNames,
+		IJavaSearchScope scope, 
+		final TypeNameMatchRequestor nameMatchRequestor,
+		int waitingPolicy,
+		IProgressMonitor progressMonitor)  throws JavaModelException {
+
+		TypeNameMatchRequestorWrapper requestorWrapper = new TypeNameMatchRequestorWrapper(nameMatchRequestor, scope);
 		this.basicEngine.searchAllTypeNames(
 			qualifications,
 			typeNames,
