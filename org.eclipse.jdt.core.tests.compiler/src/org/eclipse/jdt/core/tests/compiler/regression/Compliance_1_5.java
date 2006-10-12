@@ -17,6 +17,7 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -2883,7 +2884,7 @@ public void test088() {
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" + 
 		"----------\n";
-	if (isJRELevel("1.6")) {
+	if (isJRELevel(AbstractCompilerTest.F_1_6)) {
 		errorMessage =
 			"----------\n" + 
 			"1. WARNING in p\\X.java (at line 4)\n" + 

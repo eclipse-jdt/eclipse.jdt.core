@@ -17,6 +17,7 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -33732,7 +33733,7 @@ public void test1050() {
     	"Exception: java.lang.ClassCastException: [Ljava.lang.Object;\n" + 
     	"Exception: java.lang.ClassCastException: [Ljava.lang.Object;";
 	
-	if (isJRELevel("1.6")) {
+	if (isJRELevel(AbstractCompilerTest.F_1_6)) {
 		expectedOutput =
 			"xxx\n" + 
 			"true\n" + 
@@ -33876,7 +33877,7 @@ public void test1054() {
 		"Type mismatch: cannot convert from Annotation to Bar\n" + 
 		"----------\n";
 	
-	if (isJRELevel("1.6")) {
+	if (isJRELevel(AbstractCompilerTest.F_1_6)) {
 		expectedOutput =
 			"----------\n" + 
 			"1. WARNING in X.java (at line 10)\n" + 

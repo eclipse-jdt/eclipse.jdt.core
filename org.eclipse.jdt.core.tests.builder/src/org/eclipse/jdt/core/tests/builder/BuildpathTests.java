@@ -565,7 +565,7 @@ public class BuildpathTests extends BuilderTests {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132
 public void test0100() throws JavaModelException {
-	if (!AbstractCompilerTest.isJRELevel("1.5")) {
+	if (!AbstractCompilerTest.isJRELevel(AbstractCompilerTest.F_1_5)) {
 		// expected to run only in 1.5 mode on top of a jre 1.5 or above
 		return;
 	}
