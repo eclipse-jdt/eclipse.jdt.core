@@ -631,12 +631,12 @@ public void test016() {
 		false);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
-// variant: self-contained case
-public void _test017() {
+// variant: self-contained case, hence no report
+public void test017() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"a/N1.java",
 			"package a;\n" +
@@ -653,12 +653,12 @@ public void _test017() {
 			"  }\n" + 
 			"}\n"
 		}, 
-		"2 ERRs expected",
+		"",
 		null,
 		true,
+		null,
 		customOptions,
-		true,
-		false,
+		null,
 		false);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
