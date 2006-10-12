@@ -90,9 +90,11 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 				}
 			}
 		}
-
-		if (concreteMethod.declaringClass.erasure().findSuperTypeWithSameErasure(originalInherited.declaringClass) == null)
+		// check whether bridge method is already defined above for interface methods
+		if (originalInherited.declaringClass.isInterface()
+				&& this.type.superclass.erasure().findSuperTypeWithSameErasure(originalInherited.declaringClass) == null) {
 			this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
+		}
 	}
 }
 void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod, MethodBinding[] allInheritedMethods) {
