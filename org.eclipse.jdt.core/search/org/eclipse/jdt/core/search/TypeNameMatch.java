@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jdt.core.*;
 
 /**
@@ -40,7 +39,9 @@ private int modifiers = -1; // store modifiers to avoid java model population
  * Creates a new type name match.
  */
 public TypeNameMatch(IType type, int modifiers) {
-	Assert.isNotNull(type, "Type cannot be null for a name match!"); //$NON-NLS-1$
+	// TODO (frederic) Disable null check as it currently breaks JDT/UI => put back ASAP
+	// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=160652 for follow-up on this issue)
+	//Assert.isNotNull(type, "Type cannot be null for a name match!"); //$NON-NLS-1$
 	this.type = type;
 	this.modifiers = modifiers;
 }
