@@ -44,7 +44,7 @@ public class Archive {
 	private void initialize() {
 		// initialize packages
 		this.packagesCache = new Hashtable<String, ArrayList<String>>();
-		nextEntry : for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
+		nextEntry : for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
 			String fileName = ((ZipEntry) e.nextElement()).getName();
 
 			// add the package name & all of its parent packages
