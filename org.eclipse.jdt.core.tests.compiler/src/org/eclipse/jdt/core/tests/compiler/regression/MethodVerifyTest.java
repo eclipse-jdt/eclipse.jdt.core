@@ -54,26 +54,31 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(T) in Y<T> and foo(U) in X<A> have the same erasure, yet neither overrides the other
 		);
+	}
+	
+	public void test001a() {
 		this.runNegativeTest(
-			new String[] {
-				"J.java",
-				"public class J<T> implements I<A> { public void foo(T t) {} }\n" +
-				"interface I<U> { public void foo(U u); }\n" +
-				"class A {}\n"
-			},
-			"----------\n" + 
-			"1. ERROR in J.java (at line 1)\r\n" + 
-			"	public class J<T> implements I<A> { public void foo(T t) {} }\r\n" + 
-			"	             ^\n" + 
-			"The type J<T> must implement the inherited abstract method I<A>.foo(A)\n" + 
-			"----------\n" + 
-			"2. ERROR in J.java (at line 1)\r\n" + 
-			"	public class J<T> implements I<A> { public void foo(T t) {} }\r\n" + 
-			"	                                                ^^^^^^^^\n" + 
-			"Name clash: The method foo(T) of type J<T> has the same erasure as foo(U) of type I<U> but does not override it\n" + 
-			"----------\n"
-			// J is not abstract and does not override abstract method foo(A) in I
-		);
+				new String[] {
+					"J.java",
+					"public class J<T> implements I<A> { public void foo(T t) {} }\n" +
+					"interface I<U> { public void foo(U u); }\n" +
+					"class A {}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in J.java (at line 1)\r\n" + 
+				"	public class J<T> implements I<A> { public void foo(T t) {} }\r\n" + 
+				"	             ^\n" + 
+				"The type J<T> must implement the inherited abstract method I<A>.foo(A)\n" + 
+				"----------\n" + 
+				"2. ERROR in J.java (at line 1)\r\n" + 
+				"	public class J<T> implements I<A> { public void foo(T t) {} }\r\n" + 
+				"	                                                ^^^^^^^^\n" + 
+				"Name clash: The method foo(T) of type J<T> has the same erasure as foo(U) of type I<U> but does not override it\n" + 
+				"----------\n"
+				// J is not abstract and does not override abstract method foo(A) in I
+			);
+	}
+	public void test001b() {
 		this.runNegativeTest(
 			new String[] {
 				"YY.java",
@@ -93,45 +98,51 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(T) in YY<T> and foo(U) in X have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test001c() {
 		this.runNegativeTest(
-			new String[] {
-				"JJ.java",
-				"public class JJ<T> implements I { public void foo(T t) {} }\n" +
-				"interface I<U> { public void foo(U u); }\n"
-			},
-			"----------\n" + 
-			"1. ERROR in JJ.java (at line 1)\n" + 
-			"	public class JJ<T> implements I { public void foo(T t) {} }\n" + 
-			"	             ^^\n" + 
-			"The type JJ<T> must implement the inherited abstract method I.foo(Object)\n" + 
-			"----------\n" + 
-			"2. WARNING in JJ.java (at line 1)\n" + 
-			"	public class JJ<T> implements I { public void foo(T t) {} }\n" + 
-			"	                              ^\n" + 
-			"I is a raw type. References to generic type I<U> should be parameterized\n" + 
-			"----------\n" + 
-			"3. ERROR in JJ.java (at line 1)\n" + 
-			"	public class JJ<T> implements I { public void foo(T t) {} }\n" + 
-			"	                                              ^^^^^^^^\n" + 
-			"Name clash: The method foo(T) of type JJ<T> has the same erasure as foo(U) of type I<U> but does not override it\n" + 
-			"----------\n"
-			// JJ is not abstract and does not override abstract method foo(java.lang.Object) in I
+				new String[] {
+						"JJ.java",
+						"public class JJ<T> implements I { public void foo(T t) {} }\n" +
+						"interface I<U> { public void foo(U u); }\n"
+				},
+				"----------\n" + 
+				"1. ERROR in JJ.java (at line 1)\n" + 
+				"	public class JJ<T> implements I { public void foo(T t) {} }\n" + 
+				"	             ^^\n" + 
+				"The type JJ<T> must implement the inherited abstract method I.foo(Object)\n" + 
+				"----------\n" + 
+				"2. WARNING in JJ.java (at line 1)\n" + 
+				"	public class JJ<T> implements I { public void foo(T t) {} }\n" + 
+				"	                              ^\n" + 
+				"I is a raw type. References to generic type I<U> should be parameterized\n" + 
+				"----------\n" + 
+				"3. ERROR in JJ.java (at line 1)\n" + 
+				"	public class JJ<T> implements I { public void foo(T t) {} }\n" + 
+				"	                                              ^^^^^^^^\n" + 
+				"Name clash: The method foo(T) of type JJ<T> has the same erasure as foo(U) of type I<U> but does not override it\n" + 
+				"----------\n"
+				// JJ is not abstract and does not override abstract method foo(java.lang.Object) in I
 		);
+	}
+	public void test001d() {
 		this.runConformTest(
-			new String[] {
-				"YYY.java",
-				"public class YYY<T> extends X<T> { public void foo(T t) {} }\n" +
-				"class X<U> { public void foo(U u) {} }\n"
-			},
-			""
+				new String[] {
+						"YYY.java",
+						"public class YYY<T> extends X<T> { public void foo(T t) {} }\n" +
+						"class X<U> { public void foo(U u) {} }\n"
+				},
+				""
 		);
+	}
+	public void test001e() {
 		this.runConformTest(
-			new String[] {
-				"JJJ.java",
-				"public class JJJ<T> implements I<T> { public void foo(T t) {} }\n" +
-				"interface I<U> { public void foo(U u); }\n"
-			},
-			""
+				new String[] {
+						"JJJ.java",
+						"public class JJJ<T> implements I<T> { public void foo(T t) {} }\n" +
+						"interface I<U> { public void foo(U u); }\n"
+				},
+				""
 		);
 	}
 
@@ -152,6 +163,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(T) in Y<T> and foo(U) in X<A> have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test002a() { // separate files
 		this.runNegativeTest(
 			new String[] {
 				"J.java",
@@ -173,6 +186,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// J is not abstract and does not override abstract method foo(A) in I
 		);
+	}
+	public void test002b() { // separate files
 		this.runNegativeTest(
 			new String[] {
 				"YY.java",
@@ -193,6 +208,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(T) in YY<T> and foo(U) in X have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test002c() { // separate files
 		this.runNegativeTest(
 			new String[] {
 				"JJ.java",
@@ -218,6 +235,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// JJ is not abstract and does not override abstract method foo(java.lang.Object) in I
 		);
+	}
+	public void test002d() { // separate files
 		this.runConformTest(
 			new String[] {
 				"YYY.java",
@@ -227,6 +246,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test002e() { // separate files
 		this.runConformTest(
 			new String[] {
 				"JJJ.java",
@@ -268,6 +289,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			false,
 			null
 		);
+	}
+	public void test003a() { // pick up superTypes as binaries
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"class A {}\n",
+				"B.java",
+				"class B {}\n",
+				"X.java",
+				"class X<U> { public void foo(U u) {} }\n",
+				"I.java",
+				"interface I<U> { public void foo(U u); }\n",
+			},
+			""
+		);
 		this.runNegativeTest(
 			new String[] {
 				"J.java",
@@ -289,6 +325,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			false,
 			null
 		);
+	}
+	public void test003b() {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"class A {}\n",
+				"B.java",
+				"class B {}\n",
+				"X.java",
+				"class X<U> { public void foo(U u) {} }\n",
+				"I.java",
+				"interface I<U> { public void foo(U u); }\n",
+			},
+			""
+		);
 		this.runNegativeTest(
 			new String[] {
 				"YY.java",
@@ -309,6 +360,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			null,
 			false,
 			null
+		);
+	}
+	public void test003c() {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"class A {}\n",
+				"B.java",
+				"class B {}\n",
+				"X.java",
+				"class X<U> { public void foo(U u) {} }\n",
+				"I.java",
+				"interface I<U> { public void foo(U u); }\n",
+			},
+			""
 		);
 		this.runNegativeTest(
 			new String[] {
@@ -336,6 +402,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			false,
 			null
 		);
+	}
+	public void test003d() {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"class A {}\n",
+				"B.java",
+				"class B {}\n",
+				"X.java",
+				"class X<U> { public void foo(U u) {} }\n",
+				"I.java",
+				"interface I<U> { public void foo(U u); }\n",
+			},
+			""
+		);
 		this.runConformTest(
 			new String[] {
 				"YYY.java",
@@ -345,6 +426,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			null,
 			false,
 			null
+		);
+	}
+	public void test003e() {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"class A {}\n",
+				"B.java",
+				"class B {}\n",
+				"X.java",
+				"class X<U> { public void foo(U u) {} }\n",
+				"I.java",
+				"interface I<U> { public void foo(U u); }\n",
+			},
+			""
 		);
 		this.runConformTest(
 			new String[] {
@@ -594,6 +690,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test007a() { // simple covariance cases
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -621,6 +719,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"The return type is incompatible with I.foo(), J.foo()\n" + 
 			"----------\n"
 		);
+	}
+	public void test007b() { // simple covariance cases
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -632,6 +732,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test007c() { // simple covariance cases
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -643,6 +745,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test007d() { // simple covariance cases
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -653,6 +757,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test007e() { // simple covariance cases
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -668,6 +774,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"The return type is incompatible with I.foo(), A.foo()\n" + 
 			"----------\n"
 		);
+	}
+	public void test007f() { // simple covariance cases
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -682,7 +790,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
-
+	
 	public void test008() { // covariance test
 		this.runNegativeTest(
 			new String[] {
@@ -719,6 +827,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(G<A>) in A and foo(G<I>) in I have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test009a() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -785,6 +895,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// <T>foo(T) in A cannot implement <T>foo(T) in I; attempting to assign weaker access privileges; was public
 		);
+	}
+	public void test011a() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -801,6 +913,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: <T,S>foo(T) in A and <T>foo(T) in I have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test011b() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -834,6 +948,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// foo(java.lang.Object) in Y1 cannot override <T>foo(T) in A; attempting to assign weaker access privileges; was public
 		);
+	}		
+	public void test012a() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -848,6 +964,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// foo(java.lang.Object[]) in Y2 cannot override <T>foo(T[]) in A; attempting to assign weaker access privileges; was public
 		);
+	}
+	public void test012b() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -876,6 +994,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test013a() {
+		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -892,6 +1013,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: <T,S>foo(java.lang.Class<T>) in A and <T>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test013b() {
+		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -908,6 +1032,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: <T>foo(java.lang.Class<T>) in A and <T,S>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test013c() {
+		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -924,6 +1051,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: <T,S>foo(java.lang.Class<T>) in A and <T>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test013d() {
+		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -940,6 +1070,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: <T>foo(java.lang.Class<T>) in A and <T,S>foo(java.lang.Class<T>) in I have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test013e() {
+		// javac 1.5.0 will only issue 1 name clash per compile... doesn't matter how many source files are involved
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -969,6 +1102,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test014a() { // name clash tests
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -978,6 +1113,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test014b() { // name clash tests
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -987,6 +1124,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test014c() { // name clash tests
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -996,6 +1135,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test014d() { // name clash tests
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1016,6 +1157,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(A<java.lang.String>) in Y and foo(A) in X have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test014e() { // name clash tests
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1049,6 +1192,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test015a() { // more name clash tests
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1059,6 +1204,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test015b() { // more name clash tests
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1069,6 +1216,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test015c() { // more name clash tests
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1079,6 +1228,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test015d() { // more name clash tests
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1100,6 +1251,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(A<java.lang.String>) in Y and foo(A) in I have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test015e() { // more name clash tests
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1140,6 +1293,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"A=class AB=class B"
 		);
+	}
+	public void test016b() { // 73971
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1174,6 +1329,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: test(X<java.lang.Number>) in Z and test(X<? extends java.lang.Number>) in Y have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test017a() { // 77785
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1322,6 +1479,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test022a() { // 77562
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -1378,6 +1537,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 			// no complaint
 		);
+	}
+	public void test024a() { // 80626
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -1396,6 +1557,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: <E>m(E) in B and m(java.lang.Object) in A have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test024b() { // 80626
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -1443,6 +1606,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
 		);
+	}
+	public void test025a() { // 81618
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1466,6 +1631,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
 		);
+	}
+	public void test025b() { // 81618
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1483,6 +1650,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"1"
 		);
+	}
+	public void test025c() { // 81618
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1500,6 +1669,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"1"
 		);
+	}
+	public void test025d() { // 81618
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -1515,6 +1686,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"1"
 		);
+	}
+	public void test025e() { // 81618
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1544,6 +1717,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n"
 		);
+	}		
+	public void test025f() { // 81618
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1602,6 +1777,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"class B & class C & class D"
 		);
+	}
+	public void test026a() {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -1616,6 +1793,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}		
+	public void test026b() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1625,6 +1804,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}		
+	public void test026c() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1665,6 +1846,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
+	public void test027a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1679,6 +1863,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: <T>foo() in Y and foo() in X have the same erasure, yet neither overrides the other
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
+	public void test027b() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1687,6 +1874,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
+	public void test027c() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1701,6 +1891,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: test(java.lang.Object,T) in Y<T> and test(T,T) in X<T> have the same erasure, yet neither overrides the other
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
+	public void test027d() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1811,6 +2004,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80736 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=113273
+	public void test032a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1826,6 +2022,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// types J and I are incompatible; both define foo(), but with unrelated return types
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80736 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=113273
+	public void test032b() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1863,6 +2062,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"false=false"
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80745
+	public void test033a() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1895,6 +2097,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81332
+	public void test034a() {
 		this.runConformTest(
 			new String[] {
 				"B.java",
@@ -1905,6 +2110,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81332
+	public void test034b() {
 		this.runNegativeTest(
 			new String[] {
 				"B.java",
@@ -1930,6 +2138,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: test(java.lang.Comparable) in B and test(E) in I<java.lang.Integer> have the same erasure, yet neither overrides the other
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81332
+	public void test034c() {
 		this.runNegativeTest(
 			new String[] {
 				"B.java",
@@ -1950,6 +2161,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: test(java.lang.Comparable) in B and test(E) in I<java.lang.Integer> have the same erasure, yet neither overrides the other
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81332
+	public void test034d() {
 		this.runNegativeTest(
 			new String[] {
 				"B.java",
@@ -1994,6 +2208,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: compareTo(java.lang.Object) in E and compareTo(U) in I<E> have the same erasure, yet neither overrides the other
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80626
+	public void test035a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2030,6 +2247,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	public void test036a() { // 2 interface cases
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2047,6 +2267,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	public void test036b() { // 2 interface cases
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2062,6 +2285,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	public void test036c() { // 2 interface cases
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2079,7 +2305,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
-
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	public void test036d() { // 2 interface cases
 		// in these cases, bridge methods are needed once abstract/concrete methods are defiined (either in the abstract class or a concrete subclass)
 		this.runConformTest(
 			new String[] {
@@ -2093,6 +2321,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 			// no bridge methods are created here since Y does not define an equalTo(?) method which equals an inherited equalTo method
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	public void test036e() { // 2 interface cases
 		this.runNegativeTest(
 			new String[] {
 				"Y.java",
@@ -2115,6 +2346,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: equalTo(java.lang.Object) in Y and equalTo(T) in Equivalent<java.lang.String> have the same erasure, yet neither overrides the other
 		);
+	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	public void test036f() { // 2 interface cases
 		// NOTE: javac has a bug, reverse the implemented interfaces & the name clash goes away
 		// but eventually when a concrete subclass must define the remaining method, the error shows up
 		this.runNegativeTest(
@@ -2134,6 +2368,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: equalTo(T) in Equivalent<java.lang.String> and equalTo(T) in EqualityComparable<java.lang.Integer> have the same erasure, yet neither overrides the other
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+	public void test036g() { // 2 interface cases
 		this.runNegativeTest(
 			new String[] {
 				"Y.java",
@@ -2172,6 +2409,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test037a() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
 				"XX.java",
@@ -2193,6 +2432,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(A<java.lang.String>) in XX and foo(A) in I have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test037b() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
 				"XX.java",
@@ -2243,6 +2484,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// XX/YY/ZZ is not abstract and does not override abstract method foo(A) in I
 		);
+	}
+	public void test037c() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2264,6 +2507,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(A<java.lang.String>) in Y and foo(A) in I have the same erasure, yet neither overrides the other
 		);
+	}
+	public void test037d() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2285,6 +2530,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// foo(A) in Y cannot implement foo(A<java.lang.String>) in I; attempting to assign weaker access privileges; was public
 		);
+	}
+	public void test037e() { // test inheritance scenarios
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2312,6 +2559,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test038a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2374,6 +2623,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"" // no warnings
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83218
+	public void test040a() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -2388,6 +2640,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// warning: test() in B overrides <T>test() in A; return type requires unchecked conversion
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83218
+	public void test040b() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -2408,7 +2663,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// unchecked warning on B.getList()
 		);
-
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83218
+	public void test040c() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2438,6 +2695,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n"
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83218
+	public void test040d() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2486,6 +2746,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// warning: foo(java.lang.String...) in X cannot implement foo(java.lang.String[]) in I; overridden method has no '...'
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	public void test041a() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2501,6 +2764,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// warning: foo(java.lang.String[]) in X cannot implement foo(java.lang.String...) in I; overriding method is missing '...'
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	public void test041b() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2518,6 +2784,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"SUCCESS"
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	public void test041c() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2539,6 +2808,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// warning: foo() in X implements foo() in I; return type requires unchecked conversion
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
+	public void test041d() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2597,6 +2869,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// javac won't report it until C.id() is made concrete or implemented in E
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
+	public void test043a() { // ambiguous message sends because of substitution from 2 different type variables
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2613,6 +2888,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// reference to id is ambiguous, both method id(A) in C<java.lang.Integer> and method id(B) in I<java.lang.Integer> match
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
+	public void test043b() { // ambiguous message sends because of substitution from 2 different type variables
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2629,6 +2907,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// reference to id is ambiguous, both method id(A) in C<java.lang.Integer> and method id(B) in E<java.lang.Integer,java.lang.Integer> match
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
+	public void test043c() { // ambiguous message sends because of substitution from 2 different type variables
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2657,7 +2938,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97161
-	public void test043a() {
+	public void test043d() {
 		this.runNegativeTest(
 			new String[] {
 				"p/X.java",
@@ -2701,6 +2982,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// unchecked conversion warnings
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97161
+	public void test043e() {
 		this.runNegativeTest(
 			new String[] {
 				"p/X.java",
@@ -2740,7 +3024,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
-	public void test043b() {
+	public void test043f() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2756,6 +3040,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test043g() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2794,6 +3080,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Cannot override the final method from X\n" + 
 			"----------\n"
 		);
+	}
+	// ensure AccOverriding remains when attempting to override final method 
+	public void test044a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2807,6 +3096,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Cannot reduce the visibility of the inherited method from X\n" + 
 			"----------\n"
 		);
+	}
+	// ensure AccOverriding remains when attempting to override final method 
+	public void test044b() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2820,6 +3112,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Exception ClassNotFoundException is not compatible with throws clause in X.foo()\n" + 
 			"----------\n"
 		);
+	}
+	// ensure AccOverriding remains when attempting to override final method 
+	public void test044c() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2910,6 +3205,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	public void test048a() {
 		this.runConformTest(
 			new String[] {
 				"X2.java",
@@ -2925,6 +3223,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	public void test048b() {
 		this.runNegativeTest(
 			new String[] {
 				"X3.java",
@@ -2946,6 +3247,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(I<java.lang.String>) in X and foo(I<? extends T>) in Y<java.lang.String> have the same erasure, yet neither overrides the other
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	public void test048c() {
 		this.runConformTest(
 			new String[] {
 				"X4.java",
@@ -2961,6 +3265,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	public void test048d() {
 		this.runConformTest(
 			new String[] {
 				"X5.java",
@@ -2976,6 +3283,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	public void test048e() {
 		this.runConformTest(
 			new String[] {
 				"X6.java",
@@ -2991,6 +3301,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	public void test048f() {
 		this.runConformTest(
 			new String[] {
 				"X7.java",
@@ -3006,6 +3319,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
+	public void test048g() {
 		this.runNegativeTest(
 			new String[] {
 				"X8.java",
@@ -3084,6 +3400,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"ABB"
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
+	public void test050a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3114,7 +3433,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
-	public void test050a() {
+	public void test050b() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3175,6 +3494,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// foo(java.lang.Object) is already defined in X.C3
 			// foo(java.lang.Object) is already defined in X.C4
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
+	public void test050c() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3205,6 +3527,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(A<Y>) and foo(A<Z>) have the same erasure
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
+	public void test050d() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3223,7 +3548,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}	
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
-	public void test050b() {
+	public void test050e() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3240,6 +3565,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	public void test050f() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3263,6 +3591,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: <N>a(A<java.lang.String>) and <N>a(A<java.lang.Number>) have the same erasure
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	public void test050g() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3286,6 +3617,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: <N>b(A<java.lang.String>) and <N>b(A<java.lang.Number>) have the same erasure
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	public void test050h() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3312,7 +3646,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
-	public void test050c() {
+	public void test050i() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3327,6 +3661,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	public void test050j() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3363,6 +3700,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// name clash: <N>a(A<java.lang.Number>) and <N>a(A<java.lang.Number>) have the same erasure
 			// name clash: <N>b(A<java.lang.Number>) and <N>b(A<java.lang.String>) have the same erasure
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	public void test050k() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3399,6 +3739,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// <N>a(A<java.lang.Number>) is already defined in X
 			// <N>b(A<java.lang.Number>) is already defined in X
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	public void test050l() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3457,6 +3800,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// X is not abstract and does not override abstract method <T>foo(T) in I
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89470
+	public void test051a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3479,6 +3825,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// name clash: foo(A<java.lang.String>) and foo(A<java.lang.Integer>) have the same erasure
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89470
+	public void test051b() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3493,7 +3842,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91728
-	public void _test052() {
+	public void test052() {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -3513,44 +3862,54 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91728
+	public void test052a() {
 		this.runNegativeTest(
-			new String[] {
-				"A.java",
-				"public class A<T> {\n" + 
-				"	public <U> A<U> test() { return null; }\n" + 
-				"	public <U> A<U> test2() { return null; }\n" + 
-				"	public <U> A<U> test3() { return null; }\n" + 
-				"}\n" +
-				"class B extends A<X> {\n" + 
+				new String[] {
+					"A.java",
+					"public class A<T> {\n" + 
+					"	public <U> A<U> test() { return null; }\n" + 
+					"	public <U> A<U> test2() { return null; }\n" + 
+					"	public <U> A<U> test3() { return null; }\n" + 
+					"}\n" +
+					"class B extends A<X> {\n" + 
+					"	@Override public B test() { return null; }\n" + 
+					"	@Override public A test2() { return null; }\n" + 
+					"	@Override public A<X> test3() { return null; }\n" + 
+					"}\n" +
+					"class X{}\n"
+				},
+				"----------\n" + 
+				"1. WARNING in A.java (at line 7)\n" + 
 				"	@Override public B test() { return null; }\n" + 
+				"	                 ^\n" + 
+				"Type safety: The return type B for test() from the type B needs unchecked conversion to conform to A<Object> from the type A<X>\n" + 
+				"----------\n" + 
+				"2. WARNING in A.java (at line 8)\n" + 
 				"	@Override public A test2() { return null; }\n" + 
+				"	                 ^\n" + 
+				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+				"----------\n" + 
+				"3. WARNING in A.java (at line 8)\n" + 
+				"	@Override public A test2() { return null; }\n" + 
+				"	                 ^\n" + 
+				"Type safety: The return type A for test2() from the type B needs unchecked conversion to conform to A<U> from the type A<T>\n" + 
+				"----------\n" + 
+				"4. WARNING in A.java (at line 9)\n" + 
 				"	@Override public A<X> test3() { return null; }\n" + 
-				"}\n" +
-				"class X{}\n"
-			},
-			"1. WARNING in A.java (at line 7)\r\n" + 
-			"	@Override public B test() { return null; }\r\n" + 
-			"	                 ^\n" + 
-			"Type safety: The return type B for test() from the type B needs unchecked conversion to conform to A<U> from the type A<T>\n" + 
-			"----------\n" + 
-			"2. WARNING in A.java (at line 8)\n" + 
-			"	@Override public A test2() { return null; }\n" + 
-			"	                 ^\n" + 
-			"Type safety: The return type A for test2() from the type B needs unchecked conversion to conform to A<U> from the type A<T>\n" + 
-			"----------\n" + 
-			"3. WARNING in A.java (at line 9)\r\n" + 
-			"	@Override public A<X> test3() { return null; }\r\n" + 
-			"	                 ^\n" + 
-			"Type safety: The return type A<X> for test3() from the type B needs unchecked conversion to conform to A<U> from the type A<T>\n" + 
-			"----------\n"
-			// warning: test() in B overrides <U>test() in A; return type requires unchecked conversion
-			// warning: test2() in B overrides <U>test2() in A; return type requires unchecked conversion
-			// warning: test3() in B overrides <U>test3() in A; return type requires unchecked conversion
-		);
+				"	                 ^\n" + 
+				"Type safety: The return type A<X> for test3() from the type B needs unchecked conversion to conform to A<Object> from the type A<X>\n" + 
+				"----------\n"
+				// warning: test() in B overrides <U>test() in A; return type requires unchecked conversion
+				// warning: test2() in B overrides <U>test2() in A; return type requires unchecked conversion
+				// warning: test3() in B overrides <U>test3() in A; return type requires unchecked conversion
+			);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91728
-	public void _test053() {
+	public void test053() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3567,25 +3926,25 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
-			"	void test(A a) { B b = a.foo(); }\r\n" + 
-			"	                   ^\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	void test(A a) { B b = a.foo(); }\n" + 
+			"	          ^\n" + 
+			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	void test(A a) { B b = a.foo(); }\n" + 
+			"	                       ^^^^^^^\n" + 
 			"Type mismatch: cannot convert from A to B\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 2)\r\n" + 
-			"	void test(A a) { B b = a.foo(); }\r\n" + 
-			"	                       ^^^^^^^\n" + 
-			"Type safety: The method foo() belongs to the raw type A. References to generic type A<T> should be parameterized\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 3)\r\n" + 
-			"	void test2(A<X> a) { B b = a.foo(); }\r\n" + 
-			"	                       ^\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	void test2(A<X> a) { B b = a.foo(); }\n" + 
+			"	                           ^^^^^^^\n" + 
 			"Type mismatch: cannot convert from A<Object> to B\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 10)\r\n" + 
-			"	@Override B foo() { return null; }\r\n" + 
-			"	                 ^\n" + 
-			"Type safety: The return type B for foo() from the type B needs unchecked conversion to conform to A<U> from the type A<T>\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
+			"	@Override B foo() { return null; }\n" + 
+			"	          ^\n" + 
+			"Type safety: The return type B for foo() from the type B needs unchecked conversion to conform to A<Object> from the type A<X>\n" + 
 			"----------\n"
 			// 2: incompatible types
 			// 3: incompatible types; no instance(s) of type variable(s) U exist so that A<U> conforms to B
@@ -3616,6 +3975,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// a(X) is already defined in X
 		);
+	}
+	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
+	public void test054a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3644,6 +4006,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// a(X) is already defined in X
 		);
+	}
+	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
+	public void test054b() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3654,6 +4019,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
+	public void test054c() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3675,6 +4043,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// <T1>dupT() is already defined in X
 		);
+	}
+	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
+	public void test054d() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3752,6 +4123,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B<E> implements IB<E> {}\n"
 			},
 			"12");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84035
+	public void test057a() {
 		this.runConformTest(
 			new String[] {
 				"XX.java",
@@ -3789,6 +4163,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"BB");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
+	public void test058a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3816,6 +4193,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// both references are ambiguous
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
+	public void test058b() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3858,6 +4238,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class B extends A { <V> void foo(String s) {System.out.print(true);} }\n"
 			},
 			"true");
+	}
+	public void test059a() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3885,6 +4267,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90619
+	public void test060b() {
 		this.runConformTest(
 			new String[] {
 				"I2.java",
@@ -3898,6 +4283,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90619
+	public void test060c() {
 		this.runNegativeTest(
 			new String[] {
 				"I3.java",
@@ -4328,6 +4716,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"true"
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
+	public void test073a() {
 		this.runConformTest(
 			new String[] {
 				"NumericArray2.java",
@@ -4341,6 +4732,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"true"
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
+	public void test073b() {
 		this.runConformTest(
 			new String[] {
 				"NumericArray3.java",
@@ -4354,6 +4748,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"true"
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
+	public void test073c() {
 		this.runNegativeTest(
 			new String[] {
 				"NumericArray4.java",
@@ -4371,6 +4768,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"The method add(Number) of type NumericArray4<T> must override a superclass method\n" + 
 			"----------\n"
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
+	public void test073d() {
 		this.runNegativeTest(
 			new String[] {
 				"NumericArray5.java",
@@ -4409,6 +4809,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"The method clone() of type J must override a superclass method\n" + 
 			"----------\n"
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100970
+	public void test074a() {
 		this.runNegativeTest(
 			new String[] {
 				"I.java",
@@ -4427,6 +4830,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"The method clone() of type I must override a superclass method\n" + 
 			"----------\n"
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100970
+	public void test074b() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -4502,6 +4908,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// A.java:2: method does not override a method from its superclass
 			// A.java:3: method does not override a method from its superclass
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107105
+	public void test075a() {
 		this.runConformTest(
 			// there is no name clash in this case AND no override error - there would be if the annotation was present
 			new String[] {
@@ -4513,6 +4922,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107105
+	public void test075b() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -4544,6 +4956,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	public void test076a() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -4567,6 +4981,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// <T,S>foo() is already defined in A
 		);
+	}
+	public void test076b() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -4607,6 +5023,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
+	public void test077a() {
 		this.runNegativeTest(
 			new String[] {
 				"I.java",
@@ -4841,6 +5260,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132841
+	public void test084a() {
 		this.runConformTest(
 			new String[] {
 				"A.java",
@@ -4858,6 +5280,9 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=132841
+	public void test084b() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
