@@ -731,6 +731,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	private char[] key = null;
 	
 	/**
+	 * Array of required completion proposals, or <code>null</code> if none.
+	 * The proposal can not be applied if the required prooposals aren't applied.
+	 * Defaults to <code>null</code>.
+	 */
+	private CompletionProposal[] requiredProposals;
+	
+	/**
 	 * Modifier flags relevant in the context, or
 	 * <code>Flags.AccDefault</code> if none.
 	 * Defaults to <code>Flags.AccDefault</code>.
@@ -1559,6 +1566,61 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 */
 	public void setFlags(int flags) {
 		this.flags = flags;
+	}
+	
+	/**
+	 * Returns the required completion proposals.
+	 * The proposal can be apply only if these required completion proposals are also applied.
+	 * If the required proposal aren't applied the completion could create complations problems.
+	 * 
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 * 	<li><code>FIELD_REF</code></li>
+	 * 	<li><code>METHOD_REF</code>/li>
+	 * </ul>
+	 * </p>
+	 * <p>
+	 * A required completion proposal can is a completion proposal of one of the following kinds:
+	 * <ul>
+	 *  <li><code>TYPE_REF</code></li>
+	 * </ul>
+	 * Other kinds of required proposals will be returned in the future, therefore clients of this
+	 * API must allow with {@link CompletionRequestor#setAllowsRequiredProposals(int, boolean)} 
+	 * only kinds which are in this list to avoid unexpected results in the future.
+	 * </p>
+	 * <p>
+	 * A required completion proposal cannot have required completion proposals.
+	 * </p>
+	 * 
+	 * @return the required completion proposals, or <code>null</code> if none.
+	 * 
+	 * @see CompletionRequestor#setAllowsRequiredProposals(int, boolean)
+	 * 
+	 * @since 3.3
+	 */
+	public CompletionProposal[] getRequiredProposals() {
+		return this.requiredProposals;
+	}
+	
+	
+	/**
+	 * Sets the list of required completion proposals, or <code>null</code> if none.
+	 * <p>
+	 * If not set, defaults to none.
+	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
+	 * </p>
+	 * 
+	 * @param proposals the list of required completion proposals, or
+	 * <code>null</code> if none
+     * @since 3.3
+	 */
+	public void setRequiredProposals(CompletionProposal[] proposals) {
+		this.requiredProposals = proposals;
 	}
 	
 	/**

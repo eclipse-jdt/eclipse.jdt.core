@@ -32,6 +32,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private boolean showUniqueKeys;
 	private boolean showPositions;
 	private boolean shortContext;
+	private boolean showMissingTypes;
 	
 	public boolean fDebug = false;
 
@@ -45,13 +46,18 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this(showParamNames, showUniqueKeys, false);
 	}
 	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys, boolean showPositions) {
-		this(showParamNames, showUniqueKeys, showPositions, true);
+		this(showParamNames, showUniqueKeys, showPositions, true, false);
 	}
+	
 	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys, boolean showPositions, boolean shortContext) {
+		this(showParamNames, showUniqueKeys, showPositions, shortContext, false);
+	}
+	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys, boolean showPositions, boolean shortContext, boolean showMissingTypes) {
 		this.showParameterNames = showParamNames;
 		this.showUniqueKeys = showUniqueKeys;
 		this.showPositions = showPositions;
 		this.shortContext = shortContext;
+		this.showMissingTypes = showMissingTypes;
 	}
 	public void acceptContext(CompletionContext cc) {
 		this.context = cc;
@@ -62,6 +68,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			System.arraycopy(this.proposals, 0, this.proposals = new CompletionProposal[length+PROPOSALS_INCREMENT], 0, length);
 		}
 		this.proposals[this.proposalsPtr] = proposal;
+	}
+	
+	public void allowAllRequiredProposals() {
+		for (int i = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; i <= CompletionProposal.JAVADOC_INLINE_TAG; i++) {
+			this.setAllowsRequiredProposals(i, true);
+		}
 	}
 
 	public void completionFailure(IProblem p) {
@@ -198,7 +210,15 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	}
 
 	protected StringBuffer printProposal(CompletionProposal proposal) {
-		StringBuffer buffer = new StringBuffer(getElementName(proposal));
+		StringBuffer buffer = new StringBuffer();
+		return printProposal(proposal, 0, buffer);
+	}
+	
+	protected StringBuffer printProposal(CompletionProposal proposal, int tab, StringBuffer buffer) {
+		for (int i = 0; i < tab; i++) {
+			buffer.append("   "); //$NON-NLS-1$
+		}
+		buffer.append(getElementName(proposal));
 		buffer.append('[');
 		switch(proposal.getKind()) {
 			case CompletionProposal.ANONYMOUS_CLASS_DECLARATION :
@@ -310,6 +330,18 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		buffer.append(", ");
 		buffer.append(proposal.getRelevance());
 		buffer.append('}');
+		if(this.showMissingTypes) {
+			CompletionProposal[] requiredProposals = proposal.getRequiredProposals();
+			if (requiredProposals != null) {
+				int length = requiredProposals.length;
+				System.arraycopy(requiredProposals, 0, requiredProposals = new CompletionProposal[length], 0, length);
+				quickSort(requiredProposals, 0, length - 1);
+				for (int i = 0; i < length; i++) {
+					buffer.append('\n');
+					printProposal(requiredProposals[i], tab + 1, buffer);
+				}
+			}
+		}
 		return buffer;
 	}
 
@@ -341,25 +373,36 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	
 	protected int compare(CompletionProposal proposal1, CompletionProposal proposal2) {
 		int relDif = proposal1.getRelevance() - proposal2.getRelevance();
-		if(relDif != 0) {
-			return relDif;
-		} else {
-			String name1 = getElementName(proposal1);
-			String name2 = getElementName(proposal2);
-			int nameDif = name1.compareTo(name2);
-			if(nameDif != 0) {
-				return nameDif;
-			} else {
-				int kindDif = proposal1.getKind() - proposal2.getKind();
-				if(kindDif != 0) {
-					return kindDif;
-				} else {
-					String completion1 = new String(proposal1.getCompletion());
-					String completion2 = new String(proposal2.getCompletion());
-					return completion1.compareTo(completion2);
-				}
-			}
+		if(relDif != 0) return relDif;
+		String name1 = getElementName(proposal1);
+		String name2 = getElementName(proposal2);
+		int nameDif = name1.compareTo(name2);
+		if(nameDif != 0) return nameDif;
+		int kindDif = proposal1.getKind() - proposal2.getKind();
+		if(kindDif != 0) return kindDif;
+		String completion1 = new String(proposal1.getCompletion());
+		String completion2 = new String(proposal2.getCompletion());
+		int completionDif = completion1.compareTo(completion2);
+		if(completionDif != 0) return completionDif;
+		char[] temp = proposal1.getSignature();
+		String signature1 = temp == null ? null: new String(temp);
+		temp = proposal2.getSignature();
+		String signature2 = temp == null ? null: new String(temp);
+		int signatureDif = 0;
+		if(signature1 != null && signature2 != null) {
+			signatureDif = signature1.compareTo(signature2);
 		}
+		if(signatureDif != 0) return signatureDif;
+		temp = proposal1.getDeclarationSignature();
+		String declarationSignature1 = temp == null ? null: new String(temp);
+		temp = proposal2.getDeclarationSignature();
+		String declarationSignature2 = temp == null ? null: new String(temp);
+		int declarationSignatureDif = 0;
+		if(declarationSignature1 != null && declarationSignature2 != null) {
+			declarationSignatureDif = declarationSignature1.compareTo(declarationSignature2);
+		}
+		if(declarationSignatureDif != 0) return declarationSignatureDif;
+		return 0;
 	}
 	
 	protected String getElementName(CompletionProposal proposal) {

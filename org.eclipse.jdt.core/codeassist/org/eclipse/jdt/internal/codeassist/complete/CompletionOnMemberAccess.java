@@ -51,6 +51,25 @@ public class CompletionOnMemberAccess extends FieldReference {
 	public TypeBinding resolveType(BlockScope scope) {
 		
 		this.receiverType = receiver.resolveType(scope);
+		
+		if (this.receiverType == null && receiver instanceof MessageSend) {
+			MessageSend messageSend = (MessageSend) receiver;
+			if(messageSend.receiver instanceof ThisReference) {
+				Expression[] arguments = messageSend.arguments;
+				int length = arguments == null ? 0 : arguments.length;
+				TypeBinding[] argBindings = new TypeBinding[length];
+				for (int i = 0; i < length; i++) {
+					argBindings[i] = arguments[i].resolvedType;
+					if(argBindings[i] == null || !argBindings[i].isValidBinding()) {
+						throw new CompletionNodeFound();
+					}
+				}
+					
+				ProblemMethodBinding problemMethodBinding = new ProblemMethodBinding(messageSend.selector, argBindings, ProblemReasons.NotFound);
+				throw new CompletionNodeFound(this, problemMethodBinding, scope);
+			}
+		}
+		
 		if (this.receiverType == null || this.receiverType.isBaseType())
 			throw new CompletionNodeFound();
 		else

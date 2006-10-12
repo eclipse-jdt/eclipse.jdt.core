@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeReference {
 
 	public TypeReference[][] typeArguments;
-	private boolean didResolve = false;
+	public boolean didResolve = false;
 
 	/**
 	 * @param tokens

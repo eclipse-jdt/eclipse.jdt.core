@@ -30,7 +30,7 @@ public abstract class Engine implements ITypeRequestor {
 	public LookupEnvironment lookupEnvironment;
 	
 	protected CompilationUnitScope unitScope;
-	protected SearchableEnvironment nameEnvironment;
+	public SearchableEnvironment nameEnvironment;
 
 	public AssistOptions options;
 	public CompilerOptions compilerOptions; 
@@ -338,5 +338,14 @@ public abstract class Engine implements ITypeRequestor {
 		}
 		result = CharOperation.replaceOnCopy(result, '/', '.');
 		return result;
+	}
+	
+	public static char[][] getSignatures(Binding[] bindings) {
+		int length = bindings == null ? 0 : bindings.length;
+		char[][] signatures = new char[length][];
+		for (int i = 0; i < length; i++) {
+			signatures[i] = getSignature(bindings[i]);
+		}
+		return signatures;
 	}
 }

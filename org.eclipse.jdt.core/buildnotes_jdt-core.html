@@ -79,10 +79,139 @@ public void searchAllTypeNames(
 Similarily to previous added <code>searchAllTypeNames</code> new API method, clients have to provide
 a new requestor: <code>TypeNameMatchRequestor</code> in order to get matches collected during the search.
 </li>
+<li>Code Assist can return completion proprosals that required some other completion proposals:<br>
+To apply a completion proposal the required completion proposals must be applied otherwise the resulting code won't be correct.<br>
+To manage completion proposalswith required proposals the following API have been added:
+<pre>
+public class CompletionProposal {
+
+	...
+
+	/**
+	 * Returns the required completion proposals.
+	 * The proposal can be apply only if these required completion proposals are also applied.
+	 * If the required proposal aren't applied the completion could create complations problems.
+	 * 
+	 * &lt;p&gt;
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * &lt;ul&gt;
+	 * 	&lt;li&gt;&lt;code&gt;FIELD_REF&lt;/code&gt;&lt;/li&gt;
+	 * 	&lt;li&gt;&lt;code&gt;METHOD_REF&lt;/code&gt;/li&gt;
+	 * &lt;/ul&gt;
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * A required completion proposal can is a completion proposal of one of the following kinds:
+	 * &lt;ul&gt;
+	 *  &lt;li&gt;&lt;code&gt;TYPE_REF&lt;/code&gt;&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * Other kinds of required proposals will be returned in the future, therefore clients of this
+	 * API must allow with {@link CompletionRequestor#setAllowsRequiredProposals(int, boolean)} 
+	 * only kinds which are in this list to avoid unexpected results in the future.
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * A required completion proposal cannot have required completion proposals.
+	 * &lt;/p&gt;
+	 * 
+	 * @return the required completion proposals, or &lt;code&gt;null&lt;/code&gt; if none.
+	 * 
+	 * @see CompletionRequestor#setAllowsRequiredProposals(int, boolean)
+	 * 
+	 * @since 3.3
+	 */
+	public CompletionProposal[] getRequiredProposals() {...}
+
+	...
+
+}
+</pre>
+<pre>
+public class CompletionRequestor {
+
+	...
+
+	/**
+	 * Returns whether a proposal with a required proposal
+	 * of the given kind is allowed.
+	 * 
+	 * @param completionProposalKind one of the kind constants declared
+	 * on &lt;code&gt;CompletionProposal&lt;/code&gt;
+	 * @return &lt;code&gt;true&lt;/code&gt; if a proposal with a required proposal
+	 * of the given kind is allowed by this requestor, and &lt;code&gt;false&lt;/code&gt; 
+	 * if it isn't of interest.
+	 * &lt;p&gt;
+	 * By default, all kinds of required proposals aren't allowed.
+	 * &lt;/p&gt;
+	 * @see #setAllowsRequiredProposals(int, boolean)
+	 * @see CompletionProposal#getKind()
+	 * @see CompletionProposal#getRequiredProposals()
+	 * 
+	 * @since 3.3
+	 */
+	public boolean isAllowingRequiredProposals(int completionProposalKind) {...}
+	
+	/**
+	 * Sets whether a proposal with a required proposal
+	 * of the given kind is allowed.
+	 * 
+	 * @param completionProposalKind one of the kind constants declared
+	 * on &lt;code&gt;CompletionProposal&lt;/code&gt;
+	 * @param allow &lt;code&gt;true&lt;/code&gt; if a proposal with a required proposal
+	 * of the given kind is allowed by this requestor, and &lt;code&gt;false&lt;/code&gt; 
+	 * if it isn't of interest
+	 * @see #isAllowingRequiredProposals(int)
+	 * @see CompletionProposal#getKind()
+	 * @see CompletionProposal#getRequiredProposals()
+	 * 
+	 * @since 3.3
+	 */
+	public void setAllowsRequiredProposals(int completionProposalKind, boolean allow) {...}
+
+	...
+
+}
+</pre>
+</li>
+<li>Code Assist propose completion even if the type of a variable or the return type of the method is missing.<br>
+e.g.
+<pre>
+package p;
+public class X {
+  void foo() {
+    Vector v = null;
+    v.addEl| // complete at | location
+  }
+}
+</pre>
+A completion proposal with required proposals will be returned. The main proposal will be the method <code>addElement()</code>
+at <code>addEl</code> location with a required proposal of the type <code>java.util.Vector</code> at 
+<code>Vector</code> location.
+The same kind of completion can be computed with the following examples.
+<pre>
+package p;
+public class X {
+  Vector v = null;
+  void foo() {
+    v.addEl| // complete at | location
+  }
+}
+</pre>
+<pre>
+package p;
+public class X {
+  Vector bar() {return null;}
+  void foo() {
+    bar().addEl| // complete at | location
+  }
+}
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160494">160494</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=44984">44984</a>
+[typing] Automatically optimize class imports
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160494">160494</a>
 [search] searchAllTypeNames(char[][], char[][],...) fails to find types in default package
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160328">160328</a>
 [search] Remove constructor TypeNameMatch(IType)

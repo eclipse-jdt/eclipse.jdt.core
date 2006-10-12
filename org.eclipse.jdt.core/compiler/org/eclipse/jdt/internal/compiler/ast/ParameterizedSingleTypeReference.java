@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 
 	public TypeReference[] typeArguments;
-	private boolean didResolve = false;
+	public boolean didResolve = false;
 	
 	public ParameterizedSingleTypeReference(char[] name, TypeReference[] typeArguments, int dim, long pos){
 		super(name, dim, pos);

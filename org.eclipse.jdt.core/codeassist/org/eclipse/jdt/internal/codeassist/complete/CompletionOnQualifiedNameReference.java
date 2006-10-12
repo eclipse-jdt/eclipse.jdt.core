@@ -65,9 +65,14 @@ public TypeBinding resolveType(BlockScope scope) {
 		} else {
 			scope.problemReporter().unresolvableReference(this, binding);
 		}
+		
+		if (binding.problemId() == ProblemReasons.NotFound) {
+			throw new CompletionNodeFound(this, binding, scope);
+		}
+		
 		throw new CompletionNodeFound();
 	}
-
+	
 	throw new CompletionNodeFound(this, binding, scope);
 }
 }

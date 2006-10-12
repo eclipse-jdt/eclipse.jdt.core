@@ -206,6 +206,14 @@ public CompletionRequestor getCompletionRequestor(final CompletionRequestor orig
 		public void setIgnored(int completionProposalKind, boolean ignore) {
 			originalRequestor.setIgnored(completionProposalKind, ignore);
 		}
+		
+		public boolean isAllowingRequiredProposals(int completionProposalKind) {
+			return originalRequestor.isAllowingRequiredProposals(completionProposalKind);
+		}
+
+		public void setAllowsRequiredProposals(int completionProposalKind, boolean allow) {
+			originalRequestor.setAllowsRequiredProposals(completionProposalKind, allow);
+		}
 	};
 }
 public char[] getCUSource(String lineSeparator) {

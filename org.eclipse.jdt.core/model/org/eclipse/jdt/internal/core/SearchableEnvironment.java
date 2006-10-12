@@ -152,6 +152,107 @@ public class SearchableEnvironment
 	}
 
 	/**
+	 * Find the top-level types that are defined
+	 * in the current environment and whose simple name matches the given name.
+	 *
+	 * The types found are passed to one of the following methods (if additional
+	 * information is known about the types):
+	 *    ISearchRequestor.acceptType(char[][] packageName, char[] typeName)
+	 *    ISearchRequestor.acceptClass(char[][] packageName, char[] typeName, int modifiers)
+	 *    ISearchRequestor.acceptInterface(char[][] packageName, char[] typeName, int modifiers)
+	 *
+	 * This method can not be used to find member types... member
+	 * types are found relative to their enclosing type.
+	 */
+	public void findExactTypes(char[] name, final boolean findMembers, int searchFor, final ISearchRequestor storage) {
+
+		try {
+			final String excludePath;
+			if (this.unitToSkip != null) {
+				if (!(this.unitToSkip instanceof IJavaElement)) {
+					// revert to model investigation
+					findExactTypes(
+						new String(name),
+						storage,
+						convertSearchFilterToModelFilter(searchFor));
+					return;
+				}
+				excludePath = ((IJavaElement) this.unitToSkip).getPath().toString();
+			} else {
+				excludePath = null;
+			}
+
+			IProgressMonitor progressMonitor = new IProgressMonitor() {
+				boolean isCanceled = false;
+				public void beginTask(String n, int totalWork) {
+					// implements interface method
+				}
+				public void done() {
+					// implements interface method
+				}
+				public void internalWorked(double work) {
+					// implements interface method
+				}
+				public boolean isCanceled() {
+					return isCanceled;
+				}
+				public void setCanceled(boolean value) {
+					isCanceled = value;
+				}
+				public void setTaskName(String n) {
+					// implements interface method
+				}
+				public void subTask(String n) {
+					// implements interface method
+				}
+				public void worked(int work) {
+					// implements interface method
+				}
+			};
+			IRestrictedAccessTypeRequestor typeRequestor = new IRestrictedAccessTypeRequestor() {
+				public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
+					if (excludePath != null && excludePath.equals(path))
+						return;
+					if (!findMembers && enclosingTypeNames != null && enclosingTypeNames.length > 0)
+						return; // accept only top level types
+					storage.acceptType(packageName, simpleTypeName, enclosingTypeNames, modifiers, access);
+				}
+			};
+			try {
+				new BasicSearchEngine(this.workingCopies).searchAllTypeNames(
+					null,
+					SearchPattern.R_EXACT_MATCH,
+					name,
+					SearchPattern.R_EXACT_MATCH,
+					searchFor,
+					this.searchScope,
+					typeRequestor,
+					CANCEL_IF_NOT_READY_TO_SEARCH,
+					progressMonitor);
+			} catch (OperationCanceledException e) {
+				findExactTypes(
+					new String(name),
+					storage,
+					convertSearchFilterToModelFilter(searchFor));
+			}
+		} catch (JavaModelException e) {
+			findExactTypes(
+				new String(name),
+				storage,
+				convertSearchFilterToModelFilter(searchFor));
+		}
+	}
+	
+	/**
+	 * Returns all types whose simple name matches with the given <code>name</code>.
+	 */
+	private void findExactTypes(String name, ISearchRequestor storage, int type) {
+		SearchableEnvironmentRequestor requestor =
+			new SearchableEnvironmentRequestor(storage, this.unitToSkip, this.project, this.nameLookup);
+		this.nameLookup.seekTypes(name, null, false, type, requestor);
+	}
+	
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.INameEnvironment#findType(char[][])
 	 */
 	public NameEnvironmentAnswer findType(char[][] compoundTypeName) {

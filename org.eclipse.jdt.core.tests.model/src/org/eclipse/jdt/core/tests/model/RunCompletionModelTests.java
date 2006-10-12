@@ -30,6 +30,8 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 			COMPLETION_SUITES.add(CompletionTests_1_5.class);
 			COMPLETION_SUITES.add(CompletionContextTests.class);
 			COMPLETION_SUITES.add(CompletionContextTests_1_5.class);
+			COMPLETION_SUITES.add(CompletionWithMissingTypesTests.class);
+			COMPLETION_SUITES.add(CompletionWithMissingTypesTests_1_5.class);
 			COMPLETION_SUITES.add(SnippetCompletionContextTests.class);
 		}
 		COMPLETION_SUITES.add(JavadocTypeCompletionModelTest.class);
@@ -45,11 +47,12 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 	public static Class[] getTestClasses() {
 		int size = COMPLETION_SUITES.size();
 		if (!ONLY_JAVADOC) {
-			Class[] testClasses = new Class[size+3];
+			Class[] testClasses = new Class[size+4];
 			COMPLETION_SUITES.toArray(testClasses);
 			testClasses[size] = CompletionTests2.class;
-			testClasses[size+1] = SnippetCompletionTests.class;
-			testClasses[size+2] = SnippetCompletionTests_1_5.class;
+			testClasses[size+1] = CompletionWithMissingTypesTests2.class;
+			testClasses[size+2] = SnippetCompletionTests.class;
+			testClasses[size+3] = SnippetCompletionTests_1_5.class;
 			return testClasses;
 		}
 		Class[] testClasses = new Class[size];
