@@ -9393,4 +9393,33 @@ public void test0211(){
 			expectedReplacedSource,
 	"diet ast");
 }
+public void test0212(){
+	String str =
+		"public class Test {\n" + 
+		"  List<? extends Obj>\n" + 
+		"}\n";
+
+	String completeBehind = "Obj";
+	int cursorLocation = str.indexOf("Obj") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:Obj>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "Obj";
+	String expectedReplacedSource = "Obj";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  List<? extends <CompleteOnType:Obj>>;\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }

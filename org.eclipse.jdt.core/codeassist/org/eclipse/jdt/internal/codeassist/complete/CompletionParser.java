@@ -324,8 +324,19 @@ protected void attachOrphanCompletionNode(){
 	if(this.genericsPtr > -1) {
 		ASTNode node = this.genericsStack[this.genericsPtr];
 		if(node instanceof Wildcard && ((Wildcard)node).bound == this.assistNode){
-			buildMoreGenericsCompletionContext(node);
-			return;
+			int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
+			if (kind == K_BINARY_OPERATOR) {
+				int info = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER);
+				if (info == LESS) {
+					buildMoreGenericsCompletionContext(node, true);
+					return;
+				}
+			}
+			if(this.identifierLengthPtr > -1 && this.identifierLengthStack[this.identifierLengthPtr]!= 0) {
+				this.pushOnElementStack(K_BINARY_OPERATOR, LESS);
+				buildMoreGenericsCompletionContext(node, false);
+				return;
+			}
 		}
 	}
 	
@@ -406,7 +417,7 @@ protected void attachOrphanCompletionNode(){
 				}
 			}
 			if(node == this.assistNode){
-				buildMoreGenericsCompletionContext(node);
+				buildMoreGenericsCompletionContext(node, true);
 			}
 		}
 	}
@@ -854,7 +865,7 @@ private void buildMoreCompletionContext(Expression expression) {
 		}
 	}
 }
-private void buildMoreGenericsCompletionContext(ASTNode node) {
+private void buildMoreGenericsCompletionContext(ASTNode node, boolean consumeTypeArguments) {
 	int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
 	if(kind != 0) {
 		int info = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER);
@@ -875,7 +886,7 @@ private void buildMoreGenericsCompletionContext(ASTNode node) {
 				}
 				if(info == LESS && node instanceof TypeReference) {
 					if(this.identifierLengthPtr > -1 && this.identifierLengthStack[this.identifierLengthPtr]!= 0) {
-						this.consumeTypeArguments();
+						if (consumeTypeArguments) this.consumeTypeArguments();
 						TypeReference ref = this.getTypeReference(0);
 						if(prevKind == K_PARAMETERIZED_CAST) {
 							ref = computeQualifiedGenericsFromRightSide(ref, 0);
