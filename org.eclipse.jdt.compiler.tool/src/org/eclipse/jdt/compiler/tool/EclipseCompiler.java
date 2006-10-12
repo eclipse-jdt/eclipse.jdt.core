@@ -335,6 +335,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void setPaths(ArrayList bootclasspaths,
 			String sourcepathClasspathArg,
 			ArrayList sourcepathClasspaths,

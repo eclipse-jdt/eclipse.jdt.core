@@ -336,6 +336,7 @@ public class EclipseCompilerTool extends Main implements JavaCompilerTool {
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void setPaths(ArrayList bootclasspaths,
 			String sourcepathClasspathArg,
 			ArrayList sourcepathClasspaths,
