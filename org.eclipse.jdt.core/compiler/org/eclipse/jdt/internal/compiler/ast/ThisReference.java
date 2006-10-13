@@ -122,4 +122,9 @@ public class ThisReference extends Reference {
 		visitor.visit(this, blockScope);
 		visitor.endVisit(this, blockScope);
 	}
+	public void traverse(ASTVisitor visitor, ClassScope blockScope) {
+
+		visitor.visit(this, blockScope);
+		visitor.endVisit(this, blockScope);
+	}
 }

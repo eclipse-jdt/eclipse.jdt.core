@@ -276,6 +276,9 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 	public void traverse(ASTVisitor visitor, MethodScope scope) {
 
 		if (visitor.visit(this, scope)) {
+			if (this.javadoc != null) {
+				this.javadoc.traverse(visitor, scope);
+			}
 			if (this.annotations != null) {
 				int annotationsLength = this.annotations.length;
 				for (int i = 0; i < annotationsLength; i++)

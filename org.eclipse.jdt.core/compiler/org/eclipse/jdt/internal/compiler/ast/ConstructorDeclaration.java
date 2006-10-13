@@ -444,6 +444,9 @@ public void resolveStatements() {
 
 public void traverse(ASTVisitor visitor,	ClassScope classScope) {
 	if (visitor.visit(this, classScope)) {
+		if (this.javadoc != null) {
+			this.javadoc.traverse(visitor, this.scope);
+		}
 		if (this.annotations != null) {
 			int annotationsLength = this.annotations.length;
 			for (int i = 0; i < annotationsLength; i++)

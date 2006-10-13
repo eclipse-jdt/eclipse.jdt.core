@@ -114,4 +114,14 @@ public class ClassLiteralAccess extends Expression {
 		}
 		visitor.endVisit(this, blockScope);
 	}
+	
+	public void traverse(
+		ASTVisitor visitor,
+		ClassScope scope) {
+
+		if (visitor.visit(this, scope)) {
+			type.traverse(visitor, scope);
+		}
+		visitor.endVisit(this, scope);
+	}
 }

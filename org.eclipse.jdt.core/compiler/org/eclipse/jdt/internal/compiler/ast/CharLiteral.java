@@ -97,4 +97,8 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	visitor.visit(this, blockScope);
 	visitor.endVisit(this, blockScope);
 }
+public void traverse(ASTVisitor visitor, ClassScope scope) {
+	visitor.visit(this, scope);
+	visitor.endVisit(this, scope);
+}
 }

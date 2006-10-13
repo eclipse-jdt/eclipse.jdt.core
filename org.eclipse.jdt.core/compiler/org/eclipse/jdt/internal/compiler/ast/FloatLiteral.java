@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.FloatConstant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.util.FloatUtil;
 
@@ -108,8 +109,12 @@ public class FloatLiteral extends NumberLiteral {
 	public TypeBinding literalType(BlockScope scope) {
 		return TypeBinding.FLOAT;
 	}
-	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
-		visitor.visit(this, blockScope);
-		visitor.endVisit(this, blockScope);
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
+	}
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
 	}
 }

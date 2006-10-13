@@ -184,6 +184,6 @@ protected void reportInvalidType(Scope scope) {
 protected void reportDeprecatedType(Scope scope) {
 	scope.problemReporter().deprecatedType(this.resolvedType, this);
 }
-public abstract void traverse(ASTVisitor visitor, ClassScope classScope);
-public abstract void traverse(ASTVisitor visitor, BlockScope classScope);
+public abstract void traverse(ASTVisitor visitor, BlockScope scope);
+public abstract void traverse(ASTVisitor visitor, ClassScope scope);
 }

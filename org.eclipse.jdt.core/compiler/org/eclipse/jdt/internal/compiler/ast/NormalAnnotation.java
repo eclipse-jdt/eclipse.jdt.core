@@ -68,7 +68,7 @@ public class NormalAnnotation extends Annotation {
 		}
 		visitor.endVisit(this, scope);
 	}
-	public void traverse(ASTVisitor visitor, CompilationUnitScope scope) {
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.memberValuePairs != null) {
 				int memberValuePairsLength = this.memberValuePairs.length;

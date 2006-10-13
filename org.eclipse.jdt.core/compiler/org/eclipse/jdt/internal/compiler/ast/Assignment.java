@@ -243,7 +243,13 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 	}
 	visitor.endVisit(this, scope);
 }
-
+public void traverse(ASTVisitor visitor, ClassScope scope) {
+	if (visitor.visit(this, scope)) {
+		lhs.traverse(visitor, scope);
+		expression.traverse(visitor, scope);
+	}
+	visitor.endVisit(this, scope);
+}
 public LocalVariableBinding localVariableBinding() {
 	return lhs.localVariableBinding();
 }

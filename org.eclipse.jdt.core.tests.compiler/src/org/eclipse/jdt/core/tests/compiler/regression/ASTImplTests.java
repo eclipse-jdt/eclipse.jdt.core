@@ -21,12 +21,19 @@ import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CombinedBinaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral;
+import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
+import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -735,6 +742,82 @@ public void test0016_combined_binary_expression() {
 	CombinedBinaryExpression.defaultArityMaxStartingValue = 
 		CombinedBinaryExpression.ARITY_MAX_MIN;
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157170
+public void test0017() {
+	CompilerOptions options = new CompilerOptions();
+	options.complianceLevel = ClassFileConstants.JDK1_5;
+	options.sourceLevel = ClassFileConstants.JDK1_5;
+	options.targetJDK = ClassFileConstants.JDK1_5;
+	this.runConformTest(
+		"X.java", 
+		"@interface Annot {\n" +
+		"	int value() default 0;\n" +
+		"}\n" +
+		"@Annot\n" +
+		"@Annot(3)\n" +
+		"@Annot(value=4)\n" +
+		"public class X {\n" + 
+		"}\n",
+		new Parser(
+				new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
+				options, 
+				new DefaultProblemFactory()), false),
+		new AnnotationCollector(),
+		"marker annotation start visit\n" + 
+		"marker annotation end visit\n" + 
+		"single member annotation start visit\n" + 
+		"3\n" + 
+		"single member annotation end visit\n" + 
+		"normal annotation start visit\n" + 
+		"member value pair start visit\n" + 
+		"value, 4\n" + 
+		"member value pair end visit\n" + 
+		"normal annotation end visit\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157170
+public void test0018() {
+	CompilerOptions options = new CompilerOptions();
+	options.complianceLevel = ClassFileConstants.JDK1_5;
+	options.sourceLevel = ClassFileConstants.JDK1_5;
+	options.targetJDK = ClassFileConstants.JDK1_5;
+	options.docCommentSupport = true;
+	this.runConformTest(
+		"X.java", 
+		"@interface Annot {\n" +
+		"	int value() default 0;\n" +
+		"}\n" +
+		"/**\n" +
+		" * @see Annot\n" +
+		" */\n" +
+		"@Annot\n" +
+		"@Annot(3)\n" +
+		"@Annot(value=4)\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see Annot\n" +
+		"	 */\n" +
+		"	public void foo() {}\n" +
+		"}\n",
+		new Parser(
+				new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
+				options, 
+				new DefaultProblemFactory()), false),
+		new AnnotationCollector(),
+		"java doc single type reference start visit\n" + 
+		"java doc single type reference end visit\n" + 
+		"marker annotation start visit\n" + 
+		"marker annotation end visit\n" + 
+		"single member annotation start visit\n" + 
+		"3\n" + 
+		"single member annotation end visit\n" + 
+		"normal annotation start visit\n" + 
+		"member value pair start visit\n" + 
+		"value, 4\n" + 
+		"member value pair end visit\n" + 
+		"normal annotation end visit\n" + 
+		"java doc single type reference start visit\n" + 
+		"java doc single type reference end visit\n");
+}
 }
 
 // Helper classes: define visitors leveraged by some tests
@@ -823,5 +906,55 @@ public boolean visit(StringLiteral stringLiteral, BlockScope scope) {
 public boolean visit(StringLiteralConcatenation literal, BlockScope scope) {
 	this.collector.append("[v SLC " + cut(literal.toString()) + "]\n");
 	return super.visit(literal, scope);
+}
+}
+class AnnotationCollector extends ASTCollector {
+public boolean visit(MarkerAnnotation annotation, ClassScope scope) {
+	this.collector.append("marker annotation start visit\n");
+	return super.visit(annotation, scope);
+}
+public void endVisit(MarkerAnnotation annotation, ClassScope scope) {
+	this.collector.append("marker annotation end visit\n");
+}
+public boolean visit(NormalAnnotation annotation, ClassScope scope) {
+	this.collector.append("normal annotation start visit\n");
+	return super.visit(annotation, scope);
+}
+public void endVisit(NormalAnnotation annotation, ClassScope scope) {
+	this.collector.append("normal annotation end visit\n");
+}
+public boolean visit(SingleMemberAnnotation annotation, ClassScope scope) {
+	this.collector.append("single member annotation start visit\n");
+	this.collector.append(annotation.memberValue.toString());
+	this.collector.append("\n");
+	return super.visit(annotation, scope);
+}
+public void endVisit(SingleMemberAnnotation annotation, ClassScope scope) {
+	this.collector.append("single member annotation end visit\n");
+}
+public void endVisit(JavadocSingleTypeReference typeRef, BlockScope scope) {
+	this.collector.append("java doc single type reference end visit\n");
+}
+public void endVisit(JavadocSingleTypeReference typeRef, ClassScope scope) {
+	this.collector.append("java doc single type reference end visit\n");
+}
+public boolean visit(JavadocSingleTypeReference typeRef, BlockScope scope) {
+	this.collector.append("java doc single type reference start visit\n");
+	return true;
+}
+public boolean visit(JavadocSingleTypeReference typeRef, ClassScope scope) {
+	this.collector.append("java doc single type reference start visit\n");
+	return true;
+}
+public boolean visit(MemberValuePair pair, ClassScope scope) {
+	this.collector.append("member value pair start visit\n");
+	this.collector.append(pair.name);
+	this.collector.append(", ");
+	this.collector.append(pair.value.toString());
+	this.collector.append("\n");
+	return super.visit(pair, scope);
+}
+public void endVisit(MemberValuePair pair, ClassScope scope) {
+	this.collector.append("member value pair end visit\n");
 }
 }

@@ -173,4 +173,18 @@ public class ArrayAllocationExpression extends Expression {
 		}
 		visitor.endVisit(this, scope);
 	}
+
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		if (visitor.visit(this, scope)) {
+			int dimensionsLength = this.dimensions.length;
+			this.type.traverse(visitor, scope);
+			for (int i = 0; i < dimensionsLength; i++) {
+				if (this.dimensions[i] != null)
+					this.dimensions[i].traverse(visitor, scope);
+			}
+			if (this.initializer != null)
+				this.initializer.traverse(visitor, scope);
+		}
+		visitor.endVisit(this, scope);
+	}
 }

@@ -219,4 +219,13 @@ public int nullStatus(FlowInfo flowInfo) {
 		}
 		visitor.endVisit(this, scope);
 	}
+	
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		
+		if (visitor.visit(this, scope)) {
+			receiver.traverse(visitor, scope);
+			position.traverse(visitor, scope);
+		}
+		visitor.endVisit(this, scope);
+	}
 }

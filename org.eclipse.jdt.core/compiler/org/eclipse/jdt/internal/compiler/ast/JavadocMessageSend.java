@@ -222,4 +222,21 @@ public class JavadocMessageSend extends MessageSend {
 		}
 		visitor.endVisit(this, blockScope);
 	}
+	/* (non-Javadoc)
+	 * Redefine to capture javadoc specific signatures
+	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.receiver != null) {
+				this.receiver.traverse(visitor, scope);
+			}
+			if (this.arguments != null) {
+				int argumentsLength = this.arguments.length;
+				for (int i = 0; i < argumentsLength; i++)
+					this.arguments[i].traverse(visitor, scope);
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
 }

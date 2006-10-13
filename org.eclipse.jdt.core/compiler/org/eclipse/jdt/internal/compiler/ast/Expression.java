@@ -952,12 +952,9 @@ public void markAsNonNull() {
 		return this;
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		// do nothing by default
+		// nothing to do
 	}
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		// do nothing by default
-	}
-	public void traverse(ASTVisitor visitor, CompilationUnitScope scope) {
-		// do nothing by default
+		// nothing to do
 	}
 }

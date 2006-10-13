@@ -3964,7 +3964,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printQualifiedReference(annotation.sourceEnd);
 		return false;
 	}
-	public boolean visit(MarkerAnnotation annotation, CompilationUnitScope scope) {
+	public boolean visit(MarkerAnnotation annotation, ClassScope scope) {
 		this.scribe.printNextToken(TerminalTokens.TokenNameAT);
 		if (this.preferences.insert_space_after_at_in_annotation) {
 			this.scribe.space();
@@ -3990,16 +3990,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		pair.value.traverse(this, scope);	
 		return false;
 	}
-	public boolean visit(MemberValuePair pair, CompilationUnitScope scope) {
-		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
-		this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operator);
-		if (this.preferences.insert_space_after_assignment_operator) {
-			this.scribe.space();
-		}
-		pair.value.traverse(this, scope);	
-		return false;
-	}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.MessageSend, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
@@ -4218,7 +4208,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_annotation);
 		return false;
 	}
-	public boolean visit(NormalAnnotation annotation, CompilationUnitScope scope) {
+	public boolean visit(NormalAnnotation annotation, ClassScope scope) {
 		this.scribe.printNextToken(TerminalTokens.TokenNameAT);
 		if (this.preferences.insert_space_after_at_in_annotation) {
 			this.scribe.space();
@@ -4243,7 +4233,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_annotation);
 		return false;
 	}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.NullLiteral, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
@@ -4740,8 +4729,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_annotation);
 		return false;
 	}
-	public boolean visit(SingleMemberAnnotation annotation,
-			CompilationUnitScope scope) {
+	public boolean visit(SingleMemberAnnotation annotation, ClassScope scope) {
 		this.scribe.printNextToken(TerminalTokens.TokenNameAT);
 		if (this.preferences.insert_space_after_at_in_annotation) {
 			this.scribe.space();
@@ -4755,7 +4743,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_annotation);
 		return false;
 	}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SingleNameReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */

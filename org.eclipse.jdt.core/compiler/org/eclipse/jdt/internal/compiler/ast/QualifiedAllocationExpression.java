@@ -399,4 +399,27 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 		visitor.endVisit(this, scope);
 	}
+	
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+
+		if (visitor.visit(this, scope)) {
+			if (enclosingInstance != null)
+				enclosingInstance.traverse(visitor, scope);
+			if (this.typeArguments != null) {
+				for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
+					this.typeArguments[i].traverse(visitor, scope);
+				}					
+			}
+			if (this.type != null) // case of enum constant
+				this.type.traverse(visitor, scope);
+			if (arguments != null) {
+				int argumentsLength = arguments.length;
+				for (int i = 0; i < argumentsLength; i++)
+					arguments[i].traverse(visitor, scope);
+			}
+			if (anonymousType != null)
+				anonymousType.traverse(visitor, scope);
+		}
+		visitor.endVisit(this, scope);
+	}
 }

@@ -489,4 +489,15 @@ public class CastExpression extends Expression {
 		}
 		visitor.endVisit(this, blockScope);
 	}
+	
+	public void traverse(
+			ASTVisitor visitor,
+			ClassScope blockScope) {
+
+		if (visitor.visit(this, blockScope)) {
+			type.traverse(visitor, blockScope);
+			expression.traverse(visitor, blockScope);
+		}
+		visitor.endVisit(this, blockScope);
+	}
 }

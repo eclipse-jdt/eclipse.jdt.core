@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.NLSTag;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
@@ -472,6 +473,23 @@ public class CompilationUnitDeclaration
 			return;
 		try {
 			if (visitor.visit(this, this.scope)) {
+				boolean isPackageInfo = isPackageInfo();
+				if (this.types != null && isPackageInfo) {
+		            // resolve synthetic type declaration
+					final TypeDeclaration syntheticTypeDeclaration = types[0];
+					// resolve javadoc package if any
+					final MethodScope classScope = syntheticTypeDeclaration.staticInitializerScope;
+					if (this.javadoc != null) {
+						this.javadoc.traverse(visitor, classScope);
+					}
+					final Annotation[] annotations = this.currentPackage.annotations;
+					if (annotations != null) {
+						int annotationsLength = annotations.length;
+						for (int i = 0; i < annotationsLength; i++) {
+							annotations[i].traverse(visitor, classScope);
+						}
+					}
+				}
 				if (currentPackage != null) {
 					currentPackage.traverse(visitor, this.scope);
 				}

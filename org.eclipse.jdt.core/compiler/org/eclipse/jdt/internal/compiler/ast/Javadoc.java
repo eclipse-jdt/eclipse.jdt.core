@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
@@ -740,5 +741,62 @@ public class Javadoc extends ASTNode {
 				}
 			}
 		}
+	}
+
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.paramReferences != null) {
+				for (int i = 0, length = this.paramReferences.length; i < length; i++) {
+					this.paramReferences[i].traverse(visitor, scope);
+				}
+			}
+			if (this.paramTypeParameters != null) {
+				for (int i = 0, length = this.paramTypeParameters.length; i < length; i++) {
+					this.paramTypeParameters[i].traverse(visitor, scope);
+				}
+			}
+			if (this.returnStatement != null) {
+				this.returnStatement.traverse(visitor, scope);
+			}
+			if (this.exceptionReferences != null) {
+				for (int i = 0, length = this.exceptionReferences.length; i < length; i++) {	
+					this.exceptionReferences[i].traverse(visitor, scope);
+				}
+			}
+			if (this.seeReferences != null) {
+				for (int i = 0, length = this.seeReferences.length; i < length; i++) {	
+					this.seeReferences[i].traverse(visitor, scope);
+				}
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.paramReferences != null) {
+				for (int i = 0, length = this.paramReferences.length; i < length; i++) {
+					this.paramReferences[i].traverse(visitor, scope);
+				}
+			}
+			if (this.paramTypeParameters != null) {
+				for (int i = 0, length = this.paramTypeParameters.length; i < length; i++) {
+					this.paramTypeParameters[i].traverse(visitor, scope);
+				}
+			}
+			if (this.returnStatement != null) {
+				this.returnStatement.traverse(visitor, scope);
+			}
+			if (this.exceptionReferences != null) {
+				for (int i = 0, length = this.exceptionReferences.length; i < length; i++) {	
+					this.exceptionReferences[i].traverse(visitor, scope);
+				}
+			}
+			if (this.seeReferences != null) {
+				for (int i = 0, length = this.seeReferences.length; i < length; i++) {	
+					this.seeReferences[i].traverse(visitor, scope);
+				}
+			}
+		}
+		visitor.endVisit(this, scope);
 	}
 }

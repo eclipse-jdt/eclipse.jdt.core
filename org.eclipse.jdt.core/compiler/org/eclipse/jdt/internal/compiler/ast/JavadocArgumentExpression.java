@@ -93,4 +93,12 @@ public class JavadocArgumentExpression extends Expression {
 		}
 		visitor.endVisit(this, blockScope);
 	}
+	public void traverse(ASTVisitor visitor, ClassScope blockScope) {
+		if (visitor.visit(this, blockScope)) {
+			if (this.argument != null) {
+				this.argument.traverse(visitor, blockScope);
+			}
+		}
+		visitor.endVisit(this, blockScope);
+	}
 }

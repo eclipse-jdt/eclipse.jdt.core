@@ -94,12 +94,14 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		return internalResolveType(classScope);
 	}
 
-	public void traverse(ASTVisitor visitor, BlockScope classScope) {
-		// Do nothing
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
 	}
 
-	public void traverse(ASTVisitor visitor, ClassScope classScope) {
-		// Do nothing
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {

@@ -136,4 +136,13 @@ public class JavadocFieldReference extends FieldReference {
 		}
 		visitor.endVisit(this, scope);
 	}
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+
+		if (visitor.visit(this, scope)) {
+			if (this.receiver != null) {
+				this.receiver.traverse(visitor, scope);
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
 }

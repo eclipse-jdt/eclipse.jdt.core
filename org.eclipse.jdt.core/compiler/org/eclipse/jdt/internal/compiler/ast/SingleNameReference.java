@@ -854,11 +854,15 @@ public int nullStatus(FlowInfo flowInfo) {
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
 	
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		visitor.visit(this, scope);
+		visitor.endVisit(this, scope);
+	}
+
 	public String unboundReferenceErrorName(){
 	
 		return new String(token);

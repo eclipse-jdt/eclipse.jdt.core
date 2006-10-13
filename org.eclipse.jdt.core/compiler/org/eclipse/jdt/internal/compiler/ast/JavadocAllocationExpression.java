@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -156,4 +157,38 @@ public class JavadocAllocationExpression extends AllocationExpression {
 	public TypeBinding resolveType(ClassScope scope) {
 		return internalResolveType(scope);
 	}
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.typeArguments != null) {
+				for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
+					this.typeArguments[i].traverse(visitor, scope);
+				}
+			}
+			if (this.type != null) { // enum constant scenario
+				this.type.traverse(visitor, scope);
+			}
+			if (this.arguments != null) {
+				for (int i = 0, argumentsLength = this.arguments.length; i < argumentsLength; i++)
+					this.arguments[i].traverse(visitor, scope);
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.typeArguments != null) {
+				for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
+					this.typeArguments[i].traverse(visitor, scope);
+				}
+			}
+			if (this.type != null) { // enum constant scenario
+				this.type.traverse(visitor, scope);
+			}
+			if (this.arguments != null) {
+				for (int i = 0, argumentsLength = this.arguments.length; i < argumentsLength; i++)
+					this.arguments[i].traverse(visitor, scope);
+			}
+		}
+		visitor.endVisit(this, scope);
+	}	
 }
