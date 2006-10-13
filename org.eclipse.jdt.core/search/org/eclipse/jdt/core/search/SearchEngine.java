@@ -774,7 +774,7 @@ public class SearchEngine {
 	 * and type names in a case sensitive way.
 	 * 
 	 * @param qualifications the qualified name of the package/enclosing type of the searched types.
-	 *					If this parameter is <code>null</code>, then no type will be found.
+	 *					May be <code>null</code>, then any package name is accepted.
 	 * @param typeNames the simple names of the searched types.
 	 *					If this parameter is <code>null</code>, then no type will be found.
 	 * @param scope the scope to search in
@@ -824,7 +824,7 @@ public class SearchEngine {
 	 * </p>
 	 * 
 	 * @param qualifications the qualified name of the package/enclosing type of the searched types.
-	 *					If this parameter is <code>null</code>, then no type will be found.
+	 *					May be <code>null</code>, then any package name is accepted.
 	 * @param typeNames the simple names of the searched types.
 	 *					If this parameter is <code>null</code>, then no type will be found.
 	 * @param scope the scope to search in
