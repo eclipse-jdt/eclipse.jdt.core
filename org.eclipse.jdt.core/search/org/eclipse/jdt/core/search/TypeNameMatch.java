@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.*;
  * User can get type from this match using {@link #getType()} method.
  * </p>
  * <p>
- * This class is not intended to be instantiated or subclassed by clients.
+ * This class may be overridden by clients.
  * </p>
  * 
  * @see TypeNameMatchRequestor
@@ -32,16 +32,12 @@ import org.eclipse.jdt.core.*;
 public class TypeNameMatch {
 
 private IType type;
-
 private int modifiers = -1; // store modifiers to avoid java model population
 
 /**
  * Creates a new type name match.
  */
 public TypeNameMatch(IType type, int modifiers) {
-	// TODO (frederic) Disable null check as it currently breaks JDT/UI => put back ASAP
-	// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=160652 for follow-up on this issue)
-	//Assert.isNotNull(type, "Type cannot be null for a name match!"); //$NON-NLS-1$
 	this.type = type;
 	this.modifiers = modifiers;
 }
@@ -51,7 +47,7 @@ public TypeNameMatch(IType type, int modifiers) {
  */
 public boolean equals(Object obj) {
 	if (obj == null) return false;
-	return this.type.equals(obj);
+	return getType().equals(obj);
 }
 
 /**
@@ -63,12 +59,14 @@ public boolean equals(Object obj) {
  * @return Fully qualified type name of the type
  */
 public String getFullyQualifiedName() {
-	return this.type.getFullyQualifiedName('.');
+	return getType().getFullyQualifiedName('.');
 }
 
 /**
- * Returns the stored modifiers of the type.
- * This is a handle-only method.
+ * Returns the modifiers of the matched type.
+ * <p>
+ * This is a handle-only method as neither Java Model nor classpath
+ * initialization is done while calling this method.
  * 
  * @return the type modifiers
  */
@@ -86,7 +84,7 @@ public int getModifiers() {
  * 	and will return <code>true</code> to <code>exists()</code> message).
  */
 public IPackageFragmentRoot getPackageFragmentRoot() {
-	return (IPackageFragmentRoot) this.type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+	return (IPackageFragmentRoot) getType().getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 }
 
 /**
@@ -97,7 +95,7 @@ public IPackageFragmentRoot getPackageFragmentRoot() {
  * @return the package name
  */
 public String getPackageName() {
-	return this.type.getPackageFragment().getElementName();
+	return getType().getPackageFragment().getElementName();
 }
 
 /**
@@ -108,17 +106,18 @@ public String getPackageName() {
  * @return the type name
  */
 public String getSimpleTypeName() {
-	return this.type.getElementName();
+	return getType().getElementName();
 }
 
 /**
- * Returns the stored java model type. As this match was built while searching
- * for all types in index files, the stored type cannot be null and does exist.
- * This is a handle-only method.
+ * Returns an non-null java model type handle. This handle may
+ * exist or not.
+ * <p>
+ * This is a handle-only method as neither Java Model nor classpath
+ * initializations are done while calling this method.
  * 
  * @see IType
- * @return the existing java model type (ie. cannot be <code>null</code>
- * 	and will return <code>true</code> to <code>exists()</code> message).
+ * @return the non-null handle on matched java model type.
  */
 public IType getType() {
 	return this.type;
@@ -132,11 +131,11 @@ public IType getType() {
  * @return Name of the type container
  */
 public String getTypeContainerName() {
-	IType outerType = this.type.getDeclaringType();
+	IType outerType = getType().getDeclaringType();
 	if (outerType != null) {
 		return outerType.getFullyQualifiedName('.');
 	} else {
-		return this.type.getPackageFragment().getElementName();
+		return getType().getPackageFragment().getElementName();
 	}
 }
 
@@ -149,20 +148,41 @@ public String getTypeContainerName() {
  * @return Fully qualified type name of the type
  */
 public String getTypeQualifiedName() {
-	return this.type.getTypeQualifiedName('.');
+	return getType().getTypeQualifiedName('.');
 }
 
-/**
- * Returns stored type hashCode.
+/* (non-Javadoc)
+ * Returns the hash code of the matched type.
+ * @see java.lang.Object#hashCode()
  */
 public int hashCode() {
-	return this.type.hashCode();
+	return getType().hashCode();
 }
 
 /**
- * Returns stored type string.
+ * Set modifiers which corresponds to the matched type.
+ * 
+ * @param modifiers the modifiers of the matched type.
+ */
+public void setModifiers(int modifiers) {
+	this.modifiers = modifiers;
+}
+
+/**
+ * Set matched type.
+ * 
+ * @param type the matched type.
+ */
+public void setType(IType type) {
+	this.type = type;
+}
+
+
+/* (non-Javadoc)
+ * Returns the string of the matched type.
+ * @see java.lang.Object#toString()
  */
 public String toString() {
-	return this.type.toString();
+	return getType().toString();
 }
 }
