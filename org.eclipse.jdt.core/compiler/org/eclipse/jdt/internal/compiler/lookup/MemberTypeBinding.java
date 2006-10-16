@@ -11,6 +11,9 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public final class MemberTypeBinding extends NestedTypeBinding {
 public MemberTypeBinding(char[][] compoundName, ClassScope scope, SourceTypeBinding enclosingType) {
@@ -32,6 +35,26 @@ public char[] constantPoolName() /* java/lang/Object */ {
 		return constantPoolName;
 
 	return constantPoolName = CharOperation.concat(enclosingType().constantPoolName(), sourceName, '$');
+}
+public void initializeDeprecatedAnnotationTagBits() {
+	if ((this.tagBits & (TagBits.AnnotationResolved|TagBits.AnnotationDeprecated)) == 0) {
+		ReferenceBinding enclosing = this.enclosingType();
+		enclosing.initializeDeprecatedAnnotationTagBits();
+		TypeDeclaration typeDecl = this.scope.referenceContext;
+		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
+		try {
+			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
+			ASTNode.resolveDeprecatedAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
+		} finally {
+			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
+		}
+		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0) {
+			this.modifiers |= ClassFileConstants.AccDeprecated;
+		} else if ((enclosing.modifiers & (ClassFileConstants.AccDeprecated |
+						ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0) {
+			this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+		}
+	}
 }
 public String toString() {
 	return "Member type : " + new String(sourceName()) + " " + super.toString(); //$NON-NLS-2$ //$NON-NLS-1$

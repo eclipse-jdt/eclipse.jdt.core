@@ -545,7 +545,7 @@ public void test014() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 // the order of the CUs must not modify the behavior, see also test016 
-public void _test015() {
+public void test015() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	this.runNegativeTest(

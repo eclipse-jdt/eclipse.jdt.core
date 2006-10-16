@@ -1052,7 +1052,7 @@ public class DependencyTests extends BuilderTests {
 // warnings, which is unexpected. Guard test for DeprecatedTest#test015 (the
 // builder is not the cause of the bug, but we want to ensure that the end to
 // end behavior is OK).
-public void _test0100() throws JavaModelException {
+public void test0100() throws JavaModelException {
 	IPath projectPath = env.addProject("P");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	IPath rootPath = env.getPackageFragmentRootPath(projectPath, "");

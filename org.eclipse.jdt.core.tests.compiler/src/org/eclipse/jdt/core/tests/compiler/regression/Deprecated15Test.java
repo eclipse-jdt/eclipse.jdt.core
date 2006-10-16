@@ -107,7 +107,7 @@ public void test001() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 // guard variant for DeprecatedTest#test015 using an annotation 
-public void _test002() {
+public void test002() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	this.runNegativeTest(
@@ -132,7 +132,17 @@ public void _test002() {
 			"  }" +
 			"}\n",
 		}, 
-		"2 ERRS expected",
+		"----------\n" + 
+		"1. ERROR in p\\M1.java (at line 4)\n" + 
+		"	a.N1.N2.N3 m = null;\n" + 
+		"	^^^^^^^^^^\n" + 
+		"The type N1.N2.N3 is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\M1.java (at line 5)\n" + 
+		"	m.foo();\n" + 
+		"	^^^^^^^\n" + 
+		"The method foo() from the type N1.N2.N3 is deprecated\n" + 
+		"----------\n",
 		null,
 		true,
 		customOptions,
