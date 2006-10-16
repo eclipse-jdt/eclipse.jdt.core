@@ -7164,11 +7164,6 @@ public void testBug156491b() throws CoreException {
 public void testBug160323() throws CoreException {
 	// Search all type names with TypeNameMatchRequestor
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
-		public void acceptTypeNameMatch(TypeNameMatch match) {
-			assertTrue("Problem with equals method for match "+match, match.equals(match.getType()));
-			assertEquals("Problem with hashCode method for match "+match, match.getType().hashCode(), match.hashCode());
-			super.acceptTypeNameMatch(match);
-		}
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}
@@ -7199,6 +7194,7 @@ public void testBug160323() throws CoreException {
 	assertTrue("We should get some types!", collector.size() > 0);
 	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 }
+
 /**
  * @bug 160324: [search] SearchEngine.searchAllTypeNames(char[][], char[][], TypeNameMatchRequestor
  * @test Ensure that types found using {@link SearchEngine#searchAllTypeNames(char[][], char[][], IJavaSearchScope, TypeNameMatchRequestor, int, org.eclipse.core.runtime.IProgressMonitor) new API method}
@@ -7206,13 +7202,9 @@ public void testBug160323() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160324"
  */
 public void testBug160324a() throws CoreException {
+	boolean debug = false;
 	// Search all type names with new API
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
-		public void acceptTypeNameMatch(TypeNameMatch match) {
-			assertTrue("Problem with equals method for match "+match, match.equals(match.getType()));
-			assertEquals("Problem with hashCode method for match "+match, match.getType().hashCode(), match.hashCode());
-			super.acceptTypeNameMatch(match);
-		}
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}
@@ -7224,7 +7216,6 @@ public void testBug160324a() throws CoreException {
 		collector,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
-	assertEquals("We should not find any type", "", collector.toString());
 	// Search all type names with old API
 	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
@@ -7234,7 +7225,10 @@ public void testBug160324a() throws CoreException {
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
-	assertEquals("We should not find any type", "", requestor.toString());
+	if (debug) System.out.println("TypeNameRequestor results: \n"+requestor);
+	// Should have same types with these 2 searches
+	assertTrue("We should get some types!", collector.size() > 0);
+	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 }
 public void testBug160324b() throws CoreException {
 	// Search all type names with new API
@@ -7311,5 +7305,75 @@ public void testBug160324c() throws CoreException {
 	// Should have same types with these 2 searches
 	assertEquals("Wrong number of found types!", packagesList.length, collector.size());
 	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
+}
+
+/**
+ * @bug 160854: [search] No type is found using seachAllTypeNames(char[][],char[][],...) methods when no type names is specified
+ * @test Ensure that types are found when typeNames parameter is null...
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160854"
+ */
+public void testBug160854() throws CoreException {
+	char[][] packagesList = new char[][] {
+			"java.lang".toCharArray()
+	};
+	// Search all type names with new API
+	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		public String toString(){
+			return toFullyQualifiedNamesString();
+		}
+	};
+	new SearchEngine().searchAllTypeNames(
+		packagesList,
+		null,
+		getJavaSearchScopeBugs(),
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Search all type names with old API
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		packagesList,
+		null,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Should have same types with these 2 searches
+	assertSearchResults("Wrong types found!",
+		"java.lang.CharSequence\n" + 
+		"java.lang.Class\n" + 
+		"java.lang.CloneNotSupportedException\n" + 
+		"java.lang.Comparable\n" + 
+		"java.lang.Enum\n" + 
+		"java.lang.Error\n" + 
+		"java.lang.Exception\n" + 
+		"java.lang.IllegalMonitorStateException\n" + 
+		"java.lang.InterruptedException\n" + 
+		"java.lang.Object\n" + 
+		"java.lang.RuntimeException\n" + 
+		"java.lang.String\n" + 
+		"java.lang.Throwable",
+		requestor
+	);
+	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
+}
+
+
+/**
+ * @bug 161028: [search] NPE on organize imports in TypeNameMatch.equals
+ * @test Ensure that no NPE may happen calling <code>equals(Object)</code>,
+ * 	<code>hashCode()</code> or <code>toString()</code> methods.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=161028"
+ */
+public void testBug161028() throws CoreException {
+	TypeNameMatch match1 = SearchEngine.createTypeNameMatch(null, 0);
+	assertEquals("Should be equals!", match1, match1);
+	assertEquals("Wrong toString value!", "org.eclipse.jdt.internal.core.search.JavaSearchTypeNameMatch@0", match1.toString());
+	TypeNameMatch match2 = SearchEngine.createTypeNameMatch(null, 0);
+	assertFalse("Should NOT be identical!", match1 == match2);
+	assertTrue("Should be equals!", match1.equals(match2));
+	assertTrue("Should be equals!", match2.equals(match1));
+	assertEquals("Wrong toString value!", match1, match2);
+	assertEquals("Should have same hashCode!", match1.hashCode(), match2.hashCode());
 }
 }

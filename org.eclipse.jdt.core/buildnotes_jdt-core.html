@@ -52,6 +52,13 @@ Eclipse SDK 3.3M3 - ?th October 2006
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_717">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li><code>TypeNameMatch</code> API has been polished while implementing new <code>searchAllTypeNames(char[][] char[][],...)</code>
+API method (see next point).<br>
+This class has been abstracted and clients now need to use added <code>SearchEngine</code> following method
+to create an instance of it:
+<pre>
+</pre>
+</li>
 <li>Added new <code>SearchEngine</code> API method for search all type names with multiple qualifications and type names
 (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160324">160324</a>).<br>
 Only requestor differs from already existing corresponding <code>searchAllTypeNames</code> method:
@@ -77,7 +84,7 @@ public void searchAllTypeNames(
 	IProgressMonitor progressMonitor)  throws JavaModelException
 </pre>
 Similarily to previous added <code>searchAllTypeNames</code> new API method, clients have to provide
-a new requestor: <code>TypeNameMatchRequestor</code> in order to get matches collected during the search.
+a new requestor: <code>TypeNameMatchRequestor</code> in order to get matches collected during the search.<br>
 </li>
 <li>Code Assist can return completion proprosals that required some other completion proposals:<br>
 To apply a completion proposal the required completion proposals must be applied otherwise the resulting code won't be correct.<br>
@@ -209,7 +216,11 @@ public class X {
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80339">80339</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=161028">161028</a>
+[search] NPE on organize imports in TypeNameMatch.equals
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160854">160854</a>
+[search] No type is found using seachAllTypeNames(char[][],char[][],...) methods when no type names is specified
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=80339">80339</a>
 Wrong error message "; expected" when writing an interface
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=159709">159709</a>
 [compiler] missing warnings for deprecated member types
