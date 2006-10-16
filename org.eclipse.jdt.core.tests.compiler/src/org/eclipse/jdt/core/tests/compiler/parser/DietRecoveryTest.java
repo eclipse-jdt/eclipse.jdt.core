@@ -6869,4 +6869,85 @@ public void test114() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=80339
+public void test115() {
+	String s = 
+		"public interface Test {\n"+
+		"  public void myMethod()\n"+
+		"}\n";
+		
+	String expectedDietUnitToString = 
+		"public interface Test {\n" + 
+		"  public void myMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public interface Test {\n" + 
+		"  public void myMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"public interface Test {\n" + 
+		"  public void myMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=80339
+public void test116() {
+	String s = 
+		"public interface Test {\n"+
+		"  public void myMethod()\n"+
+		"    System.out.println();\n"+
+		"}\n";
+		
+	String expectedDietUnitToString = 
+		"public interface Test {\n" + 
+		"  public void myMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public interface Test {\n" + 
+		"  public void myMethod() {\n" + 
+		"    System.out.println();\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"public interface Test {\n" + 
+		"  public void myMethod() {\n" + 
+		"    System.out.println();\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
 }

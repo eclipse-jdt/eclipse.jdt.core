@@ -445,6 +445,15 @@ public RecoveredElement updateOnClosingBrace(int braceStart, int braceEnd){
 		}
 		return this;
 	}
+	if(this.parent != null && this.parent instanceof RecoveredType) {
+		int modifiers = ((RecoveredType)this.parent).typeDeclaration.modifiers;
+		if (TypeDeclaration.kind(modifiers) == TypeDeclaration.INTERFACE_DECL) {
+			if (!this.foundOpeningBrace) {
+				this.updateSourceEndIfNecessary(braceStart - 1, braceStart - 1);
+				return this.parent.updateOnClosingBrace(braceStart, braceEnd);
+			}
+		}
+	}
 	return super.updateOnClosingBrace(braceStart, braceEnd);
 }
 /*

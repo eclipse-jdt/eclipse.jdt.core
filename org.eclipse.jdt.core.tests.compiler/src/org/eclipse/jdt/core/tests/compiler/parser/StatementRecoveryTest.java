@@ -3537,4 +3537,54 @@ public void test0042() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=80339
+public void test0043() {
+
+	String s = 
+		"package a;											\n"
+			+ "public interface Test {						\n"
+			+ "  public void myMethod()						\n"
+			+ "}											\n";
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public interface Test {\n" + 
+		"  public void myMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public interface Test {\n" + 
+		"  public void myMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"package a;\n" + 
+		"public interface Test {\n" + 
+		"  public void myMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
 }

@@ -223,7 +223,21 @@ public class LexStream implements TerminalTokens {
 		
 		String source = new String(scanner.source);
 		if(currentIndex < 0) {
-			res.append(source);
+			int previousEnd = -1;
+			for (int i = 0; i < intervalStartToSkip.length; i++) {
+				int intervalStart = intervalStartToSkip[i];
+				int intervalEnd = intervalEndToSkip[i];
+				
+				res.append(source.substring(previousEnd + 1, intervalStart));
+				res.append('<');
+				res.append('@');
+				res.append(source.substring(intervalStart, intervalEnd + 1));
+				res.append('@');
+				res.append('>');
+				
+				previousEnd = intervalEnd;
+			}
+			res.append(source.substring(previousEnd + 1));
 		} else {
 			Token token = token(currentIndex);
 			int curtokKind = token.kind;
