@@ -2438,7 +2438,9 @@ public void configure(String[] argv) throws InvalidInputException {
 
 		// default is input directory, if no custom destination path exists
 		if (customDestinationPath == null) {
-			currentArg = currentArg.replace('/', File.separatorChar);
+			if (File.separatorChar != '/') {
+				currentArg = currentArg.replace('/', File.separatorChar);
+			}
 			if (currentArg.endsWith("[-d")) { //$NON-NLS-1$
 				currentSourceDirectory = currentArg.substring(0, 
 					currentArg.length() - 3);
@@ -2447,10 +2449,6 @@ public void configure(String[] argv) throws InvalidInputException {
 			} else {
 				currentSourceDirectory = currentArg;
 			}
-		}
-		if (currentSourceDirectory.endsWith(File.separator)) {
-			currentSourceDirectory = currentSourceDirectory.substring(0, 
-					currentSourceDirectory.length() - File.separator.length());
 		}
 		File dir = new File(currentSourceDirectory);
 		if (!dir.isDirectory()) {
