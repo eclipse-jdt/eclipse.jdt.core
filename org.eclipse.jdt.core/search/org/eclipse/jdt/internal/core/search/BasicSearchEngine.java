@@ -94,6 +94,13 @@ public class BasicSearchEngine {
 	}
 
 	/**
+	 * @see SearchEngine#createTypeNameMatch(IType, int) for detailed comment.
+	 */
+	public static TypeNameMatch createTypeNameMatch(IType type, int modifiers) {
+		return new JavaSearchTypeNameMatch(type, modifiers);
+	}
+
+	/**
 	 * @see SearchEngine#createHierarchyScope(IType) for detailed comment.
 	 */
 	public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModelException {
@@ -809,7 +816,7 @@ public class BasicSearchEngine {
 							}
 							if (match(typeSuffix, packageName, typeName, typeMatchRule, kind, packageDeclaration, simpleName)) {
 								if (nameRequestor instanceof TypeNameMatchRequestorWrapper) {
-									((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new TypeNameMatch(type, type.getFlags()));
+									((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, type.getFlags()));
 								} else {
 									nameRequestor.acceptType(type.getFlags(), packageDeclaration, simpleName, enclosingTypeNames, path, null);
 								}
@@ -830,7 +837,7 @@ public class BasicSearchEngine {
 									if (match(typeSuffix, packageName, typeName, typeMatchRule, TypeDeclaration.kind(typeDeclaration.modifiers), packageDeclaration, typeDeclaration.name)) {
 										if (nameRequestor instanceof TypeNameMatchRequestorWrapper) {
 											IType type = workingCopy.getType(new String(typeName));
-											((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new TypeNameMatch(type, typeDeclaration.modifiers));
+											((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, typeDeclaration.modifiers));
 										} else {
 											nameRequestor.acceptType(typeDeclaration.modifiers, packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
 										}
@@ -856,7 +863,7 @@ public class BasicSearchEngine {
 											for (int j=1, l=enclosingTypeNames.length; j<l; j++) {
 												type = type.getType(new String(enclosingTypeNames[j]));
 											}
-											((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new TypeNameMatch(type, 0));
+											((TypeNameMatchRequestorWrapper)nameRequestor).requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, 0));
 										} else {
 											nameRequestor.acceptType(memberTypeDeclaration.modifiers, packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
 										}
@@ -953,6 +960,10 @@ public class BasicSearchEngine {
 		IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
 			public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
 				// Filter unexpected types
+				QualifiedTypeDeclarationPattern record = (QualifiedTypeDeclarationPattern) indexRecord;
+				if (record.enclosingTypeNames == IIndexConstants.ONE_ZERO_CHAR) {
+					return true; // filter out local and anonymous classes
+				}
 				switch (copiesLength) {
 					case 0:
 						break;
@@ -969,7 +980,6 @@ public class BasicSearchEngine {
 				}
 
 				// Accept document path
-				QualifiedTypeDeclarationPattern record = (QualifiedTypeDeclarationPattern) indexRecord;
 				AccessRestriction accessRestriction = null;
 				if (access != null) {
 					// Compute document relative path

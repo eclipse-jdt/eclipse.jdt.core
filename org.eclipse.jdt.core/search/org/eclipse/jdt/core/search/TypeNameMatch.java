@@ -13,49 +13,30 @@ package org.eclipse.jdt.core.search;
 import org.eclipse.jdt.core.*;
 
 /**
- * A match collected while searching for all type names using
- * {@link SearchEngine#searchAllTypeNames( char[] packageName, int
- * packageMatchRule, char[] typeName, int typeMatchRule, int searchFor,
- * IJavaSearchScope scope, TypeNameMatchRequestor nameMatchRequestor, int
- * waitingPolicy, org.eclipse.core.runtime.IProgressMonitor monitor)} method
+ * A match collected while searching for {@link SearchEngine}
+ * all type names methods using a {@link TypeNameRequestor requestor}.
  * <p>
  * User can get type from this match using {@link #getType()} method.
  * </p>
  * <p>
- * This class may be overridden by clients.
+ * This class is intented to be overridden by clients.
  * </p>
  * 
  * @see TypeNameMatchRequestor
- * 
+ * @see SearchEngine#searchAllTypeNames(char[], int, char[], int, int, IJavaSearchScope, TypeNameMatchRequestor, int, org.eclipse.core.runtime.IProgressMonitor)
+ * @see SearchEngine#searchAllTypeNames(char[][], char[][], IJavaSearchScope, TypeNameMatchRequestor, int, org.eclipse.core.runtime.IProgressMonitor)
  * @since 3.3
  */
-public class TypeNameMatch {
-
-private IType type;
-private int modifiers = -1; // store modifiers to avoid java model population
+public abstract class TypeNameMatch {
 
 /**
- * Creates a new type name match.
- */
-public TypeNameMatch(IType type, int modifiers) {
-	this.type = type;
-	this.modifiers = modifiers;
-}
-
-/**
- * Returns whether the stored type is equals to given object or not.
- */
-public boolean equals(Object obj) {
-	if (obj == null) return false;
-	return getType().equals(obj);
-}
-
-/**
- * Returns the fully qualified name of stored type
- * (e.g. package name + '.' enclosing type names + '.' simple name)
+ * Returns the matched type fully qualified name using '.' character
+ * as separator (e.g. package name + '.' enclosing type names + '.' simple name).
  * 
  * @see #getType()
  * @see IType#getFullyQualifiedName(char)
+ * 
+ * @throws NullPointerException if matched type is <code> null</code>
  * @return Fully qualified type name of the type
  */
 public String getFullyQualifiedName() {
@@ -70,9 +51,7 @@ public String getFullyQualifiedName() {
  * 
  * @return the type modifiers
  */
-public int getModifiers() {
-	return this.modifiers;
-}
+public abstract int getModifiers();
 
 /**
  * Returns the package fragment root of the stored type.
@@ -80,6 +59,8 @@ public int getModifiers() {
  * 
  * @see #getType()
  * @see IJavaElement#getAncestor(int)
+ * 
+ * @throws NullPointerException if matched type is <code> null</code>
  * @return the existing java model package fragment root (ie. cannot be <code>null</code>
  * 	and will return <code>true</code> to <code>exists()</code> message).
  */
@@ -92,6 +73,8 @@ public IPackageFragmentRoot getPackageFragmentRoot() {
  * 
  * @see #getType()
  * @see IType#getPackageFragment()
+ * 
+ * @throws NullPointerException if matched type is <code> null</code>
  * @return the package name
  */
 public String getPackageName() {
@@ -103,6 +86,8 @@ public String getPackageName() {
  * 
  * @see #getType()
  * @see IJavaElement#getElementName()
+ * 
+ * @throws NullPointerException if matched type is <code> null</code>
  * @return the type name
  */
 public String getSimpleTypeName() {
@@ -110,8 +95,8 @@ public String getSimpleTypeName() {
 }
 
 /**
- * Returns an non-null java model type handle. This handle may
- * exist or not.
+ * Returns a java model type handle.
+ * This handle may exist or not, but is not supposed to be <code>null</code>.
  * <p>
  * This is a handle-only method as neither Java Model nor classpath
  * initializations are done while calling this method.
@@ -119,15 +104,16 @@ public String getSimpleTypeName() {
  * @see IType
  * @return the non-null handle on matched java model type.
  */
-public IType getType() {
-	return this.type;
-}
+public abstract IType getType();
 
 /**
- * Name of the type container (e.g. enclosing type names + '.' + simple name).
+ * Name of the type container using '.' character
+ * as separator (e.g. enclosing type names + '.' + simple name).
  * 
  * @see #getType()
  * @see IMember#getDeclaringType()
+ * 
+ * @throws NullPointerException if matched type is <code> null</code>
  * @return Name of the type container
  */
 public String getTypeContainerName() {
@@ -140,49 +126,16 @@ public String getTypeContainerName() {
 }
 
 /**
- * Returns the qualified name of type
- * (e.g. enclosing type names + '.' simple name).
+ * Returns the matched type qualified name using '.' character
+ * as separator (e.g. enclosing type names + '.' simple name).
  * 
  * @see #getType()
  * @see IType#getTypeQualifiedName(char)
+ * 
+ * @throws NullPointerException if matched type is <code> null</code>
  * @return Fully qualified type name of the type
  */
 public String getTypeQualifiedName() {
 	return getType().getTypeQualifiedName('.');
-}
-
-/* (non-Javadoc)
- * Returns the hash code of the matched type.
- * @see java.lang.Object#hashCode()
- */
-public int hashCode() {
-	return getType().hashCode();
-}
-
-/**
- * Set modifiers which corresponds to the matched type.
- * 
- * @param modifiers the modifiers of the matched type.
- */
-public void setModifiers(int modifiers) {
-	this.modifiers = modifiers;
-}
-
-/**
- * Set matched type.
- * 
- * @param type the matched type.
- */
-public void setType(IType type) {
-	this.type = type;
-}
-
-
-/* (non-Javadoc)
- * Returns the string of the matched type.
- * @see java.lang.Object#toString()
- */
-public String toString() {
-	return getType().toString();
 }
 }

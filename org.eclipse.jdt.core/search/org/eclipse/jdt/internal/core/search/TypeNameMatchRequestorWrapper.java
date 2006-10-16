@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.TypeNameMatch;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -75,44 +74,13 @@ public TypeNameMatchRequestorWrapper(TypeNameMatchRequestor requestor, IJavaSear
  */
 public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
 	if (access == null) { // accept only if there's no access violation
-//		if (this.handleFactory == null) {
-//			this.handleFactory = new HandleFactory();
-//		}
-//		Openable openable = this.handleFactory.createOpenable(path, this.scope);
-//		if (openable != null) {
-//			try {
-//				IType type = null;
-//				switch (openable.getElementType()) {
-//					case IJavaElement.CLASS_FILE:
-//						type = ((IClassFile)openable).getType();
-//						break;
-//					case IJavaElement.COMPILATION_UNIT:
-//						int length = enclosingTypeNames == null ? 0 : enclosingTypeNames.length;
-//						if (length == 0) {
-//							type = ((ICompilationUnit)openable).getType(new String(simpleTypeName));
-//						} else {
-//							type = ((ICompilationUnit)openable).getType(new String(enclosingTypeNames[0]));
-//							for (int i=1; i<length; i++) {
-//								type = type.getType(new String(enclosingTypeNames[i]));
-//							}
-//							type = type.getType(new String(simpleTypeName));
-//						}
-//						break;
-//				}
-//				if (type != null) {
-//					this.requestor.acceptTypeNameMatch(new TypeNameMatch(type, modifiers));
-//				}
-//			} catch (JavaModelException e) {
-//				// skip
-//			}
-//		}
 		try {
 			int separatorIndex= path.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
 			IType type = separatorIndex == -1
 				? createTypeFromPath(path, new String(simpleTypeName), enclosingTypeNames)
 				: createTypeFromJar(path, separatorIndex);
 			if (type != null) {
-				this.requestor.acceptTypeNameMatch(new TypeNameMatch(type, modifiers));
+				this.requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, modifiers));
 			}
 		} catch (JavaModelException e) {
 			// skip
