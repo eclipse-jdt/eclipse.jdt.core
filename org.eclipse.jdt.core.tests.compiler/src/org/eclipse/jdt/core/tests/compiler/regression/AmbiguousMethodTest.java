@@ -1024,4 +1024,51 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 		"----------\n");
 	}	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
+public void _test023() {
+this.runNegativeTest(
+	new String[] {
+		"X.java",
+		"import java.util.*;\n" + 
+		"public class X {\n" +
+		"  public static void foo(Collection<?> p) {\n" +
+		"  }\n" +
+		"  public static <T extends List<?>> void foo(T p) {\n" + 
+		"  }\n" +
+		"  public static void main(String[] args) {\n" + 
+		"    foo(new ArrayList<String>(Arrays.asList(\"\")));\n" + 
+		"  }\n" +
+		"}"
+	},
+	"");
+}	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
+// self contained variant
+public void _test024() {
+this.runNegativeTest(
+	new String[] {
+		"L1.java",
+		"public interface L1<T> {\n" +
+		"}",
+		"L2.java",
+		"public interface L2<T> extends L1<T> {\n" +
+		"}",
+		"L3.java",
+		"public class L3<T> implements L2<T> {\n" +
+		"  public L3() {\n" +
+		"  }\n" +
+		"}",
+		"X.java",
+		"public class X {\n" +
+		"  public static void foo(L1<?> p) {\n" +
+		"  }\n" +
+		"  public static <T extends L2<?>> void foo(T p) {\n" + 
+		"  }\n" +
+		"  public static void main(String[] args) {\n" + 
+		"    foo(new L3<String>());\n" + 
+		"  }\n" +
+		"}"
+	},
+	"");
+}	
 }
