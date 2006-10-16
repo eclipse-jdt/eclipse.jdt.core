@@ -305,7 +305,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			workingCopies[1] = getWorkingCopy("/P2/p2/A2.java",
 				"package p2;\n" + 
 				"public class A2 {\n" + 
-				"	public static class A2Inner2 {}" + 
+				"	public static class A2Inner1 {}" + 
 				"	public static class A2Inner2 {}" + 
 				"}"
 			);
@@ -325,7 +325,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			assertSearchResults(
 				"Unexpected all type names",
 				"p2.A2\n" + 
-				"p2.A2$A2Inner2\n" + 
+				"p2.A2$A2Inner1\n" + 
 				"p2.A2$A2Inner2",
 				requestor);
 		}
