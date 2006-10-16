@@ -1026,7 +1026,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 	}	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
 public void _test023() {
-this.runNegativeTest(
+this.runConformTest(
 	new String[] {
 		"X.java",
 		"import java.util.*;\n" + 
@@ -1045,7 +1045,7 @@ this.runNegativeTest(
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
 // self contained variant
 public void _test024() {
-this.runNegativeTest(
+this.runConformTest(
 	new String[] {
 		"L1.java",
 		"public interface L1<T> {\n" +
