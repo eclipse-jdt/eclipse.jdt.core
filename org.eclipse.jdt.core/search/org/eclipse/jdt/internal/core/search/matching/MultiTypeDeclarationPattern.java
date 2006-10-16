@@ -46,15 +46,16 @@ public MultiTypeDeclarationPattern(
 		for (int i = 0; i < length; i++)
 			this.qualifications[i] = CharOperation.toLowerCase(qualifications[i]);
 	}
-	if (simpleNames == null) {
-		this.simpleNames = CharOperation.NO_CHAR_CHAR;
-	} else if ((isCaseSensitive() || isCamelCase()) ) {
-		this.simpleNames = simpleNames;
-	} else {
-		int length = simpleNames.length;
-		this.simpleNames = new char[length][];
-		for (int i = 0; i < length; i++)
-			this.simpleNames[i] = CharOperation.toLowerCase(simpleNames[i]);
+	// null simple names are allowed (should return all names)
+	if (simpleNames != null) {
+		if ((isCaseSensitive() || isCamelCase()) ) {
+			this.simpleNames = simpleNames;
+		} else {
+			int length = simpleNames.length;
+			this.simpleNames = new char[length][];
+			for (int i = 0; i < length; i++)
+				this.simpleNames[i] = CharOperation.toLowerCase(simpleNames[i]);
+		}
 	}
 	this.typeSuffix = typeSuffix;
 
@@ -94,7 +95,8 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 		}
 	}
 
-	// chekc simple name
+	// check simple name (null are allowed)
+	if (this.simpleNames == null) return true;
 	int count = 0;
 	int max = this.simpleNames.length;
 	for (; count < max; count++)
@@ -103,6 +105,11 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	return count < max;
 }
 EntryResult[] queryIn(Index index) throws IOException {
+	if (this.simpleNames == null) {
+		// if no simple names then return all possible ones from index
+		return index.query(getIndexCategories(), null, -1); // match rule is irrelevant when the key is null
+	}
+
 	int count = -1;
 	int numOfNames = this.simpleNames.length;
 	EntryResult[][] allResults = numOfNames > 1 ? new EntryResult[numOfNames][] : null;

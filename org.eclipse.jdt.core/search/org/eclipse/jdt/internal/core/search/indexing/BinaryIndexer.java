@@ -642,6 +642,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					name = reader.getInnerSourceName();
 				}
 				if (reader.isLocal() || reader.isAnonymous()) {
+					// set specific ['0'] value for local and anonymous to be able to filter them
 					enclosingTypeName = ONE_ZERO;
 				} else {
 					char[] fullEnclosingName = reader.getEnclosingTypeName();

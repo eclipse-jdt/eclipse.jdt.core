@@ -155,6 +155,7 @@ private void enterClass(TypeInfo typeInfo) {
 	}
 	char[][] typeNames;
 	if (this.methodDepth > 0) {
+		// set specific ['0'] value for local and anonymous to be able to filter them
 		typeNames = ONE_ZERO_CHAR;
 	} else {
 		typeNames = this.enclosingTypeNames();
