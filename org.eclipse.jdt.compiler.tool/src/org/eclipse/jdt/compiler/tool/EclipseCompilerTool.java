@@ -346,11 +346,11 @@ public class EclipseCompilerTool extends Main implements JavaCompilerTool {
 			String customEncoding) throws InvalidInputException {
 
 		ArrayList<FileSystem.Classpath> fileSystemClasspaths = new ArrayList<FileSystem.Classpath>();
-		if (this.fileManager instanceof EclipseFileManager) {
-			EclipseFileManager javaFileManager = (EclipseFileManager) this.fileManager;
+		if (this.fileManager instanceof OldEclipseFileManager) {
+			OldEclipseFileManager javaFileManager = (OldEclipseFileManager) this.fileManager;
 
-			if ((javaFileManager.flags & EclipseFileManager.HAS_ENDORSED_DIRS) == 0
-					&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
+			if ((javaFileManager.flags & OldEclipseFileManager.HAS_ENDORSED_DIRS) == 0
+					&& (javaFileManager.flags & OldEclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
 				fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleEndorseddirs(null));
 			}
 			Iterable<? extends File> location = javaFileManager.getLocation(StandardLocation.PLATFORM_CLASS_PATH);
@@ -362,8 +362,8 @@ public class EclipseCompilerTool extends Main implements JavaCompilerTool {
 	    				null));
 				}
 			}
-			if ((javaFileManager.flags & EclipseFileManager.HAS_EXT_DIRS) == 0
-					&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
+			if ((javaFileManager.flags & OldEclipseFileManager.HAS_EXT_DIRS) == 0
+					&& (javaFileManager.flags & OldEclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
 				fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleExtdirs(null));
 			}
 			location = javaFileManager.getLocation(StandardLocation.SOURCE_PATH);
