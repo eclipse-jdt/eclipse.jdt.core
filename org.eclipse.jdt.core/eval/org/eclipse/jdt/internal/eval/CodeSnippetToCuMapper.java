@@ -207,12 +207,12 @@ public CompletionRequestor getCompletionRequestor(final CompletionRequestor orig
 			originalRequestor.setIgnored(completionProposalKind, ignore);
 		}
 		
-		public boolean isAllowingRequiredProposals(int completionProposalKind) {
-			return originalRequestor.isAllowingRequiredProposals(completionProposalKind);
+		public boolean isAllowingRequiredProposals(int mainKind, int requiredKind) {
+			return originalRequestor.isAllowingRequiredProposals(mainKind, requiredKind);
 		}
 
-		public void setAllowsRequiredProposals(int completionProposalKind, boolean allow) {
-			originalRequestor.setAllowsRequiredProposals(completionProposalKind, allow);
+		public void setAllowsRequiredProposals(int mainKind, int requiredKind, boolean allow) {
+			originalRequestor.setAllowsRequiredProposals(mainKind, requiredKind, allow);
 		}
 	};
 }

@@ -103,17 +103,21 @@ public class CompletionProposal {
 	 * This field is available for the following kinds of
 	 * completion proposals:
 	 * &lt;ul&gt;
-	 * 	&lt;li&gt;&lt;code&gt;FIELD_REF&lt;/code&gt;&lt;/li&gt;
-	 * 	&lt;li&gt;&lt;code&gt;METHOD_REF&lt;/code&gt;/li&gt;
+	 * 	&lt;li&gt;&lt;code&gt;FIELD_REF&lt;/code&gt; - The allowed required proposals for this kind are:
+	 *   &lt;ul&gt;
+	 *    &lt;li&gt;&lt;code&gt;TYPE_REF&lt;/code&gt;&lt;/li&gt;
+	 *   &lt;/ul&gt;
+	 * &lt;/li&gt;
+	 * 	&lt;li&gt;&lt;code&gt;METHOD_REF&lt;/code&gt; - The allowed required proposals for this kind are:
+	 *   &lt;ul&gt;
+	 *    &lt;li&gt;&lt;code&gt;TYPE_REF&lt;/code&gt;&lt;/li&gt;
+	 *   &lt;/ul&gt;
+	 *  &lt;/li&gt;
 	 * &lt;/ul&gt;
 	 * &lt;/p&gt;
 	 * &lt;p&gt;
-	 * A required completion proposal can is a completion proposal of one of the following kinds:
-	 * &lt;ul&gt;
-	 *  &lt;li&gt;&lt;code&gt;TYPE_REF&lt;/code&gt;&lt;/li&gt;
-	 * &lt;/ul&gt;
 	 * Other kinds of required proposals will be returned in the future, therefore clients of this
-	 * API must allow with {@link CompletionRequestor#setAllowsRequiredProposals(int, boolean)} 
+	 * API must allow with {@link CompletionRequestor#setAllowsRequiredProposals(int, int, boolean)} 
 	 * only kinds which are in this list to avoid unexpected results in the future.
 	 * &lt;/p&gt;
 	 * &lt;p&gt;
@@ -122,7 +126,7 @@ public class CompletionProposal {
 	 * 
 	 * @return the required completion proposals, or &lt;code&gt;null&lt;/code&gt; if none.
 	 * 
-	 * @see CompletionRequestor#setAllowsRequiredProposals(int, boolean)
+	 * @see CompletionRequestor#setAllowsRequiredProposals(int, int,boolean)
 	 * 
 	 * @since 3.3
 	 */
@@ -138,41 +142,47 @@ public class CompletionRequestor {
 	...
 
 	/**
-	 * Returns whether a proposal with a required proposal
+	 * Returns whether a proposal of a given kind with a required proposal
 	 * of the given kind is allowed.
 	 * 
-	 * @param completionProposalKind one of the kind constants declared
+	 * @param proposalKind one of the kind constants declared
+	 * @param requiredProposalKind)one of the kind constants declared
 	 * on &lt;code&gt;CompletionProposal&lt;/code&gt;
-	 * @return &lt;code&gt;true&lt;/code&gt; if a proposal with a required proposal
+	 * @return &lt;code&gt;true&lt;/code&gt; if a proposal of a given kind with a required proposal
 	 * of the given kind is allowed by this requestor, and &lt;code&gt;false&lt;/code&gt; 
 	 * if it isn't of interest.
 	 * &lt;p&gt;
 	 * By default, all kinds of required proposals aren't allowed.
 	 * &lt;/p&gt;
-	 * @see #setAllowsRequiredProposals(int, boolean)
+	 * @see #setAllowsRequiredProposals(int, int, boolean)
 	 * @see CompletionProposal#getKind()
 	 * @see CompletionProposal#getRequiredProposals()
 	 * 
 	 * @since 3.3
 	 */
-	public boolean isAllowingRequiredProposals(int completionProposalKind) {...}
-	
+	public boolean isAllowingRequiredProposals(int proposalKind, int requiredProposalKind) {...}
+
 	/**
-	 * Sets whether a proposal with a required proposal
+	 * Sets whether a proposal of a given kind with a required proposal
 	 * of the given kind is allowed.
 	 * 
-	 * @param completionProposalKind one of the kind constants declared
+	 * Currenlty only a subset of kinds support required proposals. To see what combinations
+	 * are supported you must look at {@link CompletionProposal#getRequiredProposals()}
+	 * documentation.
+	 * 
+	 * @param proposalKind one of the kind constants declared
+	 * @param requiredProposalKind)one of the kind constants declared
 	 * on &lt;code&gt;CompletionProposal&lt;/code&gt;
-	 * @param allow &lt;code&gt;true&lt;/code&gt; if a proposal with a required proposal
+	 * @param allow &lt;code&gt;true&lt;/code&gt; if a proposal of a given kind with a required proposal
 	 * of the given kind is allowed by this requestor, and &lt;code&gt;false&lt;/code&gt; 
 	 * if it isn't of interest
-	 * @see #isAllowingRequiredProposals(int)
+	 * @see #isAllowingRequiredProposals(int, int)
 	 * @see CompletionProposal#getKind()
 	 * @see CompletionProposal#getRequiredProposals()
 	 * 
 	 * @since 3.3
 	 */
-	public void setAllowsRequiredProposals(int completionProposalKind, boolean allow) {...}
+	public void setAllowsRequiredProposals(int proposalKind, int requiredProposalKind)boolean allow) {...}
 
 	...
 

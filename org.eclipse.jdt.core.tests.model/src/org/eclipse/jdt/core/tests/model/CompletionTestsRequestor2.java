@@ -72,7 +72,9 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	
 	public void allowAllRequiredProposals() {
 		for (int i = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; i <= CompletionProposal.JAVADOC_INLINE_TAG; i++) {
-			this.setAllowsRequiredProposals(i, true);
+			for (int j = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; j <= CompletionProposal.JAVADOC_INLINE_TAG; j++) {
+				this.setAllowsRequiredProposals(i, j, true);
+			}
 		}
 	}
 

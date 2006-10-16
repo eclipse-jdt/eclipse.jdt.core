@@ -1577,17 +1577,21 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * This field is available for the following kinds of
 	 * completion proposals:
 	 * <ul>
-	 * 	<li><code>FIELD_REF</code></li>
-	 * 	<li><code>METHOD_REF</code>/li>
+	 * 	<li><code>FIELD_REF</code> - The allowed required proposals for this kind are:
+	 *   <ul>
+	 *    <li><code>TYPE_REF</code></li>
+	 *   </ul>
+	 * </li>
+	 * 	<li><code>METHOD_REF</code> - The allowed required proposals for this kind are:
+	 *   <ul>
+	 *    <li><code>TYPE_REF</code></li>
+	 *   </ul>
+	 *  </li>
 	 * </ul>
 	 * </p>
 	 * <p>
-	 * A required completion proposal can is a completion proposal of one of the following kinds:
-	 * <ul>
-	 *  <li><code>TYPE_REF</code></li>
-	 * </ul>
 	 * Other kinds of required proposals will be returned in the future, therefore clients of this
-	 * API must allow with {@link CompletionRequestor#setAllowsRequiredProposals(int, boolean)} 
+	 * API must allow with {@link CompletionRequestor#setAllowsRequiredProposals(int, int, boolean)} 
 	 * only kinds which are in this list to avoid unexpected results in the future.
 	 * </p>
 	 * <p>
@@ -1596,7 +1600,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * 
 	 * @return the required completion proposals, or <code>null</code> if none.
 	 * 
-	 * @see CompletionRequestor#setAllowsRequiredProposals(int, boolean)
+	 * @see CompletionRequestor#setAllowsRequiredProposals(int, int,boolean)
 	 * 
 	 * @since 3.3
 	 */

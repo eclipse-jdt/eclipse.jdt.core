@@ -65,7 +65,7 @@ public abstract class CompletionRequestor {
 	 * allows for required proposals; <code>0</code> means the set is empty.
 	 * 1 << completionProposalKind
 	 */
-	private int requiredProposalAllowSet = 0;
+	private int requiredProposalAllowSet[] = null;
 
 	/**
 	 * Creates a new completion requestor.
@@ -119,55 +119,77 @@ public abstract class CompletionRequestor {
 	}
 	
 	/**
-	 * Returns whether a proposal with a required proposal
+	 * Returns whether a proposal of a given kind with a required proposal
 	 * of the given kind is allowed.
 	 * 
-	 * @param completionProposalKind one of the kind constants declared
+	 * @param proposalKind one of the kind constants declared
+	 * @param requiredProposalKind one of the kind constants declared
 	 * on <code>CompletionProposal</code>
-	 * @return <code>true</code> if a proposal with a required proposal
+	 * @return <code>true</code> if a proposal of a given kind with a required proposal
 	 * of the given kind is allowed by this requestor, and <code>false</code> 
 	 * if it isn't of interest.
 	 * <p>
 	 * By default, all kinds of required proposals aren't allowed.
 	 * </p>
-	 * @see #setAllowsRequiredProposals(int, boolean)
+	 * @see #setAllowsRequiredProposals(int, int, boolean)
 	 * @see CompletionProposal#getKind()
 	 * @see CompletionProposal#getRequiredProposals()
 	 * 
 	 * @since 3.3
 	 */
-	public boolean isAllowingRequiredProposals(int completionProposalKind) {
-		if (completionProposalKind < CompletionProposal.FIRST_KIND
-			|| completionProposalKind > CompletionProposal.LAST_KIND) {
-				throw new IllegalArgumentException("Unknown kind of completion proposal: "+completionProposalKind); //$NON-NLS-1$
+	public boolean isAllowingRequiredProposals(int proposalKind, int requiredProposalKind) {
+		if (proposalKind < CompletionProposal.FIRST_KIND
+			|| proposalKind > CompletionProposal.LAST_KIND) {
+				throw new IllegalArgumentException("Unknown kind of completion proposal: "+requiredProposalKind); //$NON-NLS-1$
+			}
+		
+		if (requiredProposalKind < CompletionProposal.FIRST_KIND
+			|| requiredProposalKind > CompletionProposal.LAST_KIND) {
+				throw new IllegalArgumentException("Unknown required kind of completion proposal: "+requiredProposalKind); //$NON-NLS-1$
 		}
-		return 0 != (this.requiredProposalAllowSet & (1 << completionProposalKind));
+		if (this.requiredProposalAllowSet == null) return false;
+		
+		return 0 != (this.requiredProposalAllowSet[proposalKind] & (1 << requiredProposalKind));
 	}
 	
 	/**
-	 * Sets whether a proposal with a required proposal
+	 * Sets whether a proposal of a given kind with a required proposal
 	 * of the given kind is allowed.
 	 * 
-	 * @param completionProposalKind one of the kind constants declared
+	 * Currenlty only a subset of kinds support required proposals. To see what combinations
+	 * are supported you must look at {@link CompletionProposal#getRequiredProposals()}
+	 * documentation.
+	 * 
+	 * @param proposalKind one of the kind constants declared
+	 * @param requiredProposalKind one of the kind constants declared
 	 * on <code>CompletionProposal</code>
-	 * @param allow <code>true</code> if a proposal with a required proposal
+	 * @param allow <code>true</code> if a proposal of a given kind with a required proposal
 	 * of the given kind is allowed by this requestor, and <code>false</code> 
 	 * if it isn't of interest
-	 * @see #isAllowingRequiredProposals(int)
+	 * @see #isAllowingRequiredProposals(int, int)
 	 * @see CompletionProposal#getKind()
 	 * @see CompletionProposal#getRequiredProposals()
 	 * 
 	 * @since 3.3
 	 */
-	public void setAllowsRequiredProposals(int completionProposalKind, boolean allow) {
-		if (completionProposalKind < CompletionProposal.FIRST_KIND
-			|| completionProposalKind > CompletionProposal.LAST_KIND) {
-				throw new IllegalArgumentException("Unknown kind of completion proposal: "+completionProposalKind); //$NON-NLS-1$
+	public void setAllowsRequiredProposals(int proposalKind, int requiredProposalKind, boolean allow) {
+		if (proposalKind < CompletionProposal.FIRST_KIND
+			|| proposalKind > CompletionProposal.LAST_KIND) {
+				throw new IllegalArgumentException("Unknown kind of completion proposal: "+requiredProposalKind); //$NON-NLS-1$
 		}
+		if (requiredProposalKind < CompletionProposal.FIRST_KIND
+			|| requiredProposalKind > CompletionProposal.LAST_KIND) {
+				throw new IllegalArgumentException("Unknown required kind of completion proposal: "+requiredProposalKind); //$NON-NLS-1$
+		}
+		
+		if (this.requiredProposalAllowSet == null) {
+			this.requiredProposalAllowSet = new int[CompletionProposal.LAST_KIND + 1];
+		}
+		
 		if (allow) {
-			this.requiredProposalAllowSet |= (1 << completionProposalKind);
+			this.requiredProposalAllowSet[proposalKind] |= (1 << requiredProposalKind);
 		} else {
-			this.requiredProposalAllowSet &= ~(1 << completionProposalKind);
+			this.requiredProposalAllowSet[proposalKind] &= ~(1 << requiredProposalKind);
 		}
 	}
 	

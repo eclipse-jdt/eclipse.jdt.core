@@ -930,7 +930,8 @@ public final class CompletionEngine
 				//   }
 				// }
 				if (this.assistNodeInJavadoc == 0 &&
-						this.requestor.isAllowingRequiredProposals(CompletionProposal.TYPE_REF)) {
+						(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) || 
+								this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF))) {
 					if(ref.tokens.length == 1) {
 						findFieldsAndMethodsFromMissingFieldType(ref.tokens[0], scope, ref, insideTypeAnnotation);
 					}
@@ -941,7 +942,8 @@ public final class CompletionEngine
 				if (receiverType != null) {
 					findFieldsAndMethods(this.completionToken, receiverType.capture(scope, ref.sourceEnd), scope, ref, scope,false,false, null, null, null);
 				} else if (this.assistNodeInJavadoc == 0 &&
-						this.requestor.isAllowingRequiredProposals(CompletionProposal.TYPE_REF)) {
+						(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) ||
+								this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF))) {
 					boolean proposeField = !this.requestor.isIgnored(CompletionProposal.FIELD_REF);
 					boolean proposeMethod = !this.requestor.isIgnored(CompletionProposal.METHOD_REF);
 					if (proposeField || proposeMethod) {
@@ -1107,7 +1109,8 @@ public final class CompletionEngine
 				//   }
 				// }
 				if (this.assistNodeInJavadoc == 0 &&
-						this.requestor.isAllowingRequiredProposals(CompletionProposal.TYPE_REF)) {
+						(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) ||
+								this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF))) {
 					ProblemMethodBinding problemMethodBinding = (ProblemMethodBinding) qualifiedBinding;				
 					findFieldsAndMethodsFromMissingReturnType(
 							problemMethodBinding.selector,
@@ -2658,7 +2661,7 @@ public final class CompletionEngine
 			
 			this.noProposal = false;
 			// Standard proposal
-			if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
+			if (!this.isIgnored(CompletionProposal.FIELD_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
 				CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(field.declaringClass));
 				proposal.setSignature(getSignature(field.type));
@@ -2853,8 +2856,8 @@ public final class CompletionEngine
 		if (receiverType.isBaseType())
 			return; // nothing else is possible with base types
 		
-		boolean proposeField = !this.requestor.isIgnored(CompletionProposal.FIELD_REF);
-		boolean proposeMethod = !this.requestor.isIgnored(CompletionProposal.METHOD_REF);
+		boolean proposeField = !this.isIgnored(CompletionProposal.FIELD_REF, missingElements != null);
+		boolean proposeMethod = !this.isIgnored(CompletionProposal.METHOD_REF, missingElements != null);
 		
 		ObjectVector methodsFound = new ObjectVector();
 		
@@ -2871,7 +2874,7 @@ public final class CompletionEngine
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for length field
 				
 				this.noProposal = false;
-				if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+				if(!isIgnored(CompletionProposal.FIELD_REF, missingElements != null)) {
 					CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(receiverType));
 					proposal.setSignature(INT_SIGNATURE);
@@ -2925,7 +2928,7 @@ public final class CompletionEngine
 					completion = CharOperation.concat(cloneMethod, new char[] { '(', ')' });
 				}
 				this.noProposal = false;
-				if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+				if (!this.isIgnored(CompletionProposal.METHOD_REF, missingElements != null)) {
 					CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(receiverType));
 					proposal.setSignature(
@@ -4339,7 +4342,7 @@ public final class CompletionEngine
 			
 			this.noProposal = false;
 			// Standard proposal
-			if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
+			if(!this.isIgnored(CompletionProposal.METHOD_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
 				CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(method.declaringClass));
 				proposal.setSignature(getSignature(method));
@@ -5018,6 +5021,11 @@ public final class CompletionEngine
 		}
 	}
 
+	private boolean isIgnored(int kind, boolean missingTypes) {
+		return this.requestor.isIgnored(kind) ||
+			(missingTypes && !this.requestor.isAllowingRequiredProposals(kind, CompletionProposal.TYPE_REF));
+	}
+	
 	private void findMethods(
 		char[] selector,
 		TypeBinding[] typeArgTypes,
