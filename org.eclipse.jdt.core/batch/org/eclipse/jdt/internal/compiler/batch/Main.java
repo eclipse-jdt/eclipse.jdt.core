@@ -1325,7 +1325,8 @@ public boolean compile(String[] argv) {
 }
 
 /*
-Handle a single warning token.
+ * External API
+ * Handle a single warning token.
 */
 protected void handleWarningToken(String token, boolean isEnabling, boolean useEnableJavadoc) throws InvalidInputException {
 	if (token.equals("constructorName")) { //$NON-NLS-1$
@@ -1651,7 +1652,8 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 }
 
 /*
-Handle extdirs processing
+ * External API
+ * Handle extdirs processing
 */
 protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
  	final File javaHome = getJavaHome();
@@ -1706,7 +1708,9 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
 	
 	return extdirsClasspaths;
 }
-
+/*
+ * External API
+ */
 protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
  	final File javaHome = getJavaHome();
 	/*
@@ -2674,7 +2678,9 @@ public IErrorHandlingPolicy getHandlingPolicy() {
 		}
 	};
 }
-
+/*
+ * External API
+ */
 public File getJavaHome() {
 	if (!javaHomeChecked) {
 		javaHomeChecked = true;
@@ -2698,7 +2704,9 @@ public FileSystem getLibraryAccess() {
 public IProblemFactory getProblemFactory() {
 	return new DefaultProblemFactory(this.compilerLocale);
 }
-
+/*
+ * External API
+ */
 protected void initialize(PrintWriter outWriter,
 		PrintWriter errWriter,
 		boolean systemExit) {
@@ -2836,6 +2844,9 @@ private void printUsage(String sectionID) {
 			}));	
 	this.logger.flush();
 }
+/*
+ * External API
+ */
 public void processPathEntries(final int defaultSize, final ArrayList paths, 
 			final String currentPath, String customEncoding, boolean isSourceOnly,
 			boolean rejectDestinationPathOnJars) 
@@ -3103,7 +3114,7 @@ public void relocalize() {
 	relocalize(Locale.getDefault());
 }
 
-public void relocalize(Locale locale) {
+private void relocalize(Locale locale) {
 	this.compilerLocale = locale;
 	try {
 		this.bundle = ResourceBundle.getBundle(Main.bundleName, locale);
@@ -3112,6 +3123,9 @@ public void relocalize(Locale locale) {
 		throw e;
 	}
 }
+/*
+ * External API
+ */
 public void setLocale(Locale locale) {
 	relocalize(locale);
 }
