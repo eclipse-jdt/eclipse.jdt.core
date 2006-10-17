@@ -51,7 +51,6 @@ import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 public class TypeNameMatchRequestorWrapper implements IRestrictedAccessTypeRequestor {
 	TypeNameMatchRequestor requestor;
 	private IJavaSearchScope scope; // scope is needed to retrieve project path for external resource
-//	private HandleFactory handleFactory;
 
 	/**
 	 * Cache package fragment root information to optimize speed performance.
