@@ -291,7 +291,7 @@ public class EclipseCompilerTool extends Main implements JavaCompilerTool {
 			Iterable<? extends File> location = javaFileManager.getLocation(StandardLocation.CLASS_OUTPUT);
 			if (location != null) {
 				this.destinationPath = location.iterator().next().getAbsolutePath();
-				this.generatePackagesStructure = true;
+				this.setClasspathStructure(true);
 			}
 		}
 

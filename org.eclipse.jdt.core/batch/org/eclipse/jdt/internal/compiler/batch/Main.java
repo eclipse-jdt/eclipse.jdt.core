@@ -3118,7 +3118,12 @@ public void setLocale(Locale locale) {
 /*
  * External API
  */
-
+protected void setClasspathStructure(boolean newValue) {
+	// do nothing by default
+}
+/*
+ * External API
+ */
 protected void setPaths(ArrayList bootclasspaths,
 		String sourcepathClasspathArg,
 		ArrayList sourcepathClasspaths,
