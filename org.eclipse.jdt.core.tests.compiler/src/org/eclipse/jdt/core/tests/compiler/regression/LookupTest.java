@@ -1150,12 +1150,12 @@ public void test033() {
 		"1. ERROR in q\\Y.java (at line 2)\n" + 
 		"	public class Y extends p.X {	\n" + 
 		"	             ^\n" + 
-		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Y. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Y. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n" + 
 		"2. WARNING in q\\Y.java (at line 3)\n" + 
 		"	void foo(){}	\n" + 
 		"	     ^^^^^\n" + 
-		"The method Y.foo() does not override the inherited method from X since it is private to a different package.\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package\n" + 
 		"----------\n");
 }
 
@@ -1180,12 +1180,12 @@ public void test034() {
 		"1. WARNING in q\\Y.java (at line 3)\n" + 
 		"	void foo(){}	\n" + 
 		"	     ^^^^^\n" + 
-		"The method Y.foo() does not override the inherited method from X since it is private to a different package.\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package\n" + 
 		"----------\n" + 
 		"2. ERROR in q\\Y.java (at line 5)\n" + 
 		"	class Z extends Y {	\n" + 
 		"	      ^\n" + 
-		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n"
 );
 }
@@ -1214,7 +1214,7 @@ public void test035() {
 		"1. ERROR in q\\Z.java (at line 2)\n" + 
 		"	class Z extends p.Y {	\n" + 
 		"	      ^\n" + 
-		"This class must implement the inherited abstract method X.bar(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method X.bar(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n");
 }
 // 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
@@ -1241,12 +1241,12 @@ public void test036() {
 		"1. WARNING in q\\Y.java (at line 3)\n" + 
 		"	void foo(){}	\n" + 
 		"	     ^^^^^\n" + 
-		"The method Y.foo() does not override the inherited method from X since it is private to a different package.\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package\n" + 
 		"----------\n" + 
 		"2. ERROR in q\\Y.java (at line 5)\n" + 
 		"	class Z extends Y implements p.X.I {	\n" + 
 		"	      ^\n" + 
-		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n" + // TODO (philippe) should not have following error due to default abstract?
 		"3. ERROR in q\\Y.java (at line 5)\n" + 
 		"	class Z extends Y implements p.X.I {	\n" + 
@@ -1278,17 +1278,17 @@ public void test037() {
 		"1. WARNING in q\\Y.java (at line 3)\n" + 
 		"	void foo(){}	//warn \n" + 
 		"	     ^^^^^\n" + 
-		"The method Y.foo() does not override the inherited method from X since it is private to a different package.\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package\n" + 
 		"----------\n" + 
 		"2. WARNING in q\\Y.java (at line 4)\n" + 
 		"	void bar(){}	//warn \n" + 
 		"	     ^^^^^\n" + 
-		"The method Y.bar() does not override the inherited method from X since it is private to a different package.\n" + 
+		"The method Y.bar() does not override the inherited method from X since it is private to a different package\n" + 
 		"----------\n" + 
 		"3. ERROR in q\\Y.java (at line 6)\n" + 
 		"	class Z extends Y {	\n" + 
 		"	      ^\n" + 
-		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n");
 }
 // 30805 Abstract non-visible method diagnosis fooled by intermediate declarations
@@ -1313,12 +1313,12 @@ public void test038() {
 		"1. WARNING in q\\Y.java (at line 3)\n" + 
 		"	void foo(){}	//warn \n" + 
 		"	     ^^^^^\n" + 
-		"The method Y.foo() does not override the inherited method from X since it is private to a different package.\n" + 
+		"The method Y.foo() does not override the inherited method from X since it is private to a different package\n" + 
 		"----------\n" + 
 		"2. ERROR in q\\Y.java (at line 5)\n" + 
 		"	class Z extends Y {	\n" + 
 		"	      ^\n" + 
-		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method X.foo(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n");
 }
 
@@ -1346,7 +1346,7 @@ public void test039() {
 		"1. ERROR in q\\Z.java (at line 2)\n" + 
 		"	class Z extends p.Y {	\n" + 
 		"	      ^\n" + 
-		"This class must implement the inherited abstract method X.bar(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method X.bar(), but cannot override it since it is not visible from Z. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n");
 }
 
@@ -1377,12 +1377,12 @@ public void test040() {
 		"1. ERROR in p\\X.java (at line 2)\n" + 
 		"	public class X extends q.Y.Member {	\n" + 
 		"	             ^\n" + 
-		"This class must implement the inherited abstract method Y.baz(), but cannot override it since it is not visible from X. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method Y.baz(), but cannot override it since it is not visible from X. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n" + 
 		"2. WARNING in p\\X.java (at line 3)\n" + 
 		"	void baz(){}	\n" + 
 		"	     ^^^^^\n" + 
-		"The method X.baz() does not override the inherited method from Y since it is private to a different package.\n" + 
+		"The method X.baz() does not override the inherited method from Y since it is private to a different package\n" + 
 		"----------\n");
 }
 
@@ -1412,12 +1412,12 @@ public void test041() {
 		"1. ERROR in p\\X.java (at line 2)\n" + 
 		"	public class X extends q.Y.Member {	\n" + 
 		"	             ^\n" + 
-		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from X. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from X. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n" + 
 		"2. ERROR in p\\X.java (at line 4)\n" + 
 		"	public static class M extends X {}	\n" + 
 		"	                    ^\n" + 
-		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from M. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from M. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n");
 }
 
@@ -1447,17 +1447,17 @@ public void test042() {
 		"1. ERROR in p\\X.java (at line 2)\n" + 
 		"	public class X extends q.Y.Member {	\n" + 
 		"	             ^\n" + 
-		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from X. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from X. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n" + 
 		"2. WARNING in p\\X.java (at line 3)\n" + 
 		"	public void foo() {}	\n" + 
 		"	            ^^^^^\n" + 
-		"The method X.foo() does not override the inherited method from Y.Member since it is private to a different package.\n" + 
+		"The method X.foo() does not override the inherited method from Y.Member since it is private to a different package\n" + 
 		"----------\n" + 
 		"3. ERROR in p\\X.java (at line 4)\n" + 
 		"	public static class M extends X {}	\n" + 
 		"	                    ^\n" + 
-		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from M. Either make the type abstract or make the inherited method visible.\n" + 
+		"This class must implement the inherited abstract method Y.bar(), but cannot override it since it is not visible from M. Either make the type abstract or make the inherited method visible\n" + 
 		"----------\n");
 }
 

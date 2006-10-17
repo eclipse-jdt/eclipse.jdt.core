@@ -916,7 +916,7 @@ public void test030() {
 		"2. WARNING in q\\X2.java (at line 5)\n" + 
 		"	void barbar(Object o){	System.out.println(\"X2.barbar(Object)\"); }	\n" + 
 		"	     ^^^^^^^^^^^^^^^^\n" + 
-		"The method X2.barbar(Object) does not override the inherited method from X1 since it is private to a different package.\n" + 
+		"The method X2.barbar(Object) does not override the inherited method from X1 since it is private to a different package\n" + 
 		"----------\n");
 }
 
@@ -975,7 +975,7 @@ public void test031() {
 		"2. WARNING in q\\X2.java (at line 5)\n" + 
 		"	void barbar(Object o){	System.out.println(\"X2.barbar(Object)\"); }	\n" + 
 		"	     ^^^^^^^^^^^^^^^^\n" + 
-		"The method X2.barbar(Object) does not override the inherited method from X1 since it is private to a different package.\n" + 
+		"The method X2.barbar(Object) does not override the inherited method from X1 since it is private to a different package\n" + 
 		"----------\n"
 );
 }

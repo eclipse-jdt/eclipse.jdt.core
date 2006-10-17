@@ -6512,7 +6512,7 @@ public void test197() {
 		"1. WARNING in p\\X.java (at line 4)\n" + 
 		"	void foo() {\n" + 
 		"	     ^^^^^\n" + 
-		"The method X.foo() does not override the inherited method from OldStuff since it is private to a different package.\n" + 
+		"The method X.foo() does not override the inherited method from OldStuff since it is private to a different package\n" + 
 		"----------\n" + 
 		"2. ERROR in p\\X.java (at line 4)\n" + 
 		"	void foo() {\n" + 
