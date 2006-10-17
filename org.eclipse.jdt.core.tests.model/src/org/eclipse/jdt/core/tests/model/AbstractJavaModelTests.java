@@ -1704,7 +1704,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		String projectPath = '/' + project.getName() + '/';
 		removeLibraryEntry(javaProject, new Path(projectPath + jarName));
 		project.getFile(jarName).delete(false, null);
-		project.getFile(sourceZipName).delete(false, null);
+		if (sourceZipName != null && sourceZipName.length() != 0) {
+			project.getFile(sourceZipName).delete(false, null);
+		}
 	}
 	protected void removeLibraryEntry(Path path) throws JavaModelException {
 		removeLibraryEntry(this.currentProject, path);
@@ -1720,7 +1722,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				if (i > 0)
 					System.arraycopy(entries, 0, newEntries, 0, i);
 				if (i < length-1)
-				System.arraycopy(entries, i+1, newEntries, i+1, length-i);
+				System.arraycopy(entries, i+1, newEntries, i, length-1-i);
 				break;
 			}	
 		}
