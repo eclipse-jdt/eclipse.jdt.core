@@ -47,7 +47,7 @@
 <p><hr><h1>
 Eclipse Platform Build Notes<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.3M3 - ?th October 2006
+Eclipse SDK 3.3M3 - 17th October 2006
 <br>Project org.eclipse.jdt.core v_717
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_717">cvs</a>).
 <h2>What's new in this drop</h2>
@@ -66,6 +66,9 @@ to create an instance of it:
  */
 public static TypeNameMatch createTypeNameMatch(IType type, int modifiers)
 </pre>
+Early performance tests using added <code>searchAllTypeNames</code> method with <code>TypeNameMatchRequestor</code>
+requestor (ie. a la Open Type dialog) show interesting memory footprint reduction (around 30%). More precise measures of this
+performance improvement will be done later...
 </li>
 <li>Added new <code>SearchEngine</code> API method for search all type names with multiple qualifications and type names
 (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=160324">160324</a>).<br>
