@@ -57,6 +57,14 @@ API method (see next point).<br>
 This class has been abstracted and clients now need to use added <code>SearchEngine</code> following method
 to create an instance of it:
 <pre>
+/**
+ * Create a type name match on a given type with specific modifiers.
+ * 
+ * @param type The java model handle of the type
+ * @param modifiers Modifiers of the type
+ * @return A non-null match on the given type.
+ */
+public static TypeNameMatch createTypeNameMatch(IType type, int modifiers)
 </pre>
 </li>
 <li>Added new <code>SearchEngine</code> API method for search all type names with multiple qualifications and type names
@@ -226,7 +234,9 @@ public class X {
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=151756">151756</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=161190">161190</a>
+[search] All type search doesn't find all types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=151756">151756</a>
 [compiler] unverifiable bytecode created with cvs head compiler
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=161028">161028</a>
 [search] NPE on organize imports in TypeNameMatch.equals

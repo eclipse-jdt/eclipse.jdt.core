@@ -73,18 +73,16 @@ public TypeNameMatchRequestorWrapper(TypeNameMatchRequestor requestor, IJavaSear
  * @see org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor#acceptType(int, char[], char[], char[][], java.lang.String, org.eclipse.jdt.internal.compiler.env.AccessRestriction)
  */
 public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
-	if (access == null) { // accept only if there's no access violation
-		try {
-			int separatorIndex= path.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
-			IType type = separatorIndex == -1
-				? createTypeFromPath(path, new String(simpleTypeName), enclosingTypeNames)
-				: createTypeFromJar(path, separatorIndex);
-			if (type != null) {
-				this.requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, modifiers));
-			}
-		} catch (JavaModelException e) {
-			// skip
+	try {
+		int separatorIndex= path.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
+		IType type = separatorIndex == -1
+			? createTypeFromPath(path, new String(simpleTypeName), enclosingTypeNames)
+			: createTypeFromJar(path, separatorIndex);
+		if (type != null) {
+			this.requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, modifiers));
 		}
+	} catch (JavaModelException e) {
+		// skip
 	}
 }
 private IType createTypeFromJar(String resourcePath, int separatorIndex) throws JavaModelException {
