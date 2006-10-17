@@ -79,7 +79,8 @@ public CategorizedProblem createProblem(
 		severity, 
 		startPosition, 
 		endPosition, 
-		lineNumber); 
+		lineNumber,
+		columnNumber); 
 }
 private final static int keyFromID(int id) {
     return id + 1; // keys are offsetted by one in table, since it cannot handle 0 key

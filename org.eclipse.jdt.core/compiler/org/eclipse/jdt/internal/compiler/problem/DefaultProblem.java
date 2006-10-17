@@ -20,7 +20,7 @@ public class DefaultProblem extends CategorizedProblem {
 	
 	private char[] fileName;
 	private int id;
-	private int startPosition, endPosition, line;
+	private int startPosition, endPosition, line, column;
 	private int severity;
 	private String[] arguments;
 	private String message;
@@ -39,7 +39,8 @@ public DefaultProblem(
 	int severity,
 	int startPosition,
 	int endPosition,
-	int line) {
+	int line,
+	int column) {
 
 	this.fileName = originatingFileName;
 	this.message = message;
@@ -49,6 +50,7 @@ public DefaultProblem(
 	this.startPosition = startPosition;
 	this.endPosition = endPosition;
 	this.line = line;
+	this.column = column;
 }
 
 public String errorReportSource(char[] unitSource) {
@@ -209,7 +211,13 @@ public char[] getOriginatingFileName() {
 public int getSourceEnd() {
 	return this.endPosition;
 }
-
+/**
+ * Answer the line number in source where the problem begins.
+ * @return int
+ */
+public int getSourceColumnNumber() {
+	return this.column;
+}
 /**
  * Answer the line number in source where the problem begins.
  * @return int
@@ -217,7 +225,6 @@ public int getSourceEnd() {
 public int getSourceLineNumber() {
 	return this.line;
 }
-
 /**
  * Answer the start position of the problem (inclusive), or -1 if unknown.
  * @return int
