@@ -157,17 +157,6 @@ public class SearchEngine {
 	}
 
 	/**
-	 * Create a type name match on a given type with specific modifiers.
-	 * 
-	 * @param type The java model handle of the type
-	 * @param modifiers Modifiers of the type
-	 * @return A non-null match on the given type.
-	 */
-	public static TypeNameMatch createTypeNameMatch(IType type, int modifiers) {
-		return BasicSearchEngine.createTypeNameMatch(type, modifiers);
-	}
-
-	/**
 	 * Returns a Java search scope limited to the hierarchy of the given type.
 	 * The Java elements resulting from a search with this scope will
 	 * be types in this hierarchy, or members of the types in this hierarchy.
@@ -397,6 +386,17 @@ public class SearchEngine {
 	 */
 	public static ISearchPattern createSearchPattern(IJavaElement element, int limitTo) {
 		return new SearchPatternAdapter(SearchPattern.createPattern(element, limitTo));
+	}
+
+	/**
+	 * Create a type name match on a given type with specific modifiers.
+	 * 
+	 * @param type The java model handle of the type
+	 * @param modifiers Modifiers of the type
+	 * @return A non-null match on the given type.
+	 */
+	public static TypeNameMatch createTypeNameMatch(IType type, int modifiers) {
+		return BasicSearchEngine.createTypeNameMatch(type, modifiers);
 	}
 
 	/**

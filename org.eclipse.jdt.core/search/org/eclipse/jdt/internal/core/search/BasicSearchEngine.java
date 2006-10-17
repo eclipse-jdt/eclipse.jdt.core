@@ -94,13 +94,6 @@ public class BasicSearchEngine {
 	}
 
 	/**
-	 * @see SearchEngine#createTypeNameMatch(IType, int) for detailed comment.
-	 */
-	public static TypeNameMatch createTypeNameMatch(IType type, int modifiers) {
-		return new JavaSearchTypeNameMatch(type, modifiers);
-	}
-
-	/**
 	 * @see SearchEngine#createHierarchyScope(IType) for detailed comment.
 	 */
 	public static IJavaSearchScope createHierarchyScope(IType type) throws JavaModelException {
@@ -153,6 +146,13 @@ public class BasicSearchEngine {
 			}
 		}
 		return scope;
+	}
+
+	/**
+	 * @see SearchEngine#createTypeNameMatch(IType, int) for detailed comment.
+	 */
+	public static TypeNameMatch createTypeNameMatch(IType type, int modifiers) {
+		return new JavaSearchTypeNameMatch(type, modifiers);
 	}
 	
 	/**
