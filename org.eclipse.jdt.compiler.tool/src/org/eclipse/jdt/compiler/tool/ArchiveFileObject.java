@@ -208,7 +208,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	 */
 	public URI toUri() {
 		try {
-			return new URI("jar:" + this.file.toURI().getPath() + "!" + this.zipEntry.getName());
+			return new URI("jar:" + this.file.toURI().getPath() + "!" + this.zipEntry.getName()); //$NON-NLS-1$//$NON-NLS-2$
 		} catch (URISyntaxException e) {
 			return null;
 		}
@@ -217,6 +217,6 @@ public class ArchiveFileObject implements JavaFileObject {
 
     @Override
     public String toString() {
-        return this.file.getAbsolutePath() + "[" + this.zipEntry.getName() + "]";
+        return this.file.getAbsolutePath() + "[" + this.zipEntry.getName() + "]";//$NON-NLS-1$//$NON-NLS-2$
     }	
 }

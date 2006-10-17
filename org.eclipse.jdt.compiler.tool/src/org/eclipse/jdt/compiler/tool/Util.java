@@ -53,7 +53,7 @@ public final class Util {
 			if ((startPosition > endPosition)
 				|| ((startPosition < 0) && (endPosition < 0))
 				|| unitSource.length == 0)
-				return "No source available"; 
+				return "No source available"; //$NON-NLS-1$
 
 			StringBuffer errorBuffer = new StringBuffer();
 			errorBuffer.append('\t');
@@ -110,7 +110,7 @@ public final class Util {
 			// this is where the encoding errors should be reported
 			char[] unitSource = string.toCharArray();
 			for (EncodingError error : this.encodingErrors) {
-				System.err.println(this.fileObject.getName() + " Unmappable character for encoding " + this.encoding);
+				System.err.println(this.fileObject.getName() + " Unmappable character for encoding " + this.encoding);//$NON-NLS-1$
 				System.err.println(error.getSource(unitSource));
 			}
 		}
