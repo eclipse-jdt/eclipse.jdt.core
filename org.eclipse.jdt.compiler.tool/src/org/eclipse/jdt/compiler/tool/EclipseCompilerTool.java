@@ -285,7 +285,6 @@ public class EclipseCompilerTool extends Main implements JavaCompilerTool {
 			throw new RuntimeException(e);
 		}
 		
-		System.out.println("File manager class : " + this.fileManager.getClass());
 		if (this.fileManager instanceof StandardJavaFileManager) {
 			StandardJavaFileManager javaFileManager = (StandardJavaFileManager) this.fileManager;
 
