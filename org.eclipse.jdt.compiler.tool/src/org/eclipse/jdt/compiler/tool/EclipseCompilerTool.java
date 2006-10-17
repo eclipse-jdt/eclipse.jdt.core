@@ -285,12 +285,14 @@ public class EclipseCompilerTool extends Main implements JavaCompilerTool {
 			throw new RuntimeException(e);
 		}
 		
+		System.out.println("File manager class : " + this.fileManager.getClass());
 		if (this.fileManager instanceof StandardJavaFileManager) {
 			StandardJavaFileManager javaFileManager = (StandardJavaFileManager) this.fileManager;
 
 			Iterable<? extends File> location = javaFileManager.getLocation(StandardLocation.CLASS_OUTPUT);
 			if (location != null) {
 				this.destinationPath = location.iterator().next().getAbsolutePath();
+				this.generatePackagesStructure = true;
 			}
 		}
 
