@@ -7358,7 +7358,6 @@ public void testBug160854() throws CoreException {
 	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 }
 
-
 /**
  * @bug 161028: [search] NPE on organize imports in TypeNameMatch.equals
  * @test Ensure that no NPE may happen calling <code>equals(Object)</code>,
@@ -7375,5 +7374,46 @@ public void testBug161028() throws CoreException {
 	assertTrue("Should be equals!", match2.equals(match1));
 	assertEquals("Wrong toString value!", match1, match2);
 	assertEquals("Should have same hashCode!", match1.hashCode(), match2.hashCode());
+}
+
+/**
+ * @bug 161190: [search] All type search doesn't find all types
+ * @test Ensure that access rules does not change searchAllTypeNames results.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=161190"
+ */
+public void testBug161190() throws CoreException {
+	char[][] packagesList = new char[][] {
+			"xy".toCharArray()
+	};
+	// Search all type names with new API
+	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		public String toString(){
+			return toFullyQualifiedNamesString();
+		}
+	};
+	new SearchEngine().searchAllTypeNames(
+		packagesList,
+		null,
+		getJavaSearchScopeBugs(),
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Search all type names with old API
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		packagesList,
+		null,
+		getJavaSearchScopeBugs(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	assertSearchResults("Wrong types found!",
+		"xy.BE_124645\n" + 
+		"xy.BX_124645\n" + 
+		"xy.BY_124645",
+		requestor
+	);
+	// Should have same types with these 2 searches
+	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 }
 }

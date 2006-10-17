@@ -8,7 +8,11 @@
 	<classpathentry kind="lib" path="lib/b87627.jar" sourcepath="/JavaSearchBugs/lib/b87627.jar" rootpath=""/>
 	<classpathentry kind="lib" path="lib/b110422.jar" sourcepath="" rootpath=""/>
 	<classpathentry kind="lib" path="lib/b124469.jar" sourcepath="/JavaSearchBugs/lib/b124469.jar" rootpath=""/>
-	<classpathentry kind="lib" path="lib/b124645.jar"/>
+	<classpathentry kind="lib" path="lib/b124645.jar">
+		<accessrules>
+			<accessrule kind="nonaccessible" pattern="**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/b125178.jar" sourcepath="" rootpath=""/>
 	<classpathentry kind="lib" path="lib/b126330.jar"/>
 	<classpathentry kind="lib" path="lib/b128877.jar" sourcepath="/JavaSearchBugs/lib/b128877.jar" rootpath=""/>
