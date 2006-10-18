@@ -1025,28 +1025,42 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 		"----------\n");
 	}	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
-public void _test023() {
+public void test023() {
 this.runConformTest(
 	new String[] {
 		"X.java",
 		"import java.util.*;\n" + 
 		"public class X {\n" +
 		"  public static void foo(Collection<?> p) {\n" +
+		"    System.out.println(1);\n" +
 		"  }\n" +
 		"  public static <T extends List<?>> void foo(T p) {\n" + 
+		"    System.out.println(2);\n" +
 		"  }\n" +
 		"  public static void main(String[] args) {\n" + 
 		"    foo(new ArrayList<String>(Arrays.asList(\"\")));\n" + 
 		"  }\n" +
 		"}"
 	},
-	"");
+	"2");
 }	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
 // self contained variant
-public void _test024() {
+public void test024() {
 this.runConformTest(
 	new String[] {
+		"X.java",
+		"public class X {\n" +
+		"  public static void foo(L1<?> p) {\n" +
+		"    System.out.println(1);\n" +
+		"  }\n" +
+		"  public static <T extends L2<?>> void foo(T p) {\n" + 
+		"    System.out.println(2);\n" +
+		"  }\n" +
+		"  public static void main(String[] args) {\n" + 
+		"    foo(new L3<String>());\n" + 
+		"  }\n" +
+		"}",
 		"L1.java",
 		"public interface L1<T> {\n" +
 		"}",
@@ -1058,17 +1072,7 @@ this.runConformTest(
 		"  public L3() {\n" +
 		"  }\n" +
 		"}",
-		"X.java",
-		"public class X {\n" +
-		"  public static void foo(L1<?> p) {\n" +
-		"  }\n" +
-		"  public static <T extends L2<?>> void foo(T p) {\n" + 
-		"  }\n" +
-		"  public static void main(String[] args) {\n" + 
-		"    foo(new L3<String>());\n" + 
-		"  }\n" +
-		"}"
 	},
-	"");
+	"2");
 }	
 }

@@ -450,23 +450,23 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
         }
 	    return originalVariable;
 	}
-	/**
-	 * Returns the method to use during tiebreak (usually the method itself).
-	 * For generic method invocations, tiebreak needs to use generic method with erasure substitutes.
-	 */
 	public MethodBinding tiebreakMethod() {
 		if (this.tiebreakMethod == null) {
-//			if (this.isRaw) {
-//				this.tiebreakMethod = this;
-//			} else {
-//				this.tiebreakMethod = new ParameterizedGenericMethodBinding(this.originalMethod, (RawTypeBinding)null, this.environment);
+			if (this.isStatic()) {
+				TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
+				int length = originalVariables.length;
+				TypeBinding[] newArguments = new TypeBinding[length];
+				for (int i = 0; i < length; i++)
+					newArguments[i] =  originalVariables[i].upperBound(); // do not rawify
+				this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, newArguments);
+			} else {
 				TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
 				int length = originalVariables.length;
 				TypeBinding[] rawArguments = new TypeBinding[length];
 				for (int i = 0; i < length; i++)
 					rawArguments[i] =  environment.convertToRawType(originalVariables[i].upperBound());
 				this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, rawArguments);
-//			}
+			}
 		} 
 		return this.tiebreakMethod;
 	}	
