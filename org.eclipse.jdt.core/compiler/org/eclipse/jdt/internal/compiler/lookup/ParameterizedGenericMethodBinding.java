@@ -450,19 +450,19 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
         }
 	    return originalVariable;
 	}
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.MethodBinding#tiebreakMethod()
+	 */
 	public MethodBinding tiebreakMethod() {
 		if (this.tiebreakMethod == null) {
 			TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
 			int length = originalVariables.length;
 			TypeBinding[] newArguments = new TypeBinding[length];
-			if (this.isStatic()) {
-				for (int i = 0; i < length; i++) {
-					newArguments[i] =  originalVariables[i].upperBound(); // do not rawify
-				}
-			} else {
-				for (int i = 0; i < length; i++) {
-					newArguments[i] =  environment.convertToRawType(originalVariables[i].upperBound());
-				}
+			boolean isStatic = this.isStatic();
+			for (int i = 0; i < length; i++) {
+				newArguments[i] = isStatic ? 
+					originalVariables[i].upperBound() : // do not rawify for statics
+					environment.convertToRawType(originalVariables[i].upperBound());
 			}
 			this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, newArguments);
 		} 
