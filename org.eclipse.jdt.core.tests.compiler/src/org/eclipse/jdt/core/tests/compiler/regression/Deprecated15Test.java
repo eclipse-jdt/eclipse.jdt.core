@@ -150,6 +150,38 @@ public void test002() {
 		false,
 		false);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=161214
+// shows that Member2 is properly tagged as deprecated (use the debugger, since
+// we do not report deprecation in the unit where the deprecated type is 
+// declared anyway)
+public void test003() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  void foo() {\n" + 
+			"    class Local {\n" + 
+			"      class Member1 {\n" + 
+			"        void bar() {\n" + 
+			"          Member2 m2; // Member2 is deprecated\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"      @Deprecated\n" + 
+			"      class Member2 {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		}, 
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
 public static Class testClass() {
 	return Deprecated15Test.class;
 }
