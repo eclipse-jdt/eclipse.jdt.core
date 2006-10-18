@@ -94,6 +94,7 @@
  *                                 ExternalProblemFixable
  *     IBM Corporation - added the following constants
  *                                 AnnotationValueMustBeAnEnumConstant
+ *                                 OverridingMethodWithoutSuperInvocation
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -735,7 +736,9 @@ void setSourceStart(int sourceStart);
 	int IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod = MethodRelated + 414;
 	/** @since 3.1 */
 	int IllegalVararg = MethodRelated + 415;
-
+	/** @since 3.3 */
+	int OverridingMethodWithoutSuperInvocation = MethodRelated + 416; 
+	
 	// code snippet support
 	int CodeSnippetMissingClass = Internal + 420;
 	int CodeSnippetMissingMethod = Internal + 421;

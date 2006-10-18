@@ -404,6 +404,25 @@ public class Util implements SuffixConstants {
 
 	/**
 	 * INTERNAL USE-ONLY
+	 * Search the column number corresponding to a specific position
+	 */
+	public static final int searchColumnNumber(int[] startLineIndexes, int lineNumber, int position) {
+		switch(lineNumber) {
+			case 1 :
+				return position + 1;
+			case 2:
+				return position - startLineIndexes[0];
+			default:
+				int line = lineNumber - 2;
+	    		int length = startLineIndexes.length;
+	    		if (line >= length) {
+	    			return position - startLineIndexes[length - 1];
+	    		}
+	    		return position - startLineIndexes[line];
+		}
+	}
+	/**
+	 * INTERNAL USE-ONLY
 	 * Search the line number corresponding to a specific position
 	 */
 	public static final int searchLineNumber(int[] startLineIndexes, int position) {

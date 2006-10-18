@@ -272,6 +272,8 @@ public class ProblemReporter extends ProblemHandler {
 	
 			case IProblem.FallthroughCase:
 				return CompilerOptions.FallthroughCase;
+			case IProblem.OverridingMethodWithoutSuperInvocation:
+				return CompilerOptions.OverridingMethodWithoutSuperInvocation;
 		}
 		return 0;
 	}
@@ -361,6 +363,7 @@ public static int getProblemCategory(int severity, int problemID) {
 				case (int)(CompilerOptions.NullReference >>> 32):
 				case (int)(CompilerOptions.IncompleteEnumSwitch >>> 32):
 				case (int)(CompilerOptions.FallthroughCase >>> 32):
+				case (int)(CompilerOptions.OverridingMethodWithoutSuperInvocation >>> 32):
 					return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 	
 				case (int)(CompilerOptions.TypeParameterHiding >>> 32):
@@ -4892,6 +4895,26 @@ public void overridesPackageDefaultMethod(MethodBinding localMethod, MethodBindi
 						localMethod.shortReadableName(),
 						'.')),
 			new String(inheritedMethod.declaringClass.shortReadableName())},
+		localMethod.sourceStart(),
+		localMethod.sourceEnd());
+}
+public void overridesMethodWithoutSuperInvocation(MethodBinding localMethod) {
+	this.handle(
+		IProblem.OverridingMethodWithoutSuperInvocation,
+		new String[] {
+			new String(
+					CharOperation.concat(
+						localMethod.declaringClass.readableName(),
+						localMethod.readableName(),
+						'.'))
+			},
+		new String[] {
+			new String(
+					CharOperation.concat(
+						localMethod.declaringClass.shortReadableName(),
+						localMethod.shortReadableName(),
+						'.'))
+			},
 		localMethod.sourceStart(),
 		localMethod.sourceEnd());
 }

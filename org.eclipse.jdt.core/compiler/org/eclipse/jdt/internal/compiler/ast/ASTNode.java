@@ -155,6 +155,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	// for block and method declaration
 	public static final int UndocumentedEmptyBlock = Bit4;
+	public static final int OverridingMethodWithSupercall = Bit5;
 
 	// for compilation unit
 	public static final int HasAllMethodBodies = Bit5;
@@ -175,7 +176,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	
 	// for null reference analysis
 	public static final int IsNonNull = Bit18;
-	
 	
 	// constants used when checking invocation arguments
 	public static final int INVOCATION_ARGUMENT_OK = 0;

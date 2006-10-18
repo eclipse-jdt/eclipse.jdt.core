@@ -675,6 +675,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.3
+	 */
+	public static final String COMPILER_PB_OVERRIDING_METHOD_WITHOUT_SUPER_INVOCATION = PLUGIN_ID + ".compiler.problem.overridingMethodWithoutSuperInvocation"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 */
 	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
 	/**
@@ -2318,6 +2324,13 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning if a case may be
 	 *    entered by falling through previous case. Empty cases are allowed.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.fallthroughCase"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Reporting Overriding method that doesn't call the super method invocation
+	 *    When enabled, the compiler will issue an error or a warning if a method is overriding a method without calling
+	 *    the super invocation.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 * 

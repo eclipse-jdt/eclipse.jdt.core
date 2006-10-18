@@ -25,6 +25,11 @@ import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodVerifyTest extends AbstractComparableTest {
+	static {
+//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NUMBERS = new int[] { 113, 114, 115 };
+//		TESTS_RANGE = new int[] { 113, -1};
+	}
 
 	public MethodVerifyTest(String name) {
 		super(name);
@@ -6979,6 +6984,234 @@ public void test112() {
 		}
 		assertEquals("should have two methods bar", 2, count);
 		assertTrue("should have one bridge method", found);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+public void test113() {
+	Map options = this.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"abstract class Y {\n" + 
+			"  abstract void foo();\n" + 
+			"}\n" + 
+			"public class X extends Y {\n" + 
+			"  void foo() {\n" + 
+			"    // should not complain for missing super call, since overriding \n" + 
+			"    // abstract method\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+public void test114() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+    	Map options = this.getCompilerOptions();
+    	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
+    	this.runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"class Y {\n" + 
+    			"  void foo() {}\n" + 
+    			"}\n" + 
+    			"public class X extends Y {\n" + 
+    			"  @Override\n" +
+    			"  void foo() {\n" + 
+    			"  }\n" + 
+    			"}"
+    		},
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 6)\n" + 
+    		"	void foo() {\n" + 
+    		"	     ^^^^^\n" + 
+    		"The method X.foo() is overriding a method without making a super invocation\n" + 
+    		"----------\n",
+    		null,
+    		true,
+    		options
+    	);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+public void test115() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+    	Map options = this.getCompilerOptions();
+    	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
+    	this.runConformTest(
+			new String[] {
+				"X.java",
+    			"class Y {\n" + 
+    			"  void foo() {}\n" + 
+    			"}\n" + 
+    			"public class X extends Y {\n" + 
+    			"  @Override\n" +
+    			"  void foo() {\n" + 
+    			"    super.foo();\n" + 
+    			"  }\n" + 
+    			"}"
+			},
+			"",
+			null,
+			true,
+			null,
+			options,
+			null
+		);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+public void test116() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+    	Map options = this.getCompilerOptions();
+    	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
+    	this.runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"class Y {\n" + 
+    			"  Zork foo() {}\n" + 
+    			"}\n" + 
+    			"public class X extends Y {\n" + 
+    			"  @Override\n" +
+    			"  Object foo() {\n" +
+    			"     return new Y() {\n" +
+    			"         Object foo() {\n" +
+    			"            return null;\n" +
+    			"         }\n" +
+    			"     };" +
+    			"  }\n" + 
+    			"}"
+    		},
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 2)\n" + 
+    		"	Zork foo() {}\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 6)\n" + 
+    		"	Object foo() {\n" + 
+    		"	       ^^^^^\n" + 
+    		"The method foo() of type X must override a superclass method\n" + 
+    		"----------\n",
+    		null,
+    		true,
+    		options
+    	);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+public void test117() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+    	Map options = this.getCompilerOptions();
+    	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
+    	this.runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"class Y {\n" + 
+    			"  Object foo() {\n" +
+    			"     return null;\n" +
+    			"  }\n" + 
+    			"}\n" + 
+    			"public class X extends Y {\n" + 
+    			"  @Override\n" +
+    			"  Object foo() {\n" +
+    			"     return new Y() {\n" +
+       			"         @Override\n" +
+    			"         Object foo() {\n" +
+    			"            return null;\n" +
+    			"         }\n" +
+    			"     };" +
+    			"  }\n" + 
+    			"}"
+    		},
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 8)\n" + 
+    		"	Object foo() {\n" + 
+    		"	       ^^^^^\n" + 
+    		"The method X.foo() is overriding a method without making a super invocation\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 11)\n" + 
+    		"	Object foo() {\n" + 
+    		"	       ^^^^^\n" + 
+    		"The method new Y(){}.foo() is overriding a method without making a super invocation\n" + 
+    		"----------\n",
+    		null,
+    		true,
+    		options
+    	);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+public void test118() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+    	Map options = this.getCompilerOptions();
+    	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
+    	this.runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"class Y<E> {\n" + 
+    			"	<U extends E> U foo() {\n" + 
+    			"		return null;\n" + 
+    			"	}\n" + 
+    			"}\n" + 
+    			"\n" + 
+    			"public class X<T> extends Y<T> {\n" + 
+    			"	@Override\n" + 
+    			"	<V extends T> V foo() {\n" + 
+    			"		return null;\n" + 
+    			"	}\n" + 
+    			"}"
+    		},
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 9)\n" + 
+    		"	<V extends T> V foo() {\n" + 
+    		"	                ^^^^^\n" + 
+    		"The method X<T>.foo() is overriding a method without making a super invocation\n" + 
+    		"----------\n",
+    		null,
+    		true,
+    		options
+    	);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
+public void test119() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+    	Map options = this.getCompilerOptions();
+    	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
+    	this.runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"class Y<E> {\n" + 
+    			"	E foo() {\n" + 
+    			"		return null;\n" + 
+    			"	}\n" + 
+    			"}\n" + 
+    			"\n" + 
+    			"public class X<T> extends Y<T> {\n" + 
+    			"	@Override\n" + 
+    			"	T foo() {\n" + 
+    			"		return null;\n" + 
+    			"	}\n" + 
+    			"}"
+    		},
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 9)\n" + 
+    		"	T foo() {\n" + 
+    		"	  ^^^^^\n" + 
+    		"The method X<T>.foo() is overriding a method without making a super invocation\n" + 
+    		"----------\n",
+    		null,
+    		true,
+    		options
+    	);
 	}
 }
 }

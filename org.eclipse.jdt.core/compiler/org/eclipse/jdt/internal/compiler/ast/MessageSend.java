@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -414,13 +415,14 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		return this.resolvedType;
 	}
+	final CompilerOptions compilerOptions = scope.compilerOptions();
 	if (!binding.isStatic()) {
 		// the "receiver" must not be a type, in other words, a NameReference that the TC has bound to a Type
 		if (receiverIsType) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
 			if (this.actualReceiverType.isRawType() 
 					&& (this.receiver.bits & IgnoreRawTypeCheck) == 0 
-					&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
+					&& compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 				scope.problemReporter().rawTypeReference(this.receiver, this.actualReceiverType);
 			}
 		} else {
@@ -457,13 +459,25 @@ public TypeBinding resolveType(BlockScope scope) {
 	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)
 	if (actualReceiverType.isArrayType() 
 			&& this.binding.parameters == Binding.NO_PARAMETERS 
-			&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5 
+			&& compilerOptions.complianceLevel >= ClassFileConstants.JDK1_5 
 			&& CharOperation.equals(this.binding.selector, CLONE)) {
 		this.resolvedType = actualReceiverType;
 	} else {
 		TypeBinding returnType = this.binding.returnType;
 		if (returnType != null) returnType = returnType.capture(scope, this.sourceEnd);
 		this.resolvedType = returnType;
+	}
+	if (receiver.isSuper() && compilerOptions.getSeverity(CompilerOptions.OverridingMethodWithoutSuperInvocation) != ProblemSeverities.Ignore) {
+		final ReferenceContext referenceContext = scope.methodScope().referenceContext;
+		if (referenceContext instanceof AbstractMethodDeclaration) {
+			final AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) referenceContext;
+			MethodBinding enclosingMethodBinding = abstractMethodDeclaration.binding;
+			if (enclosingMethodBinding.isOverriding()
+					&& CharOperation.equals(this.binding.selector, enclosingMethodBinding.selector)
+					&& this.binding.areParametersEqual(enclosingMethodBinding)) {
+				abstractMethodDeclaration.bits |= ASTNode.OverridingMethodWithSupercall;
+			}
+		}
 	}
 	return this.resolvedType;
 }

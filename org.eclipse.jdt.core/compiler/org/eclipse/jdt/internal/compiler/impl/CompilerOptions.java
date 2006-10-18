@@ -105,6 +105,7 @@ public class CompilerOptions {
 	public static final String OPTION_FatalOptionalError =  "org.eclipse.jdt.core.compiler.problem.fatalOptionalError"; //$NON-NLS-1$
 	public static final String OPTION_ReportParameterAssignment =  "org.eclipse.jdt.core.compiler.problem.parameterAssignment"; //$NON-NLS-1$
 	public static final String OPTION_ReportFallthroughCase =  "org.eclipse.jdt.core.compiler.problem.fallthroughCase"; //$NON-NLS-1$
+	public static final String OPTION_ReportOverridingMethodWithoutSuperInvocation =  "org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation"; //$NON-NLS-1$
 	
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -187,6 +188,7 @@ public class CompilerOptions {
 	public static final long UnusedLabel = ASTNode.Bit47L;
 	public static final long ParameterAssignment = ASTNode.Bit48L;
 	public static final long FallthroughCase = ASTNode.Bit49L;
+	public static final long OverridingMethodWithoutSuperInvocation = ASTNode.Bit50L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -406,6 +408,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportUnhandledWarningToken, getSeverityString(UnhandledWarningToken));
 		optionsMap.put(OPTION_ReportParameterAssignment, getSeverityString(ParameterAssignment));
 		optionsMap.put(OPTION_ReportFallthroughCase, getSeverityString(FallthroughCase));
+		optionsMap.put(OPTION_ReportOverridingMethodWithoutSuperInvocation, getSeverityString(OverridingMethodWithoutSuperInvocation));
 		return optionsMap;		
 	}
 	
@@ -647,6 +650,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLabel)) != null) updateSeverity(UnusedLabel, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportParameterAssignment)) != null) updateSeverity(ParameterAssignment, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportFallthroughCase)) != null) updateSeverity(FallthroughCase, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportOverridingMethodWithoutSuperInvocation)) != null) updateSeverity(OverridingMethodWithoutSuperInvocation, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -914,6 +918,7 @@ public class CompilerOptions {
 			OPTION_ReportUnusedPrivateMember,
 			OPTION_ReportVarargsArgumentNeedCast,
 			OPTION_ReportUnhandledWarningToken,
+			OPTION_ReportOverridingMethodWithoutSuperInvocation
 		};
 		return result;
 	}
@@ -976,6 +981,8 @@ public class CompilerOptions {
 					return "null"; //$NON-NLS-1$
 				case (int) (FallthroughCase >>> 32) :
 					return "fallthrough"; //$NON-NLS-1$
+				case (int) (OverridingMethodWithoutSuperInvocation >>> 32) :
+					return "super"; //$NON-NLS-1$				
 			}
 		}
 		return null;
@@ -996,6 +1003,7 @@ public class CompilerOptions {
 		"restriction", //$NON-NLS-1$
 		"serial", //$NON-NLS-1$
 		"static-access", //$NON-NLS-1$
+		"super", //$NON-NLS-1$
 		"synthetic-access", //$NON-NLS-1$
 		"unchecked", //$NON-NLS-1$
 		"unqualified-field-access", //$NON-NLS-1$
@@ -1053,6 +1061,9 @@ public class CompilerOptions {
 					return IndirectStaticAccess | NonStaticAccessToStatic;
 				if ("synthetic-access".equals(warningToken)) //$NON-NLS-1$
 					return AccessEmulation;
+				if ("super".equals(warningToken)) { //$NON-NLS-1$
+					return OverridingMethodWithoutSuperInvocation;
+				}
 				break;
 			case 'u' :
 				if ("unused".equals(warningToken)) //$NON-NLS-1$

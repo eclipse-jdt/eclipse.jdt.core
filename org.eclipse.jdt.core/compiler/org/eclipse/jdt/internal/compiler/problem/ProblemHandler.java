@@ -103,7 +103,7 @@ public void handle(
 			? Util.searchLineNumber(unitResult.getLineSeparatorPositions(), problemStartPosition)
 			: 0;
 	int columnNumber = problemStartPosition >= 0
-			? searchColumnNumber(unitResult.getLineSeparatorPositions(), lineNumber, problemStartPosition)
+			? Util.searchColumnNumber(unitResult.getLineSeparatorPositions(), lineNumber, problemStartPosition)
 			: 0;
 	CategorizedProblem problem = 
 		this.createProblem(
@@ -161,20 +161,5 @@ public void handle(
 }
 public void record(CategorizedProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
 	unitResult.record(problem, referenceContext);
-}
-public static final int searchColumnNumber(int[] startLineIndexes, int lineNumber, int position) {
-	switch(lineNumber) {
-		case 1 :
-			return position + 1;
-		case 2:
-			return position - startLineIndexes[0];
-		default:
-			int line = lineNumber - 2;
-    		int length = startLineIndexes.length;
-    		if (line >= length) {
-    			return position - startLineIndexes[length - 1];
-    		}
-    		return position - startLineIndexes[line];
-	}
 }
 }

@@ -10,16 +10,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
-import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class MethodDeclaration extends AbstractMethodDeclaration {
 	
@@ -142,9 +148,10 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 		
 		// check @Override annotation
+		final CompilerOptions compilerOptions = this.scope.compilerOptions();
 		checkOverride: {
 			if (this.binding == null) break checkOverride;
-			if (this.scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) break checkOverride;
+			if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;
 			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
 			boolean isInterfaceMethod = this.binding.declaringClass.isInterface();
@@ -157,7 +164,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				this.scope.problemReporter().missingOverrideAnnotation(this);
 			}
 		}
-				
+		
 		// by grammatical construction, interface methods are always abstract
 		switch (TypeDeclaration.kind(this.scope.referenceType().modifiers)) {
 			case TypeDeclaration.ENUM_DECL :
@@ -176,7 +183,18 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						this.scope.problemReporter().methodNeedingNoBody(this);
 				}
 		}
-		super.resolveStatements(); 
+		super.resolveStatements();
+		
+		// TagBits.OverridingMethodWithSupercall is set during the resolveStatements() call
+		if (compilerOptions.getSeverity(CompilerOptions.OverridingMethodWithoutSuperInvocation) != ProblemSeverities.Ignore) {
+			if (this.binding != null) {
+        		int bindingModifiers = this.binding.modifiers;
+        		if ((bindingModifiers & (ExtraCompilerModifiers.AccOverriding|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccOverriding
+        				&& (this.bits & ASTNode.OverridingMethodWithSupercall) == 0) {
+        			this.scope.problemReporter().overridesMethodWithoutSuperInvocation(this.binding);
+        		}
+			}
+		}
 	}
 
 	public void traverse(

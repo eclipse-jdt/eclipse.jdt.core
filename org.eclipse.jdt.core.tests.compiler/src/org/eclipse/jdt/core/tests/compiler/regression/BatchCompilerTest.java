@@ -1038,6 +1038,7 @@ public void test012b(){
         "      specialParamHiding   constructor or setter parameter hiding another field\n" + 
         "      static-access        macro for indirectStatic and staticReceiver\n" + 
         "      staticReceiver     + non-static reference to static member\n" + 
+        "      super                overriding a method without making a super invocation\n" +
         "      suppress           + enable @SuppressWarnings\n" + 
         "      synthetic-access     same as syntheticAccess\n" + 
         "      syntheticAccess      synthetic access for innerclass\n" + 
@@ -1168,6 +1169,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" + 

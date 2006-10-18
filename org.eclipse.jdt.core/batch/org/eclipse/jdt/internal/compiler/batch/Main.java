@@ -1646,6 +1646,10 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 		this.options.put(
 			CompilerOptions.OPTION_ReportFallthroughCase,
 			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+	} else if (token.equals("super")) { //$NON-NLS-1$
+		this.options.put(
+				CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation,
+				isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 	} else {
 		throw new InvalidInputException(this.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 	}
