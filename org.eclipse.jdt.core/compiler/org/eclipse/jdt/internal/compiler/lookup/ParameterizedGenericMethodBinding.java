@@ -452,21 +452,19 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	}
 	public MethodBinding tiebreakMethod() {
 		if (this.tiebreakMethod == null) {
+			TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
+			int length = originalVariables.length;
+			TypeBinding[] newArguments = new TypeBinding[length];
 			if (this.isStatic()) {
-				TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
-				int length = originalVariables.length;
-				TypeBinding[] newArguments = new TypeBinding[length];
-				for (int i = 0; i < length; i++)
+				for (int i = 0; i < length; i++) {
 					newArguments[i] =  originalVariables[i].upperBound(); // do not rawify
-				this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, newArguments);
+				}
 			} else {
-				TypeVariableBinding[] originalVariables = originalMethod.typeVariables;
-				int length = originalVariables.length;
-				TypeBinding[] rawArguments = new TypeBinding[length];
-				for (int i = 0; i < length; i++)
-					rawArguments[i] =  environment.convertToRawType(originalVariables[i].upperBound());
-				this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, rawArguments);
+				for (int i = 0; i < length; i++) {
+					newArguments[i] =  environment.convertToRawType(originalVariables[i].upperBound());
+				}
 			}
+			this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, newArguments);
 		} 
 		return this.tiebreakMethod;
 	}	
