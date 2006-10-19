@@ -3395,6 +3395,16 @@ protected StringLiteral createStringLiteral(char[] token, int start, int end, in
 	}
 	return super.createStringLiteral(token, start, end, lineNumber);
 }
+protected TypeReference copyDims(TypeReference typeRef, int dim) {
+	if (this.assistNode == typeRef) {
+		return typeRef;
+	}
+	TypeReference result = super.copyDims(typeRef, dim);
+	if (this.assistNodeParent == typeRef) {
+		this.assistNodeParent = result;
+	}
+	return result;
+}
 public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int cursorLoc) {
 
 	this.cursorLocation = cursorLoc;
