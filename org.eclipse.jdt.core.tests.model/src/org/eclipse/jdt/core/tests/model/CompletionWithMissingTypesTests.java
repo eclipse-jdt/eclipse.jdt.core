@@ -66,7 +66,7 @@ public void test0001() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -103,7 +103,7 @@ public void test0002() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -146,7 +146,7 @@ public void test0003() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -183,8 +183,8 @@ public void test0004() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
-	int relevance2 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NO_PROBLEMS;
+	int relevance2 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.") + "m.".length();
 	int end1 = start1;
 	int start2 = str.lastIndexOf("MissingType");
@@ -243,7 +243,7 @@ public void test0005() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -282,7 +282,7 @@ public void test0006() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -409,7 +409,7 @@ public void test0009() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -450,7 +450,7 @@ public void test0010() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingMemberType");
@@ -487,7 +487,7 @@ public void test0011() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m().b") + "m().".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -524,7 +524,7 @@ public void test0012() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m(0).b") + "m(0).".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -653,7 +653,7 @@ public void test0015() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m().b") + "m().".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -692,7 +692,7 @@ public void test0016() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.b") + "m.".length();
 	int end1 = start1 + "b".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -797,7 +797,7 @@ public void test0019() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 	int start1 = str.lastIndexOf("m.e") + "m.".length();
 	int end1 = start1 + "e".length();
 	int start2 = str.lastIndexOf("MissingType");
@@ -844,7 +844,7 @@ public void test0020() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("m.b") + "m.".length();
 		int end1 = start1 + "b".length();
 		int start2 = str.lastIndexOf("MissingMemberType");
@@ -940,7 +940,7 @@ public void test0022() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("m.b") + "m.".length();
 		int end1 = start1 + "b".length();
 		int start2 = str.lastIndexOf("MissingMemberMemberType");
@@ -954,7 +954,7 @@ public void test0022() throws JavaModelException {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
-public void _test0023() throws JavaModelException {
+public void test0023() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	
 	try {
@@ -1035,7 +1035,7 @@ public void _test0024() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("m.b") + "m.".length();
 		int end1 = start1 + "b".length();
 		int start2 = str.lastIndexOf("MissingMemberType");
@@ -1129,7 +1129,7 @@ public void _test0026() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("m.b") + "m.".length();
 		int end1 = start1 + "b".length();
 		int start2 = str.lastIndexOf("MissingMemberMemberType");

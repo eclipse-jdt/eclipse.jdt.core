@@ -40,4 +40,5 @@ public interface RelevanceConstants {
 	int R_INLINE_TAG = 31;
 	int R_VALUE_TAG = 31;
 	int R_NON_INHERITED = 2;
+	int R_NO_PROBLEMS = 1;
 }

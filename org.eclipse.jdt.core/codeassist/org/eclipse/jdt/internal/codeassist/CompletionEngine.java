@@ -46,6 +46,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
@@ -71,9 +72,10 @@ public final class CompletionEngine
 	public class CompletionProblemFactory extends DefaultProblemFactory {
 		private int lastErrorStart;
 		
-		public boolean checkProblems = false;
-		public boolean hasProblems = false;
-
+		private boolean checkProblems = false;
+		public boolean hasForbiddenProblems = false;
+		public boolean hasAllowedProblems = false;
+		
 		public CompletionProblemFactory(Locale loc) {
 			super(loc);
 		}
@@ -109,25 +111,46 @@ public final class CompletionEngine
 				CompletionEngine.this.problem = pb;
 				this.lastErrorStart = start;
 			}
-			if (this.checkProblems && !this.hasProblems) {
-				if (id == IProblem.UsingDeprecatedType) {
-					this.hasProblems =
-						CompletionEngine.this.options.checkDeprecation;
-				} else if (id == IProblem.NotVisibleType) {
-					this.hasProblems =
-						CompletionEngine.this.options.checkVisibility;
-				} else if (id == IProblem.ForbiddenReference) {
-					this.hasProblems =
-						CompletionEngine.this.options.checkForbiddenReference;
-				} else if (id == IProblem.DiscouragedReference) {
-					this.hasProblems =
-						CompletionEngine.this.options.checkDiscouragedReference;
-				} else {
-					this.hasProblems = true;
+			if (this.checkProblems && !this.hasForbiddenProblems) {
+				switch (id) {
+					case IProblem.UsingDeprecatedType:
+						this.hasForbiddenProblems =
+							CompletionEngine.this.options.checkDeprecation;
+						break;
+					case IProblem.NotVisibleType:
+						this.hasForbiddenProblems =
+							CompletionEngine.this.options.checkVisibility;
+						break;
+					case IProblem.ForbiddenReference:
+						this.hasForbiddenProblems =
+							CompletionEngine.this.options.checkForbiddenReference;
+						break;
+					case IProblem.DiscouragedReference:
+						this.hasForbiddenProblems =
+							CompletionEngine.this.options.checkDiscouragedReference;
+						break;
+					default:
+						if ((severity & ProblemSeverities.Optional) != 0) {
+							this.hasAllowedProblems = true;
+						} else {
+							this.hasForbiddenProblems = true;
+						}
+						
+						break;
 				}
 			}
 			
 			return pb;
+		}
+		
+		public void startCheckingProblems() {
+			this.checkProblems = true;
+			this.hasForbiddenProblems = false;
+			this.hasAllowedProblems = false;
+		}
+		
+		public void stopCheckingProblems() {
+			this.checkProblems = false;
 		}
 	}
 
@@ -805,7 +828,7 @@ public final class CompletionEngine
 				SourceTypeBinding enclosingType = scope.enclosingSourceType();
 				if (!enclosingType.isAnnotationType()) {
 					if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
-						findMethods(this.completionToken,null,null,enclosingType,scope,new ObjectVector(),false,false,true,null,null,false,false,true,null, null, null);
+						findMethods(this.completionToken,null,null,enclosingType,scope,new ObjectVector(),false,false,true,null,null,false,false,true,null, null, null, false);
 					}
 					if (!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
 						proposeNewMethod(this.completionToken, enclosingType);
@@ -827,7 +850,7 @@ public final class CompletionEngine
 				SourceTypeBinding enclosingType = scope.enclosingSourceType();
 				if (!enclosingType.isAnnotationType()) {
 					if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
-						findMethods(this.completionToken,null,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false,false,true,null, null, null);
+						findMethods(this.completionToken,null,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false,false,true,null, null, null, false);
 					}
 					if (!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
 						proposeNewMethod(this.completionToken, scope.enclosingSourceType());
@@ -940,7 +963,7 @@ public final class CompletionEngine
 				setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
 				TypeBinding receiverType = ((VariableBinding) qualifiedBinding).type;
 				if (receiverType != null) {
-					findFieldsAndMethods(this.completionToken, receiverType.capture(scope, ref.sourceEnd), scope, ref, scope,false,false, null, null, null);
+					findFieldsAndMethods(this.completionToken, receiverType.capture(scope, ref.sourceEnd), scope, ref, scope,false,false, null, null, null, false);
 				} else if (this.assistNodeInJavadoc == 0 &&
 						(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) ||
 								this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF))) {
@@ -1029,7 +1052,8 @@ public final class CompletionEngine
 						false,
 						null,
 						null,
-						null);
+						null,
+						false);
 				}
 
 				if (!isInsideAnnotationAttribute && !this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
@@ -1050,7 +1074,8 @@ public final class CompletionEngine
 						false,
 						null,
 						null,
-						null);
+						null,
+						false);
 				}
 
 			} else if (qualifiedBinding instanceof PackageBinding) {
@@ -1134,7 +1159,8 @@ public final class CompletionEngine
 					access.receiver instanceof SuperReference,
 					null,
 					null,
-					null);
+					null,
+					false);
 			}
 
 		} else if (astNode instanceof CompletionOnMessageSend) {
@@ -1165,7 +1191,8 @@ public final class CompletionEngine
 					false,
 					null,
 					null,
-					null);
+					null,
+					false);
 			}
 		} else if (astNode instanceof CompletionOnExplicitConstructorCall) {
 			if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
@@ -1403,7 +1430,8 @@ public final class CompletionEngine
 								false,
 								null,
 								null,
-								null);
+								null,
+								false);
 					}
 				}
 			}
@@ -1479,7 +1507,8 @@ public final class CompletionEngine
 							true,
 							null,
 							null,
-							null);
+							null,
+							false);
 					}
 
 					if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)
@@ -1500,7 +1529,8 @@ public final class CompletionEngine
 							true,
 							null,
 							null,
-							null);
+							null,
+							false);
 						if (fieldRef.receiverType instanceof ReferenceBinding) {
 							ReferenceBinding refBinding = (ReferenceBinding)fieldRef.receiverType;
 							if (this.completionToken == null
@@ -1551,7 +1581,8 @@ public final class CompletionEngine
 						true,
 						null,
 						null,
-						null);
+						null,
+						false);
 				}
 			} else if (astNode instanceof CompletionOnJavadocAllocationExpression) {
 //				setSourceRange(astNode.sourceStart, astNode.sourceEnd, false);
@@ -2547,7 +2578,8 @@ public final class CompletionEngine
 		boolean canBePrefixed,
 		Binding[] missingElements,
 		int[] missingElementsStarts,
-		int[] missingElementsEnds) {
+		int[] missingElementsEnds,
+		boolean missingElementsHaveProblems) {
 
 		ObjectVector newFieldsFound = new ObjectVector();
 		// Inherited fields which are hidden by subclasses are filtered out
@@ -2658,6 +2690,9 @@ public final class CompletionEngine
 			if (onlyStaticFields && this.insideQualifiedReference) {
 				relevance += computeRelevanceForInheritance(receiverType, field.declaringClass);
 			}
+			if (missingElements != null) {
+				relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+			}
 			
 			this.noProposal = false;
 			// Standard proposal
@@ -2751,7 +2786,8 @@ public final class CompletionEngine
 		boolean canBePrefixed,
 		Binding[] missingElements,
 		int[] missingElementsStarts,
-		int[] missingElementsEnds) {
+		int[] missingElementsEnds,
+		boolean missingElementsHaveProblems) {
 
 		boolean notInJavadoc = this.assistNodeInJavadoc == 0;
 		if (fieldName == null && notInJavadoc)
@@ -2795,7 +2831,8 @@ public final class CompletionEngine
 					canBePrefixed,
 					missingElements,
 					missingElementsStarts,
-					missingElementsEnds);
+					missingElementsEnds,
+					missingElementsHaveProblems);
 			}
 			currentType = currentType.superclass();
 		} while (notInJavadoc && currentType != null);
@@ -2819,7 +2856,8 @@ public final class CompletionEngine
 						canBePrefixed,
 						missingElements,
 						missingElementsStarts,
-						missingElementsEnds);
+						missingElementsEnds,
+						missingElementsHaveProblems);
 				}
 
 				ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
@@ -2848,7 +2886,8 @@ public final class CompletionEngine
 		boolean superCall,
 		Binding[] missingElements,
 		int[] missingElementsStarts,
-		int[] missingElementsEnds) {
+		int[] missingElementsEnds,
+		boolean missingElementsHaveProblems) {
 
 		if (token == null)
 			return;
@@ -2872,7 +2911,9 @@ public final class CompletionEngine
 				relevance += computeRelevanceForCaseMatching(token,lengthField);
 				relevance += computeRelevanceForExpectingType(TypeBinding.INT);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for length field
-				
+				if (missingElements != null) {
+					relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+				}
 				this.noProposal = false;
 				if(!isIgnored(CompletionProposal.FIELD_REF, missingElements != null)) {
 					CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
@@ -2918,7 +2959,9 @@ public final class CompletionEngine
 				relevance += computeRelevanceForStatic(false, false);
 				relevance += computeRelevanceForQualification(false);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for clone() method
-				
+				if (missingElements != null) {
+					relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
+				}
 				char[] completion;
 				if (this.source != null
 					&& this.source.length > this.endPosition
@@ -2986,7 +3029,8 @@ public final class CompletionEngine
 				false,
 				missingElements,
 				missingElementsStarts,
-				missingElementsEnds);
+				missingElementsEnds,
+				missingElementsHaveProblems);
 		}
 
 		if(proposeMethod) {
@@ -3007,7 +3051,8 @@ public final class CompletionEngine
 				false,
 				missingElements,
 				missingElementsStarts,
-				missingElementsEnds);
+				missingElementsEnds,
+				missingElementsHaveProblems);
 		}
 	}
 	
@@ -3158,7 +3203,8 @@ public final class CompletionEngine
 						TypeBinding guessedType,
 						Binding[] missingElements,
 						int[] missingElementsStarts,
-						int[] missingElementsEnds) {
+						int[] missingElementsEnds,
+						boolean hasProblems) {
 					findFieldsAndMethods(
 						CompletionEngine.this.completionToken,
 						guessedType,
@@ -3169,7 +3215,8 @@ public final class CompletionEngine
 						false,
 						missingElements,
 						missingElementsStarts,
-						missingElementsEnds);
+						missingElementsEnds,
+						hasProblems);
 					
 				}
 			};
@@ -4002,7 +4049,8 @@ public final class CompletionEngine
 		boolean canBePrefixed,
 		Binding[] missingElements,
 		int[] missingElementssStarts,
-		int[] missingElementsEnds) {
+		int[] missingElementsEnds,
+		boolean missingElementsHaveProblems) {
 
 		if (selector == null)
 			return;
@@ -4041,7 +4089,8 @@ public final class CompletionEngine
 							canBePrefixed,
 							missingElements,
 							missingElementssStarts,
-							missingElementsEnds);
+							missingElementsEnds,
+							missingElementsHaveProblems);
 					}
 				}
 
@@ -4104,7 +4153,8 @@ public final class CompletionEngine
 						true,
 						null,
 						null,
-						null);
+						null,
+						false);
 					staticsOnly |= enclosingType.isStatic();
 					break;
 
@@ -4133,7 +4183,8 @@ public final class CompletionEngine
 		boolean canBePrefixed,
 		Binding[] missingElements,
 		int[] missingElementsStarts,
-		int[] missingElementsEnds) {
+		int[] missingElementsEnds,
+		boolean missingElementsHaveProblems) {
 
 		ObjectVector newMethodsFound =  new ObjectVector();
 		// Inherited methods which are hidden by subclasses are filtered out
@@ -4338,6 +4389,9 @@ public final class CompletionEngine
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 			if (onlyStaticMethods && this.insideQualifiedReference) {
 				relevance += computeRelevanceForInheritance(receiverType, method.declaringClass);
+			}
+			if (missingElements != null) {
+				relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
 			}
 			
 			this.noProposal = false;
@@ -4584,6 +4638,12 @@ public final class CompletionEngine
 	private int computeRelevanceForInterface(){
 		if(this.assistNodeIsInterface) {
 			return R_INTERFACE;
+		}
+		return 0;
+	}
+	private int computeRelevanceForMissingElements(boolean hasProblems) {
+		if (!hasProblems) {
+			return R_NO_PROBLEMS;
 		}
 		return 0;
 	}
@@ -5043,7 +5103,8 @@ public final class CompletionEngine
 		boolean canBePrefixed,
 		Binding[] missingElements,
 		int[] missingElementsStarts,
-		int[] missingElementsEnds) {
+		int[] missingElementsEnds,
+		boolean missingElementsHaveProblems) {
 
 		boolean notInJavadoc = this.assistNodeInJavadoc == 0;
 		if (selector == null && notInJavadoc) {
@@ -5083,7 +5144,8 @@ public final class CompletionEngine
 						canBePrefixed,
 						missingElements,
 						missingElementsStarts,
-						missingElementsEnds);
+						missingElementsEnds,
+						missingElementsHaveProblems);
 				} else {
 					findInterfacesMethods(
 						selector,
@@ -5103,7 +5165,8 @@ public final class CompletionEngine
 						canBePrefixed,
 						missingElements,
 						missingElementsStarts,
-						missingElementsEnds);
+						missingElementsEnds,
+						missingElementsHaveProblems);
 				}
 				
 				currentType = scope.getJavaLangObject();
@@ -5127,7 +5190,8 @@ public final class CompletionEngine
 						canBePrefixed,
 						missingElements,
 						missingElementsStarts,
-						missingElementsEnds);
+						missingElementsEnds,
+						missingElementsHaveProblems);
 					
 					currentType = receiverType.superclass();
 				}
@@ -5164,7 +5228,8 @@ public final class CompletionEngine
 						canBePrefixed,
 						missingElements,
 						missingElementsStarts,
-						missingElementsEnds);
+						missingElementsEnds,
+						missingElementsHaveProblems);
 				}
 			}
 			
@@ -5187,7 +5252,8 @@ public final class CompletionEngine
 					canBePrefixed,
 					missingElements,
 					missingElementsStarts,
-					missingElementsEnds);
+					missingElementsEnds,
+					missingElementsHaveProblems);
 			} else {
 				hasPotentialDefaultAbstractMethods = false;
 			}
@@ -6044,7 +6110,8 @@ public final class CompletionEngine
 									true,
 									null,
 									null,
-									null);
+									null,
+									false);
 							}
 							if(proposeMethod && !insideAnnotationAttribute) {
 								findMethods(
@@ -6064,7 +6131,8 @@ public final class CompletionEngine
 									true,
 									null,
 									null,
-									null);
+									null,
+									false);
 							}
 						}
 						staticsOnly |= enclosingType.isStatic();
@@ -6100,7 +6168,8 @@ public final class CompletionEngine
 										false,
 										null,
 										null,
-										null);
+										null,
+										false);
 								}
 								if(proposeMethod && !insideAnnotationAttribute) {
 									findMethods(
@@ -6120,7 +6189,8 @@ public final class CompletionEngine
 										false,
 										null,
 										null,
-										null);
+										null,
+										false);
 								}
 							}
 						} else {
@@ -6140,7 +6210,8 @@ public final class CompletionEngine
 												false,
 												null,
 												null,
-												null);
+												null,
+												false);
 								}
 							} else if ((binding.kind() & Binding.METHOD) != 0) {
 								if(proposeMethod && !insideAnnotationAttribute) {

@@ -35,7 +35,8 @@ public class MissingTypesGuesser extends ASTVisitor {
 				TypeBinding guessedType,
 				Binding[] missingElements,
 				int[] missingElementsStarts,
-				int[] missingElementsEnds);
+				int[] missingElementsEnds,
+				boolean hasProblems);
 		
 	}
 	
@@ -521,24 +522,22 @@ public class MissingTypesGuesser extends ASTVisitor {
 			
 			nextSubstitution(substituedTypeNodes, subtitutions, substitutionsIndexes);
 			
-			this.problemFactory.hasProblems = false;
-			this.problemFactory.checkProblems = true;
+			
+			this.problemFactory.startCheckingProblems();
 			TypeBinding guessedType = null;
 			switch (scope.kind) {
 				case Scope.METHOD_SCOPE :
 				case Scope.BLOCK_SCOPE :
 					resolutionCleaner.cleanUp(convertedType, (BlockScope)scope);
-					convertedType.traverse(resolutionCleaner, (BlockScope)scope);
 					guessedType = convertedType.resolveType((BlockScope)scope);
 					break;
 				case Scope.CLASS_SCOPE :
 					resolutionCleaner.cleanUp(convertedType, (ClassScope)scope);
-					convertedType.traverse(resolutionCleaner, (ClassScope)scope);
 					guessedType = convertedType.resolveType((ClassScope)scope);
 					break;
 			}
-			this.problemFactory.checkProblems = false;
-			if (!this.problemFactory.hasProblems) {
+			this.problemFactory.stopCheckingProblems();
+			if (!this.problemFactory.hasForbiddenProblems) {
 				if (guessedType != null) {
 					Binding[] missingElements = new Binding[length];
 					int[] missingElementsStarts = new int[length];
@@ -554,7 +553,8 @@ public class MissingTypesGuesser extends ASTVisitor {
 								guessedType.capture(scope, typeRef.sourceEnd),
 								missingElements,
 								missingElementsStarts,
-								missingElementsEnds);
+								missingElementsEnds,
+								this.problemFactory.hasAllowedProblems);
 					}
 				}
 			}
