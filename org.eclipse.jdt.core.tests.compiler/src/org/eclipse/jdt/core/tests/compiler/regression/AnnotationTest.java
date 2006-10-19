@@ -7100,4 +7100,33 @@ public void test214() {
         },
         expectedOutput);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=141931
+// variant
+public void test215() {
+	String sources[] = new String[] {
+		"I.java",
+		"public interface I {\n" + 
+		"  void foo();\n" + 
+		"}\n",
+		"X.java",
+		"abstract class X implements I {\n" + 
+		"}\n",
+		"Y.java",
+		"class Y extends X {\n" + 
+		"  @Override\n" +
+		"  public void foo() {}\n" +
+		"}\n"};
+	if (new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6) {
+		this.runNegativeTest(sources,
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 3)\r\n" + 
+			"	public void foo() {}\r\n" + 
+			"	            ^^^^^\n" + 
+			"The method foo() of type Y must override a superclass method\n" + 
+			"----------\n");
+	} else {
+		this.runConformTest(sources,
+			"");
+	}
+}
 }
