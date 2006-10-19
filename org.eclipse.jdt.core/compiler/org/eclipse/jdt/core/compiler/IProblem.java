@@ -95,6 +95,7 @@
  *     IBM Corporation - added the following constants
  *                                 AnnotationValueMustBeAnEnumConstant
  *                                 OverridingMethodWithoutSuperInvocation
+ *                                 MethodMustOverrideOrImplement
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -1121,6 +1122,8 @@ void setSourceStart(int sourceStart);
 	int AnnotationValueMustBeArrayInitializer = Internal + 632;
 	/** @since 3.3 */
 	int AnnotationValueMustBeAnEnumConstant = Internal + 633;
+	/** @since 3.3 */
+	int MethodMustOverrideOrImplement = MethodRelated + 634;
 	
 	/**
 	 * Corrupted binaries

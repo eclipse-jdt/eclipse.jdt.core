@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IMethodInfo;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodVerifyTest extends AbstractComparableTest {
@@ -4381,33 +4382,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99106
 	public void test062() {
-		this.runNegativeTest(
-			new String[] {
-				"Errors.java",
-				"public class Errors {\n" +
-				"	void foo() {\n" +
-				"		Ex<String> ex = new Ex<String>();\n" +
-				"		ex.proof(\"eclipse\");\n" +
-				"		ex.five(\"eclipse\");\n" +
-				"		ex.six(\"eclipse\");\n" +
-				"		Ex ex2 = ex;\n" +
-				"		ex2.proof(\"eclipse\");\n" +
-				"		ex2.five(\"eclipse\");\n" +
-				"		ex2.six(\"eclipse\");\n" +
-				"	}\n" +
-				"}\n" +
-				"class Top<TC> {\n" +
-				"	<TM> void proof(Object cTop) {}\n" +
-				"	<TM> void five(TC cTop) {}\n" +
-				"	void six(TC cTop) {}\n" +
-				"}\n" +
-				"class Ex<C> extends Top<C> {\n" +
-				"	@Override void proof(Object cTop) {}\n" +
-				"	@Override void five(C cEx) {}\n" +
-				"	@Override <M> void six(C cEx) {}\n" +
-				"}"
-			},
-			"----------\n" + 
+		String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+		?	"----------\n" + 
 			"1. ERROR in Errors.java (at line 6)\n" + 
 			"	ex.six(\"eclipse\");\n" + 
 			"	   ^^^\n" + 
@@ -4438,6 +4414,64 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	                   ^^^^^^^^^^\n" + 
 			"The method six(C) of type Ex<C> must override a superclass method\n" + 
 			"----------\n"
+		:	"----------\n" + 
+			"1. ERROR in Errors.java (at line 6)\n" + 
+			"	ex.six(\"eclipse\");\n" + 
+			"	   ^^^\n" + 
+			"The method six(String) is ambiguous for the type Ex<String>\n" + 
+			"----------\n" + 
+			"2. WARNING in Errors.java (at line 7)\n" + 
+			"	Ex ex2 = ex;\n" + 
+			"	^^\n" + 
+			"Ex is a raw type. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Errors.java (at line 9)\n" + 
+			"	ex2.five(\"eclipse\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method five(Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in Errors.java (at line 10)\n" + 
+			"	ex2.six(\"eclipse\");\n" + 
+			"	    ^^^\n" + 
+			"The method six(Object) is ambiguous for the type Ex\n" + 
+			"----------\n" + 
+			"5. ERROR in Errors.java (at line 21)\n" + 
+			"	@Override <M> void six(C cEx) {}\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"Name clash: The method six(C) of type Ex<C> has the same erasure as six(TC) of type Top<TC> but does not override it\n" + 
+			"----------\n" + 
+			"6. ERROR in Errors.java (at line 21)\n" + 
+			"	@Override <M> void six(C cEx) {}\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"The method six(C) of type Ex<C> must override or implement a supertype method\n" + 
+			"----------\n";		
+				this.runNegativeTest(
+			new String[] {
+				"Errors.java",
+				"public class Errors {\n" +
+				"	void foo() {\n" +
+				"		Ex<String> ex = new Ex<String>();\n" +
+				"		ex.proof(\"eclipse\");\n" +
+				"		ex.five(\"eclipse\");\n" +
+				"		ex.six(\"eclipse\");\n" +
+				"		Ex ex2 = ex;\n" +
+				"		ex2.proof(\"eclipse\");\n" +
+				"		ex2.five(\"eclipse\");\n" +
+				"		ex2.six(\"eclipse\");\n" +
+				"	}\n" +
+				"}\n" +
+				"class Top<TC> {\n" +
+				"	<TM> void proof(Object cTop) {}\n" +
+				"	<TM> void five(TC cTop) {}\n" +
+				"	void six(TC cTop) {}\n" +
+				"}\n" +
+				"class Ex<C> extends Top<C> {\n" +
+				"	@Override void proof(Object cTop) {}\n" +
+				"	@Override void five(C cEx) {}\n" +
+				"	@Override <M> void six(C cEx) {}\n" +
+				"}"
+			},
+			expectedOutput
 			// we disagree about the ambiguous errors on lines 5, 9 & 20, see the message sends to proof()
 			// 5: reference to five is ambiguous, both method <TM>five(TC) in Top<java.lang.String> and method five(C) in Ex<java.lang.String> match
 			// 6: reference to six is ambiguous, both method six(TC) in Top<java.lang.String> and method <M>six(C) in Ex<java.lang.String> match
@@ -4665,17 +4699,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107045
 	public void test071() {
-		this.runNegativeTest(
-			new String[] {
-				"D.java",
-				"class D extends B<Integer> {\n" +
-				"	@Override void m(Number t) {}\n" + 
-				"	@Override void m(Integer t) {}\n" + 
-				"}\n" + 
-				"class A<T extends Number> { void m(T t) {} }\n" +
-				"class B<S extends Integer> extends A<S> { @Override void m(S t) {} }"
-			},
-			"----------\n" + 
+		String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+		?	"----------\n" + 
 			"1. ERROR in D.java (at line 2)\r\n" + 
 			"	@Override void m(Number t) {}\r\n" + 
 			"	               ^^^^^^^^^^^\n" + 
@@ -4691,7 +4716,33 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	                  ^^^^^^^\n" + 
 			"The type parameter S should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
 			"----------\n"
-		);
+		:	"----------\n" + 
+			"1. ERROR in D.java (at line 2)\n" + 
+			"	@Override void m(Number t) {}\n" + 
+			"	               ^^^^^^^^^^^\n" + 
+			"Name clash: The method m(Number) of type D has the same erasure as m(T) of type A<T> but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in D.java (at line 2)\n" + 
+			"	@Override void m(Number t) {}\n" + 
+			"	               ^^^^^^^^^^^\n" + 
+			"The method m(Number) of type D must override or implement a supertype method\n" + 
+			"----------\n" + 
+			"3. WARNING in D.java (at line 6)\n" + 
+			"	class B<S extends Integer> extends A<S> { @Override void m(S t) {} }\n" + 
+			"	                  ^^^^^^^\n" + 
+			"The type parameter S should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+			"----------\n";
+		this.runNegativeTest(
+			new String[] {
+				"D.java",
+				"class D extends B<Integer> {\n" +
+				"	@Override void m(Number t) {}\n" + 
+				"	@Override void m(Integer t) {}\n" + 
+				"}\n" + 
+				"class A<T extends Number> { void m(T t) {} }\n" +
+				"class B<S extends Integer> extends A<S> { @Override void m(S t) {} }"
+			},
+			expectedOutput);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108780
 	public void test072() {
@@ -4756,6 +4807,19 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
 	public void test073c() {
+		String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+		?	"----------\n" + 
+			"1. ERROR in NumericArray4.java (at line 5)\r\n" + 
+			"	@Override public <U> void add(Number n) {}\r\n" + 
+			"	                          ^^^^^^^^^^^^^\n" + 
+			"The method add(Number) of type NumericArray4<T> must override a superclass method\n" + 
+			"----------\n"
+		:	"----------\n" + 
+			"1. ERROR in NumericArray4.java (at line 5)\n" + 
+			"	@Override public <U> void add(Number n) {}\n" + 
+			"	                          ^^^^^^^^^^^^^\n" + 
+			"The method add(Number) of type NumericArray4<T> must override or implement a supertype method\n" + 
+			"----------\n";
 		this.runNegativeTest(
 			new String[] {
 				"NumericArray4.java",
@@ -4766,16 +4830,23 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	@Override public <U> void add(Number n) {}\n" +
 				"}"
 			},
-			"----------\n" + 
-			"1. ERROR in NumericArray4.java (at line 5)\r\n" + 
-			"	@Override public <U> void add(Number n) {}\r\n" + 
-			"	                          ^^^^^^^^^^^^^\n" + 
-			"The method add(Number) of type NumericArray4<T> must override a superclass method\n" + 
-			"----------\n"
-		);
+			expectedOutput);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111350
 	public void test073d() {
+		String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+		?	"----------\n" + 
+			"1. ERROR in NumericArray5.java (at line 5)\r\n" + 
+			"	@Override public void add(Number n, Integer i) {}\r\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method add(Number, Integer) of type NumericArray5<T> must override a superclass method\n" + 
+			"----------\n"
+		:	"----------\n" + 
+			"1. ERROR in NumericArray5.java (at line 5)\n" + 
+			"	@Override public void add(Number n, Integer i) {}\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method add(Number, Integer) of type NumericArray5<T> must override or implement a supertype method\n" + 
+			"----------\n";		
 		this.runNegativeTest(
 			new String[] {
 				"NumericArray5.java",
@@ -4786,23 +4857,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	@Override public void add(Number n, Integer i) {}\n" +
 				"}"
 			},
-			"----------\n" + 
-			"1. ERROR in NumericArray5.java (at line 5)\r\n" + 
-			"	@Override public void add(Number n, Integer i) {}\r\n" + 
-			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method add(Number, Integer) of type NumericArray5<T> must override a superclass method\n" + 
-			"----------\n"
-		);
+			expectedOutput);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100970
 	public void test074() {
-		this.runNegativeTest(
-			new String[] {
-				"I.java",
-				"interface I {}\n" +
-				"interface J extends I { @Override void clone(); }"
-			},
-			"----------\n" + 
+		String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+		?	"----------\n" + 
 			"1. WARNING in I.java (at line 2)\n" + 
 			"	interface J extends I { @Override void clone(); }\n" + 
 			"	                                       ^^^^^^^\n" + 
@@ -4813,17 +4873,29 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	                                       ^^^^^^^\n" + 
 			"The method clone() of type J must override a superclass method\n" + 
 			"----------\n"
-		);
-	}
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100970
-	public void test074a() {
+		:	"----------\n" + 
+			"1. WARNING in I.java (at line 2)\n" + 
+			"	interface J extends I { @Override void clone(); }\n" + 
+			"	                                       ^^^^^^^\n" + 
+			"The return type is incompatible with Object.clone(), thus this interface cannot be implemented\n" + 
+			"----------\n" + 
+			"2. ERROR in I.java (at line 2)\n" + 
+			"	interface J extends I { @Override void clone(); }\n" + 
+			"	                                       ^^^^^^^\n" + 
+			"The method clone() of type J must override or implement a supertype method\n" + 
+			"----------\n";		
 		this.runNegativeTest(
 			new String[] {
 				"I.java",
-				"interface I { @Override void clone(); }\n" +
-				"interface J extends I {}"
+				"interface I {}\n" +
+				"interface J extends I { @Override void clone(); }"
 			},
-			"----------\n" + 
+			expectedOutput);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100970
+	public void test074a() {
+		String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+		?	"----------\n" + 
 			"1. WARNING in I.java (at line 1)\n" + 
 			"	interface I { @Override void clone(); }\n" + 
 			"	                             ^^^^^^^\n" + 
@@ -4834,7 +4906,24 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	                             ^^^^^^^\n" + 
 			"The method clone() of type I must override a superclass method\n" + 
 			"----------\n"
-		);
+		:	"----------\n" + 
+			"1. WARNING in I.java (at line 1)\n" + 
+			"	interface I { @Override void clone(); }\n" + 
+			"	                             ^^^^^^^\n" + 
+			"The return type is incompatible with Object.clone(), thus this interface cannot be implemented\n" + 
+			"----------\n" + 
+			"2. ERROR in I.java (at line 1)\n" + 
+			"	interface I { @Override void clone(); }\n" + 
+			"	                             ^^^^^^^\n" + 
+			"The method clone() of type I must override or implement a supertype method\n" + 
+			"----------\n";		
+		this.runNegativeTest(
+			new String[] {
+				"I.java",
+				"interface I { @Override void clone(); }\n" +
+				"interface J extends I {}"
+			},
+			expectedOutput);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100970
 	public void test074b() {
@@ -4873,6 +4962,59 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107105
 	public void test075() {
+		String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+			?	"----------\n" + 
+				"1. ERROR in A.java (at line 2)\n" + 
+				"	class B extends A { @Override <T1, S1 extends J & I<S1>> void foo() { } }\n" + 
+				"	                                                              ^^^^^\n" + 
+				"Name clash: The method foo() of type B has the same erasure as foo() of type A but does not override it\n" + 
+				"----------\n" + 
+				"2. ERROR in A.java (at line 2)\n" + 
+				"	class B extends A { @Override <T1, S1 extends J & I<S1>> void foo() { } }\n" + 
+				"	                                                              ^^^^^\n" + 
+				"The method foo() of type B must override a superclass method\n" + 
+				"----------\n" + 
+				"3. WARNING in A.java (at line 3)\n" + 
+				"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
+				"	                                                  ^\n" + 
+				"I is a raw type. References to generic type I<TT> should be parameterized\n" + 
+				"----------\n" + 
+				"4. ERROR in A.java (at line 3)\n" + 
+				"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
+				"	                                                          ^^^^^\n" + 
+				"Name clash: The method foo() of type C has the same erasure as foo() of type A but does not override it\n" + 
+				"----------\n" + 
+				"5. ERROR in A.java (at line 3)\n" + 
+				"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
+				"	                                                          ^^^^^\n" + 
+				"The method foo() of type C must override a superclass method\n" + 
+				"----------\n"
+			:	"----------\n" + 
+				"1. ERROR in A.java (at line 2)\n" + 
+				"	class B extends A { @Override <T1, S1 extends J & I<S1>> void foo() { } }\n" + 
+				"	                                                              ^^^^^\n" + 
+				"Name clash: The method foo() of type B has the same erasure as foo() of type A but does not override it\n" + 
+				"----------\n" + 
+				"2. ERROR in A.java (at line 2)\n" + 
+				"	class B extends A { @Override <T1, S1 extends J & I<S1>> void foo() { } }\n" + 
+				"	                                                              ^^^^^\n" + 
+				"The method foo() of type B must override or implement a supertype method\n" + 
+				"----------\n" + 
+				"3. WARNING in A.java (at line 3)\n" + 
+				"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
+				"	                                                  ^\n" + 
+				"I is a raw type. References to generic type I<TT> should be parameterized\n" + 
+				"----------\n" + 
+				"4. ERROR in A.java (at line 3)\n" + 
+				"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
+				"	                                                          ^^^^^\n" + 
+				"Name clash: The method foo() of type C has the same erasure as foo() of type A but does not override it\n" + 
+				"----------\n" + 
+				"5. ERROR in A.java (at line 3)\n" + 
+				"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
+				"	                                                          ^^^^^\n" + 
+				"The method foo() of type C must override or implement a supertype method\n" + 
+				"----------\n";		
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -4884,32 +5026,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"interface I<TT> {}\n" +
 				"interface J {}"
 			},
-			"----------\n" + 
-			"1. ERROR in A.java (at line 2)\n" + 
-			"	class B extends A { @Override <T1, S1 extends J & I<S1>> void foo() { } }\n" + 
-			"	                                                              ^^^^^\n" + 
-			"Name clash: The method foo() of type B has the same erasure as foo() of type A but does not override it\n" + 
-			"----------\n" + 
-			"2. ERROR in A.java (at line 2)\n" + 
-			"	class B extends A { @Override <T1, S1 extends J & I<S1>> void foo() { } }\n" + 
-			"	                                                              ^^^^^\n" + 
-			"The method foo() of type B must override a superclass method\n" + 
-			"----------\n" + 
-			"3. WARNING in A.java (at line 3)\n" + 
-			"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
-			"	                                                  ^\n" + 
-			"I is a raw type. References to generic type I<TT> should be parameterized\n" + 
-			"----------\n" + 
-			"4. ERROR in A.java (at line 3)\n" + 
-			"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
-			"	                                                          ^^^^^\n" + 
-			"Name clash: The method foo() of type C has the same erasure as foo() of type A but does not override it\n" + 
-			"----------\n" + 
-			"5. ERROR in A.java (at line 3)\n" + 
-			"	class C extends A { @Override <T2, S2 extends J & I> void foo() { } }\n" + 
-			"	                                                          ^^^^^\n" + 
-			"The method foo() of type C must override a superclass method\n" + 
-			"----------\n"
+			expectedOutput
 			// A.java:2: method does not override a method from its superclass
 			// A.java:3: method does not override a method from its superclass
 		);
@@ -4930,6 +5047,19 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107105
 	public void test075b() {
+		String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+		?	"----------\n" + 
+			"1. ERROR in A.java (at line 2)\r\n" + 
+			"	class B<V> extends A<V> { @Override <T1, S1 extends K & I<T1>> void foo(V v, T1 t, S1 s) { } }\r\n" + 
+			"	                                                                    ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method foo(V, T1, S1) of type B<V> must override a superclass method\n" + 
+			"----------\n"
+		:	"----------\n" + 
+			"1. ERROR in A.java (at line 2)\n" + 
+			"	class B<V> extends A<V> { @Override <T1, S1 extends K & I<T1>> void foo(V v, T1 t, S1 s) { } }\n" + 
+			"	                                                                    ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method foo(V, T1, S1) of type B<V> must override or implement a supertype method\n" + 
+			"----------\n";				
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -4939,12 +5069,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"interface J {}\n" +
 				"interface K extends J {}"
 			},
-			"----------\n" + 
-			"1. ERROR in A.java (at line 2)\r\n" + 
-			"	class B<V> extends A<V> { @Override <T1, S1 extends K & I<T1>> void foo(V v, T1 t, S1 s) { } }\r\n" + 
-			"	                                                                    ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method foo(V, T1, S1) of type B<V> must override a superclass method\n" + 
-			"----------\n"
+			expectedOutput
 			// A.java:2: method does not override a method from its superclass
 		);
 	}
@@ -7069,42 +7194,52 @@ public void test115() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
 public void test116() {
-	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
-    	Map options = this.getCompilerOptions();
-    	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-    	this.runNegativeTest(
-    		new String[] {
-    			"X.java",
-    			"class Y {\n" + 
-    			"  Zork foo() {}\n" + 
-    			"}\n" + 
-    			"public class X extends Y {\n" + 
-    			"  @Override\n" +
-    			"  Object foo() {\n" +
-    			"     return new Y() {\n" +
-    			"         Object foo() {\n" +
-    			"            return null;\n" +
-    			"         }\n" +
-    			"     };" +
-    			"  }\n" + 
-    			"}"
-    		},
-    		"----------\n" + 
-    		"1. ERROR in X.java (at line 2)\n" + 
-    		"	Zork foo() {}\n" + 
-    		"	^^^^\n" + 
-    		"Zork cannot be resolved to a type\n" + 
-    		"----------\n" + 
-    		"2. ERROR in X.java (at line 6)\n" + 
-    		"	Object foo() {\n" + 
-    		"	       ^^^^^\n" + 
-    		"The method foo() of type X must override a superclass method\n" + 
-    		"----------\n",
-    		null,
-    		true,
-    		options
-    	);
-	}
+   	Map options = this.getCompilerOptions();
+   	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
+	String expectedOutput = new CompilerOptions(options).sourceLevel < ClassFileConstants.JDK1_6
+	?	"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	Zork foo() {}\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	Object foo() {\n" + 
+		"	       ^^^^^\n" + 
+		"The method foo() of type X must override a superclass method\n" + 
+		"----------\n"
+	:	"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	Zork foo() {}\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	Object foo() {\n" + 
+		"	       ^^^^^\n" + 
+		"The method foo() of type X must override or implement a supertype method\n" + 
+		"----------\n";	
+   	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y {\n" + 
+			"  Zork foo() {}\n" + 
+			"}\n" + 
+			"public class X extends Y {\n" + 
+			"  @Override\n" +
+			"  Object foo() {\n" +
+			"     return new Y() {\n" +
+			"         Object foo() {\n" +
+			"            return null;\n" +
+			"         }\n" +
+			"     };" +
+			"  }\n" + 
+			"}"
+		},
+		expectedOutput,
+		null,
+		true,
+		options	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156736
 public void test117() {

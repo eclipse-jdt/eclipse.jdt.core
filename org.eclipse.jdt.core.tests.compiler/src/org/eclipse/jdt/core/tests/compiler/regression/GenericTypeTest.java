@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericTypeTest extends AbstractComparableTest {
@@ -32,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-		TESTS_NUMBERS = new int[] { 1050, 1054 };
+//		TESTS_NUMBERS = new int[] { 1050, 1054 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -31228,6 +31229,34 @@ public void test0986() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643
 public void test0987() {
+	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+	?	"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+		"	               ^^^^^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	public ISheetViewer getViewer() { return null; }	\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"The return type is incompatible with EditPart.getViewer()\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	public ISheetViewer getViewer() { return null; }	\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"The method getViewer() of type AbstractLinkView<M> must override a superclass method\n" + 
+		"----------\n"
+	:	"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+		"	               ^^^^^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	public ISheetViewer getViewer() { return null; }	\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"The return type is incompatible with EditPart.getViewer()\n" + 
+		"----------\n";	
 	this.runNegativeTest(
 			new String[] {
 				"X.java",//===================
@@ -31262,22 +31291,7 @@ public void test0987() {
 				"\n" + 
 				"interface EditPartViewer {}\n", // =================			
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
-			"	               ^^^^^^^^^^^^^^^^\n" + 
-			"The return type is incompatible with EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
-			"	public ISheetViewer getViewer() { return null; }	\n" + 
-			"	                    ^^^^^^^^^^^\n" + 
-			"The return type is incompatible with EditPart.getViewer()\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 11)\n" + 
-			"	public ISheetViewer getViewer() { return null; }	\n" + 
-			"	                    ^^^^^^^^^^^\n" + 
-			"The method getViewer() of type AbstractLinkView<M> must override a superclass method\n" + 
-			"----------\n");
+			expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643 - variation
 public void test0988() {

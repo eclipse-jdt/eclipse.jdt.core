@@ -151,20 +151,29 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		final CompilerOptions compilerOptions = this.scope.compilerOptions();
 		checkOverride: {
 			if (this.binding == null) break checkOverride;
-			if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_5) break checkOverride;
+			long sourceLevel = compilerOptions.sourceLevel;
+			if (sourceLevel < ClassFileConstants.JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;
 			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
 			boolean isInterfaceMethod = this.binding.declaringClass.isInterface();
 			if (hasOverrideAnnotation) {
-				if ((bindingModifiers & ExtraCompilerModifiers.AccOverriding) == 0 || isInterfaceMethod || this.binding.isStatic())
-					// claims to override, and doesn't actually do so
-					this.scope.problemReporter().methodMustOverride(this);					
-			} else if (!isInterfaceMethod 	&& (bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
+				// no static method is considered overriding
+				if (!isInterfaceMethod && (bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding)
+					break checkOverride;
+				//	in 1.5, strictly for overriding superclass method
+				//	in 1.6 and above, also tolerate implementing interface method
+				if (sourceLevel >= ClassFileConstants.JDK1_6
+						&& ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccImplementing))
+					break checkOverride;
+				// claims to override, and doesn't actually do so
+				this.scope.problemReporter().methodMustOverride(this);					
+			} else if (!isInterfaceMethod 	
+						&& (bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
 				// actually overrides, but did not claim to do so
 				this.scope.problemReporter().missingOverrideAnnotation(this);
 			}
 		}
-		
+				
 		// by grammatical construction, interface methods are always abstract
 		switch (TypeDeclaration.kind(this.scope.referenceType().modifiers)) {
 			case TypeDeclaration.ENUM_DECL :

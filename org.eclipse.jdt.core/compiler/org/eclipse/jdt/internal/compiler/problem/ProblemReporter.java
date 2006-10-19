@@ -272,6 +272,7 @@ public class ProblemReporter extends ProblemHandler {
 	
 			case IProblem.FallthroughCase:
 				return CompilerOptions.FallthroughCase;
+				
 			case IProblem.OverridingMethodWithoutSuperInvocation:
 				return CompilerOptions.OverridingMethodWithoutSuperInvocation;
 		}
@@ -4343,7 +4344,7 @@ public void localVariableMayBeNull(LocalVariableBinding local, ASTNode location)
 public void methodMustOverride(AbstractMethodDeclaration method) {
 	MethodBinding binding = method.binding;
 	this.handle(
-		IProblem.MethodMustOverride,
+		this.options.sourceLevel == ClassFileConstants.JDK1_5 ? IProblem.MethodMustOverride : IProblem.MethodMustOverrideOrImplement,
 		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, false), new String(binding.declaringClass.readableName()), },
 		new String[] {new String(binding.selector), typesAsString(binding.isVarargs(), binding.parameters, true), new String(binding.declaringClass.shortReadableName()),},
 		method.sourceStart,
