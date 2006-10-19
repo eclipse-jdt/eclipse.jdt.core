@@ -1,30 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
-<plugin
-   id="org.eclipse.jdt.core.tests.model"
-   name="%pluginName"
-   provider-name = "%providerName"
-   version="3.3.0">
-
-   <runtime>
-      <library name="jdtcoretestsmodel.jar">
-         <export name="*"/>
-      </library>
-   </runtime>
-   <requires>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.core.runtime"/>    
-      <import plugin="org.eclipse.jdt.core"/>
-      <import plugin="org.junit"/>
-      <import plugin="org.eclipse.test.performance"/>
-      <import plugin="org.eclipse.jdt.core.tests.compiler"/>
-      <import plugin="org.eclipse.jdt.core.tests.builder"/>
-      <import plugin="org.eclipse.team.core"/>
-      <import plugin="org.eclipse.text"/>
-      <import plugin="com.ibm.icu"/>    
-   </requires>
-
-	<!-- Classpath variable initializer -->
+<plugin>
+   	<!-- Classpath variable initializer -->
 	<extension point = "org.eclipse.jdt.core.classpathVariableInitializer">
 		<classpathVariableInitializer
 			variable="TEST_LIB"
