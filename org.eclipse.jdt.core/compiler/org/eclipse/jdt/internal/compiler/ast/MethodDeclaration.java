@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -142,17 +143,27 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 		
 		// check @Override annotation
+		final CompilerOptions compilerOptions = this.scope.compilerOptions();
 		checkOverride: {
 			if (this.binding == null) break checkOverride;
-			if (this.scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) break checkOverride;
+			long sourceLevel = compilerOptions.sourceLevel;
+			if (sourceLevel < ClassFileConstants.JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;
 			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
 			boolean isInterfaceMethod = this.binding.declaringClass.isInterface();
 			if (hasOverrideAnnotation) {
-				if ((bindingModifiers & ExtraCompilerModifiers.AccOverriding) == 0 || isInterfaceMethod || this.binding.isStatic())
+				// no static method is considered overriding
+				if (!isInterfaceMethod && (bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding)
+					break checkOverride;
+				//	in 1.5, strictly for overriding superclass method
+				//	in 1.6 and above, also tolerate implementing interface method
+				if (sourceLevel >= ClassFileConstants.JDK1_6
+						&& ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccImplementing))
+					break checkOverride;
 					// claims to override, and doesn't actually do so
 					this.scope.problemReporter().methodMustOverride(this);					
-			} else if (!isInterfaceMethod 	&& (bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
+			} else if (!isInterfaceMethod 	
+						&& (bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
 				// actually overrides, but did not claim to do so
 				this.scope.problemReporter().missingOverrideAnnotation(this);
 			}

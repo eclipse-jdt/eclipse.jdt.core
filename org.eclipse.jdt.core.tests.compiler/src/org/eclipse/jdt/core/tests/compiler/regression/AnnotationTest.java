@@ -2437,6 +2437,24 @@ public class AnnotationTest extends AbstractComparableTest {
 	}	
 	// check @Override annotation - strictly for superclasses (overrides) and not interfaces (implements)
 	public void test077() {
+		String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+			?	"----------\n" + 
+				"1. ERROR in X.java (at line 14)\n" + 
+				"	void foo() {}\n" + 
+				"	     ^^^^^\n" + 
+				"The method foo() of type X must override a superclass method\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 18)\n" + 
+				"	public void baz() {}\n" + 
+				"	            ^^^^^\n" + 
+				"The method baz() of type X must override a superclass method\n" + 
+				"----------\n"
+			:	"----------\n" + 
+				"1. ERROR in X.java (at line 14)\n" + 
+				"	void foo() {}\n" + 
+				"	     ^^^^^\n" + 
+				"The method foo() of type X must override a superclass method\n" + 
+				"----------\n";
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2460,17 +2478,7 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	public void baz() {}\n" + 
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 14)\n" + 
-			"	void foo() {}\n" + 
-			"	     ^^^^^\n" + 
-			"The method foo() of type X must override a superclass method\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 18)\n" + 
-			"	public void baz() {}\n" + 
-			"	            ^^^^^\n" + 
-			"The method baz() of type X must override a superclass method\n" + 
-			"----------\n");
+			expectedOutput);
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80114
@@ -5611,7 +5619,25 @@ public void test142c() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=94759
     public void test168() {
-        this.runNegativeTest(
+    	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+			?	"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	@Override I clone();\n" + 
+				"	            ^^^^^^^\n" + 
+				"The method clone() of type I must override a superclass method\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	@Override void foo();\n" + 
+				"	               ^^^^^\n" + 
+				"The method foo() of type J must override a superclass method\n" + 
+				"----------\n"
+			:	"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	@Override I clone();\n" + 
+				"	            ^^^^^^^\n" + 
+				"The method clone() of type I must override a superclass method\n" + 
+				"----------\n";
+    	this.runNegativeTest(
             new String[] {
                 "X.java",
 				"interface I {\n" + 
@@ -5623,17 +5649,7 @@ public void test142c() {
 				"	@Override void foo();\n" + 
 				"}\n",
            },
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	@Override I clone();\n" + 
-		"	            ^^^^^^^\n" + 
-		"The method clone() of type I must override a superclass method\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	@Override void foo();\n" + 
-		"	               ^^^^^\n" + 
-		"The method foo() of type J must override a superclass method\n" + 
-		"----------\n");
+           expectedOutput);
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
     public void test169() {
@@ -7004,5 +7020,79 @@ public void test213() {
 		"	                     ^^^^^^^^\n" + 
 		"The array creation is unnecessary in an annotation value; only an array initializer is allowed\n" + 
 		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=141931
+public void test214() {
+	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
+		?	"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	void foo();\n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() of type I must override a superclass method\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	public void foo() {}\n" + 
+			"	            ^^^^^\n" + 
+			"The method foo() of type X must override a superclass method\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 13)\n" + 
+			"	void foo();\n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() of type J must override a superclass method\n" + 
+			"----------\n"
+		:	"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	void foo();\n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() of type I must override a superclass method\n" + 
+			"----------\n";
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"interface I {\n" + 
+			"  @Override\n" + 
+			"  void foo();\n" + 
+			"  void bar();\n" + 
+			"}\n" + 
+			"public class X implements I {\n" + 
+			"  @Override\n" + 
+			"  public void foo() {}\n" + 
+			"  public void bar() {}\n" + 
+			"}\n" + 
+			"interface J extends I {\n" + 
+			"	@Override\n" + 
+			"	void foo();\n" + 
+			"}\n",
+        },
+        expectedOutput);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=141931
+// variant
+public void test215() {
+	String sources[] = new String[] {
+		"I.java",
+		"public interface I {\n" + 
+		"  void foo();\n" + 
+		"}\n",
+		"X.java",
+		"abstract class X implements I {\n" + 
+		"}\n",
+		"Y.java",
+		"class Y extends X {\n" + 
+		"  @Override\n" +
+		"  public void foo() {}\n" +
+		"}\n"};
+	if (new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6) {
+		this.runNegativeTest(sources,
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 3)\r\n" + 
+			"	public void foo() {}\r\n" + 
+			"	            ^^^^^\n" + 
+			"The method foo() of type Y must override a superclass method\n" + 
+			"----------\n");
+	} else {
+		this.runConformTest(sources,
+			"");
+	}
 }
 }
