@@ -33,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1050, 1054 };
+//		TESTS_NUMBERS = new int[] { 1050 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -33744,16 +33744,9 @@ public void test1050() {
 	String expectedOutput =
 		"xxx\n" + 
     	"true\n" + 
-    	"Exception: java.lang.ClassCastException: [Ljava.lang.Object;\n" + 
-    	"Exception: java.lang.ClassCastException: [Ljava.lang.Object;";
-	
-	if (isJRELevel(AbstractCompilerTest.F_1_6)) {
-		expectedOutput =
-			"xxx\n" + 
-			"true\n" + 
-			"Exception: java.lang.ClassCastException: [Ljava.lang.Object; cannot be cast to [Ljava.lang.String;\n" + 
-			"Exception: java.lang.ClassCastException: [Ljava.lang.Object; cannot be cast to [Ljava.lang.String;";
-	}
+    	"ClassCastException: Object[] cannot be cast to String[]\n" + 
+    	"ClassCastException: Object[] cannot be cast to String[]";
+
 	this.runConformTest(
 		new String[] {
 			"X.java", //========================
@@ -33784,12 +33777,12 @@ public void test1050() {
 			"    try {\n" + 
 			"      System.out.println(data[0]);\n" + 
 			"    } catch (ClassCastException e) {\n" + 
-			"      System.out.println(\"Exception: \" + e);\n" + 
+			"      System.out.println(\"ClassCastException: Object[] cannot be cast to String[]\");\n" + 
 			"    }\n" + 
 			"    try {\n" + 
 			"      System.out.println(data()[0]);\n" + 
 			"    } catch (ClassCastException e) {\n" + 
-			"      System.out.println(\"Exception: \" + e);\n" + 
+			"      System.out.println(\"ClassCastException: Object[] cannot be cast to String[]\");\n" + 
 			"    }\n" + 
 			"  }\n" + 
 			"}\n" + 
