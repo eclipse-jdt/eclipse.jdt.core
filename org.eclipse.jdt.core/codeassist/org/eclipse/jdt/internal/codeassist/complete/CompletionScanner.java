@@ -40,6 +40,14 @@ public class CompletionScanner extends Scanner {
 
 	public static final char[] EmptyCompletionIdentifier = {};
 	
+	private boolean record = false;
+	public char[] prefix;
+	private int currentToken;
+	private int currentTokenStart;
+	public int potentialVariableNamesPtr; 
+	public char[][] potentialVariableNames;
+	public int[] potentialVariableNameStarts;
+	
 public CompletionScanner(long sourceLevel) {
 	super(
 		false /*comment*/, 
@@ -49,6 +57,25 @@ public CompletionScanner(long sourceLevel) {
 		null /*taskTags*/, 
 		null/*taskPriorities*/,
 		true/*taskCaseSensitive*/);
+}
+private void addPotentialName(char[] name, int start) {
+	int length = this.potentialVariableNames.length;
+	if (this.potentialVariableNamesPtr >= length - 1) {
+		System.arraycopy(
+				this.potentialVariableNames, 
+				0,
+				this.potentialVariableNames = new char[length * 2][],
+				0,
+				length);
+		System.arraycopy(
+				this.potentialVariableNameStarts,
+				0,
+				this.potentialVariableNameStarts = new int[length * 2],
+				0,
+				length);
+	}
+	this.potentialVariableNames[++this.potentialVariableNamesPtr] = name;
+	this.potentialVariableNameStarts[this.potentialVariableNamesPtr] = start;
 }
 /* 
  * Truncate the current identifier if it is containing the cursor location. Since completion is performed
@@ -102,6 +129,32 @@ public char[] getCurrentTokenSourceString() {
 	return super.getCurrentTokenSourceString();
 }
 public int getNextToken() throws InvalidInputException {
+	int nextToken = this.getNextToken0();
+	if (this.record) {
+		switch (nextToken) {
+			case TokenNameIdentifier:
+				if (this.currentToken != TokenNameDOT) {
+					char[] identifier = this.getCurrentIdentifierSource();
+					if (!Character.isUpperCase(identifier[0]) && 
+							CharOperation.prefixEquals(this.prefix, identifier, true)) {
+						this.addPotentialName(identifier, this.startPosition);
+					}
+				}
+				break;
+			case TokenNameLPAREN :
+			case TokenNameLBRACE :
+				if (this.currentToken == TokenNameIdentifier) {
+					this.removePotentialNamesAt(this.currentTokenStart);
+					
+				}
+				break;
+		}
+	}
+	this.currentToken = nextToken;
+	this.currentTokenStart = this.startPosition;
+	return nextToken;
+}
+private int getNextToken0() throws InvalidInputException {
 
 	this.wasAcr = false;
 	this.unicodeCharSize = 0;
@@ -807,6 +860,17 @@ public final void getNextUnicodeChar() throws InvalidInputException {
 		throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_UNICODE);
 	}
 }
+public final void jumpOverBlock() {
+	this.jumpOverMethodBody();
+}
+public void removePotentialNamesAt(int position) {
+	for (int i = 0; i <= this.potentialVariableNamesPtr; i++) {
+		int namePosition = this.potentialVariableNameStarts[i];
+		if (namePosition == position) {
+			this.potentialVariableNames[i] = null;
+		}
+	}
+}
 ///*
 // * In case we actually read a keyword, but the cursor is located inside,
 // * we pretend we read an identifier.
@@ -833,5 +897,16 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 		throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_NUMBER);
 	}
 	return token;
+}
+
+public void startRecordingIdentifiers() {
+	this.record = true;
+	
+	this.potentialVariableNamesPtr = -1; 
+	this.potentialVariableNames = new char[10][];
+	this.potentialVariableNameStarts = new int[10];
+}
+public void stopRecordingIdentifiers() {
+	this.record = true;
 }
 }

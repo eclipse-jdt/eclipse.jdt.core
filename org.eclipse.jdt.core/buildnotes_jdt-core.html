@@ -54,10 +54,19 @@ Eclipse SDK 3.3M3 - ?th October 2006
 <ul>
 <li>New compiler warning to detect overriding of a method without a super invocation has been added.
 See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=156736">156736</a> for further details.</li>
+<li>Code Assist propose unresolved names as possible local variable name<br>
+<pre>
+int f<code assist>
+System.out.print(foo);
+</pre>
+In this example foo is proposed as a possible completion.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=161204">161204</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=150228">150228</a>
+Code assist for unresolved local variables
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=161204">161204</a>
 code assist with unresolved types does not work when using 5.0 rt.jar
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=161554">161554</a>
 org.eclipse.jdt.core.tests.compiler.regression.GenericTypeTest#test1050 fails on IBM JDK 1.5 VM

@@ -9990,6 +9990,478 @@ public void testCompletionVariableName15() throws JavaModelException {
 		JavaCore.setOptions(options);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName16() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		Object ;\n"+
+            "		foo = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo[VARIABLE_DECLARATION]{foo, null, Ljava.lang.Object;, foo, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName17() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		Object foo1;\n"+
+            "		/*here*/Object ;\n"+
+            "		Object foo3;\n"+
+            "		foo1 = null;\n"+
+            "		foo2 = null;\n"+
+            "		foo3 = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo2[VARIABLE_DECLARATION]{foo2, null, Ljava.lang.Object;, foo2, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName18() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		Object ;\n"+
+            "		foo = Test.class;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo[VARIABLE_DECLARATION]{foo, null, Ljava.lang.Object;, foo, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName19() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		Object ;\n"+
+            "		object = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName20() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		/*here*/Object ;\n"+
+            "		class X {\n"+
+            "		  Object foo1 = foo2;\n"+
+            "		  void bar() {\n"+
+            "		    foo1 = null;\n"+
+            "		    Object foo3 = foo4;\n"+
+            "		    foo3 = null;\n"+
+            "		  }\n"+
+            "		}\n"+
+            "		foo5 = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+    		"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+    		"foo2[VARIABLE_DECLARATION]{foo2, null, Ljava.lang.Object;, foo2, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}\n"+
+    		"foo4[VARIABLE_DECLARATION]{foo4, null, Ljava.lang.Object;, foo4, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo5[VARIABLE_DECLARATION]{foo5, null, Ljava.lang.Object;, foo5, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName21() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		{\n"+
+            "		  /*here*/Object ;\n"+
+            "		  foo1 = null;\n"+
+            "		}\n"+
+            "		foo2 = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+    		"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo1[VARIABLE_DECLARATION]{foo1, null, Ljava.lang.Object;, foo1, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName22() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		Object foo1;\n"+
+            "		/*here*/Object ;\n"+
+            "		{\n"+
+            "		  Object foo3;\n"+
+            "		  foo1 = null;\n"+
+            "		  foo2 = null;\n"+
+            "		  foo3 = null;\n"+
+            "		}\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo2[VARIABLE_DECLARATION]{foo2, null, Ljava.lang.Object;, foo2, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName23() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		/*here*/Object ;\n"+
+            "		foo1 = null;\n"+
+            "		#\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo1[VARIABLE_DECLARATION]{foo1, null, Ljava.lang.Object;, foo1, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName24() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		/*here*/Object ;\n"+
+            "		#\n"+
+            "		foo1 = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo1[VARIABLE_DECLARATION]{foo1, null, Ljava.lang.Object;, foo1, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName25() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		/*here*/Object ;\n"+
+            "		#\n"+
+            "		foo1 = null;\n"+
+            "		#\n"+
+            "		foo2 = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo1[VARIABLE_DECLARATION]{foo1, null, Ljava.lang.Object;, foo1, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}\n"+
+    		"foo2[VARIABLE_DECLARATION]{foo2, null, Ljava.lang.Object;, foo2, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName26() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		/*here*/Object ;\n"+
+            "		#\n"+
+            "		foo1 = null;\n"+
+            "		#\n"+
+            "		foo2 = null;\n"+
+            "		#\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo1[VARIABLE_DECLARATION]{foo1, null, Ljava.lang.Object;, foo1, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}\n"+
+    		"foo2[VARIABLE_DECLARATION]{foo2, null, Ljava.lang.Object;, foo2, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName27() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		/*here*/Object ;\n"+
+            "		Object foo0 = null;\n"+
+            "		foo0 = null;\n"+
+            "		#\n"+
+            "		class X {\n"+
+            "		  Object foo1 = foo2;\n"+
+            "		  void bar() {\n"+
+            "		    foo1 = null;\n"+
+            "		    Object foo3 = foo4;\n"+
+            "		    foo3 = null;\n"+
+            "		  }\n"+
+            "		}\n"+
+            "		foo5 = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+    		"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+    		"foo2[VARIABLE_DECLARATION]{foo2, null, Ljava.lang.Object;, foo2, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}\n"+
+    		"foo4[VARIABLE_DECLARATION]{foo4, null, Ljava.lang.Object;, foo4, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo5[VARIABLE_DECLARATION]{foo5, null, Ljava.lang.Object;, foo5, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName28() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		/*here*/Object ;\n"+
+            "		Object foo1 = null;\n"+
+            "		foo1.foo2 = null;\n"+
+            "		foo3.foo4 = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+    		"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+    		"foo3[VARIABLE_DECLARATION]{foo3, null, Ljava.lang.Object;, foo3, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName29() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void foo(){\n"+
+            "		/*here*/Object ;\n"+
+            "		class X {\n"+
+            "			void bar1() {\n"+
+            "				var1 = null;\n"+
+            "			}\n"+
+            "			void bar2() {\n"+
+            "				Object var2 = null;\n"+
+            "				var2 = null;\n"+
+            "			}\n"+
+            "			void bar3() {\n"+
+            "				Object var3 = null;\n"+
+            "				{\n"+
+            "					var3 = null;\n"+
+            "					Object var4 = null;\n"+
+            "				}\n"+
+            "				var4 = null;\n"+
+            "			}\n"+
+            "		}\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+    		"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+    		"var1[VARIABLE_DECLARATION]{var1, null, Ljava.lang.Object;, var1, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"var4[VARIABLE_DECLARATION]{var4, null, Ljava.lang.Object;, var4, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName30() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	public Test(){\n"+
+            "		Object ;\n"+
+            "		foo = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo[VARIABLE_DECLARATION]{foo, null, Ljava.lang.Object;, foo, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName31() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	{\n"+
+            "		Object ;\n"+
+            "		foo = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo[VARIABLE_DECLARATION]{foo, null, Ljava.lang.Object;, foo, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
+public void testCompletionVariableName32() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void bar(Object ) {\n"+
+            "		foo = null;\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "Object ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"object[VARIABLE_DECLARATION]{object, null, Ljava.lang.Object;, object, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"foo[VARIABLE_DECLARATION]{foo, null, Ljava.lang.Object;, foo, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
 public void testCompletionNonEmptyToken1() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionNonEmptyToken1.java");

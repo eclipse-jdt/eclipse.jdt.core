@@ -184,7 +184,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	
 	// statement recovery
 //	public boolean statementRecoveryEnabled = true;
-	protected boolean methodRecoveryActivated = false;
+	public boolean methodRecoveryActivated = false;
 	protected boolean statementRecoveryActivated = false;
 	protected TypeDeclaration[] recoveredTypes;
 	protected int recoveredTypePtr;

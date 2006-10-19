@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -1258,7 +1260,7 @@ public final class CompletionEngine
 				
 				this.completionToken = method.selector;
 				
-				findVariableNames(this.completionToken, method.returnType, excludeNames, FIELD, method.modifiers);
+				findVariableNames(this.completionToken, method.returnType, excludeNames, null, FIELD, method.modifiers);
 			}
 		} else if (astNode instanceof CompletionOnFieldName) {
 			if (!this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
@@ -1272,29 +1274,31 @@ public final class CompletionEngine
 				
 				this.completionToken = field.realName;
 				
-				findVariableNames(field.realName, field.type, excludeNames, FIELD, field.modifiers);
+				findVariableNames(field.realName, field.type, excludeNames, null, FIELD, field.modifiers);
 			}
 		} else if (astNode instanceof CompletionOnLocalName || astNode instanceof CompletionOnArgumentName) {
 			if (!this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
 				LocalDeclaration variable = (LocalDeclaration) astNode;
 				
 				LocalVariableBinding[] locals = ((BlockScope)scope).locals;
-				char[][] excludeNames = new char[locals.length][];
+				char[][] discouragedNames = new char[locals.length][];
 				int localCount = 0;
 				for(int i = 0 ; i < locals.length ; i++){
 					if (locals[i] != null) {
-						excludeNames[localCount++] = locals[i].name;
+						discouragedNames[localCount++] = locals[i].name;
 					}
 				}
-				System.arraycopy(excludeNames, 0, excludeNames = new char[localCount][], 0, localCount);
+				System.arraycopy(discouragedNames, 0, discouragedNames = new char[localCount][], 0, localCount);
 				
 				if (variable instanceof CompletionOnLocalName){
 					this.completionToken = ((CompletionOnLocalName) variable).realName;
-					findVariableNames(this.completionToken, variable.type, excludeNames, LOCAL, variable.modifiers);
+					char[][] forbiddenNames = findVariableFromUnresolvedReference(variable, (BlockScope)scope, discouragedNames);
+					findVariableNames(this.completionToken, variable.type, discouragedNames, forbiddenNames, LOCAL, variable.modifiers);
 				} else {
 					CompletionOnArgumentName arg = (CompletionOnArgumentName) variable;
 					this.completionToken = arg.realName;
-					findVariableNames(this.completionToken, variable.type, excludeNames, arg.isCatchArgument ? LOCAL : ARGUMENT, variable.modifiers);
+					char[][] forbiddenNames = findVariableFromUnresolvedReference(variable, (BlockScope)scope, discouragedNames);
+					findVariableNames(this.completionToken, variable.type, discouragedNames, forbiddenNames, arg.isCatchArgument ? LOCAL : ARGUMENT, variable.modifiers);
 				}
 			}
 		} else if (astNode instanceof CompletionOnKeyword) {
@@ -6232,6 +6236,92 @@ public final class CompletionEngine
 			}
 		}
 	}
+	private char[][] findVariableFromUnresolvedReference(LocalDeclaration variable, BlockScope scope, final char[][] discouragedNames) {
+		final TypeReference type = variable.type;
+		if(type != null &&
+				type.resolvedType != null &&
+				type.resolvedType.problemId() == ProblemReasons.NoError){
+			
+			final int discouragedNamesCount = discouragedNames == null ? 0 : discouragedNames.length;
+			final ArrayList proposedNames = new ArrayList();
+			
+			UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor nameRequestor = 
+				new UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor() {
+					public void acceptName(char[] name) {
+						for (int i = 0; i < discouragedNamesCount; i++) {
+							if (CharOperation.equals(discouragedNames[i], name, false)) return;
+						}
+						
+						int relevance = computeBaseRelevance();
+						relevance += computeRelevanceForInterestingProposal();
+						relevance += computeRelevanceForCaseMatching(completionToken, name);
+						relevance += R_NAME_FIRST_PREFIX;
+						relevance += R_NAME_FIRST_SUFFIX;
+						relevance += R_NAME_LESS_NEW_CHARACTERS;
+						relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for variable name
+						
+						// accept result
+						CompletionEngine.this.noProposal = false;
+						if(!CompletionEngine.this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
+							CompletionProposal proposal = CompletionEngine.this.createProposal(CompletionProposal.VARIABLE_DECLARATION, CompletionEngine.this.actualCompletionPosition);
+							proposal.setSignature(getSignature(type.resolvedType));
+							proposal.setPackageName(type.resolvedType.qualifiedPackageName());
+							proposal.setTypeName(type.resolvedType.qualifiedSourceName());
+							proposal.setName(name);
+							proposal.setCompletion(name);
+							//proposal.setFlags(Flags.AccDefault);
+							proposal.setReplaceRange(CompletionEngine.this.startPosition - CompletionEngine.this.offset, CompletionEngine.this.endPosition - CompletionEngine.this.offset);
+							proposal.setRelevance(relevance);
+							CompletionEngine.this.requestor.accept(proposal);
+							if(DEBUG) {
+								CompletionEngine.this.printDebug(proposal);
+							}
+						}
+						proposedNames.add(name);
+					}
+				};
+			
+			ReferenceContext referenceContext = scope.referenceContext();
+			if (referenceContext instanceof AbstractMethodDeclaration) {
+				AbstractMethodDeclaration md = (AbstractMethodDeclaration)referenceContext;
+				
+				UnresolvedReferenceNameFinder nameFinder = new UnresolvedReferenceNameFinder(this);
+				nameFinder.find(
+						completionToken,
+						md,
+						variable.declarationSourceEnd + 1,
+						nameRequestor);
+			} else if (referenceContext instanceof TypeDeclaration) {
+				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
+				FieldDeclaration[] fields = typeDeclaration.fields;
+				if (fields != null) {
+					done : for (int i = 0; i < fields.length; i++) {
+						if (fields[i] instanceof Initializer) {
+							Initializer initializer = (Initializer) fields[i];
+							if (initializer.bodyStart <= variable.sourceStart &&
+									variable.sourceStart < initializer.bodyEnd) {
+								UnresolvedReferenceNameFinder nameFinder = new UnresolvedReferenceNameFinder(this);
+								nameFinder.find(
+										completionToken,
+										initializer,
+										typeDeclaration.scope,
+										variable.declarationSourceEnd + 1,
+										nameRequestor);
+								break done;
+							}
+						}
+					}
+				}
+			}
+			
+			int proposedNamesCount = proposedNames.size();
+			if (proposedNamesCount > 0) {
+				return (char[][])proposedNames.toArray(new char[proposedNamesCount][]);
+			}
+		}
+		
+		return null;
+	}
 		// Helper method for private void findVariableNames(char[] name, TypeReference type )
 	private void findVariableName(
 		char[] token,
@@ -6239,7 +6329,8 @@ public final class CompletionEngine
 		char[] qualifiedSourceName,
 		char[] sourceName,
 		final TypeBinding typeBinding,
-		char[][] excludeNames,
+		char[][] discouragedNames,
+		final char[][] forbiddenNames,
 		int dim,
 		int kind,
 		int modifiers){
@@ -6283,6 +6374,11 @@ public final class CompletionEngine
 				accept(name, 0, reusedCharacters);
 			}
 			void accept(char[] name, int prefixAndSuffixRelevance, int reusedCharacters){
+				int l = forbiddenNames == null ? 0 : forbiddenNames.length;
+				for (int i = 0; i < l; i++) {
+					if (CharOperation.equals(forbiddenNames[i], name, false)) return;
+				}
+				
 				if (CharOperation.prefixEquals(t, name, false)) {
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForInterestingProposal();
@@ -6321,7 +6417,7 @@ public final class CompletionEngine
 					dim,
 					modifiers,
 					token,
-					excludeNames,
+					discouragedNames,
 					namingRequestor);
 				break;
 			case LOCAL :
@@ -6331,7 +6427,7 @@ public final class CompletionEngine
 					qualifiedSourceName,
 					dim,
 					token,
-					excludeNames,
+					discouragedNames,
 					namingRequestor);
 				break;
 			case ARGUMENT :
@@ -6341,13 +6437,13 @@ public final class CompletionEngine
 					qualifiedSourceName,
 					dim,
 					token,
-					excludeNames,
+					discouragedNames,
 					namingRequestor);
 				break;
 		}
 	}
 
-	private void findVariableNames(char[] name, TypeReference type , char[][] excludeNames, int kind, int modifiers){
+	private void findVariableNames(char[] name, TypeReference type , char[][] discouragedNames, char[][] forbiddenNames, int kind, int modifiers){
 
 		if(type != null &&
 			type.resolvedType != null &&
@@ -6359,7 +6455,8 @@ public final class CompletionEngine
 				tb.leafComponentType().qualifiedSourceName(),
 				tb.leafComponentType().sourceName(),
 				tb,
-				excludeNames,
+				discouragedNames,
+				forbiddenNames,
 				type.dimensions(),
 				kind,
 				modifiers);

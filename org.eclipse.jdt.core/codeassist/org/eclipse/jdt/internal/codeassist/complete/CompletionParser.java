@@ -73,6 +73,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_LABEL = COMPLETION_PARSER + 36;
 	
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
+	public final static char[] FAKE_METHOD_NAME = new char[]{' '};
 	public final static char[] VALUE = new char[]{'v', 'a', 'l', 'u', 'e'};
 	
 	/* public fields */
@@ -3600,6 +3601,49 @@ public void parseBlockStatements(
 	CompilationUnitDeclaration unit) {
 	canBeExplicitConstructor = 1;
 	super.parseBlockStatements(cd, unit);
+}
+public MethodDeclaration parseStatementsAfterCompletion(int start, int end, CompilationUnitDeclaration unit) {
+	this.methodRecoveryActivated = true;
+	
+	initialize();
+
+	// simulate goForMethodBody except that we don't want to balance brackets because they are not going to be balanced
+	goForBlockStatementsopt();
+
+	MethodDeclaration fakeMethod = new MethodDeclaration(unit.compilationResult());
+	fakeMethod.selector = FAKE_METHOD_NAME;
+	fakeMethod.bodyStart = start;
+	fakeMethod.bodyEnd = end;
+	fakeMethod.declarationSourceStart = start;
+	fakeMethod.declarationSourceEnd = end;
+	fakeMethod.sourceStart = start;
+	fakeMethod.sourceEnd = start; //fake method must ignore the method header
+	
+	referenceContext = fakeMethod;
+	compilationUnit = unit;
+	
+	scanner.resetTo(start, end);
+	consumeNestedMethod();
+	try {
+		parse();
+	} catch (AbortCompilation ex) {
+		lastAct = ERROR_ACTION;
+	} finally {
+		nestedMethod[nestedType]--;		
+	}
+	if (!this.hasError) {
+		int length;
+		if (astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.astStack, 
+				(this.astPtr -= length) + 1, 
+				fakeMethod.statements = new Statement[length], 
+				0, 
+				length); 
+		}
+	}
+	
+	return fakeMethod;
 }
 /*
  * Prepares the state of the parser to go for BlockStatements.
