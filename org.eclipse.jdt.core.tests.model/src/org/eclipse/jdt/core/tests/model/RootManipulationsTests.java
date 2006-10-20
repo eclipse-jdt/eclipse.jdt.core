@@ -248,9 +248,9 @@ public void testCopySourceFolder4() throws CoreException {
 		assertDeltas(
 			"Unexpected delta (1)",
 			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"	src[+]: {}\n" + 
 			"	src1[*]: {REORDERED}\n" + 
 			"	src2[*]: {REORDERED}\n" + 
-			"	src[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertElementsEqual(
@@ -806,9 +806,9 @@ public void testMoveSourceFolder4() throws CoreException {
 			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
+			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	src1[*]: {REORDERED}\n" + 
 			"	src2[*]: {REORDERED}\n" + 
-			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
@@ -853,8 +853,8 @@ public void testMoveSourceFolder5() throws CoreException {
 			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
-			"	src2[*]: {REORDERED}\n" + 
 			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
+			"	src2[*]: {REORDERED}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
@@ -1015,9 +1015,9 @@ public void testRenameSourceFolder4() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
-			"	src1[-]: {MOVED_TO(src2 [in <project root> [in P]])}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
-			"		src2[+]: {MOVED_FROM(<default> [in src1 [in P]])}"
+			"		src2[+]: {MOVED_FROM(<default> [in src1 [in P]])}\n" + 
+			"	src1[-]: {MOVED_TO(src2 [in <project root> [in P]])}"
 		);
 	} finally {
 		stopDeltas();

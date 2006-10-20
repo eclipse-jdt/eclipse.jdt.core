@@ -517,13 +517,13 @@ public void testBatchOperation() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n" +
-			"	src[*]: {CHILDREN}\n" +
-			"		x[*]: {CHILDREN}\n" +
-			"			A.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
-			"				B[+]: {}\n" +
-			"				A[*]: {CHILDREN | FINE GRAINED}\n" +
-			"					i[+]: {}"
+			"P[*]: {CHILDREN}\n" + 
+			"	src[*]: {CHILDREN}\n" + 
+			"		x[*]: {CHILDREN}\n" + 
+			"			A.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
+			"				A[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"					i[+]: {}\n" + 
+			"				B[+]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -987,8 +987,8 @@ public void testDeleteProjectSetCPAnotherProject() throws CoreException {
 		assertDeltas(
 			"Unexpected deltas",
 			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
-			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	<project root>[*]: {ADDED TO CLASSPATH}\n" + 
+			"	src[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"P2[-]: {}"
 		);
@@ -1469,12 +1469,12 @@ public void testMoveCuInEnclosingPkg() throws CoreException {
 		cu.move(pkg, null, null, true, null);
 		assertDeltas(
 			"Unexpected delta", 
-			"P[*]: {CHILDREN}\n" +
-			"	<project root>[*]: {CHILDREN}\n" +
-			"		x.y[*]: {CHILDREN}\n" +
-			"			A.java[-]: {MOVED_TO(A.java [in x [in <project root> [in P]]])}\n" +
-			"		x[*]: {CHILDREN}\n" +
-			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in <project root> [in P]]])}"
+			"P[*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		x[*]: {CHILDREN}\n" + 
+			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in <project root> [in P]]])}\n" + 
+			"		x.y[*]: {CHILDREN}\n" + 
+			"			A.java[-]: {MOVED_TO(A.java [in x [in <project root> [in P]]])}"
 		);
 		assertElementDescendants(
 			"Unexpected children for package x",
@@ -1566,8 +1566,8 @@ public void testNestedRootParentMove() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN | CONTENT}\n" + 
-			"	nested/src[-]: {MOVED_TO(nested2/src [in P])}\n" + 
 			"	nested2/src[+]: {MOVED_FROM(nested/src [in P])}\n" + 
+			"	nested/src[-]: {MOVED_TO(nested2/src [in P])}\n" + 
 			"	ResourceDelta(/P/nested)[*]\n" + 
 			"	ResourceDelta(/P/nested2)[*]"
 		);
@@ -1796,8 +1796,8 @@ public void testRemoveAddBinaryProject() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
-			"	lib.jar[-]: {}\n" + 
 			"	<project root>[*]: {ADDED TO CLASSPATH}\n" + 
+			"	lib.jar[-]: {}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]\n" + 
 			"	ResourceDelta(/P/.project)[*]"
 		);
@@ -2113,8 +2113,8 @@ public void testRenameMethodAndSave() throws CoreException {
 			"		x.y[*]: {CHILDREN}\n" + 
 			"			A.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				A[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"					foo2()[+]: {}\n" + 
-			"					foo1()[-]: {}"
+			"					foo1()[-]: {}\n" + 
+			"					foo2()[+]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -2235,8 +2235,8 @@ public void testSetClasspathOnFreshProject() throws CoreException {
 			"Should notice src2 and myLib additions to the classpath", 
 			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
 			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
 			"	/LibProj/mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
+			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]"
 		);
 	} finally {

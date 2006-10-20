@@ -127,6 +127,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				}
 			};
 			org.eclipse.jdt.internal.core.util.Util.sort(elementDeltas, comparer);
+			for (int i = 0, max = elementDeltas.length; i < max; i++) {
+				IJavaElementDelta delta = elementDeltas[i];
+				IJavaElementDelta[] children = delta.getAffectedChildren();
+				if (children != null) {
+					sortDeltas(children);
+				}
+			}
 		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();

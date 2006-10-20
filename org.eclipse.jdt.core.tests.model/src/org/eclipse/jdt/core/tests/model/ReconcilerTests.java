@@ -441,8 +441,8 @@ public void testAddFieldAndConstructor() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta", 
 		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	i[+]: {}\n" + 
-		"	X(int)[+]: {}"
+		"	X(int)[+]: {}\n" + 
+		"	i[+]: {}"
 	);
 }
 /**
@@ -1305,9 +1305,9 @@ public void testGrowImports() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta", 
-		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	import p2[+]: {}\n" +
-		"	import p[-]: {}"
+		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	import p[-]: {}\n" + 
+		"	import p2[+]: {}"
 	);
 }
 /*
