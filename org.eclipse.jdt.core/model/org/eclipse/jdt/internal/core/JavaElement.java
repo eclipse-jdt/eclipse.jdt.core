@@ -730,6 +730,8 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			URLConnection connection = docUrl.openConnection();
 			if (connection instanceof JarURLConnection) {
 				connection2 = (JarURLConnection) connection;
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=156307
+				connection.setUseCaches(false);
 			}
 			stream = new BufferedInputStream(connection.getInputStream());
 			String encoding = connection.getContentEncoding();
@@ -770,9 +772,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
  			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
 		} catch (FileNotFoundException e) {
 			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
-		} /*catch(SocketException e) {
-			// ignore. see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=120559
-		} */catch(IOException e) {
+		} catch(IOException e) {
 			StringWriter stringWriter = new StringWriter();
 			PrintWriter writer = new PrintWriter(stringWriter);
 			e.printStackTrace(writer);
