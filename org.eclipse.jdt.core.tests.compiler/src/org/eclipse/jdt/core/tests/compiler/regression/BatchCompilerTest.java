@@ -1622,112 +1622,112 @@ public void test019(){
 	        true);
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - repeated -extdirs fails
-		public void test023(){
-			this.runNegativeTest(
-				new String[] {
-						"src1/X.java",
-						"/** */\n" + 
-						"public class X {\n" + 
-						"}",
-						"src2/Y.java",
-						"/** */\n" + 
-						"public class Y extends X {\n" + 
-						"}",
-				},
-				" -extdirs \"" + OUTPUT_DIR +  File.separator + "src1\"" 
-				+ " -extdirs \"" + OUTPUT_DIR +  File.separator + "src2\"" 
-		        + " \"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
-		        + " -1.5 -g -preserveAllLocals"
-		        + " -verbose -proceedOnError -referenceInfo"
-		        + " -d \"" + OUTPUT_DIR + "\" ",
-		        "",
-		        "duplicate extdirs specification: -extdirs ---OUTPUT_DIR_PLACEHOLDER---/src2\n",
-		        true);
-		}
+	public void test023(){
+		this.runNegativeTest(
+			new String[] {
+					"src1/X.java",
+					"/** */\n" + 
+					"public class X {\n" + 
+					"}",
+					"src2/Y.java",
+					"/** */\n" + 
+					"public class Y extends X {\n" + 
+					"}",
+			},
+			" -extdirs \"" + OUTPUT_DIR +  File.separator + "src1\"" 
+			+ " -extdirs \"" + OUTPUT_DIR +  File.separator + "src2\"" 
+	        + " \"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
+	        + " -1.5 -g -preserveAllLocals"
+	        + " -verbose -proceedOnError -referenceInfo"
+	        + " -d \"" + OUTPUT_DIR + "\" ",
+	        "",
+	        "duplicate extdirs specification: -extdirs ---OUTPUT_DIR_PLACEHOLDER---/src2\n",
+	        true);
+	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - explicit empty -extdirs removes extensions
-		public void test024(){
-			this.runNegativeTest(
-				new String[] {
-						"X.java",
-						"/** */\n" + 
-						"public class X {\n" + 
-						"  my.pkg.Zork dummy;\n" + 
-						"}",
-				},
-		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-				+ " -extdirs \"\"" 
-		        + " -1.5 -g -preserveAllLocals"
-		        + " -proceedOnError -referenceInfo"
-		        + " -d \"" + OUTPUT_DIR + "\" ",
-		        "",
-		        "----------\n" + 
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		        "	my.pkg.Zork dummy;\n" + 
-		        "	^^\n" + 
-		        "my cannot be resolved to a type\n" + 
-		        "----------\n" + 
-		        "1 problem (1 error)",
-		        true);
-		}
+	public void test024(){
+		this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"/** */\n" + 
+					"public class X {\n" + 
+					"  my.pkg.Zork dummy;\n" + 
+					"}",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+			+ " -extdirs \"\"" 
+	        + " -1.5 -g -preserveAllLocals"
+	        + " -proceedOnError -referenceInfo"
+	        + " -d \"" + OUTPUT_DIR + "\" ",
+	        "",
+	        "----------\n" + 
+	        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+	        "	my.pkg.Zork dummy;\n" + 
+	        "	^^\n" + 
+	        "my cannot be resolved to a type\n" + 
+	        "----------\n" + 
+	        "1 problem (1 error)",
+	        true);
+	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
-		public void test025(){
-			String path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
-			String libPath = null;
-			if (path.endsWith(File.separator)) {
-				libPath = path + "lib.jar";
-			} else {
-				libPath = path + File.separator + "lib.jar";
-			}
-			boolean jarCreated = false;
-			try {
-				Util.createJar(new String[] {
-						"my/pkg/Zork.java",
-						"package my.pkg;\n" + 
-						"public class Zork {\n" + 
-						"}",
-					},
-					libPath,
-					JavaCore.VERSION_1_4);
-				jarCreated = true;
-			} catch (IOException e) {
-				// ignore
-			}
-			this.runConformTest(
-				new String[] {
-						"src1/X.java",
-						"/** */\n" + 
-						"public class X {\n" + 
-						"  my.pkg.Zork dummy;\n" + 
-						"}",
-						"src2/Y.java",
-						"/** */\n" + 
-						"public class Y extends X {\n" + 
-						"}",
-				},
-		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-				+ " -extdirs \"" + path + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
-				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
-		        + " -1.5 -g -preserveAllLocals"
-		        + " -verbose -proceedOnError -referenceInfo"
-		        + " -d \"" + OUTPUT_DIR + "\" ",
-		        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" + 
-		        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-		        "[reading    java/lang/Object.class]\n" + 
-		        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
-		        "[writing    Y.class - #1]\n" + 
-		        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
-		        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-		        "[reading    my/pkg/Zork.class]\n" + 
-		        "[writing    X.class - #2]\n" + 
-		        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-		        "[2 units compiled]\n" + 
-		        "[2 .class files generated]\n",
-		        "",
-		        true);
-			if (jarCreated) {
-				new File(libPath).delete();
-			}
+	public void test025(){
+		String path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
+		String libPath = null;
+		if (path.endsWith(File.separator)) {
+			libPath = path + "lib.jar";
+		} else {
+			libPath = path + File.separator + "lib.jar";
 		}
+		boolean jarCreated = false;
+		try {
+			Util.createJar(new String[] {
+					"my/pkg/Zork.java",
+					"package my.pkg;\n" + 
+					"public class Zork {\n" + 
+					"}",
+				},
+				libPath,
+				JavaCore.VERSION_1_4);
+			jarCreated = true;
+		} catch (IOException e) {
+			// ignore
+		}
+		this.runConformTest(
+			new String[] {
+					"src1/X.java",
+					"/** */\n" + 
+					"public class X {\n" + 
+					"  my.pkg.Zork dummy;\n" + 
+					"}",
+					"src2/Y.java",
+					"/** */\n" + 
+					"public class Y extends X {\n" + 
+					"}",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+			+ " -extdirs \"" + path + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
+	        + " -1.5 -g -preserveAllLocals"
+	        + " -verbose -proceedOnError -referenceInfo"
+	        + " -d \"" + OUTPUT_DIR + "\" ",
+	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" + 
+	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
+	        "[reading    java/lang/Object.class]\n" + 
+	        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
+	        "[writing    Y.class - #1]\n" + 
+	        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
+	        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
+	        "[reading    my/pkg/Zork.class]\n" + 
+	        "[writing    X.class - #2]\n" + 
+	        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
+	        "[2 units compiled]\n" + 
+	        "[2 .class files generated]\n",
+	        "",
+	        true);
+		if (jarCreated) {
+			new File(libPath).delete();
+		}
+	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -extdirs extends the classpath before -classpath
 		public void test026(){
 			this.runConformTest(
