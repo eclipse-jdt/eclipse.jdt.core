@@ -821,9 +821,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			this.acceptedAnswer = true;
 		} else if (binding instanceof ReferenceBinding) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
-			
 			if(typeBinding instanceof ProblemReferenceBinding) {
-				typeBinding = ((ProblemReferenceBinding) typeBinding).closestMatch;
+				typeBinding = typeBinding.closestMatch();
 			}
 			if (typeBinding == null) return;
 			if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {

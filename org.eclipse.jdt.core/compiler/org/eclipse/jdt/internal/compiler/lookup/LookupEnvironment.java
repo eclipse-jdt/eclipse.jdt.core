@@ -83,7 +83,6 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
 	this.accessRestrictions = new HashMap(3);
-	
 	this.classFilePool = ClassFilePool.newInstance();
 }
 

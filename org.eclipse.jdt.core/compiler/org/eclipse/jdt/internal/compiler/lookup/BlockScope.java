@@ -454,7 +454,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
-						null, // TODO should improve
+						((ReferenceBinding)binding).closestMatch(),
 						binding.problemId());
 				if (!((ReferenceBinding) binding).canBeSeenBy(this))
 					return new ProblemReferenceBinding(
@@ -476,11 +476,11 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 	// know binding is now a ReferenceBinding
 	binding = environment().convertToRawType((ReferenceBinding) binding);
 	while (currentIndex < length) {
-		ReferenceBinding typeBinding = (ReferenceBinding) binding;
+		ReferenceBinding referenceBinding = (ReferenceBinding) binding;
 		char[] nextName = compoundName[currentIndex++];
 		invocationSite.setFieldIndex(currentIndex);
-		invocationSite.setActualReceiverType(typeBinding);
-		if ((mask & Binding.FIELD) != 0 && (binding = findField(typeBinding, nextName, invocationSite, true /*resolve*/)) != null) {
+		invocationSite.setActualReceiverType(referenceBinding);
+		if ((mask & Binding.FIELD) != 0 && (binding = findField(referenceBinding, nextName, invocationSite, true /*resolve*/)) != null) {
 			if (!binding.isValidBinding()) {
 				return new ProblemFieldBinding(
 					((ProblemFieldBinding)binding).closestMatch,
@@ -490,22 +490,23 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 			}
 			break; // binding is now a field
 		}
-		if ((binding = findMemberType(nextName, typeBinding)) == null) {
+		if ((binding = findMemberType(nextName, referenceBinding)) == null) {
 			if ((mask & Binding.FIELD) != 0) {
 				return new ProblemBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					typeBinding,
+					referenceBinding,
 					ProblemReasons.NotFound);
 			} 
 			return new ProblemReferenceBinding(
 				CharOperation.subarray(compoundName, 0, currentIndex),
-				typeBinding,
+				referenceBinding,
 				ProblemReasons.NotFound);
 		}
+		// binding is a ReferenceBinding
 		if (!binding.isValidBinding())
 			return new ProblemReferenceBinding(
 				CharOperation.subarray(compoundName, 0, currentIndex),
-				null, // TODO should improve
+				((ReferenceBinding)binding).closestMatch(),
 				binding.problemId());
 	}
 	if ((mask & Binding.FIELD) != 0 && (binding instanceof FieldBinding)) {
@@ -563,7 +564,7 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
-						null, // TODO should improve
+						((ReferenceBinding)binding).closestMatch(),
 						binding.problemId());
 				if (!((ReferenceBinding) binding).canBeSeenBy(this))
 					return new ProblemReferenceBinding(
@@ -596,16 +597,18 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 						ProblemReasons.NonStaticReferenceInStaticContext);
 				break foundField; // binding is now a field
 			}
-			if ((binding = findMemberType(nextName, typeBinding)) == null)
+			if ((binding = findMemberType(nextName, typeBinding)) == null) {
 				return new ProblemBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
 					typeBinding,
 					ProblemReasons.NotFound);
-			if (!binding.isValidBinding())
+			}
+			if (!binding.isValidBinding()) {
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					null, // TODO should improve
+					((ReferenceBinding)binding).closestMatch(),
 					binding.problemId());
+			}
 		}
 		return binding;
 	}

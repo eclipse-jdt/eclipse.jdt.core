@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 public class ProblemReferenceBinding extends ReferenceBinding {
-	public ReferenceBinding closestMatch;
+	private ReferenceBinding closestMatch;
 	private int problemReason;
 	
 // NOTE: must only answer the subset of the name related to the problem
@@ -24,6 +24,14 @@ public ProblemReferenceBinding(char[][] compoundName, ReferenceBinding closestMa
 public ProblemReferenceBinding(char[] name, ReferenceBinding closestMatch, int problemReason) {
 	this(new char[][] {name}, closestMatch, problemReason);
 }
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#closestMatch()
+ */
+public ReferenceBinding closestMatch() {
+	return this.closestMatch;
+}
+
 /* API
 * Answer the problem id associated with the receiver.
 * NoError if the receiver is a valid binding.

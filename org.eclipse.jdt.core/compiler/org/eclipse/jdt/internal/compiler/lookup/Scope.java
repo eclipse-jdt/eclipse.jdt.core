@@ -992,7 +992,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						if (visibleMemberType == null)
 							visibleMemberType = memberType;
 						else
-							return new ProblemReferenceBinding(typeName, null, ProblemReasons.Ambiguous);
+							return new ProblemReferenceBinding(typeName, visibleMemberType, ProblemReasons.Ambiguous);
 				} else {
 					notVisible = memberType;
 				}
@@ -1009,7 +1009,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (visibleMemberType == null) {
 						visibleMemberType = memberType;
 					} else {
-						ambiguous = new ProblemReferenceBinding(typeName, null, ProblemReasons.Ambiguous);
+						ambiguous = new ProblemReferenceBinding(typeName, visibleMemberType, ProblemReasons.Ambiguous);
 						break done;
 					}
 				} else {
@@ -2036,7 +2036,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			if (!binding.isValidBinding())
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					null, // TODO should improve
+					binding instanceof ReferenceBinding ? ((ReferenceBinding)binding).closestMatch() : null,
 					binding.problemId());
 			if (!(binding instanceof PackageBinding))
 				return packageBinding;
@@ -2075,7 +2075,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		if (!binding.isValidBinding())
 			return new ProblemReferenceBinding(
 				CharOperation.arrayConcat(packageBinding.compoundName, name),
-				null, // TODO should improve
+				binding instanceof ReferenceBinding ? ((ReferenceBinding)binding).closestMatch() : null,
 				binding.problemId());
 
 		ReferenceBinding typeBinding = (ReferenceBinding) binding;
@@ -2122,7 +2122,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
-						null, // TODO should improve
+						binding instanceof ReferenceBinding ? ((ReferenceBinding)binding).closestMatch() : null,
 						binding.problemId());
 				if (!(binding instanceof PackageBinding))
 					break;
@@ -2153,12 +2153,12 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) typeBinding;
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
-						problemBinding.closestMatch,
+						problemBinding.closestMatch(),
 						typeBinding.problemId());
 				}
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					null, // TODO should improve
+					((ReferenceBinding)binding).closestMatch(),
 					typeBinding.problemId());
 			}
 		}
@@ -2346,7 +2346,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 								if (importReference != null) importReference.used = true;
 								if (foundInImport) {
 									// Answer error binding -- import on demand conflict; name found in two import on demand packages.
-									temp = new ProblemReferenceBinding(name, null, ProblemReasons.Ambiguous);
+									temp = new ProblemReferenceBinding(name, type, ProblemReasons.Ambiguous);
 									if (typeOrPackageCache != null)
 										typeOrPackageCache.put(name, temp);
 									return temp;
@@ -2414,7 +2414,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
-						null, // TODO should improve
+						binding instanceof ReferenceBinding ? ((ReferenceBinding)binding).closestMatch() : null,
 						binding.problemId());
 				if (!(binding instanceof PackageBinding))
 					break;
@@ -2440,7 +2440,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			if (!typeBinding.isValidBinding())
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					null, // TODO should improve
+					((ReferenceBinding)binding).closestMatch(),
 					typeBinding.problemId());
 			
 			if (typeBinding.isGenericType()) {

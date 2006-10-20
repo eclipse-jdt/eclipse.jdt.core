@@ -65,7 +65,7 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 				this.packageBinding = (PackageBinding) binding;
 			} else {
 				if (this.resolvedType.problemId() == ProblemReasons.NonStaticReferenceInStaticContext) {
-					ReferenceBinding closestMatch = ((ProblemReferenceBinding)this.resolvedType).closestMatch;
+					ReferenceBinding closestMatch = ((ProblemReferenceBinding)this.resolvedType).closestMatch();
 					if (closestMatch != null && closestMatch.isTypeVariable()) {
 						this.resolvedType = closestMatch; // ignore problem as we want report specific javadoc one instead
 						return resolvedType;

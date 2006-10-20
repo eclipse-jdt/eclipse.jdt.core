@@ -156,7 +156,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 			long[] positions = importRef.sourcePositions;
 			int last = positions.length - 1;
 			if (binding instanceof ProblemReferenceBinding)
-				binding = ((ProblemReferenceBinding) binding).closestMatch;
+				binding = ((ProblemReferenceBinding) binding).closestMatch();
 			if (binding instanceof ReferenceBinding) {
 				PackageBinding pkgBinding = ((ReferenceBinding) binding).fPackage;
 				if (pkgBinding != null)
@@ -220,7 +220,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		if (typeBinding instanceof ArrayBinding)
 			typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
 		if (typeBinding instanceof ProblemReferenceBinding)
-			typeBinding = ((ProblemReferenceBinding) typeBinding).closestMatch;
+			typeBinding = ((ProblemReferenceBinding) typeBinding).closestMatch();
 		if (typeBinding instanceof ReferenceBinding) {
 			PackageBinding pkgBinding = ((ReferenceBinding) typeBinding).fPackage;
 			if (pkgBinding != null)
@@ -283,7 +283,7 @@ public int resolveLevel(Binding binding) {
 		if (binding instanceof ArrayBinding)
 			binding = ((ArrayBinding) binding).leafComponentType;
 		if (binding instanceof ProblemReferenceBinding)
-			binding = ((ProblemReferenceBinding) binding).closestMatch;
+			binding = ((ProblemReferenceBinding) binding).closestMatch();
 		if (binding == null) return INACCURATE_MATCH;
 
 		if (binding instanceof ReferenceBinding) {

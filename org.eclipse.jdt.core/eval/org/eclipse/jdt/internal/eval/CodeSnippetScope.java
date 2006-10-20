@@ -448,7 +448,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 	 			if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 									CharOperation.subarray(compoundName, 0, currentIndex), 
-									null, // TODO should improve
+									((ReferenceBinding)binding).closestMatch(),
 									binding.problemId());
 	 			if (!this.canBeSeenByForCodeSnippet((ReferenceBinding) binding, receiverType))
 					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), (ReferenceBinding) binding, ProblemReasons.NotVisible);
@@ -481,7 +481,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		 if (!binding.isValidBinding())
 			return new ProblemReferenceBinding(
 								CharOperation.subarray(compoundName, 0, currentIndex), 
-								null, // TODO should improve
+								((ReferenceBinding)binding).closestMatch(),
 								binding.problemId());
 	}
 

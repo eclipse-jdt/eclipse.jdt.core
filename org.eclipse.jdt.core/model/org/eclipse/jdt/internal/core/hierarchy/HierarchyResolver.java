@@ -295,7 +295,7 @@ private void fixSupertypeBindings() {
 				TypeReference superclassRef = typeDeclaration == null ? null : typeDeclaration.superclass;
 				TypeBinding superclass = superclassRef == null ? null : superclassRef.resolvedType;
 				if (superclass instanceof ProblemReferenceBinding) {
-					superclass = ((ProblemReferenceBinding) superclass).closestMatch;
+					superclass = ((ProblemReferenceBinding) superclass).closestMatch();
 				}
 				if (superclass != null) 
 					((SourceTypeBinding) typeBinding).superclass = (ReferenceBinding) superclass;
@@ -309,7 +309,7 @@ private void fixSupertypeBindings() {
 					for (int i = 0; i < length; i++) {
 						ReferenceBinding superInterface = (ReferenceBinding) superInterfaces[i].resolvedType;
 						if (superInterface instanceof ProblemReferenceBinding)
-							superInterface = ((ProblemReferenceBinding) superInterface).closestMatch;
+							superInterface = superInterface.closestMatch();
 						if (superInterface != null)
 							interfaceBindings[index++] = superInterface;
 					}
