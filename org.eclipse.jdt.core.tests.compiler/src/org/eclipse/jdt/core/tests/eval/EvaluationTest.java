@@ -527,7 +527,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	 * Returns a new problem with the given id, severity, source positions and line number.
 	 */
 	protected DefaultProblem newProblem(int id, int severity, int startPos, int endPos, int line) {
-		return new DefaultProblem(null, null, id, null, severity, startPos, endPos, line);
+		return new DefaultProblem(null, null, id, null, severity, startPos, endPos, line, 0);
 	}
 	
 	public void resetEnv() {

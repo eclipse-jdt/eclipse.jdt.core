@@ -273,7 +273,8 @@ public final class CompletionEngine
 						int severity,
 						int start,
 						int end,
-						int lineNumber) {
+						int lineNumber,
+						int columnNumber) {
 						
 						CategorizedProblem pb = super.createProblem(
 							originatingFileName,
@@ -283,7 +284,8 @@ public final class CompletionEngine
 							severity,
 							start,
 							end,
-							lineNumber);
+							lineNumber,
+							columnNumber);
 						if(CompletionEngine.this.actualCompletionPosition > start
 							&& this.lastErrorStart < start
 							&& pb.isError()

@@ -25,9 +25,9 @@ public class CancelableProblemFactory extends DefaultProblemFactory {
 		this.monitor = monitor;
 	}
 
-	public CategorizedProblem createProblem(char[] originatingFileName, int problemId, String[] problemArguments, String[] messageArguments, int severity, int startPosition, int endPosition, int lineNumber) {
+	public CategorizedProblem createProblem(char[] originatingFileName, int problemId, String[] problemArguments, String[] messageArguments, int severity, int startPosition, int endPosition, int lineNumber, int columnNumber) {
 		if (this.monitor != null && this.monitor.isCanceled()) 
 			throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
-		return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber);
+		return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
 	}
 }

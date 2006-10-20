@@ -21,16 +21,19 @@ import java.text.MessageFormat;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 
 public class BatchCompilerTest extends AbstractRegressionTest {
 	public static final String OUTPUT_DIR_PLACEHOLDER = "---OUTPUT_DIR_PLACEHOLDER---";
 	static final String JRE_HOME_DIR = Util.getJREDirectory();
+	private static final Main MAIN = new Main(null, null, false);
 
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 1 };
+//	TESTS_NUMBERS = new int[] { 21 };
 //	TESTS_RANGE = new int[] { 1, -1 };
 }
 public BatchCompilerTest(String name) {
@@ -861,108 +864,169 @@ public void test011(){
         "",
         true);
 }
-// command line - help
-// amended for https://bugs.eclipse.org/bugs/show_bug.cgi?id=141512 (checking
-// width)
+//command line - help
+//amended for https://bugs.eclipse.org/bugs/show_bug.cgi?id=141512 (checking
+//width)
 public void test012(){
 	final String expectedOutput =
-        "{0} {1}\n" + 
-        "{2}\n" + 
-        " \n" + 
-        " Usage: <options> <source files | directories>\n" + 
-        " If directories are specified, then their source contents are compiled.\n" + 
-        " Possible options are listed below. Options enabled by default are prefixed\n" + 
-        " with ''+''.\n" + 
-        " \n" + 
-        " Classpath options:\n" + 
-        "    -cp -classpath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
-        "                       specify location for application classes and sources.\n" + 
-        "                       Each directory or file can specify access rules for\n" + 
-        "                       types between ''['' and '']'' (e.g. [-X] to forbid\n" + 
-        "                       access to type X, [~X] to discourage access to type X,\n" + 
-        "                       [+p/X:-p/*] to forbid access to all types in package p\n" + 
-        "                       but allow access to p/X)\n" + 
-        "    -bootclasspath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
-        "                       specify location for system classes. Each directory or\n" + 
-        "                       file can specify access rules for types between ''[''\n" + 
-        "                       and '']''\n" + 
-        "    -sourcepath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
-        "                       specify location for application sources. Each directory\n" + 
-        "                       or file can specify access rules for types between ''[''\n" + 
-        "                       and '']''.\n" + 
-        "                       .class files created from source files contained in a\n" + 
-        "                       jar file are put in the user.dir folder in case no\n" + 
-        "                       destination directory is specified.\n" + 
-        "    -extdirs <directories separated by " + File.pathSeparator + ">\n" + 
-        "                       specify location for extension zip/jar files\n" + 
-        "    -endorseddirs <directories separated by " + File.pathSeparator + ">\n" + 
-        "                       specify location for endorsed zip/jar files\n" + 
-        "    -d <dir>           destination directory (if omitted, no directory is\n" + 
-        "                       created)\n" + 
-        "    -d none            generate no .class files\n" + 
-        "    -encoding <enc>    specify custom encoding for all sources. Each\n" + 
-        "                       file/directory can override it when suffixed with\n" + 
-        "                       ''[''<enc>'']'' (e.g. X.java[utf8])\n" + 
-        " \n" + 
-        " Compliance options:\n" + 
-        "    -1.3               use 1.3 compliance level (implicit -source 1.3\n" + 
-        "                       -target 1.1)\n" + 
-        "    -1.4             + use 1.4 compliance level (implicit -source 1.3\n" + 
-        "                       -target 1.2)\n" + 
-        "    -1.5               use 1.5 compliance level (implicit -source 1.5\n" + 
-        "                       -target 1.5)\n" + 
-        "    -1.6               use 1.6 compliance level (implicit -source 1.6\n" + 
-        "                       -target 1.6)\n" + 
-        "    -source <version>  set source level: 1.3 to 1.6 (or 5, 5.0, 6 or 6.0)\n" + 
-        "    -target <version>  set classfile target level: 1.1 to 1.6 (or 5, 5.0, 6 or\n" +
-        "                       6.0)\n" + 
-        " \n" + 
-        " Warning options:\n" + 
-        "    -deprecation     + deprecation outside deprecated code\n" + 
-        "    -nowarn -warn:none disable all warnings\n" + 
-        "    -?:warn -help:warn display advanced warning options\n" + 
-        " \n" + 
-        " Debug options:\n" + 
-        "    -g[:lines,vars,source] custom debug info\n" + 
-        "    -g:lines,source  + both lines table and source debug info\n" + 
-        "    -g                 all debug info\n" + 
-        "    -g:none            no debug info\n" + 
-        "    -preserveAllLocals preserve unused local vars for debug purpose\n" + 
-        " \n" + 
-        " Ignored options:\n" + 
-        "    -J<option>         pass option to virtual machine (ignored)\n" + 
-        "    -X<option>         specify non-standard option (ignored)\n" + 
-        "    -X                 print non-standard options and exit (ignored)\n" + 
-        "    -O                 optimize for execution time (ignored)\n" + 
-        " \n" + 
-        " Advanced options:\n" + 
-        "    @<file>            read command line arguments from file\n" + 
-        "    -maxProblems <n>   max number of problems per compilation unit (100 by\n" + 
-        "                       default)\n" + 
-        "    -log <file>        log to a file. If the file extension is ''.xml'', then\n" + 
-        "                       the log will be a xml file.\n" + 
-        "    -proceedOnError    do not stop at first error, dumping class files with\n" + 
-        "                       problem methods\n" + 
-        "    -verbose           enable verbose output\n" + 
-        "    -referenceInfo     compute reference info\n" + 
-        "    -progress          show progress (only in -log mode)\n" + 
-        "    -time              display speed information \n" + 
-        "    -noExit            do not call System.exit(n) at end of compilation (n==0\n" + 
-        "                       if no error)\n" + 
-        "    -repeat <n>        repeat compilation process <n> times for perf analysis\n" + 
-        "    -inlineJSR         inline JSR bytecode (implicit if target >= 1.5)\n" + 
-        "    -enableJavadoc     consider references in javadoc\n" + 
-        "    -Xemacs            used to enable emacs-style output\n" + 
-        " \n" + 
-        "    -? -help           print this help message\n" + 
-        "    -v -version        print compiler version\n" + 
-        "    -showversion       print compiler version and continue\n" + 
-        "\n";
+     "{0} {1}\n" + 
+     "{2}\n" + 
+     " \n" + 
+     " Usage: <options> <source files | directories>\n" + 
+     " If directories are specified, then their source contents are compiled.\n" + 
+     " Possible options are listed below. Options enabled by default are prefixed\n" + 
+     " with ''+''.\n" + 
+     " \n" + 
+     " Classpath options:\n" + 
+     "    -cp -classpath <directories and zip/jar files separated by ;>\n" + 
+     "                       specify location for application classes and sources.\n" + 
+     "                       Each directory or file can specify access rules for\n" + 
+     "                       types between ''['' and '']'' (e.g. [-X] to forbid\n" + 
+     "                       access to type X, [~X] to discourage access to type X,\n" + 
+     "                       [+p/X:-p/*] to forbid access to all types in package p\n" + 
+     "                       but allow access to p/X)\n" + 
+     "    -bootclasspath <directories and zip/jar files separated by ;>\n" + 
+     "                       specify location for system classes. Each directory or\n" + 
+     "                       file can specify access rules for types between ''[''\n" + 
+     "                       and '']''\n" + 
+     "    -sourcepath <directories and zip/jar files separated by ;>\n" + 
+     "                       specify location for application sources. Each directory\n" + 
+     "                       or file can specify access rules for types between ''[''\n" + 
+     "                       and '']''.\n" + 
+     "                       .class files created from source files contained in a\n" + 
+     "                       jar file are put in the user.dir folder in case no\n" + 
+     "                       destination directory is specified.\n" + 
+     "    -extdirs <directories separated by ;>\n" + 
+     "                       specify location for extension zip/jar files\n" + 
+     "    -endorseddirs <directories separated by ;>\n" + 
+     "                       specify location for endorsed zip/jar files\n" + 
+     "    -d <dir>           destination directory (if omitted, no directory is\n" + 
+     "                       created)\n" + 
+     "    -d none            generate no .class files\n" + 
+     "    -encoding <enc>    specify custom encoding for all sources. Each\n" + 
+     "                       file/directory can override it when suffixed with\n" + 
+     "                       ''[''<enc>'']'' (e.g. X.java[utf8])\n" + 
+     " \n" + 
+     " Compliance options:\n" + 
+     "    -1.3               use 1.3 compliance level (implicit -source 1.3\n" + 
+     "                       -target 1.1)\n" + 
+     "    -1.4             + use 1.4 compliance level (implicit -source 1.3\n" + 
+     "                       -target 1.2)\n" + 
+     "    -1.5               use 1.5 compliance level (implicit -source 1.5\n" + 
+     "                       -target 1.5)\n" + 
+     "    -1.6               use 1.6 compliance level (implicit -source 1.6\n" + 
+     "                       -target 1.6)\n" + 
+     "    -source <version>  set source level: 1.3 to 1.6 (or 5, 5.0, 6 or 6.0)\n" + 
+     "    -target <version>  set classfile target level: 1.1 to 1.6 (or 5, 5.0, 6 or\n" + 
+     "                       6.0)\n" + 
+     " \n" + 
+     " Warning options:\n" + 
+     "    -deprecation     + deprecation outside deprecated code\n" + 
+     "    -nowarn            disable all warnings\n" + 
+     "    -warn:none         disable all warnings\n" + 
+     "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" + 
+     "    -warn:+<warnings separated by ,>   enable additional warnings\n" + 
+     "    -warn:-<warnings separated by ,>   disable specific warnings\n" + 
+     "      allDeprecation       deprecation including inside deprecated code\n" + 
+     "      allJavadoc           invalid or missing javadoc\n" + 
+     "      assertIdentifier   + ''assert'' used as identifier\n" + 
+     "      boxing               autoboxing conversion\n" + 
+     "      charConcat         + char[] in String concat\n" + 
+     "      conditionAssign      possible accidental boolean assignment\n" + 
+     "      constructorName    + method with constructor name\n" + 
+     "      dep-ann              missing @Deprecated annotation\n" + 
+     "      deprecation        + deprecation outside deprecated code\n" + 
+     "      discouraged        + use of types matching a discouraged access rule\n" + 
+     "      emptyBlock           undocumented empty block\n" + 
+     "      enumSwitch           incomplete enum switch\n" + 
+     "      fallthrough          possible fall-through case\n" + 
+     "      fieldHiding          field hiding another variable\n" + 
+     "      finalBound           type parameter with final bound\n" + 
+     "      finally            + finally block not completing normally\n" + 
+     "      forbidden          + use of types matching a forbidden access rule\n" + 
+     "      hiding               macro for fieldHiding, localHiding, typeHiding and\n" + 
+     "                           maskedCatchBlock\n" + 
+     "      incomplete-switch    same as enumSwitch\n" + 
+     "      indirectStatic       indirect reference to static member\n" + 
+     "      intfAnnotation     + annotation type used as super interface\n" + 
+     "      intfNonInherited   + interface non-inherited method compatibility\n" + 
+     "      javadoc              invalid javadoc\n" + 
+     "      localHiding          local variable hiding another variable\n" + 
+     "      maskedCatchBlock   + hidden catch block\n" + 
+     "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" + 
+     "      noEffectAssign     + assignment without effect\n" + 
+     "      null                 missing or redundant null check\n" + 
+     "      over-ann             missing @Override annotation\n" + 
+     "      paramAssign          assignment to a parameter\n" + 
+     "      pkgDefaultMethod   + attempt to override package-default method\n" + 
+     "      raw                  usage of raw type\n" + 
+     "      semicolon            unnecessary semicolon, empty statement\n" + 
+     "      serial             + missing serialVersionUID\n" + 
+     "      specialParamHiding   constructor or setter parameter hiding another field\n" + 
+     "      static-access        macro for indirectStatic and staticReceiver\n" + 
+     "      staticReceiver     + non-static reference to static member\n" + 
+     "      suppress           + enable @SuppressWarnings\n" + 
+     "      synthetic-access     same as syntheticAccess\n" + 
+     "      syntheticAccess      synthetic access for innerclass\n" + 
+     "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" + 
+     "      typeHiding         + type parameter hiding another type\n" + 
+     "      unchecked          + unchecked type operation\n" + 
+     "      unnecessaryElse      unnecessary else clause\n" + 
+     "      unqualified-field-access same as unqualifiedField\n" + 
+     "      unqualifiedField     unqualified reference to field\n" + 
+     "      unused               macro for unusedArgument, unusedImport, unusedLabel,\n" + 
+     "                               unusedLocal, unusedPrivate and unusedThrown\n" + 
+     "      unusedArgument       unread method parameter\n" + 
+     "      unusedImport       + unused import declaration\n" + 
+     "      unusedLabel        + unused label\n" + 
+     "      unusedLocal        + unread local variable\n" + 
+     "      unusedPrivate      + unused private member declaration\n" + 
+     "      unusedThrown         unused declared thrown exception\n" + 
+     "      uselessTypeCheck     unnecessary cast/instanceof operation\n" + 
+     "      varargsCast        + varargs argument need explicit cast\n" + 
+     "      warningToken       + unhandled warning token in @SuppressWarnings\n" + 
+     " \n" + 
+     " Debug options:\n" + 
+     "    -g[:lines,vars,source] custom debug info\n" + 
+     "    -g:lines,source  + both lines table and source debug info\n" + 
+     "    -g                 all debug info\n" + 
+     "    -g:none            no debug info\n" + 
+     "    -preserveAllLocals preserve unused local vars for debug purpose\n" + 
+     " \n" + 
+     " Ignored options:\n" + 
+     "    -J<option>         pass option to virtual machine (ignored)\n" + 
+     "    -X<option>         specify non-standard option (ignored)\n" + 
+     "    -X                 print non-standard options and exit (ignored)\n" + 
+     "    -O                 optimize for execution time (ignored)\n" + 
+     " \n" + 
+     " Advanced options:\n" + 
+     "    @<file>            read command line arguments from file\n" + 
+     "    -maxProblems <n>   max number of problems per compilation unit (100 by\n" + 
+     "                       default)\n" + 
+     "    -log <file>        log to a file. If the file extension is ''.xml'', then\n" + 
+     "                       the log will be a xml file.\n" + 
+     "    -proceedOnError    do not stop at first error, dumping class files with\n" + 
+     "                       problem methods\n" + 
+     "    -verbose           enable verbose output\n" + 
+     "    -referenceInfo     compute reference info\n" + 
+     "    -progress          show progress (only in -log mode)\n" + 
+     "    -time              display speed information \n" + 
+     "    -noExit            do not call System.exit(n) at end of compilation (n==0\n" + 
+     "                       if no error)\n" + 
+     "    -repeat <n>        repeat compilation process <n> times for perf analysis\n" + 
+     "    -inlineJSR         inline JSR bytecode (implicit if target >= 1.5)\n" + 
+     "    -enableJavadoc     consider references in javadoc\n" + 
+     "    -Xemacs            used to enable emacs-style output\n" + 
+     " \n" + 
+     "    -? -help           print this help message\n" + 
+     "    -v -version        print compiler version\n" + 
+     "    -showversion       print compiler version and continue\n" + 
+     "\n";
 	String expandedExpectedOutput = 
 		MessageFormat.format(expectedOutput, new String[] {
-			Main.bind("compiler.name"),
-			Main.bind("compiler.version"),
-			Main.bind("compiler.copyright")
+				MAIN.bind("compiler.name"),
+				MAIN.bind("compiler.version"),
+				MAIN.bind("compiler.copyright")
 		// because misc.version is mono-line - reconsider if this changes
 //		MessageFormat.format(expectedOutput, new String[] {
 //				Main.bind("misc.version", new String[] {
@@ -974,111 +1038,16 @@ public void test012(){
 			});
 		this.runConformTest(
 		new String[0],
-        " -help -referenceInfo",
-        expandedExpectedOutput,
-        "", true);
+     " -help -referenceInfo",
+     expandedExpectedOutput,
+     "", true);
 	checkWidth(expandedExpectedOutput, 80);
 }
 //command line - help
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144248
-// Progressive help text modifies the help options and messages.
-// amended for https://bugs.eclipse.org/bugs/show_bug.cgi?id=141512 (checking
-// width)
-public void test012b(){
-	final String expectedOutput =
-        "{0} {1}\n" + 
-        "{2}\n" + 
-        " \n" + 
-        " Warning options:\n" + 
-        "    -deprecation     + deprecation outside deprecated code\n" + 
-        "    -nowarn -warn:none disable all warnings\n" + 
-        "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" + 
-        "    -warn:+<warnings separated by ,>   enable additional warnings\n" + 
-        "    -warn:-<warnings separated by ,>   disable specific warnings\n" + 
-        "      allDeprecation       deprecation including inside deprecated code\n" + 
-        "      allJavadoc           invalid or missing javadoc\n" + 
-        "      assertIdentifier   + ''assert'' used as identifier\n" + 
-        "      boxing               autoboxing conversion\n" + 
-        "      charConcat         + char[] in String concat\n" + 
-        "      conditionAssign      possible accidental boolean assignment\n" + 
-        "      constructorName    + method with constructor name\n" + 
-        "      dep-ann              missing @Deprecated annotation\n" + 
-        "      deprecation        + deprecation outside deprecated code\n" + 
-        "      discouraged        + use of types matching a discouraged access rule\n" + 
-        "      emptyBlock           undocumented empty block\n" + 
-        "      enumSwitch           incomplete enum switch\n" + 
-        "      fallthrough          possible fall-through case\n" + 
-        "      fieldHiding          field hiding another variable\n" + 
-        "      finalBound           type parameter with final bound\n" + 
-        "      finally            + finally block not completing normally\n" + 
-        "      forbidden          + use of types matching a forbidden access rule\n" + 
-        "      hiding               macro for fieldHiding, localHiding, typeHiding and\n" + 
-        "                           maskedCatchBlock\n" + 
-        "      incomplete-switch    same as enumSwitch\n" + 
-        "      indirectStatic       indirect reference to static member\n" + 
-        "      intfAnnotation     + annotation type used as super interface\n" + 
-        "      intfNonInherited   + interface non-inherited method compatibility\n" + 
-        "      javadoc              invalid javadoc\n" + 
-        "      localHiding          local variable hiding another variable\n" + 
-        "      maskedCatchBlock   + hidden catch block\n" + 
-        "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" + 
-        "      noEffectAssign     + assignment without effect\n" + 
-        "      null                 missing or redundant null check\n" + 
-        "      over-ann             missing @Override annotation\n" + 
-        "      paramAssign          assignment to a parameter\n" + 
-        "      pkgDefaultMethod   + attempt to override package-default method\n" + 
-        "      raw                  usage of raw type\n" + 
-        "      semicolon            unnecessary semicolon, empty statement\n" + 
-        "      serial             + missing serialVersionUID\n" + 
-        "      specialParamHiding   constructor or setter parameter hiding another field\n" + 
-        "      static-access        macro for indirectStatic and staticReceiver\n" + 
-        "      staticReceiver     + non-static reference to static member\n" + 
-        "      suppress           + enable @SuppressWarnings\n" + 
-        "      synthetic-access     same as syntheticAccess\n" + 
-        "      syntheticAccess      synthetic access for innerclass\n" + 
-        "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" + 
-        "      typeHiding         + type parameter hiding another type\n" + 
-        "      unchecked          + unchecked type operation\n" + 
-        "      unnecessaryElse      unnecessary else clause\n" + 
-        "      unqualified-field-access same as unqualifiedField\n" + 
-        "      unqualifiedField     unqualified reference to field\n" + 
-        "      unused               macro for unusedArgument, unusedImport, unusedLabel,\n" + 
-        "                               unusedLocal, unusedPrivate and unusedThrown\n" + 
-        "      unusedArgument       unread method parameter\n" + 
-        "      unusedImport       + unused import declaration\n" + 
-        "      unusedLabel        + unused label\n" + 
-        "      unusedLocal        + unread local variable\n" + 
-        "      unusedPrivate      + unused private member declaration\n" + 
-        "      unusedThrown         unused declared thrown exception\n" + 
-        "      uselessTypeCheck     unnecessary cast/instanceof operation\n" + 
-        "      varargsCast        + varargs argument need explicit cast\n" + 
-        "      warningToken       + unhandled warning token in @SuppressWarnings\n" + 
-        " \n" + 
-        " Advanced options:\n" + 
-        "    -? -help           print the help message\n" + 
-        "\n";
-	String expandedExpectedOutput = 
-		MessageFormat.format(expectedOutput, new String[] {
-			Main.bind("compiler.name"),
-			Main.bind("compiler.version"),
-			Main.bind("compiler.copyright")
-		// because misc.version is mono-line - reconsider if this changes
-//		MessageFormat.format(expectedOutput, new String[] {
-//				Main.bind("misc.version", new String[] {
-//					Main.bind("compiler.name"),
-//					Main.bind("compiler.version"),
-//					Main.bind("compiler.copyright")
-//				}),
-				// File.pathSeparator
-			});
-	this.runConformTest(
-		new String[0],
-        " -help:warn -referenceInfo",
-        expandedExpectedOutput,
-        "", true);
-	checkWidth(expandedExpectedOutput, 80);
-}
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=144248
+//Progressive help text modifies the help options and messages.
+//amended for https://bugs.eclipse.org/bugs/show_bug.cgi?id=141512 (checking
+//width)
 	// command line - xml log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
 	public void test013() {
 		String logFileName = OUTPUT_DIR + File.separator + "log.xml";
@@ -1217,9 +1186,9 @@ public void test012b(){
 						expectedLogContents,
 						new String[] {
 								File.separator,
-								Main.bind("compiler.name"),
-								Main.bind("compiler.copyright"),
-								Main.bind("compiler.version")
+								MAIN.bind("compiler.name"),
+								MAIN.bind("compiler.copyright"),
+								MAIN.bind("compiler.version")
 						});
 		String normalizedLogContents =
 				xmlLogsNormalizer.normalized(logContents);
@@ -1240,7 +1209,6 @@ public void test012b(){
 					normalizedExpectedLogContents, normalizedLogContents);
 		}
 	}
-
 	// command line - txt log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
 	public void test014() {
 		String logFileName = OUTPUT_DIR + File.separator + "log.txt";
@@ -1628,67 +1596,91 @@ public void test019(){
 		        "duplicate extdirs specification: -extdirs ---OUTPUT_DIR_PLACEHOLDER---/src2\n",
 		        true);
 		}
-//	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - explicit empty -extdirs removes extensions
-		public void test024(){
-			this.runNegativeTest(
-				new String[] {
-						"X.java",
-						"/** */\n" + 
-						"public class X {\n" + 
-						"  sun.net.spi.nameservice.dns.DNSNameService dummy;\n" + 
-						"}",
-				},
-		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-				+ " -extdirs \"\"" 
-		        + " -1.5 -g -preserveAllLocals"
-		        + " -proceedOnError -referenceInfo"
-		        + " -d \"" + OUTPUT_DIR + "\" ",
-		        "",
-		        "----------\n" + 
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		        "	sun.net.spi.nameservice.dns.DNSNameService dummy;\n" + 
-		        "	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		        "sun.net.spi.nameservice.dns cannot be resolved to a type\n" + 
-		        "----------\n" + 
-		        "1 problem (1 error)",
-		        true);
+//		 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - explicit empty -extdirs removes extensions
+	public void test024(){
+		this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"/** */\n" + 
+					"public class X {\n" + 
+					"  my.pkg.Zork dummy;\n" + 
+					"}",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+			+ " -extdirs \"\"" 
+	        + " -1.5 -g -preserveAllLocals"
+	        + " -proceedOnError -referenceInfo"
+	        + " -d \"" + OUTPUT_DIR + "\" ",
+	        "",
+	        "----------\n" + 
+	        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+	        "	my.pkg.Zork dummy;\n" + 
+	        "	^^\n" + 
+	        "my cannot be resolved to a type\n" + 
+	        "----------\n" + 
+	        "1 problem (1 error)",
+	        true);
+	}
+//		 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
+	public void test025(){
+		String path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
+		String libPath = null;
+		if (path.endsWith(File.separator)) {
+			libPath = path + "lib.jar";
+		} else {
+			libPath = path + File.separator + "lib.jar";
 		}
-//	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
-		public void test025(){
-			this.runConformTest(
-				new String[] {
-						"src1/X.java",
-						"/** */\n" + 
-						"public class X {\n" + 
-						"  sun.net.spi.nameservice.dns.DNSNameService dummy;\n" + 
-						"}",
-						"src2/Y.java",
-						"/** */\n" + 
-						"public class Y extends X {\n" + 
-						"}",
+		boolean jarCreated = false;
+		try {
+			Util.createJar(new String[] {
+					"my/pkg/Zork.java",
+					"package my.pkg;\n" + 
+					"public class Zork {\n" + 
+					"}",
 				},
-		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-				+ " -extdirs \"" + getExtDirectory() + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
-				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
-		        + " -1.5 -g -preserveAllLocals"
-		        + " -verbose -proceedOnError -referenceInfo"
-		        + " -d \"" + OUTPUT_DIR + "\" ",
-				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" + 
-				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-				"[reading    java/lang/Object.class]\n" + 
-				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
-				"[writing    Y.class - #1]\n" + 
-				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
-				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-				"[reading    sun/net/spi/nameservice/dns/DNSNameService.class]\n" + 
-				"[writing    X.class - #2]\n" + 
-				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-				"[2 units compiled]\n" + 
-				"[2 .class files generated]\n",
-		        "",
-		        true);
+				libPath,
+				JavaCore.VERSION_1_4);
+			jarCreated = true;
+		} catch (IOException e) {
+			// ignore
 		}
-//	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -extdirs extends the classpath before -classpath
+		this.runConformTest(
+			new String[] {
+					"src1/X.java",
+					"/** */\n" + 
+					"public class X {\n" + 
+					"  my.pkg.Zork dummy;\n" + 
+					"}",
+					"src2/Y.java",
+					"/** */\n" + 
+					"public class Y extends X {\n" + 
+					"}",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+			+ " -extdirs \"" + path + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
+	        + " -1.5 -g -preserveAllLocals"
+	        + " -verbose -proceedOnError -referenceInfo"
+	        + " -d \"" + OUTPUT_DIR + "\" ",
+	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" + 
+	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
+	        "[reading    java/lang/Object.class]\n" + 
+	        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
+	        "[writing    Y.class - #1]\n" + 
+	        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
+	        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
+	        "[reading    my/pkg/Zork.class]\n" + 
+	        "[writing    X.class - #2]\n" + 
+	        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
+	        "[2 units compiled]\n" + 
+	        "[2 .class files generated]\n",
+	        "",
+	        true);
+		if (jarCreated) {
+			new File(libPath).delete();
+		}
+	}
+	//	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -extdirs extends the classpath before -classpath
 		public void test026(){
 			this.runConformTest(
 				new String[] {

@@ -110,7 +110,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				int severity,
 				int problemStartPosition,
 				int problemEndPosition,
-				int lineNumber) {
+				int lineNumber,
+				int columnNumber) {
 				CategorizedProblem pb =  super.createProblem(
 					fileName,
 					problemId,
@@ -119,7 +120,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					severity,
 					problemStartPosition,
 					problemEndPosition,
-					lineNumber);
+					lineNumber,
+					columnNumber);
 					if(SelectionEngine.this.problem == null && pb.isError() && (pb.getID() & IProblem.Syntax) == 0) {
 						SelectionEngine.this.problem = pb;
 					}

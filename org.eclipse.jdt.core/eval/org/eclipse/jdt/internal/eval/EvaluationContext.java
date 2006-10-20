@@ -300,17 +300,17 @@ public void evaluateImports(INameEnvironment environment, IRequestor requestor, 
 				}
 				if (!environment.isPackage(parentName, pkgName)) {
 					String[] arguments = new String[] {new String(importDeclaration)};
-					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, arguments, arguments, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
+					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, arguments, arguments, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i, 1);
 				}
 			} else {
 				if (environment.findType(splitDeclaration) == null) {
 					String[] arguments = new String[] {new String(importDeclaration)};
-					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, arguments, arguments, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
+					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, arguments, arguments, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i, 1);
 				}
 			}
 		} else {
 			String[] arguments = new String[] {new String(importDeclaration)};
-			problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, arguments, arguments, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i);
+			problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, arguments, arguments, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i, 1);
 		}
 		if (problems[0] != null) {
 			requestor.acceptProblem(problems[0], importDeclaration, EvaluationResult.T_IMPORT);

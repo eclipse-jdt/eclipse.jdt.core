@@ -33,7 +33,8 @@ public interface IProblemFactory {
 		int severity,
 		int startPosition,
 		int endPosition,
-		int lineNumber);
+		int lineNumber,
+		int columnNumber);
 		
 	Locale getLocale();
 	

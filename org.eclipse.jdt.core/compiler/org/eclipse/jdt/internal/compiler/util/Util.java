@@ -403,6 +403,47 @@ public class Util implements SuffixConstants {
 	}
 
 	/**
+	 * Search the line number corresponding to a specific position
+	 */
+	public static final int searchLineNumber(int[] startLineIndexes, int position) {
+		if (startLineIndexes == null)
+			return 1;
+		int length = startLineIndexes.length;
+		if (length == 0)
+			return 1;
+		int g = 0, d = length - 1;
+		int m = 0, start;
+		while (g <= d) {
+			m = (g + d) /2;
+			if (position < (start = startLineIndexes[m])) {
+				d = m-1;
+			} else if (position > start) {
+				g = m+1;
+			} else {
+				return m + 1;
+			}
+		}
+		if (position < startLineIndexes[m]) {
+			return m+1;
+		}
+		return m+2;
+	}
+	public static final int searchColumnNumber(int[] startLineIndexes, int lineNumber, int position) {
+		switch(lineNumber) {
+			case 1 :
+				return position + 1;
+			case 2:
+				return position - startLineIndexes[0];
+			default:
+				int line = lineNumber - 2;
+	    		int length = startLineIndexes.length;
+	    		if (line >= length) {
+	    			return position - startLineIndexes[length - 1];
+	    		}
+	    		return position - startLineIndexes[line];
+		}
+	}
+	/**
 	 * Converts a boolean value into Boolean.
 	 * @param bool The boolean to convert
 	 * @return The corresponding Boolean object (TRUE or FALSE).
