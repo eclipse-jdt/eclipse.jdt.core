@@ -177,7 +177,7 @@ protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreExceptio
  * Add an entry to the classpath for a non-existent root. Then create
  * the root and ensure that it comes alive.
  */
-public void testClasspathAddRoot() throws CoreException {
+public void testAddRoot1() throws CoreException {
 	IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
 	IClasspathEntry[] originalCP= project.getRawClasspath();
 
@@ -190,7 +190,6 @@ public void testClasspathAddRoot() throws CoreException {
 
 		project.setRawClasspath(newCP, null);
 
-
 		// now create the actual resource for the root and populate it
 		project.getProject().getFolder("extra").create(false, true, null);
 
@@ -201,6 +200,27 @@ public void testClasspathAddRoot() throws CoreException {
 		this.deleteProject("P");
 	}
 }
+
+/*
+ * Adds an entry to the classpath for a non-existent root. Then creates
+ * the root and ensures that the marker is removed.
+ * (regression test for bug 161581 Adding a missing folder doesn't remove classpath marker)
+ */
+public void testAddRoot2() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {}, "bin");
+		project.setRawClasspath(createClasspath("P", new String[] {"/P/src", ""}), null);
+		waitForAutoBuild();
+
+		// now create the actual resource for the root
+		project.getProject().getFolder("src").create(false, true, null);
+		assertMarkers("Unexpected markers", "", project);
+	} finally {
+		// cleanup  
+		this.deleteProject("P");
+	}
+}
+
 /**
  * Ensures that the reordering external resources in the classpath
  * generates the correct deltas.

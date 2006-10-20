@@ -2163,7 +2163,6 @@ public class DeltaProcessor {
 					JavaProject javaProject = (JavaProject)JavaCore.create(file.getProject());
 					this.state.addClasspathValidation(javaProject);
 					affectedProjects.add(file.getProject().getFullPath());
-					break;
 				}
 				break;
 		}
@@ -2242,6 +2241,8 @@ public class DeltaProcessor {
 				}
 				updateIndex(element, delta);
 				elementAdded(element, delta, rootInfo);
+				if (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT)
+					this.state.addClasspathValidation(rootInfo.project);
 				return elementType == IJavaElement.PACKAGE_FRAGMENT;
 			case IResourceDelta.REMOVED :
 				deltaRes = delta.getResource();
@@ -2253,6 +2254,8 @@ public class DeltaProcessor {
 				}
 				updateIndex(element, delta);
 				elementRemoved(element, delta, rootInfo);
+				if (elementType == IJavaElement.PACKAGE_FRAGMENT_ROOT) 
+					this.state.addClasspathValidation(rootInfo.project);
 	
 				if (deltaRes.getType() == IResource.PROJECT){			
 					// reset the corresponding project built state, since cannot reuse if added back
