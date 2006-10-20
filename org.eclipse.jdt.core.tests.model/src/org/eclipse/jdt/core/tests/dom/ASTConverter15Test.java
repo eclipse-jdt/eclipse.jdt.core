@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 228 };
+//		TESTS_NUMBERS = new int[] { 229 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -7260,5 +7260,65 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNull("Got a binding", binding);
 		binding = pair.resolveMemberValuePairBinding();
 		assertNotNull("No binding", binding);		
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160089
+	 */
+	public void _test0229() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+     		"import java.util.List;\n" +
+     		"import java.util.Collection;\n" +
+     		"public class X {\n" +
+     		"	public static List<String> bar;\n" +
+     		"   @SuppressWarnings(\"unchecked\")\n" +
+     		"	public static Collection bar2;\n" +
+    		"}";
+    	this.workingCopy.getBuffer().setContents(contents);
+    	this.workingCopy.save(null, true);
+    	final ASTNode[] asts = new ASTNode[1];
+       	final IBinding[] bindings = new IBinding[1];
+       	final String key = BindingKey.createTypeBindingKey("java.util.Collection");
+    	resolveASTs(
+			new ICompilationUnit[] {
+				this.workingCopy
+			},
+			new String[] {
+				key	
+			},
+			new ASTRequestor() {
+                public void acceptAST(ICompilationUnit source, CompilationUnit localAst) {
+                	asts[0] = localAst;
+                }
+                public void acceptBinding(String bindingKey, IBinding binding) {
+                	if (key.equals(bindingKey)) {
+                		bindings[0] = binding;
+                 	}
+                }
+			},
+			getJavaProject("Converter15"),
+			null);
+    	ASTNode node = asts[0];
+    	assertNotNull("Should not be null", node);
+    	assertNotNull("Should not be null", bindings[0]);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0);
+    	assertEquals("Not a compilation unit", ASTNode.FIELD_DECLARATION, node.getNodeType());
+    	FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+    	Type type = fieldDeclaration.getType();
+    	ITypeBinding typeBinding = type.resolveBinding();
+		node = getASTNode(unit, 0, 1);
+    	assertEquals("Not a compilation unit", ASTNode.FIELD_DECLARATION, node.getNodeType());
+    	fieldDeclaration = (FieldDeclaration) node;
+    	type = fieldDeclaration.getType();
+    	ITypeBinding typeBinding2 = type.resolveBinding();
+    	final ITypeBinding collectionTypeBinding = (ITypeBinding) bindings[0];
+    	// type binding2 is seen as a raw type
+    	// collectionTypeBinding is seen as a generic type
+    	assertTrue("Not assignement compatible", typeBinding.isAssignmentCompatible(typeBinding2));
+    	assertTrue("Not assignement compatible", typeBinding.isAssignmentCompatible(collectionTypeBinding));
 	}
 }
