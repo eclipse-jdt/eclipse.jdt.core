@@ -2439,12 +2439,11 @@ protected void consumeConstructorDeclaration() {
 		cd.constructorCall.sourceStart = cd.sourceStart;
 	}
 
-	if (!this.diet 
+	if (!(this.diet && this.dietInt == 0)
 			&& statements == null 
-			&& (constructorCall == null || constructorCall.isImplicitSuper())) {
-		if (!containsComment(cd.bodyStart, this.endPosition)) {
-			cd.bits |= ASTNode.UndocumentedEmptyBlock;
-		}
+			&& (constructorCall == null || constructorCall.isImplicitSuper())
+			&& !containsComment(cd.bodyStart, this.endPosition)) {
+		cd.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
 
 	//watch for } that could be given as a unicode ! ( u007D is '}' )
@@ -4072,12 +4071,8 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	// is a body when we reduce the method header
 	if (!isNotAbstract) { //remember the fact that the method has a semicolon body
 		md.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
-	} else {
-		if (!this.diet && statements == null) {
-			if (!containsComment(md.bodyStart, this.endPosition)) {
-				md.bits |= ASTNode.UndocumentedEmptyBlock;
-			}
-		}
+	} else if (!(this.diet && this.dietInt == 0) && statements == null && !containsComment(md.bodyStart, this.endPosition)) {
+		md.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
 	// store the this.endPosition (position just before the '}') in case there is
 	// a trailing comment behind the end of the method

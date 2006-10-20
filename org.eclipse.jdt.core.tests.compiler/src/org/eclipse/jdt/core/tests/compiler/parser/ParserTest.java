@@ -623,4 +623,83 @@ public void test024() {
 		options // custom options
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160337
+ */
+public void test025() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        static class Y {\n" + 
+			"                public void foo(int i) {}\n" + 
+			"        }\n" + 
+			"        static Y FakeInvocationSite = new Y(){\n" + 
+			"                public void foo(int i) {}\n" + 
+			"        };\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public void foo(int i) {}\n" + 
+		"	                       ^^\n" + 
+		"Empty block should be documented\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	public void foo(int i) {}\n" + 
+		"	                       ^^\n" + 
+		"Empty block should be documented\n" + 
+		"----------\n",
+		null, // custom classpath
+		true, // flush previous output dir content
+		options // custom options
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160337
+ */
+public void test026() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        static class Y {\n" + 
+			"                public void foo(int i) {}\n" + 
+			"        }\n" + 
+			"        static Y FakeInvocationSite = new Y(){\n" + 
+			"                public void foo(int i) {\n" +
+			"					class A {\n" +
+			"						A() {}\n" +
+			"						public void bar() {}\n" +
+			"					}\n" +
+			"					new A().bar();\n" +
+			"				 }\n" + 
+			"        };\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public void foo(int i) {}\n" + 
+		"	                       ^^\n" + 
+		"Empty block should be documented\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	A() {}\n" + 
+		"	    ^^\n" + 
+		"Empty block should be documented\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	public void bar() {}\n" + 
+		"	                  ^^\n" + 
+		"Empty block should be documented\n" + 
+		"----------\n",
+		null, // custom classpath
+		true, // flush previous output dir content
+		options // custom options
+	);
+}
 }
