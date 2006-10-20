@@ -2387,12 +2387,7 @@ public void configure(String[] argv) throws InvalidInputException {
 				mode = DEFAULT;
 				continue;
 			case INSIDE_DESTINATION_PATH :
-				if (currentArg.equals(NONE)) {
-					this.destinationPath = NONE; 
-						// this.destinationPath == NONE must answer true
-				} else {
-					this.destinationPath = currentArg;
-				}
+				this.setDestinationPath(currentArg.equals(NONE) ? NONE : currentArg); 
 				mode = DEFAULT;
 				continue;
 			case INSIDE_CLASSPATH_start: 
@@ -3136,8 +3131,8 @@ public void setLocale(Locale locale) {
 /*
  * External API
  */
-protected void setClasspathStructure(boolean newValue) {
-	// do nothing by default
+protected void setDestinationPath(String dest) {
+	this.destinationPath = dest;
 }
 /*
  * External API
