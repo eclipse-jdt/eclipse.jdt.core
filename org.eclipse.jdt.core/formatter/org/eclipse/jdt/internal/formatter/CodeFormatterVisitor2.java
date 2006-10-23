@@ -490,7 +490,6 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		} else {
 			// empty statement
 			this.scribe.indent();
-			action.accept(this);
 			this.scribe.unIndent();
 		}
 	}
@@ -1571,8 +1570,6 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 					this.scribe.unIndent();
 					this.scribe.printNewLine();
 			}
-		} else {
-			action.accept(this);
 		}
 
 		if (this.preferences.insert_new_line_before_while_in_do_statement) {
