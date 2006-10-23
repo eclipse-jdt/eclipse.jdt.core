@@ -83,7 +83,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected long[] identifierPositionStack;
 
 	// Ast stack
-	protected static int AstStackIncrement = 10;
+	protected final static int AST_STACK_INCREMENT = 10;
 	protected int astPtr;
 	protected Object[] astStack;
 	protected int astLengthPtr;
@@ -368,7 +368,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		int g = 0, d = length - 1;
 		int m = 0;
 		while (g <= d) {
-			m = (g + d) /2;
+			m = g + (d - g) /2;
 			if (position < this.lineEnds[m]) {
 				d = m-1;
 			} else if (position > this.lineEnds[m]) {
@@ -1226,7 +1226,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		if (++this.astPtr >= stackLength) {
 			System.arraycopy(
 				this.astStack, 0,
-				this.astStack = new Object[stackLength + AstStackIncrement], 0,
+				this.astStack = new Object[stackLength + AST_STACK_INCREMENT], 0,
 				stackLength);
 			this.astPtr = stackLength;
 		}
@@ -1237,7 +1237,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			if (++this.astLengthPtr >= stackLength) {
 				System.arraycopy(
 					this.astLengthStack, 0,
-					this.astLengthStack = new int[stackLength + AstStackIncrement], 0,
+					this.astLengthStack = new int[stackLength + AST_STACK_INCREMENT], 0,
 					stackLength);
 			}
 			this.astLengthStack[this.astLengthPtr] = 1;

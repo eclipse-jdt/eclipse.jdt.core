@@ -617,7 +617,7 @@ public class JavadocParser extends AbstractCommentParser {
 						if (++this.invalidParamReferencesPtr >= stackLength) {
 							System.arraycopy(
 								this.invalidParamReferencesStack, 0,
-								this.invalidParamReferencesStack = new JavadocSingleNameReference[stackLength + AstStackIncrement], 0,
+								this.invalidParamReferencesStack = new JavadocSingleNameReference[stackLength + AST_STACK_INCREMENT], 0,
 								stackLength);
 						}
 						this.invalidParamReferencesStack[this.invalidParamReferencesPtr] = nameRef;
