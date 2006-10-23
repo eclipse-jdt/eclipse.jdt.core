@@ -487,10 +487,6 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 						this.scribe.printNewLine();
 					}
 			}
-		} else {
-			// empty statement
-			this.scribe.indent();
-			this.scribe.unIndent();
 		}
 	}
 
