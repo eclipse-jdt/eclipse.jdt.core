@@ -72,7 +72,7 @@ public abstract class Binding {
 	}
 	
 	/**
-	 * Compute the tagbits for @Deprecated annotations; avoiding resolving
+	 * Compute the tag bits for @Deprecated annotations, avoiding resolving
 	 * entire annotation if not necessary.
 	 * @see org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding#initializeDeprecatedAnnotationTagBits()
 	 */

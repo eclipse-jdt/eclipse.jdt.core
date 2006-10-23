@@ -40,7 +40,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public SyntheticMethodBinding(FieldBinding targetField, boolean isReadAccess, ReferenceBinding declaringClass) {
 
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
-		this.tagBits |= TagBits.AnnotationResolved;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
@@ -144,7 +144,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 
 	public SyntheticMethodBinding(FieldBinding targetField, ReferenceBinding declaringClass, TypeBinding enumBinding, char[] selector) {
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
-		this.tagBits |= TagBits.AnnotationResolved;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
@@ -225,7 +225,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    // amongst other, clear the AccGenericSignature, so as to ensure no remains of original inherited persist (101794)
 	    // also use the modifiers from the target method, as opposed to inherited one (147690)
 	    this.modifiers = (targetMethod.modifiers | ClassFileConstants.AccBridge | ClassFileConstants.AccSynthetic) & ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccNative  | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccGenericSignature);
-		this.tagBits |= TagBits.AnnotationResolved;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 	    this.returnType = overridenMethodToBridge.returnType;
 	    this.parameters = overridenMethodToBridge.parameters;
 	    this.thrownExceptions = overridenMethodToBridge.thrownExceptions;
@@ -243,7 +243,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.declaringClass = declaringEnum;
 	    this.selector = selector;
 	    this.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic;
-		this.tagBits |= TagBits.AnnotationResolved;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		if (selector == TypeConstants.VALUES) {
 		    this.returnType = declaringEnum.scope.createArrayType(declaringEnum, 1);
@@ -270,7 +270,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	
 		this.targetMethod = accessedConstructor;
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccSynthetic;
-		this.tagBits |= TagBits.AnnotationResolved;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 		SourceTypeBinding sourceType = (SourceTypeBinding) accessedConstructor.declaringClass; 
 		SyntheticMethodBinding[] knownSyntheticMethods = 
 			sourceType.syntheticMethods(); 
@@ -350,7 +350,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		
 		this.targetMethod = accessedMethod;
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
-		this.tagBits |= TagBits.AnnotationResolved;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) receiverType;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;

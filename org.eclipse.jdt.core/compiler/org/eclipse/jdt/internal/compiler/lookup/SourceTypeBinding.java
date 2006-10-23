@@ -969,22 +969,22 @@ public SyntheticMethodBinding getSyntheticBridgeMethod(MethodBinding inheritedMe
 }
 
 /**
- * Compute the tagbits for @Deprecated annotations; avoiding resolving
- * entire annotation if not necessary.
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#initializeDeprecatedAnnotationTagBits()
  */
 public void initializeDeprecatedAnnotationTagBits() {
-	if ((this.tagBits & (TagBits.AnnotationResolved|TagBits.AnnotationDeprecated)) == 0) {
+	if ((this.tagBits & TagBits.DeprecatedAnnotationResolved) == 0) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
 		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
 		try {
 			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
 			ASTNode.resolveDeprecatedAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
+			this.tagBits |= TagBits.DeprecatedAnnotationResolved;
 		} finally {
 			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
 		}
-		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0)
+		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0) {
 			this.modifiers |= ClassFileConstants.AccDeprecated;
+		}
 	}
 }
 

@@ -358,6 +358,8 @@ public class ClassScope extends Scope {
 				else
 					modifiers |= ClassFileConstants.AccStatic;
 			}
+			if (enclosingType.isViewedAsDeprecated() && !sourceType.isDeprecated())
+				modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
 				problemReporter().illegalLocalTypeDeclaration(referenceContext);

@@ -77,32 +77,33 @@ public interface TagBits {
 	// standard annotations
 	// 9-bits for targets
 	long AnnotationResolved = ASTNode.Bit34L;
-	long AnnotationTarget = ASTNode.Bit35L; // @Target({}) only sets this bit
-	long AnnotationForType = ASTNode.Bit36L;
-	long AnnotationForField = ASTNode.Bit37L;
-	long AnnotationForMethod = ASTNode.Bit38L;
-	long AnnotationForParameter = ASTNode.Bit39L;
-	long AnnotationForConstructor = ASTNode.Bit40L;
-	long AnnotationForLocalVariable = ASTNode.Bit41L;
-	long AnnotationForAnnotationType = ASTNode.Bit42L;
-	long AnnotationForPackage = ASTNode.Bit43L;
+	long DeprecatedAnnotationResolved = ASTNode.Bit35L;
+	long AnnotationTarget = ASTNode.Bit36L; // @Target({}) only sets this bit
+	long AnnotationForType = ASTNode.Bit37L;
+	long AnnotationForField = ASTNode.Bit38L;
+	long AnnotationForMethod = ASTNode.Bit39L;
+	long AnnotationForParameter = ASTNode.Bit40L;
+	long AnnotationForConstructor = ASTNode.Bit41L;
+	long AnnotationForLocalVariable = ASTNode.Bit42L;
+	long AnnotationForAnnotationType = ASTNode.Bit43L;
+	long AnnotationForPackage = ASTNode.Bit44L;
 	long AnnotationTargetMASK = AnnotationTarget
 				| AnnotationForType | AnnotationForField
 				| AnnotationForMethod | AnnotationForParameter
 				| AnnotationForConstructor | AnnotationForLocalVariable
 				| AnnotationForAnnotationType | AnnotationForPackage;
 	// 2-bits for retention (should check (tagBits & RetentionMask) == RuntimeRetention
-	long AnnotationSourceRetention = ASTNode.Bit44L;
-	long AnnotationClassRetention = ASTNode.Bit45L;
+	long AnnotationSourceRetention = ASTNode.Bit45L;
+	long AnnotationClassRetention = ASTNode.Bit46L;
 	long AnnotationRuntimeRetention = AnnotationSourceRetention | AnnotationClassRetention;
 	long AnnotationRetentionMASK = AnnotationSourceRetention | AnnotationClassRetention | AnnotationRuntimeRetention;
 	// marker annotations
-	long AnnotationDeprecated = ASTNode.Bit46L;
-	long AnnotationDocumented = ASTNode.Bit47L;
-	long AnnotationInherited = ASTNode.Bit48L;
-	long AnnotationOverride = ASTNode.Bit49L;
-	long AnnotationSuppressWarnings = ASTNode.Bit50L;
+	long AnnotationDeprecated = ASTNode.Bit47L;
+	long AnnotationDocumented = ASTNode.Bit48L;
+	long AnnotationInherited = ASTNode.Bit49L;
+	long AnnotationOverride = ASTNode.Bit50L;
+	long AnnotationSuppressWarnings = ASTNode.Bit51L;
 	long AllStandardAnnotationsMask = AnnotationTargetMASK | AnnotationRetentionMASK | AnnotationDeprecated | AnnotationDocumented | AnnotationInherited |  AnnotationOverride | AnnotationSuppressWarnings;
 	
-	long DefaultValueResolved = ASTNode.Bit51L;
+	long DefaultValueResolved = ASTNode.Bit52L;
 }

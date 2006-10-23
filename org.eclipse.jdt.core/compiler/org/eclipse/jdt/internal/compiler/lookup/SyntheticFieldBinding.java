@@ -19,6 +19,6 @@ public class SyntheticFieldBinding extends FieldBinding {
 	public SyntheticFieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBinding declaringClass, Constant constant, int index) {
 		super(name, type, modifiers, declaringClass, constant);
 		this.index = index;
-		this.tagBits |= TagBits.AnnotationResolved;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 	}
 }
