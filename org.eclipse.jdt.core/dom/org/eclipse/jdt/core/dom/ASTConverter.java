@@ -2458,23 +2458,19 @@ class ASTConverter {
 					break;
 				default:
 					TypeDeclaration typeDeclaration = (TypeDeclaration) result;
-					if (typeDeclaration == null) {
-						return createFakeEmptyStatement(statement);
-					} else {
-						TypeDeclarationStatement typeDeclarationStatement = new TypeDeclarationStatement(this.ast);
-						typeDeclarationStatement.setDeclaration(typeDeclaration);
-						switch(this.ast.apiLevel) {
-							case AST.JLS2_INTERNAL :
-								TypeDeclaration typeDecl = typeDeclarationStatement.internalGetTypeDeclaration();
-								typeDeclarationStatement.setSourceRange(typeDecl.getStartPosition(), typeDecl.getLength());					
-								break;
-							case AST.JLS3 :
-								AbstractTypeDeclaration typeDeclAST3 = typeDeclarationStatement.getDeclaration();
-								typeDeclarationStatement.setSourceRange(typeDeclAST3.getStartPosition(), typeDeclAST3.getLength());
-								break;
-						}
-						return typeDeclarationStatement;
+					TypeDeclarationStatement typeDeclarationStatement = new TypeDeclarationStatement(this.ast);
+					typeDeclarationStatement.setDeclaration(typeDeclaration);
+					switch(this.ast.apiLevel) {
+						case AST.JLS2_INTERNAL :
+							TypeDeclaration typeDecl = typeDeclarationStatement.internalGetTypeDeclaration();
+							typeDeclarationStatement.setSourceRange(typeDecl.getStartPosition(), typeDecl.getLength());					
+							break;
+						case AST.JLS3 :
+							AbstractTypeDeclaration typeDeclAST3 = typeDeclarationStatement.getDeclaration();
+							typeDeclarationStatement.setSourceRange(typeDeclAST3.getStartPosition(), typeDeclAST3.getLength());
+							break;
 					}
+					return typeDeclarationStatement;
 			}
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.WhileStatement) {

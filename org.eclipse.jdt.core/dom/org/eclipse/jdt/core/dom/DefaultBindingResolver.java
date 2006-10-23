@@ -276,7 +276,7 @@ class DefaultBindingResolver extends BindingResolver {
 					if (referenceBinding instanceof ProblemReferenceBinding) {
 						ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) referenceBinding;
 						Binding binding2 = problemReferenceBinding.closestMatch();
-						if (binding2 != null && binding2 instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+						if (binding2 instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
 							TypeBinding binding = (TypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(binding2);
 							if (binding != null) {
 								return binding;
@@ -479,19 +479,16 @@ class DefaultBindingResolver extends BindingResolver {
 				if (astNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 					// anonymous type case
 					org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) astNode;
-					if (typeDeclaration != null) {
-						ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
-						if (typeBinding == null) {
-							return null;
-						}
-						return typeBinding;
+					ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
+					if (typeBinding == null) {
+						return null;
 					}
+					return typeBinding;
 				} else {
 					// should be an AllocationExpression
 					AllocationExpression allocationExpression = (AllocationExpression) astNode;
 					return this.getTypeBinding(allocationExpression.resolvedType);
 				}
-				return null;
 			case ASTNode.SIMPLE_NAME :
 			case ASTNode.QUALIFIED_NAME :
 				return this.resolveTypeBindingForName((Name) expression);
