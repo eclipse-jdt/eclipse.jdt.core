@@ -9809,7 +9809,7 @@ protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 	this.scanner.recordLineSeparator = false;
 	
 	int start = this.scanner.initialPosition;
-	int end = this.scanner.eofPosition <= Integer.MAX_VALUE ? this.scanner.eofPosition - 1 : this.scanner.eofPosition;
+	int end = this.scanner.eofPosition == Integer.MAX_VALUE ? this.scanner.eofPosition : this.scanner.eofPosition - 1;
 	if(isDietParse) {
 		TypeDeclaration[] types = this.compilationUnit.types;
 		int[][] intervalToSkip = org.eclipse.jdt.internal.compiler.parser.diagnose.RangeUtil.computeDietRange(types);
