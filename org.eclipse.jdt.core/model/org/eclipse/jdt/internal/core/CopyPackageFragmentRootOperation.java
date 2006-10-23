@@ -244,7 +244,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 						}
 					}
 					if (this.sibling != null && !foundSibling) {
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.sibling == null ? "null" : this.sibling.toString()); //$NON-NLS-1$
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.sibling.toString());
 					}
 					if (foundExistingEntry && (this.updateModelFlags & IPackageFragmentRoot.REPLACE) == 0) {
 						return new JavaModelStatus(
