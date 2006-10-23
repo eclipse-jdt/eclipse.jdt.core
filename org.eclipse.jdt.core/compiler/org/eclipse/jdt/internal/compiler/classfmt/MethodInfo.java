@@ -112,7 +112,7 @@ static AnnotationInfo[] decodeMethodAnnotations(int offset, boolean runtimeVisib
 	int numberOfAnnotations = methodInfo.u2At(offset + 6);
 	if (numberOfAnnotations > 0) {
 		AnnotationInfo[] annos = decodeAnnotations(offset + 8, runtimeVisible, numberOfAnnotations, methodInfo);
-		if( runtimeVisible ){
+		if (runtimeVisible){
 			int numStandardAnnotations = 0;			
 			for( int i=0; i<numberOfAnnotations; i++ ){
 				long standardAnnoTagBits = annos[i].standardAnnotationTagBits;
@@ -133,8 +133,7 @@ static AnnotationInfo[] decodeMethodAnnotations(int offset, boolean runtimeVisib
 				for (int i = 0; i < numberOfAnnotations; i++)
 					if (annos[i] != null)
 						temp[tmpIndex ++] = annos[i];
-				annos = temp;
-				numberOfAnnotations = numberOfAnnotations - numStandardAnnotations;				
+				annos = temp;	
 			}
 		}
 		return annos;
