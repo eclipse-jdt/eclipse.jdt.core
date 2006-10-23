@@ -227,7 +227,7 @@ public TypeBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 					case TypeIds.T_JavaLangCloneable :
 						return otherType;
 				}
-				if (otherDim < arrayType.dimensions & otherType.leafComponentType().id == TypeIds.T_JavaLangObject) {
+				if (otherDim < arrayType.dimensions && otherType.leafComponentType().id == TypeIds.T_JavaLangObject) {
 					return otherType; // X[][] has Object[] as an implicit supertype
 				}
 				return null;
