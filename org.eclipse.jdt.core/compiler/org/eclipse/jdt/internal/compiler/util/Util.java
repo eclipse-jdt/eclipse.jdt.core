@@ -29,7 +29,7 @@ public class Util implements SuffixConstants {
 
 	private static final int DEFAULT_READING_SIZE = 8192;
 	public final static String UTF_8 = "UTF-8";	//$NON-NLS-1$
-	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
+	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 	
 	/**
 	 * Returns the given bytes as a char array using a given encoding (null means platform default).
