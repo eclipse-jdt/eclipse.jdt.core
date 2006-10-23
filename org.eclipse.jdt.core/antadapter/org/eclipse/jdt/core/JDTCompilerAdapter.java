@@ -79,7 +79,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			Object result = compile.invoke(batchCompilerInstance, new Object[] { cmd.getArguments()});
 			final boolean resultValue = ((Boolean) result).booleanValue();
 			if (!resultValue && this.logFileName != null) {
-				System.out.println(AntAdapterMessages.getString("ant.jdtadapter.error.compilationFailed", this.logFileName)); //$NON-NLS-1$
+				this.attributes.log(AntAdapterMessages.getString("ant.jdtadapter.error.compilationFailed", this.logFileName)); //$NON-NLS-1$
 			}
 			return resultValue;
 		} catch (ClassNotFoundException cnfe) {
@@ -320,8 +320,15 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	        /*
 			 * Add extra argument on the command line
 			 */
-			if (compilerArgs.length != 0) {
-		        cmd.addArguments(compilerArgs);
+			final int length = compilerArgs.length;
+			if (length != 0) {
+				for (int i = 0, max = length; i < max; i++) {
+					String arg = compilerArgs[i];
+					if (this.logFileName == null && "-log".equals(arg) && ((i + 1) < max)) { //$NON-NLS-1$
+						this.logFileName = compilerArgs[i + 1];
+					}
+			        cmd.createArgument().setValue(arg);
+				}
 			}
 	   	}
      	/*
