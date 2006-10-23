@@ -3699,6 +3699,14 @@ private void pushCompletionOnMemberAccessOnExpressionStack(boolean isSuperAccess
 		expressionStack[expressionPtr] = fr;
 	}
 }
+protected boolean moveRecoveryCheckpoint() {
+	CompletionScanner completionScanner = (CompletionScanner) this.scanner;
+	if (completionScanner.record) {
+		completionScanner.currentToken = -1;
+		completionScanner.currentTokenStart = 0;
+	}
+	return super.moveRecoveryCheckpoint();
+}
 public void recordCompletionOnReference(){
 
 	if (currentElement instanceof RecoveredType){

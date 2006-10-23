@@ -40,10 +40,10 @@ public class CompletionScanner extends Scanner {
 
 	public static final char[] EmptyCompletionIdentifier = {};
 	
-	private boolean record = false;
+	public boolean record = false;
 	public char[] prefix;
-	private int currentToken;
-	private int currentTokenStart;
+	public int currentToken;
+	public int currentTokenStart;
 	public int potentialVariableNamesPtr; 
 	public char[][] potentialVariableNames;
 	public int[] potentialVariableNameStarts;
@@ -870,6 +870,13 @@ public void removePotentialNamesAt(int position) {
 			this.potentialVariableNames[i] = null;
 		}
 	}
+}
+public void resetTo(int begin, int end) {
+	if (this.record) {
+		this.currentToken = -1;
+		this.currentTokenStart = 0;
+	}
+	super.resetTo(begin, end);
 }
 ///*
 // * In case we actually read a keyword, but the cursor is located inside,

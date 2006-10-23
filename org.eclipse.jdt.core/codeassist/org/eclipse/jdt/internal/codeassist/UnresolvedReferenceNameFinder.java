@@ -32,6 +32,8 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 public class UnresolvedReferenceNameFinder extends ASTVisitor {
+	private static final int MAX_LINE_COUNT = 100;
+	
 	public static interface UnresolvedReferenceNameRequestor {
 		public void acceptName(char[] name);
 	}
@@ -42,7 +44,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	private CompletionScanner completionScanner;
 	
 	private int parentsPtr;
-	private ASTNode[] parentsz;
+	private ASTNode[] parents;
 	
 	private int potentialVariableNamesPtr;
 	private char[][] potentialVariableNames;
@@ -66,12 +68,12 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	
 	public void find(char[] startWith, Initializer initializer, ClassScope scope, int from, UnresolvedReferenceNameRequestor nameRequestor) {
 		MethodDeclaration fakeMethod = this.find(startWith, scope, from, initializer.bodyEnd, nameRequestor);
-		fakeMethod.traverse(this, scope);
+		if (fakeMethod != null) fakeMethod.traverse(this, scope);
 	}
 	
 	public void find(char[] startWith, AbstractMethodDeclaration methodDeclaration, int from, UnresolvedReferenceNameRequestor nameRequestor) {
 		MethodDeclaration fakeMethod = this.find(startWith, methodDeclaration.scope, from, methodDeclaration.bodyEnd, nameRequestor);
-		fakeMethod.traverse(this, methodDeclaration.scope.classScope());
+		if (fakeMethod != null) fakeMethod.traverse(this, methodDeclaration.scope.classScope());
 	}
 	
 	private MethodDeclaration find(char[] startWith, Scope s, int from, int to, UnresolvedReferenceNameRequestor nameRequestor) {
@@ -87,40 +89,132 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		this.completionScanner.resetTo(from + 1, to);
 		this.completionScanner.jumpOverBlock();
 		
+		int blockEnd = this.completionScanner.startPosition - 1;
+		
+		int maxEnd =
+			this.completionScanner.getLineEnd(
+					this.completionScanner.getLineNumber(from) + MAX_LINE_COUNT);
+		
+		int end;
+		if (maxEnd < 0) {
+			end = blockEnd;
+		} else {
+			end = maxEnd < blockEnd ? maxEnd : blockEnd;
+		}
+		
 		this.completionScanner.startRecordingIdentifiers();
 		
 		MethodDeclaration fakeMethod = this.parser.parseStatementsAfterCompletion(
 				from,
-				this.completionScanner.startPosition - 1,
+				end,
 				s.compilationUnitScope().referenceContext);
 		
 		this.completionScanner.stopRecordingIdentifiers();
 		
-		this.potentialVariableNames = this.completionScanner.potentialVariableNames;
-		this.potentialVariableNameStarts = this.completionScanner.potentialVariableNameStarts;
-		this.potentialVariableNamesPtr = this.completionScanner.potentialVariableNamesPtr;
+		if(!this.initPotentialNamesTables()) return null;
 		
 		this.parentsPtr = -1;
-		this.parentsz = new ASTNode[10];
+		this.parents = new ASTNode[10];
 		
 		return fakeMethod;
+	}
+	
+	private boolean initPotentialNamesTables() {
+		char[][] pvns = this.completionScanner.potentialVariableNames;
+		int[] pvnss = this.completionScanner.potentialVariableNameStarts;
+		int pvnsPtr = this.completionScanner.potentialVariableNamesPtr;
+		
+		if (pvnsPtr < 0) return false; // there is no potential names
+		
+		// remove null
+		int j = -1;
+		for (int i = 0; i <= pvnsPtr; i++) {
+			if (pvns[i] != null) {
+				char[] temp = pvns[i];
+				pvns[i] = null;
+				pvns[++j] = temp;
+				pvnss[j] = pvnss[i];
+				
+			}
+		}
+		pvnsPtr = j;
+		
+		if (pvnsPtr < 0) return false; // there is no potential names
+		
+		if (pvnsPtr > 0) {
+			// sort by position
+			quickSort(pvnss, pvns, 0, pvnsPtr);
+			
+			// remove double
+			j = 0;
+			for (int i = 1; i <= pvnsPtr; i++) {
+				if (pvnss[i] != pvnss[j]) {
+					char[] temp = pvns[i];
+					pvns[i] = null;
+					pvns[++j] = temp;
+					pvnss[j] = pvnss[i];
+				} else {
+					pvns[i] = null;
+				}
+			}
+			
+			pvnsPtr = j;
+		}
+		
+		this.potentialVariableNames = pvns;
+		this.potentialVariableNameStarts = pvnss;
+		this.potentialVariableNamesPtr = pvnsPtr;
+		
+		return true;
+	}
+	
+	private static void quickSort(int[] list1, char[][] list2, int left, int right) {
+		int original_left= left;
+		int original_right= right;
+		int mid= list1[(left + right) / 2];
+		do {
+			while (list1[left] < mid) {
+				left++;
+			}
+			while (mid < list1[right]) {
+				right--;
+			}
+			if (left <= right) {
+				int tmp1= list1[left];
+				list1[left]= list1[right];
+				list1[right]= tmp1;
+				
+				char[] tmp2= list2[left];
+				list2[left]= list2[right];
+				list2[right]= tmp2;
+				
+				left++;
+				right--;
+			}
+		} while (left <= right);
+		if (original_left < right) {
+			quickSort(list1, list2, original_left, right);
+		}
+		if (left < original_right) {
+			quickSort(list1, list2, left, original_right);
+		}
 	}
 	
 	private void popParent() {
 		this.parentsPtr--;
 	}
 	private void pushParent(ASTNode parent) {
-		int length = this.parentsz.length;
+		int length = this.parents.length;
 		if (this.parentsPtr >= length - 1) {
-			System.arraycopy(this.parentsz, 0, this.parentsz = new ASTNode[length * 2], 0, length);
+			System.arraycopy(this.parents, 0, this.parents = new ASTNode[length * 2], 0, length);
 		}
-		this.parentsz[++this.parentsPtr] = parent;
+		this.parents[++this.parentsPtr] = parent;
 	}
 	
 	private ASTNode getEnclosingDeclaration() {
 		int i = this.parentsPtr;
 		while (i > -1) {
-			ASTNode parent = parentsz[i];
+			ASTNode parent = parents[i];
 			if (parent instanceof AbstractMethodDeclaration) {
 				return parent;
 			} else if (parent instanceof Initializer) {
@@ -234,27 +328,109 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		popParent();
 	}
 	
-	private void endVisitPreserved(int start, int end) {
-		for (int i = 0; i <= this.potentialVariableNamesPtr; i++) {
-			char[] name = this.potentialVariableNames[i];
-			if (name != null) {
-				int nameStart = this.potentialVariableNameStarts[i];
-				if (start < nameStart && nameStart < end) {
-					this.potentialVariableNames[i] = null;
-					this.acceptName(name);
+	private int indexOfFisrtNameAfter(int position) {
+		int left = 0;
+		int right = this.potentialVariableNamesPtr;
+		
+		next : while (true) {
+			if (right < left) return -1;
+			
+			int mid = (left + right) / 2;
+			int midPosition = this.potentialVariableNameStarts[mid];
+			if (midPosition < 0) {
+				int nextMid = indexOfNextName(mid);
+				if (nextMid < 0 || right < nextMid) { // no next index or next index is after 'right'
+					right = mid - 1;
+					continue next;
 				}
+				mid = nextMid;
+				midPosition = this.potentialVariableNameStarts[nextMid];
+				
+				if (mid == right) { // mid and right are at the same index, we must move 'left'
+					int leftPosition = this.potentialVariableNameStarts[left];
+					if (leftPosition < 0 || leftPosition < position) { // 'left' is empty or 'left' is before the position
+						int nextLeft = indexOfNextName(left);
+						if (nextLeft < 0) return - 1;
+						
+						left = nextLeft;
+						continue next;
+					}
+					
+					return left;
+				}
+			}
+			
+			if (left != right) {
+				if (midPosition < position) {
+					left = mid + 1;
+				} else {
+					right = mid;
+				}
+			} else {
+				if (midPosition < position) {
+					return -1;
+				}
+				return mid;
 			}
 		}
 	}
 	
-	private void endVisitRemoved(int start, int end) {
-		for (int i = 0; i <= this.potentialVariableNamesPtr; i++) {
-			if (this.potentialVariableNames[i] != null) {
-				int nameStart = this.potentialVariableNameStarts[i];
-				if (start < nameStart && nameStart < end) {
-					this.potentialVariableNames[i] = null;
-				}
+	private int indexOfNextName(int index) {
+		int nextIndex = index + 1;
+		while (nextIndex <= this.potentialVariableNamesPtr &&
+				this.potentialVariableNames[nextIndex] == null) {
+			int jumpIndex = -this.potentialVariableNameStarts[nextIndex];
+			if (jumpIndex > 0) {
+				nextIndex = jumpIndex;
+			} else {
+				nextIndex++;
 			}
+		}
+		
+		if (this.potentialVariableNamesPtr < nextIndex) {
+			this.potentialVariableNamesPtr = index;
+			return -1;
+		}
+		if (index + 1 < nextIndex) {
+			this.potentialVariableNameStarts[index + 1] = -nextIndex;
+		}
+		return nextIndex;
+	}
+	
+	private void removeNameAt(int index) {
+		this.potentialVariableNames[index] = null;
+		int nextIndex = indexOfNextName(index);
+		if (nextIndex != -1) {
+			this.potentialVariableNameStarts[index] = -nextIndex;
+		} else {
+			this.potentialVariableNamesPtr = index - 1;
+		}
+	}
+	
+	private void endVisitPreserved(int start, int end) {
+		int i = indexOfFisrtNameAfter(start);
+		done : while (i != -1) {
+			int nameStart = this.potentialVariableNameStarts[i];
+			if (start < nameStart && nameStart < end) {
+				this.acceptName(this.potentialVariableNames[i]);
+				this.removeNameAt(i);
+			}
+			
+			if (end < nameStart) break done;
+			i = indexOfNextName(i);
+		}
+	}
+
+	private void endVisitRemoved(int start, int end) {
+		int i = indexOfFisrtNameAfter(start);
+		done : while (i != -1) {
+			int nameStart = this.potentialVariableNameStarts[i];
+			if (start < nameStart && nameStart < end) {
+				this.removeNameAt(i);
+			}
+			
+			if (end < nameStart) break done;
+			i = indexOfNextName(i);
 		}
 	}
 	
@@ -262,17 +438,18 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		if (statements != null) {
 			for (int i = 0; i < statements.length; i++) {
 				if (statements[i] instanceof LocalDeclaration) {
-					LocalDeclaration localDeclaration = (LocalDeclaration) statements[i];
-					for (int j = 0; j <= this.potentialVariableNamesPtr; j++) {
-						char[] name = this.potentialVariableNames[j];
-						if (name != null) {
-							int nameStart = this.potentialVariableNameStarts[j];
-							if(start <= nameStart && nameStart <= end) {
-								if (CharOperation.equals(name, localDeclaration.name, false)) {
-									this.potentialVariableNames[j] = null;
-								}
+					LocalDeclaration localDeclaration = (LocalDeclaration) statements[i];					
+					int j = indexOfFisrtNameAfter(start);
+					done : while (j != -1) {
+						int nameStart = this.potentialVariableNameStarts[j];
+						if (start <= nameStart && nameStart <= end) {
+							if (CharOperation.equals(this.potentialVariableNames[j], localDeclaration.name, false)) {
+								this.removeNameAt(j);
 							}
 						}
+						
+						if (end < nameStart) break done;
+						j = indexOfNextName(j);
 					}
 				}
 			}
@@ -281,20 +458,23 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	}
 	
 	private void removeFields(TypeDeclaration typeDeclaration) {
+		int start = typeDeclaration.declarationSourceStart;
+		int end = typeDeclaration.declarationSourceEnd;
+		
 		FieldDeclaration[] fieldDeclarations = typeDeclaration.fields;
 		if (fieldDeclarations != null) {
 			for (int i = 0; i < fieldDeclarations.length; i++) {
-				for (int j = 0; j <= this.potentialVariableNamesPtr; j++) {
-					char[] name = this.potentialVariableNames[j];
-					if (name != null) {
-						int nameStart = this.potentialVariableNameStarts[j];
-						if(typeDeclaration.declarationSourceStart <= nameStart &&
-								nameStart <= typeDeclaration.declarationSourceEnd) {
-							if (CharOperation.equals(name, fieldDeclarations[i].name, false)) {
-								this.potentialVariableNames[j] = null;
-							}
+				int j = indexOfFisrtNameAfter(start);
+				done : while (j != -1) {
+					int nameStart = this.potentialVariableNameStarts[j];
+					if (start <= nameStart && nameStart <= end) {
+						if (CharOperation.equals(this.potentialVariableNames[j], fieldDeclarations[i].name, false)) {
+							this.removeNameAt(j);
 						}
 					}
+					
+					if (end < nameStart) break done;
+					j = indexOfNextName(j);
 				}
 			}
 		}
