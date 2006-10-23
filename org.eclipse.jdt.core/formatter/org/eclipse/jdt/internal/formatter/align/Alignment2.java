@@ -122,8 +122,8 @@ public class Alignment2 {
 	public int tieBreakRule;
 	
 	// alignment effects on a per fragment basis
-	public static int NONE = 0;
-	public static int BREAK = 1;
+	public static final int NONE = 0;
+	public static final int BREAK = 1;
 	
 	// chunk kind
 	public static final int CHUNK_FIELD = 1;
