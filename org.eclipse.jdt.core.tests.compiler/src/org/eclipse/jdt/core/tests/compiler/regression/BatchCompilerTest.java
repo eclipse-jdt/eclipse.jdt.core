@@ -49,12 +49,17 @@ public static Test suite() {
 	return buildUniqueComplianceTestSuite(testClass(), COMPLIANCE_1_5);
 }
 
-	private String getLibraryClasses() {
-		if (Util.isMacOS()) {
-			return JRE_HOME_DIR + "/../Classes/classes.jar"; 
+private String getLibraryClasses() {
+	String[] paths = Util.getJavaClassLibs();
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0, max = paths.length; i < max; i++) {
+		if (i != 0) {
+			buffer.append(File.pathSeparatorChar);
 		}
-		return JRE_HOME_DIR + "/lib/rt.jar";
+		buffer.append(paths[i]);
 	}
+	return String.valueOf(buffer);
+}
 	
 	private String getJCEJar() {
 		if (Util.isMacOS()) {
