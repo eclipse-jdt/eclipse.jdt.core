@@ -278,10 +278,10 @@ public void testRenameCompilationUnitsCheckingDeltas() throws CoreException{
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
 		"		<default>[*]: {CHILDREN}\n" + 
-		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}\n" + 
 		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}\n" + 
-		"			Y.java[-]: {MOVED_TO(NewY.java [in <default> [in src [in P]]])}\n" + 
-		"			NewY.java[+]: {MOVED_FROM(Y.java [in <default> [in src [in P]]])}"
+		"			NewY.java[+]: {MOVED_FROM(Y.java [in <default> [in src [in P]]])}\n" + 
+		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}\n" + 
+		"			Y.java[-]: {MOVED_TO(NewY.java [in <default> [in src [in P]]])}"
 	);
 }
 /**
@@ -333,8 +333,8 @@ public void testRenameCU() throws CoreException {
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
 		"		<default>[*]: {CHILDREN}\n" + 
-		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}\n" + 
-		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}"
+		"			NewX.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}\n" + 
+		"			X.java[-]: {MOVED_TO(NewX.java [in <default> [in src [in P]]])}"
 	);
 }
 public void testRenameCUForce() throws CoreException {
@@ -386,8 +386,8 @@ public void testRenameEmptyPF() throws CoreException {
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
-		"		x.y.z[-]: {MOVED_TO(x.y [in src [in P]])}\n" + 
-		"		x.y[+]: {MOVED_FROM(x.y.z [in src [in P]])}"
+		"		x.y[+]: {MOVED_FROM(x.y.z [in src [in P]])}\n" + 
+		"		x.y.z[-]: {MOVED_TO(x.y [in src [in P]])}"
 	);
 }
 /*
@@ -468,8 +468,8 @@ public void testRenameFieldsCheckingDeltasAndPositions() throws JavaModelExcepti
 		"		<default>[*]: {CHILDREN}\n" + 
 		"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 		"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"					fred[+]: {}\n" + 
-		"					bar[-]: {}"
+		"					bar[-]: {}\n" + 
+		"					fred[+]: {}"
 	);
 	ensureCorrectPositioning(type, type.getField("fred"), type.getField("other"));
 }
@@ -730,8 +730,8 @@ public void testRenamePF() throws CoreException {
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
-		"		x.y.z[-]: {MOVED_TO(x.y.newZ [in src [in P]])}\n" + 
-		"		x.y.newZ[+]: {MOVED_FROM(x.y.z [in src [in P]])}"
+		"		x.y.newZ[+]: {MOVED_FROM(x.y.z [in src [in P]])}\n" + 
+		"		x.y.z[-]: {MOVED_TO(x.y.newZ [in src [in P]])}"
 	);
 }
 /*
