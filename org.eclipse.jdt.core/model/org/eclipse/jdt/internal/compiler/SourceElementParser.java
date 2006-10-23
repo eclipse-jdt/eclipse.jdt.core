@@ -45,7 +45,6 @@ import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 public class SourceElementParser extends CommentRecorderParser {
 	
 	public ISourceElementRequestor requestor;
-	int fieldCount;
 	ISourceType sourceType;
 	boolean reportReferenceInfo;
 	char[][] typeNames;
@@ -1633,7 +1632,7 @@ public void parseTypeMemberDeclarations(
 private static void quickSort(ASTNode[] sortedCollection, int left, int right) {
 	int original_left = left;
 	int original_right = right;
-	ASTNode mid = sortedCollection[ (left + right) / 2];
+	ASTNode mid = sortedCollection[left +  (right - left) / 2];
 	do {
 		while (sortedCollection[left].sourceStart < mid.sourceStart) {
 			left++;
