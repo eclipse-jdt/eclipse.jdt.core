@@ -169,7 +169,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		} else {
 			// used to store the value
 			codeStream.generateEmulationForField(this.binding);
-			this.receiver.generateCode(currentScope, codeStream, !(isStatic = this.codegenBinding.isStatic()));
+			this.receiver.generateCode(currentScope, codeStream, !isStatic);
 
 			// used to retrieve the actual value
 			codeStream.dup();
@@ -237,7 +237,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		fieldStore(codeStream, this.codegenBinding, null, false);
 	} else {
 		this.receiver.generateCode(currentScope, codeStream, !(isStatic = this.codegenBinding.isStatic()));
-		if (this.codegenBinding.isStatic()) {
+		if (isStatic) {
 			codeStream.aconst_null();
 		}
 		// the actual stack is: receiver
