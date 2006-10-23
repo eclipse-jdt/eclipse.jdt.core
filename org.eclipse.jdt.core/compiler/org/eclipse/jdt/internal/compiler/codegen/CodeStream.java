@@ -83,7 +83,7 @@ public class CodeStream {
 			/* Arbitrarily establishing partition element as the midpoint of
 			  * the array.
 			  */
-			mid = tab[ (lo0 + hi0) / 2];
+			mid = tab[lo0 + (hi0 - lo0) / 2];
 			// loop through the array until indices cross
 			while (lo <= hi) {
 				/* find the first element that is greater than or equal to 

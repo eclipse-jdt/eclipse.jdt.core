@@ -86,7 +86,7 @@ class DefaultCommentMapper {
 		int i = 0, index = -1;
 		Comment comment = null;
 		while (bottom <= top) {
-			i = (bottom + top) /2;
+			i = bottom + (top - bottom) /2;
 			comment = this.comments[i];
 			int commentStart = comment.getStartPosition();
 			if (position < commentStart) {

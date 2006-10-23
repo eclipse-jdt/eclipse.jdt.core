@@ -365,7 +365,7 @@ public class Scribe {
 		int g = 0, d = length - 1;
 		int m = 0;
 		while (g <= d) {
-			m = (g + d) / 2;
+			m = g + (d - g) / 2;
 			int bound = this.commentPositions[m][1];
 			if (bound < 0) {
 				bound = -bound;

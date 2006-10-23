@@ -71,7 +71,7 @@ public class RangeUtil {
 		private void quickSort(int[] list, int[] list2, int[] list3, int left, int right) {
 			int original_left= left;
 			int original_right= right;
-			int mid= list[(left + right) / 2];
+			int mid= list[left + (right - left) / 2];
 			do {
 				while (compare(list[left], mid) < 0) {
 					left++;

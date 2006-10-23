@@ -3288,7 +3288,7 @@ public final int getLineNumber(int position) {
 	int g = 0, d = length - 1;
 	int m = 0;
 	while (g <= d) {
-		m = (g + d) /2;
+		m = g + (d - g) /2;
 		if (position < this.lineEnds[m]) {
 			d = m-1;
 		} else if (position > this.lineEnds[m]) {

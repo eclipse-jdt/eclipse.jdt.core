@@ -801,7 +801,7 @@ public class CompilationUnit extends ASTNode {
 				return low + 2;
 			}
 			// assert hi - low >= 2, so average is truly in between
-			int mid = (low + hi) / 2;
+			int mid = low + (hi - low) / 2;
 			// assert 0 <= low < mid < hi <= length - 1
 			if (position <= this.lineEndTable[mid]) {
 				// assert lineEndTable[low] < position <= lineEndTable[mid]

@@ -72,7 +72,7 @@ public static FieldBinding binarySearch(char[] name, FieldBinding[] sortedFields
 	int mid = 0;
 	char[] midName;
 	while (left <= right) {
-		mid = (left + right) /2;
+		mid = left + (right - left) /2;
 		int compare = compare(name, midName = sortedFields[mid].name, nameLength, midName.length);
 		if (compare < 0) {
 			right = mid-1;
@@ -104,7 +104,7 @@ public static long binarySearch(char[] selector, MethodBinding[] sortedMethods) 
 	int mid = 0;
 	char[] midSelector;
 	while (left <= right) {
-		mid = (left + right) /2;
+		mid = left + (right - left) /2;
 		int compare = compare(selector, midSelector = sortedMethods[mid].selector, selectorLength, midSelector.length);
 		if (compare < 0) {
 			right = mid-1;
