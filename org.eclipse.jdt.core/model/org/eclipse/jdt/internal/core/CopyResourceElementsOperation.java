@@ -308,13 +308,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			// update new resource content
 			// in case we do a saveas on the same resource we have to simply update the contents
 			// see http://dev.eclipse.org/bugs/show_bug.cgi?id=9351
-			try {
-				if (rewrite != null){
-					saveContent(dest, destName, rewrite, sourceEncoding, destFile);
-				}
-			} catch (CoreException e) {
-				if (e instanceof JavaModelException) throw (JavaModelException) e;
-				throw new JavaModelException(e);
+			if (rewrite != null){
+				saveContent(dest, destName, rewrite, sourceEncoding, destFile);
 			}
 		}
 	}
