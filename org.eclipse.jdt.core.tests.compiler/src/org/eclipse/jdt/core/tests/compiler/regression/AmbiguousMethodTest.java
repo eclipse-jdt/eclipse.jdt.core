@@ -1217,4 +1217,70 @@ public void test030() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant
+public void _test031() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Irrelevant {}\n" + 
+			"interface I {\n" + 
+			"  Object foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends Irrelevant, I {\n" + 
+			"  String foo(Number n);\n" + 
+			"}\n" + 
+			"interface K {\n" + 
+			"  Object foo(Number n);\n" + 
+			"}\n" + 
+			"public abstract class X implements Irrelevant, I, J, K {\n" + 
+			"  void foo() {\n" + 
+			"    foo(0.0f);\n" + // ambiguous 
+			"  }\n" + 
+			"}"
+		},
+		"ERROR");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+public void _test032() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  <T extends Exception & Cloneable> T foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends I {\n" + 
+			"  XX foo(Number n);\n" + 
+			"}\n" + 
+			"public abstract class X implements J {\n" + 
+			"  void foo() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"abstract class XX extends Exception implements Cloneable {}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// variant that passes
+public void test033() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  <T extends Exception & Cloneable> T foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends I {\n" + 
+			"  XX foo(Number n);\n" + 
+			"}\n" + 
+			"public abstract class X implements J {\n" + 
+			"  void foo() {\n" + 
+			"  }\n" + 
+			"  public XX foo(Number n) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"abstract class XX extends Exception implements Cloneable {}"
+		},
+		"");
+}
 }
