@@ -20,19 +20,13 @@ import uol.proxy.smtp.SmtpResponse;
  * */
 public class SmtpServerParser {
 	private static final int DIGITS = 0;
-
 	private static final int LINE_MODE_CHAR = 1;
-
 	private static final int SKIP_TO_EOL_AND_FINISH = 2;
-
 	private static final int SKIP_TO_EOL = 3;
 
 	int state = DIGITS;
-
 	int code;
-
 	int pos;
-
 	boolean wellFormed = true;
 
 	public SmtpServerParser() {

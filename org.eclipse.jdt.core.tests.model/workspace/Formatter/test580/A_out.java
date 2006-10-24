@@ -3,7 +3,6 @@ public class Foo {
 	static class Point {
 		static class Float {
 			float x;
-
 			float y;
 		}
 	}

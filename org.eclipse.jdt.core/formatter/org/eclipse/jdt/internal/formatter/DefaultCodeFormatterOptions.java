@@ -2144,7 +2144,7 @@ public class DefaultCodeFormatterOptions {
 		this.continuation_indentation_for_array_initializer = 2;
 		this.blank_lines_after_imports = 1;
 		this.blank_lines_after_package = 1;
-		this.blank_lines_before_field = 1;
+		this.blank_lines_before_field = 0;
 		this.blank_lines_before_first_class_body_declaration = 0;
 		this.blank_lines_before_imports = 1;
 		this.blank_lines_before_member_type = 1;

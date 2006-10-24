@@ -1,6 +1,5 @@
 class Seq<E> {
 	E head;
-
 	Seq<E> tail;
 
 	Seq() {
@@ -48,7 +47,6 @@ class Seq<E> {
 
 class Pair<A, B> {
 	A fst;
-
 	B snd;
 
 	Pair(A a, B b) {
