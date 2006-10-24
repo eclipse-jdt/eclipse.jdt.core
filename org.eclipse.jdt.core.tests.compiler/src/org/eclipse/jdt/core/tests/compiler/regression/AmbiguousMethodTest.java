@@ -1253,8 +1253,6 @@ public void _test032() {
 			"  XX foo(Number n);\n" + 
 			"}\n" + 
 			"public abstract class X implements J {\n" + 
-			"  void foo() {\n" + 
-			"  }\n" + 
 			"}\n" + 
 			"abstract class XX extends Exception implements Cloneable {}"
 		},
