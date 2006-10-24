@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.hierarchy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -77,10 +78,11 @@ private void createTypeHierarchyBasedOnRegion(HashMap allOpenablesInRegion, IPro
 	}
 		
 	this.infoToHandle = new HashMap(size);
-	Iterator javaProjects = allOpenablesInRegion.keySet().iterator();
+	Iterator javaProjects = allOpenablesInRegion.entrySet().iterator();
 	while (javaProjects.hasNext()) {
-		JavaProject project = (JavaProject) javaProjects.next();
-		ArrayList allOpenables = (ArrayList) allOpenablesInRegion.get(project);
+		Map.Entry entry = (Map.Entry) javaProjects.next();  
+		JavaProject project = (JavaProject) entry.getKey();
+		ArrayList allOpenables = (ArrayList) entry.getValue();
 		Openable[] openables = new Openable[allOpenables.size()];
 		allOpenables.toArray(openables);
 	

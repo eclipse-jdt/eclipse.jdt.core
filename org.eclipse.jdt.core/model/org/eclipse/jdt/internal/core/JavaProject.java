@@ -1577,10 +1577,11 @@ public class JavaProject
 
 		// Inherit from JavaCore options if specified
 		if (inheritJavaCoreOptions) {
-			Iterator propertyNames = projectOptions.keySet().iterator();
+			Iterator propertyNames = projectOptions.entrySet().iterator();
 			while (propertyNames.hasNext()) {
-				String propertyName = (String) propertyNames.next();
-				String propertyValue = (String) projectOptions.get(propertyName);
+				Map.Entry entry = (Map.Entry) propertyNames.next();
+				String propertyName = (String) entry.getKey();
+				String propertyValue = (String) entry.getValue();
 				if (propertyValue != null && optionNames.contains(propertyName)){
 					options.put(propertyName, propertyValue.trim());
 				}
@@ -2678,13 +2679,13 @@ public class JavaProject
 			if (newOptions == null){
 				projectPreferences.clear();
 			} else {
-				Iterator keys = newOptions.keySet().iterator();
-				while (keys.hasNext()){
-					String key = (String)keys.next();
+				Iterator entries = newOptions.entrySet().iterator();
+				while (entries.hasNext()){
+					Map.Entry entry = (Map.Entry) entries.next();
+					String key = (String) entry.getKey();
 					if (!JavaModelManager.getJavaModelManager().optionNames.contains(key)) continue; // unrecognized option
 					// no filtering for encoding (custom encoding for project is allowed)
-					String value = (String)newOptions.get(key);
-					projectPreferences.put(key, value);
+					projectPreferences.put(key, (String) entry.getValue());
 				}
 				
 				// reset to default all options not in new map

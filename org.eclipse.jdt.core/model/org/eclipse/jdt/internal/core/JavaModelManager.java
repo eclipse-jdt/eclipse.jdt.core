@@ -577,10 +577,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private synchronized void containersReset(String[] containerIDs) {
 		for (int i = 0; i < containerIDs.length; i++) {
 			String containerID = containerIDs[i];
-			Iterator projectIterator = this.containers.keySet().iterator();
+			Iterator projectIterator = this.containers.values().iterator();
 			while (projectIterator.hasNext()){
-				IJavaProject project = (IJavaProject)projectIterator.next();
-				Map projectContainers = (Map)this.containers.get(project);
+				Map projectContainers = (Map) projectIterator.next();
 				if (projectContainers != null){
 					Iterator containerIterator = projectContainers.keySet().iterator();
 					while (containerIterator.hasNext()){
@@ -1916,13 +1915,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			IWorkspaceRunnable runnable = 				
 				new IWorkspaceRunnable() {
 					public void run(IProgressMonitor monitor) throws CoreException {
-						Set keys = allContainerPaths.keySet();
-						int length = keys.size();
-						IJavaProject[] javaProjects = new IJavaProject[length]; // clone as the following will have a side effect
-						keys.toArray(javaProjects);
+						Set entrySet = allContainerPaths.entrySet();
+						int length = entrySet.size();
+						Map.Entry[] entries = new Map.Entry[length]; // clone as the following will have a side effect
+						entrySet.toArray(entries);
 						for (int i = 0; i < length; i++) {
-							IJavaProject javaProject = javaProjects[i];
-							HashSet pathSet = (HashSet) allContainerPaths.get(javaProject);
+							Map.Entry entry = entries[i];
+							IJavaProject javaProject = (IJavaProject) entry.getKey();
+							HashSet pathSet = (HashSet) entry.getValue();
 							if (pathSet == null) continue;
 							int length2 = pathSet.size();
 							IPath[] paths = new IPath[length2];
@@ -2648,11 +2648,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 		}	
 	
-		Iterator iterator = newElements.keySet().iterator();	
+		Iterator iterator = newElements.entrySet().iterator();	
 		while (iterator.hasNext()) {
-			IJavaElement element = (IJavaElement)iterator.next();
-			Object info = newElements.get(element);
-			this.cache.putInfo(element, info);
+			Map.Entry entry = (Map.Entry) iterator.next();
+			this.cache.putInfo((IJavaElement) entry.getKey(), entry.getValue());
 		}
 	}
 	
@@ -2948,66 +2947,69 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				new VariablesAndContainersSaveHelper(out).save();
 			else {
 				// old code retained for performance comparisons
-			
-			// variables
-			out.writeInt(this.variables.size());
-			Iterator variableNames = this.variables.keySet().iterator();
-			while (variableNames.hasNext()) {
-				String variableName = (String) variableNames.next();
-				out.writeUTF(variableName);
-				IPath path = (IPath) this.variables.get(variableName);
-				out.writeUTF(path == null ? CP_ENTRY_IGNORE : path.toPortableString());
-			}
-			
-			// containers
-			IJavaProject[] projects = getJavaModel().getJavaProjects();
-			int length = projects.length;
-			out.writeInt(length);
-			for (int i = 0; i < length; i++) {
-			    IJavaProject project = projects[i];
-				// clone while iterating (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59638)
-				Map projectContainers = containerClone(project);
-				out.writeUTF(project.getElementName());
-				if (projectContainers == null) {
-					out.writeInt(0);
-					continue;
-				}
-				HashMap containersToSave = new HashMap();
-				for (Iterator iterator = projectContainers.keySet().iterator(); iterator.hasNext();) {
-				    IPath containerPath = (IPath) iterator.next();
-				    IClasspathContainer container = (IClasspathContainer) projectContainers.get(containerPath);
-					String containerString = null;
-					try {
-						if (container == null) {
-							// container has not been initialized yet, use previous session value
-							// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=73969)
-							container = getPreviousSessionContainer(containerPath, project);
-						}
-						if (container != null) {
-							IClasspathEntry[] entries = container.getClasspathEntries();
-							containerString = ((JavaProject)project).encodeClasspath(
-									entries, 
-									null, 
-									false,
-									null/*not interested in unknown elements*/);
-						}
-					} catch(JavaModelException e){
-						// could not encode entry: will not persist
-						Util.log(e, "Could not persist container " + containerPath + " for project " + project.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					if (containerString != null)
-						containersToSave.put(containerPath, containerString);
-				}
-				out.writeInt(containersToSave.size());
-				Iterator iterator = containersToSave.keySet().iterator();
-				while (iterator.hasNext()) {
-					IPath containerPath = (IPath) iterator.next();
-					out.writeUTF(containerPath.toPortableString());
-					String containerString = (String) containersToSave.get(containerPath);
-					out.writeInt(containerString.length());
-					out.writeBytes(containerString);
-				}
-			}
+    			
+    			// variables
+    			out.writeInt(this.variables.size());
+    			Iterator iterator = this.variables.entrySet().iterator();
+    			while (iterator.hasNext()) {
+    				Map.Entry entry = (Map.Entry) iterator.next();
+    				String variableName = (String) entry.getKey();
+    				out.writeUTF(variableName);
+    				IPath path = (IPath) entry.getValue();
+    				out.writeUTF(path == null ? CP_ENTRY_IGNORE : path.toPortableString());
+    			}
+    			
+    			// containers
+    			IJavaProject[] projects = getJavaModel().getJavaProjects();
+    			int length = projects.length;
+    			out.writeInt(length);
+    			for (int i = 0; i < length; i++) {
+    			    IJavaProject project = projects[i];
+    				// clone while iterating (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59638)
+    				Map projectContainers = containerClone(project);
+    				out.writeUTF(project.getElementName());
+    				if (projectContainers == null) {
+    					out.writeInt(0);
+    					continue;
+    				}
+    				HashMap containersToSave = new HashMap();
+    				for (iterator = projectContainers.entrySet().iterator(); iterator.hasNext();) {
+    					Map.Entry entry = (Map.Entry) iterator.next();
+    				    IPath containerPath = (IPath) entry.getKey();
+    				    IClasspathContainer container = (IClasspathContainer) entry.getValue();
+    					String containerString = null;
+    					try {
+    						if (container == null) {
+    							// container has not been initialized yet, use previous session value
+    							// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=73969)
+    							container = getPreviousSessionContainer(containerPath, project);
+    						}
+    						if (container != null) {
+    							IClasspathEntry[] entries = container.getClasspathEntries();
+    							containerString = ((JavaProject)project).encodeClasspath(
+    									entries, 
+    									null, 
+    									false,
+    									null/*not interested in unknown elements*/);
+    						}
+    					} catch(JavaModelException e){
+    						// could not encode entry: will not persist
+    						Util.log(e, "Could not persist container " + containerPath + " for project " + project.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
+    					}
+    					if (containerString != null)
+    						containersToSave.put(containerPath, containerString);
+    				}
+    				out.writeInt(containersToSave.size());
+    				iterator = containersToSave.entrySet().iterator();
+    				while (iterator.hasNext()) {
+    					Map.Entry entry = (Map.Entry) iterator.next();
+    					IPath containerPath = (IPath) entry.getKey();
+    					out.writeUTF(containerPath.toPortableString());
+    					String containerString = (String) entry.getValue();
+    					out.writeInt(containerString.length());
+    					out.writeBytes(containerString);
+    				}
+    			}
 			}
 		} catch (IOException e) {
 			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving variables and containers", e); //$NON-NLS-1$
@@ -3361,10 +3363,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					}
 					if (VERBOSE) {
 						Util.verbose("	- indexing cache:"); //$NON-NLS-1$
-						Iterator keys = indexedSecondaryTypes.keySet().iterator();
-						while (keys.hasNext()) {
-							IFile file = (IFile) keys.next();
-							Util.verbose("		+ "+file.getFullPath()+':'+indexedSecondaryTypes.get(file) ); //$NON-NLS-1$
+						Iterator entries = indexedSecondaryTypes.entrySet().iterator();
+						while (entries.hasNext()) {
+							Map.Entry entry = (Map.Entry) entries.next();
+							IFile file = (IFile) entry.getKey();
+							Util.verbose("		+ "+file.getFullPath()+':'+ entry.getValue()); //$NON-NLS-1$
 						}
 					}
 				}
@@ -3451,10 +3454,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (VERBOSE) {
 			Util.verbose("JavaModelManager.getSecondaryTypesMerged()"); //$NON-NLS-1$
 			Util.verbose("	- current cache to merge:"); //$NON-NLS-1$
-			Iterator keys = secondaryTypes.keySet().iterator();
-			while (keys.hasNext()) {
-				String packName = (String) keys.next();
-				Util.verbose("		+ "+packName+':'+secondaryTypes.get(packName) ); //$NON-NLS-1$
+			Iterator entries = secondaryTypes.entrySet().iterator();
+			while (entries.hasNext()) {
+				Map.Entry entry = (Map.Entry) entries.next();
+				String packName = (String) entry.getKey();
+				Util.verbose("		+ "+packName+':'+ entry.getValue() ); //$NON-NLS-1$
 			}
 		}
 
@@ -3465,37 +3469,41 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		// Merge indexing cache in secondary types one
-		Iterator files = indexedSecondaryTypes.keySet().iterator();
-		while (files.hasNext()) {
-			IFile file = (IFile) files.next();
+		Iterator entries = indexedSecondaryTypes.entrySet().iterator();
+		while (entries.hasNext()) {
+			Map.Entry entry = (Map.Entry) entries.next();
+			IFile file = (IFile) entry.getKey();
 	
 			// Remove all secondary types of indexed file from cache
 			secondaryTypesRemoving(secondaryTypes, file);
 			
 			// Add all indexing file secondary types in given secondary types cache
-			HashMap fileSecondaryTypes = (HashMap) indexedSecondaryTypes.get(file);
-			Iterator packages = fileSecondaryTypes.keySet().iterator();
-			while (packages.hasNext()) {
-				String packageName = (String) packages.next();
+			HashMap fileSecondaryTypes = (HashMap) entry.getValue();
+			Iterator entries2 = fileSecondaryTypes.entrySet().iterator();
+			while (entries2.hasNext()) {
+				Map.Entry entry2 = (Map.Entry) entries2.next();
+				String packageName = (String) entry2.getKey();
 				HashMap cachedTypes = (HashMap) secondaryTypes.get(packageName);
 				if (cachedTypes == null) {
-					secondaryTypes.put(packageName, fileSecondaryTypes.get(packageName));
+					secondaryTypes.put(packageName, entry2.getValue());
 				} else {
-					HashMap types = (HashMap) fileSecondaryTypes.get(packageName);
-					Iterator typeNames = types.keySet().iterator();
-					while (typeNames.hasNext()) {
-						String typeName = (String) typeNames.next();
-						cachedTypes.put(typeName, types.get(typeName));
+					HashMap types = (HashMap) entry2.getValue();
+					Iterator entries3 = types.entrySet().iterator();
+					while (entries3.hasNext()) {
+						Map.Entry entry3 = (Map.Entry) entries3.next();
+						String typeName = (String) entry3.getKey();
+						cachedTypes.put(typeName, entry3.getValue());
 					}
 				}
 			}
 		}
 		if (VERBOSE) {
 			Util.verbose("	- secondary types cache merged:"); //$NON-NLS-1$
-			Iterator keys = secondaryTypes.keySet().iterator();
-			while (keys.hasNext()) {
-				String packName = (String) keys.next();
-				Util.verbose("		+ "+packName+':'+secondaryTypes.get(packName) ); //$NON-NLS-1$
+			entries = secondaryTypes.entrySet().iterator();
+			while (entries.hasNext()) {
+				Map.Entry entry = (Map.Entry) entries.next();
+				String packName = (String) entry.getKey();
+				Util.verbose("		+ "+packName+':'+ entry.getValue()); //$NON-NLS-1$
 			}
 		}
 		return secondaryTypes;
@@ -3543,14 +3551,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		new BasicSearchEngine().searchAllSecondaryTypeNames(allSourceFolders, nameRequestor, waitForIndexes, monitor);
 
 		// Build types from paths
-		Iterator packages = secondaryTypes.keySet().iterator();
+		Iterator packages = secondaryTypes.values().iterator();
 		while (packages.hasNext()) {
-			String packName = (String) packages.next();
-			HashMap types = (HashMap) secondaryTypes.get(packName);
-			Iterator names = types.keySet().iterator();
+			HashMap types = (HashMap) packages.next();
+			Iterator names = types.entrySet().iterator();
 			while (names.hasNext()) {
-				String typeName = (String) names.next();
-				String path = (String) types.get(typeName);
+				Map.Entry entry = (Map.Entry) names.next();
+				String typeName = (String) entry.getKey();
+				String path = (String) entry.getValue();
 				if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(path)) {
 					IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(path));
 					ICompilationUnit unit = JavaModelManager.createCompilationUnitFrom(file, null);
@@ -3566,10 +3574,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (VERBOSE || BasicSearchEngine.VERBOSE) {
 				System.out.print(Thread.currentThread() + "	-> secondary paths stored in cache: ");  //$NON-NLS-1$
 				System.out.println();
-				Iterator keys = secondaryTypes.keySet().iterator();
-				while (keys.hasNext()) {
-					String qualifiedName = (String) keys.next();
-					Util.verbose("		- "+qualifiedName+'-'+secondaryTypes.get(qualifiedName) ); //$NON-NLS-1$
+				Iterator entries = secondaryTypes.entrySet().iterator();
+				while (entries.hasNext()) {
+					Map.Entry entry = (Map.Entry) entries.next();
+					String qualifiedName = (String) entry.getKey();
+					Util.verbose("		- "+qualifiedName+'-'+ entry.getValue()); //$NON-NLS-1$
 				}
 			}
 		}
@@ -3634,31 +3643,34 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private void secondaryTypesRemoving(Hashtable secondaryTypesMap, IFile file) {
 		if (VERBOSE) {
 			StringBuffer buffer = new StringBuffer("JavaModelManager.removeSecondaryTypesFromMap("); //$NON-NLS-1$
-			Iterator keys = secondaryTypesMap.keySet().iterator();
-			while (keys.hasNext()) {
-				String qualifiedName = (String) keys.next();
-				buffer.append(qualifiedName+':'+secondaryTypesMap.get(qualifiedName));
+			Iterator entries = secondaryTypesMap.entrySet().iterator();
+			while (entries.hasNext()) {
+				Map.Entry entry = (Map.Entry) entries.next();
+				String qualifiedName = (String) entry.getKey();
+				buffer.append(qualifiedName+':'+ entry.getValue());
 			}
 			buffer.append(',');
 			buffer.append(file.getFullPath());
 			buffer.append(')');
 			Util.verbose(buffer.toString());
 		}
-		Set packageKeys = secondaryTypesMap.keySet();
-		int packagesSize = packageKeys.size(), removedPackagesCount = 0;
+		Set packageEntries = secondaryTypesMap.entrySet();
+		int packagesSize = packageEntries.size(), removedPackagesCount = 0;
 		String[] removedPackages = null;
-		Iterator packages = packageKeys.iterator();
+		Iterator packages = packageEntries.iterator();
 		while (packages.hasNext()) {
-			String packName = (String) packages.next();
+			Map.Entry entry = (Map.Entry) packages.next();
+			String packName = (String) entry.getKey();
 			if (packName != INDEXED_SECONDARY_TYPES) { // skip indexing cache entry if present (!= is intentional)
-				HashMap types = (HashMap) secondaryTypesMap.get(packName);
-				Set nameKeys = types.keySet();
-				int namesSize = nameKeys.size(), removedNamesCount = 0;
+				HashMap types = (HashMap) entry.getValue();
+				Set nameEntries = types.entrySet();
+				int namesSize = nameEntries.size(), removedNamesCount = 0;
 				String[] removedNames = null;
-				Iterator names = nameKeys.iterator();
+				Iterator names = nameEntries.iterator();
 				while (names.hasNext()) {
-					String typeName = (String) names.next();
-					IType type = (IType) types.get(typeName);
+					Map.Entry entry2 = (Map.Entry) names.next();
+					String typeName = (String) entry2.getKey();
+					IType type = (IType) entry2.getValue();
 					if (file.equals(type.getResource())) {
 						if (removedNames == null) removedNames = new String[namesSize];
 						namesSize--;
@@ -3684,10 +3696,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		if (VERBOSE) {
 			Util.verbose("	- new secondary types map:"); //$NON-NLS-1$
-			Iterator keys = secondaryTypesMap.keySet().iterator();
-			while (keys.hasNext()) {
-				String qualifiedName = (String) keys.next();
-				Util.verbose("		+ "+qualifiedName+':'+secondaryTypesMap.get(qualifiedName) ); //$NON-NLS-1$
+			Iterator entries = secondaryTypesMap.entrySet().iterator();
+			while (entries.hasNext()) {
+				Map.Entry entry = (Map.Entry) entries.next();
+				String qualifiedName = (String) entry.getKey();
+				Util.verbose("		+ "+qualifiedName+':'+ entry.getValue()); //$NON-NLS-1$
 			}
 		}
 	}

@@ -450,11 +450,12 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		try {
 			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(timestamps)));
 			out.writeInt(this.externalTimeStamps.size());
-			Iterator keys = this.externalTimeStamps.keySet().iterator();
-			while (keys.hasNext()) {
-				IPath key = (IPath) keys.next();
+			Iterator entries = this.externalTimeStamps.entrySet().iterator();
+			while (entries.hasNext()) {
+				Map.Entry entry = (Map.Entry) entries.next();
+				IPath key = (IPath) entry.getKey();
 				out.writeUTF(key.toPortableString());
-				Long timestamp = (Long) this.externalTimeStamps.get(key);
+				Long timestamp = (Long) entry.getValue();
 				out.writeLong(timestamp.longValue());
 			}
 		} catch (IOException e) {
@@ -484,13 +485,14 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			updatedRoots = this.roots;
 			otherUpdatedRoots = this.otherRoots;
 		}
-		Iterator iterator = updatedRoots.keySet().iterator();
+		Iterator iterator = updatedRoots.entrySet().iterator();
 		while (iterator.hasNext()) {
-			IPath path = (IPath)iterator.next();
+			Map.Entry entry = (Map.Entry) iterator.next();
+			IPath path = (IPath) entry.getKey();
 			if (containerPath.isPrefixOf(path) && !containerPath.equals(path)) {
 				IResourceDelta rootDelta = containerDelta.findMember(path.removeFirstSegments(1));
 				if (rootDelta == null) continue;
-				DeltaProcessor.RootInfo rootInfo = (DeltaProcessor.RootInfo)updatedRoots.get(path);
+				DeltaProcessor.RootInfo rootInfo = (DeltaProcessor.RootInfo) entry.getValue();
 	
 				if (!rootInfo.project.getPath().isPrefixOf(path)) { // only consider roots that are not included in the container
 					deltaProcessor.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootInfo);

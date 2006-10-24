@@ -14,7 +14,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 
 public class GenericXMLWriter extends PrintWriter {
 	/* constants */
@@ -80,14 +82,20 @@ public class GenericXMLWriter extends PrintWriter {
 		sb.append(name);
 		if (parameters != null) {
 			int length = parameters.size();
-			String[] keys = new String[length];
-			parameters.keySet().toArray(keys);
-			Arrays.sort(keys);
+			Map.Entry[] entries = new Map.Entry[length];
+			parameters.entrySet().toArray(entries);
+			Arrays.sort(entries, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					Map.Entry entry1 = (Map.Entry) o1;
+					Map.Entry entry2 = (Map.Entry) o2;
+					return ((String) entry1.getKey()).compareTo((String) entry2.getKey());
+				}
+			});
 			for (int i = 0; i < length; i++) {
 				sb.append(" "); //$NON-NLS-1$
-				sb.append(keys[i]);
+				sb.append(entries[i].getKey());
 				sb.append("=\""); //$NON-NLS-1$
-				sb.append(getEscaped(String.valueOf(parameters.get(keys[i]))));
+				sb.append(getEscaped(String.valueOf(entries[i].getValue())));
 				sb.append("\""); //$NON-NLS-1$
 			}
 		}

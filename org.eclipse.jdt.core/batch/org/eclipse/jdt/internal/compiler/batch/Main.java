@@ -29,6 +29,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -503,13 +504,19 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void logOptions(Map options) {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.printTag(Logger.OPTIONS, null, true, false);
-				final Set keySet = options.keySet();
-				Object[] keys = keySet.toArray();
-				Arrays.sort(keys);
-				for (int i = 0, max = keys.length; i < max; i++) {
-					Object key = keys[i];
-					this.parameters.put(Logger.KEY, key);
-					this.parameters.put(Logger.VALUE, options.get(key));
+				final Set entriesSet = options.entrySet();
+				Object[] entries = entriesSet.toArray();
+				Arrays.sort(entries, new Comparator() {
+					public int compare(Object o1, Object o2) {
+						Map.Entry entry1 = (Map.Entry) o1;
+						Map.Entry entry2 = (Map.Entry) o2;
+						return ((String) entry1.getKey()).compareTo((String) entry2.getKey());
+					}
+				});
+				for (int i = 0, max = entries.length; i < max; i++) {
+					Map.Entry entry = (Map.Entry) entries[i];
+					this.parameters.put(Logger.KEY, entry.getKey());
+					this.parameters.put(Logger.VALUE, entry.getValue());
 					this.printTag(Logger.OPTION, this.parameters, true, true);
 				}
 				this.endTag(Logger.OPTIONS);
@@ -2722,9 +2729,9 @@ protected void initialize(PrintWriter outWriter,
 	if (customDefaultOptions != null) {
 		this.didSpecifySource = customDefaultOptions.get(CompilerOptions.OPTION_Source) != null;
 		this.didSpecifyTarget = customDefaultOptions.get(CompilerOptions.OPTION_TargetPlatform) != null;
-		for (Iterator iter = customDefaultOptions.keySet().iterator(); iter.hasNext();) {
-			Object key = iter.next();
-			this.options.put(key, customDefaultOptions.get(key));
+		for (Iterator iter = customDefaultOptions.entrySet().iterator(); iter.hasNext();) {
+			Map.Entry entry = (Map.Entry) iter.next();
+			this.options.put(entry.getKey(), entry.getValue());
 		}
 	} else {
 		this.didSpecifySource = false;
@@ -2848,7 +2855,7 @@ private void printUsage(String sectionID) {
  */
 public void processPathEntries(final int defaultSize, final ArrayList paths, 
 			final String currentPath, String customEncoding, boolean isSourceOnly,
-			boolean rejectDestinationPathOnJars) 
+			boolean rejectDestinationPathOnJars)
 		throws InvalidInputException {
 	String currentClasspathName = null;
 	String currentDestinationPath = null;

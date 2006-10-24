@@ -524,14 +524,15 @@ public IType[] getExtendingInterfaces(IType type) {
  * @see #getExtendingInterfaces
  */
 private IType[] getExtendingInterfaces0(IType extendedInterface) {
-	Iterator iter = this.typeToSuperInterfaces.keySet().iterator();
+	Iterator iter = this.typeToSuperInterfaces.entrySet().iterator();
 	ArrayList interfaceList = new ArrayList();
 	while (iter.hasNext()) {
-		IType type = (IType) iter.next();
+		Map.Entry entry = (Map.Entry) iter.next();
+		IType type = (IType) entry.getKey();
 		if (!this.isInterface(type)) {
 			continue;
 		}
-		IType[] superInterfaces = (IType[]) this.typeToSuperInterfaces.get(type);
+		IType[] superInterfaces = (IType[]) entry.getValue();
 		if (superInterfaces != null) {
 			for (int i = 0; i < superInterfaces.length; i++) {
 				IType superInterface = superInterfaces[i];
@@ -560,14 +561,15 @@ public IType[] getImplementingClasses(IType type) {
  */
 private IType[] getImplementingClasses0(IType interfce) {
 	
-	Iterator iter = this.typeToSuperInterfaces.keySet().iterator();
+	Iterator iter = this.typeToSuperInterfaces.entrySet().iterator();
 	ArrayList iMenters = new ArrayList();
 	while (iter.hasNext()) {
-		IType type = (IType) iter.next();
+		Map.Entry entry = (Map.Entry) iter.next();
+		IType type = (IType) entry.getKey();
 		if (this.isInterface(type)) {
 			continue;
 		}
-		IType[] types = (IType[]) this.typeToSuperInterfaces.get(type);
+		IType[] types = (IType[]) entry.getValue();
 		for (int i = 0; i < types.length; i++) {
 			IType iFace = types[i];
 			if (iFace.equals(interfce)) {
@@ -1287,30 +1289,32 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 			hashtable.put(this.focusType, index);
 			hashtable2.put(index, this.focusType);
 		}
-		Object[] types = this.classToSuperclass.keySet().toArray();
+		Object[] types = this.classToSuperclass.entrySet().toArray();
 		for (int i = 0; i < types.length; i++) {
-			Object t = types[i];
+			Map.Entry entry = (Map.Entry) types[i];
+			Object t = entry.getKey();
 			if(hashtable.get(t) == null) {
 				Integer index = new Integer(count++);
 				hashtable.put(t, index);
 				hashtable2.put(index, t);
 			}
-			Object superClass = this.classToSuperclass.get(t);
+			Object superClass = entry.getValue();
 			if(superClass != null && hashtable.get(superClass) == null) {
 				Integer index = new Integer(count++);
 				hashtable.put(superClass, index);
 				hashtable2.put(index, superClass);
 			}
 		}
-		types = this.typeToSuperInterfaces.keySet().toArray();
+		types = this.typeToSuperInterfaces.entrySet().toArray();
 		for (int i = 0; i < types.length; i++) {
-			Object t = types[i];
+			Map.Entry entry = (Map.Entry) types[i];
+			Object t = entry.getKey();
 			if(hashtable.get(t) == null) {
 				Integer index = new Integer(count++);
 				hashtable.put(t, index);
 				hashtable2.put(index, t);
 			}
-			Object[] sp = (Object[])this.typeToSuperInterfaces.get(t);
+			Object[] sp = (Object[]) entry.getValue();
 			if(sp != null) {
 				for (int j = 0; j < sp.length; j++) {
 					Object superInterface = sp[j];
@@ -1372,10 +1376,11 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 		output.write(SEPARATOR1);
 		
 		// save superclasses
-		types = this.classToSuperclass.keySet().toArray();
+		types = this.classToSuperclass.entrySet().toArray();
 		for (int i = 0; i < types.length; i++) {
-			IJavaElement key = (IJavaElement)types[i];
-			IJavaElement value = (IJavaElement)this.classToSuperclass.get(key);
+			Map.Entry entry = (Map.Entry) types[i];
+			IJavaElement key = (IJavaElement) entry.getKey();
+			IJavaElement value = (IJavaElement) entry.getValue();
 			
 			output.write(((Integer)hashtable.get(key)).toString().getBytes());
 			output.write('>');
@@ -1385,10 +1390,11 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 		output.write(SEPARATOR1);
 		
 		// save superinterfaces
-		types = this.typeToSuperInterfaces.keySet().toArray();
+		types = this.typeToSuperInterfaces.entrySet().toArray();
 		for (int i = 0; i < types.length; i++) {
-			IJavaElement key = (IJavaElement)types[i];
-			IJavaElement[] values = (IJavaElement[])this.typeToSuperInterfaces.get(key);
+			Map.Entry entry = (Map.Entry) types[i];
+			IJavaElement key = (IJavaElement) entry.getKey();
+			IJavaElement[] values = (IJavaElement[]) entry.getValue();
 			
 			if(values.length > 0) {
 				output.write(((Integer)hashtable.get(key)).toString().getBytes());

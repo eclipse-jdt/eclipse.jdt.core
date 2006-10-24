@@ -242,8 +242,8 @@ public void printStats() {
 		}
 	}
 
-	for (Iterator iter = h.keySet().iterator(); iter.hasNext();){
-		System.out.println(h.get(iter.next()));
+	for (Iterator iter = h.values().iterator(); iter.hasNext();){
+		System.out.println(iter.next());
 	}
 }
 	/**
