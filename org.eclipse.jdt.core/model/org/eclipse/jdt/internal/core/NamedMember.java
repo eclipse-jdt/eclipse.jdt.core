@@ -163,7 +163,6 @@ public abstract class NamedMember extends Member {
 		buffer.append('<');
 		for (int i = 0; i < length; i++) {
 			String typeArgument = typeArguments[i];
-			typeArgument.replace('/', '.');
 			buffer.append(Signature.toString(typeArgument));
 			if (i < length-1)
 				buffer.append(',');
