@@ -7265,7 +7265,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160089
 	 */
-	public void _test0229() throws JavaModelException {
+	public void test0229() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
      		"import java.util.List;\n" +
@@ -7279,7 +7279,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	this.workingCopy.save(null, true);
     	final ASTNode[] asts = new ASTNode[1];
        	final IBinding[] bindings = new IBinding[1];
-       	final String key = BindingKey.createTypeBindingKey("java.util.Collection");
+       	final String key = BindingKey.createParameterizedTypeBindingKey(
+       	     "Ljava/util/Collection<TE;>;", new String[] {});
     	resolveASTs(
 			new ICompilationUnit[] {
 				this.workingCopy
@@ -7316,8 +7317,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	type = fieldDeclaration.getType();
     	ITypeBinding typeBinding2 = type.resolveBinding();
     	final ITypeBinding collectionTypeBinding = (ITypeBinding) bindings[0];
-    	// type binding2 is seen as a raw type
-    	// collectionTypeBinding is seen as a generic type
+    	assertTrue("Not a raw type", collectionTypeBinding.isRawType());
     	assertTrue("Not assignement compatible", typeBinding.isAssignmentCompatible(typeBinding2));
     	assertTrue("Not assignement compatible", typeBinding.isAssignmentCompatible(collectionTypeBinding));
 	}
