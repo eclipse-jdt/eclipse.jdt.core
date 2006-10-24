@@ -1075,4 +1075,60 @@ this.runConformTest(
 	},
 	"2");
 }	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
+public void _test025() {
+this.runConformTest(
+	new String[] {
+		"X.java",
+		"public class X {\n" +
+		"  J m = new Y();" +
+		"  void foo() {\n" +
+		"    m.foo(1.0f);\n" +
+		"  }\n" +
+		"}",
+		"I.java",
+		"public interface I {\n" +
+		"  <T extends Number> T foo(final Number p);\n" +
+		"}",
+		"J.java",
+		"public interface J extends I {\n" +
+		"  Float foo(final Number p);\n" +
+		"}",
+		"Y.java",
+		"public class Y implements J {\n" +
+		"  public Float foo(final Number p){\n" +
+		"    return null;" +
+		"  }\n" +
+		"}",
+	},
+	"");
+}	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
+// variant
+public void test026() {
+this.runConformTest(
+	new String[] {
+		"X.java",
+		"public class X {\n" +
+		"  void foo() {\n" +
+		"    (new Y()).foo(1.0f);\n" +
+		"  }\n" +
+		"}",
+		"I.java",
+		"public interface I {\n" +
+		"  <T extends Number> T foo(final Number p);\n" +
+		"}",
+		"J.java",
+		"public interface J extends I {\n" +
+		"  Float foo(final Number p);\n" +
+		"}",
+		"Y.java",
+		"public class Y implements J {\n" +
+		"  public Float foo(final Number p){\n" +
+		"    return null;" +
+		"  }\n" +
+		"}",
+	},
+	"");
+}	
 }
