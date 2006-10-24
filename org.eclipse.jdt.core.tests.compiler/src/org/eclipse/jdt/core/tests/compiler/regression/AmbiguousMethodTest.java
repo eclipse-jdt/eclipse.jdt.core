@@ -1283,4 +1283,35 @@ public void test033() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// variant that rightly complains
+public void test034() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  <T extends Exception & Cloneable> T foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends I {\n" + 
+			"  XX foo(Number n);\n" + 
+			"}\n" + 
+			"interface K {\n" + 
+			"  NullPointerException foo(Number n);\n" + 
+			"}\n" + 
+			"public abstract class X implements J, K {\n" + 
+			"}\n" + 
+			"abstract class XX extends Exception implements Cloneable {}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	XX foo(Number n);\n" + 
+		"	^^\n" + 
+		"Type safety: The return type XX for foo(Number) from the type J needs unchecked conversion to conform to T from the type I\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	public abstract class X implements J, K {\n" + 
+		"	                      ^\n" + 
+		"The return type is incompatible with I.foo(Number), K.foo(Number), J.foo(Number)\n" + 
+		"----------\n");
+}
 }
