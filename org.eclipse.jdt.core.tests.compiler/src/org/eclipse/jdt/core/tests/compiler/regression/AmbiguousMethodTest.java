@@ -1077,58 +1077,144 @@ this.runConformTest(
 }	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
 public void _test025() {
-this.runConformTest(
-	new String[] {
-		"X.java",
-		"public class X {\n" +
-		"  J m = new Y();" +
-		"  void foo() {\n" +
-		"    m.foo(1.0f);\n" +
-		"  }\n" +
-		"}",
-		"I.java",
-		"public interface I {\n" +
-		"  <T extends Number> T foo(final Number p);\n" +
-		"}",
-		"J.java",
-		"public interface J extends I {\n" +
-		"  Float foo(final Number p);\n" +
-		"}",
-		"Y.java",
-		"public class Y implements J {\n" +
-		"  public Float foo(final Number p){\n" +
-		"    return null;" +
-		"  }\n" +
-		"}",
-	},
-	"");
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  J m = new Y();" +
+			"  void foo() {\n" +
+			"    m.foo(1.0f);\n" +
+			"  }\n" +
+			"}",
+			"I.java",
+			"public interface I {\n" +
+			"  <T extends Number> T foo(final Number p);\n" +
+			"}",
+			"J.java",
+			"public interface J extends I {\n" +
+			"  Float foo(final Number p);\n" +
+			"}",
+			"Y.java",
+			"public class Y implements J {\n" +
+			"  public Float foo(final Number p){\n" +
+			"    return null;" +
+			"  }\n" +
+			"}",
+		},
+		"");
 }	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
 // variant
 public void test026() {
-this.runConformTest(
-	new String[] {
-		"X.java",
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    (new Y()).foo(1.0f);\n" +
-		"  }\n" +
-		"}",
-		"I.java",
-		"public interface I {\n" +
-		"  <T extends Number> T foo(final Number p);\n" +
-		"}",
-		"J.java",
-		"public interface J extends I {\n" +
-		"  Float foo(final Number p);\n" +
-		"}",
-		"Y.java",
-		"public class Y implements J {\n" +
-		"  public Float foo(final Number p){\n" +
-		"    return null;" +
-		"  }\n" +
-		"}",
-	},
-	"");
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    (new Y()).foo(1.0f);\n" +
+			"  }\n" +
+			"}",
+			"I.java",
+			"public interface I {\n" +
+			"  <T extends Number> T foo(final Number p);\n" +
+			"}",
+			"J.java",
+			"public interface J extends I {\n" +
+			"  Float foo(final Number p);\n" +
+			"}",
+			"Y.java",
+			"public class Y implements J {\n" +
+			"  public Float foo(final Number p){\n" +
+			"    return null;" +
+			"  }\n" +
+			"}",
+		},
+		"");
 }	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
+// variant
+public void test027() {
+	this.runNegativeTest(
+		new String[] {
+			"J.java",
+			"public interface J {\n" +
+			"  <T extends Number> T foo(final Number p);\n" +
+			"  Float foo(final Number p);\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in J.java (at line 2)\n" + 
+		"	<T extends Number> T foo(final Number p);\n" + 
+		"	                     ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method foo(Number) in type J\n" + 
+		"----------\n" + 
+		"2. ERROR in J.java (at line 3)\n" + 
+		"	Float foo(final Number p);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method foo(Number) in type J\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+public void _test028() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Irrelevant {}\n" + 
+			"interface I {\n" + 
+			"  Object foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends Irrelevant, I {\n" + 
+			"  String foo(Number n);\n" + 
+			"}\n" + 
+			"interface K {\n" + 
+			"  Object foo(Number n);\n" + 
+			"}\n" + 
+			"public abstract class X implements J, K {\n" + 
+			"  void foo() {\n" + 
+			"    foo(0.0f);\n" + // ambiguous 
+			"  }\n" + 
+			"}"
+		},
+		"ERROR");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant - simplified
+public void _test029() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface J {\n" + 
+			"  String foo(Number n);\n" + 
+			"}\n" + 
+			"interface K {\n" + 
+			"  Object foo(Number n);\n" + 
+			"}\n" + 
+			"public abstract class X implements J, K {\n" + 
+			"  void foo() {\n" + 
+			"    foo(0.0f);\n" + // ambiguous 
+			"  }\n" + 
+			"}"
+		},
+		"ERROR");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant - same return type
+public void test030() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface J {\n" + 
+			"  Object foo(Number n);\n" + 
+			"}\n" + 
+			"interface K {\n" + 
+			"  Object foo(Number n);\n" + 
+			"}\n" + 
+			"public abstract class X implements J, K {\n" + 
+			"  void foo() {\n" + 
+			"    foo(0.0f);\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
 }
