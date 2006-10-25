@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 
@@ -1652,4 +1653,41 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"LX;.m()V",
 			bindings[0].getDeclaringMethod());
 	}
+	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159631
+public void _test073() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P072", new String[] {}, Util.getJavaClassLibs(), "", "1.5");
+		ICompilationUnit compilationUnits[] = new ICompilationUnit[3]; 
+		compilationUnits[0] = getWorkingCopy(
+			"P072/X.java",
+			"public class X {\n" +
+			"  @Override" +
+			"  public boolean equals(Object o) {\n" +
+			"    return true;\n" +
+			"  }\n" +
+			"}");
+		compilationUnits[1] = getWorkingCopy(
+			"P072/Y.java",
+			"public class Y extends X {\n" +
+			"}");
+		compilationUnits[2] = getWorkingCopy(
+			"P072/Z.java",
+			"public class Z {\n" +
+			"  Y m;\n" +
+			"  boolean foo(Object p) {\n" +
+			"    return this.m.equals(p);\n" +
+			"  }\n" +
+			"}");
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(project);
+		class Requestor extends ASTRequestor {			
+		}
+		parser.createASTs(compilationUnits, new String[0], new Requestor(), null);
+		// will throw an unexpected NPE, until the bug is fixed 
+	} finally {
+		deleteProject("P072");
+	}
+}	
 }
