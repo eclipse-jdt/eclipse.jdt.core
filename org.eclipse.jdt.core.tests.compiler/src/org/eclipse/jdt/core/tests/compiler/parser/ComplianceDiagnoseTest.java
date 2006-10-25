@@ -2316,4 +2316,60 @@ public void test0051() {
 		expected15ProblemLog
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=154811
+public void test0052() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	void foo1() {\n" +
+		"		class Y  {\n" +
+		"		}\n" +
+		"		void foo2() {\n" +
+		"		}\n" +
+		"		class Z<T> { \n" +
+		"		}\n" +
+		"	}\n" +
+		"} \n"
+	};
+	
+	String expected13ProblemLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	void foo2() {\n" + 
+		"	^^^^\n" + 
+		"Syntax error on token \"void\", new expected\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	class Z<T> { \n" + 
+		"	^^^^^\n" + 
+		"Syntax error on token \"class\", invalid AssignmentOperator\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	class Z<T> { \n" + 
+		"	         ^\n" + 
+		"Syntax error on token \">\", ; expected\n" + 
+		"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+	
+	String expected15ProblemLog = 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	void foo2() {\n" + 
+		"	^^^^\n" + 
+		"Syntax error on token \"void\", new expected\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \";\" to complete Statement\n" + 
+		"----------\n";
+	
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
+	);
+}
 }

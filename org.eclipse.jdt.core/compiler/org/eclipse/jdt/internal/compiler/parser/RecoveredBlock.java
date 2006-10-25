@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
@@ -35,6 +36,16 @@ public RecoveredBlock(Block block, RecoveredElement parent, int bracketBalance){
 	this.foundOpeningBrace = true;
 	
 	this.preserveContent = this.parser().methodRecoveryActivated || this.parser().statementRecoveryActivated;
+}
+public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bracketBalanceValue) {
+	if (this.parent != null && this.parent instanceof RecoveredMethod) {
+		RecoveredMethod enclosingRecoveredMethod = (RecoveredMethod) this.parent;
+		if (enclosingRecoveredMethod.methodBody == this && enclosingRecoveredMethod.parent == null) {
+			// the element cannot be added because we are in the body of a top level method
+			return this; // ignore this element
+		}
+	}
+	return super.add(methodDeclaration, bracketBalanceValue);
 }
 /*
  * Record a nested block declaration 

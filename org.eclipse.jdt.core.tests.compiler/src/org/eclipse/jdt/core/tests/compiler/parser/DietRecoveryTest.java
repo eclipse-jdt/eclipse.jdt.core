@@ -6950,4 +6950,147 @@ public void test116() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=154811
+public void test117() {
+	String s = 
+		"public class X {\n" + 
+		"	void foo1() {\n" + 
+		"		class Y  {\n" + 
+		"		}\n" + 
+		"		void foo2() {\n" + 
+		"		}\n" + 
+		"		class Z<T> { \n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"} \n";
+		
+	String expectedDietUnitToString = null;
+	String expectedDietPlusBodyUnitToString = null;
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = null;
+	String expectedFullUnitToString = null;
+	String expectedCompletionDietUnitToString = null;
+	
+	
+	if(COMPLIANCE_1_3.equals(this.complianceLevel) || 
+			COMPLIANCE_1_4.equals(this.complianceLevel)) {
+		
+		expectedDietUnitToString = 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo1() {\n" + 
+			"  }\n" + 
+			"}\n";
+
+		expectedDietPlusBodyUnitToString = 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  void foo1() {\n" + 
+			"  }\n" + 
+			"}\n";
+		
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  void foo1() {\n" + 
+			"    class Y {\n" + 
+			"      Y() {\n" + 
+			"        super();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    class Z<T> {\n" + 
+			"      Z() {\n" + 
+			"        super();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
+		
+		expectedFullUnitToString =
+			"public class X {\n" + 
+			"  class Z<T> {\n" + 
+			"    Z() {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo1() {\n" + 
+			"  }\n" + 
+			"  void foo2() {\n" + 
+			"  }\n" + 
+			"}\n";
+		
+		expectedCompletionDietUnitToString = 
+			expectedDietUnitToString;
+	} else if(this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+		
+		expectedDietUnitToString = 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo1() {\n" + 
+			"  }\n" + 
+			"}\n";
+
+		expectedDietPlusBodyUnitToString = 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  void foo1() {\n" + 
+			"  }\n" + 
+			"}\n";
+		
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  void foo1() {\n" + 
+			"    class Y {\n" + 
+			"      Y() {\n" + 
+			"        super();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    new foo2() {\n" + 
+			"    };\n" + 
+			"    class Z<T> {\n" + 
+			"      Z() {\n" + 
+			"        super();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
+		
+		expectedFullUnitToString =
+			"public class X {\n" + 
+			"  class Z<T> {\n" + 
+			"    Z() {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo1() {\n" + 
+			"  }\n" + 
+			"  void foo2() {\n" + 
+			"  }\n" + 
+			"}\n";
+		
+		expectedCompletionDietUnitToString = 
+			expectedDietUnitToString;
+	}
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
 }
