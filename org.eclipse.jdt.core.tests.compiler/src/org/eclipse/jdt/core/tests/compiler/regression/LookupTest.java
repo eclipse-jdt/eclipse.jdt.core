@@ -2594,6 +2594,77 @@ public void test076() {
 	}
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159893
+public void test077() {
+	this.runConformTest(
+		new String[] {
+			"X.java",	//===================
+			"abstract  class B {\n" + 
+			"  public String getValue(){\n" + 
+			"    return \"pippo\";\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class D {\n" + 
+			"  private String value;\n" + 
+			"  public D(String p_Value){\n" + 
+			"    value = p_Value;\n" + 
+			"  }\n" + 
+			"  private  String getValue(){\n" + 
+			"    return \"pippoD\";\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X extends B {\n" + 
+			"  class C extends D{\n" + 
+			"    public C() {\n" + 
+			"      super(getValue());\n" + 
+			"      String s = getValue();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n", 		// =================
+		},
+		"");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159893 - variation
+public void test078() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",	//===================
+			"class D {\n" + 
+			"  private String value;\n" + 
+			"  public D(String p_Value){\n" + 
+			"    value = p_Value;\n" + 
+			"  }\n" + 
+			"  private  String getValue(){\n" + 
+			"    return \"pippoD\";\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  class C extends D{\n" + 
+			"    public C() {\n" + 
+			"      super(getValue());\n" + 
+			"      String s = getValue();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n", 		// =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	private String value;\n" + 
+		"	               ^^^^^\n" + 
+		"The field D.value is never read locally\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	super(getValue());\n" + 
+		"	      ^^^^^^^^\n" + 
+		"The method getValue() from the type D is not visible\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	String s = getValue();\n" + 
+		"	           ^^^^^^^^\n" + 
+		"The method getValue() from the type D is not visible\n" + 
+		"----------\n");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }

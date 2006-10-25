@@ -1720,6 +1720,10 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		MethodBinding foundProblem = null;
 		Scope scope = this;
 		int depth = 0;
+		// in 1.4 mode (inherited visible shadows enclosing)
+		CompilerOptions options;
+		boolean inheritedHasPrecedence = (options = compilerOptions()).complianceLevel >= ClassFileConstants.JDK1_4;
+		
 		done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 			switch (scope.kind) {
 				case METHOD_SCOPE :
@@ -1751,24 +1755,24 @@ public abstract class Scope implements TypeConstants, TypeIds {
 												? ProblemReasons.NonStaticReferenceInConstructorInvocation
 												: ProblemReasons.NonStaticReferenceInStaticContext);
 									}
-
-									if (receiverType == methodBinding.declaringClass
-										|| ((foundProblem == null || foundProblem.problemId() != ProblemReasons.NotVisible) && compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
-										|| (receiverType.getMethods(selector)) != Binding.NO_METHODS) {
-											// found a valid method in the 'immediate' scope (ie. not inherited)
-											// OR in 1.4 mode (inherited visible shadows enclosing)
-											// OR the receiverType implemented a method with the correct name
-											// return the methodBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
-											if (foundProblem != null && foundProblem.problemId() != ProblemReasons.NotVisible)
-												return foundProblem;
-											if (depth > 0) {
-												invocationSite.setDepth(depth);
-												invocationSite.setActualReceiverType(receiverType);
-											}
-											return methodBinding;
+									if (inheritedHasPrecedence
+											|| receiverType == methodBinding.declaringClass
+											|| (receiverType.getMethods(selector)) != Binding.NO_METHODS) {
+										// found a valid method in the 'immediate' scope (ie. not inherited)
+										// OR in 1.4 mode (inherited visible shadows enclosing)
+										// OR the receiverType implemented a method with the correct name
+										// return the methodBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
+										if (foundProblem != null && foundProblem.problemId() != ProblemReasons.NotVisible)
+											return foundProblem;
+										if (depth > 0) {
+											invocationSite.setDepth(depth);
+											invocationSite.setActualReceiverType(receiverType);
+										}
+										return methodBinding;
 									}
 
-									if (foundProblem == null) {
+									if (foundProblem == null || foundProblem.problemId() == ProblemReasons.NotVisible) {
+										if (foundProblem != null) foundProblem = null;
 										// only remember the methodBinding if its the first one found
 										// remember that private methods are visible if defined directly by an enclosing class
 										if (depth > 0) {
@@ -1813,7 +1817,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			scope = scope.parent;
 		}
 
-		if (insideStaticContext && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+		if (insideStaticContext && options.sourceLevel >= ClassFileConstants.JDK1_5) {
 			if (foundProblem != null) {
 				if (foundProblem.declaringClass != null && foundProblem.declaringClass.id == TypeIds.T_JavaLangObject)
 					return foundProblem; // static imports lose to methods from Object
