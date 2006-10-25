@@ -1312,4 +1312,87 @@ public void test034() {
 		"The return type is incompatible with I.foo(Number), K.foo(Number), J.foo(Number)\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant - the inheriting class implements foo
+public void test035() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  Object foo(Number n);\n" + 
+			"}\n" + 
+			"abstract class J {\n" + 
+			"  abstract String foo(Number n);\n" + 
+			"}\n" + 
+			"public class X extends J implements I {\n" + 
+			"  void bar() {\n" + 
+			"    foo(0.0f);\n" + // calls X#foo(Number)
+			"  }\n" + 
+			"  public String foo(Number n) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant - extending instead of implementing
+public void _test037() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  Object foo(Number n);\n" + 
+			"}\n" + 
+			"abstract class J {\n" + 
+			"  abstract String foo(Number n);\n" + 
+			"}\n" + 
+			"public abstract class X extends J implements I {\n" + 
+			"  void bar() {\n" + 
+			"    foo(0.0f);\n" + // ambiguous
+			"  }\n" + 
+			"}"
+		},
+		"ERR");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant - no promotion of parameter from float to Number
+public void _test038() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  Object foo(float f);\n" + 
+			"}\n" + 
+			"abstract class J {\n" + 
+			"  public abstract String foo(float f);\n" + 
+			"}\n" + 
+			"public abstract class X extends J implements I {\n" + 
+			"  void bar() {\n" + 
+			"    foo(0.0f);\n" + // ambiguous
+			"  }\n" + 
+			"}"
+		},
+		"ERR");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant - an explicit cast solves the issue
+public void test039() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  Object foo(float f);\n" + 
+			"}\n" + 
+			"abstract class J {\n" + 
+			"  public abstract String foo(float f);\n" + 
+			"}\n" + 
+			"public abstract class X extends J implements I {\n" + 
+			"  void bar() {\n" + 
+			"    ((J) this).foo(0.0f);\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
 }
