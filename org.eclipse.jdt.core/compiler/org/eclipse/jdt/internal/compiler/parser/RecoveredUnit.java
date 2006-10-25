@@ -48,12 +48,19 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 		type.typeDeclaration.declarationSourceEnd = 0; // reset position
 		type.typeDeclaration.bodyEnd = 0;
 		
-		if(start > 0 && start < end) {
+		int kind = TypeDeclaration.kind(type.typeDeclaration.modifiers);
+		if(start > 0 &&
+				start < end && 
+				kind != TypeDeclaration.INTERFACE_DECL &&
+				kind != TypeDeclaration.ANNOTATION_TYPE_DECL) {
+			// the } of the last type can be considered as the end of an initializer
 			Initializer initializer = new Initializer(new Block(0), 0);
 			initializer.bodyStart = end;
 			initializer.bodyEnd = end;
 			initializer.declarationSourceStart = end;
 			initializer.declarationSourceEnd = end;
+			initializer.sourceStart = end;
+			initializer.sourceEnd = end;
 			type.add(initializer, bracketBalanceValue);
 		}
 		

@@ -7093,4 +7093,145 @@ public void test117() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162056
+public void test118() {
+	String s = 
+		"interface Irrelevant {}\n"+
+		"interface I {\n"+
+		"	Object foo(Number n);\n"+
+		"}\n"+
+		"interface J extends I {\n"+
+		"	String foo(Number n);\n"+
+		"}\n"+
+		"interface K {\n"+
+		"	Object foo(Number n);\n"+
+		"}\n"+
+		"public class  {\n"+
+		"	void foo() {\n"+
+		"\n"+
+		"	}\n"+
+		"} \n";
+		
+	String expectedDietUnitToString = 
+		"interface Irrelevant {\n" + 
+		"}\n" + 
+		"interface I {\n" + 
+		"  Object foo(Number n);\n" + 
+		"}\n" + 
+		"interface J extends I {\n" + 
+		"  String foo(Number n);\n" + 
+		"}\n" + 
+		"interface K {\n" + 
+		"  Object foo(Number n);\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"interface Irrelevant {\n" + 
+		"}\n" + 
+		"interface I {\n" + 
+		"  Object foo(Number n);\n" + 
+		"}\n" + 
+		"interface J extends I {\n" + 
+		"  String foo(Number n);\n" + 
+		"}\n" + 
+		"interface K {\n" + 
+		"  Object foo(Number n);\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		expectedDietPlusBodyUnitToString;
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162056
+public void test119() {
+	String s = 
+		"interface Irrelevant {}\n"+
+		"interface I {\n"+
+		"	Object foo(Number n);\n"+
+		"}\n"+
+		"interface J extends I {\n"+
+		"	String foo(Number n);\n"+
+		"}\n"+
+		"abstract class K {\n"+
+		"	abstract Object foo(Number n);\n"+
+		"}\n"+
+		"public class  {\n"+
+		"	void foo() {\n"+
+		"\n"+
+		"	}\n"+
+		"} \n";
+		
+	String expectedDietUnitToString = 
+		"interface Irrelevant {\n" + 
+		"}\n" + 
+		"interface I {\n" + 
+		"  Object foo(Number n);\n" + 
+		"}\n" + 
+		"interface J extends I {\n" + 
+		"  String foo(Number n);\n" + 
+		"}\n" + 
+		"abstract class K {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  K() {\n" + 
+		"  }\n" + 
+		"  abstract Object foo(Number n);\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"interface Irrelevant {\n" + 
+		"}\n" + 
+		"interface I {\n" + 
+		"  Object foo(Number n);\n" + 
+		"}\n" + 
+		"interface J extends I {\n" + 
+		"  String foo(Number n);\n" + 
+		"}\n" + 
+		"abstract class K {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  K() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  abstract Object foo(Number n);\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		expectedDietPlusBodyUnitToString;
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
 }

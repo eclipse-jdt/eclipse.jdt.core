@@ -4630,7 +4630,6 @@ public void test66() {
 			
 	String expectedUnitToString = 
 		"public interface X {\n"
-		+ "\t{}\n"
 		+ "\tint foo() {}\n"
 		+ "\tint x() {}\n"
 		+ "}";
@@ -4651,11 +4650,7 @@ public void test66() {
 	assertTrue("has no superinterfaces " , currentType.getInterfaceNames() == null);
 
 	SourceField[] fields = currentType.getFields();
-	assertTrue(" invalid fields ", fields != null);
-	assertEquals(" invalid fields length ", 1, fields.length);
-
-	assertEquals("Invalid declaration source start for initializer", 51, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 51, fields[0].getDeclarationSourceEnd());
+	assertTrue(" invalid fields ", fields == null);
 
 	SourceMethod[] methods = currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
