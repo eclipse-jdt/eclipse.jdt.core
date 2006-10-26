@@ -33960,4 +33960,20 @@ public void test1055() {
 		}, 
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162400
+public void test1056() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static <T> T foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String[] s = { foo() };\n" + 
+			"	}	\n" + 
+			"}\n",
+		}, 
+		"");
+}
 }
