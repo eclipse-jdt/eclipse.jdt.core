@@ -1389,10 +1389,111 @@ public void test039() {
 			"}\n" + 
 			"public abstract class X extends J implements I {\n" + 
 			"  void bar() {\n" + 
-			"    ((J) this).foo(0.0f);\n" + 
+			"    String s = ((J) this).foo(0.0f);\n" + 
 			"  }\n" + 
 			"}"
 		},
 		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant - an explicit cast solves the issue
+public void test040() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  Object foo(float f);\n" + 
+			"}\n" + 
+			"abstract class J {\n" + 
+			"  public abstract String foo(float f);\n" + 
+			"}\n" + 
+			"public abstract class X extends J implements I {\n" + 
+			"  void bar() {\n" + 
+			"    Object o = ((I) this).foo(0.0f);\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant - connecting return types
+public void test041() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  Object foo(float f);\n" + 
+			"}\n" + 
+			"abstract class J {\n" + 
+			"  public abstract String foo(float f);\n" + 
+			"}\n" + 
+			"public abstract class X extends J implements I {\n" + 
+			"  void bar() {\n" + 
+			"    String s = ((I) this).foo(0.0f);\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	String s = ((I) this).foo(0.0f);\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to String\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant - a further inheriting class implements String foo
+public void _test042() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  Object foo(float f);\n" + 
+			"}\n" + 
+			"abstract class J {\n" + 
+			"  public abstract String foo(float f);\n" + 
+			"}\n" + 
+			"public abstract class X extends J implements I {\n" + 
+			"  void bar() {\n" + 
+			"    foo(0.0f);\n" + // ambiguous 
+			"  }\n" + 
+			"}\n" + 
+			"class Z extends X {\n" + 
+			"  public String foo(float f) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"ERR");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
+// variant - a further inheriting class implements Object foo
+public void test043() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  Object foo(float f);\n" + 
+			"}\n" + 
+			"abstract class J {\n" + 
+			"  public abstract String foo(float f);\n" + 
+			"}\n" + 
+			"public abstract class X extends J implements I {\n" + 
+			"  void bar() {\n" + 
+			"    foo(0.0f);\n" +
+			"  }\n" + 
+			"}\n" + 
+			"class Z extends X {\n" +
+			"  @Override\n" + 
+			"  public Object foo(float f) {\n" +  // cannot override String foo
+			"    return null;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	public Object foo(float f) {\n" + 
+		"	              ^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with J.foo(float)\n" + 
+		"----------\n");
 }
 }
