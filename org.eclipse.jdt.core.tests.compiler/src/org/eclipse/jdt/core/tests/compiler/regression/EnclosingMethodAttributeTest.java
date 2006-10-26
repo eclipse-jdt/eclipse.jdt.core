@@ -142,5 +142,77 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		if (index == -1) {
 			assertEquals("Wrong contents", expectedOutput, actualOutput);
 		}		
-	}	
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162356
+	public void test003() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.*;\n" + 
+				"public class X {\n" + 
+				"        public void test() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {\n" + 
+				"                class LocalClass {\n" + 
+				"                        public void method() {\n" + 
+				"                        }\n" + 
+				"                };\n" + 
+				"                LocalClass localClass = new LocalClass();\n" + 
+				"                Class cc = localClass.getClass();\n" + 
+				"                System.out.println(\"enclosing class = \" + cc.getEnclosingClass());\n" + 
+				"                System.out.println(\"enclosing method = \" + cc.getEnclosingMethod());\n" + 
+				"        }\n" + 
+				"        public static void main(String args[]) {\n" + 
+				"                X t = new X();\n" + 
+				"                try {\n" + 
+				"                        t.test();\n" + 
+				"                } catch (Exception e) {\n" + 
+				"                        e.printStackTrace();\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"}"
+			},
+			"enclosing class = class X\n" + 
+			"enclosing method = public void X.test() throws java.lang.NoSuchMethodException,java.lang.IllegalAccessException,java.lang.reflect.InvocationTargetException");
+		
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String actualOutput = null;
+		try {
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  + "X$1LocalClass.class"));
+			actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED); 
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+		
+		String expectedOutput =
+			"  Inner classes:\n" + 
+			"    [inner class info: #1 X$1LocalClass, outer class info: #0\n" + 
+			"     inner name: #23 LocalClass, accessflags: 2 private ]";
+		
+		// check inner classes info
+		int index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 2));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, actualOutput);
+		}
+		
+		expectedOutput =
+			"  Enclosing Method: #25  #27 X.test()V";
+			
+		// check enclosing method
+		index = actualOutput.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(actualOutput, 2));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, actualOutput);
+		}
+	}
 }
