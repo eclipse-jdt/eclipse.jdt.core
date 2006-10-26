@@ -154,6 +154,7 @@ public class ArrayInitializer extends Expression {
 			TypeBinding elementType = this.binding.elementsType();
 			for (int i = 0, length = this.expressions.length; i < length; i++) {
 				Expression expression = this.expressions[i];
+				expression.setExpectedType(elementType);
 				TypeBinding exprType = expression instanceof ArrayInitializer
 						? expression.resolveTypeExpecting(scope, elementType)
 						: expression.resolveType(scope);
