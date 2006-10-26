@@ -313,9 +313,9 @@ public final class CompletionEngine
 		public TypeBinding[] genericTypeArguments() { return null; }
 		public boolean isSuperAccess(){ return false; }
 		public boolean isTypeAccess(){ return false; }
-		public void setActualReceiverType(ReferenceBinding receiverType) {}
-		public void setDepth(int depth){}
-		public void setFieldIndex(int depth){}
+		public void setActualReceiverType(ReferenceBinding receiverType) {/* empty */}
+		public void setDepth(int depth){/* empty */}
+		public void setFieldIndex(int depth){/* empty */}
 		public int sourceStart() { return 0; 	}
 		public int sourceEnd() { return 0; 	}
 	};
