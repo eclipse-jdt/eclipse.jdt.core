@@ -3772,5 +3772,68 @@ public void test126() {
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
-	}
+}
+public void test127() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        public static void main(String[] s) {\n" + 
+			"                Object[] os1 = new Object[] {(long)1234567};\n" + 
+			"                Object[] os2 = new Object[] {1234567};\n" + 
+			"                Object o1 = os1[0], o2 = os2[0];\n" + 
+			"                if (o1.getClass().equals(o2.getClass())) {\n" + 
+			"                    System.out.println(\"FAILED:o1[\"+o1.getClass().getName()+\"],o2:[\"+o2.getClass()+\"]\");\n" + 
+			"                } else {\n" + 
+			"                    System.out.println(\"SUCCESS:o1[\"+o1.getClass().getName()+\"],o2:[\"+o2.getClass()+\"]\");\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS:o1[java.lang.Long],o2:[class java.lang.Integer]");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159987
+public void test128() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] s) {\n" + 
+			"		Object o1 = (long) 1234567;\n" + 
+			"		Object[] os1 = new Object[] { (long) 1234567 };\n" + 
+			"		Object[] os2 = { (long) 1234567 };\n" + 
+			"		foo((long) 1234567);\n" + 
+			"	}\n" + 
+			"	static void foo(Object o) {\n" + 
+			"	}\n" + 
+			"	Zork z;\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	Object o1 = (long) 1234567;\n" + 
+		"	            ^^^^^^^^^^^^^^\n" + 
+		"The expression of type long is boxed into Long\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	Object[] os1 = new Object[] { (long) 1234567 };\n" + 
+		"	                              ^^^^^^^^^^^^^^\n" + 
+		"The expression of type long is boxed into Long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	Object[] os2 = { (long) 1234567 };\n" + 
+		"	                 ^^^^^^^^^^^^^^\n" + 
+		"The expression of type long is boxed into Long\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 6)\n" + 
+		"	foo((long) 1234567);\n" + 
+		"	    ^^^^^^^^^^^^^^\n" + 
+		"The expression of type long is boxed into Long\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
