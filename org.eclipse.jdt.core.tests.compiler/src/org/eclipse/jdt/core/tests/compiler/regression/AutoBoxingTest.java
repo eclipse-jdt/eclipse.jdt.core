@@ -3794,6 +3794,7 @@ public void test127() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159987
 public void test128() {
+	// check there is no unncessary cast warning when autoboxing, even in array initializer
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
