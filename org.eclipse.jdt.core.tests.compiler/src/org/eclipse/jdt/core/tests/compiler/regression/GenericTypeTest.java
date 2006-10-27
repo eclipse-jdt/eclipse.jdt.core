@@ -25351,15 +25351,16 @@ public void test0821() {
 		"  void foo();\n" + 
 		"     0  aload_0 [this]\n" + 
 		"     1  getfield X.t : java.io.Serializable [16]\n" + 
-		"     4  invokeinterface java.lang.Runnable.run() : void [25] [nargs: 1]\n" + 
-		"     9  return\n" + 
+		"     4  checkcast java.lang.Runnable [25]\n" + 
+		"     7  invokeinterface java.lang.Runnable.run() : void [27] [nargs: 1]\n" + 
+		"    12  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 9]\n" + 
-		"        [pc: 9, line: 10]\n" + 
+		"        [pc: 12, line: 10]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
 		"      Local variable type table:\n" + 
-		"        [pc: 0, pc: 10] local: this index: 0 type: X<T>\n";
+		"        [pc: 0, pc: 13] local: this index: 0 type: X<T>\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -25406,18 +25407,19 @@ public void test0822() {
 		"  // Signature: (TT;)V\n" + 
 		"  // Stack: 1, Locals: 2\n" + 
 		"  void foo(java.io.Serializable t);\n" + 
-		"    0  aload_1 [t]\n" + 
-		"    1  invokeinterface java.lang.Runnable.run() : void [20] [nargs: 1]\n" + 
-		"    6  return\n" + 
+		"     0  aload_1 [t]\n" + 
+		"     1  checkcast java.lang.Runnable [20]\n" + 
+		"     4  invokeinterface java.lang.Runnable.run() : void [22] [nargs: 1]\n" + 
+		"     9  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 5]\n" + 
-		"        [pc: 6, line: 6]\n" + 
+		"        [pc: 9, line: 6]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 7] local: t index: 1 type: java.io.Serializable\n" + 
+		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 10] local: t index: 1 type: java.io.Serializable\n" + 
 		"      Local variable type table:\n" + 
-		"        [pc: 0, pc: 7] local: this index: 0 type: X<T>\n" + 
-		"        [pc: 0, pc: 7] local: t index: 1 type: T\n";
+		"        [pc: 0, pc: 10] local: this index: 0 type: X<T>\n" + 
+		"        [pc: 0, pc: 10] local: t index: 1 type: T\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -25475,19 +25477,21 @@ public void test0823() {
 		"     8  goto 15\n" + 
 		"    11  aload_0 [this]\n" + 
 		"    12  getfield X.t : java.io.Serializable [16]\n" + 
-		"    15  invokeinterface java.lang.Runnable.run() : void [25] [nargs: 1]\n" + 
-		"    20  aload_0 [this]\n" + 
-		"    21  getfield X.t : java.io.Serializable [16]\n" + 
-		"    24  invokeinterface java.lang.Runnable.run() : void [25] [nargs: 1]\n" + 
-		"    29  return\n" + 
+		"    15  checkcast java.lang.Runnable [25]\n" + 
+		"    18  invokeinterface java.lang.Runnable.run() : void [27] [nargs: 1]\n" + 
+		"    23  aload_0 [this]\n" + 
+		"    24  getfield X.t : java.io.Serializable [16]\n" + 
+		"    27  checkcast java.lang.Runnable [25]\n" + 
+		"    30  invokeinterface java.lang.Runnable.run() : void [27] [nargs: 1]\n" + 
+		"    35  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 9]\n" + 
-		"        [pc: 20, line: 10]\n" + 
-		"        [pc: 29, line: 11]\n" + 
+		"        [pc: 23, line: 10]\n" + 
+		"        [pc: 35, line: 11]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 30] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 36] local: this index: 0 type: X\n" + 
 		"      Local variable type table:\n" + 
-		"        [pc: 0, pc: 30] local: this index: 0 type: X<T,V>\n";
+		"        [pc: 0, pc: 36] local: this index: 0 type: X<T,V>\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -25540,20 +25544,22 @@ public void test0824() {
 		"     4  aload_1 [t]\n" + 
 		"     5  goto 9\n" + 
 		"     8  aload_1 [t]\n" + 
-		"     9  invokeinterface java.lang.Runnable.run() : void [20] [nargs: 1]\n" + 
-		"    14  aload_1 [t]\n" + 
-		"    15  invokeinterface java.lang.Runnable.run() : void [20] [nargs: 1]\n" + 
-		"    20  return\n" + 
+		"     9  checkcast java.lang.Runnable [20]\n" + 
+		"    12  invokeinterface java.lang.Runnable.run() : void [22] [nargs: 1]\n" + 
+		"    17  aload_1 [t]\n" + 
+		"    18  checkcast java.lang.Runnable [20]\n" + 
+		"    21  invokeinterface java.lang.Runnable.run() : void [22] [nargs: 1]\n" + 
+		"    26  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 5]\n" + 
-		"        [pc: 14, line: 6]\n" + 
-		"        [pc: 20, line: 7]\n" + 
+		"        [pc: 17, line: 6]\n" + 
+		"        [pc: 26, line: 7]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 21] local: t index: 1 type: java.io.Serializable\n" + 
+		"        [pc: 0, pc: 27] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 27] local: t index: 1 type: java.io.Serializable\n" + 
 		"      Local variable type table:\n" + 
-		"        [pc: 0, pc: 21] local: this index: 0 type: X<T,V>\n" + 
-		"        [pc: 0, pc: 21] local: t index: 1 type: T\n";
+		"        [pc: 0, pc: 27] local: this index: 0 type: X<T,V>\n" + 
+		"        [pc: 0, pc: 27] local: t index: 1 type: T\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -33975,5 +33981,39 @@ public void test1056() {
 			"}\n",
 		}, 
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159738
+public void test1057() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"class GenericType<E extends Object & Comparable<E> & Map.Entry<String, E>> {\n" + 
+			"	public void doSomething(E e) {\n" + 
+			"		System.out.println(e.compareTo(e.getValue()));\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class ConcreteType {\n" + 
+			"	public void doSomething(Object obj) {\n" + 
+			"		System.out.println(((Comparable) obj).compareTo(((Map.Entry) obj).getValue()));\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			new GenericType().doSomething(\"a1\");\n" + 
+			"		} catch (Throwable e) {\n" + 
+			"			System.out.print(\"[\" + e.getClass().getSimpleName() + \":1]\");\n" + 
+			"		}\n" + 
+			"		try {\n" + 
+			"			new ConcreteType().doSomething(\"a2\");\n" + 
+			"		} catch (Throwable e) {\n" + 
+			"			System.out.print(\"[\" + e.getClass().getSimpleName() + \":2]\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n", // =================,
+		}, 
+		"[ClassCastException:1][ClassCastException:2]");
 }
 }

@@ -35,6 +35,7 @@ public class MessageSend extends Expression implements InvocationSite {
 	public long nameSourcePosition ; //(start<<32)+end
 
 	public TypeBinding actualReceiverType;
+	public TypeBinding receiverGenericCast; // extra reference type cast to perform on generic receiver
 	public TypeBinding valueCast; // extra reference type cast to perform on method returned value
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
@@ -108,15 +109,20 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 
 	// generate receiver/enclosing instance access
 	boolean isStatic = this.codegenBinding.isStatic();
-	// outer access ?
-	if (!isStatic && ((bits & DepthMASK) != 0) && receiver.isImplicitThis()){
+	if (isStatic) {
+		receiver.generateCode(currentScope, codeStream, false);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+	} else if ((bits & DepthMASK) != 0 && receiver.isImplicitThis()) { // outer access ?
 		// outer method can be reached through emulation if implicit access
 		ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);		
 		Object[] path = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
 		codeStream.generateOuterAccess(path, this, targetType, currentScope);
 	} else {
-		receiver.generateCode(currentScope, codeStream, !isStatic);
+		receiver.generateCode(currentScope, codeStream, true);
+		if (this.receiverGenericCast != null) 
+			codeStream.checkcast(this.receiverGenericCast);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		
 	}
 	// generate arguments
 	generateArguments(binding, arguments, currentScope, codeStream);
@@ -216,6 +222,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// NOTE: from target 1.2 on, method's declaring class is touched if any different from receiver type
 	// and not from Object or implicit static method call.	
 	if (this.binding.declaringClass != this.actualReceiverType
+			&& this.receiverGenericCast == null
 			&& !this.actualReceiverType.isArrayType()) {
 		CompilerOptions options = currentScope.compilerOptions();
 		if ((options.targetJDK >= ClassFileConstants.JDK1_2
@@ -426,14 +433,14 @@ public TypeBinding resolveType(BlockScope scope) {
 				scope.problemReporter().rawTypeReference(this.receiver, this.actualReceiverType);
 			}
 		} else {
+			receiver.computeConversion(scope, this.actualReceiverType, this.actualReceiverType);
 			// compute generic cast if necessary
 			TypeBinding receiverErasure = this.actualReceiverType.erasure();
 			if (receiverErasure instanceof ReferenceBinding) {
 				if (receiverErasure.findSuperTypeWithSameErasure(this.binding.declaringClass) == null) {
-					this.actualReceiverType = this.binding.declaringClass; // handle indirect inheritance thru variable secondary bound
+					this.receiverGenericCast = this.binding.declaringClass; // handle indirect inheritance thru variable secondary bound
 				}
 			}
-			receiver.computeConversion(scope, this.actualReceiverType, this.actualReceiverType);
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
