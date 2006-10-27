@@ -190,7 +190,7 @@ public abstract class ClasspathContainerInitializer {
     	return 
     		new IClasspathContainer() {
 				public IClasspathEntry[] getClasspathEntries() { 
-					return null; 
+					return new IClasspathEntry[0]; 
 				}
 				public String getDescription() { 
 					return description;

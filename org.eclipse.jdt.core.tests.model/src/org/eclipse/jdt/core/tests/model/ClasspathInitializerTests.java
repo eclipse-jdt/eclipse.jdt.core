@@ -757,6 +757,35 @@ public void testContainerInitializer14() throws CoreException {
 	}
 }
 
+/*
+ * Ensures that if a container is misbehaving (it doesn't initialize a project when asked for),
+ * then the resulting container's classpath is not null
+ * (regression test for bug 161846 Expanding a java project with invalid classpath container entries in Project Explorer causes CPU to stay at 100%)
+ */
+public void testContainerInitializer15() throws CoreException {
+	try {
+		class Container extends DefaultContainerInitializer {
+			Container(String[] values) {
+				super(values);
+			}
+			public void initialize(IPath containerPath, IJavaProject project) 	throws CoreException {
+			}
+		}
+		Container container = new Container(new String[] {"P1", "/P1/lib.jar"});
+		ContainerInitializer.setInitializer(container);
+		IJavaProject p1 = createJavaProject(
+				"P1", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		IClasspathContainer classpathContainer = JavaCore.getClasspathContainer(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"), p1);
+		assertClasspathEquals(classpathContainer.getClasspathEntries(), "");
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+	}
+}
+
 public void testVariableInitializer01() throws CoreException {
 	try {
 		createProject("P1");
