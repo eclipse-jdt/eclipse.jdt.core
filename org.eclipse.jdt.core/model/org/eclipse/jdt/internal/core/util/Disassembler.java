@@ -27,6 +27,137 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$
 	private static final String VERSION_UNKNOWN = Messages.classfileformat_versionUnknown;
 
+	private boolean appendModifier(StringBuffer buffer, int accessFlags, int modifierConstant, String modifier, boolean firstModifier) {
+		if ((accessFlags & modifierConstant) != 0) {
+			if (!firstModifier) {
+				buffer.append(Messages.disassembler_space); 
+			}
+			if (firstModifier) {
+				firstModifier = false;
+			}
+			buffer.append(modifier);
+		}
+		return firstModifier;
+	}
+	
+	private void decodeModifiers(StringBuffer buffer, int accessFlags, int[] checkBits) {
+		decodeModifiers(buffer, accessFlags, false, false, checkBits);
+	}
+	
+	private void decodeModifiers(StringBuffer buffer, int accessFlags, boolean printDefault, boolean asBridge, int[] checkBits) {
+		if (checkBits == null) return;
+		boolean firstModifier = true;
+		for (int i = 0, max = checkBits.length; i < max; i++) {
+			switch(checkBits[i]) {
+				case IModifierConstants.ACC_PUBLIC :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_PROTECTED :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PROTECTED, "protected", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_PRIVATE :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PRIVATE, "private", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_ABSTRACT :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ABSTRACT, "abstract", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_STATIC :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STATIC, "static", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_FINAL :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_SYNCHRONIZED :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_SYNCHRONIZED, "synchronized", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_NATIVE :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_NATIVE, "native", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_STRICT :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STRICT, "strictfp", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_TRANSIENT :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_TRANSIENT, "transient", firstModifier); //$NON-NLS-1$
+					break;
+				case IModifierConstants.ACC_VOLATILE :
+				// case IModifierConstants.ACC_BRIDGE :
+					if (asBridge) {
+						firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_BRIDGE, "bridge", firstModifier); //$NON-NLS-1$
+					} else {
+						firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_VOLATILE, "volatile", firstModifier); //$NON-NLS-1$
+					}
+					break;
+				case IModifierConstants.ACC_ENUM :
+					firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ENUM, "enum", firstModifier); //$NON-NLS-1$
+					break;
+			}
+		}
+		if (!firstModifier) {
+			if (!printDefault) buffer.append(Messages.disassembler_space); 
+		} else if (printDefault) {
+			// no modifier: package default visibility
+			buffer.append("default"); //$NON-NLS-1$
+		}
+	}
+	
+	private void decodeModifiersForField(StringBuffer buffer, int accessFlags) {
+		decodeModifiers(buffer, accessFlags, new int[] {
+				IModifierConstants.ACC_PUBLIC,
+				IModifierConstants.ACC_PROTECTED,
+				IModifierConstants.ACC_PRIVATE,
+				IModifierConstants.ACC_STATIC,
+				IModifierConstants.ACC_FINAL,
+				IModifierConstants.ACC_TRANSIENT,
+				IModifierConstants.ACC_VOLATILE,
+				IModifierConstants.ACC_ENUM
+		});
+	}
+
+	private void decodeModifiersForFieldForWorkingCopy(StringBuffer buffer, int accessFlags) {
+		decodeModifiers(buffer, accessFlags, new int[] {
+				IModifierConstants.ACC_PUBLIC,
+				IModifierConstants.ACC_PROTECTED,
+				IModifierConstants.ACC_PRIVATE,
+				IModifierConstants.ACC_STATIC,
+				IModifierConstants.ACC_FINAL,
+				IModifierConstants.ACC_TRANSIENT,
+				IModifierConstants.ACC_VOLATILE,
+		});
+	}	
+	
+	private final void decodeModifiersForInnerClasses(StringBuffer buffer, int accessFlags, boolean printDefault) {
+		decodeModifiers(buffer, accessFlags, printDefault, false, new int[] {
+				IModifierConstants.ACC_PUBLIC,
+				IModifierConstants.ACC_PROTECTED,
+				IModifierConstants.ACC_PRIVATE,
+				IModifierConstants.ACC_ABSTRACT,
+				IModifierConstants.ACC_STATIC,
+				IModifierConstants.ACC_FINAL,
+		});
+	}
+
+	private final void decodeModifiersForMethod(StringBuffer buffer, int accessFlags) {
+		decodeModifiers(buffer, accessFlags, false, true, new int[] {
+				IModifierConstants.ACC_PUBLIC,
+				IModifierConstants.ACC_PROTECTED,
+				IModifierConstants.ACC_PRIVATE,
+				IModifierConstants.ACC_ABSTRACT,
+				IModifierConstants.ACC_STATIC,
+				IModifierConstants.ACC_FINAL,
+				IModifierConstants.ACC_SYNCHRONIZED,
+				IModifierConstants.ACC_NATIVE,
+				IModifierConstants.ACC_STRICT,
+				IModifierConstants.ACC_BRIDGE,
+		});
+	}
+
+	private final void decodeModifiersForType(StringBuffer buffer, int accessFlags) {
+		decodeModifiers(buffer, accessFlags, new int[] {
+				IModifierConstants.ACC_PUBLIC,
+				IModifierConstants.ACC_ABSTRACT,
+				IModifierConstants.ACC_FINAL,
+		});
+	}
 	public static String escapeString(String s) {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, max = s.length(); i < max; i++) {
@@ -77,89 +208,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		return buffer.toString();
 	}
-	private boolean appendModifier(StringBuffer buffer, int accessFlags, int modifierConstant, String modifier, boolean firstModifier) {
-		if ((accessFlags & modifierConstant) != 0) {		
-			if (!firstModifier) {
-				buffer.append(Messages.disassembler_space); 
-			}
-			if (firstModifier) {
-				firstModifier = false;
-			}
-			buffer.append(modifier);
-		}
-		return firstModifier;
-	}
-	
-	private void decodeModifiersForField(StringBuffer buffer, int accessFlags) {
-		boolean firstModifier = true;
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PROTECTED, "protected", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PRIVATE, "private", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STATIC, "static", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_TRANSIENT, "transient", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_VOLATILE, "volatile", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ENUM, "enum", firstModifier); //$NON-NLS-1$
-		if (!firstModifier) {
-			buffer.append(Messages.disassembler_space); 
-		}
-	}	
 
-	private void decodeModifiersForFieldForWorkingCopy(StringBuffer buffer, int accessFlags) {
-		boolean firstModifier = true;
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PROTECTED, "protected", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PRIVATE, "private", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STATIC, "static", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_TRANSIENT, "transient", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_VOLATILE, "volatile", firstModifier); //$NON-NLS-1$
-		if (!firstModifier) {
-			buffer.append(Messages.disassembler_space); 
-		}
-	}	
-	
-	private final void decodeModifiersForInnerClasses(StringBuffer buffer, int accessFlags) {
-		boolean firstModifier = true;
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PROTECTED, "protected", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PRIVATE, "private", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ABSTRACT, "abstract", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STATIC, "static", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
-		if (!firstModifier) {
-			buffer.append(Messages.disassembler_space); 
-		}
-	}
-
-	private final void decodeModifiersForMethod(StringBuffer buffer, int accessFlags) {
-		boolean firstModifier = true;
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PROTECTED, "protected", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PRIVATE, "private", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ABSTRACT, "abstract", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STATIC, "static", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_SYNCHRONIZED, "synchronized", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_NATIVE, "native", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STRICT, "strictfp", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_BRIDGE, "bridge", firstModifier); //$NON-NLS-1$
-		if (!firstModifier) {
-			buffer.append(Messages.disassembler_space); 
-		}
-	}
-
-	private final void decodeModifiersForType(StringBuffer buffer, int accessFlags) {
-		boolean firstModifier = true;
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_ABSTRACT, "abstract", firstModifier); //$NON-NLS-1$
-		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
-		if (!firstModifier) {
-			buffer.append(Messages.disassembler_space); 
-		}
-	}
-
-	private String decodeStringValue(char[] chars) {
+	static String decodeStringValue(char[] chars) {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, max = chars.length; i < max; i++) {
 			char c = chars[i];
@@ -178,15 +228,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					break;
 				case '\r' :
 					buffer.append("\\r"); //$NON-NLS-1$
-					break;
-				case '\"':
-					buffer.append("\\\""); //$NON-NLS-1$
-					break;
-				case '\'':
-					buffer.append("\\\'"); //$NON-NLS-1$
-					break;
-				case '\\':
-					buffer.append("\\\\"); //$NON-NLS-1$
 					break;
 				case '\0' :
 					buffer.append("\\0"); //$NON-NLS-1$
@@ -219,7 +260,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		return buffer.toString();
 	}
 
-	private String decodeStringValue(String s) {
+	static String decodeStringValue(String s) {
 		return decodeStringValue(s.toCharArray());
 	}
 
@@ -397,17 +438,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(" throws "); //$NON-NLS-1$
 			char[][] exceptionNames = exceptionAttribute.getExceptionNames();
 			int length = exceptionNames.length;
-			for (int i = 0; i < length - 1; i++) {
+			for (int i = 0; i < length; i++) {
+				if (i != 0) {
+					buffer
+    					.append(Messages.disassembler_comma)
+    					.append(Messages.disassembler_space);
+				}
 				char[] exceptionName = exceptionNames[i];
 				CharOperation.replace(exceptionName, '/', '.');
-				buffer
-					.append(returnClassName(exceptionName, '.', mode))
-					.append(Messages.disassembler_comma)
-					.append(Messages.disassembler_space); 
+				buffer.append(returnClassName(exceptionName, '.', mode));
 			}
-			char[] exceptionName = exceptionNames[length - 1];
-			CharOperation.replace(exceptionName, '/', '.');
-			buffer.append(returnClassName(exceptionName, '.', mode));
 		}
 		if (((accessFlags & IModifierConstants.ACC_NATIVE) == 0)
 				&& ((accessFlags & IModifierConstants.ACC_ABSTRACT) == 0)) {
@@ -530,17 +570,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(" throws "); //$NON-NLS-1$
 			char[][] exceptionNames = exceptionAttribute.getExceptionNames();
 			int length = exceptionNames.length;
-			for (int i = 0; i < length - 1; i++) {
+			for (int i = 0; i < length; i++) {
+				if (i != 0) {
+					buffer
+						.append(Messages.disassembler_comma)
+						.append(Messages.disassembler_space);
+				}
 				char[] exceptionName = exceptionNames[i];
 				CharOperation.replace(exceptionName, '/', '.');
-				buffer
-					.append(returnClassName(exceptionName, '.', mode))
-					.append(Messages.disassembler_comma)
-					.append(Messages.disassembler_space); 
+				buffer.append(returnClassName(exceptionName, '.', mode));
 			}
-			char[] exceptionName = exceptionNames[length - 1];
-			CharOperation.replace(exceptionName, '/', '.');
-			buffer.append(returnClassName(exceptionName, '.', mode));
 		}
 		if (checkMode(mode, DETAILED)) {
 			if (annotationDefaultAttribute != null) {
@@ -748,7 +787,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					char[] innerClassName = entry.getInnerClassName();
 					if (innerClassName != null) {
 						if (CharOperation.equals(classFileReader.getClassName(), innerClassName)) {
-							decodeModifiersForInnerClasses(buffer, entry.getAccessFlags());
+							decodeModifiersForInnerClasses(buffer, entry.getAccessFlags(), false);
 							decoded = true;
 						}
 					}
@@ -806,17 +845,17 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				} else {
 					buffer.append(" implements "); //$NON-NLS-1$
 				}
-				for (int i = 0; i < length - 1; i++) {
+				for (int i = 0; i < length; i++) {
+					if (i != 0) {
+						buffer
+							.append(Messages.disassembler_comma)
+							.append(Messages.disassembler_space); 
+					}
 					char[] superinterface = superclassInterfaces[i];
 					CharOperation.replace(superinterface, '/', '.');
 					buffer
-						.append(returnClassName(superinterface, '.', mode))
-						.append(Messages.disassembler_comma)
-						.append(Messages.disassembler_space); 
+						.append(returnClassName(superinterface, '.', mode));
 				}
-				char[] superinterface = superclassInterfaces[length - 1];
-				CharOperation.replace(superinterface, '/', '.');
-				buffer.append(returnClassName(superinterface, '.', mode));
 			}
 		}
 		buffer.append(Messages.bind(Messages.disassembler_opentypedeclaration)); 
@@ -886,6 +925,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (typeParametersLength != 0) {
 			buffer.append('<');
 			for (int i = 0; i < typeParametersLength; i++) {
+				if (i != 0) {
+					buffer.append(Messages.disassembler_comma);
+				}
 				// extract the name
 				buffer.append(typeParameters[i], 0, CharOperation.indexOf(':', typeParameters[i]));
 				final char[][] bounds = Signature.getTypeParameterBounds(typeParameters[i]);
@@ -900,15 +942,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						}
 					} else {
 						buffer.append(" extends "); //$NON-NLS-1$
-						for (int j= 0; j < boundsLength - 1; j++) {
-							buffer.append(returnClassName(Signature.toCharArray(bounds[j]), '.', mode));
-							buffer.append(" & "); //$NON-NLS-1$
+						for (int j= 0; j < boundsLength; j++) {
+							if (j != 0) {
+								buffer.append(" & "); //$NON-NLS-1$
 							}
-						buffer.append(returnClassName(Signature.toCharArray(bounds[boundsLength - 1]), '.', mode));
+							buffer.append(returnClassName(Signature.toCharArray(bounds[j]), '.', mode));
+						}
 					}
-				}	
-				if (i < typeParametersLength - 1) {
-					buffer.append(',');
 				}
 			}
 			buffer.append('>');
@@ -938,7 +978,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			final IExceptionTableEntry[] exceptionTableEntries = codeAttribute.getExceptionTable();
 			buffer.append(Messages.disassembler_exceptiontableheader); 
 			writeNewLine(buffer, lineSeparator, tabNumberForExceptionAttribute + 1);
-			for (int i = 0; i < exceptionTableLength - 1; i++) {
+			for (int i = 0; i < exceptionTableLength; i++) {
+				if (i != 0) {
+					writeNewLine(buffer, lineSeparator, tabNumberForExceptionAttribute + 1);
+				}
 				IExceptionTableEntry exceptionTableEntry = exceptionTableEntries[i];
 				char[] catchType;
 				if (exceptionTableEntry.getCatchTypeIndex() != 0) {
@@ -955,24 +998,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Integer.toString(exceptionTableEntry.getHandlerPC()),
 						new String(catchType)
 					}));
-				writeNewLine(buffer, lineSeparator, tabNumberForExceptionAttribute + 1);
 			}
-			IExceptionTableEntry exceptionTableEntry = exceptionTableEntries[exceptionTableLength - 1];
-			char[] catchType;
-			if (exceptionTableEntry.getCatchTypeIndex() != 0) {
-				catchType = exceptionTableEntry.getCatchType();
-				CharOperation.replace(catchType, '/', '.');
-				catchType = returnClassName(catchType, '.', mode);
-			} else {
-				catchType = ANY_EXCEPTION;
-			}
-			buffer.append(Messages.bind(Messages.classfileformat_exceptiontableentry,
-				new String[] {
-					Integer.toString(exceptionTableEntry.getStartPC()),
-					Integer.toString(exceptionTableEntry.getEndPC()),
-					Integer.toString(exceptionTableEntry.getHandlerPC()),
-					new String(catchType)
-				}));
 		}
 		final ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
 		final int lineAttributeLength = lineNumberAttribute == null ? 0 : lineNumberAttribute.getLineNumberTableLength();
@@ -987,19 +1013,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(Messages.disassembler_linenumberattributeheader); 
 			writeNewLine(buffer, lineSeparator, tabNumberForLineAttribute + 1);
 			int[][] lineattributesEntries = lineNumberAttribute.getLineNumberTable();
-			for (int i = 0; i < lineAttributeLength - 1; i++) {
+			for (int i = 0; i < lineAttributeLength; i++) {
+				if (i != 0) {
+					writeNewLine(buffer, lineSeparator, tabNumberForLineAttribute + 1);
+				}
 				buffer.append(Messages.bind(Messages.classfileformat_linenumbertableentry,
 					new String[] {
 						Integer.toString(lineattributesEntries[i][0]),
 						Integer.toString(lineattributesEntries[i][1])
 					}));
-				writeNewLine(buffer, lineSeparator, tabNumberForLineAttribute + 1);
 			}
-			buffer.append(Messages.bind(Messages.classfileformat_linenumbertableentry,
-				new String[] {
-					Integer.toString(lineattributesEntries[lineAttributeLength - 1][0]),
-					Integer.toString(lineattributesEntries[lineAttributeLength - 1][1])
-				}));
 		} 
 		final ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
 		final int localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
@@ -1014,7 +1037,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(Messages.disassembler_localvariabletableattributeheader); 
 			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			ILocalVariableTableEntry[] localVariableTableEntries = localVariableAttribute.getLocalVariableTable();
-			for (int i = 0; i < localVariableAttributeLength - 1; i++) {
+			for (int i = 0; i < localVariableAttributeLength; i++) {
+				if (i != 0) {
+					writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
+				}
 				ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[i];
 				int index= localVariableTableEntry.getIndex();
 				int startPC = localVariableTableEntry.getStartPC();
@@ -1029,22 +1055,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Integer.toString(index),
 						new String(returnClassName(typeName, '.', mode))
 					}));
-				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			}
-			ILocalVariableTableEntry localVariableTableEntry = localVariableTableEntries[localVariableAttributeLength - 1];
-			int index= localVariableTableEntry.getIndex();
-			int startPC = localVariableTableEntry.getStartPC();
-			int length  = localVariableTableEntry.getLength();
-			final char[] typeName = Signature.toCharArray(localVariableTableEntry.getDescriptor());
-			CharOperation.replace(typeName, '/', '.');
-			buffer.append(Messages.bind(Messages.classfileformat_localvariabletableentry,
-				new String[] {
-					Integer.toString(startPC),
-					Integer.toString(startPC + length),
-					new String(localVariableTableEntry.getName()),
-					Integer.toString(index),
-					new String(returnClassName(typeName, '.', mode))
-				}));
 		}
 		final ILocalVariableTypeTableAttribute localVariableTypeAttribute= (ILocalVariableTypeTableAttribute) getAttribute(IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE, codeAttribute);
 		final int localVariableTypeTableLength = localVariableTypeAttribute == null ? 0 : localVariableTypeAttribute.getLocalVariableTypeTableLength();
@@ -1059,7 +1070,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(Messages.disassembler_localvariabletypetableattributeheader); 
 			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			ILocalVariableTypeTableEntry[] localVariableTypeTableEntries = localVariableTypeAttribute.getLocalVariableTypeTable();
-			for (int i = 0; i < localVariableTypeTableLength - 1; i++) {
+			for (int i = 0; i < localVariableTypeTableLength; i++) {
+				if (i != 0) {
+					writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
+				}
 				ILocalVariableTypeTableEntry localVariableTypeTableEntry = localVariableTypeTableEntries[i];
 				int index= localVariableTypeTableEntry.getIndex();
 				int startPC = localVariableTypeTableEntry.getStartPC();
@@ -1074,22 +1088,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						Integer.toString(index),
 						new String(returnClassName(typeName, '.', mode))
 					}));
-				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			}
-			ILocalVariableTypeTableEntry localVariableTypeTableEntry = localVariableTypeTableEntries[localVariableTypeTableLength - 1];
-			int index= localVariableTypeTableEntry.getIndex();
-			int startPC = localVariableTypeTableEntry.getStartPC();
-			int length  = localVariableTypeTableEntry.getLength();
-			final char[] typeName = Signature.toCharArray(localVariableTypeTableEntry.getSignature());
-			CharOperation.replace(typeName, '/', '.');
-			buffer.append(Messages.bind(Messages.classfileformat_localvariabletableentry,
-				new String[] {
-					Integer.toString(startPC),
-					Integer.toString(startPC + length),
-					new String(localVariableTypeTableEntry.getName()),
-					Integer.toString(index),
-					new String(returnClassName(typeName, '.', mode))
-				}));
 		}
 		final int length = codeAttribute.getAttributesCount();
 		if (length != 0) {
@@ -1267,6 +1266,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		buffer.append(Messages.disassembler_constantpoolheader); 
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		for (int i = 1; i < length; i++) {
+			if (i != 1) {
+				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			}
 			IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(i);
 			switch (constantPool.getEntryKind(i)) {
 				case IConstantPoolConstant.CONSTANT_Class :
@@ -1361,18 +1363,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							new String[] {
 								Integer.toString(i),
 								Integer.toString(constantPoolEntry.getStringIndex()),
-								escapeString(constantPoolEntry.getStringValue())}));
+								decodeStringValue(constantPoolEntry.getStringValue())}));
 					break;
 				case IConstantPoolConstant.CONSTANT_Utf8 :
 					buffer.append(
 						Messages.bind(Messages.disassembler_constantpool_utf8,
 							new String[] {
 								Integer.toString(i),
-								escapeString(new String(constantPoolEntry.getUtf8Value()))}));
+								decodeStringValue(new String(constantPoolEntry.getUtf8Value()))}));
 					break;
-			}
-			if (i < length - 1) {
-				writeNewLine(buffer, lineSeparator, tabNumber + 1);
 			}
 		}
 	}
@@ -1415,6 +1414,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (length != 0) {
 			// insert default value for corresponding argument types
 			for (int i = 0; i < length; i++) {
+				if (i != 0) {
+					buffer.append(Messages.disassembler_comma);
+				}
 				final char[] type = argumentTypes[i];
 				switch(type.length) {
 					case 1 :
@@ -1438,12 +1440,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					default :
 						buffer.append("null"); //$NON-NLS-1$
 				}
-				if (i < length - 1) {
-					buffer.append(',');
-				}
 			}
 		}
-		buffer.append(')').append(',');
+		buffer.append(')').append(Messages.disassembler_comma);
 	}
 	
 	/**
@@ -1579,7 +1578,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		int length = innerClassesAttributeEntries.length;
 		int innerClassNameIndex, outerClassNameIndex, innerNameIndex, accessFlags;
 		IInnerClassesAttributeEntry innerClassesAttributeEntry;
-		for (int i = 0; i < length - 1; i++) {
+		for (int i = 0; i < length; i++) {
+			if (i != 0) {
+				buffer.append(Messages.disassembler_comma);
+				writeNewLine(buffer, lineSeparator, tabNumber + 1);				
+			}
 			innerClassesAttributeEntry = innerClassesAttributeEntries[i];
 			innerClassNameIndex = innerClassesAttributeEntry.getInnerClassNameIndex();
 			outerClassNameIndex = innerClassesAttributeEntry.getOuterClassNameIndex();
@@ -1624,59 +1627,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				.append(Messages.disassembler_inner_accessflags) 
 				.append(accessFlags)
 				.append(Messages.disassembler_space); 
-			decodeModifiersForInnerClasses(buffer, accessFlags);
+			decodeModifiersForInnerClasses(buffer, accessFlags, true);
 			buffer
-				.append(Messages.disassembler_closeinnerclassentry) 
-				.append(Messages.disassembler_comma); 
-			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+				.append(Messages.disassembler_closeinnerclassentry);
 		}
-		// last entry
-		innerClassesAttributeEntry = innerClassesAttributeEntries[length - 1];
-		innerClassNameIndex = innerClassesAttributeEntry.getInnerClassNameIndex();
-		outerClassNameIndex = innerClassesAttributeEntry.getOuterClassNameIndex();
-		innerNameIndex = innerClassesAttributeEntry.getInnerNameIndex();
-		accessFlags = innerClassesAttributeEntry.getAccessFlags();
-		buffer
-			.append(Messages.disassembler_openinnerclassentry) 
-			.append(Messages.disassembler_inner_class_info_name) 
-			.append(Messages.disassembler_constantpoolindex) 
-			.append(innerClassNameIndex);
-		if (innerClassNameIndex != 0) {
-			buffer
-				.append(Messages.disassembler_space) 
-				.append(innerClassesAttributeEntry.getInnerClassName());
-		}
-		buffer
-			.append(Messages.disassembler_comma) 
-			.append(Messages.disassembler_space) 
-			.append(Messages.disassembler_outer_class_info_name) 
-			.append(Messages.disassembler_constantpoolindex) 
-			.append(outerClassNameIndex);
-		if (outerClassNameIndex != 0) {
-			buffer	
-				.append(Messages.disassembler_space) 
-				.append(innerClassesAttributeEntry.getOuterClassName());
-		}
-		writeNewLine(buffer, lineSeparator, tabNumber);
-		dumpTab(tabNumber, buffer);
-		buffer.append(Messages.disassembler_space); 
-		buffer
-			.append(Messages.disassembler_inner_name) 
-			.append(Messages.disassembler_constantpoolindex) 
-			.append(innerNameIndex);
-		if (innerNameIndex != 0) {
-			buffer
-				.append(Messages.disassembler_space) 
-				.append(innerClassesAttributeEntry.getInnerName());
-		}
-		buffer
-			.append(Messages.disassembler_comma) 
-			.append(Messages.disassembler_space) 
-			.append(Messages.disassembler_inner_accessflags) 
-			.append(accessFlags)
-			.append(Messages.disassembler_space); 
-		decodeModifiersForInnerClasses(buffer, accessFlags);
-		buffer.append(Messages.disassembler_closeinnerclassentry); 
 	}
 
 	private void disassemble(int index, IParameterAnnotation parameterAnnotation, StringBuffer buffer, String lineSeparator, int tabNumber) {
@@ -1729,7 +1683,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append('{');
 		for (int i = 0, max = infos.length; i < max; i++) {
-			if(i != 0) buffer.append(", "); //$NON-NLS-1$
+			if(i != 0) {
+				buffer
+						.append(Messages.disassembler_comma)
+						.append(Messages.disassembler_space);
+			}
 			switch(infos[i].getTag()) {
 				case IVerificationTypeInfo.ITEM_DOUBLE :
 					buffer.append("double"); //$NON-NLS-1$

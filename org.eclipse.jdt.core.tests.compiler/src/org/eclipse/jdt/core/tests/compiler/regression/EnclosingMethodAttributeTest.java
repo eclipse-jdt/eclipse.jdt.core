@@ -192,7 +192,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		String expectedOutput =
 			"  Inner classes:\n" + 
 			"    [inner class info: #1 X$1LocalClass, outer class info: #0\n" + 
-			"     inner name: #23 LocalClass, accessflags: 2 private ]";
+			"     inner name: #23 LocalClass, accessflags: 0 default]";
 		
 		// check inner classes info
 		int index = actualOutput.indexOf(expectedOutput);

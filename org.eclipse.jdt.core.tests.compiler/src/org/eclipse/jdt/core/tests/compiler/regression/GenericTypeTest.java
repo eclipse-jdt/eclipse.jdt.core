@@ -15193,7 +15193,7 @@ public void test0500(){
 			"\n" + 
 			"  Inner classes:\n" + 
 			"    [inner class info: #28 X$1, outer class info: #0\n" + 
-			"     inner name: #0, accessflags: 18 private final ]\n";
+			"     inner name: #0, accessflags: 0 default]\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");

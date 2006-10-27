@@ -4714,7 +4714,7 @@ public void test123() {
 			"\n" + 
 			"  Inner classes:\n" + 
 			"    [inner class info: #1 X$Z, outer class info: #32 X\n" + 
-			"     inner name: #34 Z, accessflags: 8 static ]\n" + 
+			"     inner name: #34 Z, accessflags: 8 static]\n" + 
 			"}";
 	
 	try {
@@ -4816,7 +4816,7 @@ public void test125() {
 	// check private constructor outcome (if >= 1.4 modifier change, if 1.3 synthetic emulation)
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String expectedOutput = options.complianceLevel <= ClassFileConstants.JDK1_3
-		? 	"private class X$1$Local {\n" + 
+		? 	"class X$1$Local {\n" + 
 			"  \n" + 
 			"  // Field descriptor #6 LX;\n" + 
 			"  final synthetic X this$0;\n" + 
@@ -4868,9 +4868,9 @@ public void test125() {
 			"\n" + 
 			"  Inner classes:\n" + 
 			"    [inner class info: #1 X$1$Local, outer class info: #0\n" + 
-			"     inner name: #43 Local, accessflags: 2 private ]\n"
+			"     inner name: #43 Local, accessflags: 0 default]\n"
 		: options.complianceLevel == ClassFileConstants.JDK1_4
-			?  	"private class X$1$Local {\n" + 
+			?  	"class X$1$Local {\n" + 
 				"  \n" + 
 				"  // Field descriptor #6 LX;\n" + 
 				"  final synthetic X this$0;\n" + 
@@ -4911,8 +4911,8 @@ public void test125() {
 				"\n" + 
 				"  Inner classes:\n" + 
 				"    [inner class info: #1 X$1$Local, outer class info: #0\n" + 
-				"     inner name: #40 Local, accessflags: 2 private ]\n"
-			:	"private class X$1Local {\n" + 
+				"     inner name: #40 Local, accessflags: 0 default]\n"
+			:	"class X$1Local {\n" + 
 				"  \n" + 
 				"  // Field descriptor #6 LX;\n" + 
 				"  final synthetic X this$0;\n" + 
@@ -4953,7 +4953,7 @@ public void test125() {
 				"\n" + 
 				"  Inner classes:\n" + 
 				"    [inner class info: #1 X$1Local, outer class info: #0\n" + 
-				"     inner name: #39 Local, accessflags: 2 private ]\n" + 
+				"     inner name: #39 Local, accessflags: 0 default]\n" + 
 				"  Enclosing Method: #41  #43 X.foo(Ljava/lang/String;)V\n";
 	
 	try {

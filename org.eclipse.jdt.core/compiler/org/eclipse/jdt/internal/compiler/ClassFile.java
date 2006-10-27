@@ -544,9 +544,7 @@ public class ClassFile
 				}
 				// access flag
 				if (innerClass.isAnonymousType()) {
-					accessFlags |= ClassFileConstants.AccPrivate;
-				} else if (innerClass.isLocalType() && !innerClass.isMemberType()) {
-					accessFlags |= ClassFileConstants.AccPrivate;
+					accessFlags &= ~ClassFileConstants.AccFinal;
 				} else if (innerClass.isMemberType() && innerClass.isInterface()) {
 					accessFlags |= ClassFileConstants.AccStatic; // implicitely static
 				}
