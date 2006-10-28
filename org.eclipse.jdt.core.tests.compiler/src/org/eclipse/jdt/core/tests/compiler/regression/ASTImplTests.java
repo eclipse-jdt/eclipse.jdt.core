@@ -16,12 +16,14 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.CharLiteral;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CombinedBinaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
@@ -818,6 +820,60 @@ public void test0018() {
 		"java doc single type reference start visit\n" + 
 		"java doc single type reference end visit\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157170
+public void test0019() {
+	CompilerOptions options = new CompilerOptions();
+	options.complianceLevel = ClassFileConstants.JDK1_5;
+	options.sourceLevel = ClassFileConstants.JDK1_5;
+	options.targetJDK = ClassFileConstants.JDK1_5;
+	options.docCommentSupport = true;
+	this.runConformTest(
+		"X.java", 
+		"@interface Annot {\n" +
+		"	int value() default 0;\n" +
+		"}\n" +
+		"/**\n" +
+		" * @see Annot\n" +
+		" */\n" +
+		"@Annot\n" +
+		"@Annot(3)\n" +
+		"@Annot(value=4)\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @see Annot\n" +
+		"	 */\n" +
+		"	public void foo(@Annot int i) {\n" +
+		"		@Annot int j = 0;" +
+		"	}\n" +
+		"}\n",
+		new Parser(
+				new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
+				options, 
+				new DefaultProblemFactory()), false),
+		new AnnotationCollector(),
+		"java doc single type reference start visit\n" + 
+		"java doc single type reference end visit\n" + 
+		"marker annotation start visit\n" + 
+		"marker annotation end visit\n" + 
+		"single member annotation start visit\n" + 
+		"3\n" + 
+		"single member annotation end visit\n" + 
+		"normal annotation start visit\n" + 
+		"member value pair start visit\n" + 
+		"value, 4\n" + 
+		"member value pair end visit\n" + 
+		"normal annotation end visit\n" + 
+		"java doc single type reference start visit\n" + 
+		"java doc single type reference end visit\n" + 
+		"start argument\n" + 
+		"marker annotation start visit\n" + 
+		"marker annotation end visit\n" + 
+		"exit argument\n" + 
+		"start local declaration\n" + 
+		"marker annotation start visit\n" + 
+		"marker annotation end visit\n" + 
+		"exit local declaration\n");
+}
 }
 
 // Helper classes: define visitors leveraged by some tests
@@ -909,27 +965,27 @@ public boolean visit(StringLiteralConcatenation literal, BlockScope scope) {
 }
 }
 class AnnotationCollector extends ASTCollector {
-public boolean visit(MarkerAnnotation annotation, ClassScope scope) {
+public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
 	this.collector.append("marker annotation start visit\n");
-	return super.visit(annotation, scope);
+	return true;
 }
-public void endVisit(MarkerAnnotation annotation, ClassScope scope) {
+public void endVisit(MarkerAnnotation annotation, BlockScope scope) {
 	this.collector.append("marker annotation end visit\n");
 }
-public boolean visit(NormalAnnotation annotation, ClassScope scope) {
+public boolean visit(NormalAnnotation annotation, BlockScope scope) {
 	this.collector.append("normal annotation start visit\n");
-	return super.visit(annotation, scope);
+	return true;
 }
-public void endVisit(NormalAnnotation annotation, ClassScope scope) {
+public void endVisit(NormalAnnotation annotation, BlockScope scope) {
 	this.collector.append("normal annotation end visit\n");
 }
-public boolean visit(SingleMemberAnnotation annotation, ClassScope scope) {
+public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
 	this.collector.append("single member annotation start visit\n");
 	this.collector.append(annotation.memberValue.toString());
 	this.collector.append("\n");
-	return super.visit(annotation, scope);
+	return true;
 }
-public void endVisit(SingleMemberAnnotation annotation, ClassScope scope) {
+public void endVisit(SingleMemberAnnotation annotation, BlockScope scope) {
 	this.collector.append("single member annotation end visit\n");
 }
 public void endVisit(JavadocSingleTypeReference typeRef, BlockScope scope) {
@@ -946,15 +1002,54 @@ public boolean visit(JavadocSingleTypeReference typeRef, ClassScope scope) {
 	this.collector.append("java doc single type reference start visit\n");
 	return true;
 }
-public boolean visit(MemberValuePair pair, ClassScope scope) {
+public boolean visit(MemberValuePair pair, BlockScope scope) {
 	this.collector.append("member value pair start visit\n");
 	this.collector.append(pair.name);
 	this.collector.append(", ");
 	this.collector.append(pair.value.toString());
 	this.collector.append("\n");
-	return super.visit(pair, scope);
+	return true;
 }
-public void endVisit(MemberValuePair pair, ClassScope scope) {
+public void endVisit(MemberValuePair pair, BlockScope scope) {
 	this.collector.append("member value pair end visit\n");
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.ASTVisitor#endVisit(org.eclipse.jdt.internal.compiler.ast.Argument, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+ */
+public void endVisit(Argument argument, BlockScope scope) {
+	this.collector.append("exit argument\n");
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.ASTVisitor#endVisit(org.eclipse.jdt.internal.compiler.ast.Argument, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+ */
+public void endVisit(Argument argument, ClassScope scope) {
+	this.collector.append("exit argument\n");
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.ASTVisitor#endVisit(org.eclipse.jdt.internal.compiler.ast.LocalDeclaration, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+ */
+public void endVisit(LocalDeclaration localDeclaration, BlockScope scope) {
+	this.collector.append("exit local declaration\n");
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Argument, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+ */
+public boolean visit(Argument argument, BlockScope scope) {
+	this.collector.append("start argument\n");
+	return true;
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.Argument, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
+ */
+public boolean visit(Argument argument, ClassScope scope) {
+	this.collector.append("start argument\n");
+	return true;
+}
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.LocalDeclaration, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+ */
+public boolean visit(LocalDeclaration localDeclaration, BlockScope scope) {
+	this.collector.append("start local declaration\n");
+	return true;
 }
 }

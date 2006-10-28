@@ -1115,7 +1115,7 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 			if (this.annotations != null) {
 				int annotationsLength = this.annotations.length;
 				for (int i = 0; i < annotationsLength; i++)
-					this.annotations[i].traverse(visitor, this.scope);
+					this.annotations[i].traverse(visitor, this.staticInitializerScope);
 			}
 			if (this.superclass != null)
 				this.superclass.traverse(visitor, this.scope);
@@ -1167,12 +1167,12 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	try {
 		if (visitor.visit(this, blockScope)) {
 			if (this.javadoc != null) {
-				this.javadoc.traverse(visitor, scope);
+				this.javadoc.traverse(visitor, this.scope);
 			}
 			if (this.annotations != null) {
 				int annotationsLength = this.annotations.length;
 				for (int i = 0; i < annotationsLength; i++)
-					this.annotations[i].traverse(visitor, this.scope);
+					this.annotations[i].traverse(visitor, this.staticInitializerScope);
 			}
 			if (this.superclass != null)
 				this.superclass.traverse(visitor, this.scope);
@@ -1230,7 +1230,7 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 			if (this.annotations != null) {
 				int annotationsLength = this.annotations.length;
 				for (int i = 0; i < annotationsLength; i++)
-					this.annotations[i].traverse(visitor, this.scope);
+					this.annotations[i].traverse(visitor, this.staticInitializerScope);
 			}
 			if (this.superclass != null)
 				this.superclass.traverse(visitor, this.scope);

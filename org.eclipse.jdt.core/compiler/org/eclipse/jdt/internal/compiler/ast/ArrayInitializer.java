@@ -229,15 +229,4 @@ public class ArrayInitializer extends Expression {
 		}
 		visitor.endVisit(this, scope);
 	}
-	public void traverse(ASTVisitor visitor, ClassScope scope) {
-
-		if (visitor.visit(this, scope)) {
-			if (this.expressions != null) {
-				int expressionsLength = this.expressions.length;
-				for (int i = 0; i < expressionsLength; i++)
-					this.expressions[i].traverse(visitor, scope);
-			}
-		}
-		visitor.endVisit(this, scope);
-	}
 }

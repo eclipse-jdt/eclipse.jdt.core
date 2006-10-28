@@ -1898,11 +1898,4 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 	}
 	visitor.endVisit(this, scope);
 }
-public void traverse(ASTVisitor visitor, ClassScope scope) {
-	if (visitor.visit(this, scope)) {
-		this.left.traverse(visitor, scope);
-		this.right.traverse(visitor, scope);
-	}
-	visitor.endVisit(this, scope);
-}
 }

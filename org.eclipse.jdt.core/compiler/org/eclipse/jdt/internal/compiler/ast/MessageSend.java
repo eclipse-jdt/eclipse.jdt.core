@@ -526,20 +526,4 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	}
 	visitor.endVisit(this, blockScope);
 }
-public void traverse(ASTVisitor visitor, ClassScope blockScope) {
-	if (visitor.visit(this, blockScope)) {
-		receiver.traverse(visitor, blockScope);
-		if (this.typeArguments != null) {
-			for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
-				this.typeArguments[i].traverse(visitor, blockScope);
-			}		
-		}
-		if (arguments != null) {
-			int argumentsLength = arguments.length;
-			for (int i = 0; i < argumentsLength; i++)
-				arguments[i].traverse(visitor, blockScope);
-		}
-	}
-	visitor.endVisit(this, blockScope);
-}
 }

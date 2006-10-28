@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.ast.*; 
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 
 /** 
  * A visitor for iterating through the parse tree.
@@ -24,11 +27,6 @@ public abstract class ASTVisitor {
 	public void endVisit(
 		AllocationExpression allocationExpression,
 		BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(
-			AllocationExpression allocationExpression,
-			ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(AND_AND_Expression and_and_Expression, BlockScope scope) {
@@ -50,15 +48,7 @@ public abstract class ASTVisitor {
     		BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(
-			ArrayAllocationExpression arrayAllocationExpression,
-			ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(ArrayInitializer arrayInitializer, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(ArrayInitializer arrayInitializer, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(
@@ -74,9 +64,6 @@ public abstract class ASTVisitor {
 	public void endVisit(ArrayReference arrayReference, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(ArrayReference arrayReference, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(ArrayTypeReference arrayTypeReference, BlockScope scope) {
 		// do nothing by default
 	}
@@ -89,13 +76,7 @@ public abstract class ASTVisitor {
 	public void endVisit(Assignment assignment, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(Assignment assignment, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(BinaryExpression binaryExpression, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(BinaryExpression binaryExpression, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(Block block, BlockScope scope) {
@@ -110,19 +91,10 @@ public abstract class ASTVisitor {
 	public void endVisit(CastExpression castExpression, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(CastExpression castExpression, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(CharLiteral charLiteral, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(CharLiteral charLiteral, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(ClassLiteralAccess classLiteral, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(ClassLiteralAccess classLiteral, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(Clinit clinit, ClassScope scope) {
@@ -142,11 +114,6 @@ public abstract class ASTVisitor {
 		// do nothing by default
 	}
 	public void endVisit(
-			ConditionalExpression conditionalExpression,
-			ClassScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(
 		ConstructorDeclaration constructorDeclaration,
 		ClassScope scope) {
 		// do nothing by default
@@ -158,9 +125,6 @@ public abstract class ASTVisitor {
 		// do nothing by default
 	}
 	public void endVisit(DoubleLiteral doubleLiteral, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(DoubleLiteral doubleLiteral, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(EmptyStatement emptyStatement, BlockScope scope) {
@@ -182,9 +146,6 @@ public abstract class ASTVisitor {
 	public void endVisit(FalseLiteral falseLiteral, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(FalseLiteral falseLiteral, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(FieldDeclaration fieldDeclaration, MethodScope scope) {
 		// do nothing by default
 	}
@@ -195,9 +156,6 @@ public abstract class ASTVisitor {
 		// do nothing by default
 	}
 	public void endVisit(FloatLiteral floatLiteral, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(FloatLiteral floatLiteral, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(ForeachStatement forStatement, BlockScope scope) {
@@ -220,15 +178,7 @@ public abstract class ASTVisitor {
     		BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(
-    		InstanceOfExpression instanceOfExpression,
-    		ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(IntLiteral intLiteral, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(IntLiteral intLiteral, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(Javadoc javadoc, BlockScope scope) {
@@ -236,7 +186,13 @@ public abstract class ASTVisitor {
 	}
 	public void endVisit(Javadoc javadoc, ClassScope scope) {
 		// do nothing by default
-	}	
+	}
+	public void endVisit(JavadocAllocationExpression expression, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(JavadocAllocationExpression expression, ClassScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(JavadocArgumentExpression expression, BlockScope scope) {
 		// do nothing by default
 	}
@@ -306,9 +262,6 @@ public abstract class ASTVisitor {
 	public void endVisit(LongLiteral longLiteral, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(LongLiteral longLiteral, ClassScope scope) {
-		// do nothing by default
-	}
 	/**
 	 * @param annotation
 	 * @param scope
@@ -318,31 +271,13 @@ public abstract class ASTVisitor {
 		// do nothing by default
 	}
 	/**
-	 * @param annotation
-	 * @param scope
-	 * @since 3.3
-	 */
-	public void endVisit(MarkerAnnotation annotation, ClassScope scope) {
-		// do nothing by default
-	}
-	/**
 	 * @param pair
 	 * @param scope
 	 */
 	public void endVisit(MemberValuePair pair, BlockScope scope) {
 		// do nothing by default
 	}
-	/**
-	 * @param pair
-	 * @param scope
-	 */
-	public void endVisit(MemberValuePair pair, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(MessageSend messageSend, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(MessageSend messageSend, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(MethodDeclaration methodDeclaration, ClassScope scope) {
@@ -359,18 +294,7 @@ public abstract class ASTVisitor {
 	public void endVisit(NormalAnnotation annotation, BlockScope scope) {
 		// do nothing by default
 	}
-	/**
-	 * @param annotation
-	 * @param scope
-	 * @since 3.3
-	 */
-	public void endVisit(NormalAnnotation annotation, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(NullLiteral nullLiteral, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(NullLiteral nullLiteral, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(OR_OR_Expression or_or_Expression, BlockScope scope) {
@@ -397,11 +321,6 @@ public abstract class ASTVisitor {
 	public void endVisit(
     		QualifiedAllocationExpression qualifiedAllocationExpression,
     		BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(
-    		QualifiedAllocationExpression qualifiedAllocationExpression,
-    		ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(
@@ -455,14 +374,6 @@ public abstract class ASTVisitor {
 	public void endVisit(SingleMemberAnnotation annotation, BlockScope scope) {
 		// do nothing by default
 	}
-	/**
-	 * @param annotation
-	 * @param scope
-	 * @since 3.3
-	 */
-	public void endVisit(SingleMemberAnnotation annotation, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(
     		SingleNameReference singleNameReference,
     		BlockScope scope) {
@@ -486,9 +397,6 @@ public abstract class ASTVisitor {
 	public void endVisit(StringLiteral stringLiteral, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(StringLiteral stringLiteral, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(SuperReference superReference, BlockScope scope) {
 		// do nothing by default
 	}
@@ -510,9 +418,6 @@ public abstract class ASTVisitor {
 		// do nothing by default
 	}
 	public void endVisit(TrueLiteral trueLiteral, BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(TrueLiteral trueLiteral, ClassScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(TryStatement tryStatement, BlockScope scope) {
@@ -542,9 +447,6 @@ public abstract class ASTVisitor {
 	public void endVisit(UnaryExpression unaryExpression, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(UnaryExpression unaryExpression, ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(WhileStatement whileStatement, BlockScope scope) {
 		// do nothing by default
 	}
@@ -557,11 +459,6 @@ public abstract class ASTVisitor {
 	public boolean visit(
     		AllocationExpression allocationExpression,
     		BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(
-			AllocationExpression allocationExpression,
-			ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(AND_AND_Expression and_and_Expression, BlockScope scope) {
@@ -583,15 +480,7 @@ public abstract class ASTVisitor {
 		BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(
-			ArrayAllocationExpression arrayAllocationExpression,
-			ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(ArrayInitializer arrayInitializer, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(ArrayInitializer arrayInitializer, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(
@@ -607,9 +496,6 @@ public abstract class ASTVisitor {
 	public boolean visit(ArrayReference arrayReference, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(ArrayReference arrayReference, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(ArrayTypeReference arrayTypeReference, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
@@ -622,13 +508,7 @@ public abstract class ASTVisitor {
 	public boolean visit(Assignment assignment, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(Assignment assignment, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(BinaryExpression binaryExpression, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(Block block, BlockScope scope) {
@@ -643,19 +523,10 @@ public abstract class ASTVisitor {
 	public boolean visit(CastExpression castExpression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(CastExpression castExpression, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(CharLiteral charLiteral, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(CharLiteral charLiteral, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(ClassLiteralAccess classLiteral, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(ClassLiteralAccess classLiteral, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(Clinit clinit, ClassScope scope) {
@@ -675,11 +546,6 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(
-    		ConditionalExpression conditionalExpression,
-    		ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(
 		ConstructorDeclaration constructorDeclaration,
 		ClassScope scope) {
 		return true; // do nothing by default, keep traversing
@@ -691,9 +557,6 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(DoubleLiteral doubleLiteral, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(DoubleLiteral doubleLiteral, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(EmptyStatement emptyStatement, BlockScope scope) {
@@ -715,9 +578,6 @@ public abstract class ASTVisitor {
 	public boolean visit(FalseLiteral falseLiteral, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(FalseLiteral falseLiteral, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
@@ -728,9 +588,6 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(FloatLiteral floatLiteral, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(FloatLiteral floatLiteral, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(ForeachStatement forStatement, BlockScope scope) {
@@ -753,21 +610,19 @@ public abstract class ASTVisitor {
     		BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(
-    		InstanceOfExpression instanceOfExpression,
-    		ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(IntLiteral intLiteral, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(IntLiteral intLiteral, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(Javadoc javadoc, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(Javadoc javadoc, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(JavadocAllocationExpression expression, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(JavadocAllocationExpression expression, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(JavadocArgumentExpression expression, BlockScope scope) {
@@ -839,23 +694,12 @@ public abstract class ASTVisitor {
 	public boolean visit(LongLiteral longLiteral, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(LongLiteral longLiteral, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	/**
 	 * @param annotation
 	 * @param scope
 	 * @since 3.1
 	 */
 	public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
-		return true;
-	}
-	/**
-	 * @param annotation
-	 * @param scope
-	 * @since 3.3
-	 */
-	public boolean visit(MarkerAnnotation annotation, ClassScope scope) {
 		return true;
 	}
 	/**
@@ -866,18 +710,7 @@ public abstract class ASTVisitor {
 	public boolean visit(MemberValuePair pair, BlockScope scope) {
 		return true;
 	}
-	/**
-	 * @param pair
-	 * @param scope
-	 * @since 3.3
-	 */
-	public boolean visit(MemberValuePair pair, ClassScope scope) {
-		return true;
-	}
 	public boolean visit(MessageSend messageSend, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(MessageSend messageSend, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
@@ -896,18 +729,7 @@ public abstract class ASTVisitor {
 	public boolean visit(NormalAnnotation annotation, BlockScope scope) {
 		return true;
 	}
-	/**
-	 * @param annotation
-	 * @param scope
-	 * @since 3.3
-	 */
-	public boolean visit(NormalAnnotation annotation, ClassScope scope) {
-		return true;
-	}
 	public boolean visit(NullLiteral nullLiteral, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(NullLiteral nullLiteral, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(OR_OR_Expression or_or_Expression, BlockScope scope) {
@@ -934,11 +756,6 @@ public abstract class ASTVisitor {
 	public boolean visit(
     		QualifiedAllocationExpression qualifiedAllocationExpression,
     		BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(
-			QualifiedAllocationExpression qualifiedAllocationExpression,
-			ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(
@@ -992,14 +809,6 @@ public abstract class ASTVisitor {
 	public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
 		return true;
 	}
-	/**
-	 * @param annotation
-	 * @param scope
-	 * @since 3.3
-	 */
-	public boolean visit(SingleMemberAnnotation annotation, ClassScope scope) {
-		return true;
-	}
 	public boolean visit(
 		SingleNameReference singleNameReference,
 		BlockScope scope) {
@@ -1023,9 +832,6 @@ public abstract class ASTVisitor {
 	public boolean visit(StringLiteral stringLiteral, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(StringLiteral stringLiteral, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
 	public boolean visit(SuperReference superReference, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
@@ -1047,9 +853,6 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(TrueLiteral trueLiteral, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(TrueLiteral trueLiteral, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(TryStatement tryStatement, BlockScope scope) {
@@ -1077,9 +880,6 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(UnaryExpression unaryExpression, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(UnaryExpression unaryExpression, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {

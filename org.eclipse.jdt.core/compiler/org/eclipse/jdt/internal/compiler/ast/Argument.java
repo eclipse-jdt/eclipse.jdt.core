@@ -134,20 +134,26 @@ public class Argument extends LocalDeclaration {
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		
 		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
 			if (type != null)
 				type.traverse(visitor, scope);
-			if (initialization != null)
-				initialization.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		
 		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
 			if (type != null)
 				type.traverse(visitor, scope);
-			if (initialization != null)
-				initialization.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}

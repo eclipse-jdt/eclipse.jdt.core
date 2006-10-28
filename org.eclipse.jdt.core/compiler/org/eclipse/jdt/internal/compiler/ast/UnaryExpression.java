@@ -306,13 +306,4 @@ public FlowInfo analyseCode(
 		}
 		visitor.endVisit(this, blockScope);
 	}
-	public void traverse(
-			ASTVisitor visitor,
-			ClassScope blockScope) {
-				
-		if (visitor.visit(this, blockScope)) {
-			this.expression.traverse(visitor, blockScope);
-		}
-		visitor.endVisit(this, blockScope);
-	}
 }

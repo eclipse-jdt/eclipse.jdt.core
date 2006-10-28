@@ -485,13 +485,4 @@ public int nullStatus(FlowInfo flowInfo) {
 		}
 		visitor.endVisit(this, scope);
 	}
-
-	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		if (visitor.visit(this, scope)) {
-			condition.traverse(visitor, scope);
-			valueIfTrue.traverse(visitor, scope);
-			valueIfFalse.traverse(visitor, scope);
-		}
-		visitor.endVisit(this, scope);
-	}
 }

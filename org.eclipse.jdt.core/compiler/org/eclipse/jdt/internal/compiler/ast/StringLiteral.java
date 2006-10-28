@@ -14,7 +14,6 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class StringLiteral extends Literal {
@@ -117,10 +116,6 @@ public class StringLiteral extends Literal {
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		visitor.visit(this, scope);
-		visitor.endVisit(this, scope);
-	}
-	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}

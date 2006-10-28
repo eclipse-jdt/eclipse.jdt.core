@@ -478,15 +478,15 @@ public class CompilationUnitDeclaration
 		            // resolve synthetic type declaration
 					final TypeDeclaration syntheticTypeDeclaration = types[0];
 					// resolve javadoc package if any
-					final MethodScope classScope = syntheticTypeDeclaration.staticInitializerScope;
+					final MethodScope methodScope = syntheticTypeDeclaration.staticInitializerScope;
 					if (this.javadoc != null) {
-						this.javadoc.traverse(visitor, classScope);
+						this.javadoc.traverse(visitor, methodScope);
 					}
 					final Annotation[] annotations = this.currentPackage.annotations;
 					if (annotations != null) {
 						int annotationsLength = annotations.length;
 						for (int i = 0; i < annotationsLength; i++) {
-							annotations[i].traverse(visitor, classScope);
+							annotations[i].traverse(visitor, methodScope);
 						}
 					}
 				}

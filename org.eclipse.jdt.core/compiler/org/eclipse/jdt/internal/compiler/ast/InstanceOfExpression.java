@@ -111,12 +111,4 @@ public FlowInfo analyseCode(
 		}
 		visitor.endVisit(this, scope);
 	}
-	public void traverse(ASTVisitor visitor, ClassScope scope) {
-
-		if (visitor.visit(this, scope)) {
-			expression.traverse(visitor, scope);
-			type.traverse(visitor, scope);
-		}
-		visitor.endVisit(this, scope);
-	}
 }
