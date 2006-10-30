@@ -34044,7 +34044,6 @@ public void test1058() {
 			"}", // =================
 		},
 		"SUCCESS");
-	// 	ensure presence of checkcast Comparable
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 3\n" + 
@@ -34060,30 +34059,29 @@ public void test1058() {
 		"    13  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [24]\n" + 
 		"    16  goto 20\n" + 
 		"    19  aload_2 [bar]\n" + 
-		"    20  checkcast java.lang.Comparable [30]\n" + 
-		"    23  aconst_null\n" + 
-		"    24  invokeinterface java.lang.Comparable.compareTo(java.lang.Object) : int [32] [nargs: 2]\n" + 
-		"    29  invokevirtual java.io.PrintStream.println(int) : void [36]\n" + 
-		"    32  goto 44\n" + 
-		"    35  astore_1 [e]\n" + 
-		"    36  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
-		"    39  ldc <String \"SUCCESS\"> [42]\n" + 
-		"    41  invokevirtual java.io.PrintStream.println(java.lang.String) : void [44]\n" + 
-		"    44  return\n" + 
+		"    20  aconst_null\n" + 
+		"    21  invokeinterface java.lang.Comparable.compareTo(java.lang.Object) : int [30] [nargs: 2]\n" + 
+		"    26  invokevirtual java.io.PrintStream.println(int) : void [36]\n" + 
+		"    29  goto 41\n" + 
+		"    32  astore_1 [e]\n" + 
+		"    33  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
+		"    36  ldc <String \"SUCCESS\"> [42]\n" + 
+		"    38  invokevirtual java.io.PrintStream.println(java.lang.String) : void [44]\n" + 
+		"    41  return\n" + 
 		"      Exception Table:\n" + 
-		"        [pc: 0, pc: 32] -> 35 when : java.lang.NullPointerException\n" + 
+		"        [pc: 0, pc: 29] -> 32 when : java.lang.NullPointerException\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 4]\n" + 
 		"        [pc: 2, line: 5]\n" + 
 		"        [pc: 5, line: 6]\n" + 
-		"        [pc: 35, line: 7]\n" + 
-		"        [pc: 36, line: 8]\n" + 
-		"        [pc: 44, line: 10]\n" + 
+		"        [pc: 32, line: 7]\n" + 
+		"        [pc: 33, line: 8]\n" + 
+		"        [pc: 41, line: 10]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 45] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 2, pc: 35] local: foo index: 1 type: int\n" + 
-		"        [pc: 5, pc: 35] local: bar index: 2 type: java.lang.String\n" + 
-		"        [pc: 36, pc: 44] local: e index: 1 type: java.lang.NullPointerException\n";
+		"        [pc: 0, pc: 42] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 2, pc: 32] local: foo index: 1 type: int\n" + 
+		"        [pc: 5, pc: 32] local: bar index: 2 type: java.lang.String\n" + 
+		"        [pc: 33, pc: 41] local: e index: 1 type: java.lang.NullPointerException\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
