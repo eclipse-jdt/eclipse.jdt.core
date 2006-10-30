@@ -34093,4 +34093,27 @@ public void test1058() {
 		assertTrue(false);
 	}		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=160795
+public void test1059() {
+	this.runNegativeTest(
+		new String[] {
+			"A.java", // =================
+			"class A<T> {\n" + 
+			"    <S> S test(A<S> a) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    void m() {\n" + 
+			"        A<?> a = null;\n" + 
+			"        Number b = test(a);\n" + 
+			"    }\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 8)\n" + 
+		"	Number b = test(a);\n" + 
+		"	           ^^^^^^^\n" + 
+		"Type mismatch: cannot convert from capture#1-of ? to Number\n" + 
+		"----------\n");
+}
 }
