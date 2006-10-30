@@ -842,7 +842,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141252
-	public void test008() {
+	public void _test008() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
