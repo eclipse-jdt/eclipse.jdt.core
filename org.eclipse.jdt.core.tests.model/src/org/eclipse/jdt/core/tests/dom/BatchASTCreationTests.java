@@ -1655,7 +1655,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159631
-public void _test073() throws CoreException, IOException {
+public void test073() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P072", new String[] {}, Util.getJavaClassLibs(), "", "1.5");
 		ICompilationUnit compilationUnits[] = new ICompilationUnit[3]; 
