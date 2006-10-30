@@ -183,7 +183,7 @@ public abstract class ClasspathContainerInitializer {
  	 * @param containerPath the path of the container which failed to initialize
 	 * @param project the project from which the container is referenced
 	 * @return the default failure container, or <code>null</code> if wishing to run the initializer again
-    * @since 3.3
+     * @since 3.3
      */
     public IClasspathContainer getFailureContainer(final IPath containerPath, IJavaProject project) {
     	final String description = getDescription(containerPath, project);
