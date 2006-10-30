@@ -287,7 +287,7 @@ public abstract class Expression extends Statement {
 						// ( TYPE_PARAMETER ) ARRAY
 						TypeBinding match = expressionType.findSuperTypeWithSameErasure(castType);
 						if (match == null) {
-							checkUnsafeCast(scope, castType, expressionType, match, true);
+							checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
 						}
 						// recurse on the type variable upper bound
 						return checkCastTypesCompatibility(scope, ((TypeVariableBinding)castType).upperBound(), expressionType, expression);
@@ -341,7 +341,7 @@ public abstract class Expression extends Statement {
 							// ( INTERFACE ) TYPE_PARAMETER
 							match = expressionType.findSuperTypeWithSameErasure(castType);
 							if (match == null) {
-								checkUnsafeCast(scope, castType, expressionType, match, true);
+								checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
 							}
 							// recurse on the type variable upper bound
 							return checkCastTypesCompatibility(scope, ((TypeVariableBinding)castType).upperBound(), expressionType, expression);
@@ -360,6 +360,7 @@ public abstract class Expression extends Statement {
 									return checkUnsafeCast(scope, castType, interfaceType, match, true);
 								}
 								if (use15specifics) {
+									checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
 									// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
 									if (interfaceType.hasIncompatibleSuperType((ReferenceBinding)castType))
 										return false;
@@ -445,6 +446,7 @@ public abstract class Expression extends Statement {
 									return checkUnsafeCast(scope, castType, expressionType, match, true);
 								}
 								if (use15specifics) {
+									checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
 									// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
 									if (refExprType.hasIncompatibleSuperType((ReferenceBinding) castType))
 										return false;

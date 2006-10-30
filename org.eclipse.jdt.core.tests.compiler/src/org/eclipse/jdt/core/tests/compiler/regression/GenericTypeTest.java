@@ -7357,6 +7357,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	Set<X> channel = channels.get(0);\n" + 
 			"	                 ^^^^^^^^\n" + 
 			"channels cannot be resolved\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	element = (Set<X>) iter.next();\n" + 
+			"	          ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from X to Set<X> is actually checking against the erased type Set\n" + 
 			"----------\n");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70243 unsafe cast when wildcards
@@ -26562,9 +26567,14 @@ public void test0851() {
 		"1. WARNING in X.java (at line 5)\n" + 
 		"	return (Bar<Object>)f;\n" + 
 		"	       ^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Foo to Bar<Object> is actually checking against the erased type Bar\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	return (Bar<Object>)f;\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from Foo to Bar<Object>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -34169,5 +34179,97 @@ public void test1061() {
 			"}", // =================
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148041
+public void test1062() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.HashSet;\n" + 
+			"import java.util.Iterator;\n" + 
+			"import java.util.Set;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Set<X> set = new HashSet<X>();\n" + 
+			"		for (Iterator<X> iterator = set.iterator(); iterator.hasNext();) {\n" + 
+			"			Set<X> element1 = iterator.next();\n" + 
+			"			Set<X> element2 = (Set<X>) iterator.next(); // warning\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Set<X> element1 = iterator.next();\n" + 
+		"	                  ^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X to Set<X>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	Set<X> element2 = (Set<X>) iterator.next(); // warning\n" + 
+		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from X to Set<X> is actually checking against the erased type Set\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148041 - variation
+public void test1063() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.HashSet;\n" + 
+			"import java.util.Iterator;\n" + 
+			"import java.util.Set;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Set<Cloneable> set = new HashSet<Cloneable>();\n" + 
+			"		for (Iterator<Cloneable> iterator = set.iterator(); iterator.hasNext();) {\n" + 
+			"			Set<Cloneable> element1 = iterator.next();\n" + 
+			"			Set<Cloneable> element2 = (Set<Cloneable>) iterator.next(); // warning\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Set<Cloneable> element1 = iterator.next();\n" + 
+		"	                          ^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Cloneable to Set<Cloneable>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	Set<Cloneable> element2 = (Set<Cloneable>) iterator.next(); // warning\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Cloneable to Set<Cloneable> is actually checking against the erased type Set\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148041 - variation
+public void test1064() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.HashSet;\n" + 
+			"import java.util.Iterator;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		HashSet<X> set = new HashSet<X>();\n" + 
+			"		for (Iterator<X> iterator = set.iterator(); iterator.hasNext();) {\n" + 
+			"			HashSet<X> element1 = iterator.next();\n" + 
+			"			HashSet<X> element2 = (HashSet<X>) iterator.next();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	HashSet<X> element1 = iterator.next();\n" + 
+		"	                      ^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X to HashSet<X>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	HashSet<X> element2 = (HashSet<X>) iterator.next();\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from X to HashSet<X>\n" + 
+		"----------\n");
 }
 }

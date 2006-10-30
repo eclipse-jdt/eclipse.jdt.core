@@ -272,7 +272,7 @@ public class CastExpression extends Expression {
 	}
 	
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
-		if (match == castType) {
+ 		if (match == castType) {
 			if (!isNarrowing && match == this.resolvedType.leafComponentType()) { // do not tag as unnecessary when recursing through upper bounds
 				tagAsUnnecessaryCast(scope, castType);
 			}
@@ -298,6 +298,10 @@ public class CastExpression extends Expression {
 		} else if (isNarrowing) {
 			TypeBinding leafType = castType.leafComponentType();
 			if (expressionType.id == T_JavaLangObject && castType.isArrayType() && leafType.isBoundParameterizedType()) {
+				this.bits |= UnsafeCast;
+				return true;
+			}
+			if (match == null && castType.isBoundParameterizedType()) { // cast between unrelated types
 				this.bits |= UnsafeCast;
 				return true;
 			}
