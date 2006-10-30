@@ -34116,4 +34116,58 @@ public void test1059() {
 		"Type mismatch: cannot convert from capture#1-of ? to Number\n" + 
 		"----------\n");
 }
+public void test1060() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static <B> void m(List<? super B> list,Collection<? super B> coll) {\n" + 
+			"        m(list,coll);\n" + 
+			"    }\n" + 
+			"}", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159752
+public void test1061() {
+	this.runConformTest(
+		new String[] {
+			"predicate/Predicate.java", // =================
+			"package predicate;\n" + 
+			"public interface Predicate<T> {\n" + 
+			"	public boolean evaluate(T object);\n" + 
+			"}\n" + 
+			"final class AndPredicate<T> implements Predicate<T> {\n" + 
+			"	private final Predicate<? super T> iPredicate1;\n" + 
+			"	private final Predicate<? super T> iPredicate2;\n" + 
+			"	public static <T> Predicate<T> getInstance(Predicate<? super T> predicate1,\n" + 
+			"			Predicate<? super T> predicate2) {\n" + 
+			"		if (predicate1 == null || predicate2 == null) {\n" + 
+			"			throw new IllegalArgumentException(\"Predicate must not be null\");\n" + 
+			"		}\n" + 
+			"		return new AndPredicate<T>(predicate1, predicate2);\n" + 
+			"	}\n" + 
+			"	public AndPredicate(Predicate<? super T> predicate1,\n" + 
+			"			Predicate<? super T> predicate2) {\n" + 
+			"		super();\n" + 
+			"		iPredicate1 = predicate1;\n" + 
+			"		iPredicate2 = predicate2;\n" + 
+			"	}\n" + 
+			"	public boolean evaluate(T object) {\n" + 
+			"		return iPredicate1.evaluate(object) && iPredicate2.evaluate(object);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class PredicateUtils {\n" + 
+			"\n" + 
+			"	public static <T> Predicate<T> andPredicate(\n" + 
+			"			Predicate<? super T> predicate1, Predicate<? super T> predicate2) {\n" + 
+			"		return AndPredicate.getInstance(predicate1, predicate2);\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"");
+}
 }
