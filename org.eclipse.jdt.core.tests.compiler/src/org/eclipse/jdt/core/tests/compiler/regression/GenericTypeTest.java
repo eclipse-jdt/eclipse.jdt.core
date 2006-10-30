@@ -34016,4 +34016,81 @@ public void test1057() {
 		}, 
 		"[ClassCastException:1][ClassCastException:2]");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141289
+public void test1058() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"        	try {\n" + 
+			"                int foo = 0;\n" + 
+			"                String bar = \"zero\";\n" + 
+			"                System.out.println((foo != 0 ? foo : bar).compareTo(null));\n" + 
+			"        	} catch(NullPointerException e) {\n" + 
+			"        		System.out.println(\"SUCCESS\");\n" + 
+			"        	}\n" + 
+			"        }\n" + 
+			"}", // =================
+		},
+		"SUCCESS");
+	// 	ensure presence of checkcast Comparable
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 3, Locals: 3\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  iconst_0\n" + 
+		"     1  istore_1 [foo]\n" + 
+		"     2  ldc <String \"zero\"> [16]\n" + 
+		"     4  astore_2 [bar]\n" + 
+		"     5  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
+		"     8  iload_1 [foo]\n" + 
+		"     9  ifeq 19\n" + 
+		"    12  iload_1 [foo]\n" + 
+		"    13  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [24]\n" + 
+		"    16  goto 20\n" + 
+		"    19  aload_2 [bar]\n" + 
+		"    20  checkcast java.lang.Comparable [30]\n" + 
+		"    23  aconst_null\n" + 
+		"    24  invokeinterface java.lang.Comparable.compareTo(java.lang.Object) : int [32] [nargs: 2]\n" + 
+		"    29  invokevirtual java.io.PrintStream.println(int) : void [36]\n" + 
+		"    32  goto 44\n" + 
+		"    35  astore_1 [e]\n" + 
+		"    36  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
+		"    39  ldc <String \"SUCCESS\"> [42]\n" + 
+		"    41  invokevirtual java.io.PrintStream.println(java.lang.String) : void [44]\n" + 
+		"    44  return\n" + 
+		"      Exception Table:\n" + 
+		"        [pc: 0, pc: 32] -> 35 when : java.lang.NullPointerException\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 4]\n" + 
+		"        [pc: 2, line: 5]\n" + 
+		"        [pc: 5, line: 6]\n" + 
+		"        [pc: 35, line: 7]\n" + 
+		"        [pc: 36, line: 8]\n" + 
+		"        [pc: 44, line: 10]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 45] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 2, pc: 35] local: foo index: 1 type: int\n" + 
+		"        [pc: 5, pc: 35] local: bar index: 2 type: java.lang.String\n" + 
+		"        [pc: 36, pc: 44] local: e index: 1 type: java.lang.NullPointerException\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
 }
