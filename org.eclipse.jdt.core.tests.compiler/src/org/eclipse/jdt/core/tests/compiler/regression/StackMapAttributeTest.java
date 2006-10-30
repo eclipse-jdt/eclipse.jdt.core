@@ -842,7 +842,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141252
-	public void _test008() {
+	public void test008() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -903,9 +903,9 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 5, pc: 24] local: bar index: 2 type: java.lang.String\n" + 
 				"      Stack map table: number of frames 2\n" + 
 				"        [pc: 19, full, stack: {java.io.PrintStream}, locals: {java.lang.String[], int, java.lang.String}]\n" + 
-				"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {java.lang.String[], int, java.lang.String}]\n" + 
+				"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Object}, locals: {java.lang.String[], int, java.lang.String}]\n" + 
 				"  \n" + 
-				"  // Method descriptor #48 (Ljava/lang/Comparable;)V\n" + 
+				"  // Method descriptor #46 (Ljava/lang/Comparable;)V\n" + 
 				"  // Signature: <T::Ljava/lang/Comparable<*>;>(TT;)V\n" + 
 				"  // Stack: 2, Locals: 3\n" + 
 				"  void foo(java.lang.Comparable foo);\n" + 
