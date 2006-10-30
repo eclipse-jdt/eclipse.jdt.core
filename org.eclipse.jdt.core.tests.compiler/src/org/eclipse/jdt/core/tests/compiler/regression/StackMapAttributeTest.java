@@ -876,63 +876,63 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			}
 			
 			String expectedOutput = 
-				"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
-				"  // Stack: 2, Locals: 3\n" + 
-				"  public static void main(java.lang.String[] args);\n" + 
-				"     0  iconst_0\n" + 
-				"     1  istore_1 [foo]\n" + 
-				"     2  ldc <String \"zero\"> [16]\n" + 
-				"     4  astore_2 [bar]\n" + 
-				"     5  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
-				"     8  iload_1 [foo]\n" + 
-				"     9  ifeq 19\n" + 
-				"    12  iload_1 [foo]\n" + 
-				"    13  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [24]\n" + 
-				"    16  goto 20\n" + 
-				"    19  aload_2 [bar]\n" + 
-				"    20  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [30]\n" + 
-				"    23  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 3]\n" + 
-				"        [pc: 2, line: 4]\n" + 
-				"        [pc: 5, line: 5]\n" + 
-				"        [pc: 23, line: 6]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 24] local: args index: 0 type: java.lang.String[]\n" + 
-				"        [pc: 2, pc: 24] local: foo index: 1 type: int\n" + 
-				"        [pc: 5, pc: 24] local: bar index: 2 type: java.lang.String\n" + 
-				"      Stack map table: number of frames 2\n" + 
-				"        [pc: 19, full, stack: {java.io.PrintStream}, locals: {java.lang.String[], int, java.lang.String}]\n" + 
-				"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Object}, locals: {java.lang.String[], int, java.lang.String}]\n" + 
-				"  \n" + 
-				"  // Method descriptor #46 (Ljava/lang/Comparable;)V\n" + 
-				"  // Signature: <T::Ljava/lang/Comparable<*>;>(TT;)V\n" + 
-				"  // Stack: 2, Locals: 3\n" + 
-				"  void foo(java.lang.Comparable foo);\n" + 
-				"     0  aconst_null\n" + 
-				"     1  astore_2 [bar]\n" + 
-				"     2  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
-				"     5  aload_1 [foo]\n" + 
-				"     6  ifnull 13\n" + 
-				"     9  aload_1 [foo]\n" + 
-				"    10  goto 14\n" + 
-				"    13  aload_2 [bar]\n" + 
-				"    14  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [30]\n" + 
-				"    17  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 8]\n" + 
-				"        [pc: 2, line: 9]\n" + 
-				"        [pc: 17, line: 10]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 18] local: this index: 0 type: X\n" + 
-				"        [pc: 0, pc: 18] local: foo index: 1 type: java.lang.Comparable\n" + 
-				"        [pc: 2, pc: 18] local: bar index: 2 type: java.lang.Comparable\n" + 
-				"      Local variable type table:\n" + 
-				"        [pc: 0, pc: 18] local: foo index: 1 type: T\n" + 
-				"        [pc: 2, pc: 18] local: bar index: 2 type: T\n" + 
-				"      Stack map table: number of frames 2\n" + 
-				"        [pc: 13, full, stack: {java.io.PrintStream}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n" + 
-				"        [pc: 14, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n";
+					"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+					"  // Stack: 2, Locals: 3\n" + 
+					"  public static void main(java.lang.String[] args);\n" + 
+					"     0  iconst_0\n" + 
+					"     1  istore_1 [foo]\n" + 
+					"     2  ldc <String \"zero\"> [16]\n" + 
+					"     4  astore_2 [bar]\n" + 
+					"     5  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
+					"     8  iload_1 [foo]\n" + 
+					"     9  ifeq 19\n" + 
+					"    12  iload_1 [foo]\n" + 
+					"    13  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [24]\n" + 
+					"    16  goto 20\n" + 
+					"    19  aload_2 [bar]\n" + 
+					"    20  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [30]\n" + 
+					"    23  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 3]\n" + 
+					"        [pc: 2, line: 4]\n" + 
+					"        [pc: 5, line: 5]\n" + 
+					"        [pc: 23, line: 6]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 24] local: args index: 0 type: java.lang.String[]\n" + 
+					"        [pc: 2, pc: 24] local: foo index: 1 type: int\n" + 
+					"        [pc: 5, pc: 24] local: bar index: 2 type: java.lang.String\n" + 
+					"      Stack map table: number of frames 2\n" + 
+					"        [pc: 19, full, stack: {java.io.PrintStream}, locals: {java.lang.String[], int, java.lang.String}]\n" + 
+					"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {java.lang.String[], int, java.lang.String}]\n" + 
+					"  \n" + 
+					"  // Method descriptor #48 (Ljava/lang/Comparable;)V\n" + 
+					"  // Signature: <T::Ljava/lang/Comparable<*>;>(TT;)V\n" + 
+					"  // Stack: 2, Locals: 3\n" + 
+					"  void foo(java.lang.Comparable foo);\n" + 
+					"     0  aconst_null\n" + 
+					"     1  astore_2 [bar]\n" + 
+					"     2  getstatic java.lang.System.out : java.io.PrintStream [18]\n" + 
+					"     5  aload_1 [foo]\n" + 
+					"     6  ifnull 13\n" + 
+					"     9  aload_1 [foo]\n" + 
+					"    10  goto 14\n" + 
+					"    13  aload_2 [bar]\n" + 
+					"    14  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [30]\n" + 
+					"    17  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 8]\n" + 
+					"        [pc: 2, line: 9]\n" + 
+					"        [pc: 17, line: 10]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 18] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 18] local: foo index: 1 type: java.lang.Comparable\n" + 
+					"        [pc: 2, pc: 18] local: bar index: 2 type: java.lang.Comparable\n" + 
+					"      Local variable type table:\n" + 
+					"        [pc: 0, pc: 18] local: foo index: 1 type: T\n" + 
+					"        [pc: 2, pc: 18] local: bar index: 2 type: T\n" + 
+					"      Stack map table: number of frames 2\n" + 
+					"        [pc: 13, full, stack: {java.io.PrintStream}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n" + 
+					"        [pc: 14, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n";
 			
 			int index = actualOutput.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {

@@ -312,7 +312,9 @@ public class WildcardBinding extends ReferenceBinding {
 	    	return typeVariable().erasure();
     	}
     	// intersection type
-    	return this.bound.erasure();
+    	return this.bound.id == TypeIds.T_JavaLangObject 
+    		? this.otherBounds[0].erasure()  // use first explicit bound to improve stackmap
+    		: this.bound.erasure();
     }
 
     /* (non-Javadoc)
