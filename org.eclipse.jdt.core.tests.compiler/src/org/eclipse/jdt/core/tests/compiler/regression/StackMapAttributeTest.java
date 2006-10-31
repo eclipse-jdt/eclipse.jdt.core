@@ -33,7 +33,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 5, 17 };
+//		TESTS_NUMBERS = new int[] { 23 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
@@ -2090,6 +2090,21 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
         		"	}\n" + 
         		"	public static void foo() {\n" + 
         		"		throw new NullPointerException();\n" + 
+        		"	}\n" + 
+        		"}",
+            },
+			"SUCCESS");
+	}
+	public void _test023() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"public class X {\n" + 
+        		"	public static void main(String[] args) {\n" + 
+        		"		boolean a = true, x;\n" + 
+        		"		if (a ? false : (x = true))\n" + 
+        		"			a = x;\n" + 
+        		"		System.out.println(\"SUCCESS\");\n" + 
         		"	}\n" + 
         		"}",
             },
