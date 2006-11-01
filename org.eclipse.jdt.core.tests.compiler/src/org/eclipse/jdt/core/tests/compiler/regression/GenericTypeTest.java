@@ -34858,4 +34858,55 @@ public void test1066() {
 		assertTrue(false);
 	}	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162991
+public void _test1067() {
+	this.runConformTest(
+		new String[] {
+			"Something.java",
+			"public interface Something {\n" + 
+			"\n" + 
+			"}", // =================
+			"Doing.java", // =================
+			"public interface Doing {\n" + 
+			"        public <S extends Something, T extends S> T get(Class<S> clazz);\n" + 
+			"}", // =================
+			"DoingImpl.java", // =================
+			"public class DoingImpl implements Doing {\n" + 
+			"        public <S extends Something, T extends S> T get(Class<S> clazz) {\n" + 
+			"                // TODO Auto-generated method stub\n" + 
+			"                return null;\n" + 
+			"        }\n" + 
+			"}" // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162991
+public void _test1068() {
+	this.runConformTest(
+		new String[] {
+			"Something.java",
+			"public interface Something {\n" + 
+			"\n" + 
+			"}", // =================
+			"Doing.java", // =================
+			"public interface Doing {\n" + 
+			"        public <S extends Something, T extends S> T get(Class<S> clazz);\n" + 
+			"}", // =================
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"DoingImpl.java", // =================
+			"public class DoingImpl implements Doing {\n" + 
+			"        public <S extends Something, T extends S> T get(Class<S> clazz) {\n" + 
+			"                // TODO Auto-generated method stub\n" + 
+			"                return null;\n" + 
+			"        }\n" + 
+			"}" // =================
+		},
+		"",
+		null,
+		false,
+		null);
+}
 }
