@@ -29,7 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.util.SimpleSet;
+import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 
 public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	private static final int MAX_LINE_COUNT = 100;
@@ -50,7 +50,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	private char[][] potentialVariableNames;
 	private int[] potentialVariableNameStarts;
 	
-	private SimpleSet acceptedNames = new SimpleSet();
+	private SimpleSetOfCharArray acceptedNames = new SimpleSetOfCharArray();
 	
 	public UnresolvedReferenceNameFinder(CompletionEngine completionEngine) {
 		this.parser = completionEngine.parser;
