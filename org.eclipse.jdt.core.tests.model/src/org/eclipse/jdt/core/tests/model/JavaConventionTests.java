@@ -76,7 +76,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	 * @see JavaConventions
 	 */
 	public void testInvalidIdentifier() {
-		String[] invalidIds = new String[] {"", "1java", "Foo Bar", "#@$!", "Foo-Bar", "if", "InvalidEscapeSequence\\g", "true", "false", "null", null, " untrimmmed "};
+		String[] invalidIds = new String[] {" s\\u0069ze", " s\\u0069ze ", "", "1java", "Foo Bar", "#@$!", "Foo-Bar", "if", "InvalidEscapeSequence\\g", "true", "false", "null", null, " untrimmmed "};
 		for (int i = 0; i < invalidIds.length; i++) {
 			assertTrue("identifier not recognized as invalid: " + invalidIds[i], !JavaConventions.validateIdentifier(invalidIds[i]).isOK());
 		}
