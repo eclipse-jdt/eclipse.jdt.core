@@ -3918,7 +3918,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		
 		// wait for the initialization job to finish
 		try {
-			Platform.getJobManager().join(JavaCore.PLUGIN_ID, null);
+			Job.getJobManager().join(JavaCore.PLUGIN_ID, null);
 		} catch (InterruptedException e) {
 			// ignore
 		}
