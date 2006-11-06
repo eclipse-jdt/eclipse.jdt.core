@@ -17,6 +17,11 @@ import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ParserTest extends AbstractRegressionTest {
+static {
+//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NUMBERS = new int[] { 18 };
+//		TESTS_RANGE = new int[] { 11, -1 };
+}
 public ParserTest(String name) {
 	super(name);
 }
