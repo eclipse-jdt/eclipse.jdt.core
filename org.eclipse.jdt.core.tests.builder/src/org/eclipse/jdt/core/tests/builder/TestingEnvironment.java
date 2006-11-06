@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -1007,7 +1008,7 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		boolean wasInterrupted = false;
 		do {
 			try {
-				Platform.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				handle(e);
