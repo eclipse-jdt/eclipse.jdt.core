@@ -232,7 +232,7 @@ public final boolean atEnd() {
 	// This code is not relevant if source is 
 	// Only a part of the real stream input
 
-	return this.source.length == this.currentPosition;
+	return this.eofPosition <= this.currentPosition;
 }
 
 // chech presence of task: tags
@@ -384,7 +384,7 @@ public char[] getCurrentIdentifierSource() {
 			this.withoutUnicodePtr); 
 	} else {
 		int length = this.currentPosition - this.startPosition;
-		if (length == this.source.length) return this.source;
+		if (length == this.eofPosition) return this.source;
 		switch (length) { // see OptimizedLength
 			case 1 :
 				return optimizedCurrentTokenSource1();
@@ -571,6 +571,32 @@ public final int getNextChar() {
 		return -1;
 	}
 }
+public final int getNextCharWithBoundChecks() {
+	if (this.currentPosition >= this.eofPosition) {
+		return -1;
+	}
+	this.currentCharacter = this.source[this.currentPosition++];
+	if (this.currentPosition >= this.eofPosition) {
+		this.unicodeAsBackSlash = false;
+		if (this.withoutUnicodePtr != 0) {
+		    unicodeStore();
+		}
+		return this.currentCharacter;
+	}
+	if (this.currentCharacter == '\\' && this.source[this.currentPosition] == 'u') {
+		try {
+			getNextUnicodeChar();
+		} catch (InvalidInputException e) {
+			return -1;
+		}
+	} else {
+		this.unicodeAsBackSlash = false;
+		if (this.withoutUnicodePtr != 0) {
+		    unicodeStore();
+		}
+	}
+	return this.currentCharacter;
+}
 public final boolean getNextChar(char testedChar) {
 	//BOOLEAN
 	//handle the case of unicode.
@@ -582,7 +608,7 @@ public final boolean getNextChar(char testedChar) {
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
 
-	if (this.currentPosition >= this.source.length) { // handle the obvious case upfront
+	if (this.currentPosition >= this.eofPosition) { // handle the obvious case upfront
 		this.unicodeAsBackSlash = false;
 		return false;
 	}
@@ -630,7 +656,7 @@ public final int getNextChar(char testedChar1, char testedChar2) {
 	//On false, no side effect has occured.
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
-	if (this.currentPosition >= this.source.length) // handle the obvious case upfront
+	if (this.currentPosition >= this.eofPosition) // handle the obvious case upfront
 		return -1;
 
 	int temp = this.currentPosition;
@@ -681,7 +707,7 @@ public final boolean getNextCharAsDigit() throws InvalidInputException {
 	//On false, no side effect has occured.
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
-	if (this.currentPosition >= this.source.length) // handle the obvious case upfront
+	if (this.currentPosition >= this.eofPosition) // handle the obvious case upfront
 		return false;
 
 	int temp = this.currentPosition;
@@ -722,7 +748,7 @@ public final boolean getNextCharAsDigit(int radix) {
 	//On false, no side effect has occured.
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
-	if (this.currentPosition >= this.source.length) // handle the obvious case upfront
+	if (this.currentPosition >= this.eofPosition) // handle the obvious case upfront
 		return false;
 
 	int temp = this.currentPosition;
@@ -753,6 +779,78 @@ public final boolean getNextCharAsDigit(int radix) {
 		return false;
 	}
 }
+public boolean getNextCharAsJavaIdentifierPartWithBoundCheck() {
+	//BOOLEAN
+	//handle the case of unicode.
+	//when a unicode appears then we must use a buffer that holds char internal values
+	//At the end of this method currentCharacter holds the new visited char
+	//and currentPosition points right next after it
+	//Both previous lines are true if the currentCharacter is a JavaIdentifierPart
+	//On false, no side effect has occured.
+
+	//ALL getNextChar.... ARE OPTIMIZED COPIES 
+	int pos = this.currentPosition;
+	if (pos >= this.eofPosition) // handle the obvious case upfront
+		return false;
+
+	int temp2 = this.withoutUnicodePtr;
+	try {
+		boolean unicode = false;
+		this.currentCharacter = this.source[this.currentPosition++];
+		if (this.currentPosition < this.eofPosition) {
+			if (this.currentCharacter == '\\' && this.source[this.currentPosition] == 'u') {
+				getNextUnicodeChar();
+				unicode = true;
+			}
+		}
+		char c = this.currentCharacter;
+		boolean isJavaIdentifierPart = false;
+		if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
+			if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+				this.currentPosition = pos;
+				this.withoutUnicodePtr = temp2;
+				return false;
+			}
+			// Unicode 4 detection
+			char low = (char) getNextCharWithBoundChecks();
+			if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
+				// illegal low surrogate
+				this.currentPosition = pos;
+				this.withoutUnicodePtr = temp2;
+				return false;
+			}
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c, low);
+		}
+		else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
+			this.currentPosition = pos;
+			this.withoutUnicodePtr = temp2;
+			return false;
+		} else {
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c);
+		}
+		if (unicode) {
+			if (!isJavaIdentifierPart) {
+				this.currentPosition = pos;
+				this.withoutUnicodePtr = temp2;
+				return false;
+			}
+			return true;
+		} else {
+			if (!isJavaIdentifierPart) {
+				this.currentPosition = pos;
+				return false;
+			}
+
+			if (this.withoutUnicodePtr != 0)
+			    unicodeStore();
+			return true;
+		}
+	} catch(InvalidInputException e) {
+		this.currentPosition = pos;
+		this.withoutUnicodePtr = temp2;
+		return false;
+	}
+}
 public boolean getNextCharAsJavaIdentifierPart() {
 	//BOOLEAN
 	//handle the case of unicode.
@@ -764,7 +862,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
 	int pos;
-	if ((pos = this.currentPosition) >= this.source.length) // handle the obvious case upfront
+	if ((pos = this.currentPosition) >= this.eofPosition) // handle the obvious case upfront
 		return false;
 
 	int temp2 = this.withoutUnicodePtr;
@@ -827,12 +925,118 @@ public boolean getNextCharAsJavaIdentifierPart() {
 		return false;
 	}
 }
+/*
+ * External API in JavaConventions.
+ * This is used to optimize the case where the scanner is used to scan a single identifier.
+ * In this case, the AIOOBE is slower to handle than a bound check
+ */
+public int scanIdentifier() throws InvalidInputException {
+	int whiteStart = 0;
+	while (true) { //loop for jumping over comments
+		this.withoutUnicodePtr = 0;
+		//start with a new token (even comment written with unicode )
+		// ---------Consume white space and handles startPosition---------
+		whiteStart = this.currentPosition;
+		boolean isWhiteSpace, hasWhiteSpaces = false;
+		int offset;
+		int unicodePtr;
+		boolean checkIfUnicode = false;
+		do {
+			unicodePtr = this.withoutUnicodePtr;
+			offset = this.currentPosition;
+			this.startPosition = this.currentPosition;
+			if (this.currentPosition < this.eofPosition) {
+				this.currentCharacter = this.source[this.currentPosition++];
+				checkIfUnicode = this.currentPosition < this.eofPosition
+						&& this.currentCharacter == '\\'
+						&& this.source[this.currentPosition] == 'u';
+			} else if (this.tokenizeWhiteSpace && (whiteStart != this.currentPosition - 1)) {
+				// reposition scanner in case we are interested by spaces as tokens
+				this.currentPosition--;
+				this.startPosition = whiteStart;
+				return TokenNameWHITESPACE;
+			} else {
+				return TokenNameEOF;
+			}
+			if (checkIfUnicode) {
+				isWhiteSpace = jumpOverUnicodeWhiteSpace();
+				offset = this.currentPosition - offset;
+			} else {
+				offset = this.currentPosition - offset;
+				// inline version of:
+				//isWhiteSpace = 
+				//	(this.currentCharacter == ' ') || ScannerHelper.isWhitespace(this.currentCharacter); 
+				switch (this.currentCharacter) {
+					case 10 : /* \ u000a: LINE FEED               */
+					case 12 : /* \ u000c: FORM FEED               */
+					case 13 : /* \ u000d: CARRIAGE RETURN         */
+					case 32 : /* \ u0020: SPACE                   */
+					case 9 : /* \ u0009: HORIZONTAL TABULATION   */
+						isWhiteSpace = true;
+						break;
+					default :
+						isWhiteSpace = false;
+				}
+			}
+			if (isWhiteSpace) {
+				hasWhiteSpaces = true;
+			}
+		} while (isWhiteSpace);
+		if (hasWhiteSpaces) {
+			if (this.tokenizeWhiteSpace) {
+				// reposition scanner in case we are interested by spaces as tokens
+				this.currentPosition-=offset;
+				this.startPosition = whiteStart;
+				if (checkIfUnicode) {
+					this.withoutUnicodePtr = unicodePtr;
+				}
+				return TokenNameWHITESPACE;
+			} else if (checkIfUnicode) {
+				this.withoutUnicodePtr = 0;
+				unicodeStore();
+			} else {
+				this.withoutUnicodePtr = 0;
+			}
+		}
+		char c = this.currentCharacter;
+		if (c < ScannerHelper.MAX_OBVIOUS) {
+			if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_IDENT_START) != 0) {
+				return scanIdentifierOrKeywordWithBoundCheck();
+			}
+			return TokenNameERROR;
+		}
+		boolean isJavaIdStart;
+		if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
+			if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+				throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+			}
+			// Unicode 4 detection
+			char low = (char) getNextCharWithBoundChecks();
+			if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
+				// illegal low surrogate
+				throw new InvalidInputException(INVALID_LOW_SURROGATE);
+			}
+			isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c, low);
+		} else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
+			if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+				throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+			}
+			throw new InvalidInputException(INVALID_HIGH_SURROGATE);
+		} else {
+			// optimized case already checked
+			isJavaIdStart = Character.isJavaIdentifierStart(c);
+		}
+		if (isJavaIdStart)
+			return scanIdentifierOrKeywordWithBoundCheck();
+		return TokenNameERROR;
+	}
+}
 public int getNextToken() throws InvalidInputException {
 	this.wasAcr = false;
 	if (this.diet) {
 		jumpOverMethodBody();
 		this.diet = false;
-		return this.currentPosition > this.source.length ? TokenNameEOF : TokenNameRBRACE;
+		return this.currentPosition > this.eofPosition ? TokenNameEOF : TokenNameRBRACE;
 	}
 	int whiteStart = 0;
 	try {
@@ -1054,7 +1258,7 @@ public int getNextToken() throws InvalidInputException {
 						if (test > 0) {
 							// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
 							for (int lookAhead = 0; lookAhead < 3; lookAhead++) {
-								if (this.currentPosition + lookAhead == this.source.length)
+								if (this.currentPosition + lookAhead == this.eofPosition)
 									break;
 								if (this.source[this.currentPosition + lookAhead] == '\n')
 									break;
@@ -1069,7 +1273,7 @@ public int getNextToken() throws InvalidInputException {
 					if (getNextChar('\'')) {
 						// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
 						for (int lookAhead = 0; lookAhead < 3; lookAhead++) {
-							if (this.currentPosition + lookAhead == this.source.length)
+							if (this.currentPosition + lookAhead == this.eofPosition)
 								break;
 							if (this.source[this.currentPosition + lookAhead] == '\n')
 								break;
@@ -1117,7 +1321,7 @@ public int getNextToken() throws InvalidInputException {
 						return TokenNameCharacterLiteral;
 					// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
 					for (int lookAhead = 0; lookAhead < 20; lookAhead++) {
-						if (this.currentPosition + lookAhead == this.source.length)
+						if (this.currentPosition + lookAhead == this.eofPosition)
 							break;
 						if (this.source[this.currentPosition + lookAhead] == '\n')
 							break;
@@ -1218,7 +1422,7 @@ public int getNextToken() throws InvalidInputException {
 						if (e.getMessage().equals(INVALID_ESCAPE)) {
 							// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
 							for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
-								if (this.currentPosition + lookAhead == this.source.length)
+								if (this.currentPosition + lookAhead == this.eofPosition)
 									break;
 								if (this.source[this.currentPosition + lookAhead] == '\n')
 									break;
@@ -1268,7 +1472,7 @@ public int getNextToken() throws InvalidInputException {
 								 * We need to completely consume the line break
 								 */
 								if (this.currentCharacter == '\r'
-								   && this.source.length > this.currentPosition) {
+								   && this.eofPosition > this.currentPosition) {
 								   	if (this.source[this.currentPosition] == '\n') {
 										this.currentPosition++;
 										this.currentCharacter = '\n';
@@ -1488,38 +1692,45 @@ public void getNextUnicodeChar()
 	//and currentPosition points right next after it
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
-
-	try {
-		int c1 = 0, c2 = 0, c3 = 0, c4 = 0, unicodeSize = 6;
-		this.currentPosition++;
+	int c1 = 0, c2 = 0, c3 = 0, c4 = 0, unicodeSize = 6;
+	this.currentPosition++;
+	if (this.currentPosition < this.eofPosition) {
 		while (this.source[this.currentPosition] == 'u') {
 			this.currentPosition++;
+			if (this.currentPosition >= this.eofPosition) {
+				this.currentPosition--;
+				throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+			}
 			unicodeSize++;
 		}
-
-		if ((c1 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
-			|| c1 < 0
-			|| (c2 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
-			|| c2 < 0
-			|| (c3 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
-			|| c3 < 0
-			|| (c4 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
-			|| c4 < 0){
-			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
-		}
-		this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-		//need the unicode buffer
-		if (this.withoutUnicodePtr == 0) {
-			//buffer all the entries that have been left aside....
-			unicodeInitializeBuffer(this.currentPosition - unicodeSize - this.startPosition);
-		}
-		//fill the buffer with the char
-		unicodeStore();
-		this.unicodeAsBackSlash = this.currentCharacter == '\\';
-	} catch (ArrayIndexOutOfBoundsException e) {
+	} else {
 		this.currentPosition--;
 		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 	}
+
+	if ((this.currentPosition + 4) > this.eofPosition) {
+		this.currentPosition += (this.eofPosition - this.currentPosition);
+		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+	}
+	if ((c1 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
+    		|| c1 < 0
+    		|| (c2 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
+    		|| c2 < 0
+    		|| (c3 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
+    		|| c3 < 0
+    		|| (c4 = ScannerHelper.getNumericValue(this.source[this.currentPosition++])) > 15
+    		|| c4 < 0){
+		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+	}
+	this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+	//need the unicode buffer
+	if (this.withoutUnicodePtr == 0) {
+		//buffer all the entries that have been left aside....
+		unicodeInitializeBuffer(this.currentPosition - unicodeSize - this.startPosition);
+	}
+	//fill the buffer with the char
+	unicodeStore();
+	this.unicodeAsBackSlash = this.currentCharacter == '\\';
 }
 public NLSTag[] getNLSTags() {
 	final int length = this.nlsTagsPtr;
@@ -1705,7 +1916,7 @@ public final void jumpOverMethodBody() {
 								 * We need to completely consume the line break
 								 */
 								if (this.currentCharacter == '\r'
-								   && this.source.length > this.currentPosition) {
+								   && this.eofPosition > this.currentPosition) {
 								   	if (this.source[this.currentPosition] == '\n') {
 										this.currentPosition++;
 										this.currentCharacter = '\n';
@@ -1901,14 +2112,9 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 	//On false, the currentCharacter is filled up with a potential
 	//correct char
 
-	try {
-		this.wasAcr = false;
-		getNextUnicodeChar();
-		return CharOperation.isWhitespace(this.currentCharacter);
-	} catch (IndexOutOfBoundsException e){
-		this.currentPosition--;
-		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
-	}
+	this.wasAcr = false;
+	getNextUnicodeChar();
+	return CharOperation.isWhitespace(this.currentCharacter);
 }
 
 final char[] optimizedCurrentTokenSource1() {
@@ -2425,6 +2631,68 @@ public final void scanEscapeCharacter() throws InvalidInputException {
 				throw new InvalidInputException(INVALID_ESCAPE);
 	}
 }
+public int scanIdentifierOrKeywordWithBoundCheck() {
+	//test keywords
+
+	//first dispatch on the first char.
+	//then the length. If there are several
+	//keywors with the same length AND the same first char, then do another
+	//dispatch on the second char 
+	this.useAssertAsAnIndentifier = false;
+	this.useEnumAsAnIndentifier = false;
+
+	char[] src = this.source;
+	identLoop: {
+		int pos;
+		int srcLength = this.eofPosition;
+		while (true) {
+			if ((pos = this.currentPosition) >= srcLength) // handle the obvious case upfront
+				break identLoop;
+			char c = src[pos];
+			if (c < ScannerHelper.MAX_OBVIOUS) {
+				if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & 
+						(ScannerHelper.C_UPPER_LETTER | ScannerHelper.C_LOWER_LETTER | ScannerHelper.C_IDENT_PART | ScannerHelper.C_DIGIT)) != 0) {
+		               if (this.withoutUnicodePtr != 0) {
+							this.currentCharacter = c;
+							unicodeStore();
+						}
+						this.currentPosition++;
+				} else if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & (ScannerHelper.C_SEPARATOR | ScannerHelper.C_JLS_SPACE)) != 0) {
+						this.currentCharacter = c;
+						break identLoop;
+				} else {
+					//System.out.println("slow<=128:  "+ c);						
+					while (getNextCharAsJavaIdentifierPartWithBoundCheck()){/*empty*/}
+					break identLoop;						
+				}
+			} else {
+				//System.out.println("slow>>128:  "+ c);						
+				while (getNextCharAsJavaIdentifierPartWithBoundCheck()){/*empty*/}
+				break identLoop;						
+			}
+		}
+	}
+	
+	int index, length;
+	char[] data;
+	if (this.withoutUnicodePtr == 0) {
+		//quick test on length == 1 but not on length > 12 while most identifier
+		//have a length which is <= 12...but there are lots of identifier with
+		//only one char....
+		if ((length = this.currentPosition - this.startPosition) == 1) {
+			return TokenNameIdentifier;
+		}
+		data = this.source;
+		index = this.startPosition;
+	} else {
+		if ((length = this.withoutUnicodePtr) == 1)
+			return TokenNameIdentifier;
+		data = this.withoutUnicodeBuffer;
+		index = 1;
+	}
+
+	return internalScanIdentifierOrKeyword(index, length, data);
+}
 public int scanIdentifierOrKeyword() {
 	//test keywords
 
@@ -2437,7 +2705,8 @@ public int scanIdentifierOrKeyword() {
 
 	char[] src = this.source;
 	identLoop: {
-		int pos, srcLength = this.source.length;
+		int pos;
+		int srcLength = this.eofPosition;
 		while (true) {
 			if ((pos = this.currentPosition) >= srcLength) // handle the obvious case upfront
 				break identLoop;
@@ -2468,15 +2737,13 @@ public int scanIdentifierOrKeyword() {
 	
 	int index, length;
 	char[] data;
-	if (this.withoutUnicodePtr == 0)
-
+	if (this.withoutUnicodePtr == 0) {
 		//quick test on length == 1 but not on length > 12 while most identifier
 		//have a length which is <= 12...but there are lots of identifier with
 		//only one char....
-
-		{
-		if ((length = this.currentPosition - this.startPosition) == 1)
+		if ((length = this.currentPosition - this.startPosition) == 1) {
 			return TokenNameIdentifier;
+		}
 		data = this.source;
 		index = this.startPosition;
 	} else {
@@ -2486,9 +2753,11 @@ public int scanIdentifierOrKeyword() {
 		index = 1;
 	}
 
+	return internalScanIdentifierOrKeyword(index, length, data);
+}
 
+private int internalScanIdentifierOrKeyword(int index, int length, char[] data) {
 	switch (data[index]) {
-
 		case 'a' : 
 			switch(length) {
 				case 8: //abstract
@@ -3285,7 +3554,7 @@ public final int getLineNumber(int position) {
 	int g = 0, d = length - 1;
 	int m = 0;
 	while (g <= d) {
-		m = (g + d) /2;
+		m = g + (d - g) /2;
 		if (position < this.lineEnds[m]) {
 			d = m-1;
 		} else if (position > this.lineEnds[m]) {
@@ -3341,9 +3610,9 @@ public final void setSource(CompilationResult compilationResult) {
 	setSource(null, compilationResult);
 }
 public String toString() {
-	if (this.startPosition == this.source.length)
+	if (this.startPosition == this.eofPosition)
 		return "EOF\n\n" + new String(this.source); //$NON-NLS-1$
-	if (this.currentPosition > this.source.length)
+	if (this.currentPosition > this.eofPosition)
 		return "behind the EOF\n\n" + new String(this.source); //$NON-NLS-1$
 
 	char front[] = new char[this.startPosition];
@@ -3363,13 +3632,13 @@ public String toString() {
 		middle = CharOperation.NO_CHAR;
 	}
 	
-	char end[] = new char[this.source.length - (this.currentPosition - 1)];
+	char end[] = new char[this.eofPosition - (this.currentPosition - 1)];
 	System.arraycopy(
 		this.source, 
 		(this.currentPosition - 1) + 1, 
 		end, 
 		0, 
-		this.source.length - (this.currentPosition - 1) - 1);
+		this.eofPosition - (this.currentPosition - 1) - 1);
 	
 	return new String(front)
 		+ "\n===============================\nStarts here -->" //$NON-NLS-1$

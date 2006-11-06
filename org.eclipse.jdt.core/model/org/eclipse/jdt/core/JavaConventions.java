@@ -40,7 +40,7 @@ public final class JavaConventions {
 
 	private static final char DOT= '.';
 	private static final String PACKAGE_INFO = new String(TypeConstants.PACKAGE_INFO_NAME);
-	private static final Scanner SCANNER = new Scanner();
+	private static final Scanner SCANNER = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
 	
 	private JavaConventions() {
 		// Not instantiable
@@ -82,31 +82,20 @@ public final class JavaConventions {
 		if (id == null) {
 			return null;
 		}
-		String trimmed = id.trim();
-		if (!trimmed.equals(id)) {
-			return null;
-		}
-
 		// Set scanner for given source and compliance levels
 		SCANNER.sourceLevel = sourceLevel == null ? ClassFileConstants.JDK1_3 : CompilerOptions.versionToJdkLevel(sourceLevel);
 		SCANNER.complianceLevel = complianceLevel == null ? ClassFileConstants.JDK1_3 : CompilerOptions.versionToJdkLevel(complianceLevel);	
 
-		// Read identifier
 		try {
 			SCANNER.setSource(id.toCharArray());
-			int token = SCANNER.getNextToken();
-			char[] currentIdentifier;
-			try {
-				currentIdentifier = SCANNER.getCurrentIdentifierSource();
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return null;
-			}
-			int nextToken= SCANNER.getNextToken();
-			if (token == TerminalTokens.TokenNameIdentifier 
-				&& nextToken == TerminalTokens.TokenNameEOF
-				&& SCANNER.startPosition == SCANNER.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
-																     // while reading the last token
-				return currentIdentifier;
+			int token = SCANNER.scanIdentifier();
+			if (token != TerminalTokens.TokenNameIdentifier) return null; 
+			if (SCANNER.currentPosition == SCANNER.eofPosition) { // to handle case where we had an ArrayIndexOutOfBoundsException 
+				try {
+					return SCANNER.getCurrentIdentifierSource();
+				} catch (ArrayIndexOutOfBoundsException e) {
+					return null;
+				}
 			} else {
 				return null;
 			}

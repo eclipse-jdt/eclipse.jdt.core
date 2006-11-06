@@ -584,7 +584,7 @@ public class Scribe {
 	public void initializeScanner(char[] compilationUnitSource) {
 		this.scanner.setSource(compilationUnitSource);
 		this.scannerEndPosition = compilationUnitSource.length;
-		this.scanner.resetTo(0, this.scannerEndPosition);
+		this.scanner.resetTo(0, this.scannerEndPosition - 1);
 		this.edits = new OptimizedReplaceEdit[INITIAL_SIZE];
 	}	
 	

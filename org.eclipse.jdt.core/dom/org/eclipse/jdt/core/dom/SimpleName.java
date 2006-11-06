@@ -179,18 +179,15 @@ public class SimpleName extends Name {
 		char[] source = identifier.toCharArray();
 		scanner.setSource(source);
 		final int length = source.length;
-		scanner.resetTo(0, length);
+		scanner.resetTo(0, length - 1);
 		try {
-			int tokenType = scanner.getNextToken();
-			switch(tokenType) {
-				case TerminalTokens.TokenNameIdentifier:
-					if (scanner.getCurrentTokenEndPosition() != length - 1) {
-						// this is the case when there is only one identifier see 87849
-						throw new IllegalArgumentException();
-					}
-					break;
-				default:
-					throw new IllegalArgumentException();
+			int tokenType = scanner.scanIdentifier();
+			if (tokenType != TerminalTokens.TokenNameIdentifier) {
+				throw new IllegalArgumentException();
+			}
+			if (scanner.currentPosition != length) {
+				// this is the case when there is only one identifier see 87849
+				throw new IllegalArgumentException();
 			}
 		} catch(InvalidInputException e) {
 			throw new IllegalArgumentException();

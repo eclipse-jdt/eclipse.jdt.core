@@ -3123,7 +3123,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (constructorDeclaration.ignoreFurtherInvestigation) {
 			this.scribe.printComment();
 			this.scribe.printIndentationIfNecessary();
-			this.scribe.scanner.resetTo(constructorDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition);
+			this.scribe.scanner.resetTo(constructorDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition - 1);
 			this.scribe.printTrailingComment();
 			switch(this.scribe.scanner.source[this.scribe.scanner.currentPosition]) {
 				case '\n' :
@@ -4034,7 +4034,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (methodDeclaration.ignoreFurtherInvestigation) {
 			this.scribe.printComment();
 			this.scribe.printIndentationIfNecessary();
-			this.scribe.scanner.resetTo(methodDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition);
+			this.scribe.scanner.resetTo(methodDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition - 1);
 			this.scribe.printTrailingComment();
 			switch(this.scribe.scanner.source[this.scribe.scanner.currentPosition]) {
 				case '\n' :
