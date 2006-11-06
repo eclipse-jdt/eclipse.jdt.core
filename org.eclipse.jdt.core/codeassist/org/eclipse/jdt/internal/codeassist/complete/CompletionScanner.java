@@ -161,7 +161,7 @@ private int getNextToken0() throws InvalidInputException {
 	if (this.diet) {
 		jumpOverMethodBody();
 		this.diet = false;
-		return this.currentPosition > this.source.length ? TokenNameEOF : TokenNameRBRACE;
+		return this.currentPosition > this.eofPosition ? TokenNameEOF : TokenNameRBRACE;
 	}
 	int whiteStart = 0;
 	try {
@@ -238,7 +238,10 @@ private int getNextToken0() throws InvalidInputException {
 					// compute end of empty identifier.
 					// if the empty identifier is at the start of a next token the end of
 					// empty identifier is the end of the next token (eg. "<empty token>next").
+					int temp = this.eofPosition;
+					this.eofPosition = this.source.length;
 				 	while(getNextCharAsJavaIdentifierPart()){/*empty*/}
+				 	this.eofPosition = temp;
 				 	this.endOfEmptyToken = this.currentPosition - 1;
 					this.currentPosition = this.startPosition; // for being detected as empty free identifier
 					return TokenNameIdentifier;
@@ -390,7 +393,7 @@ private int getNextToken0() throws InvalidInputException {
 						if (test > 0) {
 							// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
 							for (int lookAhead = 0; lookAhead < 3; lookAhead++) {
-								if (this.currentPosition + lookAhead == this.source.length)
+								if (this.currentPosition + lookAhead == this.eofPosition)
 									break;
 								if (this.source[this.currentPosition + lookAhead] == '\n')
 									break;
@@ -405,7 +408,7 @@ private int getNextToken0() throws InvalidInputException {
 					if (getNextChar('\'')) {
 						// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
 						for (int lookAhead = 0; lookAhead < 3; lookAhead++) {
-							if (this.currentPosition + lookAhead == this.source.length)
+							if (this.currentPosition + lookAhead == this.eofPosition)
 								break;
 							if (this.source[this.currentPosition + lookAhead] == '\n')
 								break;
@@ -453,7 +456,7 @@ private int getNextToken0() throws InvalidInputException {
 						return TokenNameCharacterLiteral;
 					// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
 					for (int lookAhead = 0; lookAhead < 20; lookAhead++) {
-						if (this.currentPosition + lookAhead == this.source.length)
+						if (this.currentPosition + lookAhead == this.eofPosition)
 							break;
 						if (this.source[this.currentPosition + lookAhead] == '\n')
 							break;
@@ -573,7 +576,7 @@ private int getNextToken0() throws InvalidInputException {
 						if (e.getMessage().equals(INVALID_ESCAPE)) {
 							// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
 							for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
-								if (this.currentPosition + lookAhead == this.source.length)
+								if (this.currentPosition + lookAhead == this.eofPosition)
 									break;
 								if (this.source[this.currentPosition + lookAhead] == '\n')
 									break;
@@ -657,7 +660,7 @@ private int getNextToken0() throws InvalidInputException {
 								 * We need to completely consume the line break
 								 */
 								if (this.currentCharacter == '\r'
-								   && this.source.length > this.currentPosition) {
+								   && this.eofPosition > this.currentPosition) {
 								   	if (this.source[this.currentPosition] == '\n') {
 										this.currentPosition++;
 										this.currentCharacter = '\n';
@@ -883,13 +886,20 @@ public void resetTo(int begin, int end) {
 // * we pretend we read an identifier.
 // */
 public int scanIdentifierOrKeyword() {
-
+	
 	int id = super.scanIdentifierOrKeyword();
 
-	// convert completed keyword into an identifier
-	if (id != TokenNameIdentifier
-		&& this.startPosition <= this.cursorLocation+1 
-		&& this.cursorLocation < this.currentPosition){
+	if (this.startPosition <= this.cursorLocation+1 
+			&& this.cursorLocation < this.currentPosition){
+		
+		// extends the end of the completion token even if the end is after eofPosition
+		if (this.cursorLocation+1 == this.eofPosition) {
+			int temp = this.eofPosition;
+			this.eofPosition = this.source.length;
+		 	while(getNextCharAsJavaIdentifierPart()){/*empty*/}
+			this.eofPosition = temp;
+		}
+		// convert completed keyword into an identifier
 		return TokenNameIdentifier;
 	}
 	return id;

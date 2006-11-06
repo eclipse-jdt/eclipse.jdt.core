@@ -400,6 +400,12 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					case TerminalTokens.TokenNamesuper:
 					case TerminalTokens.TokenNameIdentifier:
 						if (scanner.startPosition <= selectionStart && selectionStart <= scanner.currentPosition) {
+							if (scanner.currentPosition == scanner.eofPosition) {
+								int temp = scanner.eofPosition;
+								scanner.eofPosition = scanner.source.length;
+							 	while(scanner.getNextCharAsJavaIdentifierPart()){/*empty*/}
+							 	scanner.eofPosition = temp;
+							}
 							lastIdentifierStart = scanner.startPosition;
 							lastIdentifierEnd = scanner.currentPosition - 1;
 							lastIdentifier = scanner.getCurrentTokenSource();
