@@ -793,4 +793,76 @@ public void testBug151189_Project() throws CoreException {
 		deleteProject("P2");
 	}
 }
+
+/**
+ * @bug 163072: [search] method reference reports wrong potential matches
+ * @test Ensure that there's no potential match while searching in two projects having 1.4 and 1.5 compliances
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=163072"
+ */
+public void testONLY_Bug163072() throws CoreException {
+	try {
+		// setup project P1
+		/*IJavaProject p1 = */createJavaProject("P1"); // standard project using 1.4 compliance
+		createFolder("/P1/test");
+		createFile(
+			"/P1/test/Test.java",
+			"package test;\n" + 
+			"public class Test {\n" + 
+			"	public Object getType() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public void foo() {\n" + 
+			"		if (getType() == null) {\n" + 
+			"			System.out.println(\"null\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+
+		// setup project P2
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL15_LIB"}, new String[] { "/P1" }, "", "1.5");
+		createFolder("/P2/pack");
+		createFile(
+			"/P2/pack/FactoryContainer.java",
+			"package pack;\n" + 
+			"public class FactoryContainer {\n" + 
+			"	public enum FactoryType { PLUGIN }\n" + 
+			"	public FactoryType getType() {\n" + 
+			"		return FactoryType.PLUGIN;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		createFile(
+			"/P2/pack/Reference.java",
+			"package pack;\n" + 
+			"public class Reference {\n" + 
+			"	private final FactoryContainer _fc;\n" + 
+			"	public Reference() {\n" + 
+			"		_fc = new FactoryContainer();\n" + 
+			"	}\n" + 
+			"	boolean foo() {\n" + 
+			"		return _fc.getType() == FactoryContainer.FactoryType.PLUGIN;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+
+		// Get method
+		IMethod method = getCompilationUnit("/P1/test/Test.java").getType("Test").getMethod("getType", new String[0]);
+		assertTrue("Method 'Test.getType()' should exist!", method.exists());
+
+		// search method declaration in workspace scope
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); //JavaSearchScope(new IJavaElement[] {p1, p2});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		resultCollector.showAccuracy = true;
+		search(method, REFERENCES, scope, resultCollector);
+		assertSearchResults(
+			"Unexpected references of method Test.getType()",
+			"test/Test.java [in P1] void test.Test.foo() [getType()] EXACT_MATCH",
+			resultCollector);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
 }

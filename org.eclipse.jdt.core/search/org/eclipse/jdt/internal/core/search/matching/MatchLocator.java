@@ -375,6 +375,12 @@ public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestrict
 			throw e; // want to abort enclosing request to compile
 		}
 	}
+	// Display unit error in debug mode
+	if (BasicSearchEngine.VERBOSE) {
+		if (unitResult.problemCount > 0) {
+			System.out.println(unitResult);
+		}
+	}
 }
 /**
  * Add additional source types
@@ -948,6 +954,10 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, this.nameEnvironment);
 
 	this.parser = MatchLocatorParser.createParser(problemReporter, this);
+	
+	// basic parser needs also to be reset as project options may have changed
+	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=163072
+	this.basicParser = null;
 
 	// remember project's name lookup
 	this.nameLookup = searchableEnvironment.nameLookup;
