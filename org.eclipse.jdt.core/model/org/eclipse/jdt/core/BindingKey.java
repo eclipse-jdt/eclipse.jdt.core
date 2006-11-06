@@ -182,7 +182,21 @@ public final class BindingKey {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Returns the thrown exception signatures of the element represented by this binding key.
+	 * If this binding key does not  represent a method or does not throw any exception,
+	 * returns an empty array.
+	 * 
+	 * @return the thrown exceptions signatures
+	 * @since 3.3
+	 */
+	public String[] getThrownExceptions() {
+		KeyToSignature keyToSignature = new KeyToSignature(this.key, KeyToSignature.THROWN_EXCEPTIONS);
+		keyToSignature.parse();
+		return keyToSignature.getThrownExceptions();
+	}
+
 	/**
 	 * Returns the type argument signatures of the element represented by this binding key.
 	 * If this binding key doesn't represent a parameterized type or a parameterized method,

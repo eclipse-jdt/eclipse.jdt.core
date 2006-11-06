@@ -1690,4 +1690,57 @@ public void test073() throws CoreException, IOException {
 		deleteProject("P072");
 	}
 }	
+
+/**
+ * @bug 155003: [model] Missing exception types / wrong signature?
+ * @test Ensure that thrown exceptions are added in method unique key (not in signature)
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=155003"
+ */
+public void test074_Bug155003() throws CoreException {
+	assertBindingCreated(
+		new String[] {
+			"/P/X.java",
+			"public class X {\n" + 
+			"    public void foo() throws InterruptedException, IllegalMonitorStateException {\n" + 
+			"    }\n" + 
+			"    void test() throws InterruptedException, IllegalMonitorStateException {\n" + 
+			"    	/*start*/foo()/*end*/;\n" + 
+			"    }\n" + 
+			"}",
+		},
+		"LX;.foo()V|Ljava/lang/InterruptedException;|Ljava/lang/IllegalMonitorStateException;"
+	);
+}
+public void test075_Bug155003() throws CoreException {
+	assertBindingCreated(
+		new String[] {
+			"/P/X.java",
+			"public class X<T> {\n" + 
+			"	<U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	void test() throws Exception {\n" + 
+			"		/*start*/foo(this)/*end*/;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"LX<LX;:TT;>;.foo<U:Ljava/lang/Exception;>(LX<TT;>;)LX<TT;>;^Ljava/lang/RuntimeException;^TU;%<Ljava/lang/Exception;>"
+	);
+}
+public void test076_Bug155003() throws CoreException {
+	assertBindingCreated(
+		new String[] {
+			"/P/X.java",
+			"public class X<T> {\n" + 
+			"	<K, V> V bar(K key, V value) throws Exception {\n" + 
+			"		return value;\n" + 
+			"	}\n" + 
+			"	void test() throws Exception {\n" + 
+			"		/*start*/bar(\"\", \"\")/*end*/;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"LX<LX;:TT;>;.bar<K:Ljava/lang/Object;V:Ljava/lang/Object;>(TK;TV;)TV;|Ljava/lang/Exception;%<Ljava/lang/String;Ljava/lang/String;>"
+	);
+}
 }

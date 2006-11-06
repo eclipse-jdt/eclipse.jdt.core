@@ -186,6 +186,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 		this.typeBinding = captureFinder.capture;
 	}
 	
+	public void consumeException() {
+		this.types = new ArrayList();
+	}
+
 	public void consumeField(char[] fieldName) {
 		FieldBinding[] fields = ((ReferenceBinding) this.typeBinding).fields();
 	 	for (int i = 0, length = fields.length; i < length; i++) {

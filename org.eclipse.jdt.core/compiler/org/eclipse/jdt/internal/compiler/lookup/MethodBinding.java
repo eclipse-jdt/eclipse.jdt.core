@@ -320,10 +320,26 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	
 	// generic signature
 	char[] sig = genericSignature();
-	if (sig == null) sig = signature();
+	boolean isGeneric = sig != null;
+	if (!isGeneric) sig = signature();
 	int signatureLength = sig.length;
 	
-	char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength];
+	// thrown exceptions
+	int thrownExceptionsLength = this.thrownExceptions.length;
+	int thrownExceptionsSignatureLength = 0;
+	char[][] thrownExceptionsSignatures = null;
+	boolean addThrownExceptions = thrownExceptionsLength > 0 && (!isGeneric || CharOperation.lastIndexOf('^', sig) < 0);
+	if (addThrownExceptions) {
+		thrownExceptionsSignatures = new char[thrownExceptionsLength][];
+		for (int i = 0; i < thrownExceptionsLength; i++) {
+			if (this.thrownExceptions[i] != null) {
+				thrownExceptionsSignatures[i] = this.thrownExceptions[i].signature();
+				thrownExceptionsSignatureLength += thrownExceptionsSignatures[i].length + 1;	// add one char for separator
+			}
+		}
+	}
+	
+	char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength + thrownExceptionsSignatureLength];
 	int index = 0;
 	System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
 	index = declaringLength;
@@ -331,7 +347,19 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	System.arraycopy(this.selector, 0, uniqueKey, index, selectorLength);
 	index += selectorLength;
 	System.arraycopy(sig, 0, uniqueKey, index, signatureLength);
-	//index += signatureLength;
+	if (thrownExceptionsSignatureLength > 0) {
+		index += signatureLength;
+		for (int i = 0; i < thrownExceptionsLength; i++) {
+			char[] thrownExceptionSignature = thrownExceptionsSignatures[i];
+			if (thrownExceptionSignature != null) {
+				uniqueKey[index++] = '|';
+				int length = thrownExceptionSignature.length;
+				System.arraycopy(thrownExceptionSignature, 0, uniqueKey, index, length);
+				index += length;
+			}
+		}
+	}
+
 	return uniqueKey;
 }
 /* 

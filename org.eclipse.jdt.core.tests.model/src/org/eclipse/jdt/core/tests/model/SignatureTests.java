@@ -505,6 +505,21 @@ public void testGetThrownExceptionTypes() {
 
 }
 /**
+ * @bug 155003: [model] Missing exception types / wrong signature?
+ * @test Ensure that thrown exceptions are well decoded when added at the end of the signature
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=155003"
+ */
+public void testGetThrownExceptions_Bug155003() throws JavaModelException {
+	String methodSig = "()Ljava.lang.Object;^Ljava.lang.InstantiationException;^Ljava.lang.IllegalAccessException;";
+	assertStringsEqual("Signature#Bug155003#1 is not correct",
+		"Ljava.lang.InstantiationException;\nLjava.lang.IllegalAccessException;\n",
+		Signature.getThrownExceptionTypes(methodSig));
+	methodSig = "()V"; // no change when no thrown exceptions
+	assertStringsEqual("Signature#Bug155003#2 is not correct",
+		"",
+		Signature.getThrownExceptionTypes(methodSig));
+}
+/**
  * @see Signature
  * @since 3.0
  */
