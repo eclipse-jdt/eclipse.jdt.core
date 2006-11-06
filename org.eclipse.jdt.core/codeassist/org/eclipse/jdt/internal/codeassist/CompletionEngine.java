@@ -1280,6 +1280,20 @@ public final class CompletionEngine
 			if (!this.requestor.isIgnored(CompletionProposal.VARIABLE_DECLARATION)) {
 				LocalDeclaration variable = (LocalDeclaration) astNode;
 				
+				int kind;
+				if (variable instanceof CompletionOnLocalName){
+					this.completionToken = ((CompletionOnLocalName) variable).realName;
+					kind = LOCAL;
+				} else {
+					CompletionOnArgumentName arg = (CompletionOnArgumentName) variable;
+					this.completionToken = arg.realName;
+					kind = arg.isCatchArgument ? LOCAL : ARGUMENT;
+				}
+				
+				char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, variable);
+				
+				char[][] forbiddenNames = findVariableFromUnresolvedReference(variable, (BlockScope)scope, alreadyDefinedName);
+				
 				LocalVariableBinding[] locals = ((BlockScope)scope).locals;
 				char[][] discouragedNames = new char[locals.length][];
 				int localCount = 0;
@@ -1288,18 +1302,10 @@ public final class CompletionEngine
 						discouragedNames[localCount++] = locals[i].name;
 					}
 				}
+				
 				System.arraycopy(discouragedNames, 0, discouragedNames = new char[localCount][], 0, localCount);
 				
-				if (variable instanceof CompletionOnLocalName){
-					this.completionToken = ((CompletionOnLocalName) variable).realName;
-					char[][] forbiddenNames = findVariableFromUnresolvedReference(variable, (BlockScope)scope, discouragedNames);
-					findVariableNames(this.completionToken, variable.type, discouragedNames, forbiddenNames, LOCAL, variable.modifiers);
-				} else {
-					CompletionOnArgumentName arg = (CompletionOnArgumentName) variable;
-					this.completionToken = arg.realName;
-					char[][] forbiddenNames = findVariableFromUnresolvedReference(variable, (BlockScope)scope, discouragedNames);
-					findVariableNames(this.completionToken, variable.type, discouragedNames, forbiddenNames, arg.isCatchArgument ? LOCAL : ARGUMENT, variable.modifiers);
-				}
+				findVariableNames(this.completionToken, variable.type, discouragedNames, forbiddenNames, kind, variable.modifiers);
 			}
 		} else if (astNode instanceof CompletionOnKeyword) {
 			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
@@ -6497,6 +6503,156 @@ public final class CompletionEngine
 			this.endPosition = end + 1;
 		}
 	}
+	private char[][] computeAlreadyDefinedName(
+			BlockScope scope,
+			InvocationSite invocationSite) {
+		ArrayList result = new ArrayList();
+		
+		boolean staticsOnly = false;
+
+		Scope currentScope = scope;
+
+		done1 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
+
+			switch (currentScope.kind) {
+
+				case Scope.METHOD_SCOPE :
+					// handle the error case inside an explicit constructor call (see MethodScope>>findField)
+					MethodScope methodScope = (MethodScope) currentScope;
+					staticsOnly |= methodScope.isStatic | methodScope.isConstructorCall;
+
+				case Scope.BLOCK_SCOPE :
+					BlockScope blockScope = (BlockScope) currentScope;
+
+					next : for (int i = 0, length = blockScope.locals.length; i < length; i++) {
+						LocalVariableBinding local = blockScope.locals[i];
+
+						if (local == null)
+							break next;
+
+						if (local.isSecret())
+							continue next;
+
+						result.add(local.name);
+					}
+					break;
+
+				case Scope.CLASS_SCOPE :
+					ClassScope classScope = (ClassScope) currentScope;
+					SourceTypeBinding enclosingType = classScope.referenceContext.binding;
+					computeAlreadyDefinedName(
+							enclosingType,
+							classScope,
+							staticsOnly,
+							invocationSite,
+							result);
+					staticsOnly |= enclosingType.isStatic();
+					break;
+					
+				case Scope.COMPILATION_UNIT_SCOPE :
+					break done1;
+			}
+			currentScope = currentScope.parent;
+		}
+		
+		if (result.size() == 0) return CharOperation.NO_CHAR_CHAR;
+		
+		return (char[][])result.toArray(new char[result.size()][]);
+	}
+
+	private void computeAlreadyDefinedName(
+			SourceTypeBinding receiverType,
+			ClassScope scope,
+			boolean onlyStaticFields,
+			InvocationSite invocationSite,
+			ArrayList result) {
+
+		ReferenceBinding currentType = receiverType;
+		ReferenceBinding[] interfacesToVisit = null;
+		int nextPosition = 0;
+		do {
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+				if (interfacesToVisit == null) {
+					interfacesToVisit = itsInterfaces;
+					nextPosition = interfacesToVisit.length;
+				} else {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
+			}
+
+			FieldBinding[] fields = currentType.availableFields();
+			if(fields != null && fields.length > 0) {
+				computeAlreadyDefinedName(
+					fields,
+					scope,
+					onlyStaticFields,
+					receiverType,
+					invocationSite,
+					result);
+			}
+			currentType = currentType.superclass();
+		} while ( currentType != null);
+
+		if (interfacesToVisit != null) {
+			for (int i = 0; i < nextPosition; i++) {
+				ReferenceBinding anInterface = interfacesToVisit[i];
+				FieldBinding[] fields = anInterface.availableFields();
+				if(fields !=  null) {
+					computeAlreadyDefinedName(
+						fields,
+						scope,
+						onlyStaticFields,
+						receiverType,
+						invocationSite,
+						result);
+				}
+
+				ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
+				if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
+					int itsLength = itsInterfaces.length;
+					if (nextPosition + itsLength >= interfacesToVisit.length)
+						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
+					nextInterface : for (int a = 0; a < itsLength; a++) {
+						ReferenceBinding next = itsInterfaces[a];
+						for (int b = 0; b < nextPosition; b++)
+							if (next == interfacesToVisit[b]) continue nextInterface;
+						interfacesToVisit[nextPosition++] = next;
+					}
+				}
+			}
+		}
+	}
+	
+	private void computeAlreadyDefinedName(
+			FieldBinding[] fields,
+			Scope scope,
+			boolean onlyStaticFields,
+			ReferenceBinding receiverType,
+			InvocationSite invocationSite,
+			ArrayList result) {
+		
+		next : for (int f = fields.length; --f >= 0;) {			
+			FieldBinding field = fields[f];
+
+			if (field.isSynthetic()) continue next;
+			
+			if (onlyStaticFields && !field.isStatic()) continue next;
+			
+			if (!field.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+
+			result.add(field.name);
+		}
+	}
+	
 	int computeBaseRelevance(){
 		return R_DEFAULT;
 	}
