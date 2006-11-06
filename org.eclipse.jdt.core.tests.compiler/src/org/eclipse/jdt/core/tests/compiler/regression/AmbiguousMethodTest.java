@@ -1155,8 +1155,9 @@ public void test027() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
-public void _test028() {
-	this.runNegativeTest(
+// **
+public void test028() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"interface Irrelevant {}\n" + 
@@ -1171,16 +1172,17 @@ public void _test028() {
 			"}\n" + 
 			"public abstract class X implements J, K {\n" + 
 			"  void foo() {\n" + 
-			"    foo(0.0f);\n" + // ambiguous 
+			"    foo(0.0f);\n" + 
 			"  }\n" + 
 			"}"
 		},
-		"ERROR");
+		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - simplified
-public void _test029() {
-	this.runNegativeTest(
+// **
+public void test029() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"interface J {\n" + 
@@ -1191,11 +1193,11 @@ public void _test029() {
 			"}\n" + 
 			"public abstract class X implements J, K {\n" + 
 			"  void foo() {\n" + 
-			"    foo(0.0f);\n" + // ambiguous 
+			"    foo(0.0f);\n" + 
 			"  }\n" + 
 			"}"
 		},
-		"ERROR");
+		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - same return type
@@ -1219,8 +1221,9 @@ public void test030() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant
-public void _test031() {
-	this.runNegativeTest(
+// **
+public void test031() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"interface Irrelevant {}\n" + 
@@ -1235,11 +1238,11 @@ public void _test031() {
 			"}\n" + 
 			"public abstract class X implements Irrelevant, I, J, K {\n" + 
 			"  void foo() {\n" + 
-			"    foo(0.0f);\n" + // ambiguous 
+			"    foo(0.0f);\n" +
 			"  }\n" + 
 			"}"
 		},
-		"ERROR");
+		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
 public void _test032() {
@@ -1337,8 +1340,9 @@ public void test035() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - extending instead of implementing
-public void _test037() {
-	this.runNegativeTest(
+// **
+public void test037() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"interface I {\n" + 
@@ -1349,16 +1353,17 @@ public void _test037() {
 			"}\n" + 
 			"public abstract class X extends J implements I {\n" + 
 			"  void bar() {\n" + 
-			"    foo(0.0f);\n" + // ambiguous
+			"    foo(0.0f);\n" +
 			"  }\n" + 
 			"}"
 		},
-		"ERR");
+		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - no promotion of parameter from float to Number
-public void _test038() {
-	this.runNegativeTest(
+// **
+public void test038() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"interface I {\n" + 
@@ -1369,11 +1374,11 @@ public void _test038() {
 			"}\n" + 
 			"public abstract class X extends J implements I {\n" + 
 			"  void bar() {\n" + 
-			"    foo(0.0f);\n" + // ambiguous
+			"    foo(0.0f);\n" +
 			"  }\n" + 
 			"}"
 		},
-		"ERR");
+		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - an explicit cast solves the issue
@@ -1442,7 +1447,8 @@ public void test041() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - a further inheriting class implements String foo
-public void _test042() {
+// **
+public void test042() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1454,16 +1460,17 @@ public void _test042() {
 			"}\n" + 
 			"public abstract class X extends J implements I {\n" + 
 			"  void bar() {\n" + 
-			"    foo(0.0f);\n" + // ambiguous 
+			"    foo(0.0f);\n" +
 			"  }\n" + 
 			"}\n" + 
-			"class Z extends X {\n" + 
+			"class Z extends X {\n" +
+			"  @Override" + 
 			"  public String foo(float f) {\n" + 
 			"    return null;\n" + 
 			"  }\n" + 
 			"}"
 		},
-		"ERR");
+		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 // variant - a further inheriting class implements Object foo
