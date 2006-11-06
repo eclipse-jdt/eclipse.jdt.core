@@ -40,8 +40,7 @@ public final class JavaConventions {
 
 	private static final char DOT= '.';
 	private static final String PACKAGE_INFO = new String(TypeConstants.PACKAGE_INFO_NAME);
-	private static final Scanner[] SCANNERS = new Scanner[5];
-	private static final int[][] MAP_INDEXES = { { 0 }, { 0, 1 }, { 2, 3, 4 }, { 2, 3, 4, 4 } };
+	private static final Scanner SCANNER = new Scanner();
 	
 	private JavaConventions() {
 		// Not instantiable
@@ -88,41 +87,24 @@ public final class JavaConventions {
 			return null;
 		}
 
-		// Get scanner for given source and compliance levels
-		long lSourceLevel = CompilerOptions.versionToJdkLevel(sourceLevel);
-		long lComplianceLevel = CompilerOptions.versionToJdkLevel(complianceLevel);	
-		int sourceIndex = ((int)(lSourceLevel>>> 16)) - ClassFileConstants.MAJOR_VERSION_1_3 ;
-		int complianceIndex = ((int)(lComplianceLevel >>> 16)) - ClassFileConstants.MAJOR_VERSION_1_3;
-		if (complianceIndex < 0) complianceIndex = 0;
-		if (sourceIndex < 0) sourceIndex = 0;
-		if (sourceIndex > complianceIndex) sourceIndex = complianceIndex;
-		int index = MAP_INDEXES[complianceIndex][sourceIndex];
-		if (SCANNERS[index] == null) {
-			SCANNERS[index] = new Scanner(
-					false /*comment*/,
-					false /*whitespace*/,
-					false /*nls*/,
-					lSourceLevel,
-					lComplianceLevel,
-					null/*taskTag*/,
-					null/*taskPriorities*/,
-					true /*taskCaseSensitive*/);
-		}
-		Scanner scanner = SCANNERS[index];
+		// Set scanner for given source and compliance levels
+		SCANNER.sourceLevel = sourceLevel == null ? ClassFileConstants.JDK1_3 : CompilerOptions.versionToJdkLevel(sourceLevel);
+		SCANNER.complianceLevel = complianceLevel == null ? ClassFileConstants.JDK1_3 : CompilerOptions.versionToJdkLevel(complianceLevel);	
 
+		// Read identifier
 		try {
-			scanner.setSource(id.toCharArray());
-			int token = scanner.getNextToken();
+			SCANNER.setSource(id.toCharArray());
+			int token = SCANNER.getNextToken();
 			char[] currentIdentifier;
 			try {
-				currentIdentifier = scanner.getCurrentIdentifierSource();
+				currentIdentifier = SCANNER.getCurrentIdentifierSource();
 			} catch (ArrayIndexOutOfBoundsException e) {
 				return null;
 			}
-			int nextToken= scanner.getNextToken();
+			int nextToken= SCANNER.getNextToken();
 			if (token == TerminalTokens.TokenNameIdentifier 
 				&& nextToken == TerminalTokens.TokenNameEOF
-				&& scanner.startPosition == scanner.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
+				&& SCANNER.startPosition == SCANNER.source.length) { // to handle case where we had an ArrayIndexOutOfBoundsException 
 																     // while reading the last token
 				return currentIdentifier;
 			} else {

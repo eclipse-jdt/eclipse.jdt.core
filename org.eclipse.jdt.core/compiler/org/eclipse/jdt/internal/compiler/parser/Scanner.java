@@ -34,8 +34,8 @@ public class Scanner implements TerminalTokens {
 	 - sourceStart gives the position into the stream
 	 - currentPosition-1 gives the sourceEnd position into the stream 
 	*/
-	protected long sourceLevel;
-	protected long complianceLevel;
+	public long sourceLevel;
+	public long complianceLevel;
 
 	// 1.4 feature 
 	public boolean useAssertAsAnIndentifier = false;

@@ -1227,17 +1227,20 @@ public class DeltaProcessor {
 					return NON_JAVA_RESOURCE;
 				}
 				if (res.getType() == IResource.FOLDER) {
-					if (parentType == NON_JAVA_RESOURCE && !Util.isExcluded(res.getParent(), rootInfo.inclusionPatterns, rootInfo.exclusionPatterns))
+					if (parentType == NON_JAVA_RESOURCE && !Util.isExcluded(res.getParent(), rootInfo.inclusionPatterns, rootInfo.exclusionPatterns)) {
 						// parent is a non-Java resource because it doesn't have a valid package name (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=130982)
 						return NON_JAVA_RESOURCE;
-					if (Util.isValidFolderNameForPackage(res.getName(), rootInfo.project.getOption(JavaCore.COMPILER_SOURCE, true), rootInfo.project.getOption(JavaCore.COMPILER_COMPLIANCE, true))) {
+					}
+					String sourceLevel = rootInfo.project == null ? null : rootInfo.project.getOption(JavaCore.COMPILER_SOURCE, true);
+					String complianceLevel = rootInfo.project == null ? null : rootInfo.project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+					if (Util.isValidFolderNameForPackage(res.getName(), sourceLevel, complianceLevel)) {
 						return IJavaElement.PACKAGE_FRAGMENT;
 					}
 					return NON_JAVA_RESOURCE;
 				}
 				String fileName = res.getName();
-				String sourceLevel = rootInfo.project.getOption(JavaCore.COMPILER_SOURCE, true);
-				String complianceLevel = rootInfo.project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+				String sourceLevel = rootInfo.project == null ? null : rootInfo.project.getOption(JavaCore.COMPILER_SOURCE, true);
+				String complianceLevel = rootInfo.project == null ? null : rootInfo.project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 				if (Util.isValidCompilationUnitName(fileName, sourceLevel, complianceLevel)) {
 					return IJavaElement.COMPILATION_UNIT;
 				} else if (Util.isValidClassFileName(fileName, sourceLevel, complianceLevel)) {
@@ -1442,11 +1445,7 @@ public class DeltaProcessor {
 								javaProject = rootInfo == null ?
 									(JavaProject)this.createElement(res.getProject(), IJavaElement.JAVA_PROJECT, null) :
 									rootInfo.project;
-								if (javaProject == null) {
-									// Cannot get any project => use workspace options
-									sourceLevel = this.manager.getOption(JavaCore.COMPILER_SOURCE);
-									complianceLevel = this.manager.getOption(JavaCore.COMPILER_COMPLIANCE);
-								} else {
+								if (javaProject != null) {
 									sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
 									complianceLevel = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 								}
