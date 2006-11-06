@@ -20,7 +20,7 @@ public class ExternalizeStringLiterals15Test extends AbstractRegressionTest {
 
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 3 };
+//	TESTS_NUMBERS = new int[] { 6 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public ExternalizeStringLiterals15Test(String name) {
@@ -81,6 +81,21 @@ public void test002() {
 		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" + 
 		"	                                  ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	String s5 = \"test3\";\n" + 
+		"	            ^^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	String s6 = \"test4\";\n" + 
+		"	            ^^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
+		"	System.out.println(\"test5\");\n" + 
+		"	                   ^^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
 		null,
 		true,
@@ -110,6 +125,21 @@ public void test003() {
 		"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" + 
 		"	                                  ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	String s5 = null;//$NON-NLS-1$\n" + 
+		"	                 ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	String s6 = \"test4\";\n" + 
+		"	            ^^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
+		"	System.out.println(\"test5\");\n" + 
+		"	                   ^^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
 		null,
 		true,
@@ -143,6 +173,53 @@ public void test004() {
 		null,
 		true,
 		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162903
+public void test005() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" +
+			"	@SuppressWarnings(\"nls\")\n" +
+			"	void foo() {\n" +
+			"		String s6 = \"SUCCESS\";\n" +
+			"		System.out.println(s6);\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	String s6 = \"SUCCESS\";\n" + 
+		"	            ^^^^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162903
+public void test006() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	@SuppressWarnings(\"nls\")\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s6 = \"SUCCESS\";\n" +
+			"		System.out.println(s6);\n" +
+			"	}\n" +
+			"}",
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
 }
 public static Class testClass() {
 	return ExternalizeStringLiterals15Test.class;

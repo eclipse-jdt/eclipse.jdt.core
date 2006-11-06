@@ -142,13 +142,7 @@ public void discardSuppressedWarnings() {
 		CategorizedProblem problem = this.problems[i];
 		int problemID = problem.getID();
 		if (!problem.isWarning()) {
-			switch (problemID) {
-				case IProblem.NonExternalizedStringLiteral :
-				case IProblem.UnnecessaryNLSTag :
-					break;
-				default :
-					continue nextProblem;
-			}
+			continue nextProblem;
 		}
 		int start = problem.getSourceStart();
 		int end = problem.getSourceEnd();
