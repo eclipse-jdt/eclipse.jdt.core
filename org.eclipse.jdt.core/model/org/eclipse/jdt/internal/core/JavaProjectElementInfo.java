@@ -123,58 +123,63 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		int resourcesCounter = 0;
 		try {
 			IResource[] members = ((IContainer) project.getResource()).members();
-			for (int i = 0, max = members.length; i < max; i++) {
-				IResource res = members[i];
-				switch (res.getType()) {
-					case IResource.FILE :
-						IPath resFullPath = res.getFullPath();
-						String resName = res.getName();
+			int length = members.length;
+			if (length > 0) {
+				String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+				String complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+				for (int i = 0; i < length; i++) {
+					IResource res = members[i];
+					switch (res.getType()) {
+						case IResource.FILE :
+							IPath resFullPath = res.getFullPath();
+							String resName = res.getName();
 						
-						// ignore a jar file on the classpath
-						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resName) && this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
+							// ignore a jar file on the classpath
+							if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resName) && this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
+								break;
+							}
+							// ignore .java file if src == project
+							if (srcIsProject 
+									&& Util.isValidCompilationUnitName(resName, sourceLevel, complianceLevel)
+									&& !Util.isExcluded(res, inclusionPatterns, exclusionPatterns)) {
+								break;
+							}
+							// ignore .class file if bin == project
+							if (binIsProject && Util.isValidClassFileName(resName, sourceLevel, complianceLevel)) {
+								break;
+							}
+							// else add non java resource
+							if (resources.length == resourcesCounter) {
+								// resize
+								System.arraycopy(
+										resources,
+										0,
+										(resources = new IResource[resourcesCounter * 2]),
+										0,
+										resourcesCounter);
+							}
+							resources[resourcesCounter++] = res;
 							break;
-						}
-						// ignore .java file if src == project
-						if (srcIsProject 
-							&& Util.isValidCompilationUnitName(resName)
-							&& !Util.isExcluded(res, inclusionPatterns, exclusionPatterns)) {
-							break;
-						}
-						// ignore .class file if bin == project
-						if (binIsProject && Util.isValidClassFileName(resName)) {
-							break;
-						}
-						// else add non java resource
-						if (resources.length == resourcesCounter) {
-							// resize
-							System.arraycopy(
-								resources,
-								0,
-								(resources = new IResource[resourcesCounter * 2]),
-								0,
-								resourcesCounter);
-						}
-						resources[resourcesCounter++] = res;
-						break;
-					case IResource.FOLDER :
-						resFullPath = res.getFullPath();
+						case IResource.FOLDER :
+							resFullPath = res.getFullPath();
 						
-						// ignore non-excluded folders on the classpath or that correspond to an output location
-						if ((srcIsProject && !Util.isExcluded(res, inclusionPatterns, exclusionPatterns) && Util.isValidFolderNameForPackage(res.getName()))
-								|| this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
-							break;
-						}
-						// else add non java resource
-						if (resources.length == resourcesCounter) {
-							// resize
-							System.arraycopy(
-								resources,
-								0,
-								(resources = new IResource[resourcesCounter * 2]),
-								0,
-								resourcesCounter);
-						}
-						resources[resourcesCounter++] = res;
+							// ignore non-excluded folders on the classpath or that correspond to an output location
+							if ((srcIsProject && !Util.isExcluded(res, inclusionPatterns, exclusionPatterns) && Util.isValidFolderNameForPackage(res.getName(), sourceLevel, complianceLevel))
+									|| this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
+								break;
+							}
+							// else add non java resource
+							if (resources.length == resourcesCounter) {
+								// resize
+								System.arraycopy(
+										resources,
+										0,
+										(resources = new IResource[resourcesCounter * 2]),
+										0,
+										resourcesCounter);
+							}
+							resources[resourcesCounter++] = res;
+					}
 				}
 			}
 			if (resources.length != resourcesCounter) {

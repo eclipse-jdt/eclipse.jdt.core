@@ -27,10 +27,12 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.ISourceManipulation;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -79,17 +81,23 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 		char[][] inclusionPatterns = root.fullInclusionPatternChars();
 		char[][] exclusionPatterns = root.fullExclusionPatternChars();
 		IResource[] members = ((IContainer) underlyingResource).members();
-		for (int i = 0, max = members.length; i < max; i++) {
-			IResource child = members[i];
-			if (child.getType() != IResource.FOLDER
-					&& !Util.isExcluded(child, inclusionPatterns, exclusionPatterns)) {
-				IJavaElement childElement;
-				if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName())) {
-					childElement = new CompilationUnit(this, child.getName(), DefaultWorkingCopyOwner.PRIMARY);
-					vChildren.add(childElement);
-				} else if (kind == IPackageFragmentRoot.K_BINARY && Util.isValidClassFileName(child.getName())) {
-					childElement = getClassFile(child.getName());
-					vChildren.add(childElement);
+		int length = members.length;
+		if (length > 0) {
+			IJavaProject project = getJavaProject();
+			String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+			String complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+			for (int i = 0; i < length; i++) {
+				IResource child = members[i];
+				if (child.getType() != IResource.FOLDER
+						&& !Util.isExcluded(child, inclusionPatterns, exclusionPatterns)) {
+					IJavaElement childElement;
+					if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName(), sourceLevel, complianceLevel)) {
+						childElement = new CompilationUnit(this, child.getName(), DefaultWorkingCopyOwner.PRIMARY);
+						vChildren.add(childElement);
+					} else if (kind == IPackageFragmentRoot.K_BINARY && Util.isValidClassFileName(child.getName(), sourceLevel, complianceLevel)) {
+						childElement = getClassFile(child.getName());
+						vChildren.add(childElement);
+					}
 				}
 			}
 		}

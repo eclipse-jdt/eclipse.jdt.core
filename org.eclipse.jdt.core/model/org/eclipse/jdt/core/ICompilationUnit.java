@@ -378,7 +378,7 @@ IPackageDeclaration[] getPackageDeclarations() throws JavaModelException;
  *
  * @param name the simple name of the requested type in the compilation unit
  * @return a handle onto the corresponding type. The type may or may not exist.
- * @see JavaConventions#validateCompilationUnitName(String name)
+ * @see JavaConventions#validateCompilationUnitName(String name, String sourceLevel, String complianceLevel)
  */
 IType getType(String name);
 /**

@@ -805,31 +805,36 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourcePath.lastSegment())
 					? project.getRawClasspath() // JAVA file can only live inside SRC folder (on the raw path)
 					: ((JavaProject)project).getResolvedClasspath();
-				
-			for (int i = 0; i < entries.length; i++) {
-				IClasspathEntry entry = entries[i];
-				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
-				IPath rootPath = entry.getPath();
-				if (rootPath.equals(resourcePath)) {
-					return project.getPackageFragmentRoot(resource);
-				} else if (rootPath.isPrefixOf(resourcePath)) {
-					// allow creation of package fragment if it contains a .java file that is included
-					if (!Util.isExcluded(resource, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars())) {
-						// given we have a resource child of the root, it cannot be a JAR pkg root
-						PackageFragmentRoot root =(PackageFragmentRoot) ((JavaProject) project).getFolderPackageFragmentRoot(rootPath);
-						if (root == null) return null;
-						IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
+			
+			int length	= entries.length;
+			if (length > 0) {
+				String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+				String complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+				for (int i = 0; i < length; i++) {
+					IClasspathEntry entry = entries[i];
+					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
+					IPath rootPath = entry.getPath();
+					if (rootPath.equals(resourcePath)) {
+						return project.getPackageFragmentRoot(resource);
+					} else if (rootPath.isPrefixOf(resourcePath)) {
+						// allow creation of package fragment if it contains a .java file that is included
+						if (!Util.isExcluded(resource, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars())) {
+							// given we have a resource child of the root, it cannot be a JAR pkg root
+							PackageFragmentRoot root =(PackageFragmentRoot) ((JavaProject) project).getFolderPackageFragmentRoot(rootPath);
+							if (root == null) return null;
+							IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
 	
-						if (resource.getType() == IResource.FILE) {
-							// if the resource is a file, then remove the last segment which
-							// is the file name in the package
-							pkgPath = pkgPath.removeLastSegments(1);
+							if (resource.getType() == IResource.FILE) {
+								// if the resource is a file, then remove the last segment which
+								// is the file name in the package
+								pkgPath = pkgPath.removeLastSegments(1);
+							}
+							String[] pkgName = pkgPath.segments();
+							if (pkgName.length != 0 && JavaConventions.validatePackageName(Util.packageName(pkgPath, sourceLevel, complianceLevel), sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR) {
+								return null;
+							}
+							return root.getPackageFragment(pkgName);
 						}
-						String[] pkgName = pkgPath.segments();
-						if (pkgName.length != 0 && JavaConventions.validatePackageName(Util.packageName(pkgPath)).getSeverity() == IStatus.ERROR) {
-							return null;
-						}
-						return root.getPackageFragment(pkgName);
 					}
 				}
 			}

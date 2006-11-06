@@ -1277,6 +1277,7 @@ public class Util {
 		return isExcluded(path, inclusionPatterns, exclusionPatterns, resourceType == IResource.FOLDER || resourceType == IResource.PROJECT);
 	}
 
+
 	/**
 	 * Validate the given .class file name.
 	 * A .class file name must obey the following rules:
@@ -1287,13 +1288,16 @@ public class Util {
 	 * </ul>
 	 * </p>
 	 * @param name the name of a .class file
+	 * @param sourceLevel the source level
+	 * @param complianceLevel the compliance level
 	 * @return a status object with code <code>IStatus.OK</code> if
 	 *		the given name is valid as a .class file name, otherwise a status 
 	 *		object indicating what is wrong with the name
 	 */
-	public static boolean isValidClassFileName(String name) {
-		return JavaConventions.validateClassFileName(name).getSeverity() != IStatus.ERROR;
+	public static boolean isValidClassFileName(String name, String sourceLevel, String complianceLevel) {
+		return JavaConventions.validateClassFileName(name, sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR;
 	}
+
 
 	/**
 	 * Validate the given compilation unit name.
@@ -1305,20 +1309,25 @@ public class Util {
 	 * </ul>
 	 * </p>
 	 * @param name the name of a compilation unit
+	 * @param sourceLevel the source level
+	 * @param complianceLevel the compliance level
 	 * @return a status object with code <code>IStatus.OK</code> if
 	 *		the given name is valid as a compilation unit name, otherwise a status 
 	 *		object indicating what is wrong with the name
 	 */
-	public static boolean isValidCompilationUnitName(String name) {
-		return JavaConventions.validateCompilationUnitName(name).getSeverity() != IStatus.ERROR;
+	public static boolean isValidCompilationUnitName(String name, String sourceLevel, String complianceLevel) {
+		return JavaConventions.validateCompilationUnitName(name, sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR;
 	}
-	
+
 	/**
 	 * Returns true if the given folder name is valid for a package,
 	 * false if it is not.
+	 * @param folderName the name of the folder
+	 * @param sourceLevel the source level
+	 * @param complianceLevel the compliance level
 	 */
-	public static boolean isValidFolderNameForPackage(String folderName) {
-		return JavaConventions.validateIdentifier(folderName).getSeverity() != IStatus.ERROR;
+	public static boolean isValidFolderNameForPackage(String folderName, String sourceLevel, String complianceLevel) {
+		return JavaConventions.validateIdentifier(folderName, sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR;
 	}	
 
 	/**
@@ -1467,12 +1476,15 @@ public class Util {
 	/**
 	 * Converts the given relative path into a package name.
 	 * Returns null if the path is not a valid package name.
+	 * @param pkgPath the package path
+	 * @param sourceLevel the source level
+	 * @param complianceLevel the compliance level
 	 */
-	public static String packageName(IPath pkgPath) {
+	public static String packageName(IPath pkgPath, String sourceLevel, String complianceLevel) {
 		StringBuffer pkgName = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
 		for (int j = 0, max = pkgPath.segmentCount(); j < max; j++) {
 			String segment = pkgPath.segment(j);
-			if (!isValidFolderNameForPackage(segment)) {
+			if (!isValidFolderNameForPackage(segment, sourceLevel, complianceLevel)) {
 				return null;
 			}
 			pkgName.append(segment);

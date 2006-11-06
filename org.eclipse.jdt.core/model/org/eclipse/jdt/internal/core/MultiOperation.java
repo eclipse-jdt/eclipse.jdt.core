@@ -266,23 +266,25 @@ public abstract class MultiOperation extends JavaModelOperation {
 	protected void verifyRenaming(IJavaElement element) throws JavaModelException {
 		String newName = getNewNameFor(element);
 		boolean isValid = true;
-	
+	    IJavaProject project = element.getJavaProject();
+	    String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+	    String complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		switch (element.getElementType()) {
 			case IJavaElement.PACKAGE_FRAGMENT :
 				if (((IPackageFragment) element).isDefaultPackage()) {
 					// don't allow renaming of default package (see PR #1G47GUM)
 					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, element));
 				}
-				isValid = JavaConventions.validatePackageName(newName).getSeverity() != IStatus.ERROR;
+				isValid = JavaConventions.validatePackageName(newName, sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR;
 				break;
 			case IJavaElement.COMPILATION_UNIT :
-				isValid = JavaConventions.validateCompilationUnitName(newName).getSeverity() != IStatus.ERROR;
+				isValid = JavaConventions.validateCompilationUnitName(newName,sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR;
 				break;
 			case IJavaElement.INITIALIZER :
 				isValid = false; //cannot rename initializers
 				break;
 			default :
-				isValid = JavaConventions.validateIdentifier(newName).getSeverity() != IStatus.ERROR;
+				isValid = JavaConventions.validateIdentifier(newName, sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR;
 				break;
 		}
 	

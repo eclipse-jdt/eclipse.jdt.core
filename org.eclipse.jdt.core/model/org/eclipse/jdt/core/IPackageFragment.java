@@ -100,7 +100,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * 
 	 * @param name the given name
 	 * @return the compilation unit with the specified name in this package
-	 * @see JavaConventions#validateCompilationUnitName(String)
+	 * @see JavaConventions#validateCompilationUnitName(String name, String sourceLevel, String complianceLevel)
 	 */
 	ICompilationUnit getCompilationUnit(String name);
 	/**

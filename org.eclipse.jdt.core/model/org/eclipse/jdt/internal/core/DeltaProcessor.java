@@ -1230,15 +1230,17 @@ public class DeltaProcessor {
 					if (parentType == NON_JAVA_RESOURCE && !Util.isExcluded(res.getParent(), rootInfo.inclusionPatterns, rootInfo.exclusionPatterns))
 						// parent is a non-Java resource because it doesn't have a valid package name (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=130982)
 						return NON_JAVA_RESOURCE;
-					if (Util.isValidFolderNameForPackage(res.getName())) {
+					if (Util.isValidFolderNameForPackage(res.getName(), rootInfo.project.getOption(JavaCore.COMPILER_SOURCE, true), rootInfo.project.getOption(JavaCore.COMPILER_COMPLIANCE, true))) {
 						return IJavaElement.PACKAGE_FRAGMENT;
 					}
 					return NON_JAVA_RESOURCE;
 				}
 				String fileName = res.getName();
-				if (Util.isValidCompilationUnitName(fileName)) {
+				String sourceLevel = rootInfo.project.getOption(JavaCore.COMPILER_SOURCE, true);
+				String complianceLevel = rootInfo.project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+				if (Util.isValidCompilationUnitName(fileName, sourceLevel, complianceLevel)) {
 					return IJavaElement.COMPILATION_UNIT;
-				} else if (Util.isValidClassFileName(fileName)) {
+				} else if (Util.isValidClassFileName(fileName, sourceLevel, complianceLevel)) {
 					return IJavaElement.CLASS_FILE;
 				} else if (this.rootInfo(res.getFullPath(), kind) != null) {
 					// case of proj=src=bin and resource is a jar file on the classpath
@@ -1419,8 +1421,11 @@ public class DeltaProcessor {
 	 * Returns whether the given resource is in one of the given output folders and if
 	 * it is filtered out from this output folder.
 	 */
-	private boolean isResFilteredFromOutput(OutputsInfo info, IResource res, int elementType) {
+	private boolean isResFilteredFromOutput(RootInfo rootInfo, OutputsInfo info, IResource res, int elementType) {
 		if (info != null) {
+			JavaProject javaProject = null;
+			String sourceLevel = null;
+			String complianceLevel = null;
 			IPath resPath = res.getFullPath();
 			for (int i = 0;  i < info.outputCount; i++) {
 				if (info.paths[i].isPrefixOf(resPath)) {
@@ -1431,10 +1436,24 @@ public class DeltaProcessor {
 						}
 						// case of .class file under project and no source folder
 						// proj=bin
-						if (elementType == IJavaElement.JAVA_PROJECT 
-								&& res instanceof IFile 
-								&& Util.isValidClassFileName(res.getName())) {
-							return true;
+						if (elementType == IJavaElement.JAVA_PROJECT && res instanceof IFile) {
+							if (sourceLevel == null) {
+								// Get java project to use its source and compliance levels
+								javaProject = rootInfo == null ?
+									(JavaProject)this.createElement(res.getProject(), IJavaElement.JAVA_PROJECT, null) :
+									rootInfo.project;
+								if (javaProject == null) {
+									// Cannot get any project => use workspace options
+									sourceLevel = this.manager.getOption(JavaCore.COMPILER_SOURCE);
+									complianceLevel = this.manager.getOption(JavaCore.COMPILER_COMPLIANCE);
+								} else {
+									sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
+									complianceLevel = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+								}
+							}
+							if (Util.isValidClassFileName(res.getName(), sourceLevel, complianceLevel)) {
+								return true;
+							}
 						}
 					} else {
 						return true;
@@ -2024,7 +2043,7 @@ public class DeltaProcessor {
 					);
 						
 				// is childRes in the output folder and is it filtered out ?
-				boolean isResFilteredFromOutput = this.isResFilteredFromOutput(outputsInfo, childRes, childType);
+				boolean isResFilteredFromOutput = this.isResFilteredFromOutput(rootInfo, outputsInfo, childRes, childType);
 
 				boolean isNestedRoot = rootInfo != null && childRootInfo != null;
 				if (!isResFilteredFromOutput 

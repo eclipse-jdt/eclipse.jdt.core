@@ -963,7 +963,8 @@ protected IStatus validateCompilationUnit(IResource resource) {
 		if (!resource.isAccessible())
 			return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this);
 	}
-	return JavaConventions.validateCompilationUnitName(getElementName());
+	IJavaProject project = getJavaProject();
+	return JavaConventions.validateCompilationUnitName(getElementName(),project.getOption(JavaCore.COMPILER_SOURCE, true), project.getOption(JavaCore.COMPILER_COMPLIANCE, true));
 }
 /*
  * @see ICompilationUnit#isWorkingCopy()

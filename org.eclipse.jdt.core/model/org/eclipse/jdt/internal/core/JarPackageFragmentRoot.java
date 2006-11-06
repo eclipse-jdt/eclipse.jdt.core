@@ -225,8 +225,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			existingLength--;
 		}
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IJavaProject project = getJavaProject();
 		for (int i = existingLength; i < length; i++) {
-			if (Util.isValidFolderNameForPackage(pkgName[i])) {
+			if (Util.isValidFolderNameForPackage(pkgName[i], project.getOption(JavaCore.COMPILER_SOURCE, true), project.getOption(JavaCore.COMPILER_COMPLIANCE, true))) {
 				System.arraycopy(existing, 0, existing = new String[i+1], 0, i);
 				existing[i] = manager.intern(pkgName[i]);
 				packageFragToTypes.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });

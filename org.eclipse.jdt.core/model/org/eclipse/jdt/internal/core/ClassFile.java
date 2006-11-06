@@ -560,7 +560,8 @@ private IStatus validateClassFile() {
 	} catch (JavaModelException e) {
 		return e.getJavaModelStatus();
 	}
-	return JavaConventions.validateClassFileName(getElementName());
+	IJavaProject project = getJavaProject();
+	return JavaConventions.validateClassFileName(getElementName(), project.getOption(JavaCore.COMPILER_SOURCE, true), project.getOption(JavaCore.COMPILER_COMPLIANCE, true));
 }
 /**
  * Opens and returns buffer on the source code associated with this class file.

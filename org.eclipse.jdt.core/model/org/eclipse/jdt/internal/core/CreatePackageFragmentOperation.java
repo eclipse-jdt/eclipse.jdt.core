@@ -19,9 +19,11 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaConventions;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -120,12 +122,14 @@ protected void executeOperation() throws JavaModelException {
  * @see JavaConventions
  */
 public IJavaModelStatus verify() {
-	if (getParentElement() == null) {
+	IJavaElement parentElement = getParentElement();
+	if (parentElement == null) {
 		return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 	}
 	
 	String packageName = this.pkgName == null ? null : Util.concatWith(this.pkgName, '.');
-	if (this.pkgName == null || (this.pkgName.length > 0 && JavaConventions.validatePackageName(packageName).getSeverity() == IStatus.ERROR)) {
+	IJavaProject project = parentElement.getJavaProject();
+	if (this.pkgName == null || (this.pkgName.length > 0 && JavaConventions.validatePackageName(packageName, project.getOption(JavaCore.COMPILER_SOURCE, true), project.getOption(JavaCore.COMPILER_COMPLIANCE, true)).getSeverity() == IStatus.ERROR)) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_NAME, packageName);
 	}
 	IPackageFragmentRoot root = (IPackageFragmentRoot) getParentElement();

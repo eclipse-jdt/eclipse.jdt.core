@@ -1343,8 +1343,13 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Create DOM AST nodes hierarchy		
 		List unitComments = null;
+		String sourceLevel = null;
+		String complianceLevel = null;
 		if (currentProject != null) {
 			if (astLevel == AST.JLS3) {
+				complianceLevel = currentProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+				sourceLevel = currentProject.getOption(JavaCore.COMPILER_SOURCE, true);
+				currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 				currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 			}
 		}
@@ -1403,6 +1408,10 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 		*/
 
+		if (sourceLevel != null) {
+			currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, complianceLevel);
+			currentProject.setOption(JavaCore.COMPILER_SOURCE, sourceLevel);
+		}
 		// Return compilation unit for possible further verifications
 		return compilUnit;
 	}

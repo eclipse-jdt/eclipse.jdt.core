@@ -15,8 +15,11 @@ import junit.framework.Test;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavaConventionTests extends AbstractJavaModelTests {
+	private final static String sourceLevel = CompilerOptions.VERSION_1_3; 
+	private final static String complianceLevel = CompilerOptions.VERSION_1_3;
 	public JavaConventionTests(String name) {
 		super(name);
 	}
@@ -78,26 +81,26 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	public void testInvalidIdentifier() {
 		String[] invalidIds = new String[] {" s\\u0069ze", " s\\u0069ze ", "", "1java", "Foo Bar", "#@$!", "Foo-Bar", "if", "InvalidEscapeSequence\\g", "true", "false", "null", null, " untrimmmed "};
 		for (int i = 0; i < invalidIds.length; i++) {
-			assertTrue("identifier not recognized as invalid: " + invalidIds[i], !JavaConventions.validateIdentifier(invalidIds[i]).isOK());
+			assertTrue("identifier not recognized as invalid: " + invalidIds[i], !JavaConventions.validateIdentifier(invalidIds[i], sourceLevel, complianceLevel).isOK());
 		}
 	}
 	/**
 	 * @see JavaConventions
 	 */
 	public void testInvalidImportDeclaration1() {
-		assertTrue("import not reconized as invalid; java.math.", !JavaConventions.validateImportDeclaration("java.math.").isOK());
+		assertTrue("import not reconized as invalid; java.math.", !JavaConventions.validateImportDeclaration("java.math.", sourceLevel, complianceLevel).isOK());
 	}
 	/**
 	 * @see JavaConventions
 	 */
 	public void testInvalidImportDeclaration2() {
-		assertTrue("import not reconized as invalid; java.math*", !JavaConventions.validateImportDeclaration("java.math*").isOK());
+		assertTrue("import not reconized as invalid; java.math*", !JavaConventions.validateImportDeclaration("java.math*", sourceLevel, complianceLevel).isOK());
 	}
 	/**
 	 * @see JavaConventions
 	 */
 	public void testInvalidImportDeclaration3() {
-		assertTrue("import not reconized as invalid; empty string", !JavaConventions.validateImportDeclaration("").isOK());
+		assertTrue("import not reconized as invalid; empty string", !JavaConventions.validateImportDeclaration("", sourceLevel, complianceLevel).isOK());
 	}
 	/**
 	 * Test for package fragment root overlap
@@ -140,18 +143,18 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	public void testValidCompilationUnitName() {
 		String[] invalidNames = new String[] {"java/lang/Object.java", "Object.class", ".java", "Object.javaaa", "A.B.java"};
 		for (int i = 0; i < invalidNames.length; i++) {
-			assertTrue("compilation unit name not recognized as invalid: " + invalidNames[i], !JavaConventions.validateCompilationUnitName(invalidNames[i]).isOK());
+			assertTrue("compilation unit name not recognized as invalid: " + invalidNames[i], !JavaConventions.validateCompilationUnitName(invalidNames[i], sourceLevel, complianceLevel).isOK());
 		}
 		String[] validNames = new String[] {"Object.java", "OBJECT.java", "object.java", "package-info.java"};
 		for (int i = 0; i < validNames.length; i++) {
-			assertTrue("compilation unit name not recognized as valid: " + validNames[i], JavaConventions.validateCompilationUnitName(validNames[i]).isOK());
+			assertTrue("compilation unit name not recognized as valid: " + validNames[i], JavaConventions.validateCompilationUnitName(validNames[i], sourceLevel, complianceLevel).isOK());
 		}
 	}
 	/**
 	 * @see JavaConventions
 	 */
 	public void testValidFieldName() {
-		assertTrue("unicode field name not handled", JavaConventions.validateFieldName("s\\u0069ze").isOK());
+		assertTrue("unicode field name not handled", JavaConventions.validateFieldName("s\\u0069ze", sourceLevel, complianceLevel).isOK());
 	}
 	/**
 	 * @see JavaConventions
@@ -159,20 +162,20 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	public void testValidIdentifier() {
 		String[] validIds = new String[] {"s\\u0069ze", "Object", "An_Extremly_Long_Class_Name_With_Words_Separated_By_Undescores"};
 		for (int i = 0; i < validIds.length; i++) {
-			assertTrue("identifier not recognized as valid: " + validIds[i], JavaConventions.validateIdentifier(validIds[i]).isOK());
+			assertTrue("identifier not recognized as valid: " + validIds[i], JavaConventions.validateIdentifier(validIds[i], sourceLevel, complianceLevel).isOK());
 		}
 	}
 	/**
 	 * @see JavaConventions
 	 */
 	public void testValidImportDeclaration() {
-		assertTrue("import not reconized as valid", JavaConventions.validateImportDeclaration("java.math.*").isOK());
+		assertTrue("import not reconized as valid", JavaConventions.validateImportDeclaration("java.math.*", sourceLevel, complianceLevel).isOK());
 	}
 	/**
 	 * @see JavaConventions
 	 */
 	public void testValidMethodName() {
-		assertTrue("unicode method name not handled", JavaConventions.validateMethodName("getSiz\\u0065").isOK());
+		assertTrue("unicode method name not handled", JavaConventions.validateMethodName("getSiz\\u0065", sourceLevel, complianceLevel).isOK());
 	}
 	/**
 	 * @see JavaConventions
@@ -180,44 +183,44 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	public void testValidPackageName() {
 		
 		String pkgName= "org.eclipse.jdt.core.t\\u0065sts.MyPackage";
-		assertTrue("unicode package name not handled", JavaConventions.validatePackageName(pkgName).isOK());
+		assertTrue("unicode package name not handled", JavaConventions.validatePackageName(pkgName, sourceLevel, complianceLevel).isOK());
 	
-		assertTrue("package name not recognized as invalid1", !JavaConventions.validatePackageName("").isOK());
-		assertTrue("package name not recognized as valid1", JavaConventions.validatePackageName("java . lang").isOK());
-		assertTrue("package name not recognized as invalid2", !JavaConventions.validatePackageName("   java . lang").isOK());
-		assertTrue("package name not recognized as invalid3", !JavaConventions.validatePackageName("java . lang  ").isOK());
-		assertTrue("package name not recognized as invalid4", !JavaConventions.validatePackageName(null).isOK());
-		assertTrue("package name not recognized as unconventional1", JavaConventions.validatePackageName("Java.lang").getSeverity() == IStatus.WARNING);
-		assertTrue("package name not recognized as valid2", JavaConventions.validatePackageName("java.Lang").isOK());
-		assertTrue("package name not recognized as invalid5", JavaConventions.validatePackageName("Test.sample&plugin").getSeverity() == IStatus.ERROR);
-		assertTrue("package name not recognized as unconventional2", JavaConventions.validatePackageName("Test.sample").getSeverity() == IStatus.WARNING);
+		assertTrue("package name not recognized as invalid1", !JavaConventions.validatePackageName("", sourceLevel, complianceLevel).isOK());
+		assertTrue("package name not recognized as valid1", JavaConventions.validatePackageName("java . lang", sourceLevel, complianceLevel).isOK());
+		assertTrue("package name not recognized as invalid2", !JavaConventions.validatePackageName("   java . lang", sourceLevel, complianceLevel).isOK());
+		assertTrue("package name not recognized as invalid3", !JavaConventions.validatePackageName("java . lang  ", sourceLevel, complianceLevel).isOK());
+		assertTrue("package name not recognized as invalid4", !JavaConventions.validatePackageName(null, sourceLevel, complianceLevel).isOK());
+		assertTrue("package name not recognized as unconventional1", JavaConventions.validatePackageName("Java.lang", sourceLevel, complianceLevel).getSeverity() == IStatus.WARNING);
+		assertTrue("package name not recognized as valid2", JavaConventions.validatePackageName("java.Lang", sourceLevel, complianceLevel).isOK());
+		assertTrue("package name not recognized as invalid5", JavaConventions.validatePackageName("Test.sample&plugin", sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR);
+		assertTrue("package name not recognized as unconventional2", JavaConventions.validatePackageName("Test.sample", sourceLevel, complianceLevel).getSeverity() == IStatus.WARNING);
 	}
 	/**
 	 * @see JavaConventions
 	 */
 	public void testValidTypeName() {
 		// regression tests for 1G5HVPB: ITPJCORE:WINNT - validateJavaTypeName accepts type names ending with \
-		assertTrue("type name should not contain slashes (1)", JavaConventions.validateJavaTypeName("Object\\").getSeverity() == IStatus.ERROR);
-		assertTrue("type name should not contain slashes (2)", JavaConventions.validateJavaTypeName("Object/").getSeverity() == IStatus.ERROR);
-		assertTrue("type name should not contain slashes (3)", JavaConventions.validateJavaTypeName("\\Object").getSeverity() == IStatus.ERROR);
-		assertTrue("type name should not contain slashes (4)", JavaConventions.validateJavaTypeName("java\\lang\\Object").getSeverity() == IStatus.ERROR);
+		assertTrue("type name should not contain slashes (1)", JavaConventions.validateJavaTypeName("Object\\", sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR);
+		assertTrue("type name should not contain slashes (2)", JavaConventions.validateJavaTypeName("Object/", sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR);
+		assertTrue("type name should not contain slashes (3)", JavaConventions.validateJavaTypeName("\\Object", sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR);
+		assertTrue("type name should not contain slashes (4)", JavaConventions.validateJavaTypeName("java\\lang\\Object", sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR);
 	
 		// regression test for 1G52ZIF: ITPJUI:WINNT - Wizards should strongly discourage the use of non-standard names
-		assertTrue("discouraged type names not handled", JavaConventions.validateJavaTypeName("alowercasetypename").getSeverity() == IStatus.WARNING);
+		assertTrue("discouraged type names not handled", JavaConventions.validateJavaTypeName("alowercasetypename", sourceLevel, complianceLevel).getSeverity() == IStatus.WARNING);
 	
 		// other tests
-		assertTrue("unicode type name not handled", JavaConventions.validateJavaTypeName("P\\u0065a").getSeverity() == IStatus.OK);
-		assertTrue("qualified type names not handled", JavaConventions.validateJavaTypeName("java  .  lang\t.Object").getSeverity() == IStatus.OK);
-		assertTrue("simple qualified type names not handled", JavaConventions.validateJavaTypeName("java.lang.Object").getSeverity() == IStatus.OK);
-		assertTrue("simple type names not handled", JavaConventions.validateJavaTypeName("Object").getSeverity() == IStatus.OK);
-		assertTrue("discouraged type names not handled", JavaConventions.validateJavaTypeName("Object$SubType").getSeverity() == IStatus.WARNING);
-		assertTrue("invalid type name not recognized", JavaConventions.validateJavaTypeName("==?==").getSeverity() == IStatus.ERROR);
+		assertTrue("unicode type name not handled", JavaConventions.validateJavaTypeName("P\\u0065a", sourceLevel, complianceLevel).getSeverity() == IStatus.OK);
+		assertTrue("qualified type names not handled", JavaConventions.validateJavaTypeName("java  .  lang\t.Object", sourceLevel, complianceLevel).getSeverity() == IStatus.OK);
+		assertTrue("simple qualified type names not handled", JavaConventions.validateJavaTypeName("java.lang.Object", sourceLevel, complianceLevel).getSeverity() == IStatus.OK);
+		assertTrue("simple type names not handled", JavaConventions.validateJavaTypeName("Object", sourceLevel, complianceLevel).getSeverity() == IStatus.OK);
+		assertTrue("discouraged type names not handled", JavaConventions.validateJavaTypeName("Object$SubType", sourceLevel, complianceLevel).getSeverity() == IStatus.WARNING);
+		assertTrue("invalid type name not recognized", JavaConventions.validateJavaTypeName("==?==", sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR);
 	}
 	/**
 	 * @see JavaConventions
 	 */
 	public void testValidTypeVariableName() {
-		assertTrue("E sould be a valid variable name", JavaConventions.validateTypeVariableName("E").isOK());
+		assertTrue("E sould be a valid variable name", JavaConventions.validateTypeVariableName("E", sourceLevel, complianceLevel).isOK());
 	}
 	/**
 	 * @see JavaConventions
@@ -225,7 +228,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	public void testValidUnicodeImportDeclaration() {
 		
 		String pkgName= "com.\\u0069bm.jdt.core.tests.MyPackag\\u0065";
-		assertTrue("import not reconized as valid", JavaConventions.validateImportDeclaration(pkgName).isOK());
+		assertTrue("import not reconized as valid", JavaConventions.validateImportDeclaration(pkgName, sourceLevel, complianceLevel).isOK());
 	
 	}
 	/**
@@ -234,7 +237,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	public void testValidUnicodePackageName() {
 		
 		String pkgName= "com.\\u0069bm.jdt.core.tests.MyPackag\\u0065";
-		assertTrue("unicode package name not handled", JavaConventions.validatePackageName(pkgName).isOK());
+		assertTrue("unicode package name not handled", JavaConventions.validatePackageName(pkgName, sourceLevel, complianceLevel).isOK());
 		assertTrue("Parameter modified", pkgName.equals("com.\\u0069bm.jdt.core.tests.MyPackag\\u0065"));
 	
 	}

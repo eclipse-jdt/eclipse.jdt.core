@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -45,6 +46,7 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaConventions;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -365,6 +367,9 @@ public class SourceMapper
 
 		if (root.isArchive()) {
 			JarPackageFragmentRoot jarPackageFragmentRoot = (JarPackageFragmentRoot) root;
+			IJavaProject project = jarPackageFragmentRoot.getJavaProject();
+			String sourceLevel = null;
+			String complianceLevel = null;
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			ZipFile zip = null;
 			try {
@@ -377,7 +382,11 @@ public class SourceMapper
 						if (index != -1 && Util.isClassFileName(entryName)) {
 							String firstLevelPackageName = entryName.substring(0, index);
 							if (!firstLevelPackageNames.contains(firstLevelPackageName)) {
-								IStatus status = JavaConventions.validatePackageName(firstLevelPackageName);
+								if (sourceLevel == null) {
+									sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+									complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+								}
+								IStatus status = JavaConventions.validatePackageName(firstLevelPackageName, sourceLevel, complianceLevel);
 								if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
 									firstLevelPackageNames.add(firstLevelPackageName);
 								}

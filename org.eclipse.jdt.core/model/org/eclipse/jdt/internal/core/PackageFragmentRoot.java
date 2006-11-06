@@ -237,34 +237,39 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		IResource[] members = folder.members();
 		boolean hasIncluded = isIncluded;
-		for (int i = 0, max = members.length; i < max; i++) {
-			IResource member = members[i];
-			String memberName = member.getName();
+		int length = members.length;
+		if (length >0) {
+			String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
+			String complianceLevel = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+			for (int i = 0; i < length; i++) {
+				IResource member = members[i];
+				String memberName = member.getName();
 			
-			switch(member.getType()) {
+				switch(member.getType()) {
 			    
-			    case IResource.FOLDER:
-					// recurse into sub folders even even parent not included as a sub folder could be included
-					// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=65637)
-					if (Util.isValidFolderNameForPackage(memberName)) {
-						// eliminate binary output only if nested inside direct subfolders
-						if (javaProject.contains(member)) {
-							String[] newNames = Util.arrayConcat(pkgName, manager.intern(memberName));
-							boolean isMemberIncluded = !Util.isExcluded(member, inclusionPatterns, exclusionPatterns);
-							computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
-						}
-					}
-			    	break;
-			    case IResource.FILE:
-			        // inclusion filter may only include files, in which case we still want to include the immediate parent package (lazily)
-					if (!hasIncluded
-								&& Util.isValidCompilationUnitName(memberName)
+			    	case IResource.FOLDER:
+			    		// recurse into sub folders even even parent not included as a sub folder could be included
+			    		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=65637)
+			    		if (Util.isValidFolderNameForPackage(memberName, sourceLevel, complianceLevel)) {
+			    			// eliminate binary output only if nested inside direct subfolders
+			    			if (javaProject.contains(member)) {
+			    				String[] newNames = Util.arrayConcat(pkgName, manager.intern(memberName));
+			    				boolean isMemberIncluded = !Util.isExcluded(member, inclusionPatterns, exclusionPatterns);
+			    				computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
+			    			}
+			    		}
+			    		break;
+			    	case IResource.FILE:
+			    		// inclusion filter may only include files, in which case we still want to include the immediate parent package (lazily)
+			    		if (!hasIncluded
+			    				&& Util.isValidCompilationUnitName(memberName, sourceLevel, complianceLevel)
 								&& !Util.isExcluded(member, inclusionPatterns, exclusionPatterns)) {
-						hasIncluded = true;
-					    IPackageFragment pkg = getPackageFragment(pkgName);
-					    vChildren.add(pkg); 
-					}
-			        break;
+			    			hasIncluded = true;
+			    			IPackageFragment pkg = getPackageFragment(pkgName);
+			    			vChildren.add(pkg); 
+			    		}
+			    		break;
+				}
 			}
 		}
 	} catch(IllegalArgumentException e){
