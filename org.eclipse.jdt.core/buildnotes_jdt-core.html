@@ -132,8 +132,10 @@ System.out.print(foo);
 </pre>
 In this example foo is proposed as a possible completion.
 </li>
-<li>The compiler tolerates @Override on mehod implementing an interface's method when compiler is in 1.6 mode
-(bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141931">141931</a>).</li>
+<li>The compiler now tolerates that methods implementing a method declared
+    in an implemented interface or an extended abstract class bear an @Override
+    annotation (1.6 mode only - see also bug 
+    <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141931">141931</a>).</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
