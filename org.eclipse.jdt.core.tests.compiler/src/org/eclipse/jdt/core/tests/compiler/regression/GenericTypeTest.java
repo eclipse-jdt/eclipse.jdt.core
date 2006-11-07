@@ -34858,8 +34858,9 @@ public void test1066() {
 		assertTrue(false);
 	}	
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162991
-public void _test1067() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162991
+// using only source types
+public void test1067() {
 	this.runConformTest(
 		new String[] {
 			"Something.java",
@@ -34880,7 +34881,8 @@ public void _test1067() {
 		},
 		"");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162991
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162991
+// using source and binary types
 public void _test1068() {
 	this.runConformTest(
 		new String[] {
