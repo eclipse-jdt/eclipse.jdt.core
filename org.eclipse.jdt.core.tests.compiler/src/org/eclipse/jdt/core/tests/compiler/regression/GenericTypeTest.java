@@ -33,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1050 };
+//		TESTS_NUMBERS = new int[] { 1069, 1070 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -34900,5 +34900,35 @@ public void _test1068() {
 		null,
 		false,
 		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=163262
+public void test1069() {
+	this.runConformTest(
+		new String[] {
+			"Bug.java", // =================
+			"public class Bug<A> {\n" + 
+			"   void bug() {\n" + 
+			"      new Runnable() {\n" + 
+			"         public void run() {\n" + 
+			"            Bug<A> bug = Bug.this;\n" + 
+			"         }\n" + 
+			"      };\n" + 
+			"   }\n" + 
+			"}",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=163262
+public void test1070() {
+	this.runConformTest(
+		new String[] {
+			"Bug.java", // =================
+			"public class Bug<A> {\n" + 
+			"   Bug<A> reproduce() {\n" + 
+			"      return Bug.this;\n" + 
+			"   }\n" + 
+			"}",
+		},
+		"");
 }
 }
