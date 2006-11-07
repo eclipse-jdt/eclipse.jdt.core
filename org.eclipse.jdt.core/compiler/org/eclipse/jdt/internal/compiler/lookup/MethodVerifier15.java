@@ -528,7 +528,8 @@ boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBindin
 
 	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
 	return inheritedMethod != null
-		&& inheritedMethod.returnType == existingMethod.returnType
+		&& (inheritedMethod.returnType == existingMethod.returnType ||
+				inheritedMethod.returnType.isCompatibleWith(inheritedMethod.returnType))
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
 }
 SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {

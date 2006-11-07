@@ -31247,28 +31247,18 @@ public void test0986() {
 public void test0987() {
 	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
 	?	"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
-		"	               ^^^^^^^^^^^^^^^^\n" + 
-		"The return type is incompatible with EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	                    ^^^^^^^^^^^\n" + 
 		"The return type is incompatible with EditPart.getViewer()\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 11)\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	                    ^^^^^^^^^^^\n" + 
 		"The method getViewer() of type AbstractLinkView<M> must override a superclass method\n" + 
 		"----------\n"
 	:	"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
-		"	               ^^^^^^^^^^^^^^^^\n" + 
-		"The return type is incompatible with EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	                    ^^^^^^^^^^^\n" + 
 		"The return type is incompatible with EditPart.getViewer()\n" + 
@@ -31360,7 +31350,7 @@ public void test0988() {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
 			"	               ^^^^^^^^^^^^^^^^\n" + 
-			"The return type is incompatible with ILinkViewElement.getViewer(), AbstractEditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+			"The return type is incompatible with AbstractEditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	public SheetViewer getViewer() { return null; }	\n" + 

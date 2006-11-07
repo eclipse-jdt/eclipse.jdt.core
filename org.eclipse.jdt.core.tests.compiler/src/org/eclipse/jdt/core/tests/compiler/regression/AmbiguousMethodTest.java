@@ -1312,7 +1312,7 @@ public void test034() {
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	public abstract class X implements J, K {\n" + 
 		"	                      ^\n" + 
-		"The return type is incompatible with I.foo(Number), K.foo(Number), J.foo(Number)\n" + 
+		"The return type is incompatible with K.foo(Number), J.foo(Number)\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
