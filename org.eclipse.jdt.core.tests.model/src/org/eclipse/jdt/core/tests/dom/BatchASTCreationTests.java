@@ -13,16 +13,28 @@ package org.eclipse.jdt.core.tests.dom;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import junit.framework.Test;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTRequestor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.tests.util.Util;
-
-import junit.framework.Test;
 
 public class BatchASTCreationTests extends AbstractASTTests {
 	
@@ -199,6 +211,21 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	
 	protected ICompilationUnit[] createWorkingCopies(String[] pathAndSources) throws JavaModelException {
 		return createWorkingCopies(pathAndSources, this.owner);
+	}
+
+	protected ICompilationUnit[] createWorkingCopies(String[] pathAndSources, boolean resolve) throws JavaModelException {
+		IProblemRequestor problemRequestor = resolve
+			? new IProblemRequestor() {
+				public void acceptProblem(IProblem problem) {}
+				public void beginReporting() {}
+				public void endReporting() {}
+				public boolean isActive() {
+					return true;
+				}
+			} 
+			: null;
+		MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
+		return createWorkingCopies(markerInfos, this.owner, problemRequestor);
 	}
 	
 	private void resolveASTs(ICompilationUnit[] cus, TestASTRequestor requestor) {
@@ -1710,37 +1737,95 @@ public void test074_Bug155003() throws CoreException {
 		},
 		"LX;.foo()V|Ljava/lang/InterruptedException;|Ljava/lang/IllegalMonitorStateException;"
 	);
+	String content = "public class X {\n" + 
+			"    public void foo() throws InterruptedException, IllegalMonitorStateException {\n" + 
+			"    }\n" + 
+			"    void test() throws InterruptedException, IllegalMonitorStateException {\n" + 
+			"    	/*start*/foo()/*end*/;\n" + 
+			"    }\n" + 
+			"}";
+	this.workingCopies = createWorkingCopies(new String[] { "/P/X.java", content }, true /*resolve*/);
+	ASTNode node = buildAST(content, this.workingCopies[0]);
+	assertEquals("Invalid node type!", ASTNode.METHOD_INVOCATION, node.getNodeType());
+	IBinding binding = resolveBinding(node);
+	BindingKey bindingKey = new BindingKey(binding.getKey());
+	assertStringsEqual("Unexpected thrown exceptions",
+		"Ljava.lang.InterruptedException;\n" + 
+		"Ljava.lang.IllegalMonitorStateException;\n",
+		bindingKey.getThrownExceptions()
+	);
 }
 public void test075_Bug155003() throws CoreException {
-	assertBindingCreated(
-		new String[] {
-			"/P/X.java",
-			"public class X<T> {\n" + 
-			"	<U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	void test() throws Exception {\n" + 
-			"		/*start*/foo(this)/*end*/;\n" + 
-			"	}\n" + 
-			"}"
-		},
-		"LX<LX;:TT;>;.foo<U:Ljava/lang/Exception;>(LX<TT;>;)LX<TT;>;^Ljava/lang/RuntimeException;^TU;%<Ljava/lang/Exception;>"
+	String content = "public class X<T> {\n" + 
+		"	<U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"	void test() throws Exception {\n" + 
+		"		/*start*/foo(this)/*end*/;\n" + 
+		"	}\n" + 
+		"}";
+	this.workingCopies = createWorkingCopies(new String[] { "/P/X.java", content }, true /*resolve*/);
+	ASTNode node = buildAST(content, this.workingCopies[0]);
+	assertEquals("Invalid node type!", ASTNode.METHOD_INVOCATION, node.getNodeType());
+	IBinding binding = resolveBinding(node);
+	BindingKey bindingKey = new BindingKey(binding.getKey());
+	assertStringsEqual("Unexpected thrown exceptions",
+		"Ljava.lang.RuntimeException;\n" + 
+		"TU;\n",
+		bindingKey.getThrownExceptions()
 	);
 }
 public void test076_Bug155003() throws CoreException {
-	assertBindingCreated(
-		new String[] {
-			"/P/X.java",
-			"public class X<T> {\n" + 
-			"	<K, V> V bar(K key, V value) throws Exception {\n" + 
-			"		return value;\n" + 
-			"	}\n" + 
-			"	void test() throws Exception {\n" + 
-			"		/*start*/bar(\"\", \"\")/*end*/;\n" + 
-			"	}\n" + 
-			"}"
-		},
-		"LX<LX;:TT;>;.bar<K:Ljava/lang/Object;V:Ljava/lang/Object;>(TK;TV;)TV;|Ljava/lang/Exception;%<Ljava/lang/String;Ljava/lang/String;>"
+	String content = "public class X<T> {\n" + 
+		"	<K, V> V bar(K key, V value) throws Exception {\n" + 
+		"		return value;\n" + 
+		"	}\n" + 
+		"	void test() throws Exception {\n" + 
+		"		/*start*/bar(\"\", \"\")/*end*/;\n" + 
+		"	}\n" + 
+		"}";
+	this.workingCopies = createWorkingCopies(new String[] { "/P/X.java", content }, true /*resolve*/);
+	ASTNode node = buildAST(content, this.workingCopies[0]);
+	assertEquals("Invalid node type!", ASTNode.METHOD_INVOCATION, node.getNodeType());
+	IBinding binding = resolveBinding(node);
+	BindingKey bindingKey = new BindingKey(binding.getKey());
+	assertStringsEqual("Unexpected thrown exceptions",
+		"Ljava.lang.Exception;\n",
+		bindingKey.getThrownExceptions()
+	);
+}
+
+/**
+ * @bug 163647: [model] Thrown exceptions are not found in method binding key which have a capture as declaring class
+ * @test Ensure that thrown exceptions are added in method unique key (not in signature)
+ * 			even when declaring class is a capture 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=163647"
+ */
+public void test077_Bug163647() throws CoreException {
+	String content = 	"public class Test {\n" + 
+		"    public X<? extends Object> getX() { return null; }\n" + 
+		"    public void bar() {\n" + 
+		"		try {\n" + 
+		"			/*start*/getX().foo()/*end*/;\n" + 
+		"		} catch (Exception e) {\n" + 
+		"			// skip\n" + 
+		"		}\n" + 
+		"    }\n" + 
+		"}\n" + 
+		"class X<T> {\n" + 
+		"    public void foo() throws CloneNotSupportedException, IllegalMonitorStateException, InterruptedException {\n" + 
+		"    }\n" + 
+		"}";
+	this.workingCopies = createWorkingCopies(new String[] { "/P/Test.java", content }, true /*resolve*/);
+	ASTNode node = buildAST(content, this.workingCopies[0]);
+	assertEquals("Invalid node type!", ASTNode.METHOD_INVOCATION, node.getNodeType());
+	IBinding binding = resolveBinding(node);
+	BindingKey bindingKey = new BindingKey(binding.getKey());
+	assertStringsEqual("Unexpected thrown exceptions",
+		"Ljava.lang.CloneNotSupportedException;\n" + 
+		"Ljava.lang.IllegalMonitorStateException;\n" + 
+		"Ljava.lang.InterruptedException;\n",
+		bindingKey.getThrownExceptions()
 	);
 }
 }

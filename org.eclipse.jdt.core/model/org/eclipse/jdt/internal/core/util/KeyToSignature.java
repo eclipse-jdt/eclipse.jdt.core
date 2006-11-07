@@ -275,6 +275,7 @@ public class KeyToSignature extends BindingKeyParser {
 		KeyToSignature keyToSignature = (KeyToSignature) this.arguments.get(0);
 		this.signature = keyToSignature.signature;
 		this.arguments = keyToSignature.arguments;
+		this.thrownExceptions = keyToSignature.thrownExceptions;
 	}
 	
 	public void consumeWildCard(int wildCardKind) {

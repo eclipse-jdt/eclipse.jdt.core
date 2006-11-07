@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -379,11 +380,15 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	}
 	
 	protected ICompilationUnit[] createWorkingCopies(MarkerInfo[] markerInfos, WorkingCopyOwner owner) throws JavaModelException {
+		return createWorkingCopies(markerInfos, owner, null);
+	}
+
+	protected ICompilationUnit[] createWorkingCopies(MarkerInfo[] markerInfos, WorkingCopyOwner owner, IProblemRequestor problemRequestor) throws JavaModelException {
 		int length = markerInfos.length;
 		ICompilationUnit[] copies = new ICompilationUnit[length];
 		for (int i = 0; i < length; i++) {
 			MarkerInfo markerInfo = markerInfos[i];
-			ICompilationUnit workingCopy = getCompilationUnit(markerInfo.path).getWorkingCopy(owner, null, null);
+			ICompilationUnit workingCopy = getCompilationUnit(markerInfo.path).getWorkingCopy(owner, problemRequestor, null);
 			workingCopy.getBuffer().setContents(markerInfo.source);
 			workingCopy.makeConsistent(null);
 			copies[i] = workingCopy;
