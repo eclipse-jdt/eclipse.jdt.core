@@ -1430,7 +1430,10 @@ public final int sourceStart() {
 	return this.scope.referenceContext.sourceStart;
 }
 SimpleLookupTable storedAnnotations(boolean forceInitialize) {
-	if (forceInitialize && this.storedAnnotations == null) {
+	if (forceInitialize && this.storedAnnotations == null && 
+			this.scope != null) { 
+				// once scope is null, no more attempt to store annotations -
+				// as if the scope was present with storeAnnotations set to false
 		this.scope.referenceCompilationUnit().compilationResult.hasAnnotations = true;
 		if (!this.scope.environment().globalOptions.storeAnnotations)
 			return null; // not supported during this compile
