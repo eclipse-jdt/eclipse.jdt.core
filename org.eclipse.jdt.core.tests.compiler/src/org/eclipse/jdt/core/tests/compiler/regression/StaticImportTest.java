@@ -18,7 +18,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test036" };
-//		TESTS_NUMBERS = new int[] { 188 };
+//		TESTS_NUMBERS = new int[] { 46 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 	
@@ -1718,5 +1718,41 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"
 			// arrayList(int) in test.Two cannot be applied to (java.lang.String)
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133737
+	public void test046() {
+		this.runNegativeTest(
+			new String[] {
+				"error/Exporter.java",
+				"package error;\n" + 
+				"public class Exporter {\n" + 
+				"  public static String getName(Class<?> c) {\n" + 
+				"    return null;\n" + 
+				"  }\n" + 
+				"}",
+				"error/Importer.java",
+				"package error;\n" + 
+				"import static error.Exporter.getName;\n" + 
+				"public class Importer extends Base {\n" + 
+				"  public void testSomething() {\n" + 
+				"    getName();\n" + 
+				"    getName(Importer.class);\n" + 
+				"  }\n" + 
+				"}",
+				"error/Base.java",
+				"package error;\n" + 
+				"public class Base {\n" + 
+				"  public String getName() {\n" + 
+				"    return \"name\";\n" + 
+				"  }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in error\\Importer.java (at line 6)\n" + 
+			"	getName(Importer.class);\n" + 
+			"	^^^^^^^\n" + 
+			"The method getName() in the type Base is not applicable for the arguments (Class<Importer>)\n" + 
+			"----------\n"
+		);		
 	}
 }
