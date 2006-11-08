@@ -16,6 +16,7 @@ public interface TypeConstants {
 	char[] JAVA = "java".toCharArray(); //$NON-NLS-1$
 	char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
 	char[] IO = "io".toCharArray(); //$NON-NLS-1$
+	char[] UTIL = "util".toCharArray(); //$NON-NLS-1$
 	char[] ANNOTATION = "annotation".toCharArray(); //$NON-NLS-1$
 	char[] REFLECT = "reflect".toCharArray(); //$NON-NLS-1$
 	char[] LENGTH = "length".toCharArray(); //$NON-NLS-1$
@@ -72,7 +73,7 @@ public interface TypeConstants {
     char[] UPPER_LOCAL_VARIABLE = "LOCAL_VARIABLE".toCharArray(); //$NON-NLS-1$
     char[] UPPER_ANNOTATION_TYPE = "ANNOTATION_TYPE".toCharArray(); //$NON-NLS-1$
     char[] UPPER_PACKAGE = "PACKAGE".toCharArray(); //$NON-NLS-1$
-    
+ 
 	// Constant compound names
 	char[][] JAVA_LANG = {JAVA, LANG};
 	char[][] JAVA_IO = {JAVA, IO};
@@ -106,7 +107,7 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_DOUBLE = {JAVA, LANG, "Double".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_BOOLEAN = {JAVA, LANG, "Boolean".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_VOID = {JAVA, LANG, "Void".toCharArray()}; //$NON-NLS-1$
-	char[][] JAVA_UTIL_ITERATOR = {JAVA, "util".toCharArray(), "Iterator".toCharArray()}; //$NON-NLS-1$//$NON-NLS-2$
+	char[][] JAVA_UTIL_ITERATOR = {JAVA, UTIL, "Iterator".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_DEPRECATED = {JAVA, LANG, "Deprecated".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_DOCUMENTED = {JAVA, LANG, ANNOTATION, "Documented".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_INHERITED = {JAVA, LANG, ANNOTATION, "Inherited".toCharArray()}; //$NON-NLS-1$
@@ -118,12 +119,17 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_ANNOTATION_ELEMENTTYPE = {JAVA, LANG, ANNOTATION, "ElementType".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_REFLECT_FIELD = new char[][] {JAVA, LANG, REFLECT, "Field".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_REFLECT_METHOD = new char[][] {JAVA, LANG, REFLECT, "Method".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_IO_OBJECTSTREAMEXCEPTION = new char[][] { JAVA, IO, "ObjectStreamException".toCharArray()};//$NON-NLS-1$
+	char[][] JAVA_IO_EXTERNALIZABLE = {JAVA, IO, "Externalizable".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_IO_IOEXCEPTION = new char[][] { JAVA, IO, "IOException".toCharArray()};//$NON-NLS-1$
+	char[][] JAVA_IO_OBJECTOUTPUTSTREAM = new char[][] { JAVA, IO, "ObjectOutputStream".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_IO_OBJECTINPUTSTREAM = new char[][] { JAVA, IO, "ObjectInputStream".toCharArray()}; //$NON-NLS-1$
 	
 	// Constraints for generic type argument inference
     int CONSTRAINT_EQUAL = 0;		// Actual = Formal
     int CONSTRAINT_EXTENDS = 1;	// Actual << Formal
     int CONSTRAINT_SUPER = 2;		// Actual >> Formal
-	
+
 	// Constants used to perform bound checks
 	int OK = 0;
 	int UNCHECKED = 1;

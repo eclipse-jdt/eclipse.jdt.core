@@ -364,12 +364,21 @@ public void computeId() {
 		
 			// remaining types MUST be in java.*.*
 			if (!CharOperation.equals(TypeConstants.LANG, this.compoundName[1])) {
-				if (CharOperation.equals(TypeConstants.JAVA_IO_PRINTSTREAM, this.compoundName))
-					this.id = TypeIds.T_JavaIoPrintStream;
-				else if (CharOperation.equals(TypeConstants.JAVA_UTIL_ITERATOR, this.compoundName))
+				if (CharOperation.equals(TypeConstants.IO, this.compoundName[1])) {
+					if (CharOperation.equals(TypeConstants.JAVA_IO_PRINTSTREAM[2], this.compoundName[2]))
+						this.id = TypeIds.T_JavaIoPrintStream;
+					else if (CharOperation.equals(TypeConstants.JAVA_IO_SERIALIZABLE[2], this.compoundName[2]))
+					    this.id = TypeIds.T_JavaIoSerializable;
+					else if (CharOperation.equals(TypeConstants.JAVA_IO_EXTERNALIZABLE[2], this.compoundName[2]))
+					    this.id = TypeIds.T_JavaIoExternalizable;
+					else if (CharOperation.equals(TypeConstants.JAVA_IO_OBJECTSTREAMEXCEPTION[2], this.compoundName[2]))
+						this.id = TypeIds.T_JavaIoObjectStreamException;
+					else if (CharOperation.equals(TypeConstants.JAVA_IO_IOEXCEPTION[2], this.compoundName[2]))
+						this.id = TypeIds.T_JavaIoException;
+				} else if (CharOperation.equals(TypeConstants.UTIL, this.compoundName[1])
+						&& CharOperation.equals(TypeConstants.JAVA_UTIL_ITERATOR[2], this.compoundName[2])) {
 					this.id = TypeIds.T_JavaUtilIterator;
-				else if (CharOperation.equals(TypeConstants.JAVA_IO_SERIALIZABLE, this.compoundName))
-				    this.id = TypeIds.T_JavaIoSerializable;
+				}
 				return;
 			}
 		

@@ -83,6 +83,10 @@ public interface TypeIds {
 	final int T_JavaLangReflectField = 54;
 	final int T_JavaLangReflectMethod = 55;
 
+	final int T_JavaIoExternalizable = 56;
+	final int T_JavaIoObjectStreamException = 57;
+	final int T_JavaIoException = 58;
+
 	final int NoId = Integer.MAX_VALUE;
 
 	public static final int IMPLICIT_CONVERSION_MASK = 0xFF;

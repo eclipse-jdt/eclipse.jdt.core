@@ -944,8 +944,50 @@ public void resolve() {
 						this.scope.compilerOptions().getSeverity(CompilerOptions.MissingSerialVersion) != ProblemSeverities.Ignore
 						&& sourceType.isClass() 
 						&& !sourceType.isAbstract() 
+						&& sourceType.findSuperTypeErasingTo(TypeIds.T_JavaIoExternalizable, false /*Serializable is not a class*/) == null
 						&& sourceType.findSuperTypeErasingTo(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null;
-		
+
+		if (needSerialVersion) {
+			// if Object writeReplace() throws java.io.ObjectStreamException is present, then no serialVersionUID is needed
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
+    		CompilationUnitScope compilationUnitScope = this.scope.compilationUnitScope();
+			MethodBinding methodBinding = sourceType.getExactMethod(TypeConstants.WRITEREPLACE, new TypeBinding[0], compilationUnitScope);
+   			ReferenceBinding[] throwsExceptions;
+			needSerialVersion = 
+				methodBinding == null
+    				|| !methodBinding.isValidBinding()
+    				|| methodBinding.returnType.id != TypeIds.T_JavaLangObject
+    				|| (throwsExceptions = methodBinding.thrownExceptions).length != 1
+    				|| throwsExceptions[0].id != TypeIds.T_JavaIoObjectStreamException;
+    		if (needSerialVersion) {
+    			// check the presence of an implementation of the methods
+    			// private void writeObject(java.io.ObjectOutputStream out) throws IOException
+    			// private void readObject(java.io.ObjectInputStream out) throws IOException
+    			boolean hasWriteObjectMethod = false;
+    			boolean hasReadObjectMethod = false;
+    			TypeBinding argumentTypeBinding = this.scope.getType(TypeConstants.JAVA_IO_OBJECTOUTPUTSTREAM, 3);
+     			if (argumentTypeBinding.isValidBinding()) {
+            		methodBinding = sourceType.getExactMethod(TypeConstants.WRITEOBJECT, new TypeBinding[] { argumentTypeBinding }, compilationUnitScope);
+            		hasWriteObjectMethod = methodBinding != null
+            				&& methodBinding.isValidBinding()
+            				&& methodBinding.modifiers == ClassFileConstants.AccPrivate
+            				&& methodBinding.returnType == TypeBinding.VOID
+            				&& (throwsExceptions = methodBinding.thrownExceptions).length == 1
+            				&& throwsExceptions[0].id == TypeIds.T_JavaIoException;
+    			}
+    			argumentTypeBinding = this.scope.getType(TypeConstants.JAVA_IO_OBJECTINPUTSTREAM, 3);
+     			if (argumentTypeBinding.isValidBinding()) {
+            		methodBinding = sourceType.getExactMethod(TypeConstants.READOBJECT, new TypeBinding[] { argumentTypeBinding }, compilationUnitScope);
+            		hasReadObjectMethod = methodBinding != null
+            				&& methodBinding.isValidBinding()
+            				&& methodBinding.modifiers == ClassFileConstants.AccPrivate
+            				&& methodBinding.returnType == TypeBinding.VOID
+            				&& (throwsExceptions = methodBinding.thrownExceptions).length == 1
+            				&& throwsExceptions[0].id == TypeIds.T_JavaIoException;
+    			}
+    			needSerialVersion = !hasWriteObjectMethod || !hasReadObjectMethod;
+    		}
+		}
 		// generics (and non static generic members) cannot extend Throwable
 		if (sourceType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) != null) {
 			ReferenceBinding current = sourceType;
