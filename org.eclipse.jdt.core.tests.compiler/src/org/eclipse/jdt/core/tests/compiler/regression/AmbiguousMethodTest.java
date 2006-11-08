@@ -1076,7 +1076,7 @@ this.runConformTest(
 	"2");
 }	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
-public void _test025() {
+public void test025() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
