@@ -341,45 +341,47 @@ public class ClassFile
 		boolean generatePackagesStructure,
 		String outputPath,
 		String relativeFileName,
-		ClassFile classFile)
-		throws IOException {
+		ClassFile classFile) throws IOException {
 			
 		BufferedOutputStream output = null;
-		if (generatePackagesStructure) {
-			output = new BufferedOutputStream(
-				new FileOutputStream(
-						new File(buildAllDirectoriesInto(outputPath, relativeFileName))));
-		} else {
-			String fileName = null;
-			char fileSeparatorChar = File.separatorChar;
-			String fileSeparator = File.separator;
-			// First we ensure that the outputPath exists
-			outputPath = outputPath.replace('/', fileSeparatorChar);
-			// To be able to pass the mkdirs() method we need to remove the extra file separator at the end of the outDir name
-			int indexOfPackageSeparator = relativeFileName.lastIndexOf(fileSeparatorChar);
-			if (indexOfPackageSeparator == -1) {
-				if (outputPath.endsWith(fileSeparator)) {
-					fileName = outputPath + relativeFileName;
-				} else {
-					fileName = outputPath + fileSeparator + relativeFileName;
-				}
-			} else {
-				int length = relativeFileName.length();
-				if (outputPath.endsWith(fileSeparator)) {
-					fileName = outputPath + relativeFileName.substring(indexOfPackageSeparator + 1, length);
-				} else {
-					fileName = outputPath + fileSeparator + relativeFileName.substring(indexOfPackageSeparator + 1, length);
-				}
-			}
-			output = new BufferedOutputStream(
-				new FileOutputStream(
-						new File(fileName)));
-		}
+    	if (generatePackagesStructure) {
+    		output = new BufferedOutputStream(
+    			new FileOutputStream(
+    					new File(buildAllDirectoriesInto(outputPath, relativeFileName))));
+    	} else {
+    		String fileName = null;
+    		char fileSeparatorChar = File.separatorChar;
+    		String fileSeparator = File.separator;
+    		// First we ensure that the outputPath exists
+    		outputPath = outputPath.replace('/', fileSeparatorChar);
+    		// To be able to pass the mkdirs() method we need to remove the extra file separator at the end of the outDir name
+    		int indexOfPackageSeparator = relativeFileName.lastIndexOf(fileSeparatorChar);
+    		if (indexOfPackageSeparator == -1) {
+    			if (outputPath.endsWith(fileSeparator)) {
+    				fileName = outputPath + relativeFileName;
+    			} else {
+    				fileName = outputPath + fileSeparator + relativeFileName;
+    			}
+    		} else {
+    			int length = relativeFileName.length();
+    			if (outputPath.endsWith(fileSeparator)) {
+    				fileName = outputPath + relativeFileName.substring(indexOfPackageSeparator + 1, length);
+    			} else {
+    				fileName = outputPath + fileSeparator + relativeFileName.substring(indexOfPackageSeparator + 1, length);
+    			}
+    		}
+    		output = new BufferedOutputStream(
+    			new FileOutputStream(
+    					new File(fileName)));
+    	}
 		try {
+			// if no IOException occured, output cannot be null
 			output.write(classFile.header, 0, classFile.headerOffset);
 			output.write(classFile.contents, 0, classFile.contentsOffset);
-		} finally {
 			output.flush();
+		} catch(IOException e) {
+			throw e;
+		} finally {
 			output.close();
 		}
 	}

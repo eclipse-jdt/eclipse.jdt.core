@@ -222,16 +222,26 @@ public static int asi(int state) {
 public final static short base_check(int i) {
 	return check_table[i - (NUM_RULES + 1)];
 }
-private final static void buildFile(String filename, List listToDump) throws java.io.IOException {
-	BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-	for (Iterator iterator = listToDump.iterator(); iterator.hasNext(); ) {
-		writer.write(String.valueOf(iterator.next()));
+private final static void buildFile(String filename, List listToDump) {
+	BufferedWriter writer = null;
+	try {
+		writer = new BufferedWriter(new FileWriter(filename));
+    	for (Iterator iterator = listToDump.iterator(); iterator.hasNext(); ) {
+    		writer.write(String.valueOf(iterator.next()));
+    	}
+    	writer.flush();
+	} catch(IOException e) {
+		if (writer != null) {
+        	try {
+				writer.close();
+			} catch (IOException e1) {
+				// ignore
+			}
+		}
 	}
-	writer.flush();
-	writer.close();
 	System.out.println(filename + " creation complete"); //$NON-NLS-1$
 }
-private final static String[] buildFileForName(String filename, String contents) throws java.io.IOException {
+private final static String[] buildFileForName(String filename, String contents) {
 	String[] result = new String[contents.length()];
 	result[0] = null;
 	int resultCount = 1;
@@ -288,7 +298,7 @@ private static void buildFileForReadableName(
 	char[] newLhs,
 	char[] newNonTerminalIndex,
 	String[] newName,
-	String[] tokens) throws java.io.IOException {
+	String[] tokens) {
 
 	ArrayList entries = new ArrayList();
 	
@@ -326,7 +336,7 @@ private static void buildFilesForRecoveryTemplates(
 	char[] newNonTerminalIndex,
 	String[] newName,
 	char[] newLhs,
-	String[] tokens) throws IOException {
+	String[] tokens) {
 	
 	int[] newReverse = computeReverseTable(newTerminalIndex, newNonTerminalIndex, newName);
 	
@@ -376,7 +386,7 @@ private static void buildFilesForStatementsRecoveryFilter(
 		String filename,
 		char[] newNonTerminalIndex,
 		char[] newLhs,
-		String[] tokens) throws IOException {
+		String[] tokens) {
 		
 		char[] newStatementsRecoveryFilter = new char[newNonTerminalIndex.length];
 		
@@ -392,7 +402,7 @@ private static void buildFilesForStatementsRecoveryFilter(
 private static void buildFileForCompliance(
 		String file,
 		int length,
-		String[] tokens) throws java.io.IOException {
+		String[] tokens) {
 
 		byte[] result = new byte[length * 8];
 		
@@ -423,26 +433,45 @@ private static void buildFileForCompliance(
 
 		buildFileForTable(file, result);
 	}
-private final static void buildFileForTable(String filename, byte[] bytes) throws java.io.IOException {
-	java.io.FileOutputStream stream = new java.io.FileOutputStream(filename);
-	stream.write(bytes);
-	stream.close();
+private final static void buildFileForTable(String filename, byte[] bytes) {
+	java.io.FileOutputStream stream = null;
+	try {
+		stream = new java.io.FileOutputStream(filename);
+		stream.write(bytes);
+	} catch(IOException e) {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch (IOException e1) {
+				// ignore
+			}
+		}
+	}
 	System.out.println(filename + " creation complete"); //$NON-NLS-1$
 }
-private final static void buildFileForTable(String filename, char[] chars) throws java.io.IOException {
-
+private final static void buildFileForTable(String filename, char[] chars) {
 	byte[] bytes = new byte[chars.length * 2];
 	for (int i = 0; i < chars.length; i++) {
 		bytes[2 * i] = (byte) (chars[i] >>> 8);
 		bytes[2 * i + 1] = (byte) (chars[i] & 0xFF);
 	}
 
-	java.io.FileOutputStream stream = new java.io.FileOutputStream(filename);
-	stream.write(bytes);
-	stream.close();
+	java.io.FileOutputStream stream = null;
+	try {
+		stream = new java.io.FileOutputStream(filename);
+		stream.write(bytes);
+	} catch(IOException e) {
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch (IOException e1) {
+				// ignore
+			}
+		}
+	}
 	System.out.println(filename + " creation complete"); //$NON-NLS-1$
 }
-private final static byte[] buildFileOfByteFor(String filename, String tag, String[] tokens) throws java.io.IOException {
+private final static byte[] buildFileOfByteFor(String filename, String tag, String[] tokens) {
 
 	//transform the String tokens into chars before dumping then into file
 
@@ -465,7 +494,7 @@ private final static byte[] buildFileOfByteFor(String filename, String tag, Stri
 	buildFileForTable(filename, bytes);
 	return bytes;
 }
-private final static char[] buildFileOfIntFor(String filename, String tag, String[] tokens) throws java.io.IOException {
+private final static char[] buildFileOfIntFor(String filename, String tag, String[] tokens) {
 
 	//transform the String tokens into chars before dumping then into file
 
@@ -488,7 +517,7 @@ private final static char[] buildFileOfIntFor(String filename, String tag, Strin
 	buildFileForTable(filename, chars);
 	return chars;
 }
-private final static void buildFileOfShortFor(String filename, String tag, String[] tokens) throws java.io.IOException {
+private final static void buildFileOfShortFor(String filename, String tag, String[] tokens) {
 
 	//transform the String tokens into chars before dumping then into file
 
@@ -510,7 +539,7 @@ private final static void buildFileOfShortFor(String filename, String tag, Strin
 
 	buildFileForTable(filename, chars);
 }
-public final static void buildFilesFromLPG(String dataFilename, String dataFilename2)	throws java.io.IOException {
+public final static void buildFilesFromLPG(String dataFilename, String dataFilename2) {
 
 	//RUN THIS METHOD TO GENERATE PARSER*.RSC FILES
 
