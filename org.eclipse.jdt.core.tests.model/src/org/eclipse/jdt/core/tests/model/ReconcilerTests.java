@@ -3386,4 +3386,149 @@ public void testBug118823c() throws CoreException, InterruptedException {
 		deleteProject("P2");
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=107931
+public void _test1001() throws CoreException, InterruptedException, IOException {
+	try {
+		// Resources creation
+		String sources[] = new String[3];
+		char[] sourcesAsCharArrays[] = new char[3][];
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		sources[0] = "class X {}\n";
+		createFile(
+			"/P1/X.java", 
+			sources[0]
+		);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		sources[1] = 
+			"interface I {\n" +
+			"  void foo();\n" +
+			"  void bar(X p);\n" +
+			"}\n";
+		createFile(
+			"/P2/I.java",
+			sources[1]
+		);
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P2" }, "bin");
+		sources[2] = 
+			"class Y implements I {\n" +
+			"  // public void foo() { }\n" +
+			"  // public void bar(X p) { }\n" +
+			"}\n";
+		createFile(
+			"/P3/Y.java",
+			sources[2]
+		);
+		for (int i = 0 ; i < sources.length ; i++) {
+			sourcesAsCharArrays[i] = sources[i].toCharArray();
+		}
+		waitUntilIndexesReady();
+		this.workingCopies = new ICompilationUnit[3];
+		this.wcOwner = new WorkingCopyOwner() {};
+
+		// Get first working copy and verify that there's no error
+		this.problemRequestor.initialize(sourcesAsCharArrays[0]);
+		this.workingCopies[0] = getCompilationUnit("/P1/X.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertNoProblem(sourcesAsCharArrays[0], this.workingCopies[0]);
+
+		// Get second working copy and verify that there's no error
+		this.problemRequestor.initialize(sourcesAsCharArrays[1]);
+		this.workingCopies[1] = getCompilationUnit("/P2/I.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertNoProblem(sourcesAsCharArrays[1], this.workingCopies[1]);
+
+		// Get third working copy and verify that all expected errors are here
+		this.problemRequestor.initialize(sourcesAsCharArrays[2]);
+		this.workingCopies[2] = getCompilationUnit("/P3/Y.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertProblems("Working copy should have problems:",
+			"----------\n" + 
+			"1. ERROR in /P3/Y.java (at line 1)\n" + 
+			"	class Y implements I {\n" + 
+			"	      ^\n" + 
+			"The type Y must implement the inherited abstract method I.bar(X)\n" + 
+			"----------\n" + 
+			"2. ERROR in /P3/Y.java (at line 1)\n" + 
+			"	class Y implements I {\n" + 
+			"	      ^\n" + 
+			"The type Y must implement the inherited abstract method I.foo()\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+		deleteProject("P3");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=107931
+// variant: having all needed projects on the classpath solves the issue
+public void test1002() throws CoreException, InterruptedException, IOException {
+	try {
+		// Resources creation
+		String sources[] = new String[3];
+		char[] sourcesAsCharArrays[] = new char[3][];
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		sources[0] = "class X {}\n";
+		createFile(
+			"/P1/X.java", 
+			sources[0]
+		);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		sources[1] = 
+			"interface I {\n" +
+			"  void foo();\n" +
+			"  void bar(X p);\n" +
+			"}\n";
+		createFile(
+			"/P2/I.java",
+			sources[1]
+		);
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" /* compare with test1001 */, "/P2" }, "bin");
+		sources[2] = 
+			"class Y implements I {\n" +
+			"  // public void foo() { }\n" +
+			"  // public void bar(X p) { }\n" +
+			"}\n";
+		createFile(
+			"/P3/Y.java",
+			sources[2]
+		);
+		for (int i = 0 ; i < sources.length ; i++) {
+			sourcesAsCharArrays[i] = sources[i].toCharArray();
+		}
+		waitUntilIndexesReady();
+		this.workingCopies = new ICompilationUnit[3];
+		this.wcOwner = new WorkingCopyOwner() {};
+
+		// Get first working copy and verify that there's no error
+		this.problemRequestor.initialize(sourcesAsCharArrays[0]);
+		this.workingCopies[0] = getCompilationUnit("/P1/X.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertNoProblem(sourcesAsCharArrays[0], this.workingCopies[0]);
+
+		// Get second working copy and verify that there's no error
+		this.problemRequestor.initialize(sourcesAsCharArrays[1]);
+		this.workingCopies[1] = getCompilationUnit("/P2/I.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertNoProblem(sourcesAsCharArrays[1], this.workingCopies[1]);
+
+		// Get third working copy and verify that all expected errors are here
+		this.problemRequestor.initialize(sourcesAsCharArrays[2]);
+		this.workingCopies[2] = getCompilationUnit("/P3/Y.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		assertProblems("Working copy should have problems:",
+			"----------\n" + 
+			"1. ERROR in /P3/Y.java (at line 1)\n" + 
+			"	class Y implements I {\n" + 
+			"	      ^\n" + 
+			"The type Y must implement the inherited abstract method I.bar(X)\n" + 
+			"----------\n" + 
+			"2. ERROR in /P3/Y.java (at line 1)\n" + 
+			"	class Y implements I {\n" + 
+			"	      ^\n" + 
+			"The type Y must implement the inherited abstract method I.foo()\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+		deleteProject("P3");
+	}
+}
 }
