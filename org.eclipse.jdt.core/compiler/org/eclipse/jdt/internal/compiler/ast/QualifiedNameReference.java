@@ -724,12 +724,13 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 			} else {
 				// indirect static reference ?
 				if (indexOfFirstFieldBinding > 1 
-						&& field.declaringClass != actualReceiverType) {
+						&& field.declaringClass != actualReceiverType
+						&& field.declaringClass.canBeSeenBy(scope)) {
 					scope.problemReporter().indirectAccessToStaticField(this, field);
 				}
 			}
 			// only last field is actually a write access if any
-			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssigned) !=0 && indexOfFirstFieldBinding == length))
+			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssigned) != 0 && indexOfFirstFieldBinding == length))
 				scope.problemReporter().deprecatedField(field, this);
 		} else {
 			field = null;

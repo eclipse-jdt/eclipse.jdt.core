@@ -547,7 +547,9 @@ public TypeBinding resolveType(BlockScope scope) {
 					&& (((NameReference) receiver).bits & Binding.TYPE) != 0))) {
 			scope.problemReporter().nonStaticAccessToStaticField(this, fieldBinding);
 		}
-		if (!isImplicitThisRcv && fieldBinding.declaringClass != receiverType) {
+		if (!isImplicitThisRcv
+				&& fieldBinding.declaringClass != receiverType
+				&& fieldBinding.declaringClass.canBeSeenBy(scope)) {
 			scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
 		}
 	}
