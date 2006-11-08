@@ -358,73 +358,79 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			""
 		);
 	}
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
-	public void _test010() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"  	interface Listener {}\n" + 
-				"  	interface ErrorListener {}\n" + 
-				"  	static <L1 extends Listener & ErrorListener> Object createParser(L1 l) { return null; }\n" + 
-				"  	static <L2 extends ErrorListener & Listener> Object createParser(L2 l) { return null; }\n" + 
-				"   public static void main(String[] s) {\n" + 
-				"   	class A implements Listener, ErrorListener {}\n" + 
-				"   	createParser(new A());\n" + 
-				"   }\n" +
-				"}"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\r\n" + 
-			"	static <L1 extends Listener & ErrorListener> Object createParser(L1 l) { return null; }\r\n" + 
-			"	                                                    ^^^^^^^^^^^^^^^^^^\n" + 
-			"Method createParser(L1) has the same erasure createParser(X.Listener) as another method in type X\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\r\n" + 
-			"	static <L2 extends ErrorListener & Listener> Object createParser(L2 l) { return null; }\r\n" + 
-			"	                                                    ^^^^^^^^^^^^^^^^^^\n" + 
-			"Method createParser(L2) has the same erasure createParser(X.ErrorListener) as another method in type X\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 8)\r\n" + 
-			"	createParser(new A());\r\n" + 
-			"	^^^^^^^^^^^^\n" + 
-			"The method createParser(A) is undefined for the type X\n" + 
-			"----------\n"
-		);
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"  	interface Listener {}\n" + 
-				"  	interface ErrorListener {}\n" + 
-				"  	static <L1 extends Listener> int createParser(L1 l) { return 1; }\n" + 
-				"  	static <L2 extends ErrorListener & Listener> int createParser(L2 l) { return 2; }\n" + 
-				"   public static void main(String[] s) {\n" + 
-				"   	class A implements Listener, ErrorListener {}\n" + 
-				"   	System.out.print(createParser(new A()));\n" + 
-				"   }\n" +
-				"}"
-			},
-			"2"
-		);
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"  	interface Listener {}\n" + 
-				"  	interface ErrorListener {}\n" + 
-				"  	static int createParser(Listener l) { return 1; }\n" + 
-				"  	static <L extends ErrorListener & Listener> int createParser(L l) { return 2; }\n" + 
-				"   public static void main(String[] s) {\n" + 
-				"   	class A implements Listener, ErrorListener {}\n" + 
-				"   	System.out.print(createParser(new A()));\n" + 
-				"   }\n" +
-				"}"
-			},
-			"2"
-		);
-	}
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
+public void _test010a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  	interface Listener {}\n" + 
+			"  	interface ErrorListener {}\n" + 
+			"  	static <L1 extends Listener & ErrorListener> Object createParser(L1 l) { return null; }\n" + 
+			"  	static <L2 extends ErrorListener & Listener> Object createParser(L2 l) { return null; }\n" + 
+			"   public static void main(String[] s) {\n" + 
+			"   	class A implements Listener, ErrorListener {}\n" + 
+			"   	createParser(new A());\n" + 
+			"   }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	static <L1 extends Listener & ErrorListener> Object createParser(L1 l) { return null; }\r\n" + 
+		"	                                                    ^^^^^^^^^^^^^^^^^^\n" + 
+		"Method createParser(L1) has the same erasure createParser(X.Listener) as another method in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\r\n" + 
+		"	static <L2 extends ErrorListener & Listener> Object createParser(L2 l) { return null; }\r\n" + 
+		"	                                                    ^^^^^^^^^^^^^^^^^^\n" + 
+		"Method createParser(L2) has the same erasure createParser(X.ErrorListener) as another method in type X\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\r\n" + 
+		"	createParser(new A());\r\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"The method createParser(A) is undefined for the type X\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
+public void _test010b() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  	interface Listener {}\n" + 
+			"  	interface ErrorListener {}\n" + 
+			"  	static <L1 extends Listener> int createParser(L1 l) { return 1; }\n" + 
+			"  	static <L2 extends ErrorListener & Listener> int createParser(L2 l) { return 2; }\n" + 
+			"   public static void main(String[] s) {\n" + 
+			"   	class A implements Listener, ErrorListener {}\n" + 
+			"   	System.out.print(createParser(new A()));\n" + 
+			"   }\n" +
+			"}"
+		},
+		"2"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
+public void _test010c() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  	interface Listener {}\n" + 
+			"  	interface ErrorListener {}\n" + 
+			"  	static int createParser(Listener l) { return 1; }\n" + 
+			"  	static <L extends ErrorListener & Listener> int createParser(L l) { return 2; }\n" + 
+			"   public static void main(String[] s) {\n" + 
+			"   	class A implements Listener, ErrorListener {}\n" + 
+			"   	System.out.print(createParser(new A()));\n" + 
+			"   }\n" +
+			"}"
+		},
+		"2"
+	);
+}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
 	public void test011() {
 		this.runNegativeTest(
 			new String[] {
