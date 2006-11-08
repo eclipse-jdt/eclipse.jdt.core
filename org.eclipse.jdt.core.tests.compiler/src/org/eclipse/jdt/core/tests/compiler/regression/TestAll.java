@@ -60,6 +60,8 @@ public static Test suite() {
 	standardTests.add(InnerEmulationTest.class);
 	standardTests.add(SuperTypeTest.class);
 	standardTests.add(ForStatementTest.class);
+	standardTests.add(FieldAccessTest.class);
+	standardTests.add(SerialVersionUIDTests.class);
 	
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
