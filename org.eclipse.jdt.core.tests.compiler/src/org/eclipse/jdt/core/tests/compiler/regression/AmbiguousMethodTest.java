@@ -1503,4 +1503,30 @@ public void test043() {
 		"The return type is incompatible with J.foo(float)\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=121024
+public void _test044() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X\n" + 
+			"{\n" + 
+			"  interface Listener {\n" + 
+			"  }\n" + 
+			"  interface ErrorListener {\n" + 
+			"  }  \n" + 
+			"  static Object createParser(Listener l) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  static <L extends ErrorListener & Listener> Object createParser(L l) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    class A implements Listener, ErrorListener {\n" + 
+			"    }\n" + 
+			"    createParser(new A()); // error here\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
 }
