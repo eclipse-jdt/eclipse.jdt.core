@@ -17,7 +17,7 @@ public class AssertionTest extends AbstractRegressionTest {
 //	 All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 10 };
+//		TESTS_NUMBERS = new int[] { 13, 14 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 	public AssertionTest(String name) {
@@ -314,5 +314,130 @@ public class AssertionTest extends AbstractRegressionTest {
 				"}"
 			},
 			"SUCCESS"); // expected output
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=163600
+	 */
+	public void test014() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static class Foo {\n" + 
+				"		public void myMethod(boolean trash) {\n" + 
+				"			System.out.println(\"Expecting class Foo\");\n" + 
+				"			Class c = Foo.class;\n" + 
+				"			System.out.println(\"Got the class \" + c);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static class Bar {\n" + 
+				"		public void myMethod(boolean doAssert) {\n" + 
+				"			System.out.println(\"Expecting class Bar\");\n" + 
+				"			Class c = Bar.class;\n" + 
+				"			System.out.println(\"Got the class \" + c);\n" + 
+				"			assert c.getName().endsWith(\"Bar\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Foo().myMethod(false);\n" + 
+				"		new Bar().myMethod(false);\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"Expecting class Foo\n" + 
+			"Got the class class X$Foo\n" + 
+			"Expecting class Bar\n" + 
+			"Got the class class X$Bar"); // expected output
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=163600
+	 */
+	public void test015() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static class Foo {\n" + 
+				"		public void myMethod(boolean trash) {\n" + 
+				"			System.out.println(\"Expecting class Foo\");\n" + 
+				"			Class c = Foo.class;\n" + 
+				"			System.out.println(\"Got the class \" + c);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static class Bar {\n" + 
+				"		public void myMethod(boolean doAssert) {\n" + 
+				"			System.out.println(\"Expecting class Bar\");\n" + 
+				"			Class c = Bar.class;\n" + 
+				"			try {\n" +
+				"				assert c.getName().endsWith(\"Bar2\");\n" +
+				"			} catch(AssertionError e) {\n" +
+				"				System.out.println(\"SUCCESS\");\n" +
+				"			}\n" +
+				"			System.out.println(\"Got the class \" + c);\n" +
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Foo().myMethod(false);\n" + 
+				"		new Bar().myMethod(false);\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"Expecting class Foo\n" + 
+			"Got the class class X$Foo\n" + 
+			"Expecting class Bar\n" + 
+			"SUCCESS\n" +
+			"Got the class class X$Bar",
+			null, // use default classpath
+			true, // flush previous output dir content
+			new String[] {"-ea"});
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=163600
+	 */
+	public void test016() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static class Foo {\n" + 
+				"		public void myMethod(boolean trash) {\n" + 
+				"			System.out.println(\"Expecting class Foo\");\n" + 
+				"			Class c = Foo.class;\n" + 
+				"			System.out.println(\"Got the class \" + c);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static class Bar {\n" + 
+				"		public void myMethod(boolean doAssert) {\n" + 
+				"			System.out.println(\"Expecting class Bar\");\n" + 
+				"			Class c = Bar.class;\n" + 
+				"			try {\n" +
+				"				assert c.getName().endsWith(\"Bar2\");\n" +
+				"				System.out.println(\"SUCCESS\");\n" +
+				"			} catch(AssertionError e) {\n" +
+				"				System.out.println(\"FAILED\");\n" +
+				"			}\n" +
+				"			System.out.println(\"Got the class \" + c);\n" +
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Foo().myMethod(false);\n" + 
+				"		new Bar().myMethod(false);\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"Expecting class Foo\n" + 
+			"Got the class class X$Foo\n" + 
+			"Expecting class Bar\n" + 
+			"SUCCESS\n" +
+			"Got the class class X$Bar",
+			null, // use default classpath
+			true, // flush previous output dir content
+			new String[] {"-da"});
 	}
 }

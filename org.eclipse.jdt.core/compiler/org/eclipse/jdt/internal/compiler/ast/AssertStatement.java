@@ -176,7 +176,7 @@ public class AssertStatement extends Statement {
     		// need assertion flag: $assertionsDisabled on outer most source clas
     		// (in case of static member of interface, will use the outermost static member - bug 22334)
     		SourceTypeBinding outerMostClass = currentScope.enclosingSourceType();
-    		while (outerMostClass.isLocalType()){
+			while (outerMostClass.isLocalType()) {
     			ReferenceBinding enclosing = outerMostClass.enclosingType();
     			if (enclosing == null || enclosing.isInterface()) break;
     			outerMostClass = (SourceTypeBinding) enclosing;
