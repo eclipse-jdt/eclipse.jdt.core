@@ -1361,7 +1361,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(this, methodDecl, arg);
 				foundArgProblem = true;
 			} else if (parameterType.isArrayType() && ((ArrayBinding) parameterType).leafComponentType == TypeBinding.VOID) {
-				methodDecl.scope.problemReporter().argumentTypeCannotBeVoidArray(this, methodDecl, arg);
+				methodDecl.scope.problemReporter().argumentTypeCannotBeVoidArray(arg);
 				foundArgProblem = true;
 			} else {
 				TypeBinding leafType = parameterType.leafComponentType();
@@ -1386,7 +1386,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			if (methodType == null) {
 				foundReturnTypeProblem = true;
 			} else if (methodType.isArrayType() && ((ArrayBinding) methodType).leafComponentType == TypeBinding.VOID) {
-				methodDecl.scope.problemReporter().returnTypeCannotBeVoidArray(this, (MethodDeclaration) methodDecl);
+				methodDecl.scope.problemReporter().returnTypeCannotBeVoidArray((MethodDeclaration) methodDecl);
 				foundReturnTypeProblem = true;
 			} else {
 				method.returnType = methodType;

@@ -34,7 +34,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
 //		TESTS_NUMBERS = new int[] { 1069, 1070 };
-//		TESTS_RANGE = new int[] { 821, -1 };
+		TESTS_RANGE = new int[] { 1071, -1 };
 	}
 	public static Test suite() {
 		return buildComparableTestSuite(testClass());
@@ -34930,5 +34930,246 @@ public void test1070() {
 			"}",
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159939
+public void test1071() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"        List<void[]> x = null;\n" + 
+			"        void[] y;\n" + 
+			"        void[] foo(void[] arg) {\n" + 
+			"                void[] local;\n" + 
+			"        }\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	List<void[]> x = null;\n" + 
+		"	     ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	void[] y;\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	void[] foo(void[] arg) {\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	void[] foo(void[] arg) {\n" + 
+		"	           ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
+		"	void[] local;\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159939
+public void test1072() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"        List<void[]> x = null;\n" + 
+			"        void[] y;\n" + 
+			"        void[] foo(void[] arg) {\n" + 
+			"                void[] local;\n" + 
+			"                Class c = void[].class;\n" + 
+			"        }\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	List<void[]> x = null;\n" + 
+		"	     ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	void[] y;\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	void[] foo(void[] arg) {\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	void[] foo(void[] arg) {\n" + 
+		"	           ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
+		"	void[] local;\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 7)\n" + 
+		"	Class c = void[].class;\n" + 
+		"	          ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159939
+public void test1073() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"        List<void[]> x = null;\n" + 
+			"        void[] y;\n" + 
+			"        void[] foo(void[] arg) {\n" + 
+			"                try {\n" + 
+			"                        void[] local;\n" + 
+			"                        Class c = void[].class;\n" + 
+			"                } catch(void[] e) {\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	List<void[]> x = null;\n" + 
+		"	     ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	void[] y;\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	void[] foo(void[] arg) {\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	void[] foo(void[] arg) {\n" + 
+		"	           ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 7)\n" + 
+		"	void[] local;\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 8)\n" + 
+		"	Class c = void[].class;\n" + 
+		"	          ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 9)\n" + 
+		"	} catch(void[] e) {\n" + 
+		"	        ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=159939
+public void test1074() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"        List<void[]> x = null;\n" + 
+			"        void[] y;\n" + 
+			"        void[] foo(void[] arg) {\n" + 
+			"                try {\n" + 
+			"                        void[] local = new void[0];\n" + 
+			"                        void[] local1 = new void[]{ null, null };\n" + 
+			"                        void[] local2 = { null, null };\n" + 
+			"                        System.out.println((void[]) null);\n" + 
+			"                        Class c = void[].class;\n" + 
+			"                } catch(void[] e) {\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	List<void[]> x = null;\n" + 
+		"	     ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	void[] y;\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	void[] foo(void[] arg) {\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	void[] foo(void[] arg) {\n" + 
+		"	           ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 7)\n" + 
+		"	void[] local = new void[0];\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 7)\n" + 
+		"	void[] local = new void[0];\n" + 
+		"	               ^^^^^^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 8)\n" + 
+		"	void[] local1 = new void[]{ null, null };\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 8)\n" + 
+		"	void[] local1 = new void[]{ null, null };\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 9)\n" + 
+		"	void[] local2 = { null, null };\n" + 
+		"	^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 10)\n" + 
+		"	System.out.println((void[]) null);\n" + 
+		"	                    ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"11. ERROR in X.java (at line 11)\n" + 
+		"	Class c = void[].class;\n" + 
+		"	          ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 12)\n" + 
+		"	} catch(void[] e) {\n" + 
+		"	        ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
 }
 }

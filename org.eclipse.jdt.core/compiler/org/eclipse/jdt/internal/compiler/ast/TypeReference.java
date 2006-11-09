@@ -128,12 +128,17 @@ public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 		return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 
 	TypeBinding type = this.resolvedType = getTypeBinding(scope);
-	if (this.resolvedType == null)
+	if (type == null)
 		return null; // detected cycle while resolving hierarchy	
-	if (!this.resolvedType.isValidBinding()) {
+	if (!type.isValidBinding()) {
 		reportInvalidType(scope);
 		return null;
 	}
+	if (type.isArrayType() && ((ArrayBinding) type).leafComponentType == TypeBinding.VOID) {
+		scope.problemReporter().cannotAllocateVoidArray(this);
+		return null;
+	}
+
 	if (isTypeUseDeprecated(type, scope))
 		reportDeprecatedType(scope);
 	
@@ -152,12 +157,16 @@ public TypeBinding resolveType(ClassScope scope) {
 		return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 
 	TypeBinding type = this.resolvedType = getTypeBinding(scope);
-	if (this.resolvedType == null)
+	if (type == null)
 		return null; // detected cycle while resolving hierarchy	
-	if (!this.resolvedType.isValidBinding()) {
+	if (!type.isValidBinding()) {
 		reportInvalidType(scope);
 		return null;
 	}
+	if (type.isArrayType() && ((ArrayBinding) type).leafComponentType == TypeBinding.VOID) {
+		scope.problemReporter().cannotAllocateVoidArray(this);
+		return null;
+	}	
 	if (isTypeUseDeprecated(type, scope))
 		reportDeprecatedType(scope);
 	

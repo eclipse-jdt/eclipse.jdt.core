@@ -635,14 +635,13 @@ public void argumentTypeCannotBeVoid(SourceTypeBinding type, AbstractMethodDecla
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void argumentTypeCannotBeVoidArray(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, Argument arg) {
-	String[] arguments = new String[] {new String(methodDecl.selector), new String(arg.name)};
+public void argumentTypeCannotBeVoidArray(Argument arg) {
 	this.handle(
-		IProblem.ArgumentTypeCannotBeVoidArray,
-		arguments,
-		arguments,
-		methodDecl.sourceStart,
-		methodDecl.sourceEnd);
+		IProblem.CannotAllocateVoidArray,
+		NoArgument,
+		NoArgument,
+		arg.type.sourceStart,
+		arg.type.sourceEnd);
 }
 public void arrayConstantsOnlyInArrayInitializers(int sourceStart, int sourceEnd) {
 	this.handle(
@@ -5356,14 +5355,13 @@ public void referenceMustBeArrayTypeAt(TypeBinding arrayType, ArrayReference arr
 		arrayRef.sourceStart,
 		arrayRef.sourceEnd);
 }
-public void returnTypeCannotBeVoidArray(SourceTypeBinding type, MethodDeclaration methodDecl) {
-	String[] arguments = new String[] {new String(methodDecl.selector)};
+public void returnTypeCannotBeVoidArray(MethodDeclaration methodDecl) {
 	this.handle(
-		IProblem.ReturnTypeCannotBeVoidArray,
-		arguments,
-		arguments,
-		methodDecl.sourceStart,
-		methodDecl.sourceEnd);
+		IProblem.CannotAllocateVoidArray,
+		NoArgument,
+		NoArgument,
+		methodDecl.returnType.sourceStart,
+		methodDecl.returnType.sourceEnd);
 }
 public void scannerError(Parser parser, String errorTokenName) {
 	Scanner scanner = parser.scanner;
@@ -6414,13 +6412,12 @@ public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 		varDecl.sourceEnd);
 }
 public void variableTypeCannotBeVoidArray(AbstractVariableDeclaration varDecl) {
-	String[] arguments = new String[] {new String(varDecl.name)};
 	this.handle(
-		IProblem.VariableTypeCannotBeVoidArray,
-		arguments,
-		arguments,
-		varDecl.sourceStart,
-		varDecl.sourceEnd);
+		IProblem.CannotAllocateVoidArray,
+		NoArgument,
+		NoArgument,
+		varDecl.type.sourceStart,
+		varDecl.type.sourceEnd);
 }
 public void visibilityConflict(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	this.handle(

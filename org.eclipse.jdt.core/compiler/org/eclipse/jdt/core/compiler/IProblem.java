@@ -288,6 +288,7 @@ void setSourceStart(int sourceStart);
 	int UndefinedName = Internal + FieldRelated + 50;
 	int UninitializedLocalVariable = Internal + 51;
 	int VariableTypeCannotBeVoid = Internal + 52;
+	/** @deprecated - problem is no longer generated, use {@link #CannotAllocateVoidArray} instead */
 	int VariableTypeCannotBeVoidArray = Internal + 53;
 	int CannotAllocateVoidArray = Internal + 54;
 	// local variables
@@ -447,7 +448,7 @@ void setSourceStart(int sourceStart);
 	int SuperfluousSemicolon = Internal + 180;
 	/** @since 3.0 */
 	int UnnecessaryCast = Internal + TypeRelated + 181;
-	/** @deprecated - no longer generated, simply treated as UnnecessaryCast
+	/** @deprecated - no longer generated, use {@link #UnnecessaryCast} instead
 	 *   @since 3.0 */
 	int UnnecessaryArgumentCast = Internal + TypeRelated + 182;
 	/** @since 3.0 */
@@ -597,26 +598,26 @@ void setSourceStart(int sourceStart);
 	/** @since 3.1 */
 	int ObjectMustBeClass = Internal + 330;
 
-	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int SuperclassNotFound =  TypeRelated + 329 + ProblemReasons.NotFound; // TypeRelated + 330
-	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #NotVisibleType} instead */
 	int SuperclassNotVisible =  TypeRelated + 329 + ProblemReasons.NotVisible; // TypeRelated + 331
-	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #AmbiguousType} instead */
 	int SuperclassAmbiguous =  TypeRelated + 329 + ProblemReasons.Ambiguous; // TypeRelated + 332
-	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InternalTypeNameProvided} instead */
 	int SuperclassInternalNameProvided =  TypeRelated + 329 + ProblemReasons.InternalNameProvided; // TypeRelated + 333
-	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InheritedTypeHidesEnclosingName} instead */
 	int SuperclassInheritedNameHidesEnclosingName =  TypeRelated + 329 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 334
 
-	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int InterfaceNotFound =  TypeRelated + 334 + ProblemReasons.NotFound; // TypeRelated + 335
-	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #NotVisibleType} instead */
 	int InterfaceNotVisible =  TypeRelated + 334 + ProblemReasons.NotVisible; // TypeRelated + 336
-	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #AmbiguousType} instead */
 	int InterfaceAmbiguous =  TypeRelated + 334 + ProblemReasons.Ambiguous; // TypeRelated + 337
-	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InternalTypeNameProvided} instead */
 	int InterfaceInternalNameProvided =  TypeRelated + 334 + ProblemReasons.InternalNameProvided; // TypeRelated + 338
-	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InheritedTypeHidesEnclosingName} instead */
 	int InterfaceInheritedNameHidesEnclosingName =  TypeRelated + 334 + ProblemReasons.InheritedNameHidesEnclosingName; // TypeRelated + 339
 
 	// field related problems
@@ -628,15 +629,15 @@ void setSourceStart(int sourceStart);
 	int IllegalModifierCombinationFinalVolatileForField = FieldRelated + 345;
 	int UnexpectedStaticModifierForField = FieldRelated + 346;
 
-	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int FieldTypeNotFound =  FieldRelated + 349 + ProblemReasons.NotFound; // FieldRelated + 350
-	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #NotVisibleType} instead */
 	int FieldTypeNotVisible =  FieldRelated + 349 + ProblemReasons.NotVisible; // FieldRelated + 351
-	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #AmbiguousType} instead */
 	int FieldTypeAmbiguous =  FieldRelated + 349 + ProblemReasons.Ambiguous; // FieldRelated + 352
-	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InternalTypeNameProvided} instead */
 	int FieldTypeInternalNameProvided =  FieldRelated + 349 + ProblemReasons.InternalNameProvided; // FieldRelated + 353
-	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InheritedTypeHidesEnclosingName} instead */
 	int FieldTypeInheritedNameHidesEnclosingName =  FieldRelated + 349 + ProblemReasons.InheritedNameHidesEnclosingName; // FieldRelated + 354
 	
 	// method related problems
@@ -650,42 +651,44 @@ void setSourceStart(int sourceStart);
 	int IllegalAbstractModifierCombinationForMethod = MethodRelated + 362;
 	int AbstractMethodInAbstractClass = MethodRelated + 363;
 	int ArgumentTypeCannotBeVoid = MethodRelated + 364;
+	/** @deprecated - problem is no longer generated, use {@link #CannotAllocateVoidArray} instead */
 	int ArgumentTypeCannotBeVoidArray = MethodRelated + 365;
+	/** @deprecated - problem is no longer generated, use {@link #CannotAllocateVoidArray} instead */
 	int ReturnTypeCannotBeVoidArray = MethodRelated + 366;
 	int NativeMethodsCannotBeStrictfp = MethodRelated + 367;
 	int DuplicateModifierForArgument = MethodRelated + 368;
 
-	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int ArgumentTypeNotFound =  MethodRelated + 369 + ProblemReasons.NotFound; // MethodRelated + 370
-	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #NotVisibleType} instead */
 	int ArgumentTypeNotVisible =  MethodRelated + 369 + ProblemReasons.NotVisible; // MethodRelated + 371
-	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #AmbiguousType} instead */
 	int ArgumentTypeAmbiguous =  MethodRelated + 369 + ProblemReasons.Ambiguous; // MethodRelated + 372
-	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InternalTypeNameProvided} instead */
 	int ArgumentTypeInternalNameProvided =  MethodRelated + 369 + ProblemReasons.InternalNameProvided; // MethodRelated + 373
-	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InheritedTypeHidesEnclosingName} instead */
 	int ArgumentTypeInheritedNameHidesEnclosingName =  MethodRelated + 369 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 374
 
-	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int ExceptionTypeNotFound =  MethodRelated + 374 + ProblemReasons.NotFound; // MethodRelated + 375
-	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #NotVisibleType} instead */
 	int ExceptionTypeNotVisible =  MethodRelated + 374 + ProblemReasons.NotVisible; // MethodRelated + 376
-	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #AmbiguousType} instead */
 	int ExceptionTypeAmbiguous =  MethodRelated + 374 + ProblemReasons.Ambiguous; // MethodRelated + 377
-	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InternalTypeNameProvided} instead */
 	int ExceptionTypeInternalNameProvided =  MethodRelated + 374 + ProblemReasons.InternalNameProvided; // MethodRelated + 378
-	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InheritedTypeHidesEnclosingName} instead */
 	int ExceptionTypeInheritedNameHidesEnclosingName =  MethodRelated + 374 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 379
 
-	/** @deprecated - problem is no longer generated, UndefinedType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int ReturnTypeNotFound =  MethodRelated + 379 + ProblemReasons.NotFound; // MethodRelated + 380
-	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #NotVisibleType} instead */
 	int ReturnTypeNotVisible =  MethodRelated + 379 + ProblemReasons.NotVisible; // MethodRelated + 381
-	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #AmbiguousType} instead */
 	int ReturnTypeAmbiguous =  MethodRelated + 379 + ProblemReasons.Ambiguous; // MethodRelated + 382
-	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InternalTypeNameProvided} instead */
 	int ReturnTypeInternalNameProvided =  MethodRelated + 379 + ProblemReasons.InternalNameProvided; // MethodRelated + 383
-	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InheritedTypeHidesEnclosingName} instead */
 	int ReturnTypeInheritedNameHidesEnclosingName =  MethodRelated + 379 + ProblemReasons.InheritedNameHidesEnclosingName; // MethodRelated + 384
 
 	// import related problems
@@ -695,13 +698,13 @@ void setSourceStart(int sourceStart);
 	int UnusedImport = ImportRelated + 388;
 
 	int ImportNotFound =  ImportRelated + 389 + ProblemReasons.NotFound; // ImportRelated + 390
-	/** @deprecated - problem is no longer generated, NotVisibleType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #NotVisibleType} instead */
 	int ImportNotVisible =  ImportRelated + 389 + ProblemReasons.NotVisible; // ImportRelated + 391
-	/** @deprecated - problem is no longer generated, use AmbiguousType is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #AmbiguousType} instead */
 	int ImportAmbiguous =  ImportRelated + 389 + ProblemReasons.Ambiguous; // ImportRelated + 392
-	/** @deprecated - problem is no longer generated, use InternalTypeNameProvided is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InternalTypeNameProvided} instead */
 	int ImportInternalNameProvided =  ImportRelated + 389 + ProblemReasons.InternalNameProvided; // ImportRelated + 393
-	/** @deprecated - problem is no longer generated, use InheritedTypeHidesEnclosingName is used instead */
+	/** @deprecated - problem is no longer generated, use {@link #InheritedTypeHidesEnclosingName} instead */
 	int ImportInheritedNameHidesEnclosingName =  ImportRelated + 389 + ProblemReasons.InheritedNameHidesEnclosingName; // ImportRelated + 394
 
 	/** @since 3.1 */

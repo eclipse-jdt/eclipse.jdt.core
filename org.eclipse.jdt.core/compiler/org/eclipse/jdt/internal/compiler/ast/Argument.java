@@ -108,7 +108,11 @@ public class Argument extends LocalDeclaration {
 		if (exceptionType.isTypeVariable()) {
 			scope.problemReporter().invalidTypeVariableAsException(exceptionType, this);
 			return null;
-		}		
+		}
+		if (exceptionType.isArrayType() && ((ArrayBinding) exceptionType).leafComponentType == TypeBinding.VOID) {
+			scope.problemReporter().variableTypeCannotBeVoidArray(this);
+			return null;
+		}
 		if (exceptionType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
 			scope.problemReporter().cannotThrowType(this.type, exceptionType);
 			return null;
