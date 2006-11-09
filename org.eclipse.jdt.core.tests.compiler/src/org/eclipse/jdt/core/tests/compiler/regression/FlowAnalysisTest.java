@@ -1031,6 +1031,76 @@ public void test033() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162918
+public void _test034() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo1() {\n" + 
+			"    switch (1) {\n" + 
+			"    case 0:\n" + 
+			"      final int i = 1;\n" + 
+			"    case i: // should complain: i not initialized\n" + 
+			"      System.out.println(i); // should complain: i not initialized\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"2 ERRORS" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162918
+// variant
+public void test035() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo2() {\n" + 
+			"    switch (1) {\n" + 
+			"    case 0:\n" + 
+			"      int j = 0;\n" + 
+			"    case 1:\n" + 
+			"      System.out.println(j); // should complain: j not initialized\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	System.out.println(j); // should complain: j not initialized\n" + 
+		"	                   ^\n" + 
+		"The local variable j may not have been initialized\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162918
+// variant
+public void _test036() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo3() {\n" + 
+			"    switch (1) {\n" + 
+			"    case 0:\n" + 
+			"      class Local {\n" + 
+			"      }\n" + 
+			"      ;\n" + 
+			"    case 1:\n" + 
+			"      new Local(); // should complain: Local undefined\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	new Local(); // should complain: Local undefined\n" + 
+		"	    ^^^^^\n" + 
+		"Local cannot be resolved to a type\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
