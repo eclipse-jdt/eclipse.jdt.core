@@ -36,11 +36,10 @@ public class ClassLiteralAccess extends Expression {
 		FlowInfo flowInfo) {
 
 		// if reachable, request the addition of a synthetic field for caching the class descriptor
-		SourceTypeBinding sourceType =
-			currentScope.outerMostMethodScope().enclosingSourceType();
-		if ((!(sourceType.isInterface()
-				// no field generated in interface case (would'nt verify) see 1FHHEZL
-				|| sourceType.isBaseType()))
+		SourceTypeBinding sourceType = currentScope.outerMostClassScope().enclosingSourceType();
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=22334
+		if (!sourceType.isInterface()
+				&& !sourceType.isBaseType()
 				&& currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
 			syntheticField = sourceType.addSyntheticFieldForClassLiteral(targetType, currentScope);
 		}
