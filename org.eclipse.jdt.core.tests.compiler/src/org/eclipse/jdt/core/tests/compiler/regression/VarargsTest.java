@@ -1964,5 +1964,36 @@ public class VarargsTest extends AbstractComparableTest {
 				"	                                         ^^^^^^^^^^^^^^^^^^\n" + 
 				"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method elementCount(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 
 				"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=163889
+	public void test057() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.RetentionPolicy;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"\n" + 
+					"  void a(Enum<?>...enums) {}\n" + 
+					"\n" + 
+					"  void b () {\n" + 
+					"    RetentionPolicy[] t = null;\n" + 
+					"    a(t);\n" + 
+					"    a((Enum<?>[])t);\n" + 
+					"    Zork z;\n" +	 
+					"  }\n" + 
+					"}\n", // =================
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 10)\n" + 
+				"	a((Enum<?>[])t);\n" + 
+				"	  ^^^^^^^^^^^^\n" + 
+				"Unnecessary cast from RetentionPolicy[] to Enum<?>[]\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 11)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
 	}		
 	}
