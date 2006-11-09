@@ -20,6 +20,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -2247,6 +2248,76 @@ public void testBug96950() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
+	}
+}
+/**
+ * @bug 162621: [model][delta] Validation errors do not clear after replacing jar file
+ * @test Ensures that changing an internal jar and refreshing takes the change into account
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=162621"
+ */
+public void testChangeInternalJar() throws CoreException, IOException {
+	String jarName = "b162621.jar";
+	try {
+		// Create jar file with a class with 2 methods doXXX
+		String[] pathAndContents = new String[] {
+			"pack/Util.java",
+			"package pack;\n" + 
+			"public class Util {\n" + 
+			"    public void doit2A(int x, int y) { }\n" + 
+			"    public void doit2B(int x) { }\n" + 
+			"}\n"
+		};
+		addLibrary(jarName, "b162621_src.zip", pathAndContents, JavaCore.VERSION_1_4);
+
+		// Create compilation unit in which completion occurs
+		String path = "/Completion/src/test/Test.java";
+		String source = "package test;\n" + 
+			"import pack.*;\n" + 
+			"public class Test {\n" + 
+			"	public void foo() {\n" + 
+			"		Util test = new Util();\n" + 
+			"		test.doit2A(1, 2);\n" + 
+			"	}\n" + 
+			"}\n";
+		createFolder("/Completion/src/test");
+		createFile(path, source);
+
+		// first completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit unit = getCompilationUnit(path);
+		String completeBehind = "test.do";
+		int cursorLocation = source.lastIndexOf(completeBehind) + completeBehind.length();
+		unit.codeComplete(cursorLocation, requestor);
+		assertResults(
+			"doit2A[METHOD_REF]{doit2A, Lpack.Util;, (II)V, doit2A, "+(R_DEFAULT + R_CASE + R_INTERESTING + R_NON_RESTRICTED + R_NON_STATIC) + "}\n" +
+			"doit2B[METHOD_REF]{doit2B, Lpack.Util;, (I)V, doit2B, "+(R_DEFAULT + R_CASE + R_INTERESTING + R_NON_RESTRICTED + R_NON_STATIC) + "}",
+			requestor.getResults());
+
+		// change class file to add a third doXXX method and refresh
+		String projectLocation = this.currentProject.getProject().getLocation().toOSString();
+		String jarPath = projectLocation + File.separator + jarName;
+		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+			"pack/Util.java",
+			"package pack;\n" + 
+			"public class Util {\n" + 
+			"    public void doit2A(int x, int y) { }\n" + 
+			"    public void doit2B(int x) { }\n" + 
+			"    public void doit2C(int x) { }\n" + 
+			"}\n"
+		}, jarPath, "1.4");
+		this.currentProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+
+		// second completion
+		requestor = new CompletionTestsRequestor2();
+		unit.codeComplete(cursorLocation, requestor);
+		assertResults(
+			"doit2A[METHOD_REF]{doit2A, Lpack.Util;, (II)V, doit2A, "+(R_DEFAULT + R_CASE + R_INTERESTING + R_NON_RESTRICTED + R_NON_STATIC) + "}\n" +
+			"doit2B[METHOD_REF]{doit2B, Lpack.Util;, (I)V, doit2B, "+(R_DEFAULT + R_CASE + R_INTERESTING + R_NON_RESTRICTED + R_NON_STATIC) + "}\n" +
+			"doit2C[METHOD_REF]{doit2C, Lpack.Util;, (I)V, doit2C, "+(R_DEFAULT + R_CASE + R_INTERESTING + R_NON_RESTRICTED + R_NON_STATIC) + "}",
+			requestor.getResults());
+	} finally {
+		removeLibraryEntry(this.currentProject, new Path(jarName));
+		deleteFile(new File(jarName));
 	}
 }
 }

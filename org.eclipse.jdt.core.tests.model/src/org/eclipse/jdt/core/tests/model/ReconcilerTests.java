@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILogListener;
@@ -867,6 +868,84 @@ public void testChangeExternalJar() throws CoreException, IOException {
 	} finally {
 		removeLibraryEntry(project, new Path(jarPath));
 		deleteFile(new File(jarPath));
+	}
+}
+/**
+ * @bug 162621: [model][delta] Validation errors do not clear after replacing jar file
+ * @test Ensures that changing an internal jar and refreshing takes the change into account
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=162621"
+ */
+public void testChangeInternalJar() throws CoreException, IOException {
+	IJavaProject project = getJavaProject("Reconciler");
+	String jarName = "b162621.jar";
+	try {
+		String[] pathAndContents = new String[] {
+			"test/before/Foo.java",
+			"package test.before;\n" + 
+			"public class Foo {\n" + 
+			"}\n"
+		};
+		addLibrary(project, jarName, "b162621_src.zip", pathAndContents, JavaCore.VERSION_1_4);
+
+		// Set working copy content with no error
+		setUpWorkingCopy("/Reconciler/src/test/Test.java",
+			"package test;\n" + 
+			"import test.before.Foo;\n" + 
+			"public class Test {\n" + 
+			"	Foo f;\n" + 
+			"}\n"
+		);
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+
+		// Update working copy with Jar expected changes
+		String contents = "package test;\n" + 
+			"import test.after.Foo;\n" + 
+			"public class Test {\n" + 
+			"	Foo f;\n" + 
+			"}\n";
+		setWorkingCopyContents(contents);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
+		assertProblems(
+			"Wrong expected problems", 
+			"----------\n" + 
+			"1. ERROR in /Reconciler/src/test/Test.java (at line 2)\n" + 
+			"	import test.after.Foo;\n" + 
+			"	       ^^^^^^^^^^\n" + 
+			"The import test.after cannot be resolved\n" + 
+			"----------\n" + 
+			"2. ERROR in /Reconciler/src/test/Test.java (at line 4)\n" + 
+			"	Foo f;\n" + 
+			"	^^^\n" + 
+			"Foo cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+		
+		// change jar and refresh
+		String projectLocation = project.getProject().getLocation().toOSString();
+		String jarPath = projectLocation + File.separator + jarName;
+		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+			"test/after/Foo.java",
+			"package test.after;\n" + 
+			"public class Foo {\n" + 
+			"}\n"
+		}, jarPath, "1.4");
+		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+
+		// Verify that error is gone
+		this.problemRequestor.initialize(contents.toCharArray());
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		removeLibraryEntry(project, new Path(jarName));
+		deleteFile(new File(jarName));
 	}
 }
 /**

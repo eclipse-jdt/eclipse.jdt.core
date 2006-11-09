@@ -624,6 +624,9 @@ public class DeltaProcessor {
 			int flags = IJavaElementDelta.F_CONTENT;
 			if (element instanceof JarPackageFragmentRoot){
 				flags |= IJavaElementDelta.F_ARCHIVE_CONTENT_CHANGED;
+				// need also to reset project cache otherwise it will be out-of-date
+				// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=162621
+				this.projectCachesToReset.add(element.getJavaProject());
 			}
 			if (isPrimary) {
 				flags |= IJavaElementDelta.F_PRIMARY_RESOURCE;
