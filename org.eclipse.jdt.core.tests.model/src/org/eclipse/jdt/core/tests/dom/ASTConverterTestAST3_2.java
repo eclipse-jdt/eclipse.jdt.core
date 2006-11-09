@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -55,6 +56,7 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -108,7 +110,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-		TESTS_NUMBERS =  new int[] { 654 };
+//		TESTS_NUMBERS =  new int[] { 655 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8122,6 +8124,44 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=156352
+	public void _test0655() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		ICompilationUnit workingCopy2 = null;
+		try {
+   			String contents =
+				"package p;\n" +
+				"public class Test1 {}";
+			workingCopy = getWorkingCopy("/Converter/src/p/Test1.java", true/*resolve*/);
+			workingCopy.getBuffer().setContents(contents);
+			workingCopy.save(null, true);
+			
+   			contents =
+				"package p;\n" +
+				"public class Test3 extends Test1 {}";
+			workingCopy2 = getWorkingCopy("/Converter/src/p/Test3.java", true/*resolve*/);
+			workingCopy2.getBuffer().setContents(contents);
+			workingCopy2.save(null, true);
+			IType type = workingCopy2.getType("Test3");
+			
+			ASTParser parser= ASTParser.newParser(AST.JLS3);
+    		parser.setProject(type.getJavaProject());
+    		IBinding[] bindings= parser.createBindings(new IJavaElement[] { type }, null);
+    		if (bindings.length == 1 && bindings[0] instanceof ITypeBinding) {
+    			ITypeBinding binding= (ITypeBinding) bindings[0];
+    			while (binding != null) {
+    				binding.getAnnotations(); // NPE here on 'Test1'
+    				binding= binding.getSuperclass();
+    			}
+    		}
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+			if (workingCopy2 != null)
+				workingCopy2.discardWorkingCopy();
 		}
 	}
 }
