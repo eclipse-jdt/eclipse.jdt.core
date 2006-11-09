@@ -79,15 +79,21 @@
 	</target>
 
 	<target name="post.compile.@dot">
+		<property name="unjarDest" value="${basedir}/temp"/>
+		<mkdir dir="${unjarDest}"/>
 		<unjar
 			src="${postingDirectory}/${buildLabel}/ecj.jar"
-			dest="${target.folder}"/>
+			dest="${unjarDest}"/>
 		<jar destfile="${postingDirectory}/${buildLabel}/ecj.jar">
-			<fileset dir="${target.folder}">
+			<fileset dir="${unjarDest}">
 				<include name="**/*"/>
 				<include name="*/*"/>
 	        </fileset>
+			<fileset dir="${target.folder}">
+				<include name="**/*"/>
+	        </fileset>
 		</jar>
+		<delete dir="${unjarDest}" failonerror="false"/>
 	</target>
 	
 	<!-- ===================================================================== -->
