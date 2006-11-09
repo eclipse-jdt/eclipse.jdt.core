@@ -79,21 +79,41 @@
 	</target>
 
 	<target name="post.compile.@dot">
-		<property name="unjarDest" value="${basedir}/temp"/>
-		<mkdir dir="${unjarDest}"/>
+		<echo message="UPDATE ecj.jar" />
+		<property name="unjarDestBin" value="${basedir}/tempbin"/>
+		<mkdir dir="${unjarDestBin}"/>
 		<unjar
 			src="${postingDirectory}/${buildLabel}/ecj.jar"
-			dest="${unjarDest}"/>
+			dest="${unjarDestBin}"/>
 		<zip destfile="${postingDirectory}/${buildLabel}/ecj.jar">
-			<fileset dir="${unjarDest}">
+			<fileset dir="${unjarDestBin}">
 				<include name="**/*"/>
 				<include name="*/*"/>
 	        </fileset>
 			<fileset dir="${target.folder}">
 				<include name="**/*"/>
 	        </fileset>
+			<fileset dir="${basedir}">
+			  <include name="META-INF/services/**" />
+			  <include name="about.html" />
+	        </fileset>
 		</zip>
-		<delete dir="${unjarDest}" failonerror="false"/>
+		<delete dir="${unjarDestBin}" failonerror="false"/>
+		
+		<echo message="UPDATE ecjsrc.zip" />
+		<property name="unjarDestSrc" value="${basedir}/tempsrc"/>
+		<mkdir dir="${unjarDestSrc}"/>
+		<unzip
+			src="${postingDirectory}/${buildLabel}/ecjsrc.zip"
+			dest="${unjarDestSrc}"/>
+		<zip destfile="${postingDirectory}/${buildLabel}/ecjsrc.zip">
+		    <zipfileset dir="src" />
+		    <zipfileset dir="${unjarDestSrc}" />
+		    <zipfileset dir="${basedir}">
+			  <include name="about.html"/>
+			</zipfileset>			
+		</zip>
+		<delete dir="${unjarDestSrc}" failonerror="false"/>
 	</target>
 	
 	<!-- ===================================================================== -->
