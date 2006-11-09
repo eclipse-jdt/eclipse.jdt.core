@@ -883,27 +883,27 @@ public void test012(){
      " with ''+''.\n" + 
      " \n" + 
      " Classpath options:\n" + 
-     "    -cp -classpath <directories and zip/jar files separated by ;>\n" + 
+     "    -cp -classpath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
      "                       specify location for application classes and sources.\n" + 
      "                       Each directory or file can specify access rules for\n" + 
      "                       types between ''['' and '']'' (e.g. [-X] to forbid\n" + 
      "                       access to type X, [~X] to discourage access to type X,\n" + 
      "                       [+p/X:-p/*] to forbid access to all types in package p\n" + 
      "                       but allow access to p/X)\n" + 
-     "    -bootclasspath <directories and zip/jar files separated by ;>\n" + 
+     "    -bootclasspath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
      "                       specify location for system classes. Each directory or\n" + 
      "                       file can specify access rules for types between ''[''\n" + 
      "                       and '']''\n" + 
-     "    -sourcepath <directories and zip/jar files separated by ;>\n" + 
+     "    -sourcepath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
      "                       specify location for application sources. Each directory\n" + 
      "                       or file can specify access rules for types between ''[''\n" + 
      "                       and '']''.\n" + 
      "                       .class files created from source files contained in a\n" + 
      "                       jar file are put in the user.dir folder in case no\n" + 
      "                       destination directory is specified.\n" + 
-     "    -extdirs <directories separated by ;>\n" + 
+     "    -extdirs <directories separated by " + File.pathSeparator + ">\n" + 
      "                       specify location for extension zip/jar files\n" + 
-     "    -endorseddirs <directories separated by ;>\n" + 
+     "    -endorseddirs <directories separated by " + File.pathSeparator + ">\n" + 
      "                       specify location for endorsed zip/jar files\n" + 
      "    -d <dir>           destination directory (if omitted, no directory is\n" + 
      "                       created)\n" + 
