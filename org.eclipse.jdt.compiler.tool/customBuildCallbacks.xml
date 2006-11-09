@@ -27,9 +27,14 @@
 	<!-- ===================================================================== -->
 	<target name="post.build.jars">
 		<property name="dest" value="${postingDirectory}/${buildLabel}" />
+		<mkdir dir="${dest}/checksum" />
 		<ant antfile="${basedir}/scripts/export-ecj.xml" target="export">
 			<property name="dest" value="${dest}" />
 		</ant>
+    	<checksum file="${dest}/ecj.jar" property="md5" /> 
+		<echo message="${md5} ecj.jar" file="${dest}/checksum/ecj.jar.md5" /> 
+    	<checksum file="${dest}/ecjsrc.zip" property="md5" /> 
+		<echo message="${md5} ecjsrc.zip" file="${dest}/checksum/ecjsrc.zip.md5" /> 
 	</target>
 	
 	<!-- ===================================================================== -->
@@ -77,9 +82,15 @@
 	</target>
 
 	<target name="post.compile.@dot">
-		<ant antfile="${basedir}/scripts/export-ecj.xml" target="extract-batch-compiler">
-			<property name="target.folder" value="${target.folder}" />
-		</ant>
+		<unjar
+			src="${postingDirectory}/${buildLabel}/ecj.jar"
+			dest="${target.folder}"/>
+		<jar destfile="${postingDirectory}/${buildLabel}/ecj.jar">
+			<fileset dir="${target.folder}">
+				<include name="**/*"/>
+				<include name="about.html"/>
+	        </fileset>
+		</jar>
 	</target>
 	
 	<!-- ===================================================================== -->
@@ -162,26 +173,5 @@
 	<!--   temp.folder - temporary folder                                      -->
 	<!-- ===================================================================== -->
 	<target name="post.clean">             
-	</target>
-	
-	<!-- ===================================================================== -->
-	<!-- Steps to do before the target jdtCompilerAdapter.jar                  -->
-	<!-- ===================================================================== -->
-	<target name="pre.jdtCompilerAdapter.jar">
-	</target>
-
-	<!-- ===================================================================== -->
-	<!-- Steps to do after the target compile.jdtCompilerAdapter.jar           -->
-	<!-- ===================================================================== -->
-	<target name="post.compile.jdtCompilerAdapter.jar">
-		<ant antfile="${basedir}/scripts/export-ecj.xml" target="extract-ant-adapter-compiler">
-			<property name="target.folder" value="${target.folder}" />
-		</ant>
-	</target>
-	
-	<!-- ===================================================================== -->
-	<!-- Steps to do after the target jdtCompilerAdapter.jar                   -->
-	<!-- ===================================================================== -->
-	<target name="post.jdtCompilerAdapter.jar">
 	</target>
 </project>
