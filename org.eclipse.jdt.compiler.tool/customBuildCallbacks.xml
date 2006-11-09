@@ -84,7 +84,7 @@
 		<unjar
 			src="${postingDirectory}/${buildLabel}/ecj.jar"
 			dest="${unjarDest}"/>
-		<jar destfile="${postingDirectory}/${buildLabel}/ecj.jar">
+		<zip destfile="${postingDirectory}/${buildLabel}/ecj.jar">
 			<fileset dir="${unjarDest}">
 				<include name="**/*"/>
 				<include name="*/*"/>
@@ -92,7 +92,7 @@
 			<fileset dir="${target.folder}">
 				<include name="**/*"/>
 	        </fileset>
-		</jar>
+		</zip>
 		<delete dir="${unjarDest}" failonerror="false"/>
 	</target>
 	
