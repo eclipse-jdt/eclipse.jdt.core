@@ -111,6 +111,7 @@
 		    <zipfileset dir="${unjarDestSrc}" />
 		    <zipfileset dir="${basedir}">
 			  <include name="about.html"/>
+			  <include name="META-INF/services/**" />
 			</zipfileset>			
 		</zip>
 		<delete dir="${unjarDestSrc}" failonerror="false"/>
