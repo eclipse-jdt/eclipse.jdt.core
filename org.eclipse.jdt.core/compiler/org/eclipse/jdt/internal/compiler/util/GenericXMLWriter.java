@@ -54,8 +54,8 @@ public class GenericXMLWriter extends PrintWriter {
 		}
 		return null;
 	}
-	private int tab;
 	private String lineSeparator;
+	private int tab;
 	public GenericXMLWriter(OutputStream stream, String lineSeparator, boolean printXmlVersion) {
 		this(new PrintWriter(stream), lineSeparator, printXmlVersion);
 	}
@@ -72,14 +72,27 @@ public class GenericXMLWriter extends PrintWriter {
 		this.tab --;
 		printTag('/' + name, null/*no parameters*/, insertTab, insertNewLine, false/*don't close tag*/);
 	}
+	/*
+	 * External API
+	 */
+	public void printString(String string, boolean insertTab, boolean insertNewLine) {
+		if (insertTab) {
+			printTabulation();
+		}
+		print(string);
+		if (insertNewLine) {
+			print(this.lineSeparator);
+		}
+	}
 	private void printTabulation() {
-		for (int i= 0; i < tab; i++)
-			super.print('\t');
+		for (int i= 0; i < this.tab; i++) this.print('\t');
 	}
 	public void printTag(String name, HashMap parameters, boolean insertTab, boolean insertNewLine, boolean closeTag) {
-		StringBuffer sb= new StringBuffer();
-		sb.append("<"); //$NON-NLS-1$
-		sb.append(name);
+		if (insertTab) {
+			this.printTabulation();
+		}
+		this.print('<');
+		this.print(name);
 		if (parameters != null) {
 			int length = parameters.size();
 			Map.Entry[] entries = new Map.Entry[length];
@@ -92,31 +105,24 @@ public class GenericXMLWriter extends PrintWriter {
 				}
 			});
 			for (int i = 0; i < length; i++) {
-				sb.append(" "); //$NON-NLS-1$
-				sb.append(entries[i].getKey());
-				sb.append("=\""); //$NON-NLS-1$
-				sb.append(getEscaped(String.valueOf(entries[i].getValue())));
-				sb.append("\""); //$NON-NLS-1$
+				this.print(' ');
+				this.print(entries[i].getKey());
+				this.print("=\""); //$NON-NLS-1$
+				this.print(getEscaped(String.valueOf(entries[i].getValue())));
+				this.print('\"');
 			}
 		}
 		if (closeTag) {
-			sb.append("/>"); //$NON-NLS-1$
+			this.print("/>"); //$NON-NLS-1$
 		} else {
-			sb.append(">"); //$NON-NLS-1$
+			this.print(">"); //$NON-NLS-1$
 		}
-		printString(sb.toString(), insertTab, insertNewLine);
-		if (parameters != null && !closeTag)
-			this.tab++;
-
-	}
-	public void printString(String string, boolean insertTab, boolean insertNewLine) {
-		if (insertTab) {
-			printTabulation();
-		}
-		print(string);
 		if (insertNewLine) {
 			print(this.lineSeparator);
 		}
+		if (parameters != null && !closeTag)
+			this.tab++;
+
 	}
 	public void startTag(String name, boolean insertTab) {
 		printTag(name, null/*no parameters*/, insertTab, true/*insert new line*/, false/*don't close tag*/);
