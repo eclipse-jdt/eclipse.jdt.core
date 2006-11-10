@@ -357,7 +357,7 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 
 		// Special case for UTF-8 BOM files
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=110576
-		if (encoding.equals(org.eclipse.jdt.internal.compiler.util.Util.UTF_8)) {
+		if (encoding != null && encoding.equals(org.eclipse.jdt.internal.compiler.util.Util.UTF_8)) {
 			IContentDescription description = this.file.getContentDescription();
 			if (description != null && description.getProperty(IContentDescription.BYTE_ORDER_MARK) != null) {
 				int bomLength= IContentDescription.BOM_UTF_8.length;

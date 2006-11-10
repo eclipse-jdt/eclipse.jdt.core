@@ -102,6 +102,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		char[][] exclusionPatterns = null;
 		IClasspathEntry[] classpath = null;
 		IPath projectOutput = null;
+		boolean isClasspathResolved = true;
 		try {
 			classpath = project.getResolvedClasspath();
 			for (int i = 0; i < classpath.length; i++) {
@@ -116,7 +117,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 			projectOutput = project.getOutputLocation();
 			binIsProject = projectPath.equals(projectOutput);
 		} catch (JavaModelException e) {
-			// ignore
+			isClasspathResolved = false;
 		}
 
 		Object[] resources = new IResource[5];
@@ -135,7 +136,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 							String resName = res.getName();
 						
 							// ignore a jar file on the classpath
-							if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resName) && this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
+							if (isClasspathResolved && org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resName) && this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
 								break;
 							}
 							// ignore .java file if src == project
@@ -165,7 +166,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 						
 							// ignore non-excluded folders on the classpath or that correspond to an output location
 							if ((srcIsProject && !Util.isExcluded(res, inclusionPatterns, exclusionPatterns) && Util.isValidFolderNameForPackage(res.getName(), sourceLevel, complianceLevel))
-									|| this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
+									|| (isClasspathResolved && this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput))) {
 								break;
 							}
 							// else add non java resource
