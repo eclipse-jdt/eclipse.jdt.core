@@ -30,7 +30,9 @@
 <!ATTLIST classpath path CDATA #REQUIRED
                     id   CDATA #REQUIRED
 >
-<!ATTLIST source path CDATA #REQUIRED>
+<!ATTLIST source path    CDATA #REQUIRED
+                 output  CDATA #IMPLIED
+                 package CDATA #IMPLIED>
 <!ATTLIST problems problems CDATA #REQUIRED
 				   errors   CDATA #REQUIRED
 				   warnings CDATA #REQUIRED

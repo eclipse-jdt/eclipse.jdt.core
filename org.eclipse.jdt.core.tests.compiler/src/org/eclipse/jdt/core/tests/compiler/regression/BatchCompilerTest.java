@@ -1211,7 +1211,7 @@ public void test012b(){
 			"	</options>\n" + 
 			"	<classpaths>NORMALIZED SECTION</classpaths>\n" + 
 			"	<sources>\n" + 
-			"		<source path=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\">\n" + 
+			"		<source output=\"---OUTPUT_DIR_PLACEHOLDER---\" path=\"---OUTPUT_DIR_PLACEHOLDER---\\X.java\">\n" + 
 			"			<problems errors=\"1\" problems=\"1\" warnings=\"0\">\n" + 
 			"				<problem charEnd=\"28\" charStart=\"25\" id=\"UndefinedType\" line=\"3\" severity=\"ERROR\">\n" + 
 			"					<message value=\"Zork cannot be resolved to a type\"/>\n" + 

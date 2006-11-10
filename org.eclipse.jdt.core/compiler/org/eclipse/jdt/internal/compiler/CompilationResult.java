@@ -72,6 +72,7 @@ public class CompilationResult {
 	long[] suppressWarningIrritants;  // irritant for suppressed warnings
 	long[] suppressWarningScopePositions; // (start << 32) + end 
 	int suppressWarningsCount;
+	public char[][] packageName;
 	
 private static final int[] EMPTY_LINE_ENDS = new int[0];
 private static final Comparator PROBLEM_COMPARATOR = new Comparator() {
@@ -375,7 +376,12 @@ private void quickPrioritize(CategorizedProblem[] problemList, int left, int rig
 	if (left < original_right)
 		quickPrioritize(problemList, left, original_right);
 }
-
+/*
+ * Record the compilation unit result's package name
+ */
+public void recordPackageName(char[][] packName) {
+	this.packageName = packName;
+}
 public void record(CategorizedProblem newProblem, ReferenceContext referenceContext) {
 	//new Exception("VERBOSE PROBLEM REPORTING").printStackTrace();
 	if(newProblem.getID() == IProblem.Task) {

@@ -373,6 +373,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				// initial type binding creation
 				lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 				this.addCompilationUnit(sourceUnits[i], parsedUnit);
+				ImportReference currentPackage = parsedUnit.currentPackage;
+				if (currentPackage != null) {
+					unitResult.recordPackageName(currentPackage.tokens);
+				}
 				//} catch (AbortCompilationUnit e) {
 				//	requestor.acceptResult(unitResult.tagAsAccepted());
 			} finally {

@@ -99,6 +99,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String NUMBER_OF_WARNINGS = "warnings"; //$NON-NLS-1$
 		private static final String OPTION = "option"; //$NON-NLS-1$
 		private static final String OPTIONS = "options"; //$NON-NLS-1$
+		private static final String OUTPUT = "output"; //$NON-NLS-1$
+		private static final String PACKAGE = "package"; //$NON-NLS-1$
 		private static final String PATH = "path"; //$NON-NLS-1$
 		private static final String PROBLEM_ARGUMENT = "argument"; //$NON-NLS-1$
 		private static final String PROBLEM_ARGUMENT_VALUE = "value"; //$NON-NLS-1$
@@ -955,11 +957,29 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void startLoggingSource(CompilationResult compilationResult) {
 			if ((this.tagBits & Logger.XML) != 0) {
 				ICompilationUnit compilationUnit = compilationResult.compilationUnit;
-				char[] fileName = compilationUnit.getFileName();
-				File f = new File(new String(fileName));
-				if (fileName != null) {
-					if (compilationUnit != null) {
-						this.parameters.put(Logger.PATH, f.getAbsolutePath());
+				if (compilationUnit != null) {
+    				char[] fileName = compilationUnit.getFileName();
+    				File f = new File(new String(fileName));
+    				if (fileName != null) {
+    					this.parameters.put(Logger.PATH, f.getAbsolutePath());
+    				}
+    				char[][] packageName = compilationResult.packageName;
+    				if (packageName != null) {
+    					this.parameters.put(
+    							Logger.PACKAGE,
+    							new String(CharOperation.concatWith(packageName, File.separatorChar)));
+    				}
+    				CompilationUnit unit = (CompilationUnit) compilationUnit;
+    				String destinationPath = unit.destinationPath;
+					if (destinationPath == null) {
+						destinationPath = this.main.destinationPath;
+					}
+					if (destinationPath != null && destinationPath != NONE) {
+						if (File.separatorChar == '/') {
+							this.parameters.put(Logger.OUTPUT, destinationPath);
+						} else {
+							this.parameters.put(Logger.OUTPUT, destinationPath.replace('/', File.separatorChar));
+						}
 					}
 				}
 				this.printTag(Logger.SOURCE, this.parameters, true, false);
