@@ -1408,7 +1408,8 @@ public void testMethodReference07() throws CoreException { // was testSimpleMeth
 		this.resultCollector);
 	assertSearchResults(
 		"src/Test.java void Test.main(String[]) [foo(1, \"a\", y)]\n" + 
-		"src/Test.java void Test.main(String[]) [foo(1, \"a\", z)]\n" + 
+		// since bug 160301 fix, subclass overridden method calls are not reported
+		//"src/Test.java void Test.main(String[]) [foo(1, \"a\", z)]\n" + 
 		"src/p/Z.java void p.Z.foo(int, String, X) [foo(i, s, new Y(true))]",
 		this.resultCollector);
 }

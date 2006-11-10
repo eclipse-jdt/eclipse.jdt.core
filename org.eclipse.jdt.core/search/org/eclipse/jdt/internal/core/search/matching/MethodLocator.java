@@ -597,7 +597,7 @@ public int resolveLevel(Binding binding) {
 		subType = CharOperation.compareWith(this.pattern.declaringQualification, method.declaringClass.fPackage.shortReadableName()) == 0;
 	}
 	int declaringLevel = subType
-		? resolveLevelAsSubtype(qualifiedPattern, method.declaringClass)
+		? resolveLevelAsSubtype(qualifiedPattern, method.declaringClass, null)
 		: resolveLevelForType(qualifiedPattern, method.declaringClass);
 	return methodLevel > declaringLevel ? declaringLevel : methodLevel; // return the weaker match
 }
@@ -631,7 +631,7 @@ protected int resolveLevel(MessageSend messageSend) {
 	int declaringLevel;
 	if (isVirtualInvoke(method, messageSend) && (messageSend.actualReceiverType instanceof ReferenceBinding)) {
 		ReferenceBinding methodReceiverType = (ReferenceBinding) messageSend.actualReceiverType;
-		declaringLevel = resolveLevelAsSubtype(qualifiedPattern, methodReceiverType);
+		declaringLevel = resolveLevelAsSubtype(qualifiedPattern, methodReceiverType, method.parameters);
 		if (declaringLevel == IMPOSSIBLE_MATCH) {
 			if (method.declaringClass == null || this.allSuperDeclaringTypeNames == null) {
 				declaringLevel = INACCURATE_MATCH;
@@ -669,24 +669,63 @@ protected int resolveLevel(MessageSend messageSend) {
  * Returns INACCURATE_MATCH if resolve fails
  * Returns IMPOSSIBLE_MATCH if it doesn't.
  */
-protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding type) {
+protected int resolveLevelAsSubtype(char[] qualifiedPattern, ReferenceBinding type, TypeBinding[] argumentTypes) {
 	if (type == null) return INACCURATE_MATCH;
 
 	int level = resolveLevelForType(qualifiedPattern, type);
-	if (level != IMPOSSIBLE_MATCH) return level;
+	if (level != IMPOSSIBLE_MATCH) {
+		if (!type.isAbstract() && !type.isInterface()) { // if concrete class, then method is overridden
+			level |= OVERRIDDEN_METHOD_FLAVOR;
+		}
+		return level;
+	}
 
 	// matches superclass
 	if (!type.isInterface() && !CharOperation.equals(type.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
-		level = resolveLevelAsSubtype(qualifiedPattern, type.superclass());
-		if (level != IMPOSSIBLE_MATCH) return level | SUB_INVOCATION_FLAVOR; // add flavor to returned level
+		level = resolveLevelAsSubtype(qualifiedPattern, type.superclass(), argumentTypes);
+		if (level != IMPOSSIBLE_MATCH) {
+			if (argumentTypes != null) {
+				// need to verify if method may be overridden
+				MethodBinding[] methods = type.getMethods(this.pattern.selector);
+				for (int i=0, length=methods.length; i<length; i++) {
+					MethodBinding method = methods[i];
+					TypeBinding[] parameters = method.parameters;
+					if (argumentTypes.length == parameters.length) {
+						boolean found = true;
+						for (int j=0,l=parameters.length; j<l; j++) {
+							if (parameters[j].erasure() != argumentTypes[j].erasure()) {
+								found = false;
+								break;
+							}
+						}
+						if (found) { // one method match in hierarchy
+							if ((level & OVERRIDDEN_METHOD_FLAVOR) != 0) {
+								// this method is already overridden on a super class, current match is impossible
+								return IMPOSSIBLE_MATCH;
+							}
+							if (!method.isAbstract() && !type.isInterface()) {
+								// store the fact that the method is overridden
+								level |= OVERRIDDEN_METHOD_FLAVOR;
+							}
+						}
+					}
+				}
+			}
+			return level | SUB_INVOCATION_FLAVOR; // add flavor to returned level
+		}
 	}
 
 	// matches interfaces
 	ReferenceBinding[] interfaces = type.superInterfaces();
 	if (interfaces == null) return INACCURATE_MATCH;
 	for (int i = 0; i < interfaces.length; i++) {
-		level = resolveLevelAsSubtype(qualifiedPattern, interfaces[i]);
-		if (level != IMPOSSIBLE_MATCH) return level | SUB_INVOCATION_FLAVOR; // add flavor to returned level
+		level = resolveLevelAsSubtype(qualifiedPattern, interfaces[i], null);
+		if (level != IMPOSSIBLE_MATCH) {
+			if (!type.isAbstract() && !type.isInterface()) { // if concrete class, then method is overridden
+				level |= OVERRIDDEN_METHOD_FLAVOR;
+			}
+			return level | SUB_INVOCATION_FLAVOR; // add flavor to returned level
+		}
 	}
 	return IMPOSSIBLE_MATCH;
 }

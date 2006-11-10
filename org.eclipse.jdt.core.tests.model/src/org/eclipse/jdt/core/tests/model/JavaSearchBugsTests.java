@@ -7151,8 +7151,250 @@ public void testBug156491b() throws CoreException {
 	search(method, REFERENCES);
 	assertSearchResults(
 		"src/other/Test.java void other.Test.testInterface(I) [test()] EXACT_MATCH SUPER INVOCATION\n" + 
-		"src/other/Test.java void other.Test.testSuperInvocation(L1) [test()] EXACT_MATCH\n" + 
-		"src/other/Test.java void other.Test.testInvocation(L2) [test()] EXACT_MATCH"
+		"src/other/Test.java void other.Test.testSuperInvocation(L1) [test()] EXACT_MATCH"
+		// since bug 160301 fix, subclass overridden method calls are not reported
+		//"src/other/Test.java void other.Test.testInvocation(L2) [test()] EXACT_MATCH"
+	);
+}
+/**
+ * @bug 160301: [search] too many matches found for method references
+ * @test Ensure that correct number of method references are found
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160301"
+ */
+public void testBug160301() throws CoreException {
+	resultCollector.showRule = true;
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"	class A {\n" + 
+		"		void foo() {}\n" + 
+		"		void bar() {\n" + 
+		"			foo();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class B extends A {\n" + 
+		"		void foo() {}\n" + 
+		"		void bar() {\n" + 
+		"			foo();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class C extends B {\n" + 
+		"		void method() {\n" + 
+		"			foo();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	);
+	IMethod method = workingCopies[0].getType("Test").getType("A").getMethod("foo", new String[0]);
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/Test.java void Test$A.bar() [foo()] EXACT_MATCH"
+	);
+}
+public void testBug160301b() throws CoreException {
+	resultCollector.showRule = true;
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Test.java",
+		"package test;\n" + 
+		"public class Test {\n" + 
+		"	class A {\n" + 
+		"		void foo() {}\n" + 
+		"	}\n" + 
+		"	class B extends A {}\n" + 
+		"	class C extends B {\n" + 
+		"		void foo() {}\n" + 
+		"	}\n" + 
+		"	class D extends C {}\n" + 
+		"	void a() {\n" + 
+		"		new A().foo();\n" + 
+		"	}\n" + 
+		"	void b() {\n" + 
+		"		new B().foo();\n" + 
+		"	}\n" + 
+		"	void c() {\n" + 
+		"		new C().foo();\n" + 
+		"	}\n" + 
+		"	void d() {\n" + 
+		"		new D().foo();\n" + 
+		"	}\n" + 
+		"	\n" + 
+		"}"
+	);
+	IMethod method = workingCopies[0].getType("Test").getType("A").getMethod("foo", new String[0]);
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/test/Test.java void test.Test.a() [foo()] EXACT_MATCH\n" + 
+		"src/test/Test.java void test.Test.b() [foo()] EXACT_MATCH"
+	);
+}
+public void testBug160301_Interface() throws CoreException {
+	resultCollector.showRule = true;
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"	interface I {\n" + 
+		"		void foo();\n" + 
+		"	}\n" + 
+		"	class A1 implements I {\n" + 
+		"		public void foo() {}\n" + 
+		"		void a1() {\n" + 
+		"			foo();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class B1 extends A1 {\n" + 
+		"		void b1() {\n" + 
+		"			foo();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class C1 extends B1 {\n" + 
+		"		public void foo() {}\n" + 
+		"		void c1() {\n" + 
+		"			foo();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	abstract class A2 implements I {\n" + 
+		"		void a2() {\n" + 
+		"			foo();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class B2 extends A2 {\n" + 
+		"		public void foo() {}\n" + 
+		"		void b2() {\n" + 
+		"			foo();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class A3 implements I {\n" + 
+		"		public void foo() {}\n" + 
+		"		void a3() {\n" + 
+		"			foo();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	);
+	IMethod method = workingCopies[0].getType("Test").getType("I").getMethod("foo", new String[0]);
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/Test.java void Test$A1.a1() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$B1.b1() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$A2.a2() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$B2.b2() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$A3.a3() [foo()] EXACT_MATCH"
+	);
+}
+public void testBug160301_Abstract() throws CoreException {
+	resultCollector.showRule = true;
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"	abstract class Abstract {\n" + 
+		"		abstract void foo();\n" + 
+		"	}\n" + 
+		"	class A1 extends Abstract {\n" + 
+		"		public void foo() {}\n" + 
+		"		void a1() {\n" + 
+		"			foo(); // valid match as A1.foo() is the first override in sub-class\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class B1 extends A1 {\n" + 
+		"		void b1() {\n" + 
+		"			foo(); // valid match as B1 does not override A.foo()\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class C1 extends B1 {\n" + 
+		"		public void foo() {}\n" + 
+		"		void c1() {\n" + 
+		"			foo(); // invalid match as C1 does override A.foo()\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	abstract class A2 extends Abstract {\n" + 
+		"		void a2() {\n" + 
+		"			foo(); // valid match as A2 does not override Abstract.foo()\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class B2 extends A2 {\n" + 
+		"		public void foo() {}\n" + 
+		"		void b2() {\n" + 
+		"			foo(); // valid match as B2.foo() is the first override in sub-class\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	);
+	IMethod method = workingCopies[0].getType("Test").getType("Abstract").getMethod("foo", new String[0]);
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/Test.java void Test$A1.a1() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$B1.b1() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$A2.a2() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$B2.b2() [foo()] EXACT_MATCH"
+	);
+}
+public void testBug160301_Abstract2() throws CoreException {
+	resultCollector.showRule = true;
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"	abstract class Abstract {\n" + 
+		"		public abstract void foo();\n" + 
+		"	}\n" + 
+		"	abstract class A extends Abstract {\n" + 
+		"		public abstract void foo();\n" + 
+		"		void a() {\n" + 
+		"			foo(); // valid match as A is abstract => does not override Abstract.foo()\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class B extends A {\n" + 
+		"		public void foo() {}\n" + 
+		"		void b() {\n" + 
+		"			foo(); // valid match as B.foo() is the first override in sub-class\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class C extends B {\n" + 
+		"		public void foo() {}\n" + 
+		"		void c() {\n" + 
+		"			foo(); // invalid match as C.foo() overrides Abstract.foo() \n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	);
+	IMethod method = workingCopies[0].getType("Test").getType("Abstract").getMethod("foo", new String[0]);
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/Test.java void Test$A.a() [foo()] EXACT_MATCH\n" + 
+		"src/Test.java void Test$B.b() [foo()] EXACT_MATCH"
+	);
+}
+public void testBug160301_Abstract3() throws CoreException {
+	resultCollector.showRule = true;
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
+		"public class Test {\n" + 
+		"	abstract class Abstract {\n" + 
+		"		public abstract void foo();\n" + 
+		"	}\n" + 
+		"	class A extends Abstract {\n" + 
+		"		public void foo() {}\n" + 
+		"		void a() {\n" + 
+		"			foo(); // valid match as A.foo() is the first override in sub-class\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	abstract class B extends A {\n" + 
+		"		public abstract void foo();\n" + 
+		"		void b() {\n" + 
+		"			foo(); // invalid match as B.foo() is hidden by the override A.foo()\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	class C extends B {\n" + 
+		"		public void foo() {}\n" + 
+		"		void c() {\n" + 
+		"			foo(); // invalid match as C.foo() overrides A.foo()\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	);
+	IMethod method = workingCopies[0].getType("Test").getType("Abstract").getMethod("foo", new String[0]);
+	search(method, REFERENCES);
+	assertSearchResults(
+		"src/Test.java void Test$A.a() [foo()] EXACT_MATCH"
 	);
 }
 
