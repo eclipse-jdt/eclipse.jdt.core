@@ -4786,4 +4786,33 @@ public class JavadocBugsTest extends JavadocTest {
 			"----------\n"
 		);
 	}
+
+	/**
+	 * @bug 163659: [javadoc] Compiler should warn when method parameters are not identical
+	 * @test Ensure that a warning is raised when method parameter types are not identical
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=163659"
+	 */
+	public void testBug163659() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+				" * @see #foo(MyInterface)\n" + 
+				" * @see #foo(MySubInterface)\n" + 
+				" */\n" + 
+				"public class Test {\n" + 
+				"	public void foo(MyInterface mi) {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface MyInterface {}\n" + 
+				"interface MySubInterface extends MyInterface {} \n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 3)\n" + 
+			"	* @see #foo(MySubInterface)\n" + 
+			"	        ^^^\n" + 
+			"Javadoc: The method foo(MyInterface) in the type Test is not applicable for the arguments (MySubInterface)\n" + 
+			"----------\n"
+		);
+	}
 }

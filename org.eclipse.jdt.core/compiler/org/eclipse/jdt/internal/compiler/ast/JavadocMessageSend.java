@@ -151,22 +151,15 @@ public class JavadocMessageSend extends MessageSend {
 				MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
 				scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
 			}
-		} else if (this.binding instanceof ParameterizedMethodBinding && this.actualReceiverType instanceof ReferenceBinding) {
-			ParameterizedMethodBinding paramMethodBinding = (ParameterizedMethodBinding) this.binding;
-			if (paramMethodBinding.hasSubstitutedParameters()) {
-				int length = argumentTypes.length;
-				for (int i=0; i<length; i++) {
-					if (paramMethodBinding.parameters[i] != argumentTypes[i] &&
-							paramMethodBinding.parameters[i].erasure() != argumentTypes[i].erasure()) {
-						MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
-						scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
-						break;
-					}
+		} else {
+			int length = argumentTypes.length;
+			for (int i=0; i<length; i++) {
+				if (this.binding.parameters[i].erasure() != argumentTypes[i].erasure()) {
+					MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
+					scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
+					break;
 				}
 			}
-		} else if (scope.parameterCompatibilityLevel(this.binding, argumentTypes) == Scope.AUTOBOX_COMPATIBLE) {
-			MethodBinding problem = new ProblemMethodBinding(this.binding, this.selector, argumentTypes, ProblemReasons.NotFound);
-			scope.problemReporter().javadocInvalidMethod(this, problem, scope.getDeclarationModifiers());
 		}
 		if (isMethodUseDeprecated(this.binding, scope, true)) {
 			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());
