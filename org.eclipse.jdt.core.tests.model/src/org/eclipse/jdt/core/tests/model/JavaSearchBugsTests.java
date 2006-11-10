@@ -7658,4 +7658,43 @@ public void testBug161190() throws CoreException {
 	// Should have same types with these 2 searches
 	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 }
+
+/**
+ * @bug 164121: [search] Misses declarations of method parameters
+ * @test Ensure that param declaration are correctly found by search engine
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=164121"
+ */
+private void setUpBug164121() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/A.java",
+		"class A {\n" + 
+		"     int x(int param) {\n" + 
+		"         param = 2 + 2;\n" + 
+		"         int x = param + 2;\n" + 
+		"         return param - x;\n" + 
+		"     }\n" + 
+		"}\n"
+	);
+}
+public void testBug164121a() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug164121();
+	ILocalVariable param = getLocalVariable(this.workingCopies[0], "param", "param");
+	search(param, DECLARATIONS);
+	assertSearchResults(
+		"src/A.java int A.x(int).param [param] EXACT_MATCH"
+	);
+}
+public void testBug164121b() throws CoreException {
+	resultCollector.showRule = true;
+	setUpBug164121();
+	ILocalVariable param = getLocalVariable(this.workingCopies[0], "param", "param");
+	search(param, ALL_OCCURRENCES);
+	assertSearchResults(
+		"src/A.java int A.x(int).param [param] EXACT_MATCH\n" + 
+		"src/A.java int A.x(int) [param] EXACT_MATCH\n" + 
+		"src/A.java int A.x(int) [param] EXACT_MATCH\n" + 
+		"src/A.java int A.x(int) [param] EXACT_MATCH"
+	);
+}
 }

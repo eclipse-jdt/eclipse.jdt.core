@@ -209,6 +209,12 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	// this is always a Reference
 	this.patternLocator.match((Reference) this.expressionStack[this.expressionPtr], this.nodeSet);
 }
+protected void consumeFormalParameter(boolean isVarArgs) {
+	super.consumeFormalParameter(isVarArgs);
+
+	// this is always a LocalDeclaration
+	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
+}
 protected void consumeLocalVariableDeclaration() {
 	super.consumeLocalVariableDeclaration();
 

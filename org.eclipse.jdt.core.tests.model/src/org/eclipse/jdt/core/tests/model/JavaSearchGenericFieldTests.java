@@ -758,9 +758,13 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 		localVar = getLocalVariable("/JavaSearch15/src/g4/v/ref/R1.java", "gen_run)", "gen_run");
 		search(localVar, ALL_OCCURRENCES, scope, resultCollector);
 		assertSearchResults(
+			"src/g4/v/ref/R1.java void g4.v.ref.R1.simple_name(Generic<Object>, Generic<Exception>, Generic<? extends Throwable>, Generic<? super RuntimeException>).gen_obj [gen_obj] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R1.java void g4.v.ref.R1.simple_name(Generic<Object>, Generic<Exception>, Generic<? extends Throwable>, Generic<? super RuntimeException>) [gen_obj] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R1.java void g4.v.ref.R1.simple_name(Generic<Object>, Generic<Exception>, Generic<? extends Throwable>, Generic<? super RuntimeException>).gen_exc [gen_exc] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R1.java void g4.v.ref.R1.simple_name(Generic<Object>, Generic<Exception>, Generic<? extends Throwable>, Generic<? super RuntimeException>) [gen_exc] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R1.java void g4.v.ref.R1.simple_name(Generic<Object>, Generic<Exception>, Generic<? extends Throwable>, Generic<? super RuntimeException>).gen_thr [gen_thr] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R1.java void g4.v.ref.R1.simple_name(Generic<Object>, Generic<Exception>, Generic<? extends Throwable>, Generic<? super RuntimeException>) [gen_thr] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R1.java void g4.v.ref.R1.simple_name(Generic<Object>, Generic<Exception>, Generic<? extends Throwable>, Generic<? super RuntimeException>).gen_run [gen_run] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R1.java void g4.v.ref.R1.simple_name(Generic<Object>, Generic<Exception>, Generic<? extends Throwable>, Generic<? super RuntimeException>) [gen_run] EXACT_MATCH",
 			resultCollector);
 	}
@@ -796,9 +800,13 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 		localVar = getLocalVariable("/JavaSearch15/src/g4/v/ref/R2.java", "gen_run)", "gen_run");
 		search(localVar, ALL_OCCURRENCES, scope, resultCollector);
 		assertSearchResults(
+			"src/g4/v/ref/R2.java void g4.v.ref.R2.qualified_name(g1.t.s.def.NonGeneric.GenericMember<Object>, g1.t.s.def.NonGeneric.GenericMember<Exception>, g1.t.s.def.NonGeneric.GenericMember<? extends Throwable>, g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException>).gen_obj [gen_obj] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R2.java void g4.v.ref.R2.qualified_name(g1.t.s.def.NonGeneric.GenericMember<Object>, g1.t.s.def.NonGeneric.GenericMember<Exception>, g1.t.s.def.NonGeneric.GenericMember<? extends Throwable>, g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException>) [gen_obj] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R2.java void g4.v.ref.R2.qualified_name(g1.t.s.def.NonGeneric.GenericMember<Object>, g1.t.s.def.NonGeneric.GenericMember<Exception>, g1.t.s.def.NonGeneric.GenericMember<? extends Throwable>, g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException>).gen_exc [gen_exc] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R2.java void g4.v.ref.R2.qualified_name(g1.t.s.def.NonGeneric.GenericMember<Object>, g1.t.s.def.NonGeneric.GenericMember<Exception>, g1.t.s.def.NonGeneric.GenericMember<? extends Throwable>, g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException>) [gen_exc] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R2.java void g4.v.ref.R2.qualified_name(g1.t.s.def.NonGeneric.GenericMember<Object>, g1.t.s.def.NonGeneric.GenericMember<Exception>, g1.t.s.def.NonGeneric.GenericMember<? extends Throwable>, g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException>).gen_thr [gen_thr] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R2.java void g4.v.ref.R2.qualified_name(g1.t.s.def.NonGeneric.GenericMember<Object>, g1.t.s.def.NonGeneric.GenericMember<Exception>, g1.t.s.def.NonGeneric.GenericMember<? extends Throwable>, g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException>) [gen_thr] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R2.java void g4.v.ref.R2.qualified_name(g1.t.s.def.NonGeneric.GenericMember<Object>, g1.t.s.def.NonGeneric.GenericMember<Exception>, g1.t.s.def.NonGeneric.GenericMember<? extends Throwable>, g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException>).gen_run [gen_run] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R2.java void g4.v.ref.R2.qualified_name(g1.t.s.def.NonGeneric.GenericMember<Object>, g1.t.s.def.NonGeneric.GenericMember<Exception>, g1.t.s.def.NonGeneric.GenericMember<? extends Throwable>, g1.t.s.def.NonGeneric.GenericMember<? super RuntimeException>) [gen_run] EXACT_MATCH",
 			resultCollector);
 	}
@@ -834,9 +842,13 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 		localVar = getLocalVariable("/JavaSearch15/src/g4/v/ref/R3.java", "gen_run)", "gen_run");
 		search(localVar, ALL_OCCURRENCES, scope, resultCollector);
 		assertSearchResults(
+			"src/g4/v/ref/R3.java void g4.v.ref.R3.simple_name(Generic<Object>.MemberGeneric<Object>, Generic<Exception>.MemberGeneric<Exception>, Generic<? extends Throwable>.MemberGeneric<? extends Throwable>, Generic<? super RuntimeException>.MemberGeneric<? super RuntimeException>).gen_obj [gen_obj] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R3.java void g4.v.ref.R3.simple_name(Generic<Object>.MemberGeneric<Object>, Generic<Exception>.MemberGeneric<Exception>, Generic<? extends Throwable>.MemberGeneric<? extends Throwable>, Generic<? super RuntimeException>.MemberGeneric<? super RuntimeException>) [gen_obj] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R3.java void g4.v.ref.R3.simple_name(Generic<Object>.MemberGeneric<Object>, Generic<Exception>.MemberGeneric<Exception>, Generic<? extends Throwable>.MemberGeneric<? extends Throwable>, Generic<? super RuntimeException>.MemberGeneric<? super RuntimeException>).gen_exc [gen_exc] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R3.java void g4.v.ref.R3.simple_name(Generic<Object>.MemberGeneric<Object>, Generic<Exception>.MemberGeneric<Exception>, Generic<? extends Throwable>.MemberGeneric<? extends Throwable>, Generic<? super RuntimeException>.MemberGeneric<? super RuntimeException>) [gen_exc] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R3.java void g4.v.ref.R3.simple_name(Generic<Object>.MemberGeneric<Object>, Generic<Exception>.MemberGeneric<Exception>, Generic<? extends Throwable>.MemberGeneric<? extends Throwable>, Generic<? super RuntimeException>.MemberGeneric<? super RuntimeException>).gen_thr [gen_thr] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R3.java void g4.v.ref.R3.simple_name(Generic<Object>.MemberGeneric<Object>, Generic<Exception>.MemberGeneric<Exception>, Generic<? extends Throwable>.MemberGeneric<? extends Throwable>, Generic<? super RuntimeException>.MemberGeneric<? super RuntimeException>) [gen_thr] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R3.java void g4.v.ref.R3.simple_name(Generic<Object>.MemberGeneric<Object>, Generic<Exception>.MemberGeneric<Exception>, Generic<? extends Throwable>.MemberGeneric<? extends Throwable>, Generic<? super RuntimeException>.MemberGeneric<? super RuntimeException>).gen_run [gen_run] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R3.java void g4.v.ref.R3.simple_name(Generic<Object>.MemberGeneric<Object>, Generic<Exception>.MemberGeneric<Exception>, Generic<? extends Throwable>.MemberGeneric<? extends Throwable>, Generic<? super RuntimeException>.MemberGeneric<? super RuntimeException>) [gen_run] EXACT_MATCH",
 			resultCollector);
 	}
@@ -872,9 +884,13 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 		localVar = getLocalVariable("/JavaSearch15/src/g4/v/ref/R4.java", "gen_run)", "gen_run");
 		search(localVar, ALL_OCCURRENCES, scope, resultCollector);
 		assertSearchResults(
+			"src/g4/v/ref/R4.java void g4.v.ref.R4.qualified_name(g1.t.s.def.Generic<Object>.Member, g1.t.s.def.Generic<Exception>.Member, g1.t.s.def.Generic<? extends Throwable>.Member, g1.t.s.def.Generic<? super RuntimeException>.Member).gen_obj [gen_obj] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R4.java void g4.v.ref.R4.qualified_name(g1.t.s.def.Generic<Object>.Member, g1.t.s.def.Generic<Exception>.Member, g1.t.s.def.Generic<? extends Throwable>.Member, g1.t.s.def.Generic<? super RuntimeException>.Member) [gen_obj] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R4.java void g4.v.ref.R4.qualified_name(g1.t.s.def.Generic<Object>.Member, g1.t.s.def.Generic<Exception>.Member, g1.t.s.def.Generic<? extends Throwable>.Member, g1.t.s.def.Generic<? super RuntimeException>.Member).gen_exc [gen_exc] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R4.java void g4.v.ref.R4.qualified_name(g1.t.s.def.Generic<Object>.Member, g1.t.s.def.Generic<Exception>.Member, g1.t.s.def.Generic<? extends Throwable>.Member, g1.t.s.def.Generic<? super RuntimeException>.Member) [gen_exc] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R4.java void g4.v.ref.R4.qualified_name(g1.t.s.def.Generic<Object>.Member, g1.t.s.def.Generic<Exception>.Member, g1.t.s.def.Generic<? extends Throwable>.Member, g1.t.s.def.Generic<? super RuntimeException>.Member).gen_thr [gen_thr] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R4.java void g4.v.ref.R4.qualified_name(g1.t.s.def.Generic<Object>.Member, g1.t.s.def.Generic<Exception>.Member, g1.t.s.def.Generic<? extends Throwable>.Member, g1.t.s.def.Generic<? super RuntimeException>.Member) [gen_thr] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R4.java void g4.v.ref.R4.qualified_name(g1.t.s.def.Generic<Object>.Member, g1.t.s.def.Generic<Exception>.Member, g1.t.s.def.Generic<? extends Throwable>.Member, g1.t.s.def.Generic<? super RuntimeException>.Member).gen_run [gen_run] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R4.java void g4.v.ref.R4.qualified_name(g1.t.s.def.Generic<Object>.Member, g1.t.s.def.Generic<Exception>.Member, g1.t.s.def.Generic<? extends Throwable>.Member, g1.t.s.def.Generic<? super RuntimeException>.Member) [gen_run] EXACT_MATCH",
 			resultCollector);
 	}
@@ -908,8 +924,11 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 		localVar = getLocalVariable("/JavaSearch15/src/g4/v/ref/R5.java", "gen_obj) // simple", "gen_obj");
 		search(localVar, ALL_OCCURRENCES, scope, resultCollector);
 		assertSearchResults(
+			"src/g4/v/ref/R5.java void g4.v.ref.R5.simple_name(GM<GS<?>,GS<?>,GS<?>>, GM<GS<?>,GS<GS<?>>,GS<GS<GS<?>>>>, GM<GS<Object>,GS<? extends Throwable>,GS<? super RuntimeException>>).gen_wld [gen_wld] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R5.java void g4.v.ref.R5.simple_name(GM<GS<?>,GS<?>,GS<?>>, GM<GS<?>,GS<GS<?>>,GS<GS<GS<?>>>>, GM<GS<Object>,GS<? extends Throwable>,GS<? super RuntimeException>>) [gen_wld] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R5.java void g4.v.ref.R5.simple_name(GM<GS<?>,GS<?>,GS<?>>, GM<GS<?>,GS<GS<?>>,GS<GS<GS<?>>>>, GM<GS<Object>,GS<? extends Throwable>,GS<? super RuntimeException>>).gen_www [gen_www] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R5.java void g4.v.ref.R5.simple_name(GM<GS<?>,GS<?>,GS<?>>, GM<GS<?>,GS<GS<?>>,GS<GS<GS<?>>>>, GM<GS<Object>,GS<? extends Throwable>,GS<? super RuntimeException>>) [gen_www] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R5.java void g4.v.ref.R5.simple_name(GM<GS<?>,GS<?>,GS<?>>, GM<GS<?>,GS<GS<?>>,GS<GS<GS<?>>>>, GM<GS<Object>,GS<? extends Throwable>,GS<? super RuntimeException>>).gen_obj [gen_obj] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R5.java void g4.v.ref.R5.simple_name(GM<GS<?>,GS<?>,GS<?>>, GM<GS<?>,GS<GS<?>>,GS<GS<GS<?>>>>, GM<GS<Object>,GS<? extends Throwable>,GS<? super RuntimeException>>) [gen_obj] EXACT_MATCH",
 			resultCollector);
 	}
@@ -939,8 +958,11 @@ public class JavaSearchGenericFieldTests extends JavaSearchTests {
 		localVar = getLocalVariable("/JavaSearch15/src/g4/v/ref/R5.java", "gen_obj) // qualified", "gen_obj");
 		search(localVar, ALL_OCCURRENCES, scope, resultCollector);
 		assertSearchResults(
+			"src/g4/v/ref/R5.java void g4.v.ref.R5.qualified_name(g3.t.def.GS<g3.t.def.GM<?,?,?>>, g3.t.def.GS<g3.t.def.GM<g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>>>, g3.t.def.GS<g3.t.def.GM<java.lang.Object,java.lang.Exception,java.lang.RuntimeException>>).gen_wld [gen_wld] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R5.java void g4.v.ref.R5.qualified_name(g3.t.def.GS<g3.t.def.GM<?,?,?>>, g3.t.def.GS<g3.t.def.GM<g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>>>, g3.t.def.GS<g3.t.def.GM<java.lang.Object,java.lang.Exception,java.lang.RuntimeException>>) [gen_wld] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R5.java void g4.v.ref.R5.qualified_name(g3.t.def.GS<g3.t.def.GM<?,?,?>>, g3.t.def.GS<g3.t.def.GM<g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>>>, g3.t.def.GS<g3.t.def.GM<java.lang.Object,java.lang.Exception,java.lang.RuntimeException>>).gen_www [gen_www] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R5.java void g4.v.ref.R5.qualified_name(g3.t.def.GS<g3.t.def.GM<?,?,?>>, g3.t.def.GS<g3.t.def.GM<g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>>>, g3.t.def.GS<g3.t.def.GM<java.lang.Object,java.lang.Exception,java.lang.RuntimeException>>) [gen_www] EXACT_MATCH\n" + 
+			"src/g4/v/ref/R5.java void g4.v.ref.R5.qualified_name(g3.t.def.GS<g3.t.def.GM<?,?,?>>, g3.t.def.GS<g3.t.def.GM<g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>>>, g3.t.def.GS<g3.t.def.GM<java.lang.Object,java.lang.Exception,java.lang.RuntimeException>>).gen_obj [gen_obj] EXACT_MATCH\n" + 
 			"src/g4/v/ref/R5.java void g4.v.ref.R5.qualified_name(g3.t.def.GS<g3.t.def.GM<?,?,?>>, g3.t.def.GS<g3.t.def.GM<g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>,g3.t.def.GM<?,?,?>>>, g3.t.def.GS<g3.t.def.GM<java.lang.Object,java.lang.Exception,java.lang.RuntimeException>>) [gen_obj] EXACT_MATCH",
 			resultCollector);
 	}
