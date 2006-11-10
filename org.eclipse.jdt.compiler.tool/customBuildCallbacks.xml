@@ -95,7 +95,6 @@
 	        </fileset>
 			<fileset dir="${basedir}">
 			  <include name="META-INF/services/**" />
-			  <include name="about.html" />
 	        </fileset>
 		</zip>
 		<delete dir="${unjarDestBin}" failonerror="false"/>
@@ -110,7 +109,6 @@
 		    <zipfileset dir="src" />
 		    <zipfileset dir="${unjarDestSrc}" />
 		    <zipfileset dir="${basedir}">
-			  <include name="about.html"/>
 			  <include name="META-INF/services/**" />
 			</zipfileset>			
 		</zip>
