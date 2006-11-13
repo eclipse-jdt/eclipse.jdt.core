@@ -3733,6 +3733,66 @@ public void test013() {
 		"SUCCESS");
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=124099
+// Undue partial reset of receiver in 
+// UnconditionalFlowInfo#addInitializationsFrom.
+public void test014() {
+	this.runConformTest(new String[] {
+		"X.java",
+			"class X {\n" + 
+			"    int      i01, i02, i03, i04, i05, i06, i07, i08, i09,\n" + 
+			"        i10, i11, i12, i13, i14, i15, i16, i17, i18, i19,\n" + 
+			"        i20, i21, i22, i23, i24, i25, i26, i27, i28, i29,\n" + 
+			"        i30, i31, i32, i33, i34, i35, i36, i37, i38, i39,\n" + 
+			"        i40, i41, i42, i43, i44, i45, i46, i47, i48, i49,\n" + 
+			"        i50, i51, i52, i53, i54, i55, i56, i57, i58, i59,\n" + 
+			"        i60, i61, i62, i63,    i64, i65 = 1;\n" + 
+			"public X() {\n" + 
+			"    new Object() {\n" + 
+			"        int      \n" + 
+			"            k01, k02, k03, k04, k05, k06, k07, k08, k09,\n" + 
+			"            k10, k11, k12, k13, k14, k15, k16, k17, k18, k19,\n" + 
+			"            k20, k21, k22, k23, k24, k25, k26, k27, k28, k29,\n" + 
+			"            k30, k31, k32, k33, k34, k35, k36, k37, k38, k39,\n" + 
+			"            k40, k41, k42, k43, k44, k45, k46, k47, k48, k49,\n" + 
+			"            k50, k51, k52, k53, k54, k55, k56, k57, k58, k59,\n" + 
+			"            k60, k61, k62, k63, k64;\n" + 
+			"        int      \n" + 
+			"            k101, k102, k103, k104, k105, k106, k107, k108, k109,\n" + 
+			"            k110, k111, k112, k113, k114, k115, k116, k117, k118, k119,\n" + 
+			"            k120, k121, k122, k123, k124, k125, k126, k127, k128, k129,\n" + 
+			"            k130, k131, k132, k133, k134, k135, k136, k137, k138, k139,\n" + 
+			"            k140, k141, k142, k143, k144, k145, k146, k147, k148, k149,\n" + 
+			"            k150, k151, k152, k153, k154, k155, k156, k157, k158, k159,\n" + 
+			"            k160, k161, k162, k163, k164;\n" + 
+			"        final int l = 1;\n" + 
+			"        public int hashCode() {\n" + 
+			"            return\n" + 
+			"                k01 + k02 + k03 + k04 + k05 + k06 + k07 + k08 + k09 +\n" + 
+			"                k10 + k11 + k12 + k13 + k14 + k15 + k16 + k17 + k18 + k19 +\n" + 
+			"                k20 + k21 + k22 + k23 + k24 + k25 + k26 + k27 + k28 + k29 +\n" + 
+			"                k30 + k31 + k32 + k33 + k34 + k35 + k36 + k37 + k38 + k39 +\n" + 
+			"                k40 + k41 + k42 + k43 + k44 + k45 + k46 + k47 + k48 + k49 +\n" + 
+			"                k50 + k51 + k52 + k53 + k54 + k55 + k56 + k57 + k58 + k59 +\n" + 
+			"                k60 + k61 + k62 + k63 + k64 +\n" + 
+			"                k101 + k102 + k103 + k104 + k105 + k106 + k107 + k108 + k109 +\n" + 
+			"                k110 + k111 + k112 + k113 + k114 + k115 + k116 + k117 + k118 + k119 +\n" + 
+			"                k120 + k121 + k122 + k123 + k124 + k125 + k126 + k127 + k128 + k129 +\n" + 
+			"                k130 + k131 + k132 + k133 + k134 + k135 + k136 + k137 + k138 + k139 +\n" + 
+			"                k140 + k141 + k142 + k143 + k144 + k145 + k146 + k147 + k148 + k149 +\n" + 
+			"                k150 + k151 + k152 + k153 + k154 + k155 + k156 + k157 + k158 + k159 +\n" + 
+			"                k160 + k161 + k162 + k163 + k164 +\n" + 
+			"                l;\n" + 
+			"        }\n" + 
+			"    };\n" + 
+			"}\n" + 
+			"\n" + 
+			"}\n" + 
+			"\n",
+	},
+	"");
+}
+
 public static Class testClass() {
 	return XLargeTest.class;
 }
