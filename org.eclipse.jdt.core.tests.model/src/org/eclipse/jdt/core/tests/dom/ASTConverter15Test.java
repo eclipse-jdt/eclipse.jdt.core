@@ -7336,17 +7336,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding[] bindings= parser.createBindings(new IJavaElement[] { type }, null);
 		if (bindings.length == 1 && bindings[0] instanceof ITypeBinding) {
 			ITypeBinding typeBinding= (ITypeBinding) bindings[0];
-			try {
-				while (typeBinding != null) {
-					System.out.print(typeBinding.getQualifiedName());
-					System.out.print(" has ");
-					System.out.print(typeBinding.getAnnotations().length);
-					System.out.println(" annotation(s).");
-					typeBinding= typeBinding.getSuperclass();
-				}
-			} catch (RuntimeException e) {
-				System.out.println();
-				throw e;
+			while (typeBinding != null) {
+				/*
+	 			To ease debugging, uncomment the following lines and comment the line typeBinding.getAnnotations();
+	 			System.out.print(typeBinding.getQualifiedName());
+				System.out.print(" has ");
+				System.out.print(typeBinding.getAnnotations().length);
+				System.out.println(" annotation(s).");*/
+				typeBinding.getAnnotations();
+				typeBinding= typeBinding.getSuperclass();
 			}
 		}
 	}
@@ -7368,10 +7366,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		while (typeBinding != null) {
-			System.out.print(typeBinding.getQualifiedName());
+/*
+ 			To ease debugging, uncomment the following lines and comment the line typeBinding.getAnnotations();
+ 			System.out.print(typeBinding.getQualifiedName());
 			System.out.print(" has ");
 			System.out.print(typeBinding.getAnnotations().length);
-			System.out.println(" annotation(s).");
+			System.out.println(" annotation(s).");*/
+			typeBinding.getAnnotations();			
 			typeBinding= typeBinding.getSuperclass();
 		}
 	}
