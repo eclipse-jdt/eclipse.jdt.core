@@ -7093,6 +7093,90 @@ public void test117() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=154811
+public void test117_2() {
+	String s = 
+		"public class X {\n" + 
+		"	void foo1() {\n" + 
+		"		class Y  {\n" + 
+		"		}\n" + 
+		"		void foo2() {\n" + 
+		"		}\n" + 
+		"		class Z { \n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"} \n";
+		
+	String expectedDietUnitToString = null;
+	String expectedDietPlusBodyUnitToString = null;
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = null;
+	String expectedFullUnitToString = null;
+	String expectedCompletionDietUnitToString = null;
+	
+	expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo1() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo1() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo1() {\n" + 
+		"    class Y {\n" + 
+		"      Y() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"    new foo2() {\n" + 
+		"    };\n" + 
+		"    class Z {\n" + 
+		"      Z() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	expectedFullUnitToString =
+		"public class X {\n" + 
+		"  class Z {\n" + 
+		"    Z() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo1() {\n" + 
+		"  }\n" + 
+		"  void foo2() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=162056
 public void test118() {
 	String s = 
@@ -7219,6 +7303,276 @@ public void test119() {
 	
 	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
 		expectedDietPlusBodyUnitToString;
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140980
+public void test120() {
+	String s = 
+		"public class X {\n" + 
+		"  void foo() {\n" + 
+		"    #\n" + 
+		"    try {\n" + 
+		"      System.out.println(); \n" + 
+		"    } catch (Exception e) {\n" + 
+		"    }\n" + 
+		"    class Z {}\n" + 
+		" }\n" + 
+		"}\n";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        System.out.println();\n" + 
+		"      }\n" + 
+		"    catch (Exception e)       {\n" + 
+		"      }\n" + 
+		"    class Z {\n" + 
+		"      Z() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140980
+public void test121() {
+	String s = 
+		"public class X {\n" + 
+		"  void foo() {\n" + 
+		"    #\n" + 
+		"    try {\n" + 
+		"      System.out.println(); \n" + 
+		"    } catch (Exception e) {\n" + 
+		"      class Z {}\n" + 
+		"    }\n" + 
+		" }\n" + 
+		"}\n";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        System.out.println();\n" + 
+		"      }\n" + 
+		"    catch (Exception e)       {\n" + 
+		"        class Z {\n" + 
+		"          Z() {\n" + 
+		"            super();\n" + 
+		"          }\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140980
+public void test122() {
+	String s = 
+		"public class Test\n" + 
+		"{\n" + 
+		"  public void func1()\n" + 
+		"  {\n" + 
+		"    try\n" + 
+		"    {\n" + 
+		"    catch ( Exception exception)\n" + 
+		"    {\n" + 
+		"      exception.printStackTrace();\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"\n" + 
+		"  class Clazz\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"\n";
+		
+	String expectedDietUnitToString = 
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void func1() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void func1() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void func1() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"      }\n" + 
+		"    catch (Exception exception)       {\n" + 
+		"        exception.printStackTrace();\n" + 
+		"      }\n" + 
+		"    class Clazz {\n" + 
+		"      Clazz() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140980
+public void test123() {
+	String s = 
+		"public class SwitchBug {\n" + 
+		"       void aMethod() {\n" + 
+		"               int i=0;\n" + 
+		"               try {\n" + 
+		"                        switch( i ) {\n" + 
+		"                } catch( Exception ex ) {\n" + 
+		"                }\n" + 
+		"        }\n" + 
+		"        class Nested {\n" + 
+		"        }\n" + 
+		"}\n";
+		
+	String expectedDietUnitToString = 
+		"public class SwitchBug {\n" + 
+		"  public SwitchBug() {\n" + 
+		"  }\n" + 
+		"  void aMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class SwitchBug {\n" + 
+		"  public SwitchBug() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void aMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"public class SwitchBug {\n" + 
+		"  public SwitchBug() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void aMethod() {\n" + 
+		"    int i = 0;\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        switch (i) {\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"    catch (Exception ex)       {\n" + 
+		"      }\n" + 
+		"    class Nested {\n" + 
+		"      Nested() {\n" + 
+		"        super();\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
 	
 	String expectedFullUnitToString = expectedDietUnitToString;
 	

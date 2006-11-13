@@ -58,6 +58,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	public static short check_table[] = null;
 	public static final int CurlyBracket = 2;
 	private static final boolean DEBUG = false;
+	private static final boolean DEBUG_AUTOMATON = false;
 	private static final String EOF_TOKEN = "$eof" ; //$NON-NLS-1$
 	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
 	//expression stack
@@ -189,6 +190,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	protected TypeDeclaration[] recoveredTypes;
 	protected int recoveredTypePtr;
 	protected int nextTypeStart;
+	protected TypeDeclaration pendingRecoveredType;
 	
 	public RecoveryScanner recoveryScanner;
 	
@@ -1052,6 +1054,16 @@ public RecoveredElement buildInitialRecoveryState(){
 			}
 		}
 	}
+	
+	if (this.statementRecoveryActivated) {
+		if (this.pendingRecoveredType != null &&
+				this.scanner.startPosition - 1 <= this.pendingRecoveredType.declarationSourceEnd) {
+			// Add the pending type to the AST if this type isn't already added in the AST.
+			element = element.add(this.pendingRecoveredType, 0);				
+			this.lastCheckPoint = this.pendingRecoveredType.declarationSourceEnd + 1;
+			this.pendingRecoveredType = null;
+		}
+	}
 	return element;
 }
 
@@ -1487,6 +1499,19 @@ protected void consumeAssignment() {
 				this.expressionStack[this.expressionPtr] ,
 				this.expressionStack[this.expressionPtr+1],
 				this.scanner.startPosition - 1);
+				
+	if (this.pendingRecoveredType != null) {
+		// Used only in statements recovery.
+		// This is not a real assignment but a placeholder for an existing anonymous type.
+		// The assignment must be replace by the anonymous type.
+		if (this.pendingRecoveredType.allocation != null &&
+				this.scanner.startPosition - 1 <= this.pendingRecoveredType.declarationSourceEnd) {
+			this.expressionStack[this.expressionPtr] = this.pendingRecoveredType.allocation;
+			this.pendingRecoveredType = null;
+			return;
+		}
+		this.pendingRecoveredType = null;
+	}
 }
 protected void consumeAssignmentOperator(int pos) {
 	// AssignmentOperator ::= '='
@@ -6630,6 +6655,19 @@ protected void consumeStatementBreak() {
 	// break pushs a position on this.intStack in case there is no label
 
 	pushOnAstStack(new BreakStatement(null, this.intStack[this.intPtr--], this.endPosition));
+	
+	if (this.pendingRecoveredType != null) {
+		// Used only in statements recovery.
+		// This is not a real break statement but a placeholder for an existing local type.
+		// The break statement must be replace by the local type.
+		if (this.pendingRecoveredType.allocation == null &&
+				this.endPosition <= this.pendingRecoveredType.declarationSourceEnd) {
+			this.astStack[this.astPtr] = this.pendingRecoveredType;
+			this.pendingRecoveredType = null;
+			return;
+		}
+		this.pendingRecoveredType = null;
+	}
 }
 protected void consumeStatementBreakWithLabel() {
 	// BreakStatement ::= 'break' Identifier ';'
@@ -8582,44 +8620,36 @@ public void jumpOverMethodBody() {
 }
 private void jumpOverType(){
 	if (this.recoveredTypes != null && this.nextTypeStart > -1 && this.nextTypeStart < this.scanner.currentPosition) {
+		
+		if (DEBUG_AUTOMATON) {
+			System.out.println("Jump         -"); //$NON-NLS-1$
+		}
+		
 		TypeDeclaration typeDeclaration = this.recoveredTypes[this.recoveredTypePtr];
 		boolean isAnonymous = typeDeclaration.allocation != null;
 		
 		int end = this.scanner.eofPosition;
 		this.scanner.resetTo(typeDeclaration.declarationSourceEnd + 1, end  - 1);
 		if(!isAnonymous) {
-			pushOnAstStack(typeDeclaration);
-			if(this.astLengthPtr > 0) {
-				concatNodeLists();
-			}
-			
-			if(this.currentElement != null) {
-				this.currentElement = this.currentElement.add(typeDeclaration, 0);
-			}
-			
-			try {
-				this.currentToken = this.scanner.getNextToken();
-			} catch(InvalidInputException e){
-				if (!this.hasReportedError){
-					this.problemReporter().scannerError(this, e.getMessage());
-					this.hasReportedError = true;
-				}
-				this.lastCheckPoint = this.scanner.currentPosition;
-			}
+			((RecoveryScanner)this.scanner).setPendingTokens(new int[]{TokenNameSEMICOLON, TokenNamebreak});
 		} else {
-			if(this.astPtr > -1 && this.astStack[this.astPtr] instanceof TypeDeclaration) {
-				this.astStack[astPtr] = typeDeclaration;
-				this.expressionStack[this.expressionPtr] = typeDeclaration.allocation;
-			}
-			this.currentToken = TokenNameRBRACE;
+			((RecoveryScanner)this.scanner).setPendingTokens(new int[]{TokenNameIdentifier, TokenNameEQUAL, TokenNameIdentifier});
+		}
+		
+		this.pendingRecoveredType = typeDeclaration;
+		
+		try {
+			this.currentToken = this.scanner.getNextToken();
+		} catch(InvalidInputException e){
+			// it's impossible because we added pending tokens before
 		}
 		
 		if(++this.recoveredTypePtr < this.recoveredTypes.length) {
 			TypeDeclaration nextTypeDeclaration = this.recoveredTypes[this.recoveredTypePtr];
 			this.nextTypeStart =
 				nextTypeDeclaration.allocation == null
-					? nextTypeDeclaration.declarationSourceStart
-							: nextTypeDeclaration.bodyStart;
+					? nextTypeDeclaration.declarationSourceStart 
+							: nextTypeDeclaration.allocation.sourceStart;
 		} else {
 			this.nextTypeStart = Integer.MAX_VALUE;
 		}
@@ -8831,8 +8861,12 @@ called in order to remember (when needed) the consumed token */
 // name[symbol_index[currentKind]]
 protected void parse() {
 	if (DEBUG) System.out.println("-- ENTER INSIDE PARSE METHOD --");  //$NON-NLS-1$
+	
+	if (DEBUG_AUTOMATON) {
+		System.out.println("- Start --------------------------------");  //$NON-NLS-1$
+	}
+	
 	boolean isDietParse = this.diet;
-	boolean jumpOverTypeAfterReduce = false;
 	int oldFirstToken = getFirstToken();
 	this.hasError = false;
 	
@@ -8852,6 +8886,15 @@ protected void parse() {
 
 		act = tAction(act, this.currentToken);
 		if (act == ERROR_ACTION || this.restartRecovery) {
+			
+			if (DEBUG_AUTOMATON) {
+				if (this.restartRecovery) {
+					System.out.println("Restart      - "); //$NON-NLS-1$
+				} else {
+					System.out.println("Error        - "); //$NON-NLS-1$
+				}
+			}
+			
 			int errorPos = this.scanner.currentPosition;
 			if (!this.hasReportedError) {
 				this.hasError = true;
@@ -8868,7 +8911,11 @@ protected void parse() {
 		}
 		if (act <= NUM_RULES) {
 			this.stateStackTop--;
-
+			
+			if (DEBUG_AUTOMATON) {
+				System.out.print("Reduce       - "); //$NON-NLS-1$
+			}
+			
 		} else if (act > ERROR_ACTION) { /* shift-reduce */
 			consumeToken(this.currentToken);
 			if (this.currentElement != null) this.recoveryTokenCheck();
@@ -8883,9 +8930,13 @@ protected void parse() {
 				this.restartRecovery = true;
 			}				
 			if(this.statementRecoveryActivated) {
-				jumpOverTypeAfterReduce = true;
+				this.jumpOverType();
 			}
 			act -= ERROR_ACTION;
+			
+			if (DEBUG_AUTOMATON) {
+				System.out.print("Shift/Reduce - (" + name[terminal_index[this.currentToken]]+") ");  //$NON-NLS-1$  //$NON-NLS-2$ 
+			}
 			
 		} else {
 		    if (act < ACCEPT_ACTION) { /* shift */
@@ -8904,6 +8955,9 @@ protected void parse() {
 				if(this.statementRecoveryActivated) {
 					this.jumpOverType();
 				}
+				if (DEBUG_AUTOMATON) {
+					System.out.println("Shift        - (" + name[terminal_index[this.currentToken]]+")");  //$NON-NLS-1$  //$NON-NLS-2$
+				}
 				continue ProcessTerminals;
 			}
 			break ProcessTerminals;
@@ -8911,17 +8965,30 @@ protected void parse() {
 			
 		// ProcessNonTerminals : 
 		do { /* reduce */
+			
+			if (DEBUG_AUTOMATON) {
+				System.out.println(name[non_terminal_index[lhs[act]]]);
+			}
+			
 			consumeRule(act);
 			this.stateStackTop -= (rhs[act] - 1);
 			act = ntAction(this.stack[this.stateStackTop], lhs[act]);
-			if(this.statementRecoveryActivated && act > NUM_RULES) {
-				if(jumpOverTypeAfterReduce) {
-					this.jumpOverType();
-					jumpOverTypeAfterReduce = false;
-				}
+			
+			if (DEBUG_AUTOMATON && act <= NUM_RULES) {
+				System.out.print("             - ");  //$NON-NLS-1$
 			}
+			
 		} while (act <= NUM_RULES);
+		
+		if (DEBUG_AUTOMATON) {
+			System.out.println("----------------------------------------");  //$NON-NLS-1$
+		}
 	}
+	
+	if (DEBUG_AUTOMATON) {
+		System.out.println("- End ----------------------------------");  //$NON-NLS-1$
+	}
+	
 	endParse(act);
 	// record all nls tags in the corresponding compilation unit
 	final NLSTag[] tags = this.scanner.getNLSTags();
@@ -9367,13 +9434,15 @@ public void parseStatements(ReferenceContext rc, int start, int end, TypeDeclara
 	this.referenceContext = rc;
 	this.compilationUnit = unit;
 	
+	this.pendingRecoveredType = null;
+	
 	if(types != null && types.length > 0) {
 		this.recoveredTypes = types;
 		this.recoveredTypePtr = 0;
 		this.nextTypeStart =
 			this.recoveredTypes[0].allocation == null
 				? this.recoveredTypes[0].declarationSourceStart
-						: this.recoveredTypes[0].bodyStart;
+						: this.recoveredTypes[0].allocation.sourceStart;
 	} else {
 		this.recoveredTypes = null;
 		this.recoveredTypePtr = -1;
@@ -9976,6 +10045,9 @@ protected boolean resumeOnSyntaxError() {
 		// Reset javadoc before restart parsing after recovery
 		this.javadoc = null;
 
+		// do not investigate deeper in statement recovery
+		if (this.statementRecoveryActivated) return false;
+		
 		// build some recovered elements
 		this.currentElement = buildInitialRecoveryState(); 
 	}

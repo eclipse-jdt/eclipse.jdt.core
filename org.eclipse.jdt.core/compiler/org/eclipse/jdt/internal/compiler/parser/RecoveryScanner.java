@@ -233,4 +233,9 @@ public class RecoveryScanner extends Scanner {
 			this.data = data;
 		}
 	}
+	
+	public void setPendingTokens(int[] pendingTokens) {
+		this.pendingTokens = pendingTokens;
+		this.pendingTokensPtr = pendingTokens.length - 1;
+	}
 }
