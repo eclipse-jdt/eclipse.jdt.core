@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 229 };
+//		TESTS_NUMBERS = new int[] { 230, 231 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -7320,5 +7320,59 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Not a raw type", collectionTypeBinding.isRawType());
     	assertTrue("Not assignement compatible", typeBinding.isAssignmentCompatible(typeBinding2));
     	assertTrue("Not assignement compatible", typeBinding.isAssignmentCompatible(collectionTypeBinding));
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156352
+	 * (TODO) jerome enable once 156352 is fixed
+	 */
+	public void _test0230() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0230", "Test3.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType type = sourceUnit.getType("Test3");//$NON-NLS-1$
+
+		assertNotNull("Should not be null", type);
+		ASTParser parser= ASTParser.newParser(AST.JLS3);
+		parser.setProject(type.getJavaProject());
+		IBinding[] bindings= parser.createBindings(new IJavaElement[] { type }, null);
+		if (bindings.length == 1 && bindings[0] instanceof ITypeBinding) {
+			ITypeBinding typeBinding= (ITypeBinding) bindings[0];
+			try {
+				while (typeBinding != null) {
+					System.out.print(typeBinding.getQualifiedName());
+					System.out.print(" has ");
+					System.out.print(typeBinding.getAnnotations().length);
+					System.out.println(" annotation(s).");
+					typeBinding= typeBinding.getSuperclass();
+				}
+			} catch (RuntimeException e) {
+				System.out.println();
+				throw e;
+			}
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156352
+	 */
+	public void test0231() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0231", "Test3.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IType type = sourceUnit.getType("Test3");//$NON-NLS-1$
+
+		assertNotNull("Should not be null", type);
+		ASTParser parser= ASTParser.newParser(AST.JLS3);
+		parser.setSource(sourceUnit);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setResolveBindings(true);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		List types = unit.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		while (typeBinding != null) {
+			System.out.print(typeBinding.getQualifiedName());
+			System.out.print(" has ");
+			System.out.print(typeBinding.getAnnotations().length);
+			System.out.println(" annotation(s).");
+			typeBinding= typeBinding.getSuperclass();
+		}
 	}
 }
