@@ -696,10 +696,6 @@ final public boolean isDefinitelyAssigned(LocalVariableBinding local) {
 	if ((this.tagBits & UNREACHABLE) != 0) {
 		return true;
 	}
-	// final constants are inlined, and thus considered as always initialized
-	if (local.constant() != Constant.NotAConstant) {
-		return true;
-	}
 	return isDefinitelyAssigned(local.id + this.maxFieldCount);
 }
 
