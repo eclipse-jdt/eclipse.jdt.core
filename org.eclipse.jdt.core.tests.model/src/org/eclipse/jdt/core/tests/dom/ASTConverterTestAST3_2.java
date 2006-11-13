@@ -8125,41 +8125,61 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		}
 	}
 	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=156352
-	public void _test0655() throws JavaModelException {
-		ICompilationUnit workingCopy = null;
-		ICompilationUnit workingCopy2 = null;
-		try {
-   			String contents =
-				"package p;\n" +
-				"public class Test1 {}";
-			workingCopy = getWorkingCopy("/Converter/src/p/Test1.java", true/*resolve*/);
-			workingCopy.getBuffer().setContents(contents);
-			workingCopy.save(null, true);
-			
-   			contents =
-				"package p;\n" +
-				"public class Test3 extends Test1 {}";
-			workingCopy2 = getWorkingCopy("/Converter/src/p/Test3.java", true/*resolve*/);
-			workingCopy2.getBuffer().setContents(contents);
-			workingCopy2.save(null, true);
-			IType type = workingCopy2.getType("Test3");
-			
-			ASTParser parser= ASTParser.newParser(AST.JLS3);
-    		parser.setProject(type.getJavaProject());
-    		IBinding[] bindings= parser.createBindings(new IJavaElement[] { type }, null);
-    		if (bindings.length == 1 && bindings[0] instanceof ITypeBinding) {
-    			ITypeBinding binding= (ITypeBinding) bindings[0];
-    			while (binding != null) {
-    				binding.getAnnotations(); // NPE here on 'Test1'
-    				binding= binding.getSuperclass();
-    			}
-    		}
-		} finally {
-			if (workingCopy != null)
-				workingCopy.discardWorkingCopy();
-			if (workingCopy2 != null)
-				workingCopy2.discardWorkingCopy();
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=157570
+	 */
+	public void _test0655() {
+		String src = "public static void m1()\n" + 
+				"    {\n" + 
+				"        int a;\n" + 
+				"        int b;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static void m2()\n" + 
+				"    {\n" + 
+				"        int c;\n" + 
+				"        int d;\n" + 
+				"    }";
+		char[] source = src.toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind (ASTParser.K_STATEMENTS);
+		parser.setStatementsRecovery(true);
+		parser.setSource (source);
+		ASTNode result = parser.createAST (null);
+		assertNotNull("no result", result);
+		assertEquals("Not a block", ASTNode.BLOCK, result.getNodeType());
+		Block block = (Block) result;
+		List statements = block.statements();
+		for (Iterator iterator = statements.iterator(); iterator.hasNext(); ) {
+			Statement statement = (Statement) iterator.next();
+			assertTrue(isMalformed(statement));
 		}
 	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=157570
+	 */
+	public void _test0656() {
+		String src = "public static void m1()\n" + 
+				"    {\n" + 
+				"        int a;\n" + 
+				"        int b;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static void m2()\n" + 
+				"    {\n" + 
+				"        int c;\n" + 
+				"        int d;\n" + 
+				"    }";
+		char[] source = src.toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind (ASTParser.K_STATEMENTS);
+		parser.setStatementsRecovery(false);
+		parser.setSource (source);
+		ASTNode result = parser.createAST (null);
+		assertNotNull("no result", result);
+		assertEquals("Not a block", ASTNode.BLOCK, result.getNodeType());
+		Block block = (Block) result;
+		List statements = block.statements();
+		assertEquals("Should be empty", 0, statements.size());
+	}	
 }
