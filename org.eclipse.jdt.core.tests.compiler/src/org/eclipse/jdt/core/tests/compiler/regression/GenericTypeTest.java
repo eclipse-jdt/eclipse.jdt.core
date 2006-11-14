@@ -35172,4 +35172,37 @@ public void test1074() {
 		true,
 		options);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163680
+public void _test1075() {
+	String srcY = 
+		"public class Y extends X {\n" + 
+		"}\n";
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T extends X<?>.J> {\n" + 
+			"   public class J implements I<T> {\n" + 
+			"   }\n" + 
+			"}\n",
+			"I.java",
+			"public interface I <T> {\n" + 
+			"}\n",
+			"Y.java",
+			srcY
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			srcY
+		},
+		"",
+		null /* no extra class libraries */, 
+		false /* flush output directory */, 
+		null /* no vm arguments */,
+		null /* no custom options*/,
+		null /* no custom requestor*/,
+	  	false /* do not skip javac for this peculiar test */);
+}
 }
