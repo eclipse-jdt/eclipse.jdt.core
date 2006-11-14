@@ -88,7 +88,9 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	if (buffer == null) {
 		buffer = openBuffer(pm, unitInfo); // open buffer independently from the info, since we are building the info
 	}
-	final char[] contents = buffer == null ? null : buffer.getCharacters();
+	final char[] contents = buffer == null ? 
+			CharOperation.NO_CHAR : 
+			buffer.getCharacters();
 
 	// generate structure and compute syntax problems if needed
 	CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);

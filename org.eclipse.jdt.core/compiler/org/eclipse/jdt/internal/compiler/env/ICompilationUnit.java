@@ -20,6 +20,8 @@ public interface ICompilationUnit extends IDependent {
  * In normal use, the contents are requested twice.
  * Once during the initial lite parsing step, then again for the
  * more detailed parsing step.
+ * Implementors must never return null - return an empty char[] instead, 
+ * CharOperation.NO_CHAR being the candidate of choice.
  */
 char[] getContents();
 /**

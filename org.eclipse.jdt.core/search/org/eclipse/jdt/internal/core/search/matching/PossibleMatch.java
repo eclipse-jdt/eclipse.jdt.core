@@ -63,7 +63,7 @@ public char[] getContents() {
 
 	if (this.openable instanceof ClassFile) {
 		String fileName = getSourceFileName();
-		if (fileName == NO_SOURCE_FILE_NAME) return null;
+		if (fileName == NO_SOURCE_FILE_NAME) return CharOperation.NO_CHAR;
 
 		SourceMapper sourceMapper = this.openable.getSourceMapper();
 		IType type = ((ClassFile) this.openable).getType();
