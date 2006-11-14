@@ -22,7 +22,11 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class InnerEmulationTest extends AbstractRegressionTest {
-	
+static {
+//		TESTS_NAMES = new String[] { "Bug58069" };
+//		TESTS_NUMBERS = new int[] { 130 };
+//		TESTS_RANGE = new int[] { 76, -1 };
+}
 public InnerEmulationTest(String name) {
 	super(name);
 }
@@ -5124,6 +5128,136 @@ public void test129() {
 			null,
 			false,
 			null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=164497
+public void test130() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	if (options.sourceLevel <= ClassFileConstants.JDK1_3) {
+    	this.runConformTestThrowingError(
+    		new String[] {
+    			"X.java", //========================
+    			"public class X {\n" + 
+    			"    public static void main(String[] args) {\n" + 
+    			"    	new M().foo2();\n" + 
+    			"    }\n" + 
+    			"}\n"+
+    			"class M  {\n" + 
+    			"	String name;\n" + 
+    			"	\n" + 
+    			"	M() {\n" + 
+    			"		this.name = \"SUCCESS\";\n" + 
+    			"	}\n" + 
+    			"\n" + 
+    			"	private class Y extends N {\n" + 
+    			"		private Y() {\n" + 
+    			"			super();\n" + 
+    			"		}\n" + 
+    			"		protected void foo(Z z) {\n" + 
+    			"			z.bar(new A());\n" + 
+    			"		}\n" + 
+    			"	}\n" + 
+    			"	\n" + 
+    			"    public class A implements I {\n" + 
+    			"    	public void configure() {\n" + 
+    			"    		new B().foo();\n" + 
+    			"    	}\n" + 
+    			"    	public class B {\n" + 
+    			"            public void foo() {\n" + 
+    			"				try {\n" +
+    			"                System.out.println(M.this.name);\n" + 
+    			"				} catch(NullPointerException e) {\n" +
+    			"					System.err.println(\"NPE THROWN\");\n" +
+    			"				}\n" +
+    			"            }\n" + 
+    			"        }\n" + 
+    			"    }\n" + 
+    			"    \n" + 
+    			"    public void foo2() {\n" + 
+    			"    	new Y();\n" + 
+    			"    }\n" + 
+    			"}\n" + 
+    			"class Z {\n" + 
+    			"	void bar(I i) {\n" + 
+    			"		i.configure();\n" + 
+    			"	}\n" + 
+    			"}\n" + 
+    			"\n" + 
+    			"interface I {\n" + 
+    			"	void configure();\n" + 
+    			"}\n" + 
+    			"\n" + 
+    			"class N {\n" + 
+    			"	protected void foo(Z z) {\n" + 
+    			"	}\n" + 
+    			"	N() {\n" + 
+    			"		this.foo(new Z());\n" + 
+    			"	}\n" + 
+    			"}\n"
+    		}, 
+    		"NPE THROWN",
+    		null,
+    		true,
+    		null);
+    	return;
+	}
+	this.runConformTest(
+    		new String[] {
+    			"X.java", //========================
+    			"public class X {\n" + 
+    			"    public static void main(String[] args) {\n" + 
+    			"    	new M().foo2();\n" + 
+    			"    }\n" + 
+    			"}\n"+
+    			"class M  {\n" + 
+    			"	String name;\n" + 
+    			"	\n" + 
+    			"	M() {\n" + 
+    			"		this.name = \"SUCCESS\";\n" + 
+    			"	}\n" + 
+    			"\n" + 
+    			"	private class Y extends N {\n" + 
+    			"		private Y() {\n" + 
+    			"			super();\n" + 
+    			"		}\n" + 
+    			"		protected void foo(Z z) {\n" + 
+    			"			z.bar(new A());\n" + 
+    			"		}\n" + 
+    			"	}\n" + 
+    			"	\n" + 
+    			"    public class A implements I {\n" + 
+    			"    	public void configure() {\n" + 
+    			"    		new B().foo();\n" + 
+    			"    	}\n" + 
+    			"    	public class B {\n" + 
+    			"            public void foo() {\n" + 
+    			"                System.out.println(M.this.name);\n" + 
+    			"            }\n" + 
+    			"        }\n" + 
+    			"    }\n" + 
+    			"    \n" + 
+    			"    public void foo2() {\n" + 
+    			"    	new Y();\n" + 
+    			"    }\n" + 
+    			"}\n" + 
+    			"class Z {\n" + 
+    			"	void bar(I i) {\n" + 
+    			"		i.configure();\n" + 
+    			"	}\n" + 
+    			"}\n" + 
+    			"\n" + 
+    			"interface I {\n" + 
+    			"	void configure();\n" + 
+    			"}\n" + 
+    			"\n" + 
+    			"class N {\n" + 
+    			"	protected void foo(Z z) {\n" + 
+    			"	}\n" + 
+    			"	N() {\n" + 
+    			"		this.foo(new Z());\n" + 
+    			"	}\n" + 
+    			"}\n"
+    		}, 
+    		"SUCCESS");
 }
 public static Class testClass() {
 	return InnerEmulationTest.class;
