@@ -784,10 +784,16 @@ public class ASTParser {
 					org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = null;
 					IJavaElement element = null;
 					if (this.compilationUnitSource != null) {
+						/*
+						 * this.compilationUnitSource is an instance of org.eclipse.jdt.internal.core.CompilationUnit that implements
+						 * both org.eclipse.jdt.core.ICompilationUnit and org.eclipse.jdt.internal.compiler.env.ICompilationUnit
+						 */ 
 						sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) this.compilationUnitSource;
-						// use a BasicCompilation that caches the source instead of using the compilationUnitSource directly 
-						// (if it is a working copy, the source can change between the parse and the AST convertion)
-						// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75632)
+						/*
+						 * use a BasicCompilation that caches the source instead of using the compilationUnitSource directly
+						 * (if it is a working copy, the source can change between the parse and the AST convertion)
+						 * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75632)
+						 */
 						sourceUnit = new BasicCompilationUnit(sourceUnit.getContents(), sourceUnit.getPackageName(), new String(sourceUnit.getFileName()), this.project);
 						element = this.compilationUnitSource;
 					} else if (this.classFileSource != null) {
