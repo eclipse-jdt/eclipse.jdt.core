@@ -106,6 +106,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		public void selectionChanged(ListDialogField field) {
 			List selectedElements= field.getSelectedElements();
 			field.enableButton(IDX_EDIT, canEdit(field, selectedElements));
@@ -119,6 +120,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			updateModel(field);
 		}			
 
+		@SuppressWarnings("unchecked")
 		private boolean canEdit(DialogField field, List selectedElements) {
 			if (!field.isEnabled())
 				return false;
