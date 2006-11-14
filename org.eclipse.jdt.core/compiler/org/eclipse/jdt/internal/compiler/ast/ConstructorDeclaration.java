@@ -284,7 +284,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 
 		if (needFieldInitializations && preInitSyntheticFields){
 			generateSyntheticFieldInitializationsIfNecessary(this.scope, codeStream, declaringClass);
-		}			
+		}
 		// generate constructor call
 		if (this.constructorCall != null) {
 			this.constructorCall.generateCode(this.scope, codeStream);
