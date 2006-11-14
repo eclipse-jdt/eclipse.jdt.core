@@ -79,7 +79,7 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 			
 		IFile parentFile = _env.getFile();
 		if (parentFile != null) {
-			_env.getAptProject().getGeneratedFileManager().addEntryToFileMaps(parentFile, _file);
+			_env.getAptProject().getGeneratedFileManager().addGeneratedFileDependency(parentFile, _file);
 			_env.addGeneratedNonSourceFile(_file);
 		}
 	}

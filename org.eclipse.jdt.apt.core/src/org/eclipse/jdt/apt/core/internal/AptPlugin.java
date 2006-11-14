@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +30,16 @@ import org.osgi.framework.BundleContext;
 public class AptPlugin extends Plugin {
 	public static final String PLUGIN_ID = "org.eclipse.jdt.apt.core"; //$NON-NLS-1$
 	
+	// Tracing options
+	public static boolean DEBUG = false;
+	public final static String APT_DEBUG_OPTION = AptPlugin.PLUGIN_ID + "/debug"; //$NON-NLS-1$
+	public static boolean DEBUG_GFM = false;
+	public final static String APT_DEBUG_GFM_OPTION = AptPlugin.APT_DEBUG_OPTION + "/generatedFiles"; //$NON-NLS-1$
+	public static boolean DEBUG_GFM_MAPS = false;
+	public final static String APT_DEBUG_GFM_MAPS_OPTION = AptPlugin.APT_DEBUG_OPTION + "/generatedFileMaps"; //$NON-NLS-1$
+	public static boolean DEBUG_COMPILATION_ENV = false;
+	public final static String APT_COMPILATION_ENV_OPTION = AptPlugin.APT_DEBUG_OPTION + "/compilationEnv"; //$NON-NLS-1$
+
 	/**
 	 * Status IDs for system log entries.  Must be unique per plugin.
 	 */
@@ -41,7 +53,9 @@ public class AptPlugin extends Plugin {
 	/** Marker ID used for configuration problem, e.g generated source folder not on classpath */
 	public static final String APT_CONFIG_PROBLEM_MARKER = PLUGIN_ID + ".configproblem"; //$NON-NLS-1$
 	/** Marker ID used for posting problems during reconcile/build */
-	public static final String APT_COMPILATION_PROBLEM_MARKER = PLUGIN_ID + ".compile.problem"; //$NON-NLS-1$	
+	public static final String APT_COMPILATION_PROBLEM_MARKER = PLUGIN_ID + ".compile.problem"; //$NON-NLS-1$
+	
+	private static final SimpleDateFormat TRACE_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS"); //$NON-NLS-1$
 	
 	private static AptPlugin thePlugin = null; // singleton object
 	
@@ -130,11 +144,34 @@ public class AptPlugin extends Plugin {
 	private void initDebugTracing() {		
 		String option = Platform.getDebugOption(APT_DEBUG_OPTION);
 		if(option != null) DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$		
+		option = Platform.getDebugOption(APT_DEBUG_GFM_OPTION);
+		if(option != null) DEBUG_GFM = option.equalsIgnoreCase("true") ; //$NON-NLS-1$		
+		option = Platform.getDebugOption(APT_DEBUG_GFM_MAPS_OPTION);
+		if(option != null) DEBUG_GFM_MAPS = option.equalsIgnoreCase("true") ; //$NON-NLS-1$		
 	}
 	
 	public static void trace(final String msg){
-		if(DEBUG)
-			System.err.println("[ " + Thread.currentThread().getName() + " ] " + msg );  //$NON-NLS-1$ //$NON-NLS-2$
+		if (DEBUG) {
+			StringBuffer sb = new StringBuffer();
+			sb.append('[');
+			// SimpleDateFormat is not thread-safe, according to javadoc
+			synchronized(TRACE_DATE_FORMAT) {
+				sb.append(TRACE_DATE_FORMAT.format(new Date()));
+			}
+			sb.append('-');
+			// Some threads have qualified type names; too long.
+			String threadName = Thread.currentThread().getName();
+			int dot = threadName.lastIndexOf('.');
+			if (dot < 0) {
+				sb.append(threadName);
+			}
+			else {
+				sb.append(threadName.substring(dot+1));
+			}
+			sb.append(']');
+			sb.append(msg);
+			System.out.println(sb);
+		}
 	}
 	
 	private static AptProject getAptProject(IJavaProject javaProject, boolean create){
@@ -165,6 +202,4 @@ public class AptPlugin extends Plugin {
 		}
 	}
 	
-	public static boolean DEBUG = false;
-	public final static String APT_DEBUG_OPTION = AptPlugin.PLUGIN_ID + "/debug"; //$NON-NLS-1$
 }

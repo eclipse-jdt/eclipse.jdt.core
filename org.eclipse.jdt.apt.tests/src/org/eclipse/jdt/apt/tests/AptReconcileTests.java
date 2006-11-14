@@ -38,7 +38,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	}
 	
 	@SuppressWarnings("nls")
-	public void _testGeneratedFile() throws Throwable
+	public void testGeneratedFile() throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
 		try
@@ -118,12 +118,11 @@ public class AptReconcileTests extends ModifyingResourceTests
 	/**
 	 *   This tests an annotation that generates a file with an annotation that
 	 *   generates a file that should fix an error in the parent file.
+	 *   TODO: re-enable this test - it seems sporadically flaky, need to find out why.
 	 * @throws Throwable
 	 */
-	// This stopped working when reconcile changed to be in-memory only.  We should investigate why this stopped 
-	// (I think it is consistent with the reconcile/build model, just need to convince myself it is true.) 
 	@SuppressWarnings("nls")
-	public void disabled_testNestedGeneratedFile() throws Throwable
+	public void _testNestedGeneratedFile() throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
 		try
@@ -201,7 +200,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 
 
 	@SuppressWarnings("nls")
-	public void _testStopGeneratingFileInReconciler() throws Exception
+	public void testStopGeneratingFileInReconciler() throws Exception
 	{
 		String fname = TEST_FOLDER + "/A.java";
 		try
@@ -271,13 +270,11 @@ public class AptReconcileTests extends ModifyingResourceTests
 			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
 					null );
 				
-			// error will be different from first one because the package will
-			// exist since we only removed the file. 
 			String expectedProblems2 = 	"----------\n" + 
 				"1. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
 				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"generatedfilepackage.GeneratedFileTest cannot be resolved to a type\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^\n" + 
+				"generatedfilepackage cannot be resolved\n" + 
 				"----------\n";
 			assertProblems( "Unexpected problems", expectedProblems2 );
 		}
@@ -293,7 +290,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 * GeneratedFileManager.
 	 */
 	@SuppressWarnings("nls")	
-	public void _testDiscardParentWorkingCopy()
+	public void testDiscardParentWorkingCopy()
 	 	throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";

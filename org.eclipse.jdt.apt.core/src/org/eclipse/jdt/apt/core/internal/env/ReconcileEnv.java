@@ -10,15 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.env;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.env.Phase;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -31,22 +27,26 @@ import com.sun.mirror.apt.Filer;
 
 public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnotationProcessorEnvironment{
 	
+	/** The compilation unit being reconciled */
 	private final ICompilationUnit _workingCopy;
+	
+	private final ReconcileContext _context;
 	
 	/**
 	 * Create a reconcile environment from the given context. 
 	 * @param reconcileContext
 	 * @return the reconcile environment or null if creation failed.
 	 */
-	static ReconcileEnv newEnv(ReconcileContext reconcileContext)
+	static ReconcileEnv newEnv(ReconcileContext context)
     {	
-		final ICompilationUnit workingCopy = reconcileContext.getWorkingCopy();
+		final ICompilationUnit workingCopy = context.getWorkingCopy();
 		IJavaProject javaProject = workingCopy.getJavaProject();
 		final IFile file = (IFile)workingCopy.getResource();
-       	return new ReconcileEnv(workingCopy, file, javaProject);
+       	return new ReconcileEnv(context, workingCopy, file, javaProject);
     }
 	
 	private ReconcileEnv(
+			ReconcileContext context,
 			ICompilationUnit workingCopy,
 		    IFile file,
 		    IJavaProject javaProj)
@@ -57,7 +57,10 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 		// replace it with the real thing inside the openPipeline() ASTRequestor's 
 		// acceptAST() callback.
 		super(EMPTY_AST_UNIT, file, javaProj, Phase.RECONCILE);
+		_context = context;
 		_workingCopy = workingCopy;
+		if (AptPlugin.DEBUG_COMPILATION_ENV) AptPlugin.trace(
+				"constructed " + this + " for " + _workingCopy.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	void addMessage(
@@ -97,53 +100,27 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 	}
 	
 	public Filer getFiler(){ 
-    	return new NoOpFiler();
+    	return new ReconcileFilerImpl(this);
     }
 	
-	private static final class NoOpFiler implements Filer{
-		
-		private static final OutputStream NO_OP_STREAM = new OutputStream(){
-			public void write(int b) throws IOException {
-				return;
-			}
-		};
-		
-		private static final PrintWriter NO_OP_WRITER = new PrintWriter(new NoOpWriter());
-		
-		public OutputStream createBinaryFile(Filer.Location loc, String pkg, File relPath)
-			throws IOException {
-			return NO_OP_STREAM;
-		}
-		public OutputStream createClassFile(String name) throws IOException {
-			return NO_OP_STREAM;
-		}
-		public PrintWriter createSourceFile(String typeName) throws IOException  {
-			return NO_OP_WRITER;
-		}
-		public PrintWriter createTextFile(Filer.Location loc, String pkg, File relPath, String charsetName) 
-			throws IOException {
-			return NO_OP_WRITER;
-		}
-	}
-	
-	private static final class NoOpWriter extends Writer{
-		public void write(char[] cbuf, int off, int len) 
-			throws IOException {
-			return;
-		}
-		public void flush() throws IOException {
-			return;
-		}		
-		public void close() throws IOException {
-			return;
-		}
-	}
-
 	void openPipeline() {
 		_requestor = new CallbackRequestor();
 		createASTs(_javaProject, new ICompilationUnit[]{_workingCopy}, _requestor);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv#close()
+	 */
+	@Override
+	public void close() {
+		// Notify the compiler that the working copy was modified, so that the editor
+		// and any downstream compilationParticipants will get a recomputed AST,
+		// taking into account any changes to generated types.
+		//TODO: don't call unless generated types were changed - WSH 10/06
+		_context.resetAST();
+		super.close();
+	}
+
 	class CallbackRequestor extends ASTRequestor {
 		@Override
 		public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
@@ -159,4 +136,10 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 
 		}
 	}
+
+	/* package scope */
+	ICompilationUnit getCompilationUnit() {
+		return _workingCopy;
+	}
+
 }

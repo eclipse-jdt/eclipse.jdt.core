@@ -7,664 +7,1055 @@
  *
  * Contributors:
  *    mkaufman@bea.com - initial API and implementation
+ *    wharley@bea.com - refactored, and reinstated reconcile-time type gen
  *******************************************************************************/
-
 
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.Messages;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
+import org.eclipse.jdt.apt.core.internal.util.ManyToMany;
 import org.eclipse.jdt.core.ElementChangedEvent;
-import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.dom.AST;
 
 /**
- * This class is used for managing generated files.  
- *   
- * There are four maps that are used.  Two are used to track the relationships 
- * between parent files & generated files ( 
- * <code>_parentFile2GeneratedFiles</code> & <code>_generatedFile2ParentFiles</code>). 
- * The other two maps are used to track cached working copies:  
- * <code>_generatedFile2WorkingCopy</code>  maps a generated file to its 
- * working copy, and  <code>_generatedWorkingCopy2OpenParentFiles</code>  
- * maps a working copy to any parent files that may be open.   
+ * This class is used for managing generated files; in particular, keeping track of
+ * dependencies so that no-longer-generated files can be deleted, and managing the
+ * lifecycle of working copies in memory.
+ * <p>
+ * During build, a generated file may be a "type", in the sense of a generated Java source
+ * file, or it may be a generated class file or an arbitrary resource (such as an XML
+ * file). During reconcile, it is only possible to generate Java source files. Also,
+ * during reconcile, it is not possible to write to disk or delete files from disk; all
+ * operations take place in memory only, using "working copies" provided by the Java
+ * Model.
  * 
- * The file maps have entries added when a file is generated during a build.  
- * The file maps & working-copy maps haven entries added added when a file
- * is added during a reconcile.  There are various entry-points to keep the
- * maps up-to-date with respect to life-cycle events on the parent & generated files.
- * (e.g., parentFileDeleted(), ).
- *
- * SYNCHRONIZATION NOTES (IMPORTANT)
- * ---------------------------------
- * Synchronization around the GeneratedFileManager's maps uses the GeneratedFileManager
- * instance's monitor.   When acquiring this monitor, DO NOT PERFORM ANY OPERATIONS
- * THAT TAKE ANY OTHER LOCKS (e.g., java model operations, or file system operations like
- * creating or deleting a file or folder).  If you do this, then the code is subject to 
- * deadlock situations.  For example, a resource-changed listener may take a resource lock
+ * <h2>DATA STRUCTURES</h2>
+ * <code>_parentToGenFiles</code> is a many-to-many map that tracks which parent files
+ * are responsible for which generated files. Entries in this map are created when files
+ * are created during builds. This map is serialized so that dependencies can be reloaded
+ * when a project is opened without having to do a full build.
+ * <p>
+ * When types are generated during reconcile, they are not actually laid down on disk (ie
+ * we do not commit the working copy). However, the file handles are still used as keys
+ * into the various maps in this case.
+ * <p>
+ * <code>_parentToGenWorkingCopies</code> is the reconcile-time analogue of
+ * <code>_parentToGenFiles</code>.  This map is not serialized.
+ * <p>
+ * Given a working copy, it is easy to determine the IFile that it models by calling
+ * <code>ICompilationUnit.getResource()</code>.  To go the other way, we store maps
+ * of IFile to ICompilationUnit.  Working copies that represent generated types are
+ * stored in <code>_workingCopies</code>; working copies that represent deleted types
+ * are stored in <code>_hiddenBuiltTypes</code>.  
+ * <p>
+ * List invariants: for the many-to-many maps, every forward entry must correspond to a
+ * reverse entry; this is managed (and verified) by the ManyToMany map code. Also, every
+ * entry in the <code>_workingCopies</code> list must correspond to an entry in the
+ * <code>_parentToGenWorkingCopies</code> map. There can be no overlap between these
+ * entries and the <code>_hiddenBuiltTypes</code> map. Whenever a working copy is placed
+ * into this overall collection, it must have <code>becomeWorkingCopy()</code> called on
+ * it; whenever it is removed, it must have <code>discardWorkingCopy()</code> called on
+ * it.
+ * 
+ * <h2>SYNCHRONIZATION NOTES</h2>
+ * Synchronization around the GeneratedFileManager's maps uses the GeneratedFileMap
+ * instance's monitor. When acquiring this monitor, DO NOT PERFORM ANY OPERATIONS THAT
+ * TAKE ANY OTHER LOCKS (e.g., java model operations, or file system operations like
+ * creating or deleting a file or folder). If you do this, then the code is subject to
+ * deadlock situations. For example, a resource-changed listener may take a resource lock
  * and then call into the GeneratedFileManager for clean-up, where your code could reverse
- * the order in which the locks are taken.  This is bad, so be careful.   
+ * the order in which the locks are taken. This is bad, so be careful.
  * 
+ * <h2>RECONCILE vs. BUILD</h2>
+ * Reconciles are based on in-memory type information, i.e., working copies. Builds are
+ * based on files on disk. At any given moment, a build thread and any number of reconcile
+ * threads may be executing. All share the same GeneratedFileManager object, but each
+ * thread will have a separate BuildEnvironment. Multiple files are built in a loop, with
+ * files generated on one round being compiled (and possibly generating new files) on the
+ * next; only one file at a time is reconciled, but when a file is generated during
+ * reconcile it will invoke a recursive call to reconcile, with a unique
+ * ReconcileBuildEnvironment.
+ * <p>
+ * What is the relationship between reconcile-time dependency information and build-time
+ * dependency information? In general, there is one set of dependency maps for build time
+ * information and a separate set for reconcile time information (with the latter being
+ * shared by all reconcile threads). Reconciles do not write to build-time information,
+ * nor do they write to the disk. Builds, however, may have to interact with
+ * reconcile-time info. The tricky bit is that a change to a file "B.java" in the
+ * foreground editor window might affect the way that background file "A.java" generates
+ * "AGen.java". That is, editing B.java is in effect making A.java dirty; but the Eclipse
+ * build system has no way of knowing that, so A will not be reconciled.
+ * <p>
+ * The nearest Eclipse analogy is to refactoring, where a refactor operation in the
+ * foreground editor can modify background files; Eclipse solves this problem by requiring
+ * that all files be saved before and after a refactoring operation, but that solution is
+ * not practical for the simple case of making edits to a file that might happen to be an
+ * annotation processing dependency. The JSR269 API works around this problem by letting
+ * processors state these out-of-band dependencies explicitly, but com.sun.mirror.apt has
+ * no such mechanism.
+ * <p>
+ * The approach taken here is that when a build is performed, we discard the working
+ * copies of any files that are open in editors but that are not dirty (meaning the file
+ * on disk is the same as the version in the editor). This still means that if file A is
+ * dirty, AGen will not be updated even when B is edited; thus, making a breaking change
+ * to A and then making a change to B that is supposed to fix the break will not work.
  */
-public class GeneratedFileManager {
-	
-	private static final int SERIALIZATION_VERSION = 1;
-	
-	// disable type generation during reconcile. This can cause deadlock.
-	// See radar bug #238684	
-	public static final boolean GENERATE_TYPE_DURING_RECONCILE = false;
+public class GeneratedFileManager
+{
 	
 	/**
-	 * map from IFile of parent file to Set <IFile>of generated files
+	 * Access to the package fragment root for generated types.
+	 * Encapsulated into this class so that synchronization can be guaranteed.
 	 */
-	private final Map<IFile, Set<IFile>> _parentFile2GeneratedFiles = new HashMap<IFile, Set<IFile>>();
+	private class GeneratedPackageFragmentRoot {
+		
+		// The name and root are returned as a single object to ensure synchronization.
+		final class NameAndRoot {
+			final String name;
+			final IPackageFragmentRoot root;
+			NameAndRoot(String name, IPackageFragmentRoot root) {
+				this.name = name;
+				this.root = root;
+			}
+		}
+		
+		private IPackageFragmentRoot _root = null;
+		
+		private String _folderName = null;
+		
+		/**
+		 * Get the package fragment root and the name of the folder
+		 * it corresponds to.  If the folder is not on the classpath,
+		 * the root will be null.
+		 */
+		public synchronized NameAndRoot get() {
+			return new NameAndRoot(_folderName, _root);
+		}
+		
+		/**
+		 * Force the package fragment root and folder name to be recalculated.
+		 * Check whether the new folder is actually on the classpath; if not,
+		 * set root to be null.
+		 */
+		public synchronized void set() {
+			IFolder genFolder = _gsfm.getFolder();
+			_root = null;
+			if (_jProject.isOnClasspath(genFolder)) {
+				_root = _jProject.getPackageFragmentRoot(genFolder);
+			}
+			_folderName = genFolder.getProjectRelativePath().toString();
+		}
+	}
 
 	/**
-	 * map from IFile of generated file to Set <IFile>of parent files
+	 * If true, when buffer contents are updated during a reconcile, reconcile() will 
+	 * be called on the new contents.  This is not necessary to update the open editor,
+	 * but if the generated file is itself a parent file, it will cause recursive
+	 * type generation.
 	 */
-	private final Map<IFile, Set<IFile>> _generatedFile2ParentFiles = new HashMap<IFile, Set<IFile>>();
+	private static final boolean RECURSIVE_RECONCILE = true;
+
+	/**
+	 * Disable type generation during reconcile.  In the past, reconcile-time type
+	 * generation caused deadlocks; see (BEA internal) Radar bug #238684.  As of
+	 * Eclipse 3.3 this should work.
+	 */
+	private static final boolean GENERATE_TYPE_DURING_RECONCILE = true;
 	
 	/**
-	 * Map from a the working copy of a generated file to its *open* parents.  Note that
-	 * the set of parent files are only those parent files that have an open editor.
-	 * This set should be a subset for a correpsonding entry in the _generatedFile2Parents map.
+	 * If true, the integrity of internal data structures will be verified after various
+	 * operations are performed.
 	 */
-	private final Map<ICompilationUnit, Set<IFile>> _generatedWorkingCopy2OpenParentFiles = 
-		new HashMap<ICompilationUnit, Set<IFile>>();
+	private static final boolean ENABLE_INTEGRITY_CHECKS = true;
 	
 	/**
-	 * Map from type name to the working copy in memory of that type name
+	 * A singleton instance of CompilationUnitHelper, which encapsulates operations on working copies.
+	 */
+	private static final CompilationUnitHelper _CUHELPER = new CompilationUnitHelper();
+	
+	/**
+	 * The regex delimiter used to parse package names.
+	 */
+	private static final Pattern _PACKAGE_DELIMITER = Pattern.compile("\\."); //$NON-NLS-1$
+
+	static {
+		// register element-changed listener to clean up working copies
+		int mask = ElementChangedEvent.POST_CHANGE;
+		JavaCore.addElementChangedListener(new WorkingCopyCleanupListener(), mask);
+	}
+
+	/**
+	 * Many-to-many map from parent files to files generated during build. These files all
+	 * exist on disk. This map is used to keep track of dependencies during build, and is
+	 * read-only during reconcile. This map is serialized.
+	 */
+	private final GeneratedFileMap _parentToGenFiles;
+
+	/**
+	 * Many-to-many map from parent files to working copies generated during reconcile.
+	 * Both the keys and the values may correspond to files that exist on disk or only in
+	 * memory. This map is used to keep track of dependencies created during reconcile,
+	 * and is not accessed during build. This map is not serialized.
+	 */
+	private final ManyToMany<IFile, ICompilationUnit> _parentToGenWorkingCopies;
+
+	/**
+	 * Map of types that were generated during build but are being hidden by blank
+	 * WorkingCopies. These are tracked separately from regular working copies for the
+	 * sake of clarity. The keys all correspond to files that exist on disk; if they
+	 * didn't, there would be no reason for an entry.
+	 * <p>
+	 * Every working copy exists either in this map or in {@link #_hiddenBuiltTypes}, but
+	 * not in both. These maps exist to track the lifecycle of a working copy. When a new
+	 * working copy is created, {@link ICompilationUnit#becomeWorkingCopy()} is called. If
+	 * an entry is removed from this map without being added to the other,
+	 * {@link ICompilationUnit#discardWorkingCopy()} must be called.
 	 * 
-	 * Map<String, ICompilationUnit>
+	 * @see #_workingCopies
 	 */
-	private final Map<IFile, ICompilationUnit> _generatedFile2WorkingCopy = new HashMap<IFile, ICompilationUnit>();	
+	private final Map<IFile, ICompilationUnit> _hiddenBuiltTypes;
+
+	/**
+	 * Cache of working copies (in-memory types created or modified during reconcile).
+	 * Includes working copies that represent changes to types that were generated during
+	 * a build and thus exist on disk, as well as working copies for types newly generated
+	 * during reconcile that thus do not exist on disk.
+	 * <p>
+	 * Every working copy exists either in this map or in {@link #_hiddenBuiltTypes}, but
+	 * not in both. These maps exist to track the lifecycle of a working copy. When a new
+	 * working copy is created, {@link ICompilationUnit#becomeWorkingCopy()} is called. If
+	 * an entry is removed from this map without being added to the other,
+	 * {@link ICompilationUnit#discardWorkingCopy()} must be called.
+	 * 
+	 * @see #_hiddenBuiltTypes
+	 */
+	private final Map<IFile, ICompilationUnit> _workingCopies;
+
+	/**
+	 * Access to the package fragment root for generated types.  Encapsulated into a
+	 * helper class in order to ensure synchronization.
+	 */
+	private final GeneratedPackageFragmentRoot _generatedPackageFragmentRoot; 
 
 	private final IJavaProject _jProject;
-	
+
 	private final GeneratedSourceFolderManager _gsfm;
-	
-	// This is set when the build starts, and accessed during type generation. 
-	private IPackageFragmentRoot _generatedPackageFragmentRoot;
-	
-	// This is initialized/reset when the build starts, and accessed during type generation.
-	// It has the same life-cycle as _generatedPackageFragmentRoot.
-	// This bit may be set to <code>true</code> during the first type generation to prevent any 
-	// future type generation due to configuration problem.
-	private boolean _skipTypeGeneration = false;
-	
-	// The name of the generated source folder when the _generatedPackageFragmenRoot is 
-	// initialized. Used for problem reporting.
-	private String _snapshotFolderName = null;
-	
-	// During compilation, we need to remember if we've modified the maps 
-	// in memory in order to determine if we need to write our state to disk
-	private boolean _mapsDirty = false;
-	
+
 	/**
-	 * Clients should not instantiate this class; it is created only by @see AptProject .
+	 * Initialized when the build starts, and accessed during type generation.
+	 * This has the same lifecycle as _generatedPackageFragmentRoot.
+	 * If there is a configuration problem, this may be set to <code>true</code> 
+	 * during generation of the first type to prevent any other types from
+	 * being generated. 
+	 */
+	private boolean _skipTypeGeneration = false;
+
+	/**
+	 * Clients should not instantiate this class; it is created only by {@link AptProject}.
 	 */
 	public GeneratedFileManager(final AptProject aptProject, final GeneratedSourceFolderManager gsfm) {
 		_jProject = aptProject.getJavaProject();
 		_gsfm = gsfm;
-		readState();
+		_parentToGenFiles = new GeneratedFileMap(_jProject.getProject());
+		_parentToGenWorkingCopies = new ManyToMany<IFile, ICompilationUnit>();
+		_hiddenBuiltTypes = new HashMap<IFile, ICompilationUnit>();
+		_workingCopies = new HashMap<IFile, ICompilationUnit>();
+		_generatedPackageFragmentRoot = new GeneratedPackageFragmentRoot();
 	}
 
-	static
+	/**
+	 * Add a non-Java-source entry to the build-time dependency maps. Java source files
+	 * are added to the maps when they are generated, as by
+	 * {@link #generateFileDuringBuild(IFile, String, String, IProgressMonitor)}, but
+	 * files of other types must be added explicitly by the code that creates the file.
+	 */
+	public void addGeneratedFileDependency(IFile parentFile, IFile generatedFile)
 	{
-		// register element-changed listener to clean up working copies
-		int mask = ElementChangedEvent.POST_CHANGE;
-		JavaCore.addElementChangedListener( new WorkingCopyCleanupListener(), mask );
+		addBuiltFileToMaps(parentFile, generatedFile);
+	}
+
+	/**
+	 * Called at the start of build in order to cache our package fragment root
+	 */
+	public void compilationStarted()
+	{
+		try {
+			// clear out any generated source folder config markers
+			IMarker[] markers = _jProject.getProject().findMarkers(AptPlugin.APT_CONFIG_PROBLEM_MARKER, true,
+					IResource.DEPTH_INFINITE);
+			if (markers != null) {
+				for (IMarker marker : markers)
+					marker.delete();
+			}
+		} catch (CoreException e) {
+			AptPlugin.log(e, "Unable to delete configuration marker."); //$NON-NLS-1$
+		}
+		_skipTypeGeneration = false;
+		_gsfm.ensureFolderExists();
+		_generatedPackageFragmentRoot.set();
+
 	}
 	
 	/**
-	 * Invoked when a file is generated during a build.  The generated file and intermediate 
-	 * directories will be created if they don't  exist.  This method takes file-system locks, 
-	 * and assumes that the calling method has at some point acquired a workspace-level 
-	 * resource lock.
+	 * This method should only be used for testing purposes to ensure that maps contain
+	 * entries when we expect them to.
+	 */
+	public synchronized boolean containsWorkingCopyMapEntriesForParent(IFile f)
+	{
+		return _parentToGenWorkingCopies.containsKey(f);
+	}
+
+	/**
+	 * Invoked at the end of a build to delete files that are no longer parented by
+	 * <code>parentFile</code>. Files that are multiply parented will not actually be
+	 * deleted, but the association from this parent to the generated file will be
+	 * removed, so that when the last parent ceases to generate a given file it will be
+	 * deleted at that time.
 	 * 
-	 * @param parentFile the parent of the type being generated
-	 * @param typeName the dot-separated java type name of the type being generated
-	 * @param contents the java code contents of the new type .
-	 * @param progressMonitor a progres monitor.  This may be null.
+	 * @param newlyGeneratedFiles
+	 *            the set of files generated by <code>parentFile</code> on the most
+	 *            recent compilation; these files will be spared deletion.
+	 * @return the set of files that were actually deleted, or an empty set
+	 */
+	public Set<IFile> deleteObsoleteFilesAfterBuild(IFile parentFile, Set<IFile> newlyGeneratedFiles)
+	{
+		Set<IFile> deleted;
+		deleted = calculateDeletedFiles(parentFile, newlyGeneratedFiles);
+
+		for (IFile toDelete : deleted) {
+			if (AptPlugin.DEBUG_GFM) AptPlugin.trace(
+					"deleted obsolete file during build: " + toDelete); //$NON-NLS-1$
+			deletePhysicalFile(toDelete);
+		}
+
+		return deleted;
+	}
+
+	/**
+	 * Invoked at the end of a reconcile to get rid of any files that are no longer being
+	 * generated. If the file existed on disk, we can't actually delete it, we can only
+	 * create a blank WorkingCopy to hide it. Therefore, we can only remove Java source
+	 * files, not arbitrary files. If the file was generated during reconcile and exists
+	 * only in memory, we can actually remove it altogether.
+	 * 
+	 * @param parentWC
+	 *            the WorkingCopy being reconciled
+	 * @param newlyGeneratedFiles
+	 *            the complete list of files generated during the reconcile (including
+	 *            files that exist on disk as well as files that only exist in memory)
+	 */
+	public void deleteObsoleteTypesAfterReconcile(ICompilationUnit parentWC, Set<IFile> newlyGeneratedFiles)
+	{
+		IFile parentFile = (IFile) parentWC.getResource();
+
+		List<ICompilationUnit> toSetBlank;
+		List<ICompilationUnit> toDiscard;
+		synchronized (this) {
+			if (GENERATE_TYPE_DURING_RECONCILE) {
+				toSetBlank = calculateHiddenTypes(parentFile, newlyGeneratedFiles, _CUHELPER);
+			}
+			else {
+				toSetBlank = Collections.emptyList();
+			}
+			toDiscard = calculateObsoleteWorkingCopies(parentFile, newlyGeneratedFiles);
+		}
+
+		for (ICompilationUnit wcToDiscard : toDiscard) {
+			if (AptPlugin.DEBUG_GFM) AptPlugin.trace(
+					"discarded obsolete working copy during reconcile: " + wcToDiscard.getElementName()); //$NON-NLS-1$
+			_CUHELPER.discardWorkingCopy(wcToDiscard);
+		}
+
+		WorkingCopyOwner workingCopyOwner = parentWC.getOwner();
+		for (ICompilationUnit wcToSetBlank : toSetBlank) {
+			if (AptPlugin.DEBUG_GFM) AptPlugin.trace(
+					"hiding file with blank working copy during reconcile: " + wcToSetBlank.getElementName()); //$NON-NLS-1$
+			_CUHELPER.updateWorkingCopyContents("", wcToSetBlank, workingCopyOwner, RECURSIVE_RECONCILE); //$NON-NLS-1$
+		}
+
+		assert checkIntegrity();
+	}
+
+	/**
+	 * Clear all records of the generated types in this project: empty the maps, discard
+	 * the working copies, and get rid of serialized file dependency information. This is
+	 * invoked when a project is deleted (rather than merely closed).
+	 */
+	public void discardAllState()
+	{
+		discardWorkingCopyState();
+
+		// Clear the generated file maps and delete any serialized build state
+		_parentToGenFiles.clearState();
+		if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace(
+				"cleared build file dependencies"); //$NON-NLS-1$
+	}
+
+	/**
+	 * Call ICompilationUnit.discardWorkingCopy() on all working copies of generated
+	 * files, and clear the working copy maps. This is invoked when a project is closed,
+	 * but not deleted: we need to forget about any in-memory types, but the generated
+	 * files and serialized dependency information on disk are still valid.
+	 */
+	public void discardWorkingCopyState()
+	{
+		if (AptPlugin.DEBUG_GFM) AptPlugin.trace("discarding working copy state"); //$NON-NLS-1$
+		List<ICompilationUnit> toDiscard;
+		toDiscard = clearWorkingCopyMaps();
+		for (ICompilationUnit wc : toDiscard) {
+			_CUHELPER.discardWorkingCopy(wc);
+		}
+	}
+
+	/**
+	 * Called by the resource change listener when a file is deleted (eg by the user).
+	 * Removes any files and working copies parented by this file, and removes the file
+	 * from dependency maps if it is generated. If the file has a working copy associated,
+	 * the working copy is discarded and removed from the dependency maps.
+	 * 
+	 * @param f
+	 */
+	public void fileDeleted(IFile f)
+	{
+		Set<ICompilationUnit> toDiscard = new HashSet<ICompilationUnit>();
+		Set<IFile> toDelete = new HashSet<IFile>();
+
+		removeFileFromMaps(f, toDiscard, toDelete);
+
+		for (IFile fileToDelete : toDelete) {
+			deletePhysicalFile(fileToDelete);
+		}
+		for (ICompilationUnit wcToDiscard : toDiscard) {
+			_CUHELPER.discardWorkingCopy(wcToDiscard);
+		}
+
+	}
+
+	/**
+	 * Invoked when a file is generated during a build. The generated file and
+	 * intermediate directories will be created if they don't exist. This method takes
+	 * file-system locks, and assumes that the calling method has at some point acquired a
+	 * workspace-level resource lock.
+	 * 
+	 * @param parentFile
+	 *            the parent of the type being generated
+	 * @param typeName
+	 *            the dot-separated java type name of the type being generated
+	 * @param contents
+	 *            the java code contents of the new type .
+	 * @param progressMonitor
+	 *            a progress monitor. This may be null.
 	 * @return - the newly created IFile along with whether it was modified
 	 * @throws CoreException
 	 */
-	public FileGenerationResult generateFileDuringBuild(
-			IFile parentFile,
-			String typeName, 
-			String contents, 
-			IProgressMonitor progressMonitor)
-	throws CoreException
+	public FileGenerationResult generateFileDuringBuild(IFile parentFile, String typeName, String contents,
+			IProgressMonitor progressMonitor) throws CoreException
 	{
-		if( _skipTypeGeneration ) return null;
-		// If the generated package fragment root wasn't set,
-		// then our classpath is incorrect. Add a marker and return
-		else if( _generatedPackageFragmentRoot == null ){			
-			String message = Messages.bind(
-					Messages.GeneratedFileManager_missing_classpath_entry, 
-					new String[] {_snapshotFolderName});
+		if (_skipTypeGeneration)
+			return null;
+		
+		GeneratedPackageFragmentRoot.NameAndRoot gpfr = _generatedPackageFragmentRoot.get();
+		IPackageFragmentRoot root = gpfr.root;
+		if (root == null) {
+			// If the generated package fragment root wasn't set, then our classpath 
+			// is incorrect. Add a marker and return.  We do this here, rather than in
+			// the set() method, because if they're not going to generate any types
+			// then it doesn't matter that the classpath is wrong.
+			String message = Messages.bind(Messages.GeneratedFileManager_missing_classpath_entry,
+					new String[] { gpfr.name });
 			IMarker marker = _jProject.getProject().createMarker(AptPlugin.APT_CONFIG_PROBLEM_MARKER);
-			marker.setAttributes(
-					new String[] {
-						IMarker.MESSAGE, 
-						IMarker.SEVERITY
-					},
-					new Object[] {
-						message,
-						IMarker.SEVERITY_ERROR
-					}
-				);
+			marker.setAttributes(new String[] { IMarker.MESSAGE, IMarker.SEVERITY }, new Object[] { message,
+					IMarker.SEVERITY_ERROR });
 			// disable any future type generation
 			_skipTypeGeneration = true;
 			return null;
 		}
-		
-		try{
-			
-			if( typeName.indexOf('/') != -1 )
-				typeName = typeName.replace('/', '.');
-			int separatorIndex = typeName.lastIndexOf('.');			
-			final String typeSimpleName;
-			final String pkgName;
-			if( separatorIndex == -1 ){
-				pkgName = ""; //$NON-NLS-1$
-				typeSimpleName = typeName;
-			}
-			else{
-				pkgName = typeName.substring(0, separatorIndex);
-				typeSimpleName = typeName.substring(separatorIndex + 1, typeName.length());
-			}
-			
-			// NOTE: Do NOT ever create any type of resource (files, folders) through the
-			// resource API. The resource change event will not go out until the build
-			// is completed. Instead always go through the JavaModel. -theodora
-			IFolder genSrcFolder = (IFolder)_generatedPackageFragmentRoot.getResource();
-			final Set<IContainer> newFolders = getNewPackageFolders(pkgName, genSrcFolder);
-			IPackageFragment pkgFrag = _generatedPackageFragmentRoot.createPackageFragment(pkgName, true, progressMonitor);
-			if( pkgFrag == null ){
-				final Exception e = new IllegalStateException("failed to locate package '" + pkgName + "'");  //$NON-NLS-1$ //$NON-NLS-2$
-				e.printStackTrace();
-				throw e;
-			}			
-			// mark all newly create folders as derived.			
-			markNewFoldersAsDerived((IContainer)pkgFrag.getResource(), newFolders);
-			
-			final String cuName = typeSimpleName + ".java"; //$NON-NLS-1$
-			
-			ICompilationUnit unit = pkgFrag.getCompilationUnit(cuName);
-			IFile file = (IFile)unit.getResource();
-			boolean contentsDiffer = true;
 
-			if (unit.exists()) {
-				InputStream oldData = null;
-				InputStream is = null;
-				try {
-					is = new ByteArrayInputStream( contents.getBytes() );
-					oldData = new BufferedInputStream( ((IFile)unit.getResource()).getContents());
-					contentsDiffer = !FileSystemUtil.compareStreams(oldData, is);
-				}
-				catch (CoreException ce) {
-					// Do nothing. Assume the new content is different
-				}
-				finally {
-					if (oldData != null) {
-						try {
-							oldData.close();
-						} 
-						catch (IOException ioe) 
-						{}
+		// Do the new contents differ from what is already on disk?
+		// We need to know so we can tell the caller whether this is a modification.
+		IFile file = getIFileForTypeName(typeName);
+		boolean contentsDiffer = compareFileContents(contents, file);
+
+		try {
+			if (contentsDiffer) {
+				final String[] names = parseTypeName(typeName);
+				final String pkgName = names[0];
+				final String cuName = names[1];
+				
+				// Get a list of the folders that will have to be created for this package to exist
+				IFolder genSrcFolder = (IFolder) root.getResource();
+				final Set<IFolder> newFolders = computeNewPackageFolders(pkgName, genSrcFolder);
+	
+				// Create the package fragment in the Java Model.  This creates all needed parent folders.
+				IPackageFragment pkgFrag = _CUHELPER.createPackageFragment(pkgName, root, progressMonitor);
+	
+				// Mark all newly created folders (but not pre-existing ones) as derived.  
+				for (IContainer folder : newFolders) {
+					try {
+						folder.setDerived(true);
+					} catch (CoreException e) {
+						AptPlugin.logWarning(e, "Unable to mark generated type folder as derived: " + folder.getName()); //$NON-NLS-1$
+						break;
 					}
-					if (is != null) {
-						try {
-							is.close();
-						} 
-						catch (IOException ioe) 
-						{}
-					}
 				}
-			}	
-			
-			if( contentsDiffer ){
-				if( unit.exists() && unit.isOpen() ){
-					// directly modify the content of the working copy
-					// so that UI will pick up the change.
-					IBuffer buffer = unit.getBuffer();
-					if (buffer == null){
-						throw new IllegalStateException("Unable to update unit for " + cuName); //$NON-NLS-1$
-						
-					}
-					buffer.setContents(contents.toCharArray());
-					buffer.save(progressMonitor, true);
-				}
-				else{
-					ICompilationUnit newUnit = null;
-					newUnit = pkgFrag.createCompilationUnit(cuName, contents, true,
-							progressMonitor);
-					if( newUnit == null ) {				
-						throw new IllegalStateException("Unable to create unit for " + cuName); //$NON-NLS-1$
-					}
-					if( AptPlugin.DEBUG )
-						AptPlugin.trace("generated " + typeName ); //$NON-NLS-1$
-					newUnit.save(progressMonitor, true);
-				}
+	
+				// Save the compilation unit to disk.  How this is done depends on current state.
+				saveCompilationUnit(pkgFrag, cuName, contents, progressMonitor);
 			}
-			
+
+			// during a batch build, parentFile will be null.
+			// Only keep track of ownership in iterative builds
+			if (parentFile != null) {
+				addBuiltFileToMaps(parentFile, file);
+			}
+
 			// Mark the file as derived. Note that certain user actions may have
-			// deleted this file before we get here, so if the file doesn't exist,
-			// marking it derived throws a ResourceException
+			// deleted this file before we get here, so if the file doesn't
+			// exist, marking it derived throws a ResourceException.
 			if (file.exists()) {
 				file.setDerived(true);
 			}
 			// We used to also make the file read-only. This is a bad idea,
 			// as refactorings then fail in the future, which is worse
 			// than allowing a user to modify a generated file.
-			
-			// during a batch build, parentFile will be null.
-			// Only keep track of ownership in iterative builds
-			if( parentFile != null ) {
-				addEntryToFileMaps( parentFile, file );
-			}
+
+			assert checkIntegrity();
+
 			return new FileGenerationResult(file, contentsDiffer);
+		} catch (CoreException e) {
+			AptPlugin.log(e, "Unable to generate type " + typeName); //$NON-NLS-1$
+			return null;
 		}
-		catch(Throwable e){
-			AptPlugin.log(e, "(2)failed to generate type " + typeName); //$NON-NLS-1$
-			e.printStackTrace();
-		}
-		return null; // something failed. The catch block have already logged the error.
-	}	
-	
-	
+	}
+
 	/**
-	 * This function generates a type "in-memory" by creating or updating a working copy with the
-	 * specified contents.   The generated-source folder must be configured correctly for this to 
-	 * work. This method takes no locks, so it is safe to call when holding fine-grained resource 
-	 * locks (e.g., during some reconcile paths).  Since this only works on an in-memory working 
-	 * copy of the type, the IFile for the generated type may not exist on disk.  Likewise, the
-	 * corresponding package directories of type-name may not exist on disk.   
+	 * This function generates a type "in-memory" by creating or updating a working copy
+	 * with the specified contents. The generated-source folder must be configured
+	 * correctly for this to work. This method takes no locks, so it is safe to call when
+	 * holding fine-grained resource locks (e.g., during some reconcile paths). Since this
+	 * only works on an in-memory working copy of the type, the IFile for the generated
+	 * type may not exist on disk. Likewise, the corresponding package directories of
+	 * type-name may not exist on disk.
 	 * 
-	 * TODO:  figure out how to create a working copy with a client-specified character set
+	 * TODO: figure out how to create a working copy with a client-specified character set
 	 * 
-	 * @param parentCompilationUnit - the parent compilation unit. 
-	 * @param typeName - the dot-separated java type name for the new type
-	 * @param contents - the contents of the new type
-	 * @param workingCopyOwner - the working copy owner.  This may be null.  If null, parentCompilationUnit.getOwner() 
-	 * will be used.  
-	 * @param problemRequestor - this may be null. 
-	 * @param progressMonitor - this may be null
+	 * @param parentCompilationUnit the parent compilation unit.
+	 * @param typeName the dot-separated java type name for the new type
+	 * @param contents the contents of the new type
+	 * @return The FileGenerationResult. This will return null if the generated source
+	 *         folder is not configured, or if there is some other error during type
+	 *         generation.
 	 * 
-	 * @return The FileGenerationResult.  This will return null if the generated source folder
-	 * is not configured.
-	 *
 	 */
-	public  FileGenerationResult generateFileDuringReconcile(
-			ICompilationUnit parentCompilationUnit, String typeName,
-			String contents, WorkingCopyOwner workingCopyOwner,
-			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor ) 
-	
-	throws CoreException
-	{	
-		
+	public FileGenerationResult generateFileDuringReconcile(ICompilationUnit parentCompilationUnit, String typeName,
+			String contents) throws CoreException
+	{
 		if (!GENERATE_TYPE_DURING_RECONCILE)
 			return null;
-		// We have disabled Reconcile-time type generated for a long time and
-		// everything else has changed ever since. Don't expect the following 
-		// code to work when we enable reconcile-time type generation again. 
-		// -theodora
-		// Work item
-		// 1) make sure generated source directory and classpath is setup properly
-		//    (i don't think it is today) -theodora
+
+		IFile parentFile = (IFile) parentCompilationUnit.getResource();
 		
-		ICompilationUnit workingCopy = null;
-		FileGenerationResult result = null;
-		IFile parentFile = (IFile)parentCompilationUnit.getResource();
-		try 
-		{
-			//
-			// get working copy (either from cache or create a new one)
-			//
-			workingCopy = getCachedWorkingCopy( parentFile, typeName );
-			
-			if ( workingCopyOwner == null )
-				workingCopyOwner = parentCompilationUnit.getOwner();
-			
-			if ( workingCopy == null )
-			{
-				// create a new working copy
-				workingCopy = createNewWorkingCopy(  
-						parentFile,  typeName, contents,  
-						workingCopyOwner, problemRequestor,  progressMonitor);
-								
-				workingCopy.reconcile(AST.JLS3, true, workingCopyOwner,
-						progressMonitor);
-				
-				// TODO:  pass in correct flag for source-patch changed.  This is probably not going to matter.  Per 103183, we will either 
-				// disable reconcile-time generation, or do it without any modifications, so we shouldn't have to worry about this.   
-				result = new FileGenerationResult((IFile)workingCopy.getResource(), true);
-			}
+		ICompilationUnit workingCopy = getWorkingCopyForGeneratedFile(parentFile, typeName, _CUHELPER);
+
+		// Update its contents and recursively reconcile
+		boolean modified = _CUHELPER.updateWorkingCopyContents(
+				contents, workingCopy, parentCompilationUnit.getOwner(), RECURSIVE_RECONCILE);
+		if (AptPlugin.DEBUG_GFM) {
+			if (modified)
+				AptPlugin.trace("working copy modified during reconcile: " + typeName); //$NON-NLS-1$
 			else
-			{
+				AptPlugin.trace("working copy unmodified during reconcile: " + typeName); //$NON-NLS-1$
+		}
 
-				//
-				//  Update working copy's buffer with the contents of the type 
-				// 
-				boolean modified = updateWorkingCopy( contents, workingCopy, workingCopyOwner, progressMonitor );
-				result = new FileGenerationResult((IFile)workingCopy.getResource(), modified);
-			}
-			
-			return result;
-		} 
-		catch (JavaModelException jme) 
-		{
-			AptPlugin.log(jme, "Could not generate file for type: " + typeName); //$NON-NLS-1$
-		} 
-		return new FileGenerationResult((IFile)workingCopy.getResource(), true);
+		IFile generatedFile = (IFile) workingCopy.getResource();
+		return new FileGenerationResult(generatedFile, modified);
 	}
 
-	
 	/**
-	 *  returns true if the specified file is a generated file (i.e., it has one or more parent files)
-	 *  
-	 *  @param f the file in question
-	 *  @return true
-	 */
-	public synchronized boolean isGeneratedFile( IFile f )
-	{
-		Set<IFile> s = _generatedFile2ParentFiles.get( f ); 
-		if ( s == null || s.isEmpty() )
-			return false;
-		else
-			return true;
-	}
-	
-	/**
-	 *  returns true if the specified file is a parent  file (i.e., it has one or more generated files)  
-	 *  
-	 *  @param f - the file in question
-	 *  @return true if the file is a parent, false otherwise
-	 *  
-	 *  @see #getGeneratedFilesForParent(IFile)
-	 *  @see #isGeneratedFile(IFile)
-	 */
-	public synchronized boolean isParentFile( IFile f )
-	{
-		Set<IFile> s = _parentFile2GeneratedFiles.get( f );
-		if ( s == null || s.isEmpty() )
-			return false;
-		else
-			return true;
-	}
-	
-
-	/**
-	 * @param parent - the parent file that you want to get generated files for
-	 * @return Set of IFile instances that are the files known to be generated
-	 * by this parent
+	 * @param parent -
+	 *            the parent file that you want to get generated files for
+	 * @return Set of IFile instances that are the files known to be generated by this
+	 *         parent, or an empty collection if there are none.
 	 * 
 	 * @see #isParentFile(IFile)
 	 * @see #isGeneratedFile(IFile)
 	 */
-	public synchronized Set<IFile> getGeneratedFilesForParent( IFile parent )
+	public synchronized Set<IFile> getGeneratedFilesForParent(IFile parent)
 	{
-		Set<IFile> s = _parentFile2GeneratedFiles.get( parent ); 
-		if (s == null )
-			s = Collections.emptySet();
-		else
-			// make a copy of the set to avoid any race conditions
-			s = new HashSet<IFile>( s );
-		return s;
-	}
-	
-	
-
-	/**
-	 * 	Invoked whenever we potentially need to discard a generated working copy. 
-	 *  Note that the generated working copy may not necessarily be discarded.  It 
-	 *  will only be discarded if specified parent file is the only open parent file
-	 *  for the specified Generated file.  If there are other parent open parent files, 
-	 *  then the working copy for the generated file will remain open, but the link between
-	 *  the generated file's working copy and its open parent file will be discarded. 
-	 *  
-	 * @param generatedFile - the generated file that we potentially want to discard
-	 * @param parentFile - the parent file for the generated file
-	 * @throws JavaModelException 
-	 */
-	private void discardGeneratedWorkingCopy( IFile generatedFile, IFile parentFile )
-		throws JavaModelException
-	{
-		removeFromWorkingCopyMaps( generatedFile, parentFile );
-	}
-
-	/**
-	 *  Invoked whenever a parent working copy has been discarded.
-	 *  
-	 *  @param parentFile the parent file whose working copy has been discarded
-	 *  @throws JavaModelException if there is a problem discarding any working copies 
-	 *  generated by the parent.
-	 */
-	public void parentWorkingCopyDiscarded( IFile parentFile )
-		throws JavaModelException
-	{
-		Set<IFile> generatedFiles;
-		synchronized( this )
-		{
-			generatedFiles = _parentFile2GeneratedFiles.get( parentFile );
-			if ( generatedFiles == null || generatedFiles.size() == 0 )
-				return;
-		
-			// make a copy to prevent race conditions
-			generatedFiles = new HashSet<IFile>( generatedFiles );
-		}
-		
-		for ( IFile generatedFile : generatedFiles )
-			discardGeneratedWorkingCopy( generatedFile, parentFile );
+		return _parentToGenFiles.getValues(parent);
 	}
 	
 	/**
-	 *  Invoked whenever a parent file has been deleted
-	 */
-	public void parentFileDeleted( IFile parent, IProgressMonitor monitor ) 
-		throws CoreException
-	{
-		Set<IFile> generatedFiles;
-		
-		synchronized( this )
-		{
-			generatedFiles = _parentFile2GeneratedFiles.get( parent );
-			// make a copy to avoid race conditions
-			generatedFiles = new HashSet<IFile>( generatedFiles );
-		}
-			
-		for ( IFile generatedFile : generatedFiles )
-			deleteGeneratedFile( generatedFile, parent, monitor );
-	}
-
-	/**
-	 *  Invoked whenever we need to delete a generated file (e.g., the parent file has been deleted,
-	 *  or a parent stops generating a specific child).  Note that the generated file will only 
-	 *  be deleted if the specified parent file is the only parent of the specified generated file. 
-	 *  If there are other parents, then the generated file will not be deleted, but the link associating
-	 *  the parent and the generated file will be removed (i.e., the the generated file will no longer consider
-	 *  the parent file a "parent").
-	 *  
-	 */
-	public boolean deleteGeneratedFile(IFile generatedFile, IFile parentFile, IProgressMonitor progressMonitor )
-		throws CoreException
-	{
-		removeFromFileMaps( generatedFile, parentFile );
-		
-		boolean delete = false;
-
-		synchronized ( this )
-		{
-			Set<IFile> parents = _generatedFile2ParentFiles.get( generatedFile );
-		
-			// this can be empty, but it shouldn't be null here unless parentFile was never a parent of generatedFile
-			if ( parents == null ) throw new RuntimeException("unexpected null value for parents set for file " + generatedFile); //$NON-NLS-1$
-		
-			if (parents == null || parents.size() == 0) 
-				delete = true;
-		}
-		
-		if ( delete ){
-			final IFolder genFolder = _gsfm.getFolder();
-			assert genFolder != null : "Generated folder == null"; //$NON-NLS-1$
-			IContainer parent = generatedFile.getParent();
-			try {
-				generatedFile.delete(true, true, progressMonitor);
-			}
-			catch (CoreException ce) {
-				// File was locked or read-only
-				AptPlugin.logWarning(ce, "Failed to delete file: " + generatedFile); //$NON-NLS-1$
-			}
-			// not deleting the generated source folder and only 
-			// delete generated folders containing the generated file.
-			while( !genFolder.equals(parent) && parent != null && parent.isDerived() ){				
-				final IResource[] members = parent.members();
-				IContainer grandParent = parent.getParent();
-				// last one turns the light off.
-				if( members == null || members.length == 0 )
-					parent.delete(true, progressMonitor);
-				else
-					break;
-				parent = grandParent;
-			}
-		}
-		
-		return delete;
-	}
-	
-
-	/**
-	 *  Invoked whenever a previously-generated file is removed during reconcile.  We put an empty buffer in the contents 
-	 *  of the working copy.  This effectively makes the type go away from the in-memory type system.  A subsequent
-	 *  build is necessary to actually remove the file from disk, and to actually remove references in the
-	 *  the generated file manager's state. 
-	 *  
-	 * @param generatedFile - the generated file whose working-copy buffer we want to be the empty string. 
-	 * @param parentWorkingCopy - the parent working copy. 
-	 * @param progressMonitor - a progress monitor
+	 * returns true if the specified file is a generated file (i.e., it has one or more
+	 * parent files)
 	 * 
-	 * @return return true if the working-copy's buffer is set to the empty-string, false otherwise. 
-	 * 
-	 * @throws JavaModelException
+	 * @param f
+	 *            the file in question
+	 * @return true
 	 */
-	public boolean deleteGeneratedTypeInMemory(IFile generatedFile, ICompilationUnit parentWorkingCopy, IProgressMonitor progressMonitor )
-		throws JavaModelException, CoreException
-	{		
-		if( !GENERATE_TYPE_DURING_RECONCILE )
-			return false;
-		// see if this is the only parent for this generated file
-		boolean remove = false;
-		IFile parentFile = (IFile) parentWorkingCopy.getResource();
-		ICompilationUnit workingCopy = null;
-		synchronized ( this )
-		{
-			// see if this generated file has any other parent files.  
-			Set<IFile> parentFiles = _generatedFile2ParentFiles.get( generatedFile );
+	public synchronized boolean isGeneratedFile(IFile f)
+	{
+		return _parentToGenFiles.containsValue(f);
+	}
+	
 
-			assert( parentFiles != null && parentFiles.contains( parentFile ) ) : "Unexpected state in GeneratedFileManager"; //$NON-NLS-1$
-			
-			if ( parentFiles.size() == 1 && parentFiles.contains( parentFile ) )
-			{
-				workingCopy = _generatedFile2WorkingCopy.get( generatedFile );
-				remove = true;
-			}
+
+	/**
+	 * returns true if the specified file is a parent file (i.e., it has one or more
+	 * generated files)
+	 * 
+	 * @param f -
+	 *            the file in question
+	 * @return true if the file is a parent, false otherwise
+	 * 
+	 * @see #getGeneratedFilesForParent(IFile)
+	 * @see #isGeneratedFile(IFile)
+	 */
+	public synchronized boolean isParentFile(IFile f)
+	{
+		return _parentToGenFiles.containsKey(f);
+	}
+
+	/**
+	 * Called at the start of reconcile in order to cache our package fragment root
+	 */
+	public void reconcileStarted()
+	{
+		_generatedPackageFragmentRoot.set();
+	}
+
+	/**
+	 * Invoked when a working copy is released, ie, an editor is closed.  This
+	 * includes IDE shutdown.
+	 * 
+	 * @param wc
+	 *            must not be null, but does not have to be a parent.
+	 * @throws CoreException
+	 */
+	public void workingCopyDiscarded(ICompilationUnit wc) throws CoreException
+	{
+		Set<ICompilationUnit> toDiscard = removeWcChildrenFromMaps(wc);
+		if (AptPlugin.DEBUG_GFM) AptPlugin.trace(
+				"Working copy discarded: " + wc.getElementName() + //$NON-NLS-1$
+				" removing " + toDiscard.size() + " children");  //$NON-NLS-1$//$NON-NLS-2$
+		for (ICompilationUnit obsoleteWC : toDiscard) {
+			_CUHELPER.discardWorkingCopy(obsoleteWC);
+		}
+	}
+
+	/**
+	 * Serialize the generated file dependency data for builds, so that when a workspace
+	 * is reopened, incremental builds will work correctly.
+	 */
+	public void writeState()
+	{
+		_parentToGenFiles.writeState();
+	}
+
+	/**
+	 * Add a file dependency at build time. This updates the build dependency map but does
+	 * not affect the reconcile-time dependencies.
+	 * <p>
+	 * This method only affects maps; it does not touch disk or modify working copies.
+	 */
+	private synchronized void addBuiltFileToMaps(IFile parentFile, IFile generatedFile)
+	{
+		boolean added = _parentToGenFiles.put(parentFile, generatedFile);
+		if (AptPlugin.DEBUG_GFM_MAPS) {
+			if (added)
+				AptPlugin.trace("build file dependency added: " + parentFile + " -> " + generatedFile); //$NON-NLS-1$//$NON-NLS-2$
 			else
-				remove = false;
+				AptPlugin.trace("build file dependency already exists: " + parentFile + " -> " + generatedFile); //$NON-NLS-1$//$NON-NLS-2$
 		}
-
-		if ( remove )
-		{
-			// we don't need to remove entries from any maps.  That will happen after 
-			// the user saves & builds. 
-			
-			if ( workingCopy != null )
-			{
-				updateWorkingCopy( "", workingCopy, workingCopy.getOwner(), progressMonitor ); //$NON-NLS-1$
-				return true;
-			}
-			else
-			{
-				// we don't have a cached working copy, so call generateWorkingCopyDuringReconcile and create an empty-stringed working copy
-				// for the type that was generated during build.
-				String typeName =  getTypeNameForDerivedFile( generatedFile );
-				WorkingCopyOwner workingCopyOwner = parentWorkingCopy.getOwner();
-				generateFileDuringReconcile( parentWorkingCopy, typeName, "", workingCopyOwner, null, progressMonitor ); //$NON-NLS-1$
-			}
-		}
-		
-		return remove;
 	}
-	
+
 	/**
-	 * Invoked whenever a generated file has been deleted.  This method will
-	 * clean up any in-memory state about the previously generated file. 
-	 * 
-	 * @param generatedFile - the generated file that has been deleted
-	 * @param progressMonitor - progress monitor.  this can be null. 
+	 * Calculate the list of previously generated files that are no longer
+	 * being generated and thus need to be deleted.
+	 * <p>
+	 * This method does not touch the disk, nor does it create, update, or
+	 * discard working copies.  This method is atomic with regard to the
+	 * integrity of data structures.
 	 *
-	 * @throws JavaModelException if there is an exception when discarding an open working copy for the generated file
+	 * @param parentFile only files solely parented by this file will be
+	 * added to the list to be deleted.
+	 * @param newlyGeneratedFiles files on this list will be spared.
+	 * @return a list of files which the caller should delete, ie by calling
+	 * {@link #deletePhysicalFile(IFile)}.
 	 */
-	public void generatedFileDeleted( IFile generatedFile,  IProgressMonitor progressMonitor )
-		throws JavaModelException
+	private synchronized Set<IFile> calculateDeletedFiles(
+			IFile parentFile, Set<IFile> newlyGeneratedFiles)
 	{
-		Set<IFile> parentFiles;
-		synchronized( this )
-		{
-			parentFiles = _generatedFile2ParentFiles.get( generatedFile );
-			if ( parentFiles == null || parentFiles.isEmpty() )
-				return;
-			
-			// make a copy to prevent race conditions
-			parentFiles = new HashSet<IFile>( parentFiles );
+		Set<IFile> deleted = new HashSet<IFile>();
+		Set<IFile> obsoleteFiles = _parentToGenFiles.getValues(parentFile);
+		// spare all the newly generated files
+		obsoleteFiles.removeAll(newlyGeneratedFiles);
+		for (IFile generatedFile : obsoleteFiles) {
+			_parentToGenFiles.remove(parentFile, generatedFile);
+			if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace(
+					"removed build file dependency: " + parentFile + " -> " + generatedFile); //$NON-NLS-1$ //$NON-NLS-2$
+			// If the file is still parented by any other parent, spare it
+			if (!_parentToGenFiles.containsValue(generatedFile)) {
+				deleted.add(generatedFile);
+			}
 		}
-		
-		for ( IFile parentFile : parentFiles )
-		{
-			removeFromWorkingCopyMaps( generatedFile, parentFile );
-			removeFromFileMaps( generatedFile, parentFile );
-		}
+		assert checkIntegrity();
+		return deleted;
 	}
 
+	/**
+	 * Perform the map manipulations necessary to hide types during reconcile that were
+	 * generated during build and thus exist on disk. The basic idea is that the caller
+	 * passes in a set of files generated on the most recent reconcile, and then this
+	 * method hides all the files that were generated on the previous build and that are
+	 * not in the set passed in.
+	 * <p>
+	 * This method does not touch the disk nor create, modify, or discard working copies;
+	 * however, it may call {@link CompilationUnitHelper#createWorkingCopy(IFile)}. 
+	 * <p>
+	 * This method is atomic with regard to data structure integrity.
+	 * 
+	 * @param parentFile
+	 *            only this parent's generated file will be hidden; generated files with
+	 *            more than one parent will be spared.
+	 * @param newlyGeneratedFiles
+	 *            will be spared from being hidden
+	 * @param cuHelper
+	 *            may be used to create a new working copy for a generated file
+	 * @return a list of working copies which need to have their content set to empty by
+	 *         {@link CompilationUnitHelper#updateWorkingCopyContents(String, 
+	 *         ICompilationUnit, WorkingCopyOwner)}.
+	 */
+	private synchronized List<ICompilationUnit> calculateHiddenTypes(IFile parentFile, Set<IFile> newlyGeneratedFiles,
+			CompilationUnitHelper cuHelper)
+	{
+		IPackageFragmentRoot root = _generatedPackageFragmentRoot.get().root;
+		List<ICompilationUnit> toSetBlank = new ArrayList<ICompilationUnit>();
+
+		// Hide types that were generated during build and thus exist on disk.
+		// Only hide them if they have no other parents.
+		Set<IFile> generatedFromBuild = _parentToGenFiles.getValues(parentFile);
+		for (IFile generatedFile : generatedFromBuild) {
+			// spare types generated in the last round
+			if (!newlyGeneratedFiles.contains(generatedFile)) {
+				Set<IFile> parentsOfGeneratedFile = _parentToGenFiles.getKeys(generatedFile);
+				if (parentsOfGeneratedFile.size() == 1 && parentsOfGeneratedFile.contains(parentFile)) {
+					ICompilationUnit workingCopy = _workingCopies.get(generatedFile);
+					if (null != workingCopy) {
+						// move existing WC from _workingCopies to _hidden
+						_workingCopies.remove(generatedFile);
+						boolean removed = _parentToGenWorkingCopies.remove(parentFile, workingCopy);
+						assert removed : "Working copy found in list but not in dependency map: " + workingCopy.getElementName(); //$NON-NLS-1$
+					} else {
+						if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+								"creating blank working copy to hide type: " + generatedFile); //$NON-NLS-1$
+						String typeName = getTypeNameForDerivedFile(generatedFile);
+						workingCopy = cuHelper.createWorkingCopy(typeName, root);
+					}
+					if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace(
+							"adding working copy to hidden types list: " + generatedFile); //$NON-NLS-1$
+					assert workingCopy.isWorkingCopy() : 
+						"Attempted to add a non-working copy to hidden types list"; //$NON-NLS-1$
+					_hiddenBuiltTypes.put(generatedFile, workingCopy);
+
+					ICompilationUnit wc = workingCopy;
+					toSetBlank.add(wc);
+				}
+			}
+		}
+		assert checkIntegrity();
+		return toSetBlank;
+	}
+
+	/**
+	 * Prepare a list of working copies which are no longer being generated and can be
+	 * discarded.
+	 * <p>
+	 * This method does not touch the disk and does not create, update, or discard working
+	 * copies. This method is atomic with regard to data structure integrity.
+	 * 
+	 * @param parentFile
+	 *            only children generated solely by this parent will be added to the list
+	 *            to be discarded.
+	 * @param newlyGeneratedFiles
+	 *            a list of files which will be preserved; typically these are the files
+	 *            that were generated on the most recent reconcile.
+	 * 
+	 * @return a list of working copies which are no longer in use and which should be
+	 *         discarded by calling
+	 *         {@link CompilationUnitHelper#discardWorkingCopy(ICompilationUnit)}.
+	 */
+	private synchronized List<ICompilationUnit> calculateObsoleteWorkingCopies(IFile parentFile,
+			Set<IFile> newlyGeneratedFiles)
+	{
+		// Discard generated types that were never built and thus exist only
+		// as in-memory working copies.
+		// Only discard them if they have no other parents.
+		List<ICompilationUnit> toDiscard = new ArrayList<ICompilationUnit>();
+		Set<ICompilationUnit> generatedFromReconcile = _parentToGenWorkingCopies.getValues(parentFile);
+		for (ICompilationUnit wc : generatedFromReconcile) {
+			// spare types generated in the last round
+			IFile generatedFile = (IFile) wc.getResource();
+			if (!newlyGeneratedFiles.contains(generatedFile)) {
+				Set<IFile> parentsOfGeneratedWC = _parentToGenWorkingCopies.getKeys(wc);
+				if (parentsOfGeneratedWC.size() == 1 && parentsOfGeneratedWC.contains(parentFile)) {
+					_parentToGenWorkingCopies.remove(parentFile, wc);
+					assert !_parentToGenWorkingCopies.containsValue(wc) : "Working copy unexpectedly remains in dependency map: " + //$NON-NLS-1$
+					wc.getElementName() + " <- " + _parentToGenWorkingCopies.getKeys(wc); //$NON-NLS-1$
+					_workingCopies.remove(generatedFile);
+					toDiscard.add(wc);
+				}
+			}
+		}
+		assert checkIntegrity();
+		return toDiscard;
+	}
+
+	/**
+	 * Check integrity of data structures.
+	 * @return true always, so that it can be called within an assert to turn it off at runtime
+	 */
+	private synchronized boolean checkIntegrity() throws IllegalStateException
+	{
+		if (ENABLE_INTEGRITY_CHECKS) {
+			// Every working copy in the working copy dependency map should be
+			// in the
+			// _workingCopies list and should not be in the _hiddenBuiltTypes
+			// list.
+			for (ICompilationUnit wc : _parentToGenWorkingCopies.getValueSet()) {
+				if (!_workingCopies.containsValue(wc)) {
+					String s = "Dependency map contains a working copy that is not in the regular list: " + //$NON-NLS-1$
+							wc.getElementName();
+					AptPlugin.log(new IllegalStateException(s), s);
+				}
+				if (_hiddenBuiltTypes.containsValue(wc)) {
+					String s = "Dependency map contains a working copy that is on the hidden list: " + //$NON-NLS-1$
+							wc.getElementName();
+					AptPlugin.log(new IllegalStateException(s), s);
+				}
+			}
+			// Every entry in the hidden type list should be a working copy
+			for (ICompilationUnit hidden : _hiddenBuiltTypes.values()) {
+				if (!hidden.isWorkingCopy()) {
+					String s = "Hidden list contains a compilation unit that is not a working copy: " + //$NON-NLS-1$
+							hidden.getElementName();
+					AptPlugin.log(new IllegalStateException(s), s);
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Clear the working copy maps, that is, the reconcile-time dependency information.
+	 * Returns a list of working copies that are no longer referenced and should be
+	 * discarded.
+	 * <p>
+	 * This method affects maps only; it does not touch disk nor create, modify, nor
+	 * discard any working copies. This method is atomic with respect to data structure
+	 * integrity.
+	 * 
+	 * @return a list of working copies which must be discarded by the caller
+	 */
+	private synchronized List<ICompilationUnit> clearWorkingCopyMaps()
+	{
+		int size = _hiddenBuiltTypes.size() + _workingCopies.size();
+		List<ICompilationUnit> toDiscard = new ArrayList<ICompilationUnit>(size);
+		toDiscard.addAll(_hiddenBuiltTypes.values());
+		toDiscard.addAll(_workingCopies.values());
+		_workingCopies.clear();
+		_hiddenBuiltTypes.clear();
+		_parentToGenWorkingCopies.clear();
+
+		if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace( 
+				"cleared working copy dependencies"); //$NON-NLS-1$
+
+		assert checkIntegrity();
+		return toDiscard;
+	}
+
+	/**
+	 * Compare <code>contents</code> with the contents of <code>file</code>.
+	 * @param contents the text to compare with the file's contents on disk.
+	 * @param file does not have to exist.
+	 * @return true if the file on disk cannot be read, or if its contents differ.
+	 */
+	private boolean compareFileContents(String contents, IFile file)
+	{
+		boolean contentsDiffer = true;
+		if (file.exists()) {
+			InputStream oldData = null;
+			InputStream is = null;
+			try {
+				is = new ByteArrayInputStream(contents.getBytes());
+				oldData = new BufferedInputStream(file.getContents());
+				contentsDiffer = !FileSystemUtil.compareStreams(oldData, is);
+			} catch (CoreException ce) {
+				// Do nothing. Assume the new content is different
+			} finally {
+				if (oldData != null) {
+					try {
+						oldData.close();
+					} catch (IOException ioe) {
+					}
+				}
+				if (is != null) {
+					try {
+						is.close();
+					} catch (IOException ioe) {
+					}
+				}
+			}
+		}
+		return contentsDiffer;
+	}
+
+	/**
+	 * Delete a generated file from disk. Also deletes the parent folder hierarchy, up to
+	 * but not including the root generated source folder, as long as the folders are
+	 * empty and are marked as "derived".
+	 * <p>
+	 * This does not affect or refer to the dependency maps.
+	 * 
+	 * @param file is assumed to be under the generated source folder.
+	 */
+	private void deletePhysicalFile(IFile file)
+	{
+		final IFolder genFolder = _gsfm.getFolder();
+		assert genFolder != null : "Generated folder == null"; //$NON-NLS-1$
+		IContainer parent = file.getParent(); // parent in the folder sense,
+		// not the typegen sense
+		try {
+			if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+					"delete physical file: " + file); //$NON-NLS-1$
+			file.delete(true, true, /* progressMonitor */null);
+		} catch (CoreException e) {
+			// File was locked or read-only
+			AptPlugin.logWarning(e, "Unable to delete generated file: " + file); //$NON-NLS-1$
+		}
+		// Delete the parent folders
+		while (!genFolder.equals(parent) && parent != null && parent.isDerived()) {
+			IResource[] members = null;
+			try {
+				members = parent.members();
+			} catch (CoreException e) {
+				AptPlugin.logWarning(e, "Unable to read contents of generated file folder " + parent); //$NON-NLS-1$
+			}
+			IContainer grandParent = parent.getParent();
+			// last one turns the light off.
+			if (members == null || members.length == 0)
+				try {
+					parent.delete(true, /* progressMonitor */null);
+				} catch (CoreException e) {
+					AptPlugin.logWarning(e, "Unable to delete generated file folder " + parent); //$NON-NLS-1$
+				}
+			else
+				break;
+			parent = grandParent;
+		}
+	}
 	
+	/**
+	 * Prepare to discard a working copy, presumably of a generated type.  
+	 * Removes the working copy from the maps, removes its generated children
+	 * if it had any, and returns a list of working copies which must now
+	 * be discarded with {@link CompilationUnitHelper#discardWorkingCopy(ICompilationUnit)}.
+	 * <p>
+	 * This does not itself touch disk nor create, modify, or discard any working copies.
+	 * This is atomic with respect to data structure integrity.
+	 * @param wc
+	 * @return a list of compilation units to discard, including <code>wc</code> itself.
+	 */
+	private synchronized Set<ICompilationUnit> discardWorkingCopy(ICompilationUnit wc) {
+		Set<ICompilationUnit> toDiscard;
+		ICompilationUnit hidingWc = _hiddenBuiltTypes.remove(wc);
+		if (null != hidingWc) {
+			toDiscard = Collections.singleton(hidingWc);
+		}
+		else {
+			toDiscard = removeWcChildrenFromMaps(wc);
+			IFile file = (IFile) wc.getResource();
+			_parentToGenWorkingCopies.removeKey(file);
+			_workingCopies.remove(wc);
+			toDiscard.add(wc);
+		}
+		assert checkIntegrity();
+		return toDiscard;
+	}
+
+	/**
+	 * Given a typename a.b.c, this will return the IFile for the type name, where the
+	 * IFile is in the GENERATED_SOURCE_FOLDER_NAME.
+	 * <p>
+	 * This does not affect or refer to the dependency maps.
+	 */
+	private IFile getIFileForTypeName(String typeName)
+	{
+		// split the type name into its parts
+		String[] parts = _PACKAGE_DELIMITER.split(typeName);
+
+		IFolder folder = _gsfm.getFolder();
+		for (int i = 0; i < parts.length - 1; i++)
+			folder = folder.getFolder(parts[i]);
+
+		// the last part of the type name is the file name
+		String fileName = parts[parts.length - 1] + ".java"; //$NON-NLS-1$		
+		IFile file = folder.getFile(fileName);
+		return file;
+	}
+
+	/**
+	 * Get the IFolder handles for any additional folders needed to 
+	 * contain a type in package <code>pkgName</code> under root
+	 * <code>parent</code>.  This does not actually create the folders
+	 * on disk, it just gets resource handles.
+	 * 
+	 * @return a set containing all the newly created folders.
+	 */
+	private Set<IFolder> computeNewPackageFolders(String pkgName, IFolder parent)
+	{
+		Set<IFolder> newFolders = new HashSet<IFolder>();
+		String[] folders = _PACKAGE_DELIMITER.split(pkgName);
+		for (String folderName : folders) {
+			final IFolder folder = parent.getFolder(folderName);
+			if (!folder.exists()) {
+				newFolders.add(folder);
+			}
+			parent = folder;
+		}
+		return newFolders;
+	}
+
 	/**
 	 * given file f, return the typename corresponding to the file.  This assumes
 	 * that derived files use java naming rules (i.e., type "a.b.c" will be file 
@@ -685,571 +1076,262 @@ public class GeneratedFileManager {
 		s = p.toPortableString().replace( '/', '.' );
 		return s.substring( 0, idx );
 	}
-	
-	/**
-	 * Given a typename a.b.c, this will return the IFile for the 
-	 * type name, where the IFile is in the GENERATED_SOURCE_FOLDER_NAME.
-	 */
-	private IFile getIFileForTypeName( String typeName )
-	{
-		// split the type name into its parts
-		String[] parts = typeName.split( "\\."); //$NON-NLS-1$
-		
-		IFolder folder = _gsfm.getFolder();
-		for ( int i = 0; i < parts.length - 1; i++ )
-			folder = folder.getFolder( parts[i] );
-		
-		// the last part of the type name is the file name
-		String fileName = parts[parts.length - 1] + ".java"; //$NON-NLS-1$		
-		IFile file = folder.getFile( fileName );
-		return file;
-	}
-	
-	private void markNewFoldersAsDerived(IContainer folder, Set<IContainer> newFolders)
-		throws CoreException
-	{
-		while(folder != null){
-			if( newFolders.contains(folder) ){
-				folder.setDerived(true);
-			}
-			folder = folder.getParent();
-		}
-	}
-	
-	private Set<IContainer> getNewPackageFolders(String pkgName, IFolder parent )
-	{
-		StringBuilder buffer = new StringBuilder();
-		Set<IContainer> newFolders = new HashSet<IContainer>();
-	    for( int i=0, len=pkgName.length(); i<len; i++ ){
-	    	final char c = pkgName.charAt(i);
-	    	if( c != '.')
-	    		buffer.append(c);
-	    	// create a folder when we see a dot or when we are at the end.
-	    	if( c == '.' || i == len - 1){
-	    		if( buffer.length() > 0 ){
-	    			final IFolder folder = parent.getFolder(buffer.toString());
-	    			if( !folder.exists()){
-	    				newFolders.add(folder);
-	    			}
-	    			parent = folder;
-	    			// reset the buffer
-	    			buffer.setLength(0);
-	    		}
-	    	}
-	    }
-	    return newFolders;
-	}
-	
-	/**
-	 * Called at the start of build in order to cache our package fragment root
-	 */
-	public void compilationStarted() {
 
-		try{
-			// clear out any generated source folder config markers
-			IMarker[] markers = _jProject.getProject().findMarkers(AptPlugin.APT_CONFIG_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
-			if( markers != null ){
-				for( IMarker marker : markers )
-					marker.delete();
-			}
-		}
-		catch(CoreException e){
-			AptPlugin.log(e, "Unable to delete configuration marker."); //$NON-NLS-1$
-		}
-		_skipTypeGeneration = false;
-		_gsfm.ensureFolderExists();
-		final IFolder genFolder;		
-		synchronized(this){
-			genFolder = _gsfm.getFolder();
-			_snapshotFolderName = genFolder.getProjectRelativePath().toString();
-		}
-		try {
-			_generatedPackageFragmentRoot = null;
-			IPackageFragmentRoot[] roots = _jProject.getAllPackageFragmentRoots();
-			for (IPackageFragmentRoot root : roots) {
-				final IResource resource = root.getResource();
-				if( resource != null && resource.equals(genFolder)){
-					_generatedPackageFragmentRoot = root;
-					return;
-				}
-			}
-		}
-		catch (JavaModelException jme) {
-			AptPlugin.log(jme, "Failure during start of compilation attempting to create generated source folder"); //$NON-NLS-1$
-		}
-		
-	}
-	
-	//
-	//  check cache to see if we already have a working copy
-	//
-	private ICompilationUnit getCachedWorkingCopy( IFile parentFile, String typeName )
+	/**
+	 * Get a working copy for the specified generated type.  If we already have
+	 * one cached, use that; if not, create a new one.
+	 * This method does not touch disk, nor does it update or discard any working
+	 * copies.  However, it may call CompilationUnitHelper to get a new working copy.
+	 * <p>
+	 * This method is atomic with respect to data structures.
+	 * 
+	 * @param parentFile the IFile whose processing is causing the new type to be generated
+	 * @param typeName the name of the type to be generated
+	 * @param cuh the CompilationUnitHelper utility object
+	 * @return a working copy ready to be updated with the new type's contents
+	 */
+	private synchronized ICompilationUnit getWorkingCopyForGeneratedFile(IFile parentFile, String typeName, CompilationUnitHelper cuh)
 	{
-		IFile derivedFile = getIFileForTypeName( typeName );
-		ICompilationUnit workingCopy= null;
+		IPackageFragmentRoot root = _generatedPackageFragmentRoot.get().root;
+		IFile generatedFile = getIFileForTypeName(typeName);
+		ICompilationUnit workingCopy;
 		
-		synchronized( this )
-		{
-			workingCopy = _generatedFile2WorkingCopy.get( derivedFile );
+		workingCopy = _hiddenBuiltTypes.get(generatedFile);
+		if (null != workingCopy) {
+			// file is currently hidden with a blank WC. Move that WC to the regular list.
+			if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace(
+					"move working copy from hidden to regular list: " + generatedFile); //$NON-NLS-1$
+			_hiddenBuiltTypes.remove(generatedFile);
+			_workingCopies.put(generatedFile, workingCopy);
+		} else {
+			workingCopy = _workingCopies.get(generatedFile);
+			if (null == workingCopy) {
+				// we've not yet created a working copy for this file, so make one now.
+				workingCopy = cuh.createWorkingCopy(typeName, root);
+				_workingCopies.put(generatedFile, workingCopy);
+				if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace( 
+						"added new working copy to regular list: " + generatedFile); //$NON-NLS-1$
+			} else {
+				if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace(
+						"obtained existing working copy from regular list: " + workingCopy.getElementName()); //$NON-NLS-1$
+			}
 		}
-		
-		if ( workingCopy != null )
-			addEntryToWorkingCopyMaps( parentFile, workingCopy );
+
+		// Add it to the dependency map (a no-op if it's already there)
+		boolean added = _parentToGenWorkingCopies.put(parentFile, workingCopy);
+		if (AptPlugin.DEBUG_GFM_MAPS) {
+			if (added)
+				AptPlugin.trace("working copy association added: " + parentFile + " -> " + workingCopy.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
+			else
+				AptPlugin.trace("working copy association already present: " + parentFile + " -> " + workingCopy.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+		assert checkIntegrity();
 
 		return workingCopy;
 	}
-	
-	private ICompilationUnit createNewWorkingCopy(IFile parentFile, String typeName,
-			String contents, WorkingCopyOwner workingCopyOwner,
-			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor)
-		throws JavaModelException
-	{
-		IFolder folder = _gsfm.getFolder();
+
+	/**
+	 * Given a fully qualified type name, generate the package name and the local filename
+	 * including the extension. For instance, type name <code>foo.bar.Baz</code> is
+	 * turned into package <code>foo.bar</code> and filename <code>Baz.java</code>.
+	 * <p>
+	 * TODO: this is almost identical to code in CompilationUnitHelper.  Is the difference
+	 * intentional?
+	 * 
+	 * @param qualifiedName
+	 *            a fully qualified type name
+	 * @return a String array containing {package name, filename}
+	 */
+	private static String[] parseTypeName(String qualifiedName) {
 		
-		// 
-		//  figure out package part of type & file name
-		//
+		//TODO: the code in CompilationUnitHelper doesn't perform this check.  Should it?
+		if (qualifiedName.indexOf('/') != -1)
+			qualifiedName = qualifiedName.replace('/', '.');
+		
+		String[] names = new String[2];
 		String pkgName;
 		String fname;
-		int idx = typeName.lastIndexOf( '.' );
+		int idx = qualifiedName.lastIndexOf( '.' );
 		if ( idx > 0 )
 		{
-		    pkgName = typeName.substring( 0, idx );
+		    pkgName = qualifiedName.substring( 0, idx );
 		    fname = 
-				typeName.substring(idx + 1, typeName.length()) + ".java"; //$NON-NLS-1$
+				qualifiedName.substring(idx + 1, qualifiedName.length()) + ".java"; //$NON-NLS-1$
 		}
 		else
 		{
 			pkgName = ""; //$NON-NLS-1$
-			fname = typeName + ".java"; //$NON-NLS-1$
+			fname = qualifiedName + ".java"; //$NON-NLS-1$
 		}
-
-		//
-		//  create compilation unit
-		//
-		IPackageFragmentRoot root = _jProject.getPackageFragmentRoot(folder);
-		IPackageFragment pkgFragment = 	root.getPackageFragment(pkgName );
-		ICompilationUnit cu = pkgFragment.getCompilationUnit( fname );
-
-		//
-		// BecomeWorkingCopyOperation shouldn't take any resource locks to run, so we should be thread-safe here
-		//
-		cu.becomeWorkingCopy(problemRequestor, progressMonitor);
-		ICompilationUnit workingCopy = cu;
-		
-		//
-		//  update working copy
-		//
-		updateWorkingCopy( contents, workingCopy, workingCopyOwner, progressMonitor );
-
-		
-		//
-		// update maps
-		//
-		addEntryToWorkingCopyMaps( parentFile, workingCopy );
-		
-
-		return workingCopy;	
+		names[0] = pkgName;
+		names[1] = fname;
+		return names;
 	}
-	
+
 	/**
-	 * Returns true if the file was modified
-	 */
-	private static boolean updateWorkingCopy( 
-			String contents, ICompilationUnit workingCopy, 
-			WorkingCopyOwner workingCopyOwner, IProgressMonitor progressMonitor )
-		throws JavaModelException
-	{
-		IBuffer b = workingCopy.getBuffer();
-		char[] oldBuf = b.getCharacters();
-		// Diff the contents, and only set if they differ
-		if (oldBuf.length == contents.length()) {
-			boolean contentsMatch = true;
-			for (int i=0; i<oldBuf.length; i++) {
-				if (oldBuf[i] != contents.charAt(i)) {
-					contentsMatch = false;
-					break;
-				}
-			}
-			if (contentsMatch) {
-				// No change, no need to update buffer
-				return false;
-			}
-		}
-		
-		b.setContents(contents);
-		workingCopy.reconcile(AST.JLS3, true, workingCopyOwner,
-				progressMonitor);
-		return true;
-	}
-	
-	private void addEntryToWorkingCopyMaps( IFile parentFile, ICompilationUnit workingCopy )
-	{
-		IFile generatedFile = (IFile) workingCopy.getResource();
-		addEntryToFileMaps( parentFile, generatedFile );
-
-		synchronized( this )
-		{
-			ICompilationUnit cu = _generatedFile2WorkingCopy.get( generatedFile );
-			Set<IFile> parents = _generatedWorkingCopy2OpenParentFiles.get( workingCopy);
-		
-			if ( cu != null )
-			{
-				//assert( cu.equals( workingCopy ) ) : "unexpected different instances of working copy for the same type";
-				if ( !cu.equals(workingCopy) ) throw new RuntimeException( "unexpected different instances of working copy for the same type" ); //$NON-NLS-1$
-				if ( parents == null || parents.size() < 1 ) throw new RuntimeException( "Unexpected size of open-parents set.  Expected size >= 0"); //$NON-NLS-1$
-			}
-			else
-			{
-				_generatedFile2WorkingCopy.put( generatedFile, workingCopy );
-			}
-		
-			if ( parents == null )
-			{
-				parents = new HashSet<IFile>();
-				_generatedWorkingCopy2OpenParentFiles.put( workingCopy, parents );
-			}
-			parents.add( parentFile );
-		}
-	}
-	
-	public void addEntryToFileMaps( IFile parentFile, IFile generatedFile )
-	{
-		synchronized ( this )
-		{
-			// add parent file -> set of derived files
-			Set<IFile> fileSet = _parentFile2GeneratedFiles.get( parentFile );
-			if ( fileSet == null )
-			{
-				fileSet = new HashSet<IFile>();
-				_parentFile2GeneratedFiles.put( parentFile, fileSet );
-			}
-			if (fileSet.add( generatedFile )) {
-				// Mark the maps as dirty, so that we can store them later
-				_mapsDirty = true;
-			}
-
-			// add derived file -> set of parent files
-			fileSet = _generatedFile2ParentFiles.get( generatedFile );
-			if ( fileSet == null )
-			{ 
-				fileSet = new HashSet<IFile>();
-				_generatedFile2ParentFiles.put( generatedFile, fileSet );
-			}
-			if (fileSet.add( parentFile )) {
-				_mapsDirty = true;
-			}
-		}
-	}
-	
-	private void removeFromFileMaps( IFile generatedFile, IFile parentFile ) 
-	    throws JavaModelException 
-	{
-		boolean discardWorkingCopy;
-		synchronized( this )
-		{	
-			discardWorkingCopy = _generatedFile2WorkingCopy.containsKey(generatedFile);
-		}
-		
-		// don't want to hold a lock when we call discardGeneratedWorkingCopy...
-		if ( discardWorkingCopy )
-			discardGeneratedWorkingCopy(generatedFile, parentFile);
-
-		synchronized( this )
-		{
-			Set<IFile> derivedFiles = _parentFile2GeneratedFiles.get(parentFile);
-
-			// assertions
-			if (derivedFiles == null)
-				throw new RuntimeException(
-					"derivedFiles is null and it shouldn't be"); //$NON-NLS-1$
-
-			if (derivedFiles.remove(generatedFile)) {
-				_mapsDirty = true;
-			}
-			
-			// update _derivedFile2Parents map
-			Set<IFile> parents = _generatedFile2ParentFiles.get(generatedFile);
-
-			// assertions
-			if (parents == null)
-				throw new RuntimeException(" parents is null and it shouldn't be"); //$NON-NLS-1$
-			if (!parents.contains(parentFile))
-				throw new RuntimeException("parents set does not contain parent. Parent: " + parentFile + ". Child: " + generatedFile); //$NON-NLS-1$ //$NON-NLS-2$
-
-			if (parents.remove(parentFile)) {
-				_mapsDirty = true;
-			}
-		}
-	}
-
-	private void removeFromWorkingCopyMaps( IFile derivedFile, IFile parentFile )
-		throws JavaModelException
-	{
-		ICompilationUnit workingCopy = null;
-		boolean discard = false;
-		
-		synchronized( this )
-		{
-			workingCopy = _generatedFile2WorkingCopy.get( derivedFile );
-			if ( workingCopy == null )
-				return;
-	
-			Set<IFile> parents = _generatedWorkingCopy2OpenParentFiles.get( workingCopy );
-
-			// TODO:  change these to assertions
-			if ( parents == null ) throw new RuntimeException( "parents == null and it shouldnt"); //$NON-NLS-1$
-			if ( ! parents.contains( parentFile )) throw new RuntimeException("parents set should contain parentCompilationUnit"); //$NON-NLS-1$
-		
-			// remove entry from parents _derivedWorkingCopy2OpenParentFiles
-			parents.remove( parentFile );
-	
-			// and remove entry from _derivedFile2WorkingCopy
-			if ( parents.size() == 0 )
-			{
-				_generatedFile2WorkingCopy.remove( derivedFile );
-				discard = true;
-			}
-		}
-	
-		if ( discard )
-			workingCopy.discardWorkingCopy();
-	}
-
-	public void clearWorkingCopyMaps()
-	{
-		// first discard all working copies
-
-		Collection<ICompilationUnit> workingCopies;
-		
-		synchronized( this )
-		{
-			// make a copy to avoid race conditions
-			workingCopies = new ArrayList<ICompilationUnit>( _generatedFile2WorkingCopy.values() );
-		
-			_generatedWorkingCopy2OpenParentFiles.clear();
-			_generatedFile2WorkingCopy.clear();
-		}
-		
-			
-		for ( ICompilationUnit workingCopy : workingCopies )
-		{
-			try
-			{
-				workingCopy.discardWorkingCopy();
-			}
-			catch( JavaModelException jme )
-			{
-				AptPlugin.log(jme, "Could not discard working copy"); //$NON-NLS-1$
-				// TODO:  deal with this
-			}
-		}
-	}
-	
-	public void clearAllMaps() 
-	{
-		clearWorkingCopyMaps();
-		
-		synchronized( this )
-		{
-			// now clear file maps
-			_parentFile2GeneratedFiles.clear();
-			_generatedFile2ParentFiles.clear();
-			
-			// Delete any saved build state
-			File state = getSerializationFile(_jProject.getProject());
-			if (state != null) {
-				boolean successfullyDeleted = state.delete();
-				if (!successfullyDeleted && state.exists()) {
-					AptPlugin.log(new IOException("Could not delete apt dependency state file"), //$NON-NLS-1$
-							state.getPath());
-				}
-			}
-		}
-	}
-	
-	/**
-	 *  This method should only be used for testing purposes to ensure
-	 *  that maps contain entries when we expect them to.
-	 */
-	public synchronized boolean containsWorkingCopyMapEntriesForParent( IFile f )
-	{
-		Collection<Set<IFile>> parentSets = _generatedWorkingCopy2OpenParentFiles.values();
-		if ( parentSets != null )
-		{
-			for( Set<IFile> s : parentSets )
-			{
-				if ( s.contains( f ) )
-					return true;
-			}
-		}
-
-		Set<IFile> generatedFiles = _parentFile2GeneratedFiles.get( f );
-		if ( generatedFiles != null )
-		{
-			for ( IFile gf : generatedFiles )
-			{
-				ICompilationUnit cu = _generatedFile2WorkingCopy.get( gf );
-				if ( cu != null )
-				{
-					Set<IFile> parents = _generatedWorkingCopy2OpenParentFiles.get( cu );
-					if ( parents.contains( cu ) || parents.size() == 0 )
-						return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Reads the last serialized build state. This includes dependency
-	 * information so that we do not need to do a clean build in order to recreate
-	 * our dependencies.
+	 * Remove a file from the build-time and reconcile-time dependency maps, and calculate
+	 * the consequences of the removal. This is called in response to a file being deleted
+	 * by the environment.
+	 * <p>
+	 * This operation affects the maps only. This operation is atomic with respect to map
+	 * integrity. This operation does not touch the disk nor create, update, or discard
+	 * any working copies.
 	 * 
-	 * File format:
-	 * 
-	 * int version
-	 * int sizeOfMap
-	 *    String parentIFilePath
-	 *    int numberOfChildren
-	 *      String childIFilePath
-	 * 
-	 * We have two maps (_parentFile2GeneratedFiles and _generatedFile2ParentFiles)
-	 * in order to do bi-directional lookups, but the
-	 * information is redundant, so we only need to deserialize one.
-	 * 
+	 * @param f
+	 *            can be a parent, generated, both, or neither.
+	 * @param toDiscard
+	 *            this set will be populated with a list of working copies that are no
+	 *            longer in the maps and must be discarded. This operation must be done by
+	 *            the caller without holding any locks.
+	 * @param toDelete
+	 *            this set will be populated with a list of generated files that are no
+	 *            longer relevant and must be deleted. This operation must be done by the
+	 *            caller without holding any locks.
 	 */
-	private synchronized void readState() {
-		File file = getSerializationFile(_jProject.getProject());
-		if (file == null || !file.exists()) {
-			// We'll just start with no dependencies
-			return;
-		}
-		DataInputStream in = null;
-		try {
-			in= new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
-			int version = in.readInt();
-			if (version != SERIALIZATION_VERSION) {
-				throw new IOException("Dependency map file version does not match. Expected "  //$NON-NLS-1$
-						+ SERIALIZATION_VERSION + ", but found " + version); //$NON-NLS-1$
-			}
-			int sizeOfMap = in.readInt();
-			
-			// For each entry, we'll have a parent and a set of children, 
-			// which we can drop into the parent -> child map.
-			for (int parentIndex=0; parentIndex<sizeOfMap; parentIndex++) {
-				String parentPath = in.readUTF();
-				IFile parent = convertPathToIFile(parentPath);
-				Set<IFile> children = new HashSet<IFile>();
-				_parentFile2GeneratedFiles.put(parent, children);
-				
-				int numChildren = in.readInt();
-				for (int childIndex = 0; childIndex<numChildren; childIndex++) {
-					String childPath = in.readUTF();
-					IFile child = convertPathToIFile(childPath);
-					// add the child to the parent->child map
-					children.add(child);
-					
-					// Now we need to update the child -> parents map
-					Set<IFile> parentSet = _generatedFile2ParentFiles.get(child);
-					if (parentSet == null) {
-						parentSet = new HashSet<IFile>();
-						_generatedFile2ParentFiles.put(child, parentSet);
-					}
-					parentSet.add(parent);
-				}
+	private synchronized void removeFileFromMaps(IFile f, Set<ICompilationUnit> toDiscard, Set<IFile> toDelete)
+	{
+		// Is this file the sole parent of files generated during build?
+		// If so, add them to the deletion list. Then remove the file from
+		// the build dependency list.
+		Set<IFile> childFiles = _parentToGenFiles.getValues(f);
+		for (IFile childFile : childFiles) {
+			Set<IFile> parentFiles = _parentToGenFiles.getKeys(childFile);
+			if (parentFiles.size() == 1 && parentFiles.contains(f)) {
+				toDelete.add(childFile);
 			}
 		}
-		catch (IOException ioe) {
-			// We can safely continue without having read our dependencies.
-			AptPlugin.log(ioe, "Could not deserialize APT dependencies"); //$NON-NLS-1$
+		boolean removed = _parentToGenFiles.removeKey(f);
+		if (removed) {
+			if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace( 
+					"removed parent file from build dependencies: " + f); //$NON-NLS-1$
 		}
-		finally {
-			if (in != null) {
-				try {in.close();} catch (IOException ioe) {}
+
+		// Is this file the sole parent of types generated during reconcile?
+		// If so, add them to the discard list and remove them from the working
+		// copy list. Then remove the file (and its solely parented children)
+		// from the reconcile dependency list.
+		Set<ICompilationUnit> childWCs = _parentToGenWorkingCopies.getValues(f);
+		for (ICompilationUnit childWC : childWCs) {
+			Set<IFile> parentFiles = _parentToGenWorkingCopies.getKeys(childWC);
+			if (parentFiles.size() == 1 && parentFiles.contains(f)) {
+				toDiscard.add(childWC);
+				ICompilationUnit removedWC = _workingCopies.remove(childWC.getResource());
+				assert removedWC != null && removedWC.equals(childWC) :
+					"Working copy list: get(f).getResource() != f, for wc " +  //$NON-NLS-1$
+					childWC.getElementName();
 			}
 		}
+		removed = _parentToGenWorkingCopies.removeKey(f);
+		if (removed) {
+			if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace( 
+					"removed parent file from working copy dependencies: " + f); //$NON-NLS-1$
+		}
+
+		// Is this file being hidden by a blank working copy?  If so, remove that.
+		ICompilationUnit wc = _hiddenBuiltTypes.remove(f);
+		if (null != wc) {
+			if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace( 
+					"removed working copy from hidden types list: " + f); //$NON-NLS-1$
+		}
+		if (null != wc) {
+			toDiscard.add(wc);
+		}
+
+		assert checkIntegrity();
 	}
-	
+
 	/**
-	 * Write our dependencies to disk. 
+	 * Remove the generated children of a working copy from the working copy dependency maps and
+	 * lists.  Typically invoked when a working copy of a parent file has been discarded by the
+	 * editor; in this case we want to remove any generated working copies that it parented.
+	 * <p>
+	 * This method does not touch disk nor create, modify, or discard working copies.  This
+	 * method is atomic with regard to data structure integrity.
+	 * 
+	 * @param wc a compilation unit that is not necessarily a parent or generated file
+	 * @return a list of generated working copies that are no longer referenced and should
+	 * be discarded by calling {@link CompilationUnitHelper#discardWorkingCopy(ICompilationUnit)}
 	 */
-	public synchronized void writeState() {
-		if (!_mapsDirty) {
-			return;
+	private synchronized Set<ICompilationUnit> removeWcChildrenFromMaps(ICompilationUnit wc)
+	{
+		Set<ICompilationUnit> toDiscard = new HashSet<ICompilationUnit>();
+		IFile file = (IFile)wc.getResource();
+		// remove all the solely parented children
+		Set<ICompilationUnit> genWCs = _parentToGenWorkingCopies.getValues(file);
+		for (ICompilationUnit genWC : genWCs) {
+			if (!_parentToGenWorkingCopies.valueHasOtherKeys(genWC, file)) {
+				toDiscard.add(genWC);
+				_parentToGenWorkingCopies.remove(file, genWC);
+				ICompilationUnit removedWC = _workingCopies.remove(genWC.getResource());
+				assert removedWC != null && removedWC.equals(genWC) : 
+					"working copy in dependency map should also be in working copies list"; //$NON-NLS-1$
+			}
 		}
-		File file = getSerializationFile(_jProject.getProject());
-		if (file == null) {
-			// Cannot write state, as project has been deleted
-			return;
-		}
-		file.delete();
 		
-		DataOutputStream out = null;
-		try {
-			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-			
-			out.writeInt(SERIALIZATION_VERSION);
-			
-			out.writeInt(_parentFile2GeneratedFiles.size());
-			
-			for (Map.Entry<IFile,Set<IFile>> entry : _parentFile2GeneratedFiles.entrySet()) {
-				
-				IFile parent = entry.getKey();
-				out.writeUTF(convertIFileToPath(parent));
-				
-				Set<IFile> children = entry.getValue();
-				
-				out.writeInt(children.size());
-				
-				for (IFile child : children) {
-					out.writeUTF(convertIFileToPath(child));
+		assert checkIntegrity();
+		return toDiscard;
+	}
+
+	/**
+	 * Write <code>contents</code> to disk in the form of a compilation unit named
+	 * <code>name</code> under package fragment <code>pkgFrag</code>. The way in
+	 * which the write is done depends on whether there is an existing file, and on
+	 * whether the compilation unit is a working copy.
+	 * <p>
+	 * The working copy is used in reconcile. In principle changing the contents during
+	 * build should be a problem, since the Java builder is based on file contents rather
+	 * than on the current Java Model. However, annotation processors get their type info
+	 * from the Java Model even during build, so there is in general no difference between
+	 * build and reconcile. This causes certain bugs (if a build is performed while there
+	 * is unsaved content in editors), so it may change in the future, and this routine
+	 * will need to be fixed. - WHarley 11/06
+	 * <p>
+	 * This method touches the disk and modifies working copies. It can only be called
+	 * during build, not during reconcile, and it should not be called while holding any
+	 * locks (other than the workspace rules held by the build).
+	 * 
+	 * @param pkgFrag
+	 *            the package fragment in which the type will be created. The fragment's
+	 *            folders must already exist on disk.
+	 * @param cuName
+	 *            the simple name of the type, with extension, such as 'Obj.java'
+	 * @param contents
+	 *            the text of the compilation unit
+	 * @param progressMonitor
+	 */
+	private void saveCompilationUnit(IPackageFragment pkgFrag, final String cuName, String contents,
+			IProgressMonitor progressMonitor)
+	{
+		ICompilationUnit unit = pkgFrag.getCompilationUnit(cuName);
+		boolean isWorkingCopy = unit.isWorkingCopy();
+		if (isWorkingCopy && unit.getResource().exists()) {
+			// If we have a working copy and it has a file, all we
+			// need to do is update its contents and commit it.
+			_CUHELPER.commitNewContents(unit, contents, progressMonitor);
+			if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+					"Committed existing working copy during build: " + unit.getElementName()); //$NON-NLS-1$
+		}
+		else {
+			if (isWorkingCopy) {
+				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=163906 -
+				// commitWorkingCopy() fails if file does not already exist.
+				Set<ICompilationUnit> toDiscard = discardWorkingCopy(unit);
+				for (ICompilationUnit cuToDiscard : toDiscard) {
+					_CUHELPER.discardWorkingCopy(cuToDiscard);
+					if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+							"Discarded working copy during build: " + unit.getElementName()); //$NON-NLS-1$
 				}
 			}
-			_mapsDirty = false;
-		}
-		catch (IOException ioe) {
-			// We can safely continue without having written our dependencies.
-			AptPlugin.log(ioe, "Could not serialize APT dependencies"); //$NON-NLS-1$
-		}
-		finally {
-			if (out != null) {
-				try {
-					out.flush();
-					out.close();
-				}
-				catch (IOException ioe) {
-					AptPlugin.log(ioe, "Failed to write the APT dependency state to disk"); //$NON-NLS-1$
-				}
+			try {
+				unit = pkgFrag.createCompilationUnit(cuName, contents, true, progressMonitor);
+			} catch (JavaModelException e) {
+				AptPlugin.log(e, "Unable to create compilation unit on disk: " +  //$NON-NLS-1$
+						cuName + " in pkg fragment: " + pkgFrag.getElementName()); //$NON-NLS-1$
 			}
+			if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+					"Created compilation unit during build: " + unit.getElementName()); //$NON-NLS-1$
 		}
 	}
-	
-	/**
-	 * Utility method for deserialization
-	 */
-	private IFile convertPathToIFile(String projectRelativeString) {
-		IPath path = new Path(projectRelativeString);
-		return _jProject.getProject().getFile(path);
-	}
-	
-	/**
-	 * Utility method for serialization
-	 */
-	private String convertIFileToPath(IFile file) {
-		IPath path = file.getProjectRelativePath();
-		return path.toOSString();
-	}
-	
-	/**
-	 * Returns the File to use for saving and restoring the last built state for the given project.
-	 * Returns null if the project does not exists (e.g. has been deleted)
-	 */
-	private File getSerializationFile(IProject project) {
-		if (!project.exists()) return null;
-		IPath workingLocation = project.getWorkingLocation(AptPlugin.PLUGIN_ID);
-		return workingLocation.append("state.dat").toFile(); //$NON-NLS-1$
-	}
-	
-	
+
 }

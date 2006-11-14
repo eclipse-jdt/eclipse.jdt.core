@@ -31,15 +31,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv;
-import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
 import org.eclipse.jdt.apt.core.internal.env.BuildEnv;
+import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
 import org.eclipse.jdt.apt.core.internal.env.ReconcileEnv;
 import org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv.EnvCallback;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.BuildContext;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
 
 import com.sun.mirror.apt.AnnotationProcessor;
@@ -50,6 +51,53 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 public class APTDispatchRunnable implements IWorkspaceRunnable
 {
+	/**
+	 * This callback method is passed to a ReconcileEnv to be called within 
+	 * an AST pipeline in order to process a type during reconcile.
+	 * Reconciles involve only one type at a time, but can recurse, so
+	 * that multiple instances of this class are on the stack at one time. 
+	 */
+	private final class ReconcileEnvCallback implements EnvCallback {
+		private final ReconcileContext _context;
+		private final GeneratedFileManager _gfm;
+
+		private ReconcileEnvCallback(ReconcileContext context,
+				GeneratedFileManager gfm) {
+			_context = context;
+			_gfm = gfm;
+		}
+
+		public void run(AbstractCompilationEnv env) {
+			// This is a ReconcileEnvCallback, so we better be dealing with a ReconcileEnv!
+			ReconcileEnv reconcileEnv = (ReconcileEnv)env;
+			
+			// Dispatch the annotation processors.  Env will keep track of problems and generated types.
+			dispatchToFileBasedProcessor(reconcileEnv);
+			
+			// "Remove" any types that were generated in the past but not on this round.
+			// Because this is a reconcile, if a file exists on disk we can't really remove 
+			// it, we can only create a blank WorkingCopy that hides it; thus, we can only 
+			// remove Java source files, not arbitrary files.
+			ICompilationUnit parentWC = _context.getWorkingCopy();
+			Set<IFile> newlyGeneratedFiles = reconcileEnv.getAllGeneratedFiles();
+			_gfm.deleteObsoleteTypesAfterReconcile(parentWC, newlyGeneratedFiles);
+			
+			// Report problems to the ReconcileContext. 
+			final List<? extends CategorizedProblem> problemList = reconcileEnv.getProblems();
+			final int numProblems = problemList.size();
+			if (numProblems > 0) {
+				final CategorizedProblem[] aptCatProblems = new CategorizedProblem[numProblems];
+				_context.putProblems(
+				AptPlugin.APT_COMPILATION_PROBLEM_MARKER, problemList
+						.toArray(aptCatProblems));
+			}
+			
+			// Tell the Env that the round is complete.  
+			// This also calls resetAST() on the context.
+			reconcileEnv.close();
+		}
+	}
+
 	private static final BuildContext[] NO_FILES_TO_PROCESS = new BuildContext[0];
 	private /*final*/ BuildContext[] _filesWithAnnotation = null;
 	private /*final*/ BuildContext[] _filesWithoutAnnotation = null;
@@ -138,29 +186,18 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	{
 		if (_factories.size() == 0) {
 			if (AptPlugin.DEBUG)
-				trace("runAPT: leaving early because there are no factories", //$NON-NLS-1$
+				trace("apt leaving project " + javaProject.getProject() +  //$NON-NLS-1$
+						" early because there are no factories", //$NON-NLS-1$
 						null);
+			//TODO: clean up generated working copies here?  I think not necessary. - WSH 10/06
 			return;
 		}
-
-		EnvCallback callback = new EnvCallback() {
-			public void run(AbstractCompilationEnv env) {
-				
-				dispatchToFileBasedProcessor(env);
-				final List<? extends CategorizedProblem> problemList = env.getProblems();
-				final int numProblems = problemList.size();
-				if (numProblems > 0) {
-					final CategorizedProblem[] aptCatProblems = new CategorizedProblem[numProblems];
-					reconcileContext.putProblems(
-					AptPlugin.APT_COMPILATION_PROBLEM_MARKER, problemList
-							.toArray(aptCatProblems));
-				}
-				env.close();
-			}
-		};
 		
-		// Construct a reconcile time environment. This will do invoke
+		// Construct a reconcile time environment. This will invoke
 		// dispatch from inside the callback.
+		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+		gfm.reconcileStarted();
+		EnvCallback callback = new ReconcileEnvCallback(reconcileContext, gfm);
 		AbstractCompilationEnv.newReconcileEnv(reconcileContext, callback);
 
 	}	
@@ -202,7 +239,8 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					msg = "no AnnotationProcessoryFactory instances registered."; //$NON-NLS-1$
 				else
 					msg = "no files to dispatch to."; //$NON-NLS-1$
-				trace( "run():  leaving early because there are " + msg, //$NON-NLS-1$
+				trace( "run():  leaving project " + _aptProject.getJavaProject().getProject() +  //$NON-NLS-1$
+						" early because there are " + msg, //$NON-NLS-1$
 					   null);
 			}
 			cleanupAllGeneratedFiles();
@@ -255,18 +293,15 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		return ( _isFullBuild && processorEnv.getPhase() == Phase.BUILD && hasBatchFactory() );
 	}
 	
-	private void runAPTInFileBasedMode(final BuildEnv processorEnv,
-									   final Map<IFile, Set<IFile>> lastGeneratedFiles)
+	private void runAPTInFileBasedMode(final BuildEnv processorEnv)
 	{
 		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
 		final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
 		for (BuildContext curResult : cpResults ) {			
 			processorEnv.beginFileProcessing(curResult);
 			dispatchToFileBasedProcessor(processorEnv);
-			final IFile curFile = curResult.getFile();
 			reportResult(
 					curResult,
-					lastGeneratedFiles.get(curFile),
 					processorEnv.getAllGeneratedFiles(),
 					processorEnv.getModifiedGeneratedFiles(),
 					processorEnv.getProblems(),
@@ -290,7 +325,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 */
 	private void reportResult(
 			BuildContext curResult,
-			Set<IFile> lastGeneratedFiles,
 			Set<IFile> generatedFiles,
 			Set<IFile> modifiedGeneratedFiles,
 			List<? extends CategorizedProblem> problems,
@@ -299,15 +333,13 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			BuildEnv processorEnv){
 		
 		
-		if (lastGeneratedFiles == null)
-			lastGeneratedFiles = Collections.emptySet();
 		if (generatedFiles == null )
 			generatedFiles = Collections.emptySet();
 		// figure out exactly what got deleted
 		final List<IFile> deletedFiles = new ArrayList<IFile>(); 
+		IFile parentFile = curResult.getFile();
 		cleanupNoLongerGeneratedFiles(
-				curResult, 
-				lastGeneratedFiles, 
+				parentFile, 
 				generatedFiles, 
 				gfm,
 				processorEnv,
@@ -348,9 +380,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 * @param currentRoundDispatchedBatchFactories output parameter. At return contains the 
 	 * set of batch factories that has been dispatched.
 	 */
-	private void runAPTInMixedMode(
-			final Map<IFile, Set<IFile>> lastGeneratedFiles,
-			final BuildEnv processorEnv)
+	private void runAPTInMixedMode(final BuildEnv processorEnv)
 	{
 		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
 		final Map<BuildContext, Set<AnnotationTypeDeclaration>> file2AnnotationDecls = 
@@ -468,7 +498,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
 				reportResult(
 						firstResult,  // just put it all in 
-						lastGeneratedFiles.get(null), 
 						processorEnv.getAllGeneratedFiles(),
 						processorEnv.getModifiedGeneratedFiles(), 
 						processorEnv.getProblems(),  // this is empty in batch mode.
@@ -504,10 +533,8 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				}
 				
 				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
-				final IFile curFile = curResult.getFile();
 				reportResult(
 						curResult,
-						lastGeneratedFiles.get(curFile),
 						processorEnv.getAllGeneratedFiles(),
 						processorEnv.getModifiedGeneratedFiles(),
 						processorEnv.getProblems(),
@@ -563,20 +590,12 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	private Set<AnnotationProcessorFactory> build(final BuildEnv processorEnv)
 	{
 		try {
-			final BuildContext[] results = processorEnv.getFilesWithAnnotation();
-			GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
-			final Map<IFile,Set<IFile>> lastGeneratedFiles = new HashMap<IFile,Set<IFile>>();
-			for( BuildContext result : results ){
-				final IFile parentIFile = result.getFile();
-				lastGeneratedFiles.put(parentIFile, gfm.getGeneratedFilesForParent(parentIFile));
-			}
-			
 			boolean mixedModeDispatch = shouldDispatchToBatchProcessor(processorEnv);
 			if( mixedModeDispatch ){
-				runAPTInMixedMode(lastGeneratedFiles, processorEnv);
+				runAPTInMixedMode(processorEnv);
 			}
 			else{
-				runAPTInFileBasedMode(processorEnv, lastGeneratedFiles);
+				runAPTInFileBasedMode(processorEnv);
 			}
 
 			// notify the processor listeners
@@ -596,7 +615,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			}
 			
 			processorEnv.close();
-			gfm.writeState();
+			_aptProject.getGeneratedFileManager().writeState();
 
 			// log unclaimed annotations.
 		}
@@ -637,61 +656,55 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	}
 	
 	private void cleanupAllGeneratedFilesFrom(BuildContext[] cpResults){
+		if (cpResults == null) {
+			return;
+		}
 		final List<IFile> deleted = new ArrayList<IFile>();
-		if( cpResults != null ){
-			GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
-			for( BuildContext cpResult : cpResults){			
-				Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( cpResult.getFile() );
-				cleanupNoLongerGeneratedFiles( 
-						cpResult, 
-						lastGeneratedFiles, 
-						Collections.<IFile>emptySet(), 
-						gfm,
-						null, 
-						deleted);
-				
-				if( deleted.size() > 0 ){
-					final IFile[] deletedFilesArray = new IFile[deleted.size()];
-					cpResult.recordDeletedGeneratedFiles(deleted.toArray(deletedFilesArray));
-				}
+		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+		for( BuildContext cpResult : cpResults){
+			final IFile parentFile = cpResult.getFile();
+			cleanupNoLongerGeneratedFiles( 
+					parentFile, 
+					Collections.<IFile>emptySet(), 
+					gfm,
+					null, 
+					deleted);
+			
+			if( deleted.size() > 0 ){
+				final IFile[] deletedFilesArray = new IFile[deleted.size()];
+				cpResult.recordDeletedGeneratedFiles(deleted.toArray(deletedFilesArray));
 			}
 		}
 	}	
 	
-	// Note: This is written to work only in build phase since we are only generating
-	//       types during build phase.
-	//       Do not call unless caller is sure this is during build phase.
+	/**
+	 * Remove all the files that were previously generated
+	 * from a particular parent file, but that were not generated
+	 * in the most recent build pass.
+	 * <p>
+	 * Must be called during build phase, not reconcile
+	 *
+	 * @param parent the BuildContext associated with a single 
+	 * compiled parent file
+	 * @param lastGeneratedFiles the files generated from parent 
+	 * on the previous build; typically obtained from the GFM just
+	 * prior to beginning the current build.
+	 * @param newGeneratedFiles the files generated from parent 
+	 * on the current build; typically stored in the BuildEnv, but
+	 * an empty set can be passed in to remove all generated files
+	 * of this parent.
+	 * @param gfm
+	 * @param processorEnv
+	 * @param deleted
+	 */
 	private void cleanupNoLongerGeneratedFiles(
-			BuildContext parent,
-			Set<IFile> lastGeneratedFiles, 
+			IFile parentFile,
 			Set<IFile> newGeneratedFiles,
 			GeneratedFileManager gfm,		
 			BuildEnv processorEnv,
 			Collection<IFile> deleted)
-	{	
-		final int numLastGeneratedFiles = lastGeneratedFiles.size();
-		// make a copy into an array to avoid concurrent modification exceptions
-		IFile[] files = lastGeneratedFiles.toArray( new IFile[ numLastGeneratedFiles ] );
-		
-		for ( IFile f : files )
-		{
-			if ( ! newGeneratedFiles.contains( f ) )
-			{
-				final IFile parentFile = parent.getFile();
-				if ( AptPlugin.DEBUG ) 
-					trace( "runAPT:  File " + f + " is no longer a generated file for " + parentFile,  //$NON-NLS-1$ //$NON-NLS-2$
-							processorEnv );
-				try
-				{
-					if ( gfm.deleteGeneratedFile( f, parentFile, null ) )
-						deleted.add( f );
-				}
-				catch ( CoreException ce )
-				{
-					AptPlugin.log(ce, "Could not clean up generated files"); //$NON-NLS-1$
-				}
-			}
-		}
+	{
+		gfm.deleteObsoleteFilesAfterBuild(parentFile, newGeneratedFiles);
 	}
 
 	/**
@@ -757,7 +770,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			if (processorEnv != null) {
 				s = "[ phase = " + processorEnv.getPhase() + ", file = " + getFileNamesForPrinting(processorEnv) +" ]  " + s; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
-			System.out.println( "[" + APTDispatchRunnable.class.getName() + "][ thread= " + Thread.currentThread().getName() + " ]"+ s ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			AptPlugin.trace( s ); 
 		}
 	}
 	

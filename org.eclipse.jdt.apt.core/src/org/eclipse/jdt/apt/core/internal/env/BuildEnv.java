@@ -47,9 +47,7 @@ public class BuildEnv extends AbstractCompilationEnv
 {	
 	private boolean _hasRaisedErrors = false;
 
-    private Set<IFile> _allGeneratedSourceFiles = new HashSet<IFile>();
-    private Set<IFile> _modifiedGeneratedSourceFiles = new HashSet<IFile>();	
-	private final FilerImpl _filer;	
+	private final BuildFilerImpl _filer;	
 
 	/**
 	 * Set of strings that indicate new type dependencies introduced on the file
@@ -99,11 +97,14 @@ public class BuildEnv extends AbstractCompilationEnv
 			final IJavaProject javaProj) {
     	
     	super(null, null, javaProj, Phase.BUILD);
-		_filer = new FilerImpl(this);
+		_filer = new BuildFilerImpl(this);
 		_filesWithAnnotation = filesWithAnnotations;
 		_additionFiles = additionalFiles;
 		_problems = new ArrayList<APTProblem>();
 		_markerInfos = new ArrayList<MarkerInfo>();
+		
+		if (AptPlugin.DEBUG_COMPILATION_ENV) AptPlugin.trace( 
+				"constructed " + this + " for " + _filesWithAnnotation.length + " files"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
     public Filer getFiler()
@@ -128,36 +129,6 @@ public class BuildEnv extends AbstractCompilationEnv
 		return decl;
     }
 
-	public void addGeneratedSourceFile( IFile f, boolean contentsChanged ) {
-		if (!f.toString().endsWith(".java")) { //$NON-NLS-1$
-			throw new IllegalArgumentException("Source files must be java source files, and end with .java"); //$NON-NLS-1$
-		}
-		
-		_allGeneratedSourceFiles.add(f);
-		if (contentsChanged)
-			_modifiedGeneratedSourceFiles.add(f);
-	}
-	
-	public void addGeneratedNonSourceFile(final IFile file) {
-		_allGeneratedSourceFiles.add(file);
-	}
-	
-    public Set<IFile> getAllGeneratedFiles(){ return _allGeneratedSourceFiles; }
-    
-    public Set<IFile> getModifiedGeneratedFiles() { return _modifiedGeneratedSourceFiles; }
-
-	/**
-	 * @return true iff source files has been generated.
-	 *         Always return false when this environment is closed.
-	 */
-	public boolean hasGeneratedSourceFiles(){ return !_allGeneratedSourceFiles.isEmpty();  }
-
-	/**
-	 * @return true iff class files has been generated.
-	 *         Always return false when this environment is closed.
-	 */
-	public boolean hasGeneratedClassFiles(){ return _filer.hasGeneratedClassFile(); }
-
 	/**
 	 * @return true iff errors (MessagerImpl.Severity.Error) has been posted
 	 *         Always return false when this environment is closed.
@@ -173,6 +144,12 @@ public class BuildEnv extends AbstractCompilationEnv
 	public static InputStream getInputStream( final IFile file ) throws IOException, CoreException {
 		return new BufferedInputStream(file.getContents());
 	}
+
+	/**
+	 * @return true iff class files has been generated.
+	 *         Always return false when this environment is closed.
+	 */
+	public boolean hasGeneratedClassFiles(){ return _filer.hasGeneratedClassFile(); }
 
 	/* (non-Javadoc)
 	 *  Once the environment is closed the following is not allowed
@@ -191,8 +168,6 @@ public class BuildEnv extends AbstractCompilationEnv
     	_filesWithAnnotation = null;
     	_problems = null;
         _modelCompUnit2astCompUnit.clear();		
-		_allGeneratedSourceFiles = null;
-		_modifiedGeneratedSourceFiles = null;
 		_hasRaisedErrors = false;
 		super.close();
     }
@@ -413,10 +388,11 @@ public class BuildEnv extends AbstractCompilationEnv
 		completedProcessing();
 	}
 	
-	private void completedProcessing(){
+	@Override
+	protected void completedProcessing(){
 		_problems.clear();
-		_modifiedGeneratedSourceFiles.clear();
 		_typeDependencies.clear();
+		super.completedProcessing();
 	}
 	
 	public List<? extends CategorizedProblem> getProblems(){

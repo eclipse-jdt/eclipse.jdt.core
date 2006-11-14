@@ -12,14 +12,13 @@
 
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IElementChangedListener;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * Used by the GeneratedFileManager in order to clean up working copies after a build
@@ -49,7 +48,7 @@ public class WorkingCopyCleanupListener implements IElementChangedListener
 		{
 			//
 			// handle case where a working copy is discarded (e.g., an editor is closed).  If an editor 
-			// is noopen, then the compilation unit's isWorkingCopy() will return false.
+			// is not open, then the compilation unit's isWorkingCopy() will return false.
 			//
 			
 			ICompilationUnit cu = (ICompilationUnit) delta.getElement();	
@@ -61,17 +60,10 @@ public class WorkingCopyCleanupListener implements IElementChangedListener
 			{
 				IJavaProject jp = cu.getJavaProject();
 				GeneratedFileManager gfm = AptPlugin.getAptProject(jp).getGeneratedFileManager();
-				IFile f = (IFile)cu.getResource();
-				if ( gfm.isParentFile( f ) )
-				{
-					try 
-					{
-						gfm.parentWorkingCopyDiscarded( f );
-					} 
-					catch (JavaModelException e) 
-					{
-						AptPlugin.log(e, "Failure processing delta: " + delta); //$NON-NLS-1$
-					}		
+				try {
+					gfm.workingCopyDiscarded( cu );
+				} catch (CoreException e) {
+					AptPlugin.log(e, "Failure processing delta: " + delta); //$NON-NLS-1$
 				}
 			}
 		}

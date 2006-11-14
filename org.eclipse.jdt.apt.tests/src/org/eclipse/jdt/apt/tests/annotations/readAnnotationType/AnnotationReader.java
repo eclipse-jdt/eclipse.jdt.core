@@ -22,7 +22,7 @@ public class AnnotationReader {
                 String value = annotation.value().name();
                 //Class annotationType = annotation.annotationType();
                 String className = value + "Gen";
-                writer = env.getFiler().createSourceFile("test/" + className);
+                writer = env.getFiler().createSourceFile("test." + className);
                 writer.println("package test;");
                 writer.println("public class " + className);
                 writer.println("{}");

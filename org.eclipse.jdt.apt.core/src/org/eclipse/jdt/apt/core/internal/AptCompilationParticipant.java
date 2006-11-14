@@ -219,7 +219,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 	public int aboutToBuild(IJavaProject project) {
 		if (AptConfig.isEnabled(project)) {
 			// setup the classpath and make sure the generated source folder is on disk.
-		AptPlugin.getAptProject(project).compilationStarted();
+			AptPlugin.getAptProject(project).compilationStarted();
 		}		
 		_buildRound = 0; // reset
 		_processedFiles = new HashSet<IFile>();

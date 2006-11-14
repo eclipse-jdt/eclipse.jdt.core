@@ -19,8 +19,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.env.Phase;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorObject;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
@@ -29,6 +32,8 @@ import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaConventions;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
@@ -53,7 +58,10 @@ public abstract class AbstractCompilationEnv
 	
 	EnvCallback _callback;
 
-	/**
+    private Set<IFile> _allGeneratedSourceFiles = new HashSet<IFile>();
+    private Set<IFile> _modifiedGeneratedSourceFiles = new HashSet<IFile>();	
+
+    /**
 	 * Currently open dom pipeline, used to request type bindings.
 	 */
 	protected ASTRequestor _requestor;
@@ -173,6 +181,41 @@ public abstract class AbstractCompilationEnv
 	
 	public abstract Filer getFiler();
 	
+	public void addGeneratedSourceFile( IFile f, boolean contentsChanged ) {
+		if (!f.toString().endsWith(".java")) { //$NON-NLS-1$
+			throw new IllegalArgumentException("Source files must be java source files, and end with .java"); //$NON-NLS-1$
+		}
+		
+		boolean addedToAll = _allGeneratedSourceFiles.add(f);
+		boolean addedToMod = false;
+		if (contentsChanged)
+			addedToMod = _modifiedGeneratedSourceFiles.add(f);
+		if (AptPlugin.DEBUG_COMPILATION_ENV) {
+			AptPlugin.trace("add generated file " + f + " to env " + this + //$NON-NLS-1$ //$NON-NLS-2$
+					"; addToAll = " + addedToAll + "; addToMod = " + addedToMod + //$NON-NLS-1$ //$NON-NLS-2$
+					"; contentsChanged = " + contentsChanged); //$NON-NLS-1$
+		}
+	}
+	
+	public void addGeneratedNonSourceFile(final IFile file) {
+		_allGeneratedSourceFiles.add(file);
+	}
+	
+    public Set<IFile> getAllGeneratedFiles() { 
+    	return _allGeneratedSourceFiles; 
+    }
+    
+    public Set<IFile> getModifiedGeneratedFiles() { 
+    	return _modifiedGeneratedSourceFiles; 
+    }
+
+	/**
+	 * @return true iff source files has been generated.
+	 *         Always return false when this environment is closed.
+	 */
+	public boolean hasGeneratedSourceFiles(){ return !_allGeneratedSourceFiles.isEmpty();  }
+
+
 	/**
 	 * @return all annotation types in the current compilation unit.
 	 */
@@ -205,7 +248,12 @@ public abstract class AbstractCompilationEnv
 	{
 		if( _isClosed )
 			throw new IllegalStateException("Environment has expired"); //$NON-NLS-1$
-	}	
+	}
+	
+	// Call this after each file; cf. BuildEnv#beginFileProcessing()
+	protected void completedProcessing() {
+		_modifiedGeneratedSourceFiles.clear();
+	}
 	
 	public void close(){
 		if (isClosed()) 
@@ -218,7 +266,28 @@ public abstract class AbstractCompilationEnv
 		_isClosed = true;
 		_callback = null;
 		_requestor = null;
+		_allGeneratedSourceFiles = null;
+		_modifiedGeneratedSourceFiles = null;
+		if (AptPlugin.DEBUG_COMPILATION_ENV) AptPlugin.trace(
+				"closed env " + this); //$NON-NLS-1$
 	}
 	
 	boolean isClosed(){ return _isClosed; }
+
+	/**
+	 * Check typeName to ensure it doesn't contain any bogus characters.
+	 * @param typeName
+	 * @throws CoreException 
+	 */
+	@SuppressWarnings("unchecked")
+	public void validateTypeName(String typeName) throws CoreException
+	{
+        Map<String, String> options = getJavaProject().getOptions(true);
+        String sourceLevel = options.get(JavaCore.COMPILER_SOURCE);
+        String complianceLevel = options.get(JavaCore.COMPILER_COMPLIANCE);
+        IStatus status = JavaConventions.validateJavaTypeName(typeName, sourceLevel, complianceLevel);
+        if (!status.isOK()) {
+        	throw new CoreException(status);
+        }
+	}
 }

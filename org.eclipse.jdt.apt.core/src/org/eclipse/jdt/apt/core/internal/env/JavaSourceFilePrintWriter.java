@@ -15,23 +15,29 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.FileGenerationResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.core.ICompilationUnit;
 
-// note: only works in BUILD phase.
 public class JavaSourceFilePrintWriter extends PrintWriter {
 
 	private final StringWriter _sw;
     private final String _typeName;
-    private final BuildEnv _env;
+    private final AbstractCompilationEnv _env;
 	
-    public JavaSourceFilePrintWriter( String typeName, StringWriter sw, BuildEnv env )
+    /**
+     * @throws CoreException if type name is not valid
+     */
+	public JavaSourceFilePrintWriter( String typeName, StringWriter sw, AbstractCompilationEnv env ) 
+    	throws CoreException
     {
         super( sw );
         _sw = sw;
         _typeName = typeName;
         _env = env;
+		_env.validateTypeName(typeName);
     }
 	
     public void close()
@@ -40,8 +46,22 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	    	String contents = _sw.toString();
 	        super.close();
 	        GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager();
-	        FileGenerationResult result = gfm.generateFileDuringBuild( 
-					_env.getFile(),  _typeName, contents, null /* progress monitor */ );
+	        Phase phase = _env.getPhase();
+			
+	        FileGenerationResult result = null;
+	        if ( phase == Phase.RECONCILE )
+	        {
+	        	ReconcileEnv reconcileEnv = (ReconcileEnv)_env;
+	        	ICompilationUnit parentCompilationUnit = reconcileEnv.getCompilationUnit();
+	            result  = gfm.generateFileDuringReconcile( 
+	                parentCompilationUnit, _typeName, contents );
+	            // Need to call ReconcileContext.resetAst() for this to be effective;
+	            // that will happen in ReconcileEnv.close().
+	        }
+	        else if ( phase == Phase.BUILD)	{
+		        result = gfm.generateFileDuringBuild( 
+						_env.getFile(),  _typeName, contents, null /* progress monitor */ );
+	        }
 	        if (result != null) {
 	        	_env.addGeneratedSourceFile(result.getFile(), result.isModified());
 	        }

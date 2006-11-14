@@ -112,7 +112,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 	private void compare(final String name, final Object actualValue){
 		if( name.length() == 1 )
 		{
-			final Class expectedType;
+			final Class<?> expectedType;
 			final Object expectedValue;
 			switch(name.charAt(0))
 			{
@@ -155,7 +155,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 			assertValueTypeMatch(name, actualValue, expectedType, expectedValue);
 		}	
 		else{
-			final Class expectedElementType;
+			final Class<?> expectedElementType;
 			final Object[] expectedElementValues;
 			if( "booleans".equals(name) ){
 				expectedElementType = Boolean.class;
@@ -207,7 +207,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 	private void assertValueTypeMatch(
 			final String name, 
 			final Object actualValue, 
-			final Class expectedType,
+			final Class<?> expectedType,
 			final Object expectedValue)
 	{
 		if( actualValue != null && expectedType != actualValue.getClass() ){
@@ -225,7 +225,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 	private void assertArrayValueTypeMatch(
 			final String name, 
 			final List<AnnotationValue> actualValues, 
-			final Class expectedElementType,
+			final Class<?> expectedElementType,
 			final Object[] expectedValues)
 	{	
 		int i=0;

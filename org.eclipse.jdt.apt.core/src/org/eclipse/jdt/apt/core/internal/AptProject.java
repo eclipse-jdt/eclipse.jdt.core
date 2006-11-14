@@ -76,7 +76,7 @@ public class AptProject {
 	
 	public void projectClean( boolean deleteFiles )
 	{
-		_gfm.clearAllMaps();
+		_gfm.discardAllState();
 		
 		// delete the contents of the generated source folder, but don't delete
 		// the generated source folder because that will cause a classpath change,
@@ -107,7 +107,7 @@ public class AptProject {
 	 */
 	public void projectClosed()
 	{
-		_gfm.clearWorkingCopyMaps();
+		_gfm.discardWorkingCopyState();
 	}
 	
 	/**
@@ -118,7 +118,7 @@ public class AptProject {
 	 */
 	public void projectDeleted()
 	{
-		_gfm.clearAllMaps();
+		_gfm.discardAllState();
 	}
 
 }

@@ -431,6 +431,7 @@ public class AptBuilderTests extends APTTestBase
 		env.removeFile( p1a2Path );
 
 		// sleep to let the resource-change event fire
+		// TODO: Is there a more reliable, consistent, and efficient way to wait?
 		sleep( 1000 );
 
 		incrementalBuild( project.getFullPath() );

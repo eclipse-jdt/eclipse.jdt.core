@@ -172,14 +172,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			if( resource instanceof IFile ){
 				final GeneratedFileManager gfm = aptProj.getGeneratedFileManager();
 				IFile f = (IFile)resource;
-				if ( gfm.isParentFile( f ) )
-				{
-					gfm.parentFileDeleted( (IFile) resource, null /* progress monitor */ );
-				}
-				else if ( gfm.isGeneratedFile( f ) )
-				{
-					gfm.generatedFileDeleted( f, null /*progress monitor */ );
-				}
+				gfm.fileDeleted(f);
 			}				
 			else if( resource instanceof IFolder ){			
 				final GeneratedSourceFolderManager gsfm = aptProj.getGeneratedSourceFolderManager();
