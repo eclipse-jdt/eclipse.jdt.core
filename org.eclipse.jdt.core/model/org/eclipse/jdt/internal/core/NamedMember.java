@@ -121,7 +121,7 @@ public abstract class NamedMember extends Member {
 		
 		// return type
 		if (forceOpen)
-			key.append(method.getReturnType());
+			key.append(method.getReturnType().replace('.', '/'));
 		else
 			key.append('V');
 		

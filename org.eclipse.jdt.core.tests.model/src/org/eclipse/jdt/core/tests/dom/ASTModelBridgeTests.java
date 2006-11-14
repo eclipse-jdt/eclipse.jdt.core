@@ -42,7 +42,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "testBinaryMemberTypeConstructor" };
+//		TESTS_NAMES = new String[] { "testCreateBindings19" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1437,5 +1437,23 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 	}
 
-
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160637
+	 */
+	public void testCreateBindings19() throws CoreException {
+		IBinding[] bindings = createBinaryBindings(
+			"public class A {\n" +
+			"  String foo(String s) {\n" +
+			"		return null;\n" +
+			"  }\n" +
+			"}",
+			getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;"})
+		);
+		assertNotNull("No bindings", bindings);
+		assertEquals("Wrong size", 1, bindings.length);
+		assertTrue("Not a method binding", bindings[0] instanceof IMethodBinding);
+		assertBindingsEqual(
+			"LA;.foo(Ljava/lang/String;)Ljava/lang/String;",
+			bindings);
+	}
 }
