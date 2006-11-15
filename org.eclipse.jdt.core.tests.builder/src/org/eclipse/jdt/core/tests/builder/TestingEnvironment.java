@@ -601,6 +601,36 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		return (IProject)fProjects.get(projectPath.lastSegment());
 	}
 
+private File tmpDirectory;
+File getTmpDirectory() {
+	if (this.tmpDirectory == null) {
+		this.tmpDirectory = new File(System.getProperty("java.io.tmpdir") + 
+				File.separator + "org.eclipse.jdt.core.builder.tests.tmp");
+		if (this.tmpDirectory.exists() && !this.tmpDirectory.isDirectory()) {
+			this.tmpDirectory.delete();
+		}
+		this.tmpDirectory.mkdir();
+	}
+	return this.tmpDirectory;
+}
+void deleteTmpDirectory() {
+	if (this.tmpDirectory != null) {
+		deleteDirectory(this.tmpDirectory);
+		this.tmpDirectory = null;
+	}
+}
+private void deleteDirectory(File dir) {
+	File[] files = dir.listFiles();
+	for (int i = 0 ; i < files.length ; i++) {
+		if (files[i].isDirectory()) {
+			deleteDirectory(files[i]);
+		} else {
+			files[i].delete();
+		}
+	}
+	dir.delete();
+}
+
 	/**
 	* Returns the workspace.
 	*/
