@@ -40,7 +40,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	@SuppressWarnings("nls")
 	public void testGeneratedFile() throws Throwable
 	{
-		String fname = TEST_FOLDER + "/A.java";
+		String fname = _testFolder + "/A.java";
 		try
 		{
 			
@@ -67,13 +67,13 @@ public class AptReconcileTests extends ModifyingResourceTests
 				null );
 			
 			String expectedProblems = "----------\n" + 
-				"1. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"1. ERROR in /" + _testProject + "/src/test/A.java (at line 8)\n" + 
 				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^\n" + 
 				"generatedfilepackage cannot be resolved\n" + 
 				"----------\n" + 
 				"----------\n" + 
-				"2. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"2. ERROR in /" + _testProject + "/src/test/A.java (at line 8)\n" + 
 				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^\n" + 
 				"generatedfilepackage cannot be resolved\n" + 
@@ -122,9 +122,9 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 * @throws Throwable
 	 */
 	@SuppressWarnings("nls")
-	public void _testNestedGeneratedFile() throws Throwable
+	public void testNestedGeneratedFile() throws Throwable
 	{
-		String fname = TEST_FOLDER + "/A.java";
+		String fname = _testFolder + "/A.java";
 		try
 		{
 			
@@ -151,13 +151,13 @@ public class AptReconcileTests extends ModifyingResourceTests
 				null );
 			
 			String expectedProblems = "----------\n" + 
-				"1. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"1. ERROR in /" + _testProject + "/src/test/A.java (at line 8)\n" + 
 				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^\n" + 
 				"generatedfilepackage cannot be resolved\n" + 
 				"----------\n" + 
 				"----------\n" + 
-				"2. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"2. ERROR in /" + _testProject + "/src/test/A.java (at line 8)\n" + 
 				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^\n" + 
 				"generatedfilepackage cannot be resolved\n" + 
@@ -202,7 +202,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	@SuppressWarnings("nls")
 	public void testStopGeneratingFileInReconciler() throws Exception
 	{
-		String fname = TEST_FOLDER + "/A.java";
+		String fname = _testFolder + "/A.java";
 		try
 		{
 			
@@ -229,13 +229,13 @@ public class AptReconcileTests extends ModifyingResourceTests
 				null );
 				
 			String expectedProblems = "----------\n" + 
-				"1. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"1. ERROR in /" + _testProject + "/src/test/A.java (at line 8)\n" + 
 				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^\n" + 
 				"generatedfilepackage cannot be resolved\n" + 
 				"----------\n" + 
 				"----------\n" + 
-				"2. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"2. ERROR in /" + _testProject + "/src/test/A.java (at line 8)\n" + 
 				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^\n" + 
 				"generatedfilepackage cannot be resolved\n" + 
@@ -271,7 +271,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 					null );
 				
 			String expectedProblems2 = 	"----------\n" + 
-				"1. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"1. ERROR in /" + _testProject + "/src/test/A.java (at line 8)\n" + 
 				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^\n" + 
 				"generatedfilepackage cannot be resolved\n" + 
@@ -293,7 +293,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	public void testDiscardParentWorkingCopy()
 	 	throws Throwable
 	{
-		String fname = TEST_FOLDER + "/A.java";
+		String fname = _testFolder + "/A.java";
 		try
 		{
 			String codeWithOutErrors = "package test;" + "\n" +
@@ -336,7 +336,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	}
 	
 	public void testBasicReconcile() throws Exception {
-		String fname = TEST_FOLDER + "/X.java";
+		String fname = _testFolder + "/X.java";
 		try
 		{
 			
@@ -378,18 +378,25 @@ public class AptReconcileTests extends ModifyingResourceTests
 
 		this._problemRequestor = new ProblemRequestor();
 
-		final IJavaProject project = createJavaProject( TEST_PROJECT,
+		++_testProjectNum;
+		_testProject = TEST_PROJECT + _testProjectNum;
+		_testFolder = "/" + _testProject //$NON-NLS-1$
+		+ "/src/test"; //$NON-NLS-1$
+		
+
+		
+		final IJavaProject project = createJavaProject( _testProject,
 				new String[] { "src" }, new String[] { "JCL15_LIB" },
 				"bin", "1.5" );
 		TestUtil.createAndAddAnnotationJar(project);
 		AptConfig.setEnabled(project, true);
 		
-		createFolder( TEST_FOLDER );
+		createFolder( _testFolder );
 		
 	}
 	public void tearDown() throws Exception
 	{
-		deleteProject( TEST_PROJECT );
+		deleteProject( _testProject );
 		super.tearDown();
 	}
 	
@@ -429,10 +436,14 @@ public class AptReconcileTests extends ModifyingResourceTests
 	protected ICompilationUnit	_workingCopy;
 
 	protected ProblemRequestor	_problemRequestor;
-
-	public static final String	TEST_PROJECT	= AptReconcileTests.class.getName() + "Project"; //$NON-NLS-1$
 	
-	public static final String	TEST_FOLDER		= "/" + TEST_PROJECT //$NON-NLS-1$
-													+ "/src/test"; //$NON-NLS-1$
+	private static String _testProject;
+	
+	private static String _testFolder;
+	
+	private static int _testProjectNum = 0;
+
+	private static final String	TEST_PROJECT	= AptReconcileTests.class.getName() + "Project"; //$NON-NLS-1$
+	
 
 }

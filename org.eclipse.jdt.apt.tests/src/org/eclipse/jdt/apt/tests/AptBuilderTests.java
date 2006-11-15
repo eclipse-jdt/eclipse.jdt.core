@@ -633,19 +633,4 @@ public class AptBuilderTests extends APTTestBase
 		expectingNoMarkers();
 	}
 	
-	private static void sleep( long millis )
-	{	
-		long end = System.currentTimeMillis() + millis;
-		while ( millis > 0 )
-		{
-			try
-			{
-				Thread.sleep( millis );
-			}
-			catch ( InterruptedException ie )
-			{}
-			millis = end - System.currentTimeMillis();
-		}
-	}
-	
 }
