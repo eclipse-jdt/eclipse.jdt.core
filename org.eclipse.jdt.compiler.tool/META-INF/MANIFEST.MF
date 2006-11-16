@@ -4,6 +4,7 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.compiler.tool
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.jdt.core;bundle-version="3.2.2"
 Export-Package: org.eclipse.jdt.compiler.tool
