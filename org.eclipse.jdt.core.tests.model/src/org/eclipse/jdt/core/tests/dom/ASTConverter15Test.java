@@ -7324,9 +7324,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156352
-	 * (TODO) jerome enable once 156352 is fixed
 	 */
-	public void _test0230() throws JavaModelException {
+	public void test0230() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0230", "Test3.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		IType type = sourceUnit.getType("Test3");//$NON-NLS-1$
 
@@ -7336,16 +7335,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding[] bindings= parser.createBindings(new IJavaElement[] { type }, null);
 		if (bindings.length == 1 && bindings[0] instanceof ITypeBinding) {
 			ITypeBinding typeBinding= (ITypeBinding) bindings[0];
+			StringBuffer buffer = new StringBuffer();
 			while (typeBinding != null) {
-				/*
-	 			To ease debugging, uncomment the following lines and comment the line typeBinding.getAnnotations();
-	 			System.out.print(typeBinding.getQualifiedName());
-				System.out.print(" has ");
-				System.out.print(typeBinding.getAnnotations().length);
-				System.out.println(" annotation(s).");*/
-				typeBinding.getAnnotations();
+				buffer.append(typeBinding.getAnnotations().length);	
 				typeBinding= typeBinding.getSuperclass();
 			}
+			assertEquals("Wrong number of annotations", "000", String.valueOf(buffer));
 		}
 	}
 	
@@ -7365,15 +7360,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List types = unit.types();
 		TypeDeclaration typeDeclaration = (TypeDeclaration) types.get(0);
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		StringBuffer buffer = new StringBuffer();
 		while (typeBinding != null) {
-/*
- 			To ease debugging, uncomment the following lines and comment the line typeBinding.getAnnotations();
- 			System.out.print(typeBinding.getQualifiedName());
-			System.out.print(" has ");
-			System.out.print(typeBinding.getAnnotations().length);
-			System.out.println(" annotation(s).");*/
-			typeBinding.getAnnotations();			
+			buffer.append(typeBinding.getAnnotations().length);	
 			typeBinding= typeBinding.getSuperclass();
 		}
+		assertEquals("Wrong number of annotations", "020", String.valueOf(buffer));
 	}
 }

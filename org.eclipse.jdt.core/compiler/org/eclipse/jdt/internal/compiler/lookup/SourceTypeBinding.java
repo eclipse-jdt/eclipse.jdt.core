@@ -673,7 +673,7 @@ public char[] genericSignature() {
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
  */
 public long getAnnotationTagBits() {
-	if ((this.tagBits & TagBits.AnnotationResolved) == 0) {
+	if ((this.tagBits & TagBits.AnnotationResolved) == 0 && this.scope != null) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
 		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
 		try {
