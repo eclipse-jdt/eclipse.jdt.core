@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
@@ -108,7 +110,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 655 };
+//		TESTS_NUMBERS =  new int[] { 657 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8181,5 +8183,38 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		Block block = (Block) result;
 		List statements = block.statements();
 		assertEquals("Should be empty", 0, statements.size());
-	}	
+	}
+	
+	// http://dev.eclipse.org/bugs/show_bug.cgi?id=160198
+	public void test0657() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0657", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ICompilationUnit sourceUnit2 = getCompilationUnit("Converter" , "src", "test0657", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		class TestASTRequestor extends ASTRequestor {
+			public ArrayList asts = new ArrayList();
+			public void acceptAST(ICompilationUnit source, CompilationUnit compilationUnit) {
+				this.asts.add(compilationUnit);
+			}
+			public void acceptBinding(String bindingKey, IBinding binding) {
+			}
+		}
+		TestASTRequestor requestor = new TestASTRequestor();
+		resolveASTs(
+			new ICompilationUnit[] {sourceUnit, sourceUnit2}, 
+			new String[0],
+			requestor,
+			getJavaProject("Converter"),
+			sourceUnit.getOwner()
+		);
+		ArrayList arrayList = requestor.asts;
+		assertEquals("Wrong size", 2, arrayList.size());
+		int problemsCount = 0;
+		for (int i = 0, max = arrayList.size(); i < max; i++) {
+			Object current = arrayList.get(i);
+			assertTrue("not a compilation unit", current instanceof CompilationUnit);
+			CompilationUnit unit = (CompilationUnit) current;
+			IProblem[] problems = unit.getProblems();
+			problemsCount += problems.length;
+		}
+		assertEquals("wrong size", 1, problemsCount);
+	}
 }
