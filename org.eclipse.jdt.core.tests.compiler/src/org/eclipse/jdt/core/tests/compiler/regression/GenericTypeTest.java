@@ -35205,4 +35205,34 @@ public void _test1075() {
 		null /* no custom requestor*/,
 	  	false /* do not skip javac for this peculiar test */);
 }
+
+public void test1076() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"	List<Thread> threads;\n" + 
+			"	void foo(String[] strings) {}\n" + 
+			"	void bar() {\n" + 
+			"		foo(this.threads.toArray(new String[this.threads.size()]));\n" + 
+			"		foo(myToArray(this.threads, new String[this.threads.size()]));\n" + 
+			"		foo(myToArray2(this.threads, new String[this.threads.size()]));\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	static <T, E> T[] myToArray(List<E> list, T[] a) {\n" + 
+			"		return list.toArray(a);\n" + 
+			"	}\n" + 
+			"	static <T, E extends T> T[] myToArray2(List<E> list, T[] a) {\n" + 
+			"		return list.toArray(a);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	foo(myToArray2(this.threads, new String[this.threads.size()]));\n" + 
+		"	    ^^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method myToArray2(List<E>, T[]) of type X is not applicable for the arguments (List<Thread>, String[]). The inferred type Thread is not a valid substitute for the bounded parameter <E extends T>\n" + 
+		"----------\n");
+}
 }
