@@ -10,34 +10,74 @@
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
  * Class used to handle options in the EclipseFileManager and the EclipseCompiler
  */
 public final class Options {
+	private static final Set<String> ZERO_ARGUMENT_OPTIONS;
+	private static final Set<String> ONE_ARGUMENT_OPTIONS;
+	private static final Set<String> FILE_MANAGER_OPTIONS;
+	static {
+		ZERO_ARGUMENT_OPTIONS = new HashSet<String>();
+		ZERO_ARGUMENT_OPTIONS.add("-progress");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-proceedOnError");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-time");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-v");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-version");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-showversion");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-deprecation");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-help");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-?");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-help:warn");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-?:warn");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-noExit");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-verbose");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-referenceInfo");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-inlineJSR");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-g");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-g:none");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-nowarn");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-warn:none");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-preserveAllLocals");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-enableJavadoc");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-Xemacs");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-X");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-O");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-1.3");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-1.4");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-1.5");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-5");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-5.0");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-1.6");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-6");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-6.0");//$NON-NLS-1$
+
+		FILE_MANAGER_OPTIONS = new HashSet<String>();
+		FILE_MANAGER_OPTIONS.add("-bootclasspath");//$NON-NLS-1$
+		FILE_MANAGER_OPTIONS.add("-encoding");//$NON-NLS-1$
+		FILE_MANAGER_OPTIONS.add("-d");//$NON-NLS-1$
+		FILE_MANAGER_OPTIONS.add("-classpath");//$NON-NLS-1$
+		FILE_MANAGER_OPTIONS.add("-cp");//$NON-NLS-1$
+		FILE_MANAGER_OPTIONS.add("-sourcepath");//$NON-NLS-1$
+		FILE_MANAGER_OPTIONS.add("-extdirs");//$NON-NLS-1$
+		FILE_MANAGER_OPTIONS.add("-endorseddirs");//$NON-NLS-1$
+
+		ONE_ARGUMENT_OPTIONS = new HashSet<String>();
+		ONE_ARGUMENT_OPTIONS.addAll(FILE_MANAGER_OPTIONS);
+		ONE_ARGUMENT_OPTIONS.add("-log");//$NON-NLS-1$
+		ONE_ARGUMENT_OPTIONS.add("-repeat");//$NON-NLS-1$
+		ONE_ARGUMENT_OPTIONS.add("-maxProblems");//$NON-NLS-1$
+		ONE_ARGUMENT_OPTIONS.add("-source");//$NON-NLS-1$
+		ONE_ARGUMENT_OPTIONS.add("-target");//$NON-NLS-1$
+	
+	}
 	public static int processOptionsFileManager(String option) {
 		if (option == null) return -1;
-		if ("-encoding".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-d".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-classpath".equals(option)//$NON-NLS-1$
-				|| "-cp".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-bootclasspath".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-sourcepath".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-extdirs".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-endorseddirs".equals(option)) {//$NON-NLS-1$
+		if (FILE_MANAGER_OPTIONS.contains(option)) {
 			return 1;
 		}
 		return -1;
@@ -45,96 +85,15 @@ public final class Options {
 
 	public static int processOptions(String option) {
 		if (option == null) return -1;
-		if ("-log".equals(option)) {//$NON-NLS-1$
+		if (ZERO_ARGUMENT_OPTIONS.contains(option)) {
+			return 0;
+		}
+		if (ONE_ARGUMENT_OPTIONS.contains(option)) {
 			return 1;
-		}
-		if ("-repeat".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-maxProblems".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-source".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-encoding".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-1.3".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-1.4".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-1.5".equals(option) || "5".equals(option) || "-5.0".equals(option)) {//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			return 0;
-		}
-		if ("-1.6".equals(option) || "6".equals(option) || "-6.0".equals(option)) {//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			return 0;
-		}
-		if ("-d".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-classpath".equals(option)//$NON-NLS-1$
-				|| "-cp".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-bootclasspath".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-sourcepath".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-extdirs".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-endorseddirs".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("progress".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-proceedOnError".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-time".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-v".equals(option) || "-version".equals(option)) {//$NON-NLS-1$//$NON-NLS-2$
-			return 0;
-		}
-		if ("-showversion".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-deprecation".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-help".equals(option) || "-?".equals(option)) {//$NON-NLS-1$//$NON-NLS-2$
-			return 0;
-		}
-		if ("-help:warn".equals(option) || "-?:warn".equals(option)) {//$NON-NLS-1$//$NON-NLS-2$
-			return 0;
-		}
-		if ("-noExit".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-verbose".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-referenceInfo".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-inlineJSR".equals(option)) {//$NON-NLS-1$
-			return 0;
 		}
 		if (option.startsWith("-g")) { //$NON-NLS-1$
 			int length = option.length();
-			if (length == 2) {
-				return 0;
-			}
 			if (length > 3) {
-				if (length == 7 && option.equals("-g:none"))//$NON-NLS-1$
-					return 0;
 				StringTokenizer tokenizer =
 					new StringTokenizer(option.substring(3, option.length()), ",");//$NON-NLS-1$
 				while (tokenizer.hasMoreTokens()) {
@@ -148,14 +107,8 @@ public final class Options {
 			}
 			return -1;
 		}
-		if ("-nowarn".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
 		if (option.startsWith("-warn")) {//$NON-NLS-1$
 			int length = option.length();
-			if (length == 10 && option.equals("-warn:none")) { //$NON-NLS-1$
-				return 0;
-			}
 			if (length <= 6) {
 				return -1;
 			}
@@ -265,25 +218,7 @@ public final class Options {
 				return 0;
 			}
 		}
-		if ("-target".equals(option)) {//$NON-NLS-1$
-			return 1;
-		}
-		if ("-preserveAllLocals".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-enableJavadoc".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-Xemacs".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-X".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-J".equals(option)) {//$NON-NLS-1$
-			return 0;
-		}
-		if ("-O".equals(option)) {//$NON-NLS-1$
+		if (option.startsWith("-J") || option.startsWith("-X")) {//$NON-NLS-1$//$NON-NLS-2$
 			return 0;
 		}
 		return -1;
