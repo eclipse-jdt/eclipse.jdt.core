@@ -2680,8 +2680,14 @@ protected void consumeToken(int token) {
 					case TokenNameRIGHT_SHIFT: // or fred<X<X>>[(]1, 2) 
 					case TokenNameUNSIGNED_RIGHT_SHIFT: //or Fred<X<X<X>>>[(]1, 2)
 						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SELECTOR) {
-							this.pushOnElementStack(K_SELECTOR_INVOCATION_TYPE, (this.invocationType == QUALIFIED_ALLOCATION) ? QUALIFIED_ALLOCATION : ALLOCATION);
-							this.pushOnElementStack(K_SELECTOR_QUALIFIER, this.qualifier);
+							if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_BINARY_OPERATOR &&
+									topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER, 1) == GREATER) {
+								// it's not a selector invocation
+								popElement(K_SELECTOR);
+							} else {
+								this.pushOnElementStack(K_SELECTOR_INVOCATION_TYPE, (this.invocationType == QUALIFIED_ALLOCATION) ? QUALIFIED_ALLOCATION : ALLOCATION);
+								this.pushOnElementStack(K_SELECTOR_QUALIFIER, this.qualifier);
+							}
 						}
 						this.qualifier = -1;
 						this.invocationType = NO_RECEIVER;
