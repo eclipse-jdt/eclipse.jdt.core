@@ -966,14 +966,13 @@ public class ASTParser {
 		}
 		switch(this.astKind) {
 			case K_STATEMENTS :
-				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(this.rawSource, this.sourceOffset, this.sourceLength, this.compilerOptions, true, true);
+				ConstructorDeclaration constructorDeclaration = codeSnippetParsingUtil.parseStatements(this.rawSource, this.sourceOffset, this.sourceLength, this.compilerOptions, true, this.statementsRecovery);
 				RecoveryScannerData data = constructorDeclaration.compilationResult.recoveryScannerData;
 				if(data != null) {
 					Scanner scanner = converter.scanner;
 					converter.scanner = new RecoveryScanner(scanner, data.removeUnused());
 					converter.docParser.scanner = converter.scanner;
 					converter.scanner.setSource(scanner.source);
-					
 				}
 				RecordedParsingInformation recordedParsingInformation = codeSnippetParsingUtil.recordedParsingInformation;
 				int[][] comments = recordedParsingInformation.commentPositions;
@@ -998,6 +997,9 @@ public class ASTParser {
 						}
 					}
 					rootNodeToCompilationUnit(ast, compilationUnit, block, recordedParsingInformation, data);
+					if (data != null) {
+						block.setFlags(block.getFlags() | ASTNode.RECOVERED);
+					}
 					ast.setDefaultNodeFlag(0);
 					ast.setOriginalModificationCount(ast.modificationCount());
 					return block;
@@ -1061,10 +1063,10 @@ public class ASTParser {
 	}
 
 	private void propagateErrors(ASTNode astNode, CategorizedProblem[] problems, RecoveryScannerData data) {
-		ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(problems);
-		astNode.accept(syntaxErrorPropagator);
-		ASTRecoveryPropagator recoveryPropagator = new ASTRecoveryPropagator(problems, data);
-		astNode.accept(recoveryPropagator);
+		astNode.accept(new ASTSyntaxErrorPropagator(problems));
+		if (data != null) {
+			astNode.accept(new ASTRecoveryPropagator(problems, data));
+		}
 	}
 	
 	private void rootNodeToCompilationUnit(AST ast, CompilationUnit compilationUnit, ASTNode node, RecordedParsingInformation recordedParsingInformation, RecoveryScannerData data) {

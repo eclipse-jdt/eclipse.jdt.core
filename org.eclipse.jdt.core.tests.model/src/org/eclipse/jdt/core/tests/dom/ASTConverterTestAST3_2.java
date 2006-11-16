@@ -110,7 +110,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 657 };
+//		TESTS_NUMBERS =  new int[] { 658 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8160,7 +8160,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=157570
 	 */
-	public void _test0656() {
+	public void test0656() {
 		String src = "public static void m1()\n" + 
 				"    {\n" + 
 				"        int a;\n" + 
@@ -8216,5 +8216,44 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			problemsCount += problems.length;
 		}
 		assertEquals("wrong size", 1, problemsCount);
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=157570
+	 */
+	public void test0658() {
+		String src = "public static void m1()\n" + 
+				"    {\n" + 
+				"        int a;\n" + 
+				"        int b;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static void m2()\n" + 
+				"    {\n" + 
+				"        int c;\n" + 
+				"        int d;\n" + 
+				"    }";
+		char[] source = src.toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind (ASTParser.K_STATEMENTS);
+		parser.setStatementsRecovery(true);
+		parser.setSource (source);
+		ASTNode result = parser.createAST (null);
+		assertNotNull("no result", result);
+		assertEquals("Not a block", ASTNode.BLOCK, result.getNodeType());
+		Block block = (Block) result;
+		List statements = block.statements();
+		assertEquals("Should be empty", 2, statements.size());
+		assertTrue("Not recovered", isRecovered(block));
+		ASTNode root = block.getRoot();
+		assertNotNull("No root", root);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, root.getNodeType());
+		CompilationUnit unit = (CompilationUnit) root;
+		String errors =
+			"Syntax error on token(s), misplaced construct(s)\n" + 
+			"Syntax error, insert \";\" to complete BlockStatements\n" + 
+			"Syntax error on token(s), misplaced construct(s)\n" + 
+			"Syntax error, insert \";\" to complete Statement";
+		assertProblemsSize(unit, 4, errors);
 	}
 }
