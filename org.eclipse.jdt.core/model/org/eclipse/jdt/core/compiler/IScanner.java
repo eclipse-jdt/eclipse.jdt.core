@@ -143,6 +143,7 @@ public interface IScanner {
 	/**
 	 * Set the scanner source to process. By default, the scanner will consider starting at the beginning of the
 	 * source until it reaches its end.
+	 * If the given source is <code>null</code>, this clears the source.
 	 * 
 	 * @param source the given source
 	 */
