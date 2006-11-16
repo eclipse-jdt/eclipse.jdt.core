@@ -9180,7 +9180,7 @@ public void test0294() throws JavaModelException {
 			"public class Test1<TTest1> {\n" +
 			"}");
 	
-	this.workingCopies[1] = getWorkingCopy(
+	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src3/test/Test2.java",
 			"package test;\n" +
 			"public class Test2 {\n" +
@@ -9194,6 +9194,118 @@ public void test0294() throws JavaModelException {
 
 	assertResults(
 			"Test2[TYPE_REF]{Test2, test, Ltest.Test2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99928
+public void test0295() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[5];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    void test(StringTest s, IntegerTest i) {\n" +
+			"        combine(s, i).compareTo(null);\n" +
+			"    }\n" +
+			"    \n" +
+			"    <T> T combine(T t1, T t2) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/StringTest.java",
+			"package test;\n" +
+			"public class StringTest implements ComparableTest<StringTest>, SerializableTest {\n" +
+			"    public int compareTo(StringTest s) {\n" +
+			"        return 0;\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/test/IntegerTest.java",
+			"package test;\n" +
+			"public class IntegerTest implements ComparableTest<IntegerTest>, SerializableTest {\n" +
+			"    public int compareTo(IntegerTest i) {\n" +
+			"        return 0;\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/test/ComparableTest.java",
+			"package test;\n" +
+			"public interface ComparableTest<T> {\n" +
+			"    public int compareTo(T t) ;\n" +
+			"}");
+	
+	this.workingCopies[4] = getWorkingCopy(
+			"/Completion/src3/test/SerializableTest.java",
+			"package test;\n" +
+			"public interface SerializableTest {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "compare";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"compareTo[METHOD_REF]{compareTo, Ltest.ComparableTest<!*>;, (!*)I, compareTo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99928
+public void test0296() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[5];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"        public static void main(String[] args) {\n" +
+			"                IntegerTest foo = null;\n" +
+			"                StringTest bar = null;\n" +
+			"                System.out.println((foo != null ? foo : bar).compare\n" +
+			"        }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/StringTest.java",
+			"package test;\n" +
+			"public class StringTest implements ComparableTest<StringTest>, SerializableTest {\n" +
+			"    public int compareTo(StringTest s) {\n" +
+			"        return 0;\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/test/IntegerTest.java",
+			"package test;\n" +
+			"public class IntegerTest implements ComparableTest<IntegerTest>, SerializableTest {\n" +
+			"    public int compareTo(IntegerTest i) {\n" +
+			"        return 0;\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/test/ComparableTest.java",
+			"package test;\n" +
+			"public interface ComparableTest<T> {\n" +
+			"    public int compareTo(T t) ;\n" +
+			"}");
+	
+	this.workingCopies[4] = getWorkingCopy(
+			"/Completion/src3/test/SerializableTest.java",
+			"package test;\n" +
+			"public interface SerializableTest {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "compare";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"compareTo[METHOD_REF]{compareTo(), Ltest.ComparableTest<!*>;, (!*)I, compareTo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130

@@ -5243,13 +5243,23 @@ public final class CompletionEngine
 				}
 			}
 			
-			if (notInJavadoc && hasPotentialDefaultAbstractMethods && (currentType.isAbstract() || currentType.isTypeVariable())){
+			if (notInJavadoc &&
+					hasPotentialDefaultAbstractMethods &&
+					(currentType.isAbstract() || currentType.isTypeVariable() || currentType.isIntersectionType())){
+				
+				ReferenceBinding[] superInterfaces = currentType.superInterfaces();
+				if (superInterfaces != null && currentType.isIntersectionType()) {
+					for (int i = 0; i < superInterfaces.length; i++) {
+						superInterfaces[i] = (ReferenceBinding)superInterfaces[i].capture(invocationScope, invocationSite.sourceEnd());
+					}
+				}
+				
 				findInterfacesMethods(
 					selector,
 					typeArgTypes,
 					argTypes,
 					receiverType,
-					currentType.superInterfaces(),
+					superInterfaces,
 					scope,
 					methodsFound,
 					onlyStaticMethods,
