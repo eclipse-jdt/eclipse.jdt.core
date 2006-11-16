@@ -7588,4 +7588,102 @@ public void test123() {
 		expectedFullUnitToString,
 		expectedCompletionDietUnitToString, testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=157570
+public void test124() {
+	String s = 
+		"public class Test {\n" + 
+		"	void aMethod() {\n" + 
+		"		public static void m1()\n" + 
+		"		{\n" + 
+		"			int a;\n" + 
+		"			int b;\n" + 
+		"		}\n" + 
+		"		public static void m2()\n" + 
+		"		{\n" + 
+		"			int c;\n" + 
+		"			int d;\n" + 
+		"		}\n" +
+		"	}\n" + 
+		"}\n";
+		
+	String expectedDietUnitToString = 
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void aMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  void aMethod() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString = null;
+	if(COMPLIANCE_1_3.equals(this.complianceLevel) || 
+			COMPLIANCE_1_4.equals(this.complianceLevel)) {
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+			"public class Test {\n" + 
+			"  public Test() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  void aMethod() {\n" + 
+			"    m1();\n" + 
+			"    {\n" + 
+			"      int a;\n" + 
+			"      int b;\n" + 
+			"    }\n" + 
+			"    m2();\n" + 
+			"    {\n" + 
+			"      int c;\n" + 
+			"      int d;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
+	} else {
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+			"public class Test {\n" + 
+			"  public Test() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  void aMethod() {\n" + 
+			"    public static @m1() enum $missing$ {\n" + 
+			"      public $missing$() {\n" + 
+			"        super();\n" + 
+			"      }\n" + 
+			"      <clinit>() {\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
+	}
+	
+	String expectedFullUnitToString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void aMethod() {\n" + 
+		"  }\n" + 
+		"  public static void m1() {\n" + 
+		"  }\n" + 
+		"  public static void m2() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,		
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
 }

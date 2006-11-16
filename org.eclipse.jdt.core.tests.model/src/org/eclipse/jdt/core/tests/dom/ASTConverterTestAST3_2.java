@@ -8243,7 +8243,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Not a block", ASTNode.BLOCK, result.getNodeType());
 		Block block = (Block) result;
 		List statements = block.statements();
-		assertEquals("Should be empty", 2, statements.size());
+		assertEquals("Should be empty", 4, statements.size());
 		assertTrue("Not recovered", isRecovered(block));
 		ASTNode root = block.getRoot();
 		assertNotNull("No root", root);

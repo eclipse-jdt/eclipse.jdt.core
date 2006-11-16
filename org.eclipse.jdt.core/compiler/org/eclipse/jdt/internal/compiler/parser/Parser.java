@@ -4160,7 +4160,13 @@ protected void consumeMethodHeader() {
 			if (this.currentElement.parseTree() == method && this.currentElement.parent != null) {
 				this.currentElement = this.currentElement.parent;
 			}
-		}		
+		} else if(this.currentToken == TokenNameLBRACE) {
+			if (this.currentElement instanceof RecoveredMethod && 
+					((RecoveredMethod)this.currentElement).methodDeclaration != method) {
+				this.ignoreNextOpeningBrace = true;
+				this.currentElement.bracketBalance++; 
+			}
+		}
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}		
 }

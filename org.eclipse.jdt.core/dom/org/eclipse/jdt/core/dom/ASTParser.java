@@ -982,6 +982,7 @@ public class ASTParser {
 				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
 				if (constructorDeclaration != null) {
 					Block block = ast.newBlock();
+					block.setSourceRange(this.sourceOffset, this.sourceOffset + this.sourceLength);
 					org.eclipse.jdt.internal.compiler.ast.Statement[] statements = constructorDeclaration.statements;
 					if (statements != null) {
 						int statementsLength = statements.length;
@@ -997,9 +998,6 @@ public class ASTParser {
 						}
 					}
 					rootNodeToCompilationUnit(ast, compilationUnit, block, recordedParsingInformation, data);
-					if (data != null) {
-						block.setFlags(block.getFlags() | ASTNode.RECOVERED);
-					}
 					ast.setDefaultNodeFlag(0);
 					ast.setOriginalModificationCount(ast.modificationCount());
 					return block;
@@ -1045,6 +1043,7 @@ public class ASTParser {
 				compilationUnit.setLineEndTable(recordedParsingInformation.lineEnds);
 				if (nodes != null) {
 					TypeDeclaration typeDeclaration = converter.convert(nodes);
+					typeDeclaration.setSourceRange(this.sourceOffset, this.sourceOffset + this.sourceLength);
 					rootNodeToCompilationUnit(typeDeclaration.getAST(), compilationUnit, typeDeclaration, codeSnippetParsingUtil.recordedParsingInformation, null);
 					ast.setDefaultNodeFlag(0);
 					ast.setOriginalModificationCount(ast.modificationCount());
@@ -1078,9 +1077,7 @@ public class ASTParser {
 					if (problemsCount != 0) {
 						// propagate and record problems
 						final CategorizedProblem[] problems = recordedParsingInformation.problems;
-						for (int i = 0, max = block.statements().size(); i < max; i++) {
-							propagateErrors((ASTNode) block.statements().get(i), problems, data);
-						}
+						propagateErrors(block, problems, data);
 						compilationUnit.setProblems(problems);
 					}
 					TypeDeclaration typeDeclaration = ast.newTypeDeclaration();
@@ -1096,9 +1093,7 @@ public class ASTParser {
 					if (problemsCount != 0) {
 						// propagate and record problems
 						final CategorizedProblem[] problems = recordedParsingInformation.problems;
-						for (int i = 0, max = typeDeclaration.bodyDeclarations().size(); i < max; i++) {
-							propagateErrors((ASTNode) typeDeclaration.bodyDeclarations().get(i), problems, data);
-						}
+						propagateErrors(typeDeclaration, problems, data);
 						compilationUnit.setProblems(problems);
 					}
 					compilationUnit.types().add(typeDeclaration);
