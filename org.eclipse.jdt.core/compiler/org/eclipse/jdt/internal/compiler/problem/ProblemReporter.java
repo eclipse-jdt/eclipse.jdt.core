@@ -198,6 +198,7 @@ public class ProblemReporter extends ProblemHandler {
 				return CompilerOptions.UnusedLabel;
 	
 			case IProblem.JavadocUnexpectedTag:
+			case IProblem.JavadocDuplicateTag:
 			case IProblem.JavadocDuplicateReturnTag:
 			case IProblem.JavadocInvalidThrowsClass:
 			case IProblem.JavadocInvalidSeeReference:
@@ -3588,6 +3589,15 @@ public void javadocDuplicatedParamTag(char[] token, int sourceStart, int sourceE
 }
 public void javadocDuplicatedReturnTag(int sourceStart, int sourceEnd){
 	this.handle(IProblem.JavadocDuplicateReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocDuplicatedTag(char[] tagName, int sourceStart, int sourceEnd){
+	String[] arguments = new String[] { new String(tagName) };
+	this.handle(
+		IProblem.JavadocDuplicateTag,
+		arguments,
+		arguments,
+		sourceStart,
+		sourceEnd);
 }
 public void javadocDuplicatedThrowsClassName(TypeReference typeReference, int modifiers) {
 	int severity = computeSeverity(IProblem.JavadocDuplicateThrowsClassName);

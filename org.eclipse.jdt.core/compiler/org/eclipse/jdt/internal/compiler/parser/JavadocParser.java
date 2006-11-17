@@ -30,6 +30,10 @@ public class JavadocParser extends AbstractCommentParser {
 	private int invalidParamReferencesPtr = -1;
 	private ASTNode[] invalidParamReferencesStack;
 
+	// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=153399
+	// Store value tag positions
+	private long validValuePositions, invalidValuePositions;
+
 	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
 		this.kind = COMPIL_PARSER | TEXT_VERIF;
@@ -47,6 +51,8 @@ public class JavadocParser extends AbstractCommentParser {
 		this.javadocStart = this.sourceParser.scanner.commentStarts[commentPtr];
 		this.javadocEnd = this.sourceParser.scanner.commentStops[commentPtr]-1;
 		this.firstTagPosition = this.sourceParser.scanner.commentTagStarts[commentPtr];
+		this.validValuePositions = -1;
+		this.invalidValuePositions = -1;
 
 		// Init javadoc if necessary
 		if (this.checkDocComment) {
@@ -540,15 +546,28 @@ public class JavadocParser extends AbstractCommentParser {
 						}
 						break;
 					case 'v':
-						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && length == TAG_VALUE_LENGTH && CharOperation.equals(TAG_VALUE, tagName)) {
+						if (length == TAG_VALUE_LENGTH && CharOperation.equals(TAG_VALUE, tagName)) {
 							this.tagValue = TAG_VALUE_VALUE;
-							if (this.inlineTagStarted) {
-								valid = parseReference();
-							} else {
-								valid = false;
-								if (this.reportProblems) {
-									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+							if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
+								if (this.inlineTagStarted) {
+									valid = parseReference();
+								} else {
+									valid = false;
+									if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 								}
+							}
+							if (this.validValuePositions == -1) {
+								if (this.invalidValuePositions != -1) {
+									if (this.reportProblems) this.sourceParser.problemReporter().javadocDuplicatedTag(tagName, (int) (this.invalidValuePositions>>>32), (int) this.invalidValuePositions);
+								}
+								if (valid) {
+									this.validValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
+									this.invalidValuePositions = -1;
+								} else {
+									this.invalidValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
+								}
+							} else {
+								if (this.reportProblems) this.sourceParser.problemReporter().javadocDuplicatedTag(tagName, this.tagSourceStart, this.tagSourceEnd);
 							}
 						} else {
 							createTag();
@@ -720,8 +739,9 @@ public class JavadocParser extends AbstractCommentParser {
 	 */
 	protected void updateDocComment() {
 
-		// Set inherited positions
+		// Set positions
 		this.docComment.inheritedPositions = this.inheritedPositions;
+		this.docComment.valuePositions = this.validValuePositions != -1 ? this.validValuePositions : this.invalidValuePositions;
 
 		// Set return node if present
 		if (this.returnStatement != null) {

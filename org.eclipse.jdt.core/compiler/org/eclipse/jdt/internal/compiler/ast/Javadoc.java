@@ -30,6 +30,9 @@ public class Javadoc extends ASTNode {
 	// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51600
 	// Store param references for tag with invalid syntax
 	public JavadocSingleNameReference[] invalidParameters; // @param
+	// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=153399
+	// Store value tag positions
+	public long valuePositions = -1;
 
 	public Javadoc(int sourceStart, int sourceEnd) {
 		this.sourceStart = sourceStart;
@@ -219,6 +222,12 @@ public class Javadoc extends ASTNode {
 		for (int i = 0; i < seeTagsLength; i++) {
 			resolveReference(this.seeReferences[i], scope);
 		}
+
+		// @value tag
+		boolean source15 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
+		if (!source15 && this.valuePositions != -1) {
+			scope.problemReporter().javadocUnexpectedTag((int)(this.valuePositions>>>32), (int) this.valuePositions);
+		}
 	}
 	
 	/*
@@ -228,8 +237,10 @@ public class Javadoc extends ASTNode {
 		
 		// get method declaration
 		AbstractMethodDeclaration methDecl = methScope.referenceMethod();
-		boolean overriding = methDecl == null || methDecl.binding == null ? false : !methDecl.binding.isStatic() && ((methDecl.binding.modifiers & (ExtraCompilerModifiers.AccImplementing | ExtraCompilerModifiers.AccOverriding)) != 0);
-
+		boolean overriding = methDecl == null /* field declaration */ || methDecl.binding == null /* compiler error */
+			? false :
+			!methDecl.binding.isStatic() && ((methDecl.binding.modifiers & (ExtraCompilerModifiers.AccImplementing | ExtraCompilerModifiers.AccOverriding)) != 0);
+		
 		// @see tags
 		int seeTagsLength = this.seeReferences == null ? 0 : this.seeReferences.length;
 		boolean superRef = false;
@@ -316,6 +327,12 @@ public class Javadoc extends ASTNode {
 
 		// @throws/@exception tags
 		resolveThrowsTags(methScope, reportMissing);
+
+		// @value tag
+		boolean source15 = methScope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
+		if (!source15 && methDecl != null && this.valuePositions != -1) {
+			methScope.problemReporter().javadocUnexpectedTag((int)(this.valuePositions>>>32), (int) this.valuePositions);
+		}
 
 		// Resolve param tags with invalid syntax
 		int length = this.invalidParameters == null ? 0 : this.invalidParameters.length;

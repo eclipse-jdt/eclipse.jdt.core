@@ -2900,35 +2900,90 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * Bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892">70892</a>
-	 * These two tests should pass whatever the source level...
+	 * @bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
+	 * @test Ensure that reference in tag {@value} is only verified when source level >= 1.5
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892"
 	 */
-	public void testBug70892conform1() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"/**\n" + 
-					" * {@value}\n" + 
-					" * {@value }\n" + 
-					" * {@value #field}\n" + 
-					" */\n" + 
-					"public class X {\n" + 
-					"	static int field;\n" + 
-					"}\n"
-			}
-		);
-	}
-	public void testBug70892conform2() {
+	public void testBug70892a() {
 		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
-					"	/**{@value #field}*/\n" + 
-					"	static int field;\n" + 
-					"}\n"
+				"	/**\n" + 
+				"	 * {@value}\n" + 
+				"	 */\n" + 
+				"	static int field1;\n" + 
+				"	/**\n" + 
+				"	 * {@value }\n" + 
+				"	 */\n" + 
+				"	static int field2;\n" + 
+				"	/**\n" + 
+				"	 * {@value #field}\n" + 
+				"	 */\n" + 
+				"	static int field;\n" + 
+				"}\n"
 			}
 		);
+	}
+	public void testBug70892b() {
+		String[] testFiles = new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	/**\n" + 
+			"	 * {@value \"invalid\"}\n" + 
+			"	 */\n" + 
+			"	final static int field1 = 1;\n" + 
+			"	/**\n" + 
+			"	 * {@value <a href=\"invalid\">invalid</a>} invalid\n" + 
+			"	 */\n" + 
+			"	final static int field2 = 2;\n" + 
+			"	/**\n" + 
+			"	 * {@value #field}\n" + 
+			"	 */\n" + 
+			"	final static int field3 = 3;\n" + 
+			"	/**\n" + 
+			"	 * {@value #foo}\n" + 
+			"	 */\n" + 
+			"	final static int field4 = 4;\n" + 
+			"	/**\n" + 
+			"	 * {@value #foo()}\n" + 
+			"	 */\n" + 
+			"	final static int field5 = 5;\n" + 
+			"	void foo() {}\n" + 
+			"}\n"
+		};
+		if (this.complianceLevel.equals(COMPLIANCE_1_3) || this.complianceLevel.equals(COMPLIANCE_1_4)) {
+			runConformTest(testFiles);
+		} else {
+			runNegativeTest(testFiles,
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\r\n" + 
+				"	* {@value \"invalid\"}\r\n" + 
+				"	          ^^^^^^^^^\n" + 
+				"Javadoc: Only static field reference is allowed for @value tag\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\r\n" + 
+				"	* {@value <a href=\"invalid\">invalid</a>} invalid\r\n" + 
+				"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Only static field reference is allowed for @value tag\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 11)\r\n" + 
+				"	* {@value #field}\r\n" + 
+				"	           ^^^^^\n" + 
+				"Javadoc: field cannot be resolved or is not a field\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 15)\r\n" + 
+				"	* {@value #foo}\r\n" + 
+				"	           ^^^\n" + 
+				"Javadoc: Only static field reference is allowed for @value tag\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 19)\r\n" + 
+				"	* {@value #foo()}\r\n" + 
+				"	           ^^^^^\n" + 
+				"Javadoc: Only static field reference is allowed for @value tag\n" + 
+				"----------\n"
+			);
+		}
 	}
 
 	/**
@@ -4814,5 +4869,181 @@ public class JavadocBugsTest extends JavadocTest {
 			"Javadoc: The method foo(MyInterface) in the type Test is not applicable for the arguments (MySubInterface)\n" + 
 			"----------\n"
 		);
+	}
+
+	/**
+	 * @bug 153399: [javadoc] JDT Core should warn if the @value tag is not used correctly
+	 * @test Ensure that {@value} tag is well warned when not used correctly
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=153399"
+	 */
+	public void testBug153399a() {
+		String[] testFiles = new String[] {
+			"X.java",
+			"public class X { \n" + 
+			"	/**\n" + 
+			"	 * {@value #MY_VALUE}\n" + 
+			"	 */\n" + 
+			"	public final static int MY_VALUE = 0; \n" + 
+			"	/**\n" + 
+			"	 * {@value #MY_VALUE}\n" + 
+			"	 */\n" + 
+			"	public void foo() {}\n" + 
+			"	/**\n" + 
+			"	 * {@value #MY_VALUE}\n" + 
+			"	 */\n" + 
+			"	class Sub {} \n" + 
+			"}\n"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(testFiles,
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	* {@value #MY_VALUE}\n" + 
+				"	    ^^^^^\n" + 
+				"Javadoc: Unexpected tag\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 11)\n" + 
+				"	* {@value #MY_VALUE}\n" + 
+				"	    ^^^^^\n" + 
+				"Javadoc: Unexpected tag\n" + 
+				"----------\n"
+			);
+		} else {
+			runConformTest(testFiles);
+		}
+	}
+	public void testBug153399b() {
+		String[] testFiles = new String[] {
+			"X.java",
+			"public class X { \n" + 
+			"	/**\n" + 
+			"	 * {@value}\n" + 
+			"	 */\n" + 
+			"	public final static int MY_VALUE = 0; \n" + 
+			"	/**\n" + 
+			"	 * {@value}\n" + 
+			"	 */\n" + 
+			"	public void foo() {}\n" + 
+			"	/**\n" + 
+			"	 * {@value}\n" + 
+			"	 */\n" + 
+			"	class Sub {} \n" + 
+			"}\n"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(testFiles,
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	* {@value}\n" + 
+				"	    ^^^^^\n" + 
+				"Javadoc: Unexpected tag\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 11)\n" + 
+				"	* {@value}\n" + 
+				"	    ^^^^^\n" + 
+				"Javadoc: Unexpected tag\n" + 
+				"----------\n"
+			);
+		} else {
+			runConformTest(testFiles);
+		}
+	}
+	public void testBug153399c() {
+		String[] testFiles = new String[] {
+			"p1/X.java",
+			"package p1;\n" + 
+			"public class X {\n" + 
+			"	/**\n" + 
+			"	 * @return a\n" + 
+			"	 */\n" + 
+			"	boolean get() {\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"}\n"
+		};
+		runConformTest(testFiles);
+	}
+	public void testBug153399d() {
+		String[] testFiles = new String[] {
+			"X.java",
+			"public class X { \n" + 
+			"	/**\n" + 
+			"	 * {@value #MY_VALUE}\n" + 
+			"	 * {@value}\n" + 
+			"	 * {@value Invalid}\n" + 
+			"	 */\n" + 
+			"	public final static int MY_VALUE = 0; \n" + 
+			"}\n"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(testFiles,
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* {@value #MY_VALUE}\n" + 
+				"	    ^^^^^\n" + 
+				"Javadoc: Unexpected duplicated tag @value\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	* {@value}\n" + 
+				"	    ^^^^^\n" + 
+				"Javadoc: Unexpected duplicated tag @value\n" + 
+				"----------\n"
+			);
+		} else {
+			runNegativeTest(testFiles,
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	* {@value}\n" + 
+				"	    ^^^^^\n" + 
+				"Javadoc: Unexpected duplicated tag @value\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	* {@value Invalid}\n" + 
+				"	    ^^^^^\n" + 
+				"Javadoc: Unexpected duplicated tag @value\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	* {@value Invalid}\n" + 
+				"	          ^^^^^^^^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n"
+			);
+		}
+	}
+	public void testBug153399e() {
+		String[] testFiles = new String[] {
+			"X.java",
+			"public class X { \n" + 
+			"	/**\n" + 
+			"	 * {@value Invalid}\n" + 
+			"	 * {@value #MY_VALUE}\n" + 
+			"	 */\n" + 
+			"	public final static int MY_VALUE = 0; \n" + 
+			"}\n"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(testFiles,
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* {@value Invalid}\n" + 
+				"	    ^^^^^\n" + 
+				"Javadoc: Unexpected duplicated tag @value\n" + 
+				"----------\n"
+			);
+		} else {
+			runNegativeTest(testFiles,
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	* {@value Invalid}\n" + 
+				"	    ^^^^^\n" + 
+				"Javadoc: Unexpected duplicated tag @value\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	* {@value Invalid}\n" + 
+				"	          ^^^^^^^^\n" + 
+				"Javadoc: Invalid reference\n" + 
+				"----------\n"
+			);
+		}
 	}
 }

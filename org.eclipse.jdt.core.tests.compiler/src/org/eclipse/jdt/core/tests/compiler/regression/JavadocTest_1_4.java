@@ -82,55 +82,6 @@ public class JavadocTest_1_4 extends JavadocTest {
 		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
 	}
 
-	/**
-	 * Test fix for bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892">70892</a>
-	 * These two tests pass for 1.3 or 1.4 source level but should fail for 1.5
-	 * @see JavadocTest_1_5
-	 */
-	public void test001() {
-		reportMissingJavadocTags = CompilerOptions.IGNORE;
-		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				"/**\n" + 
-					" * {@value \"invalid\"}\n" + 
-					" * {@value <a href=\"invalid\">invalid</a>} invalid\n" + 
-					" * {@value #field}\n" + 
-					" * {@value #foo}\n" + 
-					" * {@value #foo()}\n" + 
-					" */\n" + 
-					"public class X {\n" + 
-					"	int field;\n" + 
-					"	void foo() {}\n" + 
-					"}\n"
-			},
-			""	// No failure in fact...
-		);
-	}
-	public void test002() {
-		reportMissingJavadocTags = CompilerOptions.IGNORE;
-		reportMissingJavadocComments = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				"/**\n" + 
-					" * {@value \"invalid}\n" + 
-					" * {@value <a href}\n" + 
-					" * {@value <a href=\"invalid\">invalid</a} invalid\n" + 
-					" * {@value #fild}\n" + 
-					" * {@value #fo}\n" + 
-					" * {@value #f()}\n" + 
-					" */\n" + 
-					"public class X {\n" + 
-					"	int field;\n" + 
-					"	void foo() {}\n" + 
-					"}\n"	
-			},
-			""	// No failure in fact...
-		);
-	}
 
 	/**
 	 * Test fix for bug 70891: [1.5][javadoc] Compiler should accept new 1.5 syntax for @param

@@ -780,6 +780,11 @@ void setSourceStart(int sourceStart);
 	 * Javadoc comments
 	 */
 	/** 
+	 * Problem warned on duplicated tag.
+	 * @since 3.3
+	 */
+	int JavadocDuplicateTag = Javadoc + Internal + 464;
+	/** 
 	 * Problem signaled on an hidden reference due to a too low visibility level.
 	 * @since 3.3
 	 */
