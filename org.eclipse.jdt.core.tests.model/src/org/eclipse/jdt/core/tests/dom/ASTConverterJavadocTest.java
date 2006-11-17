@@ -114,7 +114,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug103304"));
+		suite.addTest(new ASTConverterJavadocTest("testBug70892_JLS3"));
 		return suite;
 	}
 
@@ -911,7 +911,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						}
 					} else {
 						if (previousFragment.getNodeType() == ASTNode.TEXT_ELEMENT) {
-							assumeTrue(prefix+"Wrong length at <"+previousFragment.getStartPosition()+"> for text element "+previousFragment, (source[tagStart] == '\r' && source[tagStart+1] == '\n' || source[tagStart] == '\n'));
+							assumeTrue(prefix+"Wrong length at <"+previousFragment.getStartPosition()+"> for text element "+previousFragment, (source[tagStart] == '\r' /* && source[tagStart+1] == '\n' */ || source[tagStart] == '\n'));
 							while (source[tagStart] == '*' || Character.isWhitespace(source[tagStart])) {
 								tagStart++; // purge non-stored characters
 							}
@@ -2481,7 +2481,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertNotNull("MethodDeclaration have a javadoc comment", methodJavadoc);
 			int javadocStart = methodJavadoc.getStartPosition();
 			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
-			/* TODO (frederic) Enable this block when bug will be fixed...
 			SimpleName methodName = methodDeclaration.getName();
 			int nameStart = methodName.getStartPosition();
 			assertTrue("Method simple name should not include javadoc comment", nameStart > javadocStart+methodJavadoc.getLength());
@@ -2489,7 +2488,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Method simple name start position should not be extended!", nameStart, extendedStart);
 			int extendedLength = compilUnit.getExtendedLength(methodName);
 			assertEquals("Method simple name length should not be extended!", methodName.getLength(), extendedLength);
-			*/
 		}
 	}
 

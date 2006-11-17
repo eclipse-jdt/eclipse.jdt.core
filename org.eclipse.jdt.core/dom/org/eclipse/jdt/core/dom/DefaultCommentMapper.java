@@ -558,6 +558,11 @@ class DefaultCommentMapper {
 				}
 			}
 
+			// Stop visit for malformed node (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=84049)
+			if ((node.typeAndFlags & ASTNode.MALFORMED) != 0) {
+				return false;
+			}
+
 			// Compute leading comments for current node
 			try {
 				storeLeadingComments(node, previousEnd);
