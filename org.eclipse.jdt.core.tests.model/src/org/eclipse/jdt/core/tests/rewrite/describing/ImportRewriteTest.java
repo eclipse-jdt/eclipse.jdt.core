@@ -127,6 +127,78 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("}\n");
 		assertEqualString(cu.getSource(), buf.toString());
 	}
+	
+	public void testAddImportsNoEmptyLines() throws Exception {
+
+		IPackageFragment pack1= sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.util.Set;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		
+		String[] order= new String[] { "java.util", "java.new", "p" };
+		
+		ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
+		imports.setEmptyLinesBetweenGroups(0);
+		
+		imports.addImport("java.net.Socket");
+		imports.addImport("p.A");
+		
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.util.Set;\n");
+		buf.append("import java.net.Socket;\n");
+		buf.append("import p.A;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+	
+	public void testAddImportsMoreEmptyLines() throws Exception {
+
+		IPackageFragment pack1= sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.util.Set;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+		
+		String[] order= new String[] { "java.util", "java.new", "p" };
+		
+		ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
+		imports.setEmptyLinesBetweenGroups(2);
+		
+		imports.addImport("java.net.Socket");
+		imports.addImport("p.A");
+		
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.util.Set;\n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("import java.net.Socket;\n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("import p.A;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
 
 	public void testAddImports2() throws Exception {
 

@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -55,6 +54,8 @@ public final class ImportRewriteAnalyzer {
 	private boolean filterImplicitImports;
 	private boolean findAmbiguousImports;
 	
+	private final int spacesBetweenGroups;
+	
 	private int flags= 0;
 	
 	private static final int F_NEEDS_LEADING_DELIM= 2;
@@ -62,7 +63,7 @@ public final class ImportRewriteAnalyzer {
 	
 	private static final String JAVA_LANG= "java.lang"; //$NON-NLS-1$
 	
-	public ImportRewriteAnalyzer(ICompilationUnit cu, CompilationUnit root, String[] importOrder, int threshold, int staticThreshold, boolean restoreExistingImports) {
+	public ImportRewriteAnalyzer(ICompilationUnit cu, CompilationUnit root, String[] importOrder, int threshold, int staticThreshold, int spacesBetweenGroups, boolean restoreExistingImports) {
 		this.compilationUnit= cu;
 		this.importOnDemandThreshold= threshold;
 		this.staticImportOnDemandThreshold= staticThreshold;
@@ -74,6 +75,7 @@ public final class ImportRewriteAnalyzer {
 		this.importsCreated= new ArrayList();
 		this.staticImportsCreated= new ArrayList();
 		this.flags= 0;
+		this.spacesBetweenGroups= spacesBetweenGroups;
 		
 		this.replaceRange= evaluateReplaceRange(root);
 		if (restoreExistingImports) {
@@ -484,9 +486,7 @@ public final class ImportRewriteAnalyzer {
 					
 			String lineDelim= this.compilationUnit.findRecommendedLineSeparator();
 			IBuffer buffer= this.compilationUnit.getBuffer();
-			
-			boolean useSpaceBetween= useSpaceBetweenGroups();
-						
+									
 			int currPos= importsStart;
 			MultiTextEdit resEdit= new MultiTextEdit();
 			
@@ -517,13 +517,15 @@ public final class ImportRewriteAnalyzer {
 					continue;
 				}
 				
-				if (useSpaceBetween) {
+				if (this.spacesBetweenGroups > 0) {
 					// add a space between two different groups by looking at the two adjacent imports
 					if (lastPackage != null && !pack.isComment() && !pack.isSameGroup(lastPackage)) {
 						ImportDeclEntry last= lastPackage.getImportAt(lastPackage.getNumberOfImports() - 1);
 						ImportDeclEntry first= pack.getImportAt(0);
 						if (!lastPackage.isComment() && (last.isNew() || first.isNew())) {
-							stringsToInsert.add(lineDelim);
+							for (int k= this.spacesBetweenGroups; k > 0; k--) {
+								stringsToInsert.add(lineDelim);
+							}
 						}
 					}
 				}
@@ -628,15 +630,6 @@ public final class ImportRewriteAnalyzer {
 		return -1;
 	}
 	
-	
-	/*
-	 * @return  Probes if the formatter allows spaces between imports
-	 */
-	private boolean useSpaceBetweenGroups() {
-		String option= this.compilationUnit.getJavaProject().getOption(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, true);
-		return Integer.valueOf(option).intValue() > 0;
-	}
-
 	private Set evaluateStarImportConflicts(IProgressMonitor monitor) throws JavaModelException {
 		//long start= System.currentTimeMillis();
 		
