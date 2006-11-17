@@ -584,7 +584,8 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString) {
 			}
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(this.containerPaths[index]+'/'+this.relativePaths[index]), false);
 			if (target instanceof IResource) {
-				return project.getPackageFragmentRoot((IResource)target);
+				IJavaElement element = JavaCore.create((IResource)target);
+				return (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 			}
 		}
 	}
