@@ -259,6 +259,9 @@ class DefaultCommentMapper {
 				System.arraycopy(this.trailingIndexes, 0, this.trailingIndexes= new long[trailingCount], 0, trailingCount);
 			}
 		}
+
+		// Release scanner as it's only used during unit visit
+		this.scanner = null;
 	}
 
 	/**
