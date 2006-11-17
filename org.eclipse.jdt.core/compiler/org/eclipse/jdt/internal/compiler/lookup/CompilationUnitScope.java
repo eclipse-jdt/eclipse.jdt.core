@@ -118,8 +118,8 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		}
 		if (fPackage != environment.defaultPackage && fPackage.getPackage(typeDecl.name) != null) {
 			// if a package exists, it must be a valid package - cannot be a NotFound problem package
+			// this is now a warning since a package does not really 'exist' until it contains a type, see JLS v2, 7.4.3
 			problemReporter().typeCollidesWithPackage(referenceContext, typeDecl);
-			continue nextType;
 		}
 
 		if ((typeDecl.modifiers & ClassFileConstants.AccPublic) != 0) {

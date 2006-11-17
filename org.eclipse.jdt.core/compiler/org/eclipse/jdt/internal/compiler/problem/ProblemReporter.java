@@ -989,6 +989,8 @@ public int computeSeverity(int problemID){
 			return ProblemSeverities.Warning;
  		case IProblem.VarargsConflict :
 			return ProblemSeverities.Warning;
+ 		case IProblem.TypeCollidesWithPackage :
+			return ProblemSeverities.Warning;
 			
 		/*
 		 * Javadoc tags resolved references errors

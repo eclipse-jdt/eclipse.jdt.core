@@ -593,6 +593,8 @@ PackageBinding createPackage(char[][] compoundName) {
 		// this case can only happen if the package does not exist as a directory in the file system
 		// otherwise when the source type was defined, the correct error would have been reported
 		// unless its an unresolved type which is referenced from an inconsistent class file
+		// NOTE: empty packages are not packages according to changes in JLS v2, 7.4.3
+		// so not all types cause collision errors when they're created even though the package did exist
 		ReferenceBinding type = packageBinding.getType0(compoundName[i]);
 		if (type != null && type != TheNotFoundType && !(type instanceof UnresolvedReferenceBinding))
 			return null;
@@ -601,8 +603,8 @@ PackageBinding createPackage(char[][] compoundName) {
 		if ((packageBinding = parent.getPackage0(compoundName[i])) == null || packageBinding == TheNotFoundPackage) {
 			// if the package is unknown, check to see if a type exists which would collide with the new package
 			// catches the case of a package statement of: package java.lang.Object;
-			// since the package can be added after a set of source files have already been compiled, we need
-			// whenever a package statement is encountered
+			// since the package can be added after a set of source files have already been compiled,
+			// we need to check whenever a package is created
 			if (nameEnvironment.findType(compoundName[i], parent.compoundName) != null)
 				return null;
 
