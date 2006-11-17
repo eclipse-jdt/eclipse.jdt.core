@@ -4665,11 +4665,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printNextToken(TerminalTokens.TokenNamereturn);
 		final Expression expression = returnStatement.expression;
 		if (expression != null) {
-			if (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
-				if (this.preferences.insert_space_before_parenthesized_expression_in_return) {
-					this.scribe.space();
-				}
-			} else {
+			final int numberOfParens = (expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+			if ((numberOfParens != 0 && this.preferences.insert_space_before_parenthesized_expression_in_return)
+					|| numberOfParens == 0) {
 				this.scribe.space();
 			}
 			expression.traverse(this, scope);
@@ -5032,8 +5030,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public boolean visit(ThrowStatement throwStatement, BlockScope scope) {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNamethrow);
-		this.scribe.space();
-		throwStatement.exception.traverse(this, scope);
+		Expression expression = throwStatement.exception;
+		final int numberOfParens = (expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+		if ((numberOfParens > 0 && this.preferences.insert_space_before_parenthesized_expression_in_throw)
+				|| numberOfParens == 0) {
+			this.scribe.space();
+		}
+		expression.traverse(this, scope);
 		/*
 		 * Print the semi-colon
 		 */	

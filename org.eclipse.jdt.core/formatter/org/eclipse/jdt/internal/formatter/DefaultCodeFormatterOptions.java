@@ -242,6 +242,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_comma_in_type_parameters;
 	public boolean insert_space_before_ellipsis;
 	public boolean insert_space_before_parenthesized_expression_in_return;
+	public boolean insert_space_before_parenthesized_expression_in_throw;
 	public boolean insert_space_before_question_in_wilcard;
 	public boolean insert_space_before_opening_angle_bracket_in_parameterized_type_reference;
 	public boolean insert_space_before_opening_angle_bracket_in_type_arguments;
@@ -538,6 +539,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION, this.insert_space_before_opening_paren_in_parenthesized_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_WHILE, this.insert_space_before_opening_paren_in_while? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PARENTHESIZED_EXPRESSION_IN_RETURN, this.insert_space_before_parenthesized_expression_in_return ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PARENTHESIZED_EXPRESSION_IN_THROW, this.insert_space_before_parenthesized_expression_in_throw ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR, this.insert_space_before_postfix_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PREFIX_OPERATOR, this.insert_space_before_prefix_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_QUESTION_IN_CONDITIONAL, this.insert_space_before_question_in_conditional? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -1709,6 +1711,10 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeParenthesizedExpressionInReturnOption != null) {
 			this.insert_space_before_parenthesized_expression_in_return = JavaCore.INSERT.equals(insertSpaceBeforeParenthesizedExpressionInReturnOption);
 		}
+		final Object insertSpaceBeforeParenthesizedExpressionInThrowOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_PARENTHESIZED_EXPRESSION_IN_THROW);
+		if (insertSpaceBeforeParenthesizedExpressionInThrowOption != null) {
+			this.insert_space_before_parenthesized_expression_in_throw = JavaCore.INSERT.equals(insertSpaceBeforeParenthesizedExpressionInThrowOption);
+		}
 		final Object insertSpaceBeforePostfixOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_POSTFIX_OPERATOR);
 		if (insertSpaceBeforePostfixOperatorOption != null) {
 			this.insert_space_before_postfix_operator = JavaCore.INSERT.equals(insertSpaceBeforePostfixOperatorOption);
@@ -2033,6 +2039,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_type_parameters = false;
 		this.insert_space_before_ellipsis = false;
 		this.insert_space_before_parenthesized_expression_in_return = true;
+		this.insert_space_before_parenthesized_expression_in_throw = true;
 		this.insert_space_before_opening_angle_bracket_in_parameterized_type_reference = false;
 		this.insert_space_before_opening_angle_bracket_in_type_arguments = false;
 		this.insert_space_before_opening_angle_bracket_in_type_parameters = false;
@@ -2287,6 +2294,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_type_parameters = false;
 		this.insert_space_before_ellipsis = false;
 		this.insert_space_before_parenthesized_expression_in_return = true;
+		this.insert_space_before_parenthesized_expression_in_throw = true;
 		this.insert_space_before_opening_angle_bracket_in_parameterized_type_reference = false;
 		this.insert_space_before_opening_angle_bracket_in_type_arguments = false;
 		this.insert_space_before_opening_angle_bracket_in_type_parameters = false;
