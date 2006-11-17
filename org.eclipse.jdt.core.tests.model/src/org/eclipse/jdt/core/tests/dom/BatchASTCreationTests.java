@@ -105,7 +105,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	static {
 //		TESTS_PREFIX =  "testBug86380";
 //		TESTS_NAMES = new String[] { "test056" };
-//		TESTS_NUMBERS = new int[] { 83230 };
+//		TESTS_NUMBERS = new int[] { 78, 79, 80 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -1716,7 +1716,7 @@ public void test073() throws CoreException, IOException {
 	} finally {
 		deleteProject("P072");
 	}
-}	
+}
 
 /**
  * @bug 155003: [model] Missing exception types / wrong signature?
@@ -1827,5 +1827,175 @@ public void test077_Bug163647() throws CoreException {
 		"Ljava.lang.InterruptedException;\n",
 		bindingKey.getThrownExceptions()
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152060
+public void test078() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P078", new String[] {}, Util.getJavaClassLibs(), "", "1.5");
+		ICompilationUnit compilationUnits[] = new ICompilationUnit[1]; 
+		compilationUnits[0] = getWorkingCopy(
+			"P078/Test.java",
+			"import java.util.*;\n" + 
+			"public class Test {\n" + 
+			"        public interface ExtraIterator<T> extends Iterator {\n" + 
+			"                public void extra();\n" + 
+			"        }\n" + 
+			"        public class Test2<T> implements ExtraIterator<T> {\n" + 
+			"            public boolean hasNext() {\n" + 
+			"                return false;\n" + 
+			"            }\n" +
+			"            public T next() {\n" + 
+			"                return null;\n" + 
+			"            }\n" +
+			"            public void remove() {\n" + 
+			"            }\n" +
+			"            public void extra() {\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"}");
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(project);
+       	final IBinding[] bindings = new IBinding[1];
+		final String key = "LTest$ExtraIterator<>;";
+		parser.createASTs(
+			compilationUnits,
+			new String[] {
+				key
+			},
+			new ASTRequestor() {
+                public void acceptAST(ICompilationUnit source, CompilationUnit localAst) {
+                	// do nothing
+                }
+                public void acceptBinding(String bindingKey, IBinding binding) {
+                	if (key.equals(bindingKey)) {
+                		bindings[0] = binding;
+                 	}
+                }
+			},
+			null);
+		IBinding binding = bindings[0];
+		assertNotNull("Should not be null", binding);
+		assertEquals("Not a type binding", IBinding.TYPE, binding.getKind());
+		ITypeBinding typeBinding = (ITypeBinding) binding;
+		assertEquals("Wrong name", "Test.ExtraIterator", typeBinding.getQualifiedName());
+		assertTrue("Not a raw type", typeBinding.isRawType());
+	} finally {
+		deleteProject("P078");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152060
+public void test079() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P079", new String[] {"src"}, Util.getJavaClassLibs(), "bin", "1.5");
+		createFolder("/P079/src/test");
+		createFile("/P079/src/test/Test.java",
+				"package test;\n" +
+				"import java.util.*;\n" +
+				"interface ExtraIterator<T> extends Iterator {\n" + 
+				"        public void extra();\n" + 
+				"}\n" + 
+				"public class Test<T> implements ExtraIterator<T> {\n" + 
+				"    public boolean hasNext() {\n" + 
+				"        return false;\n" + 
+				"    }\n" +
+				"    public T next() {\n" + 
+				"        return null;\n" + 
+				"    }\n" +
+				"    public void remove() {\n" + 
+				"    }\n" +
+				"    public void extra() {\n" + 
+				"    }\n" + 
+				"}");
+		ICompilationUnit compilationUnits[] = new ICompilationUnit[1]; 
+		compilationUnits[0] = getCompilationUnit("P079", "src", "test", "Test.java");
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(project);
+       	final IBinding[] bindings = new IBinding[1];
+		final String key = "Ltest/Test~ExtraIterator<>;";
+		parser.createASTs(
+			compilationUnits,
+			new String[] {
+				key
+			},
+			new ASTRequestor() {
+                public void acceptAST(ICompilationUnit source, CompilationUnit localAst) {
+                	// do nothing
+                }
+                public void acceptBinding(String bindingKey, IBinding binding) {
+                	if (key.equals(bindingKey)) {
+                		bindings[0] = binding;
+                 	}
+                }
+			},
+			null);
+		IBinding binding = bindings[0];
+		assertNotNull("Should not be null", binding);
+		assertEquals("Not a type binding", IBinding.TYPE, binding.getKind());
+		ITypeBinding typeBinding = (ITypeBinding) binding;
+		assertEquals("Wrong type", "test.ExtraIterator", typeBinding.getQualifiedName());
+	} finally {
+		deleteProject("P079");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152060
+public void test080() throws CoreException, IOException {
+	final String projectName = "P080";
+	try {
+		IJavaProject project = createJavaProject(projectName, new String[] {"src"}, Util.getJavaClassLibs(), "bin", "1.5");
+		createFolder("/" + projectName + "/src/test");
+		createFile("/" + projectName + "/src/test/Test.java",
+				"package test;\n" +
+				"import java.util.*;\n" + 
+				"public class Test {\n" + 
+				"        public interface ExtraIterator<T> extends Iterator {\n" + 
+				"                public void extra();\n" + 
+				"        }\n" + 
+				"        public class Test2<T> implements ExtraIterator<T> {\n" + 
+				"            public boolean hasNext() {\n" + 
+				"                return false;\n" + 
+				"            }\n" +
+				"            public T next() {\n" + 
+				"                return null;\n" + 
+				"            }\n" +
+				"            public void remove() {\n" + 
+				"            }\n" +
+				"            public void extra() {\n" + 
+				"            }\n" + 
+				"        }\n" + 
+				"}");
+		ICompilationUnit compilationUnits[] = new ICompilationUnit[1]; 
+		compilationUnits[0] = getCompilationUnit(projectName, "src", "test", "Test.java");
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(project);
+       	final IBinding[] bindings = new IBinding[1];
+		final String key = "Ltest/Test$ExtraIterator<>;";
+		parser.createASTs(
+			compilationUnits,
+			new String[] {
+				key
+			},
+			new ASTRequestor() {
+                public void acceptAST(ICompilationUnit source, CompilationUnit localAst) {
+                	// do nothing
+                }
+                public void acceptBinding(String bindingKey, IBinding binding) {
+                	if (key.equals(bindingKey)) {
+                		bindings[0] = binding;
+                 	}
+                }
+			},
+			null);
+		IBinding binding = bindings[0];
+		assertNotNull("Should not be null", binding);
+		assertEquals("Not a type binding", IBinding.TYPE, binding.getKind());
+		ITypeBinding typeBinding = (ITypeBinding) binding;
+		assertEquals("Wrong name", "test.Test.ExtraIterator", typeBinding.getQualifiedName());
+		assertTrue("Not a raw type", typeBinding.isRawType());
+	} finally {
+		deleteProject(projectName);
+	}
 }
 }
