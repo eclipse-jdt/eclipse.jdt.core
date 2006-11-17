@@ -159,6 +159,7 @@ public void setUpSuite() throws Exception {
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b95152.jar", false);
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b123679.jar", false);
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b140156.jar", false);
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b164791.jar", false);
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaSearchBugs");
@@ -7660,6 +7661,47 @@ public void testBug161190() throws CoreException {
 }
 
 /**
+ * @bug 163984: [search] no results from SearchEngine.searchAllTypeNames with types in scope
+ * @test Ensure that types are found even when scope is made of elements
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=163984"
+ */
+public void testBug163984() throws CoreException {
+	// Search all type names with TypeNameMatchRequestor
+	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		public String toString(){
+			return toFullyQualifiedNamesString();
+		}
+	};
+	ICompilationUnit[] elements = getCompilationUnits("JavaSearchBugs", "src", "b163984");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(elements);
+	new SearchEngine().searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		new char[] { '*' },
+		SearchPattern.R_PATTERN_MATCH,
+		IJavaSearchConstants.TYPE,
+		scope,
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Search all type names with TypeNameRequestor
+	TypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		new char[] { '*' },
+		SearchPattern.R_PATTERN_MATCH,
+		IJavaSearchConstants.TYPE,
+		scope,
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Should have same types with these 2 searches
+	assertEquals("We should get 3 types!", 3, collector.size());
+	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
+}
+
+/**
  * @bug 164121: [search] Misses declarations of method parameters
  * @test Ensure that param declaration are correctly found by search engine
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=164121"
@@ -7695,6 +7737,29 @@ public void testBug164121b() throws CoreException {
 		"src/A.java int A.x(int) [param] EXACT_MATCH\n" + 
 		"src/A.java int A.x(int) [param] EXACT_MATCH\n" + 
 		"src/A.java int A.x(int) [param] EXACT_MATCH"
+	);
+}
+
+/**
+ * @bug 164791: [search] Type reference reports anonymous type in invalid class file
+ * @test Ensure that match on anonymous type in local type is well reported
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=164791"
+ */
+public void testBug164791() throws CoreException {
+	IType type = getClassFile("JavaSearchBugs", "lib/b164791.jar", "pack", "ELPM.class").getType();
+	JavaSearchResultCollector collector = new JavaSearchResultCollector() {
+		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+			super.acceptSearchMatch(searchMatch);
+			IJavaElement element = (IJavaElement) searchMatch.getElement();
+			assertTrue("Search match element "+element.getElementName()+" should exist!!!", element.exists());
+		}
+	};
+	collector.showAccuracy = true;
+	search(type, REFERENCES, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"lib/b164791.jar test.<anonymous> EXACT_MATCH\n" + 
+		"lib/b164791.jar test.<anonymous> EXACT_MATCH",
+		collector
 	);
 }
 }
