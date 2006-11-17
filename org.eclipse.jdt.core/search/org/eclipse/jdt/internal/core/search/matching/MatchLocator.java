@@ -708,11 +708,14 @@ protected IType createTypeHandle(String simpleTypeName) {
 		return ((CompilationUnit) openable).getType(simpleTypeName);
 
 	IType binaryType = ((ClassFile) openable).getType();
-	if (simpleTypeName.equals(binaryType.getTypeQualifiedName()))
+	String binaryTypeQualifiedName = binaryType.getTypeQualifiedName();
+	if (simpleTypeName.equals(binaryTypeQualifiedName))
 		return binaryType; // answer only top-level types, sometimes the classFile is for a member/local type
 
 	try {
-		IClassFile classFile = binaryType.getPackageFragment().getClassFile(simpleTypeName + SuffixConstants.SUFFIX_STRING_class);
+		// type name may be null for anonymous (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=164791)
+		String classFileName = simpleTypeName.length() == 0 ? binaryTypeQualifiedName : simpleTypeName;
+		IClassFile classFile = binaryType.getPackageFragment().getClassFile(classFileName + SuffixConstants.SUFFIX_STRING_class);
 		return classFile.getType();
 	} catch (JavaModelException e) {
 		// ignore as implementation of getType() cannot throw this exception
@@ -1621,7 +1624,9 @@ protected void report(SearchMatch match) throws CoreException {
 		try {
 			JavaElement javaElement = (JavaElement)match.getElement();
 			System.out.println("\tJava element: "+ javaElement.toStringWithAncestors()); //$NON-NLS-1$
-			if (!javaElement.exists()) System.out.println("\t\tWARNING: this element does NOT exist!"); //$NON-NLS-1$
+			if (!javaElement.exists()) {
+				System.out.println("\t\tWARNING: this element does NOT exist!"); //$NON-NLS-1$
+			}
 		} catch (Exception e) {
 			// it's just for debug purposes... ignore all exceptions in this area
 		}
