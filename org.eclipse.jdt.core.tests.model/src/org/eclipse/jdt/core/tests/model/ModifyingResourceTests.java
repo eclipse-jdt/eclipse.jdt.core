@@ -72,6 +72,11 @@ public static void generateClassFile(String className, String javaSource) throws
 protected IFile createFile(String path, InputStream content) throws CoreException {
 	IFile file = getFile(path);
 	file.create(content, true, null);
+	try {
+		content.close();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
 	return file;
 }
 
