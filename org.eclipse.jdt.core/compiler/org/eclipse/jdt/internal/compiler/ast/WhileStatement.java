@@ -222,7 +222,7 @@ public class WhileStatement extends Statement {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, preCondInitStateIndex);
 			}
 		} else {
-			actionLabel.place();			
+			actionLabel.place();
 		}
 		// output condition and branch back to the beginning of the repeated action
 		if (continueLabel != null) {
