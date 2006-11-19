@@ -1770,6 +1770,21 @@ protected void consumeClassBodyopt() {
 	popElement(K_SELECTOR_INVOCATION_TYPE);
 	super.consumeClassBodyopt();
 }
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeClassDeclaration()
+ */
+protected void consumeClassDeclaration() {
+	if (this.astPtr >= 0 && this.astStack[this.astPtr] instanceof TypeDeclaration) {
+		TypeDeclaration typeDeclaration = (TypeDeclaration) this.astStack[this.astPtr];
+		this.javadoc = null;
+		checkComment();
+		if (this.javadoc != null && this.cursorLocation > this.javadoc.sourceStart && this.cursorLocation < this.javadoc.sourceEnd) {
+			// completion is in an orphan javadoc comment => replace type declaration one with it to allow completion resolution
+			typeDeclaration.javadoc = this.javadoc;
+		}
+	}
+	super.consumeClassDeclaration();
+}
 protected void consumeClassHeaderName1() {
 	super.consumeClassHeaderName1();
 

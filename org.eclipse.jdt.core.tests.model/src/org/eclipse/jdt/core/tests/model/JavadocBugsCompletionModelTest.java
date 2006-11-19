@@ -798,6 +798,44 @@ public void testBug118397d() throws JavaModelException {
 }
 
 /**
+ * @bug 139621: [javadoc][assist] No Javadoc completions if there's no member below
+ * @test Ensure that completion happens in an orphan javadoc (ie. a javadoc comment not attached to a declaration
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=139621"
+ */
+public void testBug139621a() throws JavaModelException {
+	String source =
+		"package bugs.b139621;\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	/**\n" + 
+		"	 * This method returns an object\n" + 
+		"	 * @see Obj\n" + 
+		"	 */\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
+	assertSortedResults(
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNR+"}"
+	);
+}
+public void testBug139621b() throws JavaModelException {
+	String source =
+		"package bugs.b139621;\n" + 
+		"/**\n" + 
+		" * This method returns an object\n" + 
+		" * @see Test\n" + 
+		" */\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	/**\n" + 
+		"	 * This method returns an object\n" + 
+		"	 * @see Obj\n" + 
+		"	 */\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
+	assertSortedResults(
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNR+"}"
+	);
+}
+
+/**
  * Bug 144866: [assist][javadoc] Wrong completion inside @value tag
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=144866"
  */
