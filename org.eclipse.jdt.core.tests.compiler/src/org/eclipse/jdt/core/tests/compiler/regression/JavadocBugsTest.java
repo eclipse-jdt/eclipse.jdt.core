@@ -4992,17 +4992,7 @@ public class JavadocBugsTest extends JavadocTest {
 		} else {
 			runNegativeTest(testFiles,
 				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	* {@value}\n" + 
-				"	    ^^^^^\n" + 
-				"Javadoc: Unexpected duplicated tag @value\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
-				"	* {@value Invalid}\n" + 
-				"	    ^^^^^\n" + 
-				"Javadoc: Unexpected duplicated tag @value\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
 				"	* {@value Invalid}\n" + 
 				"	          ^^^^^^^^\n" + 
 				"Javadoc: Invalid reference\n" + 
@@ -5034,11 +5024,6 @@ public class JavadocBugsTest extends JavadocTest {
 			runNegativeTest(testFiles,
 				"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
-				"	* {@value Invalid}\n" + 
-				"	    ^^^^^\n" + 
-				"Javadoc: Unexpected duplicated tag @value\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 3)\n" + 
 				"	* {@value Invalid}\n" + 
 				"	          ^^^^^^^^\n" + 
 				"Javadoc: Invalid reference\n" + 

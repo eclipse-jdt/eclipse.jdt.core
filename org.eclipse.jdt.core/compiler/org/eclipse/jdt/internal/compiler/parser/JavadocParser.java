@@ -555,19 +555,20 @@ public class JavadocParser extends AbstractCommentParser {
 									valid = false;
 									if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 								}
-							}
-							if (this.validValuePositions == -1) {
-								if (this.invalidValuePositions != -1) {
-									if (this.reportProblems) this.sourceParser.problemReporter().javadocDuplicatedTag(tagName, (int) (this.invalidValuePositions>>>32), (int) this.invalidValuePositions);
-								}
-								if (valid) {
-									this.validValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
-									this.invalidValuePositions = -1;
-								} else {
-									this.invalidValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
-								}
 							} else {
-								if (this.reportProblems) this.sourceParser.problemReporter().javadocDuplicatedTag(tagName, this.tagSourceStart, this.tagSourceEnd);
+								if (this.validValuePositions == -1) {
+									if (this.invalidValuePositions != -1) {
+										if (this.reportProblems) this.sourceParser.problemReporter().javadocDuplicatedTag(tagName, (int) (this.invalidValuePositions>>>32), (int) this.invalidValuePositions);
+									}
+									if (valid) {
+										this.validValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
+										this.invalidValuePositions = -1;
+									} else {
+										this.invalidValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
+									}
+								} else {
+									if (this.reportProblems) this.sourceParser.problemReporter().javadocDuplicatedTag(tagName, this.tagSourceStart, this.tagSourceEnd);
+								}
 							}
 						} else {
 							createTag();

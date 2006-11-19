@@ -1110,8 +1110,7 @@ public void test036() {
 			"----------\n"
 	);
 }
-// TODO (frederic) reassess regarding fix for bug 153399
-public void _test037() {
+public void test037() {
 	this.runConformTest(
 		new String[] {
 			"E.java",
@@ -1284,8 +1283,7 @@ public void test041() {
 			"----------\n"
 	);
 }
-//TODO (frederic) reassess regarding fix for bug 153399
-public void _test042() {
+public void test042() {
 	this.runConformTest(
 		new String[] {
 			"E.java",
@@ -1328,8 +1326,7 @@ public void test043() {
 		}
 	);
 }
-//TODO (frederic) reassess regarding fix for bug 153399
-public void _test044() {
+public void test044() {
 	this.runConformTest(
 		new String[] {
 			"test/E.java",
