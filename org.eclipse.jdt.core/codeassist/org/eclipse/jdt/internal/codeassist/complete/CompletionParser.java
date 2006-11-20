@@ -3705,7 +3705,7 @@ protected void pushOnLabelStack(char[] label){
 private void pushCompletionOnMemberAccessOnExpressionStack(boolean isSuperAccess) {
 	char[] source = identifierStack[identifierPtr];
 	long pos = identifierPositionStack[identifierPtr--];
-	CompletionOnMemberAccess fr = new CompletionOnMemberAccess(source, pos);
+	CompletionOnMemberAccess fr = new CompletionOnMemberAccess(source, pos, isInsideAnnotation());
 	this.assistNode = fr;
 	this.lastCheckPoint = fr.sourceEnd + 1;
 	identifierLengthPtr--;

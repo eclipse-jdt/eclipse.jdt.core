@@ -37,9 +37,12 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnMemberAccess extends FieldReference {
 	
-	public CompletionOnMemberAccess(char[] source, long pos) {
+	public boolean isInsideAnnotation;
+	
+	public CompletionOnMemberAccess(char[] source, long pos, boolean isInsideAnnotation) {
 		
 		super(source, pos);
+		this.isInsideAnnotation = isInsideAnnotation;
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {

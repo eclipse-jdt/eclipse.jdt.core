@@ -1147,22 +1147,24 @@ public final class CompletionEngine
 							insideTypeAnnotation);
 				}
 			} else {
-				if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-					findKeywords(this.completionToken, new char[][]{Keywords.NEW}, false, false);
+				if (!access.isInsideAnnotation) {
+					if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+						findKeywords(this.completionToken, new char[][]{Keywords.NEW}, false, false);
+					}
+					
+					findFieldsAndMethods(
+						this.completionToken,
+						((TypeBinding) qualifiedBinding).capture(scope, access.receiver.sourceEnd),
+						scope,
+						access,
+						scope,
+						false,
+						access.receiver instanceof SuperReference,
+						null,
+						null,
+						null,
+						false);
 				}
-				
-				findFieldsAndMethods(
-					this.completionToken,
-					((TypeBinding) qualifiedBinding).capture(scope, access.receiver.sourceEnd),
-					scope,
-					access,
-					scope,
-					false,
-					access.receiver instanceof SuperReference,
-					null,
-					null,
-					null,
-					false);
 			}
 
 		} else if (astNode instanceof CompletionOnMessageSend) {
