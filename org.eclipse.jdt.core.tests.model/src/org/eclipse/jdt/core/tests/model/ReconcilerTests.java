@@ -875,8 +875,7 @@ public void testChangeExternalJar() throws CoreException, IOException {
  * @test Ensures that changing an internal jar and refreshing takes the change into account
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=162621"
  */
-// TODO (frederic) put back when issue on Linux and Mac/OS will be fixed
-public void _testChangeInternalJar() throws CoreException, IOException {
+public void testChangeInternalJar() throws CoreException, IOException {
 	IJavaProject project = getJavaProject("Reconciler");
 	String jarName = "b162621.jar";
 	try {
@@ -887,6 +886,14 @@ public void _testChangeInternalJar() throws CoreException, IOException {
 			"}\n"
 		};
 		addLibrary(project, jarName, "b162621_src.zip", pathAndContents, JavaCore.VERSION_1_4);
+
+		// Wait a little bit to be sure file system is aware of zip file creation
+		try {
+			Thread.sleep(1000);
+		}
+		catch (InterruptedException ie) {
+			// skip
+		}
 
 		// Set working copy content with no error
 		setUpWorkingCopy("/Reconciler/src/test/Test.java",

@@ -2255,8 +2255,7 @@ public void testBug96950() throws Exception {
  * @test Ensures that changing an internal jar and refreshing takes the change into account
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=162621"
  */
-// TODO (frederic) put back when issue on Linux and Mac/OS will be fixed
-public void _testChangeInternalJar() throws CoreException, IOException {
+public void testChangeInternalJar() throws CoreException, IOException {
 	String jarName = "b162621.jar";
 	try {
 		// Create jar file with a class with 2 methods doXXX
@@ -2269,6 +2268,14 @@ public void _testChangeInternalJar() throws CoreException, IOException {
 			"}\n"
 		};
 		addLibrary(jarName, "b162621_src.zip", pathAndContents, JavaCore.VERSION_1_4);
+
+		// Wait a little bit to be sure file system is aware of zip file creation
+		try {
+			Thread.sleep(1000);
+		}
+		catch (InterruptedException ie) {
+			// skip
+		}
 
 		// Create compilation unit in which completion occurs
 		String path = "/Completion/src/test/Test.java";
