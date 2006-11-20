@@ -35235,4 +35235,36 @@ public void test1076() {
 		"Bound mismatch: The generic method myToArray2(List<E>, T[]) of type X is not applicable for the arguments (List<Thread>, String[]). The inferred type Thread is not a valid substitute for the bounded parameter <E extends T>\n" + 
 		"----------\n");
 }
+// check presence of field hiding warning
+public void test1077() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static class Y<T> {\n" + 
+			"		static int foo;\n" + 
+			"	}\n" + 
+			"	static class Z<U> extends Y<U> {\n" + 
+			"		int foo;\n" + 
+			"		{\n" + 
+			"			foo = 1;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Zork z;\n" + 
+			"}\n" + 
+			"\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	int foo;\n" + 
+		"	    ^^^\n" + 
+		"The field X.Z<U>.foo is hiding a field from type X.Y<U>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+
 }
