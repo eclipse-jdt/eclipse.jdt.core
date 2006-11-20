@@ -210,14 +210,10 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 				}
         	}
 			if (debugLevel != null) {
-				if (debugLevel.length() == 0) {
-					this.customDefaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
-					this.customDefaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
-					this.customDefaultOptions.put(CompilerOptions.OPTION_SourceFileAttribute , CompilerOptions.DO_NOT_GENERATE);
-				} else {
-					this.customDefaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
-					this.customDefaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
-					this.customDefaultOptions.put(CompilerOptions.OPTION_SourceFileAttribute , CompilerOptions.DO_NOT_GENERATE);
+				this.customDefaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+				this.customDefaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
+				this.customDefaultOptions.put(CompilerOptions.OPTION_SourceFileAttribute , CompilerOptions.DO_NOT_GENERATE);
+				if (debugLevel.length() != 0) {
 					if (debugLevel.indexOf("vars") != -1) {//$NON-NLS-1$
 						this.customDefaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
 					}
