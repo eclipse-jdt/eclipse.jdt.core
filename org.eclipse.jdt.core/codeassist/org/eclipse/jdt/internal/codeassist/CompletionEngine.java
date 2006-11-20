@@ -999,18 +999,20 @@ public final class CompletionEngine
 
 			this.completionToken = access.token;
 			
-			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-				findKeywords(this.completionToken, new char[][]{Keywords.NEW}, false);
+			if (!access.isInsideAnnotation) {
+				if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+					findKeywords(this.completionToken, new char[][]{Keywords.NEW}, false);
+				}
+				
+				findFieldsAndMethods(
+					this.completionToken,
+					((TypeBinding) qualifiedBinding).capture(scope, access.receiver.sourceEnd),
+					scope,
+					access,
+					scope,
+					false,
+					access.receiver instanceof SuperReference);
 			}
-			
-			findFieldsAndMethods(
-				this.completionToken,
-				((TypeBinding) qualifiedBinding).capture(scope, access.receiver.sourceEnd),
-				scope,
-				access,
-				scope,
-				false,
-				access.receiver instanceof SuperReference);
 
 		} else if (astNode instanceof CompletionOnMessageSend) {
 			setSourceRange(astNode.sourceStart, astNode.sourceEnd, false);
