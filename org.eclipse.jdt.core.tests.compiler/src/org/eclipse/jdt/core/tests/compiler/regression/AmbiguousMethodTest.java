@@ -857,4 +857,27 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			""
 		);
 	}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163370
+public void test044() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<E> {}\n" + 
+			"class Y<E> {}\n" + 
+			"public class X<E extends Y<E>> implements I<E> {\n" + 
+			"  public static <E extends Y<E>> X<E> bar(X<E> s) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  public static <E extends Y<E>> X<E> bar(I<E> c) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  public static <E extends Y<E>> X<E> foo(X<E> s) {\n" + 
+			"    X<E> result = bar(s);\n" + 
+			"    return result;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
 }
