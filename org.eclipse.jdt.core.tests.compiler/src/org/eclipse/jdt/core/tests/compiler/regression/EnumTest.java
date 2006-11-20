@@ -4976,4 +4976,29 @@ public void test141() {
 		"Cannot cast from X to Runnable\n" + 
 		"----------\n");
 }
+public void test142() {
+ this.runConformTest(
+     new String[] {
+    	        "X.java",
+    			"enum Week {\n" + 
+    			"	Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday\n" + 
+    			"}\n" + 
+    			"public class X {\n" + 
+    			"	public static void main(String[] args) {\n" + 
+    			"		new X().foo();\n" + 
+    			"		new X().bar();		\n" + 
+    			"	}\n" + 
+    			"	void foo() {\n" + 
+    			"		for (Week w : Week.values())\n" + 
+    			"			System.out.print(w + \" \");\n" + 
+    			"	}\n" + 
+    			"	void bar() {\n" + 
+    			"		for (Week w : java.util.EnumSet.range(Week.Monday, Week.Friday)) {\n" + 
+    			"			System.out.print(w + \" \");\n" + 
+    			"		}\n" + 
+    			"	}\n" + 
+    			"}\n", // =================
+     },
+     "Monday Tuesday Wednesday Thursday Friday Saturday Sunday Monday Tuesday Wednesday Thursday Friday");
+}
 }
