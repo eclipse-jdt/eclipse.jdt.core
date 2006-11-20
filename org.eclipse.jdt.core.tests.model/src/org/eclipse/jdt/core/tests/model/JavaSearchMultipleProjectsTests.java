@@ -799,7 +799,7 @@ public void testBug151189_Project() throws CoreException {
  * @test Ensure that there's no potential match while searching in two projects having 1.4 and 1.5 compliances
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=163072"
  */
-public void testONLY_Bug163072() throws CoreException {
+public void testBug163072() throws CoreException {
 	try {
 		// setup project P1
 		/*IJavaProject p1 = */createJavaProject("P1"); // standard project using 1.4 compliance
