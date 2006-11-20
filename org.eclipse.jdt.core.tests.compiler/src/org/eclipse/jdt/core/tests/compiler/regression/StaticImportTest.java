@@ -1755,4 +1755,121 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"
 		);		
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165069
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165081
+	public void test047() {
+		this.runNegativeTest(
+			new String[] {
+				"sample/X.java",
+				"package sample;\n" + 
+				"import static sample.X.TestEnum.V1;\n" + 
+				"import static sample.X.TestEnum.V2;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"        public static enum TestEnum {\n" + 
+				"                V1,\n" + 
+				"                V2\n" + 
+				"        }\n" + 
+				"\n" + 
+				"        public void test(final TestEnum value) {\n" + 
+				"                switch (value) {\n" + 
+				"                        case V1:\n" + 
+				"                        case V2:\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"\n" + 
+				"        public void ref() {\n" + 
+				"               final TestEnum v1 = TestEnum.V1;\n" + 
+				"               final TestEnum v2 = TestEnum.V2;\n" + 
+				"				int i;\n" +
+				"				i++;\n" +
+				"        }\n" + 
+				"}", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in sample\\X.java (at line 2)\n" + 
+			"	import static sample.X.TestEnum.V1;\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The import sample.X.TestEnum.V1 is never used\n" + 
+			"----------\n" + 
+			"2. WARNING in sample\\X.java (at line 3)\n" + 
+			"	import static sample.X.TestEnum.V2;\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The import sample.X.TestEnum.V2 is never used\n" + 
+			"----------\n" + 
+			"3. ERROR in sample\\X.java (at line 22)\n" + 
+			"	i++;\n" + 
+			"	^\n" + 
+			"The local variable i may not have been initialized\n" + 
+			"----------\n");		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165069 - variation
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165081 - variation
+	public void test048() {
+		this.runNegativeTest(
+			new String[] {
+				"sample/X.java",
+				"package sample;\n" + 
+				"import static sample.X.TestEnum.*;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"        public static enum TestEnum {\n" + 
+				"                V1,\n" + 
+				"                V2\n" + 
+				"        }\n" + 
+				"\n" + 
+				"        public void test(final TestEnum value) {\n" + 
+				"                switch (value) {\n" + 
+				"                        case V1:\n" + 
+				"                        case V2:\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"\n" + 
+				"        public void ref() {\n" + 
+				"               final TestEnum v1 = TestEnum.V1;\n" + 
+				"               final TestEnum v2 = TestEnum.V2;\n" + 
+				"				int i;\n" +
+				"				i++;\n" +
+				"        }\n" + 
+				"}", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in sample\\X.java (at line 2)\n" + 
+			"	import static sample.X.TestEnum.*;\n" + 
+			"	              ^^^^^^^^^^^^^^^^^\n" + 
+			"The import sample.X.TestEnum is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in sample\\X.java (at line 21)\n" + 
+			"	i++;\n" + 
+			"	^\n" + 
+			"The local variable i may not have been initialized\n" + 
+			"----------\n");		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165081 - variation
+	public void test049() {
+		this.runNegativeTest(
+			new String[] {
+				"sample/X.java",
+				"package sample;\n" + 
+				"import static sample.X.*;\n" + 
+				"public class X {\n" + 
+				"	public class Member {}\n" + 
+				"	public void ref() {\n" + 
+				"		int i;\n" +
+				"		i++;\n" +
+				"	}\n" + 
+				"}", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in sample\\X.java (at line 2)\n" + 
+			"	import static sample.X.*;\n" + 
+			"	              ^^^^^^^^\n" + 
+			"The import sample.X is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in sample\\X.java (at line 7)\n" + 
+			"	i++;\n" + 
+			"	^\n" + 
+			"The local variable i may not have been initialized\n" + 
+			"----------\n");		
+	}
 }

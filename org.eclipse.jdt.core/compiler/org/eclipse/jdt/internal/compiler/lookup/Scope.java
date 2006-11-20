@@ -1515,7 +1515,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 									if (unitScope.resolveSingleImport(importBinding) != null && importBinding.resolvedImport instanceof FieldBinding) {
 										foundField = (FieldBinding) importBinding.resolvedImport;
 										ImportReference importReference = importBinding.reference;
-										if (importReference != null) importReference.used = true;
+										if (importReference != null && needResolve) importReference.used = true;
 										invocationSite.setActualReceiverType(foundField.declaringClass);											
 										if (foundField.isValidBinding()) {
 											return foundField;
@@ -1541,7 +1541,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 										} else if (temp.isStatic()) {
 											if (foundField == temp) continue;
 											ImportReference importReference = importBinding.reference;
-											if (importReference != null) importReference.used = true;
+											if (importReference != null && needResolve) importReference.used = true;
 											if (foundInImport)
 												// Answer error binding -- import on demand conflict; name found in two import on demand packages.
 												return new ProblemReferenceBinding(name, null, ProblemReasons.Ambiguous);

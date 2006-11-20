@@ -156,28 +156,36 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 			ClassScope classScope = initializationScope.enclosingClassScope();
 			
 			if (classScope != null) {
-				SourceTypeBinding declaringType = classScope.enclosingSourceType();
-				boolean checkLocal = true;
-				if (declaringType.superclass != null) {
-					Binding existingVariable = classScope.findField(declaringType.superclass, this.name, this,  false /*do not resolve hidden field*/);
-					if (existingVariable != null && this.binding != existingVariable && existingVariable.isValidBinding()){
+				checkHiding: {
+					SourceTypeBinding declaringType = classScope.enclosingSourceType();
+					checkHidingSuperField: {
+						if (declaringType.superclass == null) break checkHidingSuperField;
+						Binding existingVariable = classScope.findField(declaringType.superclass, this.name, this,  false /*do not resolve hidden field*/);
+						if (existingVariable == null) break checkHidingSuperField; // keep checking outer scenario
+						if (!existingVariable.isValidBinding())  break checkHidingSuperField; // keep checking outer scenario
+						if (existingVariable instanceof FieldBinding) {
+							FieldBinding existingField = (FieldBinding) existingVariable;
+							if (existingField.original() == this.binding) break checkHidingSuperField; // keep checking outer scenario
+						}
+						// collision with supertype field
 						initializationScope.problemReporter().fieldHiding(this, existingVariable);
-						checkLocal = false; // already found a matching field
-					}
-				}
-				if (checkLocal) {
-					Scope outerScope = classScope.parent;
+						break checkHiding; // already found a matching field
+					}					
 					// only corner case is: lookup of outer field through static declaringType, which isn't detected by #getBinding as lookup starts
 					// from outer scope. Subsequent static contexts are detected for free.
-					if (outerScope.kind != Scope.COMPILATION_UNIT_SCOPE) {
-						Binding existingVariable = outerScope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
-						if (existingVariable != null && this.binding != existingVariable && existingVariable.isValidBinding()
-								&& (!(existingVariable instanceof FieldBinding)
-										|| ((FieldBinding) existingVariable).isStatic() 
-										|| !declaringType.isStatic())) {
-							initializationScope.problemReporter().fieldHiding(this, existingVariable);
-						}
+					Scope outerScope = classScope.parent;
+					if (outerScope.kind == Scope.COMPILATION_UNIT_SCOPE) break checkHiding;
+					Binding existingVariable = outerScope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
+					if (existingVariable == null) break checkHiding;
+					if (!existingVariable.isValidBinding()) break checkHiding;
+					if (existingVariable == this.binding) break checkHiding;
+					if (existingVariable instanceof FieldBinding) {
+						FieldBinding existingField = (FieldBinding) existingVariable;
+						if (existingField.original() == this.binding) break checkHiding;
+						if (!existingField.isStatic() && declaringType.isStatic()) break checkHiding;
 					}
+					// collision with outer field or local variable
+					initializationScope.problemReporter().fieldHiding(this, existingVariable);
 				}
 			}
 			
