@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -54,8 +55,6 @@ public final class ImportRewriteAnalyzer {
 	private boolean filterImplicitImports;
 	private boolean findAmbiguousImports;
 	
-	private final int spacesBetweenGroups;
-	
 	private int flags= 0;
 	
 	private static final int F_NEEDS_LEADING_DELIM= 2;
@@ -63,7 +62,7 @@ public final class ImportRewriteAnalyzer {
 	
 	private static final String JAVA_LANG= "java.lang"; //$NON-NLS-1$
 	
-	public ImportRewriteAnalyzer(ICompilationUnit cu, CompilationUnit root, String[] importOrder, int threshold, int staticThreshold, int spacesBetweenGroups, boolean restoreExistingImports) {
+	public ImportRewriteAnalyzer(ICompilationUnit cu, CompilationUnit root, String[] importOrder, int threshold, int staticThreshold, boolean restoreExistingImports) {
 		this.compilationUnit= cu;
 		this.importOnDemandThreshold= threshold;
 		this.staticImportOnDemandThreshold= staticThreshold;
@@ -75,7 +74,6 @@ public final class ImportRewriteAnalyzer {
 		this.importsCreated= new ArrayList();
 		this.staticImportsCreated= new ArrayList();
 		this.flags= 0;
-		this.spacesBetweenGroups= spacesBetweenGroups;
 		
 		this.replaceRange= evaluateReplaceRange(root);
 		if (restoreExistingImports) {
@@ -94,6 +92,17 @@ public final class ImportRewriteAnalyzer {
 		}
 		
 		addPreferenceOrderHolders(order);
+	}
+	
+	private int getSpacesBetweenImportGroups() {
+		try {
+			int num= Integer.parseInt(this.compilationUnit.getJavaProject().getOption(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, true));
+			if (num >= 0)
+				return num;
+		} catch (NumberFormatException e) {
+			// fall through
+		}
+		return 1;
 	}
 	
 	private void addPreferenceOrderHolders(PackageEntry[] preferenceOrder) {
@@ -502,6 +511,8 @@ public final class ImportRewriteAnalyzer {
 				onDemandConflicts= evaluateStarImportConflicts(monitor);
 			}
 			
+			int spacesBetweenGroups= getSpacesBetweenImportGroups();
+			
 			ArrayList stringsToInsert= new ArrayList();
 			
 			int nPackageEntries= this.packageEntries.size();
@@ -517,13 +528,14 @@ public final class ImportRewriteAnalyzer {
 					continue;
 				}
 				
-				if (this.spacesBetweenGroups > 0) {
+
+				if (spacesBetweenGroups > 0) {
 					// add a space between two different groups by looking at the two adjacent imports
 					if (lastPackage != null && !pack.isComment() && !pack.isSameGroup(lastPackage)) {
 						ImportDeclEntry last= lastPackage.getImportAt(lastPackage.getNumberOfImports() - 1);
 						ImportDeclEntry first= pack.getImportAt(0);
 						if (!lastPackage.isComment() && (last.isNew() || first.isNew())) {
-							for (int k= this.spacesBetweenGroups; k > 0; k--) {
+							for (int k= spacesBetweenGroups; k > 0; k--) {
 								stringsToInsert.add(lineDelim);
 							}
 						}

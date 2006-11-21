@@ -125,8 +125,6 @@ public final class ImportRewrite {
 	private int importOnDemandThreshold;
 	private int staticImportOnDemandThreshold;
 	
-	private int spacesBetweenGroups;
-	
 	private List addedImports;
 	private List removedImports;
 
@@ -231,8 +229,6 @@ public final class ImportRewrite {
 		this.importOrder= new String[0];
 		this.importOnDemandThreshold= 99;
 		this.staticImportOnDemandThreshold= 99;
-		
-		this.spacesBetweenGroups= 1;
 	}
 	
 	
@@ -280,22 +276,6 @@ public final class ImportRewrite {
 			throw new IllegalArgumentException("Threshold must be positive."); //$NON-NLS-1$
 		this.staticImportOnDemandThreshold= threshold;
 	}
-	
-	 /**
-	 *	Sets the number of empty lines to insert between import groups.
-	 * 
-	 * @param numberOfEmptyLines the number of empty lines to insert between import groups
-	 * @throws IllegalArgumentException a {@link IllegalArgumentException} is thrown
-	 * if the number is negative
-	 * 
-	 * @since 3.3
-     */
-	public void setEmptyLinesBetweenGroups(int numberOfEmptyLines) {
-		if (numberOfEmptyLines < 0)
-			throw new IllegalArgumentException("number of empty line must be positive."); //$NON-NLS-1$
-		this.spacesBetweenGroups= numberOfEmptyLines;
-	}
-	
 	
 	/**
 	 * The compilation unit for which this import rewrite was created for.
@@ -997,7 +977,7 @@ public final class ImportRewrite {
 				usedAstRoot= (CompilationUnit) parser.createAST(new SubProgressMonitor(monitor, 1));
 			}
 						
-			ImportRewriteAnalyzer computer= new ImportRewriteAnalyzer(this.compilationUnit, usedAstRoot, this.importOrder, this.importOnDemandThreshold, this.staticImportOnDemandThreshold, this.spacesBetweenGroups, this.restoreExistingImports);
+			ImportRewriteAnalyzer computer= new ImportRewriteAnalyzer(this.compilationUnit, usedAstRoot, this.importOrder, this.importOnDemandThreshold, this.staticImportOnDemandThreshold, this.restoreExistingImports);
 			computer.setFilterImplicitImports(this.filterImplicitImports);
 			
 			if (this.addedImports != null) {
