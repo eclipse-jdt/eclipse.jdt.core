@@ -567,10 +567,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5)
 			return Binding.NO_TYPE_VARIABLES;
 
-		TypeVariableBinding[] typeVariableBindings = Binding.NO_TYPE_VARIABLES;
 		PackageBinding unitPackage = compilationUnitScope().fPackage;
 		int length = typeParameters.length;
-		typeVariableBindings = new TypeVariableBinding[length];
+		TypeVariableBinding[] typeVariableBindings = new TypeVariableBinding[length];
 		int count = 0;
 		for (int i = 0; i < length; i++) {
 			TypeParameter typeParameter = typeParameters[i];
