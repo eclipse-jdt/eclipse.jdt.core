@@ -237,6 +237,8 @@ public class SwitchStatement extends Statement {
 			// place the trailing labels (for break and default case)
 			this.breakLabel.place();
 			if (defaultCase == null) {
+				// we want to force an line number entry to get an end position after the switch statement
+				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd, true);
 				defaultLabel.place();
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);

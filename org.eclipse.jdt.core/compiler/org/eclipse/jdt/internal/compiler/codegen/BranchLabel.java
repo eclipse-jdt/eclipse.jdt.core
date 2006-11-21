@@ -213,12 +213,8 @@ public void place() { // Currently lacking wide support.
 						}
 				*/
 				// Beginning of new code
-				int index = this.codeStream.pcToSourceMapSize - 2;
 				if (this.codeStream.lastEntryPC == oldPosition) {
 					this.codeStream.lastEntryPC = this.position;
-				}
-				if ((index >= 0) && (this.codeStream.pcToSourceMap[index] == this.position)) {
-					this.codeStream.pcToSourceMapSize-=2;
 				}
 				// end of new code
 				if ((this.codeStream.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP)) != 0) {

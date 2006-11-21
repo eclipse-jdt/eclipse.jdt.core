@@ -329,6 +329,7 @@ public void test012() {
 		"        [pc: 4, line: 6]\n" + 
 		"        [pc: 28, line: 8]\n" + 
 		"        [pc: 31, line: 10]\n" + 
+		"        [pc: 33, line: 12]\n" + 
 		"        [pc: 36, line: 13]\n" + 
 		"        [pc: 37, line: 15]\n" + 
 		"        [pc: 45, line: 16]\n" + 

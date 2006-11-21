@@ -652,7 +652,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 2, line: 5]\n" + 
 				"        [pc: 15, line: 6]\n" + 
 				"        [pc: 19, line: 8]\n" + 
-				"        [pc: 21, line: 11]\n" + 
+				"        [pc: 21, line: 9]\n" + 
+				"        [pc: 22, line: 11]\n" + 
 				"        [pc: 25, line: 12]\n" + 
 				"        [pc: 28, line: 13]\n" + 
 				"        [pc: 32, line: 14]\n" + 

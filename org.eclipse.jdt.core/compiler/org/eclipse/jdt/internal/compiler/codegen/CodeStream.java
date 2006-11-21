@@ -5735,6 +5735,9 @@ public void recordExpressionType(TypeBinding typeBinding) {
 	// nothing to do
 }
 public void recordPositionsFrom(int startPC, int sourcePos) {
+	this.recordPositionsFrom(startPC, sourcePos, false);
+}
+public void recordPositionsFrom(int startPC, int sourcePos, boolean widen) {
 
 	/* Record positions in the table, only if nothing has 
 	 * already been recorded. Since we output them on the way 
@@ -5742,13 +5745,9 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 	 * The pcToSourceMap table is always sorted.
 	 */
 
-	if ((this.generateAttributes & ClassFileConstants.ATTR_LINES) == 0)
-		return;
-	if (sourcePos == 0)
-		return;
-
-	// no code generated for this node. e.g. field without any initialization
-	if (position == startPC)
+	if ((this.generateAttributes & ClassFileConstants.ATTR_LINES) == 0
+			|| sourcePos == 0
+			|| (startPC == position && !widen))
 		return;
 
 	// Widening an existing entry that already has the same source positions
@@ -5761,7 +5760,7 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 	if (pcToSourceMapSize > 0) {
 		// in this case there is already an entry in the table
 		if (pcToSourceMap[pcToSourceMapSize - 1] != lineNumber) {
-			if (startPC < lastEntryPC) {
+			if (startPC <= lastEntryPC) {
 				// we forgot to add an entry.
 				// search if an existing entry exists for startPC
 				int insertionIndex = insertionIndex(pcToSourceMap, pcToSourceMapSize, startPC);
@@ -5789,8 +5788,15 @@ public void recordPositionsFrom(int startPC, int sourcePos) {
 						pcToSourceMapSize += 2;
 					}
 				} else if (position != lastEntryPC) { // no bytecode since last entry pc
-					pcToSourceMap[pcToSourceMapSize++] = lastEntryPC;
-					pcToSourceMap[pcToSourceMapSize++] = lineNumber;
+					if (lastEntryPC == startPC || lastEntryPC == pcToSourceMap[pcToSourceMapSize - 2]) {
+						pcToSourceMap[pcToSourceMapSize - 1] = lineNumber;
+					} else {
+						pcToSourceMap[pcToSourceMapSize++] = lastEntryPC;
+						pcToSourceMap[pcToSourceMapSize++] = lineNumber;
+					}
+				} else if (pcToSourceMap[pcToSourceMapSize - 1] < lineNumber && widen) {
+					// see if we can widen the existing entry
+					pcToSourceMap[pcToSourceMapSize - 1] = lineNumber;
 				}
 			} else {
 				// we can safely add the new entry. The endPC of the previous entry is not in conflit with the startPC of the new entry.

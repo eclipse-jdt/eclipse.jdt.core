@@ -3234,6 +3234,7 @@ public void test048() {
 			"        [pc: 0, line: 50]\n" + 
 			"        [pc: 7, line: 51]\n" + 
 			"        [pc: 28, line: 52]\n" + 
+			"        [pc: 29, line: 53]\n" + 
 			"        [pc: 32, line: 56]\n" + 
 			"        [pc: 37, line: 58]\n" + 
 			"      Local variable table:\n" + 
@@ -3391,6 +3392,7 @@ public void test048() {
 			"        [pc: 0, line: 50]\n" + 
 			"        [pc: 7, line: 51]\n" + 
 			"        [pc: 28, line: 52]\n" + 
+			"        [pc: 29, line: 53]\n" + 
 			"        [pc: 32, line: 56]\n" + 
 			"        [pc: 37, line: 58]\n" + 
 			"      Local variable table:\n" + 
@@ -3627,6 +3629,7 @@ public void test049() {
 			"        [pc: 0, line: 46]\n" + 
 			"        [pc: 7, line: 47]\n" + 
 			"        [pc: 28, line: 48]\n" + 
+			"        [pc: 36, line: 49]\n" + 
 			"        [pc: 39, line: 52]\n" + 
 			"        [pc: 44, line: 54]\n" + 
 			"      Local variable table:\n" + 
@@ -3795,6 +3798,7 @@ public void test049() {
 			"        [pc: 0, line: 46]\n" + 
 			"        [pc: 7, line: 47]\n" + 
 			"        [pc: 28, line: 48]\n" + 
+			"        [pc: 36, line: 49]\n" + 
 			"        [pc: 39, line: 52]\n" + 
 			"        [pc: 44, line: 54]\n" + 
 			"      Local variable table:\n" + 
@@ -3861,7 +3865,7 @@ public void test050() {
 				"			}\n" + 
 				"		} catch (Exception e) {\n" + 
 				"		}\n" + 
-				"	}		\n" + 
+				"	}\n" + 
 				"	void bar() {\n" + 
 				"		check: if (bool()) {\n" + 
 				"			if (bool())\n" + 
@@ -4001,6 +4005,7 @@ public void test050() {
 			"        [pc: 0, line: 46]\n" + 
 			"        [pc: 7, line: 47]\n" + 
 			"        [pc: 28, line: 48]\n" + 
+			"        [pc: 31, line: 49]\n" + 
 			"        [pc: 34, line: 52]\n" + 
 			"        [pc: 39, line: 54]\n" + 
 			"      Local variable table:\n" + 
@@ -4139,6 +4144,7 @@ public void test050() {
 			"        [pc: 0, line: 46]\n" + 
 			"        [pc: 7, line: 47]\n" + 
 			"        [pc: 28, line: 48]\n" + 
+			"        [pc: 31, line: 49]\n" + 
 			"        [pc: 34, line: 52]\n" + 
 			"        [pc: 39, line: 54]\n" + 
 			"      Local variable table:\n" + 
@@ -4217,6 +4223,7 @@ public void test051() {
 			"        [pc: 2, line: 8]\n" + 
 			"        [pc: 4, line: 9]\n" + 
 			"        [pc: 7, line: 10]\n" + 
+			"        [pc: 16, line: 11]\n" + 
 			"        [pc: 19, line: 13]\n" + 
 			"        [pc: 20, line: 15]\n" + 
 			"      Local variable table:\n" + 
@@ -4246,6 +4253,7 @@ public void test051() {
 			"        [pc: 2, line: 8]\n" + 
 			"        [pc: 4, line: 9]\n" + 
 			"        [pc: 7, line: 10]\n" + 
+			"        [pc: 16, line: 11]\n" + 
 			"        [pc: 19, line: 13]\n" + 
 			"        [pc: 20, line: 15]\n" + 
 			"      Local variable table:\n" + 
