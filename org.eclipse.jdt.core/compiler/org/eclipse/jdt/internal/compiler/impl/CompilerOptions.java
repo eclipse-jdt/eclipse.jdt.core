@@ -832,18 +832,30 @@ public class CompilerOptions {
 		}
 	}				
 	public static long versionToJdkLevel(Object versionID) {
-		if (VERSION_1_1.equals(versionID)) {
-			return ClassFileConstants.JDK1_1;
-		} else if (VERSION_1_2.equals(versionID)) {
-			return ClassFileConstants.JDK1_2;
-		} else if (VERSION_1_3.equals(versionID)) {
-			return ClassFileConstants.JDK1_3;
-		} else if (VERSION_1_4.equals(versionID) || VERSION_JSR14.equals(versionID)) {
-			return ClassFileConstants.JDK1_4;
-		} else if (VERSION_1_5.equals(versionID)) {
-			return ClassFileConstants.JDK1_5;
-		} else if (VERSION_1_6.equals(versionID)) {
-			return ClassFileConstants.JDK1_6;
+		if (versionID instanceof String) {
+			String version = (String) versionID;
+			// verification is optimized for all versions with same length and same "1." prefix
+			if (version.length() == 3 && version.charAt(0) == '1' && version.charAt(1) == '.') {
+				switch (version.charAt(2)) {
+					case '1':
+						return ClassFileConstants.JDK1_1;
+					case '2':
+						return ClassFileConstants.JDK1_2;
+					case '3':
+						return ClassFileConstants.JDK1_3;
+					case '4':
+						return ClassFileConstants.JDK1_4;
+					case '5':
+						return ClassFileConstants.JDK1_5;
+					case '6':
+						return ClassFileConstants.JDK1_6;
+					default:
+						return 0; // unknown
+				}
+			}
+			if (VERSION_JSR14.equals(versionID)) {
+				return ClassFileConstants.JDK1_4;
+			}
 		}
 		return 0; // unknown
 	}

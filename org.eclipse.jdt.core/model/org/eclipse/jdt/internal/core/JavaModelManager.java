@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
@@ -329,7 +330,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		 */
 		private int indexForSourceLevel(String sourceLevel) {
 			if (sourceLevel == null) return 0;
-			return sourceLevel.charAt(2) - 49;
+			int majVersion = (int) (CompilerOptions.versionToJdkLevel(sourceLevel) >>> 16);
+			switch (majVersion) {
+				case ClassFileConstants.MAJOR_VERSION_1_2:
+					return 1;
+				case ClassFileConstants.MAJOR_VERSION_1_3:
+					return 2;
+				case ClassFileConstants.MAJOR_VERSION_1_4:
+					return 3;
+				case ClassFileConstants.MAJOR_VERSION_1_5:
+					return 4;
+				case ClassFileConstants.MAJOR_VERSION_1_6:
+					return 5;
+				default:
+					// all other cases including ClassFileConstants.MAJOR_VERSION_1_1
+					return 0;
+			}
 		}
 		
 		private int sortParticipants(ArrayList group, IConfigurationElement[] configElements, int index) {

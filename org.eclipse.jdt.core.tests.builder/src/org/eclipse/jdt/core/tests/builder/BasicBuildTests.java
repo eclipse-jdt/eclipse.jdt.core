@@ -19,6 +19,7 @@ import junit.framework.*;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -399,6 +400,20 @@ public class BasicBuildTests extends BuilderTests {
 			"}" //$NON-NLS-1$
 		);
 			
+		fullBuild(projectPath);
+		expectingNoProblems();
+	}
+
+	/**
+	 * @bug 164707: ArrayIndexOutOfBoundsException in JavaModelManager if source level == 6.0
+	 * @test Ensure that AIIOB does not longer happen with invalid source level string
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=164707"
+	 */
+	public void testBug164707() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		IJavaProject javaProject = env.getJavaProject(projectPath); 
+		javaProject.setOption(JavaCore.COMPILER_SOURCE, "invalid");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 		expectingNoProblems();
 	}
