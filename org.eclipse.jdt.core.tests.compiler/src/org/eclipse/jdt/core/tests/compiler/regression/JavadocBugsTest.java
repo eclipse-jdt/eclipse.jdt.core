@@ -2901,7 +2901,7 @@ public class JavadocBugsTest extends JavadocTest {
 
 	/**
 	 * @bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
-	 * @test Ensure that reference in tag {@value} is only verified when source level >= 1.5
+	 * @test Ensure that reference in tag 'value' is only verified when source level >= 1.5
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892"
 	 */
 	public void testBug70892a() {
@@ -4873,7 +4873,7 @@ public class JavadocBugsTest extends JavadocTest {
 
 	/**
 	 * @bug 153399: [javadoc] JDT Core should warn if the @value tag is not used correctly
-	 * @test Ensure that {@value} tag is well warned when not used correctly
+	 * @test Ensure that 'value' tag is well warned when not used correctly
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=153399"
 	 */
 	public void testBug153399a() {

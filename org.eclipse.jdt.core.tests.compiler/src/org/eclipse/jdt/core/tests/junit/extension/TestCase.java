@@ -43,11 +43,11 @@ public class TestCase extends PerformanceTestCase {
 	 * <br>
 	 * User may use following different values:
 	 * 	<ul>
-	 *			<li>{@value #NO_ORDER}: none (this is the default)</li>
-	 *			<li>{@value #ALPHABETICAL_SORT}: alphabetical order (ie. ascending)</li>
-	 *			<li>{@value #ALPHA_REVERSE_SORT}: alpha reverse order (ie. descending )</li>
-	 *			<li>{@value #RANDOM_ORDER_JDT}: random order using JDT/Core current version as seed</li>
-	 *			<li>{@value #RANDOM_TIME_SORT}: random order using current time as seed (used time value is displayed in console)</li>
+	 *			<li>{@link #NO_ORDER}: none (this is the default)</li>
+	 *			<li>{@link #ALPHABETICAL_SORT}: alphabetical order (ie. ascending)</li>
+	 *			<li>{@link #ALPHA_REVERSE_SORT}: alpha reverse order (ie. descending )</li>
+	 *			<li>{@link #RANDOM_ORDER_JDT}: random order using JDT/Core current version as seed</li>
+	 *			<li>{@link #RANDOM_ORDER_TIME}: random order using current time as seed (used time value is displayed in console)</li>
 	 *			<li>other values: random order using given <code>long</code> value as seed</li>
 	 * 	</ul>
 	 * This value is initialized with <code>"ordering"</code> system property.
