@@ -19,6 +19,7 @@ import java.util.Set;
 
 import junit.framework.Test;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IClassFile;
@@ -110,7 +111,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 658 };
+//		TESTS_NUMBERS =  new int[] { 659 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8255,5 +8256,43 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			"Syntax error on token(s), misplaced construct(s)\n" + 
 			"Syntax error, insert \";\" to complete Statement";
 		assertProblemsSize(unit, 4, errors);
+	}
+	
+	public void test0659() throws CoreException, JavaModelException {
+		IJavaProject javaProject = createJavaProject("P659", new String[] { "src" }, new String[0], "bin");
+		try {
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+			parser.setStatementsRecovery(true);
+			String source ="package java.lang;\n" + 
+					"public class Object {\n" + 
+					"        public String toString() {\n" + 
+					"                return \"\";\n" + 
+					"        }\n" + 
+					"}";
+			parser.setSource(source.toCharArray());
+			parser.setProject(javaProject);
+			parser.setResolveBindings(true);
+			parser.setUnitName("Object.java");
+			ASTNode result = parser.createAST (null);
+			assertNotNull("no result", result);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
+			CompilationUnit unit = (CompilationUnit) result;
+			ASTNode node = getASTNode(unit, 0, 0);
+			assertNotNull("No node", node);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration declaration = (MethodDeclaration) node;
+			Block block = declaration.getBody();
+			assertNotNull("no block", block);
+			List statements = block.statements();
+			assertEquals("Wrong size", 1, statements.size());
+			ReturnStatement returnStatement = (ReturnStatement) statements.get(0);
+			Expression expression = returnStatement.getExpression();
+			assertNotNull("No expression", expression);
+			ITypeBinding binding = expression.resolveTypeBinding();
+			assertNull("No binding", binding);
+		} finally {
+			deleteProject("P659");
+		}
 	}
 }

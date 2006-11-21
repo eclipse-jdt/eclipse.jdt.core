@@ -473,77 +473,82 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Method declared on BindingResolver.
 	 */
 	synchronized ITypeBinding resolveExpressionType(Expression expression) {
-		switch(expression.getNodeType()) {
-			case ASTNode.CLASS_INSTANCE_CREATION : 
-				org.eclipse.jdt.internal.compiler.ast.ASTNode astNode = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-				if (astNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
-					// anonymous type case
-					org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) astNode;
-					ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
-					if (typeBinding == null) {
-						return null;
+		try {
+			switch(expression.getNodeType()) {
+				case ASTNode.CLASS_INSTANCE_CREATION : 
+					org.eclipse.jdt.internal.compiler.ast.ASTNode astNode = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
+					if (astNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
+						// anonymous type case
+						org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) astNode;
+						ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
+						if (typeBinding != null) {
+							return typeBinding;
+						}
+					} else {
+						// should be an AllocationExpression
+						AllocationExpression allocationExpression = (AllocationExpression) astNode;
+						return this.getTypeBinding(allocationExpression.resolvedType);
 					}
-					return typeBinding;
-				} else {
-					// should be an AllocationExpression
-					AllocationExpression allocationExpression = (AllocationExpression) astNode;
-					return this.getTypeBinding(allocationExpression.resolvedType);
-				}
-			case ASTNode.SIMPLE_NAME :
-			case ASTNode.QUALIFIED_NAME :
-				return this.resolveTypeBindingForName((Name) expression);
-			case ASTNode.ARRAY_INITIALIZER :
-			case ASTNode.ARRAY_CREATION :
-			case ASTNode.ASSIGNMENT :				
-			case ASTNode.POSTFIX_EXPRESSION : 
-			case ASTNode.PREFIX_EXPRESSION :
-			case ASTNode.CAST_EXPRESSION :
-			case ASTNode.TYPE_LITERAL :
-			case ASTNode.INFIX_EXPRESSION :
-			case ASTNode.INSTANCEOF_EXPRESSION :
-			case ASTNode.FIELD_ACCESS :
-			case ASTNode.SUPER_FIELD_ACCESS :
-			case ASTNode.ARRAY_ACCESS :
-			case ASTNode.METHOD_INVOCATION :
-			case ASTNode.SUPER_METHOD_INVOCATION :
-			case ASTNode.CONDITIONAL_EXPRESSION : 
-			case ASTNode.MARKER_ANNOTATION : 
-			case ASTNode.NORMAL_ANNOTATION :
-			case ASTNode.SINGLE_MEMBER_ANNOTATION :
-				org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) this.newAstToOldAst.get(expression);
-				if (compilerExpression == null) {
-					return null;
-				}
-				return this.getTypeBinding(compilerExpression.resolvedType);
-			case ASTNode.STRING_LITERAL :
-				if (this.scope == null) return null;
-				return this.getTypeBinding(this.scope.getJavaLangString());
-			case ASTNode.BOOLEAN_LITERAL :
-			case ASTNode.NULL_LITERAL : 
-			case ASTNode.CHARACTER_LITERAL :
-			case ASTNode.NUMBER_LITERAL :
-				Literal literal = (Literal) this.newAstToOldAst.get(expression);
-				return this.getTypeBinding(literal.literalType(null));
-			case ASTNode.THIS_EXPRESSION :
-				ThisReference thisReference = (ThisReference) this.newAstToOldAst.get(expression);
-				BlockScope blockScope = (BlockScope) this.astNodesToBlockScope.get(expression);
-				if (blockScope == null) {
-					return null;
-				}
-				return this.getTypeBinding(thisReference.resolveType(blockScope));
-			case ASTNode.PARENTHESIZED_EXPRESSION :
-				ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression;
-				return this.resolveExpressionType(parenthesizedExpression.getExpression());
-			case ASTNode.VARIABLE_DECLARATION_EXPRESSION :
-				VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
-				Type type = variableDeclarationExpression.getType();
-				if (type != null) {
-					return type.resolveBinding();
-				}
-				return null;
-			default: 
-				return null;
+					break;
+				case ASTNode.SIMPLE_NAME :
+				case ASTNode.QUALIFIED_NAME :
+					return this.resolveTypeBindingForName((Name) expression);
+				case ASTNode.ARRAY_INITIALIZER :
+				case ASTNode.ARRAY_CREATION :
+				case ASTNode.ASSIGNMENT :				
+				case ASTNode.POSTFIX_EXPRESSION : 
+				case ASTNode.PREFIX_EXPRESSION :
+				case ASTNode.CAST_EXPRESSION :
+				case ASTNode.TYPE_LITERAL :
+				case ASTNode.INFIX_EXPRESSION :
+				case ASTNode.INSTANCEOF_EXPRESSION :
+				case ASTNode.FIELD_ACCESS :
+				case ASTNode.SUPER_FIELD_ACCESS :
+				case ASTNode.ARRAY_ACCESS :
+				case ASTNode.METHOD_INVOCATION :
+				case ASTNode.SUPER_METHOD_INVOCATION :
+				case ASTNode.CONDITIONAL_EXPRESSION : 
+				case ASTNode.MARKER_ANNOTATION : 
+				case ASTNode.NORMAL_ANNOTATION :
+				case ASTNode.SINGLE_MEMBER_ANNOTATION :
+					org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) this.newAstToOldAst.get(expression);
+					if (compilerExpression != null) {
+						return this.getTypeBinding(compilerExpression.resolvedType);
+					}
+					break;
+				case ASTNode.STRING_LITERAL :
+					if (this.scope != null) {
+						return this.getTypeBinding(this.scope.getJavaLangString());
+					}
+					break;
+				case ASTNode.BOOLEAN_LITERAL :
+				case ASTNode.NULL_LITERAL : 
+				case ASTNode.CHARACTER_LITERAL :
+				case ASTNode.NUMBER_LITERAL :
+					Literal literal = (Literal) this.newAstToOldAst.get(expression);
+					return this.getTypeBinding(literal.literalType(null));
+				case ASTNode.THIS_EXPRESSION :
+					ThisReference thisReference = (ThisReference) this.newAstToOldAst.get(expression);
+					BlockScope blockScope = (BlockScope) this.astNodesToBlockScope.get(expression);
+					if (blockScope != null) {
+						return this.getTypeBinding(thisReference.resolveType(blockScope));
+					}
+					break;
+				case ASTNode.PARENTHESIZED_EXPRESSION :
+					ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression;
+					return this.resolveExpressionType(parenthesizedExpression.getExpression());
+				case ASTNode.VARIABLE_DECLARATION_EXPRESSION :
+					VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expression;
+					Type type = variableDeclarationExpression.getType();
+					if (type != null) {
+						return type.resolveBinding();
+					}
+					break;
+			}
+		} catch (AbortCompilation e) {
+			// handle missing types
 		}
+		return null;
 	}
 
 	/*
