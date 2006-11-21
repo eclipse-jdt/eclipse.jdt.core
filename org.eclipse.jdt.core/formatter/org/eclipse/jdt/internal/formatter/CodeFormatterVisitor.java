@@ -2950,9 +2950,17 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				}
 			}
 			int importLength = imports.length;
-			for (int i = 0; i < importLength; i++) {
-				imports[i].traverse(this, scope);
-			}			
+			if (importLength != 1) {
+				imports[0].traverse(this, scope);
+				int savedNumberOfLineToPreserve = this.preferences.number_of_empty_lines_to_preserve;
+				this.preferences.number_of_empty_lines_to_preserve = this.preferences.blank_lines_between_import_groups;
+    			for (int i = 1; i < importLength; i++) {
+    				imports[i].traverse(this, scope);
+    			}
+    			this.preferences.number_of_empty_lines_to_preserve = savedNumberOfLineToPreserve;
+			} else {
+				imports[0].traverse(this, scope);
+			}
 			
 			int blankLinesAfterImports = this.preferences.blank_lines_after_imports;
 			if (blankLinesAfterImports > 0) {

@@ -92,6 +92,7 @@ public class DefaultCodeFormatterOptions {
 	public int blank_lines_before_method;
 	public int blank_lines_before_new_chunk;
 	public int blank_lines_before_package;
+	public int blank_lines_between_import_groups;
 	public int blank_lines_between_type_declarations;
 	public int blank_lines_at_beginning_of_method_body;
 	
@@ -373,6 +374,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD, Integer.toString(this.blank_lines_before_method));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_NEW_CHUNK, Integer.toString(this.blank_lines_before_new_chunk));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_PACKAGE, Integer.toString(this.blank_lines_before_package));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, Integer.toString(this.blank_lines_between_import_groups));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS, Integer.toString(this.blank_lines_between_type_declarations));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AT_BEGINNING_OF_METHOD_BODY, Integer.toString(this.blank_lines_at_beginning_of_method_body));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BLOCK, this.indent_statements_compare_to_block ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -981,6 +983,16 @@ public class DefaultCodeFormatterOptions {
 				this.blank_lines_before_package = 0;
 			} catch(ClassCastException e) {
 				this.blank_lines_before_package = 0;
+			}
+		}
+		final Object blankLinesBetweenImportGroupsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS);
+		if (blankLinesBetweenImportGroupsOption != null) {
+			try {
+				this.blank_lines_between_import_groups = Integer.parseInt((String) blankLinesBetweenImportGroupsOption);
+			} catch (NumberFormatException e) {
+				this.blank_lines_between_import_groups = 1;
+			} catch(ClassCastException e) {
+				this.blank_lines_between_import_groups = 1;
 			}
 		}
 		final Object blankLinesBetweenTypeDeclarationsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS);
@@ -1903,6 +1915,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_before_method = 0;
 		this.blank_lines_before_new_chunk = 0;
 		this.blank_lines_before_package = 0;
+		this.blank_lines_between_import_groups = 1;
 		this.blank_lines_between_type_declarations = 0;
 		this.blank_lines_at_beginning_of_method_body = 0;
 		this.indent_statements_compare_to_block = true;
@@ -2158,6 +2171,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_before_method = 1;
 		this.blank_lines_before_new_chunk = 1;
 		this.blank_lines_before_package = 0;
+		this.blank_lines_between_import_groups = 1;
 		this.blank_lines_between_type_declarations = 1;
 		this.blank_lines_at_beginning_of_method_body = 0;
 		this.indent_statements_compare_to_block = true;
