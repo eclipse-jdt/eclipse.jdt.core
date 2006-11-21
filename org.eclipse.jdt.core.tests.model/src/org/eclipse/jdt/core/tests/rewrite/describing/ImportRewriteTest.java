@@ -70,6 +70,9 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		proj.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, String.valueOf(99));
+		
+		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, String.valueOf(1));
+
 
 		this.sourceFolder = this.getPackageFragmentRoot("P", "src");
 		
@@ -130,6 +133,8 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	
 	public void testAddImportsNoEmptyLines() throws Exception {
 
+		sourceFolder.getJavaProject().setOption(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, String.valueOf(0));
+
 		IPackageFragment pack1= sourceFolder.createPackageFragment("pack1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package pack1;\n");
@@ -143,7 +148,6 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		String[] order= new String[] { "java.util", "java.new", "p" };
 		
 		ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
-		imports.setEmptyLinesBetweenGroups(0);
 		
 		imports.addImport("java.net.Socket");
 		imports.addImport("p.A");
@@ -163,6 +167,8 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 	
 	public void testAddImportsMoreEmptyLines() throws Exception {
+		
+		sourceFolder.getJavaProject().setOption(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, String.valueOf(2));
 
 		IPackageFragment pack1= sourceFolder.createPackageFragment("pack1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -177,7 +183,6 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		String[] order= new String[] { "java.util", "java.new", "p" };
 		
 		ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
-		imports.setEmptyLinesBetweenGroups(2);
 		
 		imports.addImport("java.net.Socket");
 		imports.addImport("p.A");
