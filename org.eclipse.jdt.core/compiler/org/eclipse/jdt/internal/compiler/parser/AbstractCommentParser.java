@@ -221,9 +221,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									// for DOM AST node, store tag as text in case of invalid syntax
 									if (isDomParser) {
 										createTag();
-										this.textStart = this.tagSourceEnd+1;
-										invalidTagLineEnd  = this.lineEnd;
 									}
+									this.textStart = this.tagSourceEnd+1;
+									invalidTagLineEnd  = this.lineEnd;
 								}
 							} catch (InvalidInputException e) {
 								consumeToken();

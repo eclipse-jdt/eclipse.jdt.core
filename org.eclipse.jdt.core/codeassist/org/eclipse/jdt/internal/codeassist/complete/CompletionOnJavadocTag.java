@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -22,9 +23,10 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 	public final static char[][][] NO_CHAR_CHAR_CHAR = new char[0][][];
 	private char[][][] possibleTags = NO_CHAR_CHAR_CHAR;
 
-	public CompletionOnJavadocTag(char[] source, long pos, int tagStart, int tagEnd, char[][][] possibleTags) {
+	public CompletionOnJavadocTag(char[] source, long pos, int tagStart, int tagEnd, char[][][] possibleTags, boolean orphan) {
 		super(source, pos, tagStart, tagEnd);
 		this.possibleTags = possibleTags;
+		if (orphan) this.completionFlags |= ALL_POSSIBLE_TAGS;
 	}
 
 	/**
@@ -80,12 +82,13 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 	}
 
 	public void filterPossibleTags(Scope scope) {
-		if (this.possibleTags == null || this.possibleTags.length == 0) {
+		if (this.possibleTags == null || this.possibleTags.length == 0 || (this.completionFlags & ALL_POSSIBLE_TAGS) != 0) {
 			return;
 		}
 		int kind = scope.kind;
 		char[][] specifiedTags = null;
 		switch (kind) {
+			case Scope.COMPILATION_UNIT_SCOPE:
 			case Scope.CLASS_SCOPE:
 				specifiedTags = CLASS_TAGS;
 				break;
@@ -114,9 +117,23 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 				char[] possibleTag = this.possibleTags[k][i];
 				for (int j=0; j<specLenth; j++) {
 					if (possibleTag[0] == specifiedTags[j][0] && CharOperation.equals(possibleTag, specifiedTags[j])) {
-						if (scope.kind == Scope.CLASS_SCOPE && possibleTag == TAG_PARAM) {
-							if (((ClassScope)scope).referenceContext.binding.isGenericType()) {
-								filteredTags[size++] = possibleTag;
+						if (possibleTag == TAG_PARAM) {
+							switch (scope.kind) {
+								case Scope.CLASS_SCOPE:
+									if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+										if (((ClassScope)scope).referenceContext.binding.isGenericType()) {
+											filteredTags[size++] = possibleTag;
+										}
+									}
+									break;
+								case Scope.COMPILATION_UNIT_SCOPE:
+									if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+										filteredTags[size++] = possibleTag;
+									}
+									break;
+								default:
+									filteredTags[size++] = possibleTag;
+									break;
 							}
 						} else {
 							filteredTags[size++] = possibleTag;

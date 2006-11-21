@@ -807,7 +807,7 @@ public void testBug139621a() throws JavaModelException {
 		"package bugs.b139621;\n" + 
 		"public class BasicTestBugs {\n" + 
 		"	/**\n" + 
-		"	 * This method returns an object\n" + 
+		"	 * Test with only an orphan comment in type declaration\n" + 
 		"	 * @see Obj\n" + 
 		"	 */\n" + 
 		"}\n";
@@ -820,10 +820,81 @@ public void testBug139621b() throws JavaModelException {
 	String source =
 		"package bugs.b139621;\n" + 
 		"/**\n" + 
-		" * This method returns an object\n" + 
+		" * Test with an existing javadoc type declaration\n" + 
 		" * @see Test\n" + 
 		" */\n" + 
 		"public class BasicTestBugs {\n" + 
+		"	/**\n" + 
+		"	 * Test with only an orphan comment in type declaration\n" + 
+		"	 * @see Obj\n" + 
+		"	 */\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
+	assertSortedResults(
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNR+"}"
+	);
+}
+public void testBug139621c() throws JavaModelException {
+	String source =
+		"package bugs.b139621;\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	/**\n" + 
+		"	 * Test with only an orphan comment in type declaration\n" +
+		"	 * (completion for tags)\n" + 
+		"	 * @\n" + 
+		"	 */\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "@");
+	assertSortedResults(
+		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"exception[JAVADOC_BLOCK_TAG]{@exception, null, null, exception, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"param[JAVADOC_BLOCK_TAG]{@param, null, null, param, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"return[JAVADOC_BLOCK_TAG]{@return, null, null, return, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"serialData[JAVADOC_BLOCK_TAG]{@serialData, null, null, serialData, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"throws[JAVADOC_BLOCK_TAG]{@throws, null, null, throws, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"version[JAVADOC_BLOCK_TAG]{@version, null, null, version, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+	);
+}
+public void testBug139621d() throws JavaModelException {
+	String source =
+		"package bugs.b139621;\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	/**\n" + 
+		"	 * Test with only an orphan comment in type declaration\n" +
+		"	 * (variation of completion for tags but considered in text as it's in fact tag start character is after a reference )\n" + 
+		"	 * @see Object" + // missing \n
+		"	 * @\n" + 
+		"	 */\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "@", 2);
+	assertSortedResults(
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+	);
+}
+public void testBug139621e() throws JavaModelException {
+	String source =
+		"package bugs.b139621;\n" + 
+		"/**\n" + 
+		" * Test with orphan comment after a method declaration\n" + 
+		" * @see Test\n" + 
+		" */\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	public void foo() {}\n" +
 		"	/**\n" + 
 		"	 * This method returns an object\n" + 
 		"	 * @see Obj\n" + 
@@ -832,6 +903,77 @@ public void testBug139621b() throws JavaModelException {
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
 		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNR+"}"
+	);
+}
+public void testBug139621f() throws JavaModelException {
+	String source =
+		"package bugs.b139621;\n" + 
+		"/**\n" + 
+		" * Test with orphan comment after a field declaration\n" + 
+		" * @see Test\n" + 
+		" */\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	public int x;\n" +
+		"	/**\n" + 
+		"	 * This method returns an object\n" + 
+		"	 * @see Obj\n" + 
+		"	 */\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
+	assertSortedResults(
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNR+"}"
+	);
+}
+public void testBug139621g() throws JavaModelException {
+	String source =
+		"package bugs.b139621;\n" + 
+		"/**\n" + 
+		" * Compilation unit without any type\n" + 
+		" * @see Obj\n" + 
+		" */\n";
+	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
+	assertSortedResults(
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNR+"}"
+	);
+}
+public void testBug139621h() throws JavaModelException {
+	String source =
+		"package bugs.b139621;\n" + 
+		"/**\n" + 
+		" * Compilation unit without any type\n" + 
+		" * (completion for tags)\n" + 
+		" * @\n" + 
+		" */\n";
+	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "@");
+	assertSortedResults(
+		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"version[JAVADOC_BLOCK_TAG]{@version, null, null, version, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+	);
+}
+public void testBug139621i() throws JavaModelException {
+	String source =
+		"package bugs.b139621;\n" + 
+		"/**\n" + 
+		" * Compilation unit without any type\n" + 
+		" * (variation of completion for tags but considered in text as it's in fact tag start character is after a reference )\n" + 
+		" * @see Object The root class" +  // missing \n
+		" * @\n" + 
+		" */\n";
+	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "@", 2);
+	assertSortedResults(
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 

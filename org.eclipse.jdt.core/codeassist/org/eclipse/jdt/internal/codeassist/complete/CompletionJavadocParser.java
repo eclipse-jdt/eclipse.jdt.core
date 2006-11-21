@@ -51,6 +51,7 @@ public class CompletionJavadocParser extends JavadocParser {
 	int cursorLocation;
 	CompletionOnJavadoc completionNode = null;
 	boolean pushText = false;
+	boolean allPossibleTags = false;
 
 	public CompletionJavadocParser(CompletionParser sourceParser) {
 		super(sourceParser);
@@ -557,7 +558,7 @@ public class CompletionJavadocParser extends JavadocParser {
 			System.arraycopy(this.source, this.tagSourceStart, tag, 0, length);
 			char[][][] tags = possibleTags(tag, newLine);
 			if (tags != null) {
-				this.completionNode = new CompletionOnJavadocTag(tag, position, startPosition, end, tags);
+				this.completionNode = new CompletionOnJavadocTag(tag, position, startPosition, end, tags, this.allPossibleTags);
 			}
 		}
 		return valid;

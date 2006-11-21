@@ -344,6 +344,11 @@ public class CompilationUnitDeclaration
 				this.javadoc.resolve(syntheticTypeDeclaration.staticInitializerScope);
     		}
 			startingTypeIndex = 1;
+		} else {
+			// resolve compilation unit javadoc package if any
+			if (this.javadoc != null) {
+				this.javadoc.resolve(this.scope);
+    		}
 		}
 		if (this.currentPackage != null && this.currentPackage.annotations != null && !isPackageInfo) {
 			scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);

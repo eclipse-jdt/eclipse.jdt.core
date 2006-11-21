@@ -20,6 +20,7 @@ public interface CompletionOnJavadoc {
 	int ONLY_INLINE_TAG = 0x0010;
 	int REPLACE_TAG = 0x0020;
 	int FORMAL_REFERENCE = 0x0040;
+	int ALL_POSSIBLE_TAGS = 0x0080;
 
 	/**
 	 * Get completion node flags.

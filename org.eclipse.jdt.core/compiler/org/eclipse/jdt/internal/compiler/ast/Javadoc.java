@@ -180,7 +180,7 @@ public class Javadoc extends ASTNode {
 	}
 
 	/*
-	 * Resolve type javadoc while a class scope
+	 * Resolve type javadoc
 	 */
 	public void resolve(ClassScope scope) {
 
@@ -229,9 +229,16 @@ public class Javadoc extends ASTNode {
 			scope.problemReporter().javadocUnexpectedTag((int)(this.valuePositions>>>32), (int) this.valuePositions);
 		}
 	}
-	
+
 	/*
-	 * Resolve method javadoc while a method scope
+	 * Resolve compilation unit javadoc
+	 */
+	public void resolve(CompilationUnitScope unitScope) {
+		// do nothing
+	}
+
+	/*
+	 * Resolve method javadoc
 	 */
 	public void resolve(MethodScope methScope) {
 		

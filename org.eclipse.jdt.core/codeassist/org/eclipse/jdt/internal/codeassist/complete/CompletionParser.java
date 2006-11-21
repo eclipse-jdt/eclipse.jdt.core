@@ -1774,14 +1774,18 @@ protected void consumeClassBodyopt() {
  * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeClassDeclaration()
  */
 protected void consumeClassDeclaration() {
-	if (this.astPtr >= 0 && this.astStack[this.astPtr] instanceof TypeDeclaration) {
-		TypeDeclaration typeDeclaration = (TypeDeclaration) this.astStack[this.astPtr];
+	if (this.astPtr >= 0) {
+		int length = this.astLengthStack[this.astLengthPtr];
+		TypeDeclaration typeDeclaration = (TypeDeclaration) this.astStack[this.astPtr-length];
 		this.javadoc = null;
+		CompletionJavadocParser completionJavadocParser = (CompletionJavadocParser)this.javadocParser;
+		completionJavadocParser.allPossibleTags = true;
 		checkComment();
 		if (this.javadoc != null && this.cursorLocation > this.javadoc.sourceStart && this.cursorLocation < this.javadoc.sourceEnd) {
-			// completion is in an orphan javadoc comment => replace type declaration one with it to allow completion resolution
+			// completion is in an orphan javadoc comment => replace in last read declaration to allow completion resolution
 			typeDeclaration.javadoc = this.javadoc;
 		}
+		completionJavadocParser.allPossibleTags = false;
 	}
 	super.consumeClassDeclaration();
 }
@@ -1828,6 +1832,27 @@ protected void consumeClassTypeElt() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
 	super.consumeClassTypeElt();
 	popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeCompilationUnit()
+ */
+protected void consumeCompilationUnit() {
+	this.javadoc = null;
+	checkComment();
+	if (this.javadoc != null && this.cursorLocation > this.javadoc.sourceStart && this.cursorLocation < this.javadoc.sourceEnd) {
+		// completion is in an orphan javadoc comment => replace compilation unit one to allow completion resolution
+		compilationUnit.javadoc = this.javadoc;
+		// create a fake interface declaration to allow resolution
+		if (this.compilationUnit.types == null) {
+			this.compilationUnit.types = new TypeDeclaration[1];
+			TypeDeclaration declaration = new TypeDeclaration(compilationUnit.compilationResult);
+			declaration.name = FAKE_TYPE_NAME;
+			declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
+			this.compilationUnit.types[0] = declaration;
+		}
+	}
+	super.consumeCompilationUnit();
 }
 protected void consumeConditionalExpression(int op) {
 	popElement(K_CONDITIONAL_OPERATOR);
