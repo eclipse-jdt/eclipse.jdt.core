@@ -388,7 +388,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to add blank lines between import groups
 	 *     - option id:         "org.eclipse.jdt.core.formatter.blank_lines_between_import_groups"
 	 *     - possible values:   "&lt;n&gt;", where n is zero or a positive integer
-	 *     - default:           "0"
+	 *     - default:           "1"
 	 * </pre>
 	 * Note: Import groups are defined once "Organize Import" operation has been executed. The code formatter itself
 	 * doesn't define the import groups.
