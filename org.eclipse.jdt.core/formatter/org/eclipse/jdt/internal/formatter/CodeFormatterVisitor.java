@@ -611,6 +611,32 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 	}
 	
+	private void format(ImportReference importRef, boolean isLast) {
+		this.scribe.printNextToken(TerminalTokens.TokenNameimport);
+		this.preferences.number_of_empty_lines_to_preserve = this.preferences.blank_lines_between_import_groups;
+		this.scribe.space();
+		if (importRef.isStatic()) {
+			this.scribe.printNextToken(TerminalTokens.TokenNamestatic);
+			this.scribe.space();
+		}
+		if (importRef.onDemand) {
+			this.scribe.printQualifiedReference(importRef.sourceEnd);
+			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+			this.scribe.printNextToken(TerminalTokens.TokenNameMULTIPLY);			
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		} else {
+			this.scribe.printQualifiedReference(importRef.sourceEnd);
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+		}
+		if (isLast) {
+			this.scribe.printTrailingComment();
+		} else {
+			this.scribe.printTrailingComment(this.preferences.blank_lines_between_import_groups);
+		}
+		this.scribe.printNewLine();			
+	}
+
+
 	private void format(MultiFieldDeclaration multiFieldDeclaration, ASTVisitor visitor, MethodScope scope, boolean isChunkStart, boolean isFirstClassBodyDeclaration) {
 	
 		if (isFirstClassBodyDeclaration) {
@@ -2950,17 +2976,18 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				}
 			}
 			int importLength = imports.length;
+			int savedNumberOfLineToPreserve = this.preferences.number_of_empty_lines_to_preserve;
 			if (importLength != 1) {
-				imports[0].traverse(this, scope);
-				int savedNumberOfLineToPreserve = this.preferences.number_of_empty_lines_to_preserve;
-				this.preferences.number_of_empty_lines_to_preserve = this.preferences.blank_lines_between_import_groups;
-    			for (int i = 1; i < importLength; i++) {
-    				imports[i].traverse(this, scope);
+				format(imports[0], false);
+    			for (int i = 1; i < importLength - 1; i++) {
+    				format(imports[i], false);
     			}
+    			format(imports[importLength - 1], true);
     			this.preferences.number_of_empty_lines_to_preserve = savedNumberOfLineToPreserve;
 			} else {
-				imports[0].traverse(this, scope);
+				format(imports[0], true);
 			}
+			this.preferences.number_of_empty_lines_to_preserve = savedNumberOfLineToPreserve;
 			
 			int blankLinesAfterImports = this.preferences.blank_lines_after_imports;
 			if (blankLinesAfterImports > 0) {
@@ -3831,33 +3858,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.unIndent();
 			}
 		}
-		return false;
-	}
-	
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.ImportReference, org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope)
-	 */
-	public boolean visit(
-		ImportReference importRef,
-		CompilationUnitScope scope) {
-		
-		this.scribe.printNextToken(TerminalTokens.TokenNameimport);
-		this.scribe.space();
-		if (importRef.isStatic()) {
-			this.scribe.printNextToken(TerminalTokens.TokenNamestatic);
-			this.scribe.space();
-		}
-		if (importRef.onDemand) {
-			this.scribe.printQualifiedReference(importRef.sourceEnd);
-			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
-			this.scribe.printNextToken(TerminalTokens.TokenNameMULTIPLY);			
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-		} else {
-			this.scribe.printQualifiedReference(importRef.sourceEnd);
-			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
-		}
-		this.scribe.printTrailingComment();
-		this.scribe.printNewLine();
 		return false;
 	}
 

@@ -54,7 +54,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 635 } ;
+//		TESTS_NUMBERS = new int[] { 636, 637, 638, 639, 640 } ;
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -9044,5 +9044,50 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test635", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165210
+	public void test636() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, "3");
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test636", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165210
+	public void test637() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, "2");
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test637", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165210
+	public void test638() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, "1");
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test638", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165210
+	public void test639() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, "2");
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test639", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165210
+	public void test640() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, "1");
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test640", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

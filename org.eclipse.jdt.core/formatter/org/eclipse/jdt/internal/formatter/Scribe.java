@@ -1383,6 +1383,77 @@ public class Scribe {
 		}			
 	}
 
+	public void printTrailingComment(int numberOfNewLinesToInsert) {
+		try {
+			// if we have a space between two tokens we ensure it will be dumped in the formatted string
+			int currentTokenStartPosition = this.scanner.currentPosition;
+			boolean hasWhitespaces = false;
+			boolean hasLineComment = false;
+			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				switch(this.currentToken) {
+					case TerminalTokens.TokenNameWHITESPACE :
+						int count = 0;
+						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
+						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
+							switch(whiteSpaces[i]) {
+								case '\r' :
+									if ((i + 1) < max) {
+										if (whiteSpaces[i + 1] == '\n') {
+											i++;
+										}
+									}
+									count++;
+									break;
+								case '\n' :
+									count++;
+							}
+						}
+						if (hasLineComment) {
+							if (count >= 1) {
+								currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
+								this.preserveEmptyLines(numberOfNewLinesToInsert, currentTokenStartPosition);
+								addDeleteEdit(currentTokenStartPosition, this.scanner.getCurrentTokenEndPosition());
+								this.scanner.resetTo(this.scanner.currentPosition, this.scannerEndPosition - 1);
+								return;
+							} else {
+								this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+								return;
+							}
+						} else if (count > 1) {
+							this.printEmptyLines(numberOfNewLinesToInsert, this.scanner.getCurrentTokenStartPosition());
+							this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+							return;
+						} else {
+							hasWhitespaces = true;
+							currentTokenStartPosition = this.scanner.currentPosition;						
+							addDeleteEdit(this.scanner.getCurrentTokenStartPosition(), this.scanner.getCurrentTokenEndPosition());
+						}
+						break;
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+						if (hasWhitespaces) {
+							space();
+						}
+						this.printCommentLine(this.scanner.getRawTokenSource());
+						currentTokenStartPosition = this.scanner.currentPosition;
+						hasLineComment = true;
+						break;
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+						if (hasWhitespaces) {
+							space();
+						}
+						this.printBlockComment(this.scanner.getRawTokenSource(), false);
+						currentTokenStartPosition = this.scanner.currentPosition;
+						break;
+					default :
+						// step back one token
+						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
+						return;
+				}
+			}
+		} catch (InvalidInputException e) {
+			throw new AbortFormatting(e);
+		}
+	}
 	public void printTrailingComment() {
 		try {
 			// if we have a space between two tokens we ensure it will be dumped in the formatted string
