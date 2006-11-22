@@ -1355,5 +1355,23 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 	}
 
-
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160637
+	 */
+	public void testCreateBindings19() throws CoreException {
+		IBinding[] bindings = createBinaryBindings(
+			"public class A {\n" +
+			"  String foo(String s) {\n" +
+			"		return null;\n" +
+			"  }\n" +
+			"}",
+			getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;"})
+		);
+		assertNotNull("No bindings", bindings);
+		assertEquals("Wrong size", 1, bindings.length);
+		assertTrue("Not a method binding", bindings[0] instanceof IMethodBinding);
+		assertBindingsEqual(
+			"LA;.foo(Ljava/lang/String;)Ljava/lang/String;",
+			bindings);
+	}
 }
