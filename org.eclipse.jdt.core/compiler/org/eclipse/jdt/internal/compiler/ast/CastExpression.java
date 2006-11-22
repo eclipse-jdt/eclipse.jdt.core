@@ -440,9 +440,9 @@ public class CastExpression extends Expression {
 						if ((this.bits & UnsafeCast) != 0) { // unsafe cast
 							scope.problemReporter().unsafeCast(this, scope);
 						} else {
-//							if (castType.isRawType() && scope.compilerOptions().reportRawTypeReference){
-//								scope.problemReporter().rawTypeReference(this.type, castType);			
-//							}
+							if (castType.isRawType() && scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore){
+								scope.problemReporter().rawTypeReference(this.type, castType);			
+							}
 							if ((this.bits & (UnnecessaryCast|DisableUnnecessaryCastCheck)) == UnnecessaryCast) { // unnecessary cast 
 								if (!isIndirectlyUsed()) // used for generic type inference or boxing ?
 									scope.problemReporter().unnecessaryCast(this);

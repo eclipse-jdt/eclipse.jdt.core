@@ -50,9 +50,17 @@ Eclipse SDK 3.3M4 - ???st November 2006
 <br>Project org.eclipse.jdt.core v_725
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_725">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Tuned compiler semantics for unchecked cast detection. As a consequence, more warnings should be issued 
+(also see bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106451">106451</a> and 
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165143">165143</a>). </li>
+<li>Raw type warnings are now also diagnosed for cast types. </li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106451">106451</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165145">165145</a>
+[1.5][compiler] Missing raw type warning
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106451">106451</a>
 [1.5][compiler] Error and unchecked warnings missing for cast to parameterized type
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165143">165143</a>
 [1.5][compiler] Missing unchecked cast warning
