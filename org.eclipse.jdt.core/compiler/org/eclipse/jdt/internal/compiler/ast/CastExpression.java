@@ -278,37 +278,62 @@ public class CastExpression extends Expression {
 			}
 			return true;
 		}
-		boolean isCastingToBoundParameterized;
-		if (match != null && (
-				(isCastingToBoundParameterized = castType.isBoundParameterizedType())
-				|| 	expressionType.isBoundParameterizedType())) {
-			
-			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
-				return false; 
-			}
-			if (isCastingToBoundParameterized 
-					&& (isNarrowing ? !expressionType.isEquivalentTo(match) : !match.isEquivalentTo(castType))) {
+		if (match != null && match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
+			return false; 
+		}
+		switch (castType.kind()) {
+			case Binding.PARAMETERIZED_TYPE :
+				if (castType.isBoundParameterizedType()) {
+					if (match == null) { // unrelated types
+						this.bits |= UnsafeCast;
+						return true;
+					}
+					switch (match.kind()) {
+						case Binding.PARAMETERIZED_TYPE :
+							if (isNarrowing) {
+								// [JLS 5.5] T <: S
+								if (expressionType.isRawType() || !expressionType.isEquivalentTo(match)) {
+									this.bits |= UnsafeCast;
+									return true;
+								}
+								// [JLS 5.5] S has no subtype X != T, such that |X| == |T|
+								TypeBinding genericCastType = castType.erasure(); // jump to generic type
+								TypeBinding genericMatch = genericCastType.findSuperTypeWithSameErasure(expressionType);
+								if (genericMatch == match) {
+									this.bits |= UnsafeCast;
+								}
+								return true;
+							} else {
+								// [JLS 5.5] T >: S
+								if (!match.isEquivalentTo(castType)) {
+									this.bits |= UnsafeCast;
+									return true;
+								}
+							}
+							break;
+						case Binding.RAW_TYPE :
+							this.bits |= UnsafeCast; // upcast since castType is known to be bound paramType
+							return true;
+						default :
+							if (isNarrowing){
+								// match is not parameterized or raw, then any other subtype of match will erase  to |T|
+								this.bits |= UnsafeCast;
+								return true;
+							}
+							break;
+					}
+				}
+				break;
+			case Binding.ARRAY_TYPE :
+				TypeBinding leafType = castType.leafComponentType();
+				if (isNarrowing && (leafType.isBoundParameterizedType() || leafType.isTypeVariable())) {
+					this.bits |= UnsafeCast;
+					return true;
+				}
+				break;
+			case Binding.TYPE_PARAMETER :
 				this.bits |= UnsafeCast;
-				return true;
-			} else if ((castType.tagBits & TagBits.HasDirectWildcard) == 0
-					&& (!match.isParameterizedType() || expressionType.isRawType())) {
-				this.bits |= UnsafeCast;
-				return true;
-			}
-		} else if (isNarrowing) {
-			TypeBinding leafType = castType.leafComponentType();
-			if (expressionType.id == T_JavaLangObject && castType.isArrayType() && leafType.isBoundParameterizedType()) {
-				this.bits |= UnsafeCast;
-				return true;
-			}
-			if (match == null && castType.isBoundParameterizedType()) { // cast between unrelated types
-				this.bits |= UnsafeCast;
-				return true;
-			}
-			if (leafType.isTypeVariable()) {
-				this.bits |= UnsafeCast;
-				return true;
-			}
+				return true;				
 		}
 		if (!isNarrowing && match == this.resolvedType.leafComponentType()) { // do not tag as unnecessary when recursing through upper bounds
 			tagAsUnnecessaryCast(scope, castType);

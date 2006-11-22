@@ -34,7 +34,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
 //		TESTS_NUMBERS = new int[] { 1069, 1070 };
-		TESTS_RANGE = new int[] { 1071, -1 };
+//		TESTS_RANGE = new int[] { 1071, -1 };
 	}
 	public static Test suite() {
 		return buildComparableTestSuite(testClass());
@@ -6996,29 +6996,47 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"import java.util.HashMap;\n" + 
 				"import java.util.Map;\n" + 
 				"public class X {\n" + 
+				"    @SuppressWarnings(\"unchecked\")\n" +
 				"    private static final Map<String, Class> classes = new HashMap<String, Class>();\n" + 
 				"    public static void main(String[] args) throws Exception {\n" + 
 				"    	classes.put(\"test\", X.class);\n" + 
 				"        final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
+				"        final Class<? extends String> clazz2 = (Class<? extends String>) classes.get(\"test\");\n" + 
+				"        final Class<String> clazz3 = (Class<String>) classes.get(\"test\");\n" + 
 				"        Object o = clazz.newInstance();\n" + 
 				"    }\n" + 
-				"}\n",
+				"}", // =================
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	private static final Map<String, Class> classes = new HashMap<String, Class>();\n" + 
-			"	                                 ^^^^^\n" + 
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
+			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Class to Class<? extends Object> is actually checking against the erased type Class\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 4)\n" + 
-			"	private static final Map<String, Class> classes = new HashMap<String, Class>();\n" + 
-			"	                                                                      ^^^^^\n" + 
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 7)\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
 			"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
 			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Class to Class<? extends Object>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	final Class<? extends String> clazz2 = (Class<? extends String>) classes.get(\"test\");\n" + 
+			"	                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Class to Class<? extends String> is actually checking against the erased type Class\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	final Class<? extends String> clazz2 = (Class<? extends String>) classes.get(\"test\");\n" + 
+			"	                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from Class to Class<? extends String>\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 10)\n" + 
+			"	final Class<String> clazz3 = (Class<String>) classes.get(\"test\");\n" + 
+			"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Class to Class<String> is actually checking against the erased type Class\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 10)\n" + 
+			"	final Class<String> clazz3 = (Class<String>) classes.get(\"test\");\n" + 
+			"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from Class to Class<String>\n" + 
 			"----------\n");
 	}		
 	public void test0243() {
@@ -26412,7 +26430,12 @@ public void test0848() {
 		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Collection<capture#1-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 7)\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Collection<capture#2-of ? extends Number> to LinkedList<Number> is actually checking against the erased type LinkedList\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -35266,5 +35289,244 @@ public void test1077() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165143
+public void test1078() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"public class X \n" + 
+			"{\n" + 
+			"  public static void main(String[] args)\n" + 
+			"  {\n" + 
+			"    Object object = null;\n" + 
+			"\n" + 
+			"    List list = (List)object;//[1]\n" + 
+			"\n" + 
+			"    foo((List)object);//[2]\n" + 
+			"    foo((List<?>)object);//[3]\n" + 
+			"    foo((List<Object>)object);//[4]unchecked cast\n" + 
+			"    foo((List<? extends Object>)object);//[5]\n" + 
+			"\n" + 
+			"    foo((Map)object);//[6]\n" + 
+			"    foo((Map<?, ?>)object);//[7]\n" + 
+			"    foo((Map<Object, ?>)object);//[8]unchecked cast\n" + 
+			"    foo((Map<?, Object>)object);//[9]unchecked cast\n" + 
+			"    foo((Map<Object, Object>)object);//[10]unchecked cast\n" + 
+			"    foo((Map<? extends Object, Object>)object);//[11]unchecked cast\n" + 
+			"    foo((Map<? extends Object, ? extends Object>)object);//[12]\n" + 
+			"    Zork z;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void foo(List<?> list) {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void foo(Map<?, ?> map) {\n" + 
+			"  }\n" + 
+			"}", // =================,
+		},
+		// unchecked warnings on [4][5][8][9][10][11][12]
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	List list = (List)object;//[1]\n" + 
+		"	^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 14)\n" + 
+		"	foo((List<Object>)object);//[4]unchecked cast\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to List<Object> is actually checking against the erased type List\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 15)\n" + 
+		"	foo((List<? extends Object>)object);//[5]\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to List<? extends Object> is actually checking against the erased type List\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 19)\n" + 
+		"	foo((Map<Object, ?>)object);//[8]unchecked cast\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to Map<Object,?> is actually checking against the erased type Map\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 20)\n" + 
+		"	foo((Map<?, Object>)object);//[9]unchecked cast\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to Map<?,Object> is actually checking against the erased type Map\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 21)\n" + 
+		"	foo((Map<Object, Object>)object);//[10]unchecked cast\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to Map<Object,Object> is actually checking against the erased type Map\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 22)\n" + 
+		"	foo((Map<? extends Object, Object>)object);//[11]unchecked cast\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to Map<? extends Object,Object> is actually checking against the erased type Map\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 23)\n" + 
+		"	foo((Map<? extends Object, ? extends Object>)object);//[12]\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to Map<? extends Object,? extends Object> is actually checking against the erased type Map\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 24)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165143 - variation
+public void test1079() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"    X<? extends String> bar(Object o) {\n" + 
+			"    	return (AX<? extends String>) o;\n" + 
+			"   	 Zork z;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class AX<F> extends X<F> {}\n", // =================,
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	return (AX<? extends String>) o;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to AX<? extends String> is actually checking against the erased type AX\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165143 - variation
+public void test1080() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"	CX<E> foo(X<String> x) {\n" + 
+			"		return (CX<E>) x; // unchecked\n" + 
+			"	}\n" + 
+			"	BX bar(X<String> x) {\n" + 
+			"		return (BX) x;\n" + 
+			"	}\n" + 
+			"   Zork z;\n" + 
+			"}\n" + 
+			"class AX<F> extends X<F> {}\n" + 
+			"class BX extends AX<String> {}\n" + 
+			"class CX<G> extends AX<String> {}\n", // =================,
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	return (CX<E>) x; // unchecked\n" + 
+		"	       ^^^^^^^^^\n" + 
+		"Type safety: The cast from X<String> to CX<E> is actually checking against the erased type CX\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165143 - variation
+public void test1081() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"	AX<Object> foo(X<String> x) {\n" + 
+			"		return (BX) x;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AX<F> extends X<F> {}\n" + 
+			"class BX extends AX<Object> {}\n", // =================,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	return (BX) x;\n" + 
+		"	       ^^^^^^\n" + 
+		"Cannot cast from X<String> to BX\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165143 - variation
+public void test1082() { 
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"	CX<E> foo(X<String> x) {\n" + 
+			"		return (CX<E>) x; // unchecked\n" + 
+			"	}\n" + 
+			"   Zork z;\n" + 
+			"}\n" + 
+			"class AX<F> extends X<F> {}\n" + 
+			"class CX<G> extends AX {}\n", // =================,
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	return (CX<E>) x; // unchecked\n" + 
+		"	       ^^^^^^^^^\n" + 
+		"Type safety: The cast from X<String> to CX<E> is actually checking against the erased type CX\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	class CX<G> extends AX {}\n" + 
+		"	                    ^^\n" + 
+		"AX is a raw type. References to generic type AX<F> should be parameterized\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106451 - variation
+public void test1083() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.io.Serializable;\n" + 
+			"import java.util.LinkedList;\n" + 
+			"\n" + 
+			"class SerializableList extends LinkedList<Serializable> {\n" + 
+			"	private static final long serialVersionUID = 1L; \n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    @SuppressWarnings({\"nls\", \"unused\"})\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        LinkedList<String> linkedList= new LinkedList<String>();\n" + 
+			"        linkedList.add(\"Hello\");\n" + 
+			"        java.util.List<? extends Serializable> a = linkedList;\n" + 
+			"        java.util.List<String> b = (LinkedList<String>) a; // unchecked\n" + 
+			"        java.util.List<Integer> c = (LinkedList<Integer>) a; // unchecked\n" + 
+			"        java.util.List<Runtime> d = (LinkedList<Runtime>) a; // inconvertible / unchecked ?\n" + 
+			"        c.get(0).intValue(); // fails at run time\n" + 
+			"        d.get(0).gc(); // fails at run time\n" + 
+			"        Zork z;\n" +
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 13)\n" + 
+		"	java.util.List<String> b = (LinkedList<String>) a; // unchecked\n" + 
+		"	                           ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from List<capture#1-of ? extends Serializable> to LinkedList<String> is actually checking against the erased type LinkedList\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 14)\n" + 
+		"	java.util.List<Integer> c = (LinkedList<Integer>) a; // unchecked\n" + 
+		"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from List<capture#2-of ? extends Serializable> to LinkedList<Integer> is actually checking against the erased type LinkedList\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 15)\n" + 
+		"	java.util.List<Runtime> d = (LinkedList<Runtime>) a; // inconvertible / unchecked ?\n" + 
+		"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from List<capture#3-of ? extends Serializable> to LinkedList<Runtime> is actually checking against the erased type LinkedList\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 18)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
