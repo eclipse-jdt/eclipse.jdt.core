@@ -491,6 +491,11 @@ public void _test010c() {
 			"	void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) \"test\"); }\n" + 
 			"	                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation pickOne(Comparable) of the generic method pickOne(T) of type Test1<Integer,Integer>\n" + 
+			"----------\n" + 
+			"2. WARNING in Test1.java (at line 4)\n" + 
+			"	void pickOne2(Test1<Integer,Integer> c) throws ExOne { c.pickOne((Comparable) \"test\"); }\n" + 
+			"	                                                                  ^^^^^^^^^^\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n"
 		);
 	}

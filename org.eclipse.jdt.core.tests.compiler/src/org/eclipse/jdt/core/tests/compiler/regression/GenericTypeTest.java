@@ -2198,40 +2198,55 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	X x = new X((A)null, (A)null);\n" + 
+			"	             ^\n" + 
+			"A is a raw type. References to generic type A<P> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	X x = new X((A)null, (A)null);\n" + 
 			"	                     ^^^^^^^\n" + 
 			"Type safety: The expression of type A needs unchecked conversion to conform to A<String>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 9)\n" + 
+			"4. WARNING in X.java (at line 8)\n" + 
+			"	X x = new X((A)null, (A)null);\n" + 
+			"	                      ^\n" + 
+			"A is a raw type. References to generic type A<P> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 9)\n" + 
 			"	A a = new A((A)null);\n" + 
 			"	^\n" + 
 			"A is a raw type. References to generic type A<P> should be parameterized\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 9)\n" + 
+			"6. ERROR in X.java (at line 9)\n" + 
 			"	A a = new A((A)null);\n" + 
 			"	      ^^^^^^^^^^^^^^\n" + 
 			"The constructor A(P) is not visible\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 9)\n" + 
+			"7. WARNING in X.java (at line 9)\n" + 
 			"	A a = new A((A)null);\n" + 
 			"	          ^\n" + 
 			"A is a raw type. References to generic type A<P> should be parameterized\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 10)\n" + 
+			"8. WARNING in X.java (at line 9)\n" + 
+			"	A a = new A((A)null);\n" + 
+			"	             ^\n" + 
+			"A is a raw type. References to generic type A<P> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 10)\n" + 
 			"	x.foo(a);\n" + 
 			"	      ^\n" + 
 			"Type safety: The expression of type A needs unchecked conversion to conform to A<String>\n" + 
 			"----------\n" + 
-			"7. ERROR in X.java (at line 11)\n" + 
+			"10. ERROR in X.java (at line 11)\n" + 
 			"	a.print(x);\n" + 
 			"	  ^^^^^\n" + 
 			"The method print(P) from the type A is not visible\n" + 
 			"----------\n" + 
-			"8. ERROR in X.java (at line 12)\n" + 
+			"11. ERROR in X.java (at line 12)\n" + 
 			"	A<String> as = new A<String>(null);\n" + 
 			"	               ^^^^^^^^^^^^^^^^^^^\n" + 
 			"The constructor A<String>(P) is not visible\n" + 
 			"----------\n" + 
-			"9. ERROR in X.java (at line 13)\n" + 
+			"12. ERROR in X.java (at line 13)\n" + 
 			"	as.print(\"hello\");\n" + 
 			"	   ^^^^^\n" + 
 			"The method print(P) from the type A<String> is not visible\n" + 
@@ -2421,65 +2436,80 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	X x = new X((AX)null, (AX)null);\n" + 
+			"	             ^^\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
+			"	X x = new X((AX)null, (AX)null);\n" + 
 			"	                      ^^^^^^^^\n" + 
 			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<String>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 8)\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
+			"	X x = new X((AX)null, (AX)null);\n" + 
+			"	                       ^^\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 8)\n" + 
 			"	AX a = new AX((AX)null);\n" + 
 			"	^^\n" + 
 			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 8)\n" + 
+			"6. WARNING in X.java (at line 8)\n" + 
 			"	AX a = new AX((AX)null);\n" + 
 			"	       ^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The constructor AX(AX) belongs to the raw type AX. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 8)\n" + 
+			"7. WARNING in X.java (at line 8)\n" + 
 			"	AX a = new AX((AX)null);\n" + 
 			"	           ^^\n" + 
 			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 9)\n" + 
+			"8. WARNING in X.java (at line 8)\n" + 
+			"	AX a = new AX((AX)null);\n" + 
+			"	               ^^\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 9)\n" + 
 			"	AX a2 = new AX(null);\n" + 
 			"	^^\n" + 
 			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 9)\n" + 
+			"10. WARNING in X.java (at line 9)\n" + 
 			"	AX a2 = new AX(null);\n" + 
 			"	        ^^^^^^^^^^^^\n" + 
 			"Type safety: The constructor AX(AX) belongs to the raw type AX. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
-			"8. WARNING in X.java (at line 9)\n" + 
+			"11. WARNING in X.java (at line 9)\n" + 
 			"	AX a2 = new AX(null);\n" + 
 			"	            ^^\n" + 
 			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
-			"9. WARNING in X.java (at line 10)\n" + 
+			"12. WARNING in X.java (at line 10)\n" + 
 			"	x.foo(a);\n" + 
 			"	      ^\n" + 
 			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<String>\n" + 
 			"----------\n" + 
-			"10. WARNING in X.java (at line 12)\n" + 
+			"13. WARNING in X.java (at line 12)\n" + 
 			"	a.bar(a);\n" + 
 			"	^^^^^^^^\n" + 
 			"Type safety: The method bar(AX) belongs to the raw type AX. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
-			"11. ERROR in X.java (at line 13)\n" + 
+			"14. ERROR in X.java (at line 13)\n" + 
 			"	AX<String> as = new AX<String>(null);\n" + 
 			"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The constructor AX<String>(AX<String>) is ambiguous\n" + 
 			"----------\n" + 
-			"12. ERROR in X.java (at line 14)\n" + 
+			"15. ERROR in X.java (at line 14)\n" + 
 			"	as.print(a);\n" + 
 			"	   ^^^^^\n" + 
 			"The method print(String) in the type AX<String> is not applicable for the arguments (AX)\n" + 
 			"----------\n" + 
-			"13. WARNING in X.java (at line 15)\n" + 
+			"16. WARNING in X.java (at line 15)\n" + 
 			"	as.bar(a);\n" + 
 			"	       ^\n" + 
 			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<String>\n" + 
 			"----------\n" + 
-			"14. WARNING in X.java (at line 22)\n" + 
+			"17. WARNING in X.java (at line 22)\n" + 
 			"	void foo(AX rawAx){}\n" + 
 			"	         ^^\n" + 
 			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
@@ -2696,10 +2726,15 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"2. WARNING in X.java (at line 10)\n" + 
 			"	((X)xs).t = this;\n" + 
+			"	  ^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	((X)xs).t = this;\n" + 
 			"	        ^\n" + 
 			"Type safety: The field t from the raw type X is assigned a value of type X<T>. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 12)\n" + 
+			"4. ERROR in X.java (at line 12)\n" + 
 			"	System.out.prinln((T) this.t);\n" + 
 			"	           ^^^^^^\n" + 
 			"The method prinln(T) is undefined for the type PrintStream\n" + 
@@ -4970,7 +5005,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	     ^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type AX needs unchecked conversion to conform to AX<X>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	ax = (AX)bar(ax);\n" + 
+			"	      ^^\n" + 
+			"AX is a raw type. References to generic type AX<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
 			"	       ^^^^^^^\n" + 
 			"Type mismatch: cannot convert from capture#1-of ? to T\n" + 
@@ -5389,47 +5429,52 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	            ^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Object to Hashtable\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 12)\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	Object a2 = (Hashtable) o;\n" + 
+			"	             ^^^^^^^^^\n" + 
+			"Hashtable is a raw type. References to generic type Hashtable<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 12)\n" + 
 			"	Object a3 = (Hashtable<Float, Double>) d;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot cast from Dictionary<String,Integer> to Hashtable<Float,Double>\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 12)\n" + 
+			"5. WARNING in X.java (at line 12)\n" + 
 			"	Object a3 = (Hashtable<Float, Double>) d;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Dictionary<String,Integer> to Hashtable<Float,Double>\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 13)\n" + 
+			"6. WARNING in X.java (at line 13)\n" + 
 			"	Object a4 = (Hashtable<String,Integer>) o;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The cast from Object to Hashtable<String,Integer> is actually checking against the erased type Hashtable\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 13)\n" + 
+			"7. WARNING in X.java (at line 13)\n" + 
 			"	Object a4 = (Hashtable<String,Integer>) o;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Object to Hashtable<String,Integer>\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 18)\n" + 
+			"8. WARNING in X.java (at line 18)\n" + 
 			"	Object a5 = (Hashtable<String,Integer>) z1;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Z1 to Hashtable<String,Integer>\n" + 
 			"----------\n" + 
-			"8. WARNING in X.java (at line 22)\n" + 
+			"9. WARNING in X.java (at line 22)\n" + 
 			"	Object a6 = (Z2) z1;\n" + 
 			"	            ^^^^^^^\n" + 
 			"Unnecessary cast from Z1 to Z2\n" + 
 			"----------\n" + 
-			"9. WARNING in X.java (at line 24)\n" + 
+			"10. WARNING in X.java (at line 24)\n" + 
 			"	abstract class Z3 extends Hashtable {\n" + 
 			"	                          ^^^^^^^^^\n" + 
 			"Hashtable is a raw type. References to generic type Hashtable<K,V> should be parameterized\n" + 
 			"----------\n" + 
-			"10. WARNING in X.java (at line 27)\n" + 
+			"11. WARNING in X.java (at line 27)\n" + 
 			"	Object a7 = (Hashtable<String,Integer>) z3;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The cast from Z3 to Hashtable<String,Integer> is actually checking against the erased type Hashtable\n" + 
 			"----------\n" + 
-			"11. WARNING in X.java (at line 27)\n" + 
+			"12. WARNING in X.java (at line 27)\n" + 
 			"	Object a7 = (Hashtable<String,Integer>) z3;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Z3 to Hashtable<String,Integer>\n" + 
@@ -8829,6 +8874,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	this.foo((List)null);\n" + 
 			"	     ^^^\n" + 
 			"The method foo(List<X>) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	this.foo((List)null);\n" + 
+			"	          ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n");	
 	}		
 	// 75156 variation - should report name clash instead of final method override
@@ -21768,22 +21818,37 @@ public void test0705() {
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The method setValue(Object) belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	((Map.Entry)o).setValue(\"bug\");\n" + 
+		"	  ^^^^^^^^^\n" + 
+		"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 7)\n" + 
 		"	Map.Entry me= (Map.Entry)o; \n" + 
 		"	^^^^^^^^^\n" + 
 		"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 8)\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	Map.Entry me= (Map.Entry)o; \n" + 
+		"	               ^^^^^^^^^\n" + 
+		"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 8)\n" + 
 		"	me.setValue(\"ok\");\n" + 
 		"	^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The method setValue(Object) belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 10)\n" + 
+		"6. WARNING in X.java (at line 10)\n" + 
 		"	((Vector)o).add(\"ok\");\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The method add(Object) belongs to the raw type Vector. References to generic type Vector<E> should be parameterized\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 12)\n" + 
+		"7. WARNING in X.java (at line 10)\n" + 
+		"	((Vector)o).add(\"ok\");\n" + 
+		"	  ^^^^^^\n" + 
+		"Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 12)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -22142,6 +22207,11 @@ public void test0715() {
 		"	Comparable<String> c = (java.util.List)bar(5, 5.0);\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from List to Comparable<String>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	Comparable<String> c = (java.util.List)bar(5, 5.0);\n" + 
+		"	                        ^^^^^^^^^^^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98396
@@ -23312,7 +23382,12 @@ public void test0758() {
 		"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The expression of type X.EntryMap.Entry needs unchecked conversion to conform to X.EntryMap<K,V>.Entry\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 14)\n" + 
+		"4. WARNING in X.java (at line 12)\n" + 
+		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\n" + 
+		"	                             ^^^^^^^^^^^^^^\n" + 
+		"X.EntryMap.Entry is a raw type. References to generic type X<K,V>.EntryMap<K,V>.Entry should be parameterized\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 14)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -25898,25 +25973,35 @@ public void test0830() {
 		"	^\n" + 
 		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	X x = (X) o;\n" + 
+		"	       ^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
 		"	X<String> xs = (X<String>)o;\n" + 
 		"	               ^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Object to X<String> is actually checking against the erased type X\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 7)\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 10)\n" + 
+		"5. WARNING in X.java (at line 10)\n" + 
 		"	List l = (List) al;\n" + 
 		"	^^^^\n" + 
 		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 10)\n" + 
+		"6. WARNING in X.java (at line 10)\n" + 
 		"	List l = (List) al;\n" + 
 		"	         ^^^^^^^^^\n" + 
 		"Unnecessary cast from ArrayList<String> to List\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 10)\n" + 
+		"	List l = (List) al;\n" + 
+		"	          ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n");
 }
 //unnecessary cast may be combined with unchecked cast warning
@@ -26030,7 +26115,12 @@ public void test0834() {
 		"	             ^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The expression of type Collection needs unchecked conversion to conform to Collection<Number>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	collection = (Collection) set;\n" + 
+		"	              ^^^^^^^^^^\n" + 
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -26050,7 +26140,12 @@ public void test0835() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	ArrayList<?> als = (ArrayList) ls;\n" + 
+		"	                    ^^^^^^^^^\n" + 
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -28135,7 +28230,12 @@ public void test0900() {
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from X.Implements to Comparable<R> is actually checking against the erased type Comparable\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 16)\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	((Comparable) new Implements()).toString();\n" + 
+		"	  ^^^^^^^^^^\n" + 
+		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 16)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -35334,42 +35434,57 @@ public void test1078() {
 		"	^^^^\n" + 
 		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 14)\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	List list = (List)object;//[1]\n" + 
+		"	             ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
+		"	foo((List)object);//[2]\n" + 
+		"	     ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 14)\n" + 
 		"	foo((List<Object>)object);//[4]unchecked cast\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Object to List<Object> is actually checking against the erased type List\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 15)\n" + 
+		"5. WARNING in X.java (at line 15)\n" + 
 		"	foo((List<? extends Object>)object);//[5]\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Object to List<? extends Object> is actually checking against the erased type List\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 19)\n" + 
+		"6. WARNING in X.java (at line 17)\n" + 
+		"	foo((Map)object);//[6]\n" + 
+		"	     ^^^\n" + 
+		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 19)\n" + 
 		"	foo((Map<Object, ?>)object);//[8]unchecked cast\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Object to Map<Object,?> is actually checking against the erased type Map\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 20)\n" + 
+		"8. WARNING in X.java (at line 20)\n" + 
 		"	foo((Map<?, Object>)object);//[9]unchecked cast\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Object to Map<?,Object> is actually checking against the erased type Map\n" + 
 		"----------\n" + 
-		"6. WARNING in X.java (at line 21)\n" + 
+		"9. WARNING in X.java (at line 21)\n" + 
 		"	foo((Map<Object, Object>)object);//[10]unchecked cast\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Object to Map<Object,Object> is actually checking against the erased type Map\n" + 
 		"----------\n" + 
-		"7. WARNING in X.java (at line 22)\n" + 
+		"10. WARNING in X.java (at line 22)\n" + 
 		"	foo((Map<? extends Object, Object>)object);//[11]unchecked cast\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Object to Map<? extends Object,Object> is actually checking against the erased type Map\n" + 
 		"----------\n" + 
-		"8. WARNING in X.java (at line 23)\n" + 
+		"11. WARNING in X.java (at line 23)\n" + 
 		"	foo((Map<? extends Object, ? extends Object>)object);//[12]\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from Object to Map<? extends Object,? extends Object> is actually checking against the erased type Map\n" + 
 		"----------\n" + 
-		"9. ERROR in X.java (at line 24)\n" + 
+		"12. ERROR in X.java (at line 24)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
