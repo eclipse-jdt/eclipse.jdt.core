@@ -35529,4 +35529,24 @@ public void test1083() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158870
+public void _test1084() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y<T> {\n" + 
+			"}\n" + 
+			"class Z<T> {\n" + 
+			"}\n" + 
+			"class X {\n" + 
+			"  void foo() {\n" + 
+			"    Z<Y<?>> l1 = null;\n" + 
+			"    Z<Y> l2 = (Z<Y>) l1;\n" + 
+			// javac raises an error but we only raise a warning here
+			"  }\n" + 
+			"}",
+		},
+		"ERR");
+}
 }
