@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 230, 231 };
+//		TESTS_NUMBERS = new int[] { 16, 23, 146, 169, 191 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -540,7 +540,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 0);
+		String expectedProblems =
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" + 
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized";
+		assertProblemsSize(compilationUnit, 2, expectedProblems);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
 		assertEquals("Wrong first character", '<', source[node.getStartPosition()]);
 	}
@@ -764,7 +767,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 0);
+		String expectedProblems =
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" + 
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized";
+		assertProblemsSize(compilationUnit, 2, expectedProblems);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -4448,7 +4454,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertNotNull("No node", node);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
-    	assertProblemsSize(compilationUnit, 1, "Iterator is a raw type. References to generic type Iterator<E> should be parameterized");
+    	String expectedProblems =
+    		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
+    		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized";
+    	assertProblemsSize(compilationUnit, 2, expectedProblems);
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -5781,7 +5790,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		assertProblemsSize(unit, 0);
+		assertProblemsSize(unit, 1, "Type safety: The cast from Collection<capture#1-of ? extends Number> to Vector<Object> is actually checking against the erased type Vector");
 		node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
