@@ -37,15 +37,17 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			},
 			"1"
 		);
+	}
+	public void test000a() {
 		this.runConformTest(
-			new String[] {
-				"Test.java",
-				"public class Test { public static void main(String[] args) { new Subtype<String>().foo(1, \"works\"); } }\n" +
-				"class Supertype<T1> { <U1> void foo(U1 u, T1 t) {} }\n" +
-				"class Subtype <T2> extends Supertype<T2> { <U3> void foo(U3 u, T2 t) { System.out.println(t); } }"
-			},
-			"works"
-		);
+				new String[] {
+					"Test.java",
+					"public class Test { public static void main(String[] args) { new Subtype<String>().foo(1, \"works\"); } }\n" +
+					"class Supertype<T1> { <U1> void foo(U1 u, T1 t) {} }\n" +
+					"class Subtype <T2> extends Supertype<T2> { <U3> void foo(U3 u, T2 t) { System.out.println(t); } }"
+				},
+				"works"
+			);		
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
 	public void test001() {
@@ -79,6 +81,9 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			},
 			"works"
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
+	public void test002a() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -119,6 +124,8 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" + 
 			"----------\n"
 		);
+	}
+	public void test003a() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -141,6 +148,8 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			},
 			"231"
 		);
+	}
+	public void test003b() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -161,6 +170,8 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			"The method test(N) is ambiguous for the type BB\n" + 
 			"----------\n"
 		);
+	}
+	public void test003c() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -200,6 +211,8 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			"----------\n"
 			// reference to id is ambiguous, both method id(A) in C<java.lang.Integer> and method id(B) in M<java.lang.Integer,java.lang.Integer> match
 		);
+	}
+	public void test004a() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -317,6 +330,9 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 			},
 			"1"
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 - case 1
+	public void test008a() {
 		this.runNegativeTest(
 			new String[] {
 				"A.java",
@@ -459,6 +475,9 @@ public void _test010c() {
 			"----------\n"
 			// test2 - warning: [unchecked] unchecked call to foo(C,C) as a member of the raw type Y
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
+	public void test011a() {
 		this.runConformTest(
 			new String[] {
 				"Combined.java",
@@ -475,6 +494,9 @@ public void _test010c() {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106090
+	public void test011b() {
 		this.runNegativeTest(
 			new String[] {
 				"Test1.java",
@@ -511,6 +533,8 @@ public void _test010c() {
 			},
 			"1"
 		);
+	}
+	public void test012a() {
 		this.runNegativeTest(
 			new String[] {
 				"XX.java",
@@ -572,6 +596,8 @@ public void _test010c() {
 			},
 			"1122"
 		);
+	}
+	public void test014a() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -596,6 +622,8 @@ public void _test010c() {
 			},
 			"1122"
 		);
+	}
+	public void test014b() {
 		this.runConformTest(
 			new String[] {
 				"X0.java",
@@ -619,6 +647,8 @@ public void _test010c() {
 			},
 			"13"
 		);
+	}
+	public void test014c() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -658,6 +688,8 @@ public void _test010c() {
 			"----------\n"
 			// reference to a is ambiguous, both method a(G) in X and method a(F<C>) in X match
 		);
+	}
+	public void test014d() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -683,6 +715,8 @@ public void _test010c() {
 			"The method one(G<B>) in the type X is not applicable for the arguments (H<C>)\n" + 
 			"----------\n"
 		);
+	}
+	public void test014e() {
 		this.runConformTest(
 			new String[] {
 				"X1.java",
@@ -709,6 +743,8 @@ public void _test010c() {
 			},
 			"145"
 		);
+	}
+	public void test014f() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -734,6 +770,8 @@ public void _test010c() {
 			"The method three(G<C>) is ambiguous for the type X\n" + 
 			"----------\n"
 		);
+	}
+	public void test014g() {
 		this.runConformTest(
 			new String[] {
 				"X3.java",
@@ -804,6 +842,9 @@ public void _test010c() {
 			},
 			""
 		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798
+	public void _test016a() {
 		this.runNegativeTest(
 			new String[] {
 				"E.java",
