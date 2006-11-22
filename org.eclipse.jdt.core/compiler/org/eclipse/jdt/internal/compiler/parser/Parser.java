@@ -9194,7 +9194,7 @@ public CompilationUnitDeclaration parse(
 		try {
 			contents = sourceUnit.getContents();
 		} catch(AbortCompilationUnit abortException) {
-			this.problemReporter().cannotReadSource(this.compilationUnit, abortException);
+			this.problemReporter().cannotReadSource(this.compilationUnit, abortException, this.options.verbose);
 			contents = CharOperation.NO_CHAR; // pretend empty from thereon
 		}
 		this.scanner.setSource(contents);

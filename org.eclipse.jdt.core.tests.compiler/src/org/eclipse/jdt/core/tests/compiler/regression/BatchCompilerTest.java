@@ -33,7 +33,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 	
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 24, 25 };
+//	TESTS_NUMBERS = new int[] { 59 };
 //	TESTS_RANGE = new int[] { 1, -1 };
 }
 public BatchCompilerTest(String name) {
@@ -3173,72 +3173,20 @@ public void test058(){
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=149118
 // .java ending directory name
 // instead of a java source file
-public void _test059(){
+public void test059(){
 	File outputDirectory = new File(OUTPUT_DIR + File.separator + "foo.java");
 	outputDirectory.mkdirs();
 	this.runNegativeTest(
 	    new String[] {},
 	    "\"" + OUTPUT_DIR +  File.separator + "foo.java\""
-	    + " -1.5 -g -preserveAllLocals"
+	    + " -1.5 -g -preserveAllLocals "
 	    + " -d \"" + OUTPUT_DIR + "/out\"",
-		"", 
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/foo.java\n" + 
-		"Cannot read the source from ---OUTPUT_DIR_PLACEHOLDER---/foo.java due to internal exception java.io.FileNotFoundException: ---OUTPUT_DIR_PLACEHOLDER---/foo.java (Is a directory)\n" + 
-		"	at java.io.FileInputStream.open(Native Method)\n" + 
-		"	at java.io.FileInputStream.<init>(FileInputStream.java:106)\n" + 
-		"	at org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(Util.java:69)\n" + 
-		"	at org.eclipse.jdt.internal.compiler.batch.CompilationUnit.getContents(CompilationUnit.java:58)\n" + 
-		"	at org.eclipse.jdt.internal.compiler.parser.Parser.parse(Parser.java:9106)\n" + 
-		"	at org.eclipse.jdt.internal.compiler.parser.Parser.parse(Parser.java:9078)\n" + 
-		"	at org.eclipse.jdt.internal.compiler.parser.Parser.dietParse(Parser.java:7764)\n" + 
-		"	at org.eclipse.jdt.internal.compiler.Compiler.beginToCompile(Compiler.java:371)\n" + 
-		"	at org.eclipse.jdt.internal.compiler.Compiler.compile(Compiler.java:397)\n" + 
-		"	at org.eclipse.jdt.internal.compiler.batch.Main.performCompilation(Main.java:2872)\n" + 
-		"	at org.eclipse.jdt.internal.compiler.batch.Main.compile(Main.java:1269)\n" + 
-		"	at org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest.runTest(BatchCompilerTest.java:188)\n" + 
-		"	at org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest.runNegativeTest(BatchCompilerTest.java:116)\n" + 
-		"	at org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest.testONLY_059(BatchCompilerTest.java:3073)\n" + 
-		"	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" + 
-		"	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)\n" + 
-		"	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)\n" + 
-		"	at java.lang.reflect.Method.invoke(Method.java:585)\n" + 
-		"	at junit.framework.TestCase.runTest(TestCase.java:154)\n" + 
-		"	at junit.framework.TestCase.runBare(TestCase.java:127)\n" + 
-		"	at junit.framework.TestResult$1.protect(TestResult.java:106)\n" + 
-		"	at junit.framework.TestResult.runProtected(TestResult.java:124)\n" + 
-		"	at junit.framework.TestResult.run(TestResult.java:109)\n" + 
-		"	at junit.framework.TestCase.run(TestCase.java:118)\n" + 
-		"	at junit.framework.TestSuite.runTest(TestSuite.java:208)\n" + 
-		"	at junit.framework.TestSuite.run(TestSuite.java:203)\n" + 
-		"	at junit.extensions.TestDecorator.basicRun(TestDecorator.java:22)\n" + 
-		"	at junit.extensions.TestDecorator.run(TestDecorator.java:28)\n" + 
-		"	at org.eclipse.jdt.core.tests.util.CompilerTestSetup.run(CompilerTestSetup.java:48)\n" + 
-		"	at junit.framework.TestSuite.runTest(TestSuite.java:208)\n" + 
-		"	at junit.framework.TestSuite.run(TestSuite.java:203)\n" + 
-		"	at org.eclipse.jdt.internal.junit.runner.junit3.JUnit3TestReference.run(JUnit3TestReference.java:128)\n" + 
-		"	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)\n" + 
-		"	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)\n" + 
-		"	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)\n" + 
-		"	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)\n" + 
-		"	at org.eclipse.pde.internal.junit.runtime.RemotePluginTestRunner.main(RemotePluginTestRunner.java:58)\n" + 
-		"	at org.eclipse.pde.internal.junit.runtime.CoreTestApplication.run(CoreTestApplication.java:24)\n" + 
-		"	at org.eclipse.core.internal.runtime.PlatformActivator$1.run(PlatformActivator.java:78)\n" + 
-		"	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:92)\n" + 
-		"	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:68)\n" + 
-		"	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:400)\n" + 
-		"	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:177)\n" + 
-		"	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" + 
-		"	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)\n" + 
-		"	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)\n" + 
-		"	at java.lang.reflect.Method.invoke(Method.java:585)\n" + 
-		"	at org.eclipse.core.launcher.Main.invokeFramework(Main.java:336)\n" + 
-		"	at org.eclipse.core.launcher.Main.basicRun(Main.java:280)\n" + 
-		"	at org.eclipse.core.launcher.Main.run(Main.java:977)\n" + 
-		"	at org.eclipse.core.launcher.Main.main(Main.java:952)\n" + 
-		"\n" + 
-		"----------\n" + 
-		"1 problem (1 error)",
+	    "",
+	    "----------\n" + 
+	    "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/foo.java\n" + 
+	    "Cannot read the source from ---OUTPUT_DIR_PLACEHOLDER---/foo.java due to internal exception java.io.FileNotFoundException:---OUTPUT_DIR_PLACEHOLDER---/foo.java (Access is denied)\n" + 
+	    "----------\n" + 
+	    "1 problem (1 error)",
 		false /* do not flush output directory */);
 }
 

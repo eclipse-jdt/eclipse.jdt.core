@@ -848,7 +848,7 @@ public void cannotInvokeSuperConstructorInEnum(ExplicitConstructorCall construct
 		constructorCall.sourceStart,
 		constructorCall.sourceEnd);
 }
-public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUnit abortException) {
+public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUnit abortException, boolean verbose) {
 	String fileName = new String(unit.compilationResult.fileName);
 	if (abortException.exception instanceof CharConversionException) {
 		// specific encoding issue
@@ -867,7 +867,13 @@ public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUn
 	}
 	StringWriter stringWriter = new StringWriter();
 	PrintWriter writer = new PrintWriter(stringWriter);
-	abortException.exception.printStackTrace(writer);
+	if (verbose) {
+		abortException.exception.printStackTrace(writer);
+	} else {
+		writer.print(abortException.exception.getClass().getName());
+		writer.print(':');
+		writer.print(abortException.exception.getMessage());
+	}
 	String exceptionTrace = stringWriter.toString();
 	String[] arguments = new String[]{ fileName, exceptionTrace, };
 	this.handle(
