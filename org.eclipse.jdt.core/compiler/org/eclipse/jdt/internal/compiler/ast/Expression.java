@@ -352,18 +352,12 @@ public abstract class Expression extends Statement {
 								ReferenceBinding interfaceType = (ReferenceBinding) expressionType;
 								match = interfaceType.findSuperTypeWithSameErasure(castType);
 								if (match != null) {
-									if (use15specifics) {
-										return checkUnsafeCast(scope, castType, interfaceType, match, false);
-									}
-									return true;
+									return checkUnsafeCast(scope, castType, interfaceType, match, false);
 								}
 								tagAsNeedCheckCast();
 								match = castType.findSuperTypeWithSameErasure(interfaceType);
 								if (match != null) {
-									if (use15specifics) {
-										return checkUnsafeCast(scope, castType, interfaceType, match, true);
-									}
-									return true;
+									return checkUnsafeCast(scope, castType, interfaceType, match, true);
 								}
 								if (use15specifics) {
 									checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
@@ -397,10 +391,7 @@ public abstract class Expression extends Statement {
 								tagAsNeedCheckCast();
 								match = castType.findSuperTypeWithSameErasure(expressionType);
 								if (match != null) {
-									if (use15specifics) {
-										return checkUnsafeCast(scope, castType, expressionType, match, true);
-									}
-									return true;
+									return checkUnsafeCast(scope, castType, expressionType, match, true);
 								}
 								if (((ReferenceBinding) castType).isFinal()) {
 									// no subclass for castType, thus compile-time check is invalid
@@ -442,10 +433,7 @@ public abstract class Expression extends Statement {
 								ReferenceBinding refExprType = (ReferenceBinding) expressionType;
 								match = refExprType.findSuperTypeWithSameErasure(castType);
 								if (match != null) {
-									if (use15specifics) {
-										return checkUnsafeCast(scope, castType, expressionType, match, false);
-									}
-									return true;
+									return checkUnsafeCast(scope, castType, expressionType, match, false);
 								}
 								// unless final a subclass may implement the interface ==> no check at compile time
 								if (refExprType.isFinal()) {
@@ -454,10 +442,7 @@ public abstract class Expression extends Statement {
 								tagAsNeedCheckCast();
 								match = castType.findSuperTypeWithSameErasure(expressionType);
 								if (match != null) {
-									if (use15specifics) {
-										return checkUnsafeCast(scope, castType, expressionType, match, true);
-									}
-									return true;
+									return checkUnsafeCast(scope, castType, expressionType, match, true);
 								}
 								if (use15specifics) {
 									checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
@@ -471,18 +456,12 @@ public abstract class Expression extends Statement {
 								match = expressionType.findSuperTypeWithSameErasure(castType);
 								if (match != null) {
 									if (expression != null && castType.id == T_JavaLangString) this.constant = expression.constant; // (String) cst is still a constant
-									if (use15specifics) {
-										return checkUnsafeCast(scope, castType, expressionType, match, false);
-									} 
-									return true;
+									return checkUnsafeCast(scope, castType, expressionType, match, false);
 								}
 								match = castType.findSuperTypeWithSameErasure(expressionType);
 								if (match != null) {
 									tagAsNeedCheckCast();
-									if (use15specifics) {
-										return checkUnsafeCast(scope, castType, expressionType, match, true);
-									}
-									return true;
+									return checkUnsafeCast(scope, castType, expressionType, match, true);
 								}
 								return false;
 							}
