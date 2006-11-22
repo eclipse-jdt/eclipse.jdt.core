@@ -859,8 +859,9 @@ public void test0045_autoboxing_operator() {
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
-				"  void foo() {\n" + 
-				"    Integer i = 0;\n" +
+				"  void foo() {\n" +
+				"    int j = 5;" + 
+				"    Integer i = 0 + j;\n" +
 				"    if (i == null) {}\n" + 
 				"  }\n" + 
 				"}\n"},
