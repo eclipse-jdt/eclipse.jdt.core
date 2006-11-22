@@ -542,7 +542,7 @@ public void test0025_parameter() {
 
 // null analysis -- suppress warnings
 public void test0026_suppress_warnings() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
 		this.runConformTest(
@@ -752,7 +752,7 @@ public void test0036_conditional_expression() {
 
 // null analysis -- autoboxing
 public void test0040_autoboxing_compound_assignment() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -773,7 +773,7 @@ public void test0040_autoboxing_compound_assignment() {
 
 // null analysis -- autoboxing
 public void test0041_autoboxing_increment_operator() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -795,7 +795,7 @@ public void test0041_autoboxing_increment_operator() {
 
 // null analysis -- autoboxing
 public void test0042_autoboxing_literal() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -816,7 +816,7 @@ public void test0042_autoboxing_literal() {
 
 // null analysis -- autoboxing
 public void test0043_autoboxing_literal() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -848,6 +848,29 @@ public void test0044_autoboxing() {
 			"  }\n" + 
 			"}\n"},
 		"");
+}
+
+// null analysis -- autoboxing
+// variant of 42 for
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165346
+public void test0045_autoboxing_operator() {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  void foo() {\n" + 
+				"    Integer i = 0;\n" +
+				"    if (i == null) {}\n" + 
+				"  }\n" + 
+				"}\n"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	if (i == null) {}\n" + 
+			"	    ^\n" + 
+			"The variable i cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+			"----------\n");
+	}
 }
 
 // null analysis -- array
@@ -5750,7 +5773,7 @@ public void test0710_for() {
 
 // null analysis -- for
 public void test0711_for() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5772,7 +5795,7 @@ public void test0711_for() {
 
 // null analysis -- for
 public void test0712_for() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5794,7 +5817,7 @@ public void test0712_for() {
 
 // null analysis -- for
 public void test0713_for() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5810,7 +5833,7 @@ public void test0713_for() {
 
 // null analysis -- for
 public void test0714_for() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5826,7 +5849,7 @@ public void test0714_for() {
 
 // null analysis -- for
 public void test0715_for() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5852,7 +5875,7 @@ public void test0715_for() {
 
 // null analysis -- for
 public void test0716_for() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5875,7 +5898,7 @@ public void test0716_for() {
 
 // null analysis -- for
 public void test0717_for() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -6283,7 +6306,7 @@ public void test0734_for_while_break() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=129371
 // variant
 public void test0735_for_nested_break() {
-	if (COMPLIANCE_1_5.equals(this.complianceLevel)) {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
