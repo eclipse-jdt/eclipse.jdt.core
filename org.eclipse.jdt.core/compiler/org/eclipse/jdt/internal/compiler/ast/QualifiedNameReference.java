@@ -294,7 +294,7 @@ public class QualifiedNameReference extends NameReference {
 		MethodScope methodScope = scope.methodScope();
 		// check for forward references
 		if (this.indexOfFirstFieldBinding == 1
-				&& methodScope.enclosingSourceType() == fieldBinding.declaringClass
+				&& methodScope.enclosingSourceType() == fieldBinding.original().declaringClass
 				&& methodScope.lastVisibleFieldID >= 0
 				&& fieldBinding.id >= methodScope.lastVisibleFieldID
 				&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
@@ -999,10 +999,9 @@ public int nullStatus(FlowInfo flowInfo) {
 					if (binding instanceof FieldBinding) {
 						FieldBinding fieldBinding = (FieldBinding) binding;
 						MethodScope methodScope = scope.methodScope();
-						ReferenceBinding declaringClass = fieldBinding.declaringClass;
 						// check for forward references
 						if (this.indexOfFirstFieldBinding == 1
-								&& methodScope.enclosingSourceType() == declaringClass
+								&& methodScope.enclosingSourceType() == fieldBinding.original().declaringClass
 								&& methodScope.lastVisibleFieldID >= 0
 								&& fieldBinding.id >= methodScope.lastVisibleFieldID
 								&& (!fieldBinding.isStatic() || methodScope.isStatic)) {

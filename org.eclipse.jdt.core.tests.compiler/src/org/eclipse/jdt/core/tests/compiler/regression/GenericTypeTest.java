@@ -35664,4 +35664,68 @@ public void _test1084() {
 		},
 		"ERR");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165291
+public void test1085() {
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"class Z {\n" + 
+			"        Z z1 = z1;\n" + 
+			"        Z[] z2 = z2;\n" + 
+			"}\n" + 
+			"public class Y<E> {\n" + 
+			"		E e0 = es[0];\n" + 
+			"		E e = e;\n" + 
+			"        E[] es = es;\n" + 
+			"		E e2 = e2.e;\n" + 
+			"}", // =================,
+		},
+		"----------\n" + 
+		"1. WARNING in Y.java (at line 2)\n" + 
+		"	Z z1 = z1;\n" + 
+		"	  ^^^^^^^\n" + 
+		"The assignment to variable z1 has no effect\n" + 
+		"----------\n" + 
+		"2. ERROR in Y.java (at line 2)\n" + 
+		"	Z z1 = z1;\n" + 
+		"	       ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"3. WARNING in Y.java (at line 3)\n" + 
+		"	Z[] z2 = z2;\n" + 
+		"	    ^^^^^^^\n" + 
+		"The assignment to variable z2 has no effect\n" + 
+		"----------\n" + 
+		"4. ERROR in Y.java (at line 3)\n" + 
+		"	Z[] z2 = z2;\n" + 
+		"	         ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"5. ERROR in Y.java (at line 6)\n" + 
+		"	E e0 = es[0];\n" + 
+		"	       ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"6. ERROR in Y.java (at line 7)\n" + 
+		"	E e = e;\n" + 
+		"	      ^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"7. ERROR in Y.java (at line 8)\n" + 
+		"	E[] es = es;\n" + 
+		"	         ^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"8. ERROR in Y.java (at line 9)\n" + 
+		"	E e2 = e2.e;\n" + 
+		"	       ^^^^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"9. ERROR in Y.java (at line 9)\n" + 
+		"	E e2 = e2.e;\n" + 
+		"	       ^^^^\n" + 
+		"e2.e cannot be resolved or is not a field\n" + 
+		"----------\n");
+}
 }

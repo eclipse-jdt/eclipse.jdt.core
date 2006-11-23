@@ -197,15 +197,12 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			scope.problemReporter().deprecatedField(fieldBinding, this);
 	
 		if ((this.bits & IsStrictlyAssigned) == 0
-			&& methodScope.enclosingSourceType() == fieldBinding.declaringClass
-			&& methodScope.lastVisibleFieldID >= 0
-			&& fieldBinding.id >= methodScope.lastVisibleFieldID) {
-			//if the field is static and ms is not .... then it is valid
-			if (!fieldBinding.isStatic() || methodScope.isStatic)
-				scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
+				&& methodScope.enclosingSourceType() == fieldBinding.original().declaringClass
+				&& methodScope.lastVisibleFieldID >= 0
+				&& fieldBinding.id >= methodScope.lastVisibleFieldID
+				&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
+			scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
 		}
-		//====================================================
-	
 		return fieldBinding.type;
 	
 	}
