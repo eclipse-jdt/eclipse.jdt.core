@@ -88,6 +88,9 @@ Eclipse SDK 3.3M4 - 21st November 2006
 <ul>
 <li>Added <code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS</code>. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=164946">165210</a> for details.</li>
 <li>Added <code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants#FORMATTER_INSERT_SPACE_BEFORE_PARENTHESIZED_EXPRESSION_IN_THROW</code>. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=164946">164946</a> for details.</li>
+<li>javadoc checker now correctly allow usage of {@value} tags only on field declaration when source level is less than 1.5
+(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=153399">153399</a>).
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -142,6 +145,11 @@ Eclipse SDK 3.3M4 - 14th November 2006
 <br>Project org.eclipse.jdt.core v_723
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_723">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>javadoc checker did incorrectly allow compatible matches for method references; where only exact matches are mandated
+(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=163659">163659</a>).
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=140980">140980</a>
