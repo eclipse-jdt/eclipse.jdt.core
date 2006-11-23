@@ -49,6 +49,7 @@ import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -86,6 +87,7 @@ import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
@@ -111,7 +113,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 659 };
+//		TESTS_NUMBERS =  new int[] { 660, 661, 662, 663 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8293,6 +8295,251 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNull("No binding", binding);
 		} finally {
 			deleteProject("P659");
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=144858
+	 * TODO (frederic) check that keys are different (PR 149590) 
+	 */
+	public void test0660() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		int x = 0;\n" + 
+				"		String x = \"\"; //$NON-NLS-1$\n" + 
+				"		x.toString();\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 1, "Duplicate local variable x");
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+			List  fragments = statement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			assertEquals("Wrong name", "x", variableBinding.getName());
+			// (PR 149590) 
+			// String key = variableBinding.getKey();
+			
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			statement = (VariableDeclarationStatement) node;
+			fragments = statement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			fragment = (VariableDeclarationFragment) fragments.get(0);
+			variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			assertEquals("Wrong name", "x", variableBinding.getName());
+			// (PR 149590) 
+			// String key2 = variableBinding.getKey();
+			//assertFalse("Keys should not be equals", key2.equals(key));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=144858
+	 * TODO (frederic) check that keys are different (PR 149590) 
+	 */
+	public void test0661() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"        public static void main(String[] args) {\n" + 
+				"                int x = 2;\n" + 
+				"                try {\n" + 
+				"\n" + 
+				"                } catch(NullPointerException x) {\n" + 
+				"                } catch(Exception e) {\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 1, "Duplicate parameter x");
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+			List  fragments = statement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			assertEquals("Wrong name", "x", variableBinding.getName());
+			// (PR 149590) 
+			// String key = variableBinding.getKey();
+			
+			node = getASTNode(unit, 0, 0, 1);
+			assertEquals("Not a try statement", ASTNode.TRY_STATEMENT, node.getNodeType());
+			TryStatement statement2 = (TryStatement) node;
+			List catchClauses = statement2.catchClauses();
+			assertEquals("Wrong size", 2, catchClauses.size());
+			CatchClause catchClause = (CatchClause) catchClauses.get(0);
+			SingleVariableDeclaration variableDeclaration = catchClause.getException();
+			variableBinding = variableDeclaration.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			assertEquals("Wrong name", "x", variableBinding.getName());
+			// (PR 149590) 
+			// String key2 = variableBinding.getKey();
+			//assertFalse("Keys should not be equals", key2.equals(key));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=144858
+	 * TODO (frederic) check that keys are different (PR 149590) 
+	 */
+	public void test0662() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"        public static void main(String[] args) {\n" + 
+				"                int x = x = 0;\n" + 
+				"                if (true) {\n" + 
+				"                        int x = x = 1;\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedLog =
+				"The assignment to variable x has no effect\n" + 
+				"Duplicate local variable x\n" + 
+				"The assignment to variable x has no effect";
+			assertProblemsSize(unit, 3, expectedLog);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+			List  fragments = statement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			assertEquals("Wrong name", "x", variableBinding.getName());
+			// (PR 149590) 
+			// String key = variableBinding.getKey();
+			
+			node = getASTNode(unit, 0, 0, 1);
+			assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
+			IfStatement ifStatement = (IfStatement) node;
+			Block block = (Block) ifStatement.getThenStatement();
+			List statements = block.statements();
+			assertEquals("Wrong size", 1, statements.size());
+			Statement statement2 = (Statement) statements.get(0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement2.getNodeType());
+			statement = (VariableDeclarationStatement) statement2;
+			fragments = statement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			fragment = (VariableDeclarationFragment) fragments.get(0);
+			variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			assertEquals("Wrong name", "x", variableBinding.getName());
+			
+			// (PR 149590) 
+			// String key2 = variableBinding.getKey();
+			//assertFalse("Keys should not be equals", key2.equals(key));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=144858
+	 * TODO (frederic) check that keys are different (PR 149590) 
+	 */
+	public void test0663() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"        public static void main(String[] args) {\n" + 
+				"                for (int i = 0; i < 10; i++) {\n" + 
+				"                        for (int i = 0; i < 5; i++)  {\n" + 
+				"                                // do something\n" + 
+				"                        }\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedLog = "Duplicate local variable i";
+			assertProblemsSize(unit, 1, expectedLog);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a for statement", ASTNode.FOR_STATEMENT, node.getNodeType());
+			ForStatement statement = (ForStatement) node;
+			List initializers = statement.initializers();
+			assertEquals("Wrong size", 1, initializers.size());
+			Expression expression = (Expression) initializers.get(0);
+			assertEquals("Not a variable declaration expression", ASTNode.VARIABLE_DECLARATION_EXPRESSION, expression.getNodeType());
+			VariableDeclarationExpression expression2 = (VariableDeclarationExpression) expression;
+			List fragments = expression2.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			assertEquals("Wrong name", "i", variableBinding.getName());
+			// (PR 149590) 
+			// String key = variableBinding.getKey();
+			
+			Block block = (Block) statement.getBody();
+			List statements = block.statements();
+			assertEquals("Wrong size", 1, statements.size());
+			Statement statement2 = (Statement) statements.get(0);
+			assertEquals("Not a for statement", ASTNode.FOR_STATEMENT, statement2.getNodeType());
+			statement = (ForStatement) statement2;
+			initializers = statement.initializers();
+			assertEquals("Wrong size", 1, initializers.size());
+			expression = (Expression) initializers.get(0);
+			assertEquals("Not a variable declaration expression", ASTNode.VARIABLE_DECLARATION_EXPRESSION, expression.getNodeType());
+			expression2 = (VariableDeclarationExpression) expression;
+			fragments = expression2.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			fragment = (VariableDeclarationFragment) fragments.get(0);
+			variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			assertEquals("Wrong name", "i", variableBinding.getName());
+
+			// (PR 149590) 
+			// String key2 = variableBinding.getKey();
+			//assertFalse("Keys should not be equals", key2.equals(key));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
 		}
 	}
 }
