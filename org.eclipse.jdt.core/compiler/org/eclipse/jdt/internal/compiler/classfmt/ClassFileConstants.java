@@ -77,13 +77,14 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_1_4 = 48;
 	int MAJOR_VERSION_1_5 = 49; 
 	int MAJOR_VERSION_1_6 = 50; 
+	int MAJOR_VERSION_1_7 = 51; 
 	
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
 	int MINOR_VERSION_2 = 2;	
 	int MINOR_VERSION_3 = 3;	
 	
-	// JDK 1.1 -> 1.5, comparable value allowing to check both major/minor version at once 1.4.1 > 1.4.0
+	// JDK 1.1 -> 1.7, comparable value allowing to check both major/minor version at once 1.4.1 > 1.4.0
 	// 16 unsigned bits for major, then 16 bits for minor
 	long JDK1_1 = ((long)ClassFileConstants.MAJOR_VERSION_1_1 << 16) + ClassFileConstants.MINOR_VERSION_3; // 1.1. is 45.3
 	long JDK1_2 =  ((long)ClassFileConstants.MAJOR_VERSION_1_2 << 16) + ClassFileConstants.MINOR_VERSION_0;
@@ -91,6 +92,7 @@ public interface ClassFileConstants {
 	long JDK1_4 = ((long)ClassFileConstants.MAJOR_VERSION_1_4 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK1_5 = ((long)ClassFileConstants.MAJOR_VERSION_1_5 << 16) + ClassFileConstants.MINOR_VERSION_0;	
 	long JDK1_6 = ((long)ClassFileConstants.MAJOR_VERSION_1_6 << 16) + ClassFileConstants.MINOR_VERSION_0;	
+	long JDK1_7 = ((long)ClassFileConstants.MAJOR_VERSION_1_7 << 16) + ClassFileConstants.MINOR_VERSION_0;	
 	
 	// jdk level used to denote future releases: optional behavior is not enabled for now, but may become so. In order to enable these,
 	// search for references to this constant, and change it to one of the official JDT constants above.
