@@ -2040,6 +2040,16 @@ public void configure(String[] argv) throws InvalidInputException {
 					mode = DEFAULT;
 					continue;
 				}
+				if (currentArg.equals("-1.7") || currentArg.equals("-7") || currentArg.equals("-7.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					if (didSpecifyCompliance) {
+						throw new InvalidInputException(
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+					mode = DEFAULT;
+					continue;
+				}
 				if (currentArg.equals("-d")) { //$NON-NLS-1$
 					if (this.destinationPath != null) {
 						StringBuffer errorMessage = new StringBuffer();
@@ -2345,6 +2355,8 @@ public void configure(String[] argv) throws InvalidInputException {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+				} else if (currentArg.equals("1.7") || currentArg.equals("7") || currentArg.equals("7.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 				} else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_JSR14);
 				} else {
@@ -2393,6 +2405,8 @@ public void configure(String[] argv) throws InvalidInputException {
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+				} else if (currentArg.equals("1.7") || currentArg.equals("7") || currentArg.equals("7.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 				} else {
 					throw new InvalidInputException(this.bind("configure.source", currentArg)); //$NON-NLS-1$
 				}
@@ -3304,6 +3318,9 @@ protected void validateOptions(boolean didSpecifyCompliance) throws InvalidInput
 		} else if (CompilerOptions.VERSION_1_6.equals(version)) {
 			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+		} else if (CompilerOptions.VERSION_1_7.equals(version)) {
+			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 		}
 	}
 	if (this.didSpecifySource) {
@@ -3318,12 +3335,19 @@ protected void validateOptions(boolean didSpecifyCompliance) throws InvalidInput
 		} else if (CompilerOptions.VERSION_1_6.equals(version)) {
 			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
 			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+		} else if (CompilerOptions.VERSION_1_7.equals(version)) {
+			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 		}
 	}
 
 	final Object sourceVersion = this.options.get(CompilerOptions.OPTION_Source);
 	final Object compliance = this.options.get(CompilerOptions.OPTION_Compliance);
-	if (sourceVersion.equals(CompilerOptions.VERSION_1_6)
+	if (sourceVersion.equals(CompilerOptions.VERSION_1_7)
+			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_7) {
+		// compliance must be 1.7 if source is 1.7
+		throw new InvalidInputException(this.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_7)); //$NON-NLS-1$
+	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_6)
 			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_6) {
 		// compliance must be 1.6 if source is 1.6
 		throw new InvalidInputException(this.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
@@ -3347,6 +3371,11 @@ protected void validateOptions(boolean didSpecifyCompliance) throws InvalidInput
 				throw new InvalidInputException(this.bind("configure.incompatibleTargetForGenericSource", (String) targetVersion, (String) sourceVersion)); //$NON-NLS-1$
 			}
 		} else {
+			// target must be 1.7 if source is 1.7
+			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_7
+					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_7){ 
+				throw new InvalidInputException(this.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_7)); //$NON-NLS-1$
+			}
 			// target must be 1.6 if source is 1.6
 			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_6
 					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_6){ 
