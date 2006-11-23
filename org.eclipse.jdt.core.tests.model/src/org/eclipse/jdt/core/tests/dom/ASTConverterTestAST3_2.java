@@ -113,7 +113,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 660, 661, 662, 663 };
+//		TESTS_RANGE = new int[] { 664, -1 };
+//		TESTS_NUMBERS =  new int[] { 664 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8537,6 +8538,161 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			// (PR 149590) 
 			// String key2 = variableBinding.getKey();
 			//assertFalse("Keys should not be equals", key2.equals(key));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=165662
+	 */
+	public void test0664() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"  void foo() {\n" + 
+				"     class Local {\n" + 
+				"        void foo() {}\n" + 
+				"     }\n" + 
+				"     {\n" + 
+				"        class Local {\n" + 
+				"                Local(int i) {\n" + 
+				"                        this.init(i);\n" + 
+				"                }\n" + 
+				"				 void init(int i) {}\n" +
+				"        }\n" + 
+				"        Local l = new Local(0);\n" + 
+				"     }\n" + 
+				"  }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedLog = "Duplicate nested type Local";
+			assertProblemsSize(unit, 1, expectedLog);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType());
+			TypeDeclarationStatement statement = (TypeDeclarationStatement) node;
+			ITypeBinding typeBinding = statement.resolveBinding();
+			assertNotNull("No binding", typeBinding);
+			String key = typeBinding.getKey();
+			assertNotNull("No key", key);
+			
+			node = getASTNode(unit, 0, 0, 1);
+			assertEquals("Not a block", ASTNode.BLOCK, node.getNodeType());
+			Block block = (Block) node;
+			List statements = block.statements();
+			assertEquals("wrong size", 2, statements.size());
+			Statement statement2 = (Statement) statements.get(0);
+			assertEquals("Not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, statement2.getNodeType());
+			statement = (TypeDeclarationStatement) statement2;
+			typeBinding = statement.resolveBinding();
+			assertNotNull("No binding", typeBinding);
+			String key2 = typeBinding.getKey();
+			assertNotNull("No key2", key2);
+			assertFalse("Keys should not be equals", key.equals(key2));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=165662
+	 */
+	public void test0665() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"        void foo() {\n" + 
+				"                class Local {\n" + 
+				"                        void foo() {\n" + 
+				"                        }\n" + 
+				"                }\n" + 
+				"                {\n" + 
+				"                        class Local {\n" + 
+				"                               Local(int i) {\n" + 
+				"                                       this.init(i);\n" + 
+				"                                       this.bar();\n" + 
+				"                               }\n" + 
+				"				 				void init(int i) {}\n" +
+				"                        		void bar() {\n" + 
+				"                        		}\n" + 
+				"                        }\n" + 
+				"                        Local l = new Local(0);\n" + 
+				"                }\n" + 
+				"                Local l = new Local();\n" + 
+				"                l.foo();\n" + 
+				"        }\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedLog = "Duplicate nested type Local";
+			assertProblemsSize(unit, 1, expectedLog);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType());
+			TypeDeclarationStatement statement = (TypeDeclarationStatement) node;
+			ITypeBinding typeBinding = statement.resolveBinding();
+			assertNotNull("No binding", typeBinding);
+			String key = typeBinding.getKey();
+			assertNotNull("No key", key);
+			
+			node = getASTNode(unit, 0, 0, 1);
+			assertEquals("Not a block", ASTNode.BLOCK, node.getNodeType());
+			Block block = (Block) node;
+			List statements = block.statements();
+			assertEquals("wrong size", 2, statements.size());
+			Statement statement2 = (Statement) statements.get(0);
+			assertEquals("Not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, statement2.getNodeType());
+			statement = (TypeDeclarationStatement) statement2;
+			typeBinding = statement.resolveBinding();
+			assertNotNull("No binding", typeBinding);
+			String key2 = typeBinding.getKey();
+			assertNotNull("No key2", key2);
+			assertFalse("Keys should not be equals", key.equals(key2));
+			
+			Statement statement3 = (Statement) statements.get(1);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement3.getNodeType());
+			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement3;
+			List  fragments = variableDeclarationStatement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			assertEquals("Wrong name", "l", variableBinding.getName());
+			Expression expression = fragment.getInitializer();
+			ITypeBinding typeBinding2 = expression.resolveTypeBinding();
+			assertNotNull("No type binding2", typeBinding2);
+			
+			AbstractTypeDeclaration declaration = statement.getDeclaration();
+			List bodyDeclarations = declaration.bodyDeclarations();
+			assertEquals("Wrong size", 3, bodyDeclarations.size());
+			BodyDeclaration declaration2 = (BodyDeclaration) bodyDeclarations.get(0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, declaration2.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) declaration2;
+			assertTrue("not a constructor", methodDeclaration.isConstructor());
+			block = methodDeclaration.getBody();
+			statements = block.statements();
+			assertEquals("Wrong size", 2, statements.size());
+			statement3 = (Statement) statements.get(1);
+			assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, statement3.getNodeType());
+			expression = ((ExpressionStatement) statement3).getExpression();
+			assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+			MethodInvocation invocation = (MethodInvocation) expression;
+			IMethodBinding methodBinding = invocation.resolveMethodBinding();
+			assertNotNull(methodBinding);
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
