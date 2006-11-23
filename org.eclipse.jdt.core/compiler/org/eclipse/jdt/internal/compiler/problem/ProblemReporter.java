@@ -5945,25 +5945,16 @@ public void unsafeCast(CastExpression castExpression, Scope scope) {
 	int severity = computeSeverity(IProblem.UnsafeGenericCast);
 	if (severity == ProblemSeverities.Ignore) return;
 	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
-	TypeBinding erasedCastType = castExpression.resolvedType.erasure();
-	TypeBinding erasedLeaf = erasedCastType.leafComponentType();
-	int dim = erasedCastType.dimensions();
-	if (erasedLeaf.isGenericType()) {
-		ReferenceBinding leafEnclosing = scope.environment().convertToParameterizedType(erasedLeaf.enclosingType());
-		erasedCastType = scope.environment().createRawType((ReferenceBinding)erasedLeaf, leafEnclosing);
-		if (dim > 0) erasedCastType = scope.environment().createArrayType(erasedCastType, dim);
-	}	
+	TypeBinding castExpressionResolvedType = castExpression.resolvedType;
 	this.handle(
 		IProblem.UnsafeGenericCast,
 		new String[]{ 
 			new String(castedExpressionType.readableName()), 
-			new String(castExpression.resolvedType.readableName()),
-			new String(erasedCastType.readableName()),
+			new String(castExpressionResolvedType.readableName())
 		},
 		new String[]{ 
 			new String(castedExpressionType.shortReadableName()), 
-			new String(castExpression.resolvedType.shortReadableName()),
-			new String(erasedCastType.shortReadableName()),
+			new String(castExpressionResolvedType.shortReadableName())
 		},
 		severity,
 		castExpression.sourceStart,

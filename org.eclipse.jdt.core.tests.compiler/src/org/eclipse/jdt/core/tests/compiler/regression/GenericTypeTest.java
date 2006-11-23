@@ -5042,7 +5042,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	ax = (AX<X>)bar(ax);\n" + 
 			"	     ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to AX<X> is actually checking against the erased type AX\n" + 
+			"Type safety: Unchecked cast from Object to AX<X>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
@@ -5191,7 +5191,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 10)\n" + 
 			"	Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to Vector<Object> is actually checking against the erased type Vector\n" + 
+			"Type safety: Unchecked cast from Object to Vector<Object>\n" + 
 			"----------\n",
 			null,
 			true,
@@ -5366,12 +5366,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	return (AX<String>) o;\n" + 
 			"	       ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to AX<String> is actually checking against the erased type AX\n" + 
+			"Type safety: Unchecked cast from Object to AX<String>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 12)\n" + 
 			"	return (AX<E>) o;\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to AX<E> is actually checking against the erased type AX\n" + 
+			"Type safety: Unchecked cast from Object to AX<E>\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 15)\n" + 
 			"	return (AX<E>) null;\n" + 
@@ -5447,7 +5447,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"6. WARNING in X.java (at line 13)\n" + 
 			"	Object a4 = (Hashtable<String,Integer>) o;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to Hashtable<String,Integer> is actually checking against the erased type Hashtable\n" + 
+			"Type safety: Unchecked cast from Object to Hashtable<String,Integer>\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 13)\n" + 
 			"	Object a4 = (Hashtable<String,Integer>) o;\n" + 
@@ -5472,7 +5472,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"11. WARNING in X.java (at line 27)\n" + 
 			"	Object a7 = (Hashtable<String,Integer>) z3;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Z3 to Hashtable<String,Integer> is actually checking against the erased type Hashtable\n" + 
+			"Type safety: Unchecked cast from Z3 to Hashtable<String,Integer>\n" + 
 			"----------\n" + 
 			"12. WARNING in X.java (at line 27)\n" + 
 			"	Object a7 = (Hashtable<String,Integer>) z3;\n" + 
@@ -6589,7 +6589,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	void m() { List<X> l = (List<X>)list(); } // unsafe cast\n" + 
 			"	                       ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from List to List<X> is actually checking against the erased type List\n" + 
+			"Type safety: Unchecked cast from List to List<X>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 4)\n" + 
 			"	void m() { List<X> l = (List<X>)list(); } // unsafe cast\n" + 
@@ -6624,7 +6624,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"9. WARNING in X.java (at line 8)\n" + 
 			"	void m3() { Collection c = null; List l = (List<X>)c; } // unsafe cast\n" + 
 			"	                                          ^^^^^^^^^^\n" + 
-			"Type safety: The cast from Collection to List<X> is actually checking against the erased type List\n" + 
+			"Type safety: Unchecked cast from Collection to List<X>\n" + 
 			"----------\n" + 
 			"10. WARNING in X.java (at line 9)\n" + 
 			"	void m4() { Collection c = null; List l = (List<?>)c; } // ok\n" + 
@@ -6649,7 +6649,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"14. WARNING in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
 			"	                                    ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from List to Collection<X> is actually checking against the erased type Collection\n" + 
+			"Type safety: Unchecked cast from List to Collection<X>\n" + 
 			"----------\n" + 
 			"15. ERROR in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
@@ -7056,7 +7056,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
 			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Class to Class<? extends Object> is actually checking against the erased type Class\n" + 
+			"Type safety: Unchecked cast from Class to Class<? extends Object>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
@@ -7066,7 +7066,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	final Class<? extends String> clazz2 = (Class<? extends String>) classes.get(\"test\");\n" + 
 			"	                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Class to Class<? extends String> is actually checking against the erased type Class\n" + 
+			"Type safety: Unchecked cast from Class to Class<? extends String>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	final Class<? extends String> clazz2 = (Class<? extends String>) classes.get(\"test\");\n" + 
@@ -7076,7 +7076,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. WARNING in X.java (at line 10)\n" + 
 			"	final Class<String> clazz3 = (Class<String>) classes.get(\"test\");\n" + 
 			"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Class to Class<String> is actually checking against the erased type Class\n" + 
+			"Type safety: Unchecked cast from Class to Class<String>\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 10)\n" + 
 			"	final Class<String> clazz3 = (Class<String>) classes.get(\"test\");\n" + 
@@ -7424,7 +7424,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	element = (Set<X>) iter.next();\n" + 
 			"	          ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X to Set<X> is actually checking against the erased type Set\n" + 
+			"Type safety: Unchecked cast from X to Set<X>\n" + 
 			"----------\n");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70243 unsafe cast when wildcards
@@ -7451,7 +7451,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	List<Number> x2= (List<Number>)ls;//unsafe\n" + 
 			"	                 ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from List<capture#1-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
+			"Type safety: Unchecked cast from List<capture#1-of ? extends Number> to List<Number>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	List<Number> ls2 = (List<? extends Number>)ls;\n" + 
@@ -7626,7 +7626,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	X<E,String> xe = (X<E,String>) new X<String,String>();\n" + 
 			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<String,String> to X<E,String> is actually checking against the erased type X\n" + 
+			"Type safety: Unchecked cast from X<String,String> to X<E,String>\n" + 
 			"----------\n");
 	}			
 	public void test0263() {
@@ -7645,7 +7645,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	XC<E,String> xe = (XC<E,String>) new X<String,String>();\n" + 
 			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<String,String> to XC<E,String> is actually checking against the erased type XC\n" + 
+			"Type safety: Unchecked cast from X<String,String> to XC<E,String>\n" + 
 			"----------\n");
 	}
 	public void test0264() {
@@ -7685,7 +7685,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	XC<U> xcu = (XC<U>) new X<E>();\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<E> to XC<U> is actually checking against the erased type XC\n" + 
+			"Type safety: Unchecked cast from X<E> to XC<U>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	XC<U> xcu1 = (XC<?>) new X<E>();			\n" + 
@@ -7695,7 +7695,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	XC<?> xcu2 = (XC<? extends X>) new X<E>();						\n" + 
 			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<E> to XC<? extends X> is actually checking against the erased type XC\n" + 
+			"Type safety: Unchecked cast from X<E> to XC<? extends X>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 5)\n" + 
 			"	XC<?> xcu2 = (XC<? extends X>) new X<E>();						\n" + 
@@ -11228,17 +11228,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	public R getU() { return (R)u; } // Warning\n" + 
 			"	                         ^^^^\n" + 
-			"Type safety: The cast from U to R is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from U to R\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 6)\n" + 
 			"	public R getV() { return (R)v; } // Warning\n" + 
 			"	                         ^^^^\n" + 
-			"Type safety: The cast from V to R is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from V to R\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	public T getT() { return (T)o; } // Warning\n" + 
 			"	                         ^^^^\n" + 
-			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from Object to T\n" + 
 			"----------\n");
 	}
 
@@ -11807,7 +11807,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	X<String> x = (X<String>) xs;\n" + 
 			"	              ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<capture#1-of ? extends String> to X<String> is actually checking against the erased type X\n" + 
+			"Type safety: Unchecked cast from X<capture#1-of ? extends String> to X<String>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
@@ -11840,7 +11840,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	X<String> x = (X<String>) xs;\n" + 
 			"	              ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<T> to X<String> is actually checking against the erased type X\n" + 
+			"Type safety: Unchecked cast from X<T> to X<String>\n" + 
 			"----------\n");	
 	}		
 	
@@ -12925,7 +12925,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	list.add((T) abs); // unchecked cast\n" + 
 			"	         ^^^^^^^\n" + 
-			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from Object to T\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	list.add((T) other.get(0)); // checked cast\n" + 
@@ -12935,7 +12935,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. WARNING in X.java (at line 13)\n" + 
 			"	list.add((T) other.get(0)); // unchecked cast\n" + 
 			"	         ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from capture#2-of ? super T to T is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from capture#2-of ? super T to T\n" + 
 			"----------\n");
 	}		
 
@@ -12990,7 +12990,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	U u = (U) xt;\n" + 
 			"	      ^^^^^^\n" + 
-			"Type safety: The cast from X<T> to U is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from X<T> to U\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	Zork z;\n" + 
@@ -13015,7 +13015,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	array = (T[]) new Number[s];   // Unnecessary cast from Number[] to T[]\n" + 
 			"	        ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Number[] to T[] is actually checking against the erased type Number[]\n" + 
+			"Type safety: Unchecked cast from Number[] to T[]\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	array = new Number[s];   // Type mismatch: cannot convert from Number[] to T[]\n" + 
@@ -13105,7 +13105,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 6)\n" + 
 			"	final T val = (T) getProperty(src, name); // this gives erroneous cast warning\n" + 
 			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from Object to T\n" + 
 			"----------\n");
 	}		
 
@@ -13380,7 +13380,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	T x1= (T) objectArr;\n" + 
 			"	      ^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object[] to T is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from Object[] to T\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
 			"	U x2= (U) objectArr;\n" + 
@@ -16017,17 +16017,17 @@ public void test0500(){
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	return (T) o; // OK\n" + 
 			"	       ^^^^^\n" + 
-			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from Object to T\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	return (T) o; // bug???\n" + 
 			"	       ^^^^^\n" + 
-			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from Object to T\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 16)\n" + 
 			"	return (T) o;\n" + 
 			"	       ^^^^^\n" + 
-			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from Object to T\n" + 
 			"----------\n");
 	}				
 	// should not produce unchecked errors **
@@ -16556,7 +16556,7 @@ public void test0500(){
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	List<String> ls = (List<String>) obj;\n" + 
 			"	                  ^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to List<String> is actually checking against the erased type List\n" + 
+			"Type safety: Unchecked cast from Object to List<String>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	Zork z;\n" + 
@@ -16780,7 +16780,7 @@ public void test0500(){
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	X<U> foo = (X<U>)param;\n" + 
 			"	           ^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<capture#1-of ? super A> to X<U> is actually checking against the erased type X\n" + 
+			"Type safety: Unchecked cast from X<capture#1-of ? super A> to X<U>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	Zork z;\n" + 
@@ -16889,7 +16889,7 @@ public void test0500(){
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	Object o1 = (X<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<capture#1-of ? extends Object> to X<String> is actually checking against the erased type X\n" + 
+			"Type safety: Unchecked cast from X<capture#1-of ? extends Object> to X<String>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	Object o1 = (X<String>) xo;\n" + 
@@ -16914,7 +16914,7 @@ public void test0500(){
 			"6. WARNING in X.java (at line 12)\n" + 
 			"	Object o5 = (X3<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<capture#5-of ? extends Object> to X3<String> is actually checking against the erased type X3\n" + 
+			"Type safety: Unchecked cast from X<capture#5-of ? extends Object> to X3<String>\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 12)\n" + 
 			"	Object o5 = (X3<String>) xo;\n" + 
@@ -17458,7 +17458,7 @@ public void test0500(){
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	doWithEnumClass((Class<Enum>) cl);\n" + 
 			"	                ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Class<capture#1-of ?> to Class<Enum> is actually checking against the erased type Class\n" + 
+			"Type safety: Unchecked cast from Class<capture#1-of ?> to Class<Enum>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 8)\n" + 
 			"	doWithEnumClass((Class<Enum>) cl);\n" + 
@@ -19193,11 +19193,11 @@ public void test0617() {
 				"  Zork z;\n" +
 				"}\n",
 	        },
-			"----------\n" + 
+	        "----------\n" + 
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	theArray = (T[]) Array.newInstance(clazz, 10); // Compiler warning\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to T[] is actually checking against the erased type Object[]\n" + 
+			"Type safety: Unchecked cast from Object to T[]\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 20)\n" + 
 			"	Zork z;\n" + 
@@ -19245,11 +19245,11 @@ public void test0617() {
 			"  Zork z;\n" +
 			"}\n",
 	        },
-			"----------\n" + 
+	        "----------\n" + 
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	T result = (T) customElement(); // reports unnecessary cast\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"Type safety: Unchecked cast from Object to T\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	Zork z;\n" + 
@@ -19981,7 +19981,7 @@ public void test0655() {
 		"1. WARNING in X.java (at line 6)\n" + 
 		"	Object o = (BD<Number>) bb;\n" + 
 		"	           ^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from X.BB<capture#1-of ? extends Number,capture#2-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD\n" + 
+		"Type safety: Unchecked cast from X.BB<capture#1-of ? extends Number,capture#2-of ? super Integer> to X.BD<Number>\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 6)\n" + 
 		"	Object o = (BD<Number>) bb;\n" + 
@@ -20087,7 +20087,7 @@ public void test0658() {
 		"3. WARNING in X.java (at line 17)\n" + 
 		"	return (GenericWrapper<String>) wrappedString;\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to X.GenericWrapper<String> is actually checking against the erased type X.GenericWrapper\n" + 
+		"Type safety: Unchecked cast from Object to X.GenericWrapper<String>\n" + 
 		"----------\n");
 }	
 public void test0659() {
@@ -20142,7 +20142,7 @@ public void test0659() {
 		"2. WARNING in X.java (at line 34)\n" + 
 		"	X<String, Integer> fromQueue = (X<String, Integer>) queue.remove();\n" + 
 		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Reference<capture#1-of ? extends Integer> to X<String,Integer> is actually checking against the erased type X\n" + 
+		"Type safety: Unchecked cast from Reference<capture#1-of ? extends Integer> to X<String,Integer>\n" + 
 		"----------\n");
 }	
 public void test0660() {
@@ -20181,7 +20181,7 @@ public void test0661() {
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	S a = (S)(Integer)3;\n" + 
 		"	      ^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Integer to S is actually checking against the erased type Comparable\n" + 
+		"Type safety: Unchecked cast from Integer to S\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 3)\n" + 
 		"	S a = (S)(Integer)3;\n" + 
@@ -20256,7 +20256,7 @@ public void test0663() {
 		"3. WARNING in X.java (at line 8)\n" + 
 		"	List l = (List<U>) lv;\n" + 
 		"	         ^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from List<V> to List<U> is actually checking against the erased type List\n" + 
+		"Type safety: Unchecked cast from List<V> to List<U>\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 8)\n" + 
 		"	List l = (List<U>) lv;\n" + 
@@ -20328,7 +20328,7 @@ public void test0665() {
 		"2. WARNING in Test.java (at line 5)\n" + 
 		"	Comparable<S> c2 = (Comparable<S>) a; // Should fail?\n" + 
 		"	                   ^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from A to Comparable<S> is actually checking against the erased type Comparable\n" + 
+		"Type safety: Unchecked cast from A to Comparable<S>\n" + 
 		"----------\n");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89940
@@ -20366,7 +20366,7 @@ public void test0666() {
 		"3. WARNING in X.java (at line 10)\n" + 
 		"	ext= (List<? extends Number>) objects; // wrong, should fail\n" + 
 		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from List<Object> to List<? extends Number> is actually checking against the erased type List\n" + 
+		"Type safety: Unchecked cast from List<Object> to List<? extends Number>\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 12)\n" + 
 		"	ext= raw; // correct - raw conversion warning issued\n" + 
@@ -25221,7 +25221,7 @@ public void test0814() {
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	E[] es = (E[]) o;\n" + 
 		"	         ^^^^^^^\n" + 
-		"Type safety: The cast from Object to E[] is actually checking against the erased type Object[]\n" + 
+		"Type safety: Unchecked cast from Object to E[]\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 7)\n" + 
 		"	if (o instanceof List<E>[]) { //incorrect too\n" + 
@@ -25231,7 +25231,7 @@ public void test0814() {
 		"4. WARNING in X.java (at line 8)\n" + 
 		"	List<E>[] es = (List<E>[]) o; \n" + 
 		"	               ^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to List<E>[] is actually checking against the erased type List[]\n" + 
+		"Type safety: Unchecked cast from Object to List<E>[]\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 15)\n" + 
 		"	if (al instanceof List<E>[]) { //incorrect too\n" + 
@@ -25260,7 +25260,7 @@ public void test0815() {
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	E[] o = (E[]) e;\n" + 
 		"	        ^^^^^^^\n" + 
-		"Type safety: The cast from Object[][] to E[] is actually checking against the erased type Object[]\n" + 
+		"Type safety: Unchecked cast from Object[][] to E[]\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	Zork z;\n" + 
@@ -25291,7 +25291,7 @@ public void test0816() {
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	List<E>[][] es = (List<E>[][]) o; \n" + 
 		"	                 ^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object[] to List<E>[][] is actually checking against the erased type List[][]\n" + 
+		"Type safety: Unchecked cast from Object[] to List<E>[][]\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
@@ -25981,7 +25981,7 @@ public void test0830() {
 		"3. WARNING in X.java (at line 6)\n" + 
 		"	X<String> xs = (X<String>)o;\n" + 
 		"	               ^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to X<String> is actually checking against the erased type X\n" + 
+		"Type safety: Unchecked cast from Object to X<String>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 7)\n" + 
 		"	Zork z;\n" + 
@@ -26023,7 +26023,7 @@ public void test0831() {
 		"1. WARNING in X.java (at line 4)\n" + 
 		"	Object o2 = (List<String>) o1;\n" + 
 		"	            ^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to List<String> is actually checking against the erased type List\n" + 
+		"Type safety: Unchecked cast from Object to List<String>\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 4)\n" + 
 		"	Object o2 = (List<String>) o1;\n" + 
@@ -26033,7 +26033,7 @@ public void test0831() {
 		"3. WARNING in X.java (at line 6)\n" + 
 		"	foo((List<String>)o2);\n" + 
 		"	    ^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to List<String> is actually checking against the erased type List\n" + 
+		"Type safety: Unchecked cast from Object to List<String>\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 6)\n" + 
 		"	foo((List<String>)o2);\n" + 
@@ -26392,7 +26392,7 @@ public void test0843() {
 		"2. WARNING in X.java (at line 12)\n" + 
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from List<Object&Serializable&CharSequence> to List<? extends String> is actually checking against the erased type List\n" + 
+		"Type safety: Unchecked cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 12)\n" + 
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
@@ -26523,12 +26523,12 @@ public void test0848() {
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
 		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Collection<capture#1-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
+		"Type safety: Unchecked cast from Collection<capture#1-of ? extends Number> to List<Number>\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 6)\n" + 
 		"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
 		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Collection<capture#2-of ? extends Number> to LinkedList<Number> is actually checking against the erased type LinkedList\n" + 
+		"Type safety: Unchecked cast from Collection<capture#2-of ? extends Number> to LinkedList<Number>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 7)\n" + 
 		"	Zork z;\n" + 
@@ -26650,17 +26650,17 @@ public void test0850() {
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	return (T) o; // OK\n" + 
 		"	       ^^^^^\n" + 
-		"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+		"Type safety: Unchecked cast from Object to T\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 7)\n" + 
 		"	return (T) o; // bug???\n" + 
 		"	       ^^^^^\n" + 
-		"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+		"Type safety: Unchecked cast from Object to T\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 15)\n" + 
 		"	return (T) o;\n" + 
 		"	       ^^^^^\n" + 
-		"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+		"Type safety: Unchecked cast from Object to T\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 17)\n" + 
 		"	Zork z;\n" + 
@@ -26685,7 +26685,7 @@ public void test0851() {
 		"1. WARNING in X.java (at line 5)\n" + 
 		"	return (Bar<Object>)f;\n" + 
 		"	       ^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Foo to Bar<Object> is actually checking against the erased type Bar\n" + 
+		"Type safety: Unchecked cast from Foo to Bar<Object>\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	return (Bar<Object>)f;\n" + 
@@ -27429,7 +27429,7 @@ public void test0875() {
 		"4. WARNING in X.java (at line 12)\n" + 
 		"	: (Class<? extends ObjectFormUI<T>>) uiMap.get(persistentClass);\n" + 
 		"	  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Class<capture#2-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>> is actually checking against the erased type Class\n" + 
+		"Type safety: Unchecked cast from Class<capture#2-of ? extends X.ObjectFormUI> to Class<? extends X.ObjectFormUI<T>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=119395 - variation
@@ -28228,7 +28228,7 @@ public void test0900() {
 		"1. WARNING in X.java (at line 11)\n" + 
 		"	((Comparable<R>) new Implements()).toString();\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from X.Implements to Comparable<R> is actually checking against the erased type Comparable\n" + 
+		"Type safety: Unchecked cast from X.Implements to Comparable<R>\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 12)\n" + 
 		"	((Comparable) new Implements()).toString();\n" + 
@@ -28365,7 +28365,7 @@ public void test0906() {
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
 			"	                ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X to I<Integer> is actually checking against the erased type I\n" + 
+			"Type safety: Unchecked cast from X to I<Integer>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	I<Integer> x1 = (I<Integer>) (X) null;\n" + 
@@ -28380,7 +28380,7 @@ public void test0906() {
 			"5. WARNING in X.java (at line 6)\n" + 
 			"	I<Integer> x2 = (I<Integer>) new X();\n" + 
 			"	                ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X to I<Integer> is actually checking against the erased type I\n" + 
+			"Type safety: Unchecked cast from X to I<Integer>\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 6)\n" + 
 			"	I<Integer> x2 = (I<Integer>) new X();\n" + 
@@ -30317,7 +30317,7 @@ public void test0955() {
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	List<E>[] es= (List<E>[]) o; //unchecked\n" + 
 		"	              ^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to List<E>[] is actually checking against the erased type List[]\n" + 
+		"Type safety: Unchecked cast from Object to List<E>[]\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130128
@@ -34319,7 +34319,7 @@ public void test1062() {
 		"2. WARNING in X.java (at line 10)\n" + 
 		"	Set<X> element2 = (Set<X>) iterator.next(); // warning\n" + 
 		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from X to Set<X> is actually checking against the erased type Set\n" + 
+		"Type safety: Unchecked cast from X to Set<X>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148041 - variation
@@ -34350,7 +34350,7 @@ public void test1063() {
 		"2. WARNING in X.java (at line 10)\n" + 
 		"	Set<Cloneable> element2 = (Set<Cloneable>) iterator.next(); // warning\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Cloneable to Set<Cloneable> is actually checking against the erased type Set\n" + 
+		"Type safety: Unchecked cast from Cloneable to Set<Cloneable>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=148041 - variation
@@ -35447,12 +35447,12 @@ public void test1078() {
 		"4. WARNING in X.java (at line 14)\n" + 
 		"	foo((List<Object>)object);//[4]unchecked cast\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to List<Object> is actually checking against the erased type List\n" + 
+		"Type safety: Unchecked cast from Object to List<Object>\n" + 
 		"----------\n" + 
 		"5. WARNING in X.java (at line 15)\n" + 
 		"	foo((List<? extends Object>)object);//[5]\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to List<? extends Object> is actually checking against the erased type List\n" + 
+		"Type safety: Unchecked cast from Object to List<? extends Object>\n" + 
 		"----------\n" + 
 		"6. WARNING in X.java (at line 17)\n" + 
 		"	foo((Map)object);//[6]\n" + 
@@ -35462,27 +35462,27 @@ public void test1078() {
 		"7. WARNING in X.java (at line 19)\n" + 
 		"	foo((Map<Object, ?>)object);//[8]unchecked cast\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to Map<Object,?> is actually checking against the erased type Map\n" + 
+		"Type safety: Unchecked cast from Object to Map<Object,?>\n" + 
 		"----------\n" + 
 		"8. WARNING in X.java (at line 20)\n" + 
 		"	foo((Map<?, Object>)object);//[9]unchecked cast\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to Map<?,Object> is actually checking against the erased type Map\n" + 
+		"Type safety: Unchecked cast from Object to Map<?,Object>\n" + 
 		"----------\n" + 
 		"9. WARNING in X.java (at line 21)\n" + 
 		"	foo((Map<Object, Object>)object);//[10]unchecked cast\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to Map<Object,Object> is actually checking against the erased type Map\n" + 
+		"Type safety: Unchecked cast from Object to Map<Object,Object>\n" + 
 		"----------\n" + 
 		"10. WARNING in X.java (at line 22)\n" + 
 		"	foo((Map<? extends Object, Object>)object);//[11]unchecked cast\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to Map<? extends Object,Object> is actually checking against the erased type Map\n" + 
+		"Type safety: Unchecked cast from Object to Map<? extends Object,Object>\n" + 
 		"----------\n" + 
 		"11. WARNING in X.java (at line 23)\n" + 
 		"	foo((Map<? extends Object, ? extends Object>)object);//[12]\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to Map<? extends Object,? extends Object> is actually checking against the erased type Map\n" + 
+		"Type safety: Unchecked cast from Object to Map<? extends Object,? extends Object>\n" + 
 		"----------\n" + 
 		"12. ERROR in X.java (at line 24)\n" + 
 		"	Zork z;\n" + 
@@ -35507,7 +35507,7 @@ public void test1079() {
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	return (AX<? extends String>) o;\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from Object to AX<? extends String> is actually checking against the erased type AX\n" + 
+		"Type safety: Unchecked cast from Object to AX<? extends String>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	Zork z;\n" + 
@@ -35537,7 +35537,7 @@ public void test1080() {
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	return (CX<E>) x; // unchecked\n" + 
 		"	       ^^^^^^^^^\n" + 
-		"Type safety: The cast from X<String> to CX<E> is actually checking against the erased type CX\n" + 
+		"Type safety: Unchecked cast from X<String> to CX<E>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	Zork z;\n" + 
@@ -35583,7 +35583,7 @@ public void test1082() {
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	return (CX<E>) x; // unchecked\n" + 
 		"	       ^^^^^^^^^\n" + 
-		"Type safety: The cast from X<String> to CX<E> is actually checking against the erased type CX\n" + 
+		"Type safety: Unchecked cast from X<String> to CX<E>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	Zork z;\n" + 
@@ -35626,17 +35626,17 @@ public void test1083() {
 		"1. WARNING in X.java (at line 13)\n" + 
 		"	java.util.List<String> b = (LinkedList<String>) a; // unchecked\n" + 
 		"	                           ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from List<capture#1-of ? extends Serializable> to LinkedList<String> is actually checking against the erased type LinkedList\n" + 
+		"Type safety: Unchecked cast from List<capture#1-of ? extends Serializable> to LinkedList<String>\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 14)\n" + 
 		"	java.util.List<Integer> c = (LinkedList<Integer>) a; // unchecked\n" + 
 		"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from List<capture#2-of ? extends Serializable> to LinkedList<Integer> is actually checking against the erased type LinkedList\n" + 
+		"Type safety: Unchecked cast from List<capture#2-of ? extends Serializable> to LinkedList<Integer>\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 15)\n" + 
 		"	java.util.List<Runtime> d = (LinkedList<Runtime>) a; // inconvertible / unchecked ?\n" + 
 		"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The cast from List<capture#3-of ? extends Serializable> to LinkedList<Runtime> is actually checking against the erased type LinkedList\n" + 
+		"Type safety: Unchecked cast from List<capture#3-of ? extends Serializable> to LinkedList<Runtime>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 18)\n" + 
 		"	Zork z;\n" + 

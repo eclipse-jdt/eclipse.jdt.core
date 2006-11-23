@@ -2088,7 +2088,7 @@ public void test032(){
 	        "6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" + 
 	        "	m2.put((XX<?, XY>) p1, p2);\n" + 
 	        "	       ^^^^^^^^^^^^^^\n" + 
-	        "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
+	        "Type safety: Unchecked cast from TT to X.XX<?,X.XY>\n" + 
 	        "----------\n" + 
 	        "7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
 	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
@@ -2098,7 +2098,7 @@ public void test032(){
 	        "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
 	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
 	        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-	        "Type safety: The cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
+	        "Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>\n" + 
 	        "----------\n" + 
 	        "8 problems (8 warnings)",
 	        true);
@@ -2268,7 +2268,7 @@ public void test032(){
         "6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" + 
         "	m2.put((XX<?, XY>) p1, p2);\n" + 
         "	       ^^^^^^^^^^^^^^\n" + 
-        "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
+        "Type safety: Unchecked cast from TT to X.XX<?,X.XY>\n" + 
         "----------\n" + 
         "7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
         "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
@@ -2278,7 +2278,7 @@ public void test032(){
         "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
         "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
         "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-        "Type safety: The cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
+        "Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>\n" + 
         "----------\n" + 
         "8 problems (8 warnings)",
         false);
