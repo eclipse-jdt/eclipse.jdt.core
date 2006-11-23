@@ -2315,6 +2315,13 @@ public void testChangeInternalJar() throws CoreException, IOException {
 		}, jarPath, "1.4");
 		this.currentProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 
+		try {
+			Thread.sleep(1000);
+		}
+		catch (InterruptedException ie) {
+			// skip
+		}
+
 		// second completion
 		requestor = new CompletionTestsRequestor2();
 		unit.codeComplete(cursorLocation, requestor);

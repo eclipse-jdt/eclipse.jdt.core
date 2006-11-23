@@ -943,6 +943,13 @@ public void testChangeInternalJar() throws CoreException, IOException {
 		}, jarPath, "1.4");
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 
+		try {
+			Thread.sleep(1000);
+		}
+		catch (InterruptedException ie) {
+			// skip
+		}
+
 		// Verify that error is gone
 		this.problemRequestor.initialize(contents.toCharArray());
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
