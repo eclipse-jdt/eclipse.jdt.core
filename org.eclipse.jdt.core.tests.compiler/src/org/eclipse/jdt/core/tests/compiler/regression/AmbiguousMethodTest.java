@@ -1578,4 +1578,33 @@ public void _test044() {
 		},
 		"");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165620
+public void _test045() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"abstract class Y<T> implements I<T> {\n" + 
+			"}\n" + 
+			"interface I<T> { \n" + 
+			"}\n" + 
+			"interface J<T> {\n" + 
+			"}\n" + 
+			"class X {\n" + 
+			"  public static <V extends J<? super V>> V foo(final I<V> a)\n" + 
+			"  {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  public static <V extends J<? super V>> V foo(final Y<V> a)\n" + 
+			"  {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  public static <V extends J<? super V>> void test(final Y<V> a)\n" + 
+			"  {\n" + 
+			"    foo(a);\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
 }
