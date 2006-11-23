@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -23,103 +24,109 @@ import junit.framework.TestSuite;
  */
 public class TestAll extends junit.framework.TestCase {
 
-	public TestAll(String testName) {
-		super(testName);
-	}
-	
-	public static Test suite() {
-		ArrayList testClasses = new ArrayList();
-
+	public final static List TEST_CLASSES_1_5 = new ArrayList();
+	static {
 		/* completion tests */
-		testClasses.addAll(RunCompletionParserTests.TEST_CLASSES);
-		
+		TEST_CLASSES_1_5.addAll(RunCompletionParserTests.TEST_CLASSES_1_5);
 		/* selection tests */
-		testClasses.add(ExplicitConstructorInvocationSelectionTest.class);
-		testClasses.add(SelectionTest.class);
-		testClasses.add(SelectionTest2.class);
-		testClasses.add(SelectionJavadocTest.class);
-		
+		TEST_CLASSES_1_5.add(GenericsSelectionTest.class);
+		TEST_CLASSES_1_5.add(AnnotationSelectionTest.class);
+		TEST_CLASSES_1_5.add(EnumSelectionTest.class);
 		/* recovery tests */
-		testClasses.add(DietRecoveryTest.class);
-		testClasses.add(StatementRecoveryTest.class);
-		
-		/* source element parser tests */
-		testClasses.add(SourceElementParserTest.class);
-
-		/* document element parser tests */
-		testClasses.add(DocumentElementParserTest.class);
-
-		/* syntax error diagnosis tests */
-		testClasses.add(SyntaxErrorTest.class);
-		testClasses.add(DualParseSyntaxErrorTest.class);
-		testClasses.add(ParserTest.class);
-		testClasses.add(ComplianceDiagnoseTest.class);
-		
-		TestSuite all = new TestSuite(TestAll.class.getName());
-		int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-			ArrayList tests_1_3 = (ArrayList)testClasses.clone();
-			// Reset forgotten subsets tests
-			TestCase.TESTS_PREFIX = null;
-			TestCase.TESTS_NAMES = null;
-			TestCase.TESTS_NUMBERS= null;
-			TestCase.TESTS_RANGE = null;
-			TestCase.RUN_ONLY_ID = null;
-			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_3, tests_1_3));
-		}
-		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-			ArrayList tests_1_4 = (ArrayList)testClasses.clone();
-			// Reset forgotten subsets tests
-			TestCase.TESTS_PREFIX = null;
-			TestCase.TESTS_NAMES = null;
-			TestCase.TESTS_NUMBERS= null;
-			TestCase.TESTS_RANGE = null;
-			TestCase.RUN_ONLY_ID = null;
-			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_4, tests_1_4));
-		}
-		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-			ArrayList tests_1_5 = (ArrayList)testClasses.clone();
-			/* completion tests */
-			tests_1_5.addAll(RunCompletionParserTests.TEST_CLASSES_1_5);
-			/* selection tests */
-			tests_1_5.add(GenericsSelectionTest.class);
-			tests_1_5.add(AnnotationSelectionTest.class);
-			tests_1_5.add(EnumSelectionTest.class);
-			/* recovery tests */
-			tests_1_5.add(GenericDietRecoveryTest.class);
-			tests_1_5.add(EnumDietRecoveryTest.class);
-			tests_1_5.add(AnnotationDietRecoveryTest.class);
-			tests_1_5.add(StatementRecoveryTest_1_5.class);
-			// Reset forgotten subsets tests
-			TestCase.TESTS_PREFIX = null;
-			TestCase.TESTS_NAMES = null;
-			TestCase.TESTS_NUMBERS= null;
-			TestCase.TESTS_RANGE = null;
-			TestCase.RUN_ONLY_ID = null;
-			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_5, tests_1_5));
-		}
-		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_6) != 0) {
-			ArrayList tests_1_6 = (ArrayList)testClasses.clone();
-			/* completion tests */
-			tests_1_6.addAll(RunCompletionParserTests.TEST_CLASSES_1_5);
-			/* selection tests */
-			tests_1_6.add(GenericsSelectionTest.class);
-			tests_1_6.add(AnnotationSelectionTest.class);
-			tests_1_6.add(EnumSelectionTest.class);
-			/* recovery tests */
-			tests_1_6.add(GenericDietRecoveryTest.class);
-			tests_1_6.add(EnumDietRecoveryTest.class);
-			tests_1_6.add(AnnotationDietRecoveryTest.class);
-			tests_1_6.add(StatementRecoveryTest_1_5.class);
-			// Reset forgotten subsets tests
-			TestCase.TESTS_PREFIX = null;
-			TestCase.TESTS_NAMES = null;
-			TestCase.TESTS_NUMBERS= null;
-			TestCase.TESTS_RANGE = null;
-			TestCase.RUN_ONLY_ID = null;
-			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_6, tests_1_6));
-		}
-
-		return all;
+		TEST_CLASSES_1_5.add(GenericDietRecoveryTest.class);
+		TEST_CLASSES_1_5.add(EnumDietRecoveryTest.class);
+		TEST_CLASSES_1_5.add(AnnotationDietRecoveryTest.class);
+		TEST_CLASSES_1_5.add(StatementRecoveryTest_1_5.class);
 	}
+
+public TestAll(String testName) {
+	super(testName);
+}
+
+public static Test suite() {
+	ArrayList testClasses = new ArrayList();
+
+	/* completion tests */
+	testClasses.addAll(RunCompletionParserTests.TEST_CLASSES);
+	
+	/* selection tests */
+	testClasses.add(ExplicitConstructorInvocationSelectionTest.class);
+	testClasses.add(SelectionTest.class);
+	testClasses.add(SelectionTest2.class);
+	testClasses.add(SelectionJavadocTest.class);
+	
+	/* recovery tests */
+	testClasses.add(DietRecoveryTest.class);
+	testClasses.add(StatementRecoveryTest.class);
+	
+	/* source element parser tests */
+	testClasses.add(SourceElementParserTest.class);
+
+	/* document element parser tests */
+	testClasses.add(DocumentElementParserTest.class);
+
+	/* syntax error diagnosis tests */
+	testClasses.add(SyntaxErrorTest.class);
+	testClasses.add(DualParseSyntaxErrorTest.class);
+	testClasses.add(ParserTest.class);
+	testClasses.add(ComplianceDiagnoseTest.class);
+	
+	TestSuite all = new TestSuite(TestAll.class.getName());
+	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
+		ArrayList tests_1_3 = (ArrayList)testClasses.clone();
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_3, tests_1_3));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
+		ArrayList tests_1_4 = (ArrayList)testClasses.clone();
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_4, tests_1_4));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
+		ArrayList tests_1_5 = (ArrayList)testClasses.clone();
+		tests_1_5.addAll(TEST_CLASSES_1_5);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_5, tests_1_5));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_6) != 0) {
+		ArrayList tests_1_6 = (ArrayList)testClasses.clone();
+		tests_1_6.addAll(TEST_CLASSES_1_5);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_6, tests_1_6));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_7) != 0) {
+		ArrayList tests_1_7 = (ArrayList)testClasses.clone();
+		tests_1_7.addAll(TEST_CLASSES_1_5);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_7, tests_1_7));
+	}
+
+	return all;
+}
 }

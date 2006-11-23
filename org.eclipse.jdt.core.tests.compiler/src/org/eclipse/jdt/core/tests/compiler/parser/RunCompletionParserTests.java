@@ -78,7 +78,7 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 		}
 		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 			ArrayList tests_1_5 = (ArrayList)testClasses.clone();
-			tests_1_5.addAll(RunCompletionParserTests.TEST_CLASSES_1_5);
+			tests_1_5.addAll(TEST_CLASSES_1_5);
 			// Reset forgotten subsets tests
 			TestCase.TESTS_PREFIX = null;
 			TestCase.TESTS_NAMES = null;
@@ -89,7 +89,7 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 		}
 		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_6) != 0) {
 			ArrayList tests_1_6 = (ArrayList)testClasses.clone();
-			tests_1_6.addAll(RunCompletionParserTests.TEST_CLASSES_1_5);
+			tests_1_6.addAll(TEST_CLASSES_1_5);
 			// Reset forgotten subsets tests
 			TestCase.TESTS_PREFIX = null;
 			TestCase.TESTS_NAMES = null;
@@ -97,6 +97,17 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 			TestCase.TESTS_RANGE = null;
 			TestCase.RUN_ONLY_ID = null;
 			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_6, tests_1_6));
+		}
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_7) != 0) {
+			ArrayList tests_1_7 = (ArrayList)testClasses.clone();
+			tests_1_7.addAll(TEST_CLASSES_1_5);
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(AbstractCompilerTest.COMPLIANCE_1_7, tests_1_7));
 		}
 
 		return all;

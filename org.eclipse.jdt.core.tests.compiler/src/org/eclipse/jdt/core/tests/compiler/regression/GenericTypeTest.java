@@ -34013,7 +34013,7 @@ public void test1054() {
 		"Type mismatch: cannot convert from Annotation to Bar\n" + 
 		"----------\n";
 	
-	if (isJRELevel(AbstractCompilerTest.F_1_6)) {
+	if (isJRELevel(AbstractCompilerTest.F_1_6|AbstractCompilerTest.F_1_7)) {
 		expectedOutput =
 			"----------\n" + 
 			"1. WARNING in X.java (at line 10)\n" + 

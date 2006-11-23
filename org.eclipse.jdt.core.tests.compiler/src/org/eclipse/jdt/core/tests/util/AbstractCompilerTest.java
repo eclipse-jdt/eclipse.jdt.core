@@ -30,15 +30,17 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AbstractCompilerTest extends TestCase {
 
-	public static final String COMPLIANCE_1_3 = "1.3";
-	public static final String COMPLIANCE_1_4 = "1.4";
-	public static final String COMPLIANCE_1_5 = "1.5";
-	public static final String COMPLIANCE_1_6 = "1.6";
+	public static final String COMPLIANCE_1_3 = CompilerOptions.VERSION_1_3;
+	public static final String COMPLIANCE_1_4 = CompilerOptions.VERSION_1_4;
+	public static final String COMPLIANCE_1_5 = CompilerOptions.VERSION_1_5;
+	public static final String COMPLIANCE_1_6 = CompilerOptions.VERSION_1_6;
+	public static final String COMPLIANCE_1_7 = CompilerOptions.VERSION_1_7;
 
-	public static final int F_1_3 = 0x1;
-	public static final int F_1_4 = 0x2;
-	public static final int F_1_5 = 0x4;
-	public static final int F_1_6 = 0x8;
+	public static final int F_1_3 = 0x01;
+	public static final int F_1_4 = 0x02;
+	public static final int F_1_5 = 0x04;
+	public static final int F_1_6 = 0x08;
+	public static final int F_1_7 = 0x10;
 
 	protected static boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	private static int possibleComplianceLevels = 
@@ -70,6 +72,9 @@ public class AbstractCompilerTest extends TestCase {
 		if ((complianceLevels & AbstractCompilerTest.F_1_6) != 0) {
 			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_6));
 		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_7) != 0) {
+			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_7));
+		}
 		return suite;
 	}
 
@@ -97,6 +102,9 @@ public class AbstractCompilerTest extends TestCase {
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_6) != 0) {
 			suite.addTest(buildComplianceTestSuite(testClasses, setupClass, COMPLIANCE_1_6));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_7) != 0) {
+			suite.addTest(buildComplianceTestSuite(testClasses, setupClass, COMPLIANCE_1_7));
 		}
 		return suite;
 	}
@@ -200,6 +208,14 @@ public class AbstractCompilerTest extends TestCase {
 				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_6));
 			}
 		}
+		int level17 = complianceLevels & AbstractCompilerTest.F_1_7;
+		if (level17 != 0) {
+			if (level17 < minimalCompliance) {
+				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+COMPLIANCE_1_7+"!");
+			} else {
+				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, AbstractCompilerTest.COMPLIANCE_1_7));
+			}
+		}
 		return suite;
 	}
 
@@ -233,6 +249,9 @@ public class AbstractCompilerTest extends TestCase {
 	 */
 	public static String highestComplianceLevels() {
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_1_7) != 0) {
+			return COMPLIANCE_1_7;
+		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_6) != 0) {
 			return COMPLIANCE_1_6;
 		}
@@ -260,26 +279,40 @@ public class AbstractCompilerTest extends TestCase {
 					possibleComplianceLevels = F_1_5;
 				} else if (COMPLIANCE_1_6.equals(compliance)) {
 					possibleComplianceLevels = F_1_6;
+				} else if (COMPLIANCE_1_7.equals(compliance)) {
+					possibleComplianceLevels = F_1_7;
 				} else {
 					System.out.println("Invalid compliance specified (" + compliance + ")");
-					System.out.println("Use one of " + COMPLIANCE_1_3 + ", " + COMPLIANCE_1_4 + ", " + COMPLIANCE_1_5);
+					System.out.print("Use one of ");
+					System.out.print(COMPLIANCE_1_3 + ", ");
+					System.out.print(COMPLIANCE_1_4 + ", ");
+					System.out.print(COMPLIANCE_1_5 + ", ");
+					System.out.print(COMPLIANCE_1_6 + ", ");
+					System.out.println(COMPLIANCE_1_7);
 					System.out.println("Defaulting to all possible compliances");
 				}
 			}
 			if (possibleComplianceLevels == -1) {
 				possibleComplianceLevels = F_1_3;
 				String specVersion = System.getProperty("java.specification.version");
-				boolean canRun1_4 = !"1.0".equals(specVersion) && !"1.1".equals(specVersion) && !"1.2".equals(specVersion) && !"1.3".equals(specVersion);
+				boolean canRun1_4 = !"1.0".equals(specVersion)
+					&& !CompilerOptions.VERSION_1_1.equals(specVersion)
+					&& !CompilerOptions.VERSION_1_2.equals(specVersion)
+					&& !CompilerOptions.VERSION_1_3.equals(specVersion);
 				if (canRun1_4) {
 					possibleComplianceLevels |= F_1_4;
 				}
-				boolean canRun1_5 = canRun1_4 && !"1.4".equals(specVersion);
+				boolean canRun1_5 = canRun1_4 && !CompilerOptions.VERSION_1_4.equals(specVersion);
 				if (canRun1_5) {
 					possibleComplianceLevels |= F_1_5;
 				}
-				boolean canRun1_6 = "1.6".equals(specVersion);
+				boolean canRun1_6 = canRun1_5 && !CompilerOptions.VERSION_1_5.equals(specVersion);
 				if (canRun1_6) {
 					possibleComplianceLevels |= F_1_6;
+				}
+				boolean canRun1_7 = canRun1_6 && !CompilerOptions.VERSION_1_6.equals(specVersion);
+				if (canRun1_7) {
+					possibleComplianceLevels |= F_1_7;
 				}
 			}
 		}
@@ -400,6 +433,10 @@ public class AbstractCompilerTest extends TestCase {
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
 			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+		} else if (COMPLIANCE_1_7.equals(this.complianceLevel)) {
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 		}
 		return options;
 	}
