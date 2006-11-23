@@ -919,17 +919,13 @@ public void test012(){
         "                       ''[''<enc>'']'' (e.g. X.java[utf8])\n" + 
         " \n" + 
         " Compliance options:\n" + 
-        "    -1.3               use 1.3 compliance level (implicit -source 1.3\n" + 
-        "                       -target 1.1)\n" + 
-        "    -1.4             + use 1.4 compliance level (implicit -source 1.3\n" + 
-        "                       -target 1.2)\n" + 
-        "    -1.5 -5 -5.0       use 1.5 compliance level (implicit -source 1.5\n" + 
-        "                       -target 1.5)\n" + 
-        "    -1.6 -6 -6.0       use 1.6 compliance level (implicit -source 1.6\n" + 
-        "                       -target 1.6)\n" + 
-        "    -source <version>  set source level: 1.3 to 1.6 (or 5, 5.0, 6 or 6.0)\n" + 
-        "    -target <version>  set classfile target level: 1.1 to 1.6 (or 5, 5.0, 6 or\n" +
-        "                       6.0)\n" + 
+        "    -1.3               use 1.3 compliance (-source 1.3 -target 1.1)\n" + 
+        "    -1.4             + use 1.4 compliance (-source 1.3 -target 1.2)\n" + 
+        "    -1.5 -5 -5.0       use 1.5 compliance (-source 1.5 -target 1.5)\n" + 
+        "    -1.6 -6 -6.0       use 1.6 compliance (-source 1.6 -target 1.6)\n" + 
+        "    -1.7 -7 -7.0       use 1.7 compliance (-source 1.7 -target 1.7)\n" + 
+        "    -source <version>  set source level: 1.3 to 1.7 (or 5, 5.0, etc)\n" + 
+        "    -target <version>  set classfile target: 1.1 to 1.7 (or 5, 5.0, etc)\n" + 
         " \n" + 
         " Warning options:\n" + 
         "    -deprecation     + deprecation outside deprecated code\n" + 
