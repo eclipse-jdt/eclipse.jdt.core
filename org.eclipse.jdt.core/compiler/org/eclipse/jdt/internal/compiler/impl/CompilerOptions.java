@@ -126,6 +126,7 @@ public class CompilerOptions {
 	public static final String VERSION_JSR14 = "jsr14"; //$NON-NLS-1$
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
 	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$	
+	public static final String VERSION_1_7 = "1.7"; //$NON-NLS-1$	
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$
@@ -507,7 +508,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) this.targetJDK = level;
-			if (this.targetJDK >= ClassFileConstants.JDK1_5) this.inlineJsrBytecode = true; // forced in 1.5 mode
+			if (this.targetJDK >= ClassFileConstants.JDK1_5) this.inlineJsrBytecode = true; // forced from 1.5 mode on
 		}
 		if ((optionValue = optionsMap.get(OPTION_Encoding)) != null) {
 			if (optionValue instanceof String) {
@@ -849,6 +850,8 @@ public class CompilerOptions {
 						return ClassFileConstants.JDK1_5;
 					case '6':
 						return ClassFileConstants.JDK1_6;
+					case '7':
+						return ClassFileConstants.JDK1_7;
 					default:
 						return 0; // unknown
 				}
@@ -861,18 +864,35 @@ public class CompilerOptions {
 	}
 
 	public static String versionFromJdkLevel(long jdkLevel) {
-		if (jdkLevel == ClassFileConstants.JDK1_1) {
-			return VERSION_1_1;
-		} else if (jdkLevel == ClassFileConstants.JDK1_2) {
-			return VERSION_1_2;
-		} else if (jdkLevel == ClassFileConstants.JDK1_3) {
-			return VERSION_1_3;
-		} else if (jdkLevel == ClassFileConstants.JDK1_4) {
-			return VERSION_1_4;
-		} else if (jdkLevel == ClassFileConstants.JDK1_5) {
-			return VERSION_1_5;
-		} else if (jdkLevel == ClassFileConstants.JDK1_6) {
-			return VERSION_1_6;
+		switch ((int)(jdkLevel>>16)) {
+			case ClassFileConstants.MAJOR_VERSION_1_1 :
+				if (jdkLevel == ClassFileConstants.JDK1_1) 
+					return VERSION_1_1;
+				break;
+			case ClassFileConstants.MAJOR_VERSION_1_2 :
+				if (jdkLevel == ClassFileConstants.JDK1_2) 
+					return VERSION_1_2;
+				break;
+			case ClassFileConstants.MAJOR_VERSION_1_3 :
+				if (jdkLevel == ClassFileConstants.JDK1_3) 
+					return VERSION_1_3;
+				break;
+			case ClassFileConstants.MAJOR_VERSION_1_4 :
+				if (jdkLevel == ClassFileConstants.JDK1_4) 
+					return VERSION_1_4;
+				break;
+			case ClassFileConstants.MAJOR_VERSION_1_5 :
+				if (jdkLevel == ClassFileConstants.JDK1_5) 
+					return VERSION_1_5;
+				break;
+			case ClassFileConstants.MAJOR_VERSION_1_6 :
+				if (jdkLevel == ClassFileConstants.JDK1_6) 
+					return VERSION_1_6;
+				break;
+			case ClassFileConstants.MAJOR_VERSION_1_7 :
+				if (jdkLevel == ClassFileConstants.JDK1_7) 
+					return VERSION_1_7;
+				break;
 		}
 		return ""; // unknown version //$NON-NLS-1$
 	}
