@@ -922,6 +922,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
 		buf.append("        goo(k instanceof Vector);\n");
+		buf.append("        goo(k()instanceof Vector);\n");
 		buf.append("    }\n");
 		buf.append("}\n");	
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
@@ -936,7 +937,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
 		Block block= methodDecl.getBody();
 		List statements= block.statements();
-		assertTrue("Number of statements not 1", statements.size() == 1);
+		assertTrue("Number of statements not 2", statements.size() == 2);
 		{ // change left side & right side
 			ExpressionStatement stmt= (ExpressionStatement) statements.get(0);
 			MethodInvocation invocation= (MethodInvocation) stmt.getExpression();
@@ -951,6 +952,16 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 			rewrite.replace(expr.getRightOperand(), newCastType, null);
 		}
+		{ // change left side
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(1);
+			MethodInvocation invocation= (MethodInvocation) stmt.getExpression();
+			
+			List arguments= invocation.arguments();
+			InstanceofExpression expr= (InstanceofExpression) arguments.get(0);
+			
+			SimpleName name= ast.newSimpleName("x");
+			rewrite.replace(expr.getLeftOperand(), name, null);
+		}
 			
 		String preview= evaluateRewrite(cu, rewrite);
 		
@@ -959,6 +970,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
 		buf.append("        goo(x instanceof List);\n");
+		buf.append("        goo(x instanceof Vector);\n");
 		buf.append("    }\n");
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());

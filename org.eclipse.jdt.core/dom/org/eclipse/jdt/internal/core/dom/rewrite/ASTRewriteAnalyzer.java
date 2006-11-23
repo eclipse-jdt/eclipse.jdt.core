@@ -1536,15 +1536,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		
 		try {
 			int offset= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNamereturn, node.getStartPosition());
+			ensureSpaceBeforeReplace(node, ReturnStatement.EXPRESSION_PROPERTY, offset, 0);
 			
-			// bug 103970
-			if (getChangeKind(node, ReturnStatement.EXPRESSION_PROPERTY) == RewriteEvent.REPLACED) {
-				if (offset == getExtendedOffset((ASTNode) getOriginalValue(node, ReturnStatement.EXPRESSION_PROPERTY))) {
-					doTextInsert(offset, String.valueOf(' '), getEditGroup(node, ReturnStatement.EXPRESSION_PROPERTY));
-				}
-			}
-			rewriteNode(node, ReturnStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE);	
-
+			rewriteNode(node, ReturnStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE);
 		} catch (CoreException e) {
 			handleException(e);
 		}
@@ -1726,22 +1720,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		
-		try {
-			// bug 103970
-			if (getChangeKind(node, AssertStatement.EXPRESSION_PROPERTY) == RewriteEvent.REPLACED) {
-				int offset= getScanner().getNextEndOffset(node.getStartPosition(), true); // assert
-				
-				if (offset == getExtendedOffset((ASTNode) getOriginalValue(node, AssertStatement.EXPRESSION_PROPERTY))) {
-					doTextInsert(offset, String.valueOf(' '), getEditGroup(node, AssertStatement.EXPRESSION_PROPERTY));
-				}
-			}
-		} catch (CoreException e) {
-			handleException(e);
-		}
-		
+		ensureSpaceBeforeReplace(node, AssertStatement.EXPRESSION_PROPERTY, node.getStartPosition(), 1);
 		int offset= rewriteRequiredNode(node, AssertStatement.EXPRESSION_PROPERTY);
-
-		
 		rewriteNode(node, AssertStatement.MESSAGE_PROPERTY, offset, ASTRewriteFormatter.ASSERT_COMMENT);
 		return false;
 	}
@@ -2235,11 +2215,46 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		
+				
 		rewriteRequiredNode(node, InstanceofExpression.LEFT_OPERAND_PROPERTY);
+		ensureSpaceAfterReplace(node, InstanceofExpression.LEFT_OPERAND_PROPERTY);
 		rewriteRequiredNode(node, InstanceofExpression.RIGHT_OPERAND_PROPERTY);
 		return false;
 	}
+	
+	public void ensureSpaceAfterReplace(ASTNode node, ChildPropertyDescriptor desc) {
+		if (getChangeKind(node, desc) == RewriteEvent.REPLACED) {
+			int leftOperandEnd= getExtendedEnd((ASTNode) getOriginalValue(node, desc));
+			try {
+				int offset= getScanner().getNextStartOffset(leftOperandEnd, true); // instanceof
+				
+				if (offset == leftOperandEnd) {
+					doTextInsert(offset, String.valueOf(' '), getEditGroup(node, desc));
+				}
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		}
+	}
+	
+	public void ensureSpaceBeforeReplace(ASTNode node, ChildPropertyDescriptor desc, int offset, int numTokenBefore) {
+		// bug 103970
+		if (getChangeKind(node, desc) == RewriteEvent.REPLACED) {
+			try {
+				while (numTokenBefore > 0) {
+					offset= getScanner().getNextEndOffset(offset, true);
+					numTokenBefore--;
+				}
+    			if (offset == getExtendedOffset((ASTNode) getOriginalValue(node, desc))) {
+					doTextInsert(offset, String.valueOf(' '), getEditGroup(node, desc));
+				}
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		}
+	}
+	
+	
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(Javadoc)
