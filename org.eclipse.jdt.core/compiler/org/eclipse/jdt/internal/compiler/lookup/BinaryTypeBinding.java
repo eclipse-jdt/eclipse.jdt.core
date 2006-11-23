@@ -285,7 +285,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		if (wrapper.signature[wrapper.start] == '<') {
 			// ParameterPart = '<' ParameterSignature(s) '>'
 			wrapper.start++; // skip '<'
-			this.typeVariables = createTypeVariables(wrapper, this);
+			this.typeVariables = createTypeVariables(wrapper, true);
 			wrapper.start++; // skip '>'
 			this.tagBits |=  TagBits.HasUnresolvedTypeVariables;
 			this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
@@ -436,7 +436,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 			// <A::Ljava/lang/annotation/Annotation;>(Ljava/lang/Class<TA;>;)TA;
 			// ParameterPart = '<' ParameterSignature(s) '>'
 			wrapper.start++; // skip '<'
-			typeVars = createTypeVariables(wrapper, this);
+			typeVars = createTypeVariables(wrapper, false);
 			wrapper.start++; // skip '>'
 		}
 
@@ -561,7 +561,7 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel) {
 		}
 	}
 }
-private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, Binding declaringElement) {
+private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, boolean assignVariables) {
 	// detect all type variables first
 	char[] typeSignature = wrapper.signature;
 	int depth = 0, length = typeSignature.length;
@@ -588,7 +588,7 @@ private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, Bind
 						pendingVariable = false;
 						int colon = CharOperation.indexOf(':', typeSignature, i);
 						char[] variableName = CharOperation.subarray(typeSignature, i, colon);
-						variables.add(new TypeVariableBinding(variableName, declaringElement, rank++));
+						variables.add(new TypeVariableBinding(variableName, this, rank++));
 					}
 			}
 		}
@@ -596,6 +596,10 @@ private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, Bind
 	// initialize type variable bounds - may refer to forward variables
 	TypeVariableBinding[] result;
 	variables.toArray(result = new TypeVariableBinding[rank]);
+	// when creating the type variables for a type, the type must remember them before initializing each variable
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=163680
+	if (assignVariables)
+		this.typeVariables = result;
 	for (int i = 0; i < rank; i++) {
 		initializeTypeVariable(result[i], result, wrapper);
 	}
