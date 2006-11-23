@@ -32434,6 +32434,34 @@ public void test1056() {
 		}, 
 		"");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=163680
+public void test1075() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X <T extends X<?>.J>{\n" + 
+			"	public class J implements I<T>{}\n" + 
+			"}\n",
+			"I.java",
+			"public interface I <T> {}\n",
+			"Y.java",
+			"public class Y extends X {}\n",
+		},
+		""
+	);
+
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"public class Y extends X {}",
+		},
+		"",
+		null,
+		false, // do not flush output
+		null);
+}
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165291
 public void test1085() {
 	this.runNegativeTest(
@@ -32496,31 +32524,5 @@ public void test1085() {
 		"	       ^^^^\n" + 
 		"e2.e cannot be resolved or is not a field\n" + 
 		"----------\n");
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=163680
-public void test1090() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X <T extends X<?>.J>{\n" + 
-			"	public class J implements I<T>{}\n" + 
-			"}\n",
-			"I.java",
-			"public interface I <T> {}\n",
-			"Y.java",
-			"public class Y extends X {}\n",
-		},
-		""
-	);
-
-	this.runConformTest(
-		new String[] {
-			"Y.java",
-			"public class Y extends X {}",
-		},
-		"",
-		null,
-		false, // do not flush output
-		null);
 }
 }
