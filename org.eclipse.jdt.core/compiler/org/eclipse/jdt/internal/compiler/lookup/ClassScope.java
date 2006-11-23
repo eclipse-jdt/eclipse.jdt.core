@@ -173,7 +173,7 @@ public class ClassScope extends Scope {
 				// check that the member does not conflict with an enclosing type
 				do {
 					if (CharOperation.equals(type.sourceName, memberContext.name)) {
-						problemReporter().hidingEnclosingType(memberContext);
+						problemReporter().typeCollidesWithEnclosingType(memberContext);
 						continue nextMember;
 					}
 					type = type.enclosingType();
@@ -231,7 +231,7 @@ public class ClassScope extends Scope {
 				// check that the member does not conflict with an enclosing type
 				do {
 					if (CharOperation.equals(type.sourceName, memberContext.name)) {
-						problemReporter().hidingEnclosingType(memberContext);
+						problemReporter().typeCollidesWithEnclosingType(memberContext);
 						continue nextMember;
 					}
 					type = type.enclosingType();

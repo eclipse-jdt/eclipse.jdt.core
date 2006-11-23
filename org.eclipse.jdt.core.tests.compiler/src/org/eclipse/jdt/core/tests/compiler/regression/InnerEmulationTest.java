@@ -5259,6 +5259,73 @@ public void test130() {
     		}, 
     		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165662
+public void test131() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		class Local {\n" + 
+			"			void foo() {\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		{\n" + 
+			"			class Local {\n" + 
+			"				Local(int i) {\n" + 
+			"					this.init(i);\n" + 
+			"					this.bar(); // should detect error\n" + 
+			"				}\n" + 
+			"				void init(int i) {\n" + 
+			"				}\n" + 
+			"			}\n" + 
+			"			Local l = new Local(0); // should be fine\n" + 
+			"		}\n" + 
+			"		Local l = new Local();\n" + 
+			"		l.foo();\n" + 
+			"	}\n" + 
+			"}", // =================,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	class Local {\n" + 
+		"	      ^^^^^\n" + 
+		"Duplicate nested type Local\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	this.bar(); // should detect error\n" + 
+		"	     ^^^\n" + 
+		"The method bar() is undefined for the type Local\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165662
+public void test132() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String argv[]) {\n" + 
+			"		class Local {}\n" + 
+			"		class Foo {\n" + 
+			"			void foo() {\n" + 
+			"				class Local {}\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() from the type Foo is never used locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	class Local {}\n" + 
+		"	      ^^^^^\n" + 
+		"The type Local is hiding the type Local\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }

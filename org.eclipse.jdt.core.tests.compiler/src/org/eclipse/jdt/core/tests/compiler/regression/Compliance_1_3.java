@@ -1267,12 +1267,17 @@ public void test040() {
 			"}	\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	class Homonym extends X {	\n" + 
+		"	      ^^^^^^^\n" + 
+		"The type Homonym is hiding the type X.Homonym\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
 		"	class Y extends Homonym {};	\n" + 
 		"	                ^^^^^^^\n" + 
 		"The type Homonym is defined in an inherited type and an enclosing scope\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 13)\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
 		"	class Y extends Homonym {};	\n" + 
 		"	                ^^^^^^^\n" + 
 		"The type Homonym is defined in an inherited type and an enclosing scope\n" + 

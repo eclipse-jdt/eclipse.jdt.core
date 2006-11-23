@@ -45,7 +45,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	private void internalResolve(Scope scope, boolean staticContext) {
 	    // detect variable/type name collisions
 		if (this.binding != null) {
-			Binding existingType = scope.parent.getBinding(this.name, Binding.TYPE, this, false);
+			Binding existingType = scope.parent.getBinding(this.name, Binding.TYPE, this, false/*do not resolve hidden field*/);
 			if (existingType != null 
 					&& this.binding != existingType 
 					&& existingType.isValidBinding()

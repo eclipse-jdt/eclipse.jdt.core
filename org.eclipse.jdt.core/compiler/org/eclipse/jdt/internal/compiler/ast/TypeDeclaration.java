@@ -1104,21 +1104,49 @@ public void resolve() {
 	}
 }
 
+/**
+ * Resolve a local type declaration
+ */
 public void resolve(BlockScope blockScope) {
-	// local type declaration
+	
 	// need to build its scope first and proceed with binding's creation
-	if ((this.bits & ASTNode.IsAnonymousType) == 0) blockScope.addLocalType(this);
+	if ((this.bits & ASTNode.IsAnonymousType) == 0) {
+		// check collision scenarii
+		Binding existing = blockScope.getType(this.name);
+		if (existing instanceof ReferenceBinding
+				&& existing != this.binding
+				&& existing.isValidBinding()) {
+			ReferenceBinding existingType = (ReferenceBinding) existing;
+			if (existingType instanceof TypeVariableBinding) {
+				blockScope.problemReporter().typeHiding(this, (TypeVariableBinding) existingType);
+			} else if (existingType instanceof LocalTypeBinding
+						&& ((LocalTypeBinding) existingType).scope.methodScope() == blockScope.methodScope()) {
+					// dup in same method
+					blockScope.problemReporter().duplicateNestedType(this);
+			} else if (blockScope.isDefinedInType(existingType)) {
+				//	collision with enclosing type
+				blockScope.problemReporter().typeCollidesWithEnclosingType(this);
+			} else if (blockScope.isDefinedInSameUnit(existingType)){ // only consider hiding inside same unit
+				// hiding sibling
+				blockScope.problemReporter().typeHiding(this, existingType);
+			}
+		}
+		blockScope.addLocalType(this);
+	}
 
 	if (this.binding != null) {
 		// remember local types binding for innerclass emulation propagation
 		blockScope.referenceCompilationUnit().record((LocalTypeBinding)this.binding);
-
+		
 		// binding is not set if the receiver could not be created
 		resolve();
 		updateMaxFieldCount();
 	}
 }
 
+/**
+ * Resolve a member type declaration (can be a local member)
+ */
 public void resolve(ClassScope upperScope) {
 	// member scopes are already created
 	// request the construction of a binding if local member type
@@ -1131,6 +1159,9 @@ public void resolve(ClassScope upperScope) {
 	updateMaxFieldCount();
 }
 
+/**
+ * Resolve a top level type declaration
+ */
 public void resolve(CompilationUnitScope upperScope) {
 	// top level : scope are already created
 	resolve();

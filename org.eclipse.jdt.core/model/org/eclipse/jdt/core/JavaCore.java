@@ -2013,9 +2013,10 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 * 
-	 * COMPILER / Reporting Type Parameter Declaration Hiding another Type
-	 *    When enabled, the compiler will issue an error or a warning whenever a type parameter
-	 *    declaration is hiding some type.
+	 * COMPILER / Reporting Type Declaration Hiding another Type
+	 *    When enabled, the compiler will issue an error or a warning in situations where a type parameter
+	 *    declaration is hiding some type, when a nested type is hiding some type parameter, or when
+	 *    a nested type is hiding another nested type defined in same unit.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.typeParameterHiding"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"

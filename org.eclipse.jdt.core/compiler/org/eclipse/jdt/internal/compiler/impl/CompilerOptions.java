@@ -179,7 +179,7 @@ public class CompilerOptions {
 	public static final long NullReference = ASTNode.Bit37L;
 	public static final long AutoBoxing = ASTNode.Bit38L;
 	public static final long AnnotationSuperInterface = ASTNode.Bit39L;
-	public static final long TypeParameterHiding = ASTNode.Bit40L;
+	public static final long TypeHiding = ASTNode.Bit40L;
 	public static final long MissingOverrideAnnotation = ASTNode.Bit41L;
 	public static final long IncompleteEnumSwitch = ASTNode.Bit42L;
 	public static final long MissingDeprecatedAnnotation = ASTNode.Bit43L;
@@ -214,7 +214,7 @@ public class CompilerOptions {
 		| ForbiddenReference
 		| DiscouragedReference
 		| AnnotationSuperInterface
-		| TypeParameterHiding
+		| TypeHiding
 		| FinalParameterBound
 		| UnhandledWarningToken
 		| UnusedLocalVariable
@@ -352,7 +352,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportUnusedPrivateMember, getSeverityString(UnusedPrivateMember)); 
 		optionsMap.put(OPTION_ReportLocalVariableHiding, getSeverityString(LocalVariableHiding)); 
 		optionsMap.put(OPTION_ReportFieldHiding, getSeverityString(FieldHiding)); 
-		optionsMap.put(OPTION_ReportTypeParameterHiding, getSeverityString(TypeParameterHiding)); 
+		optionsMap.put(OPTION_ReportTypeParameterHiding, getSeverityString(TypeHiding)); 
 		optionsMap.put(OPTION_ReportPossibleAccidentalBooleanAssignment, getSeverityString(AccidentalBooleanAssign)); 
 		optionsMap.put(OPTION_ReportEmptyStatement, getSeverityString(EmptyStatement)); 
 		optionsMap.put(OPTION_ReportAssertIdentifier, getSeverityString(AssertUsedAsAnIdentifier)); 
@@ -619,7 +619,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportSyntheticAccessEmulation)) != null) updateSeverity(AccessEmulation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportLocalVariableHiding)) != null) updateSeverity(LocalVariableHiding, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportFieldHiding)) != null) updateSeverity(FieldHiding, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportTypeParameterHiding)) != null) updateSeverity(TypeParameterHiding, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportTypeParameterHiding)) != null) updateSeverity(TypeHiding, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportPossibleAccidentalBooleanAssignment)) != null) updateSeverity(AccidentalBooleanAssign, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportEmptyStatement)) != null) updateSeverity(EmptyStatement, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNonExternalizedStringLiteral)) != null) updateSeverity(NonExternalizedString, optionValue);
@@ -763,7 +763,7 @@ public class CompilerOptions {
 		buf.append("\n\t- unused private member: ").append(getSeverityString(UnusedPrivateMember)); //$NON-NLS-1$
 		buf.append("\n\t- local variable hiding another variable: ").append(getSeverityString(LocalVariableHiding)); //$NON-NLS-1$
 		buf.append("\n\t- field hiding another variable: ").append(getSeverityString(FieldHiding)); //$NON-NLS-1$
-		buf.append("\n\t- type parameter hiding another type: ").append(getSeverityString(TypeParameterHiding)); //$NON-NLS-1$
+		buf.append("\n\t- type hiding another type: ").append(getSeverityString(TypeHiding)); //$NON-NLS-1$
 		buf.append("\n\t- possible accidental boolean assignment: ").append(getSeverityString(AccidentalBooleanAssign)); //$NON-NLS-1$
 		buf.append("\n\t- superfluous semicolon: ").append(getSeverityString(EmptyStatement)); //$NON-NLS-1$
 		buf.append("\n\t- uncommented empty block: ").append(getSeverityString(UndocumentedEmptyBlock)); //$NON-NLS-1$
@@ -996,7 +996,7 @@ public class CompilerOptions {
 					return "serial"; //$NON-NLS-1$
 				case (int)(AutoBoxing >>> 32) :
 					return "boxing"; //$NON-NLS-1$
-				case (int)(TypeParameterHiding >>> 32) :
+				case (int)(TypeHiding >>> 32) :
 					return "hiding"; //$NON-NLS-1$
 				case (int)(IncompleteEnumSwitch >>> 32) :
 					return "incomplete-switch"; //$NON-NLS-1$
@@ -1071,7 +1071,7 @@ public class CompilerOptions {
 				break;
 			case 'h' :
 				if ("hiding".equals(warningToken)) //$NON-NLS-1$
-					return FieldHiding | LocalVariableHiding | MaskedCatchBlock | TypeParameterHiding;
+					return FieldHiding | LocalVariableHiding | MaskedCatchBlock | TypeHiding;
 			case 'i' :
 				if ("incomplete-switch".equals(warningToken)) //$NON-NLS-1$
 					return IncompleteEnumSwitch;

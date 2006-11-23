@@ -1255,6 +1255,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                          ^\n" + 
 			"N cannot be resolved to a type\n" + 
 			"----------\n");
+	}
+	public void test0050a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1275,7 +1277,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98504
-	public void test0050a() {
+	public void test0050b() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1288,6 +1290,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"interface I {}\n"
 			},
 			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98504 - variation
+	public void test0050c() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -1301,7 +1306,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101387
-	public void test0050b() {
+	public void test0050d() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -35679,7 +35684,7 @@ public void test1085() {
 			"		E e = e;\n" + 
 			"        E[] es = es;\n" + 
 			"		E e2 = e2.e;\n" + 
-			"}", // =================,
+			"}", // =================
 		},
 		"----------\n" + 
 		"1. WARNING in Y.java (at line 2)\n" + 
@@ -35728,4 +35733,134 @@ public void test1085() {
 		"e2.e cannot be resolved or is not a field\n" + 
 		"----------\n");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165645
+public void test1086() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface IFoo { void foo(); }\n" + 
+			"interface IBar { void bar(); }\n" + 
+			"public class X<Bar extends IFoo> {\n" + 
+			"	class Bar implements IBar { public void bar(){} }\n" + 
+			"	void foo(Bar b) {\n" + 
+			"		b.foo(); // unbound (Bar is member type)\n" + 
+			"		b.bar(); // ok\n" + 
+			"	}\n" + 
+			"}\n", // =================,
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	b.foo(); // unbound (Bar is member type)\n" + 
+		"	  ^^^\n" + 
+		"The method foo() is undefined for the type X<Bar>.Bar\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165645 - variation
+public void test1087() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<M> {\n" + 
+			"	static public class M {\n" + 
+			"	}\n" + 
+			"	static public class M2 extends M {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165679
+public void test1088() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<M> {\n" + 
+			"	static public class M {}\n" + 
+			"	Zork z;\n" +
+			"	void foo() {\n" + 
+			"		class M {} // hides member\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y <T> {\n" + 
+			"	class Local {}\n" + 
+			"	void foo() {\n" + 
+			"		class T {}; // hiding warning\n" + 
+			"		class Local {};\n" + 
+			"	}\n" + 
+			"	static void bar() {\n" + 
+			"		class T {}; // no hiding warning\n" + 
+			"		class Local {}; // no hiding warning\n" + 
+			"	}	\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	class M {} // hides member\n" + 
+		"	      ^\n" + 
+		"The type M is hiding the type X<M>.M\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 11)\n" + 
+		"	class T {}; // hiding warning\n" + 
+		"	      ^\n" + 
+		"The nested type T is hiding the type parameter T of type Y<T>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 12)\n" + 
+		"	class Local {};\n" + 
+		"	      ^^^^^\n" + 
+		"The type Local is hiding the type Y<T>.Local\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165679
+public void test1089() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	class U {}\n" + 
+			"	<T> void foo(T t) {\n" + 
+			"		class T {\n" + 
+			"			T t = t;\n" + 
+			"		}\n" + 
+			"		class U {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	class T {\n" + 
+		"	      ^\n" + 
+		"The nested type T is hiding the type parameter T of the generic method foo(T) of type X\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	T t = t;\n" + 
+		"	  ^\n" + 
+		"The field T.t is hiding another local variable defined in an enclosing type scope\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	T t = t;\n" + 
+		"	  ^^^^^\n" + 
+		"The assignment to variable t has no effect\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	T t = t;\n" + 
+		"	      ^\n" + 
+		"Cannot reference a field before it is defined\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 7)\n" + 
+		"	class U {\n" + 
+		"	      ^\n" + 
+		"The type U is hiding the type X.U\n" + 
+		"----------\n");
+}
+
 }

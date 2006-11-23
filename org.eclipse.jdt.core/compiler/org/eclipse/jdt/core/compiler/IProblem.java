@@ -96,6 +96,9 @@
  *                                 AnnotationValueMustBeAnEnumConstant
  *                                 OverridingMethodWithoutSuperInvocation
  *                                 MethodMustOverrideOrImplement
+ *                                 TypeHidingTypeParameterFromType
+ *                                 TypeHidingTypeParameterFromMethod
+ *                                 TypeHidingType
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -283,7 +286,9 @@ void setSourceStart(int sourceStart);
 	int CannotDefineEnumInLocalType = Internal + 31;
 	/** @since 3.1 */
 	int NonStaticContextForEnumMemberType = Internal + 32;
-
+	/** @since 3.3 */
+	int TypeHidingType = TypeRelated + 33;
+	
 	// variables
 	int UndefinedName = Internal + FieldRelated + 50;
 	int UninitializedLocalVariable = Internal + 51;
@@ -1029,6 +1034,10 @@ void setSourceStart(int sourceStart);
 	int UnsafeGenericArrayForVarargs = MethodRelated + 574;
 	/** @since 3.2 */
 	int IllegalAccessFromTypeVariable = TypeRelated + 575;
+	/** @since 3.3 */
+	int TypeHidingTypeParameterFromType = TypeRelated + 576;
+	/** @since 3.3 */
+	int TypeHidingTypeParameterFromMethod = TypeRelated + 577;
 	
 	/**
 	 * Foreach

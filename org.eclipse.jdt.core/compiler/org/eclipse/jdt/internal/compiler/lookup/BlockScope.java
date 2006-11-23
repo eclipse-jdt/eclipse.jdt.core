@@ -74,25 +74,6 @@ public final void addAnonymousType(TypeDeclaration anonymousType, ReferenceBindi
 /* Create the class scope & binding for the local type.
  */
 public final void addLocalType(TypeDeclaration localType) {
-	// check that the localType does not conflict with an enclosing type
-	ReferenceBinding type = enclosingSourceType();
-	do {
-		if (CharOperation.equals(type.sourceName, localType.name)) {
-			problemReporter().hidingEnclosingType(localType);
-			return;
-		}
-		type = type.enclosingType();
-	} while (type != null);
-
-	// check that the localType does not conflict with another sibling local type
-	Scope scope = this;
-	do {
-		if (((BlockScope) scope).findLocalType(localType.name) != null) {
-			problemReporter().duplicateNestedType(localType);
-			return;
-		}
-	} while ((scope = scope.parent) instanceof BlockScope);
-
 	ClassScope localTypeScope = new ClassScope(this, localType);
 	addSubscope(localTypeScope);
 	localTypeScope.buildLocalTypeBinding(enclosingSourceType());
@@ -306,7 +287,7 @@ public void emulateOuterAccess(LocalVariableBinding outerLocalVariable) {
  */
 public final ReferenceBinding findLocalType(char[] name) {
 	long compliance = compilerOptions().complianceLevel;
-	for (int i = 0, length = this.subscopeCount; i < length; i++) {
+	for (int i = this.subscopeCount-1; i >= 0; i--) {
 		if (this.subscopes[i] instanceof ClassScope) {
 			LocalTypeBinding sourceType = (LocalTypeBinding)((ClassScope) this.subscopes[i]).referenceContext.binding;
 			// from 1.4 on, local types should not be accessed across switch case blocks (52221)				

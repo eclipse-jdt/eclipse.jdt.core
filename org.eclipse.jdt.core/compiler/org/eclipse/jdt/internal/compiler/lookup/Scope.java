@@ -2211,14 +2211,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 								return sourceType;
 							insideStaticContext |= sourceType.isStatic();
 							break;
-						}
-						// type variables take precedence over member types
-						TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
-						if (typeVariable != null) {
-							if (insideStaticContext) // do not consider this type modifiers: access is legite within same type
-								return new ProblemReferenceBinding(name, typeVariable, ProblemReasons.NonStaticReferenceInStaticContext);
-							return typeVariable;
-						}
+						}						
+						// member types take precedence over type variables
 						if (!insideTypeAnnotation) {
 							// 6.5.5.1 - member types have precedence over top-level type in same unit
 							ReferenceBinding memberType = findMemberType(name, sourceType);
@@ -2248,8 +2242,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 									foundType = memberType;
 							}
 						}
-						insideTypeAnnotation = false;
+						TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
+						if (typeVariable != null) {
+							if (insideStaticContext) // do not consider this type modifiers: access is legite within same type
+								return new ProblemReferenceBinding(name, typeVariable, ProblemReasons.NonStaticReferenceInStaticContext);
+							return typeVariable;
+						}						
 						insideStaticContext |= sourceType.isStatic();
+						insideTypeAnnotation = false;
 						if (CharOperation.equals(sourceType.sourceName, name)) {
 							if (foundType != null && foundType != sourceType && foundType.problemId() != ProblemReasons.NotVisible)
 								return new ProblemReferenceBinding(name, foundType, ProblemReasons.InheritedNameHidesEnclosingName);
