@@ -35301,37 +35301,31 @@ public void test1074() {
 		options);
 }
 
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163680
-public void _test1075() {
-	String srcY = 
-		"public class Y extends X {\n" + 
-		"}\n";
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=163680
+public void test1075() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X <T extends X<?>.J> {\n" + 
-			"   public class J implements I<T> {\n" + 
-			"   }\n" + 
+			"public class X <T extends X<?>.J>{\n" + 
+			"	public class J implements I<T>{}\n" + 
 			"}\n",
 			"I.java",
-			"public interface I <T> {\n" + 
-			"}\n",
+			"public interface I <T> {}\n",
 			"Y.java",
-			srcY
+			"public class Y extends X {}\n",
 		},
-		"");
+		""
+	);
+
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			srcY
+			"public class Y extends X {}",
 		},
 		"",
-		null /* no extra class libraries */, 
-		false /* flush output directory */, 
-		null /* no vm arguments */,
-		null /* no custom options*/,
-		null /* no custom requestor*/,
-	  	false /* do not skip javac for this peculiar test */);
+		null,
+		false, // do not flush output
+		null);
 }
 
 public void test1076() {
@@ -35861,31 +35855,5 @@ public void test1089() {
 		"	      ^\n" + 
 		"The type U is hiding the type X.U\n" + 
 		"----------\n");
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=163680
-public void test1090() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X <T extends X<?>.J>{\n" + 
-			"	public class J implements I<T>{}\n" + 
-			"}\n",
-			"I.java",
-			"public interface I <T> {}\n",
-			"Y.java",
-			"public class Y extends X {}\n",
-		},
-		""
-	);
-
-	this.runConformTest(
-		new String[] {
-			"Y.java",
-			"public class Y extends X {}",
-		},
-		"",
-		null,
-		false, // do not flush output
-		null);
 }
 }
