@@ -55,6 +55,11 @@ Eclipse SDK 3.3M4 - ???st November 2006
 (also see bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106451">106451</a> and 
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165143">165143</a>). </li>
 <li>Raw type warnings are now also diagnosed for cast types. </li>
+<li>Improved compiler diagnosis for type hiding to now report: member type hiding type parameters, 
+nested types hiding other accessible types in scope (direct enclosing are already reported as errors). </li>
+<li> Compiler is now more resilient with duplicate local type declarations; thus allowing further
+operation to still be carried out accurately (codeselect, completion, search, DOM AST ops)
+(cf. bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165662">165662</a>).</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
