@@ -324,7 +324,7 @@ public ITypeRoot getTypeRoot() {
 	while (element != null) {
 		if (element instanceof ITypeRoot) return (ITypeRoot) element;
 		element= element.getParent();
-		}
+	}
 	return null;
 }
 /**
