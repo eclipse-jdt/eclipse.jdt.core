@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
 public final class LocalTypeBinding extends NestedTypeBinding {
 	final static char[] LocalTypePrefix = { '$', 'L', 'o', 'c', 'a', 'l', '$' };
@@ -30,7 +29,7 @@ public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType, CaseS
 		scope,
 		enclosingType);
 	
-	if (this.sourceName == TypeDeclaration.ANONYMOUS_EMPTY_NAME)
+	if (this.sourceName == CharOperation.NO_CHAR)
 		this.tagBits |= TagBits.AnonymousTypeMask;
 	else
 		this.tagBits |= TagBits.LocalTypeMask;

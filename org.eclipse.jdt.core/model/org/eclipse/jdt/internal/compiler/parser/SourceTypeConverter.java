@@ -441,7 +441,7 @@ public class SourceTypeConverter {
 		TypeDeclaration type = new TypeDeclaration(compilationResult);
 		if (typeInfo.getEnclosingType() == null) {
 			if (typeHandle.isAnonymous()) {
-				type.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+				type.name = CharOperation.NO_CHAR;
 				type.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
 			} else {
 				if (typeHandle.isLocal()) {

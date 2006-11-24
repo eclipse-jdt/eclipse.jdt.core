@@ -156,7 +156,7 @@ public final class CompletionEngine
 		}
 	}
 
-	private class AcceptedType {
+	private static class AcceptedType {
 		public AcceptedType(
 			char[] packageName,
 			char[] simpleTypeName,

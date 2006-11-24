@@ -25,7 +25,7 @@ import org.eclipse.text.edits.TextEditGroup;
 public final class RewriteEventStore {
 	
 
-	public final class PropertyLocation {
+	public static final class PropertyLocation {
 		private final ASTNode parent;
 		private final StructuralPropertyDescriptor property;
 		

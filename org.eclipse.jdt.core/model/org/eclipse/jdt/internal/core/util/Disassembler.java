@@ -22,9 +22,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
  */
 public class Disassembler extends ClassFileBytesDisassembler {
 
-	private static final char[] EMPTY_NAME = new char[0];
 	private static final char[] ANY_EXCEPTION = Messages.classfileformat_anyexceptionhandler.toCharArray();	 
-	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$
 	private static final String VERSION_UNKNOWN = Messages.classfileformat_versionUnknown;
 
 	private boolean appendModifier(StringBuffer buffer, int accessFlags, int modifierConstant, String modifier, boolean firstModifier) {
@@ -696,11 +694,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	 * @return the disassembled string of the IClassFileReader according to the mode
 	 */
 	public String disassemble(IClassFileReader classFileReader, String lineSeparator, int mode) {
-		if (classFileReader == null) return EMPTY_OUTPUT;
+		if (classFileReader == null) return org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING;
 		char[] className = classFileReader.getClassName();
 		if (className == null) {
 			// incomplete initialization. We cannot go further.
-			return EMPTY_OUTPUT;
+			return org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING;
 		}
 		CharOperation.replace(className, '/', '.');
 		final int classNameLength = className.length;
@@ -742,7 +740,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					((accessFlags & IModifierConstants.ACC_SUPER) != 0
 							? Messages.classfileformat_superflagisset
 							: Messages.classfileformat_superflagisnotset)
-					+ (isDeprecated(classFileReader) ? ", deprecated" : EMPTY_OUTPUT)//$NON-NLS-1$
+					+ (isDeprecated(classFileReader) ? ", deprecated" : org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING)//$NON-NLS-1$
 				}));
 			writeNewLine(buffer, lineSeparator, 0);
 			if (signatureAttribute != null) {
@@ -2074,7 +2072,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 
 	private char[] returnClassName(char[] classInfoName, char separator, int mode) {
 		if (classInfoName.length == 0) {
-			return EMPTY_NAME;
+			return CharOperation.NO_CHAR;
 		} else if (isCompact(mode)) {
 			int lastIndexOfSlash = CharOperation.lastIndexOf(separator, classInfoName);
 			if (lastIndexOfSlash != -1) {

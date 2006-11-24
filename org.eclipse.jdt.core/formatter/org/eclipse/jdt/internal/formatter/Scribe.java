@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
@@ -33,8 +34,6 @@ import org.eclipse.text.edits.TextEdit;
  * @since 2.1
  */
 public class Scribe {
-	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
-
 	private static final int INITIAL_SIZE = 100;
 	
 	private boolean checkLineWrapping;
@@ -111,7 +110,7 @@ public class Scribe {
 			// resize
 			resize();
 		}
-		addOptimizedReplaceEdit(start, end - start + 1, EMPTY_STRING);
+		addOptimizedReplaceEdit(start, end - start + 1, Util.EMPTY_STRING);
 	}
 
 	public final void addInsertEdit(int insertPosition, String insertedString) {
@@ -383,7 +382,7 @@ public class Scribe {
 
 	public String getEmptyLines(int linesNumber) {
 		if (this.nlsTagCounter > 0) {
-			return EMPTY_STRING;
+			return Util.EMPTY_STRING;
 		}
 		StringBuffer buffer = new StringBuffer();
 		if (lastNumberOfNewLines == 0) {
@@ -410,7 +409,7 @@ public class Scribe {
 		} else {
 			if ((lastNumberOfNewLines - 1) >= linesNumber) {
 				// there is no need to add new lines
-				return EMPTY_STRING;
+				return Util.EMPTY_STRING;
 			}
 			final int realNewLineNumber = linesNumber - lastNumberOfNewLines + 1;
 			for (int i = 0; i < realNewLineNumber; i++) {
@@ -449,11 +448,11 @@ public class Scribe {
 	
 	public String getNewLine() {
 		if (this.nlsTagCounter > 0) {
-			return EMPTY_STRING;
+			return Util.EMPTY_STRING;
 		}
 		if (lastNumberOfNewLines >= 1) {
 			column = 1; // ensure that the scribe is at the beginning of a new line
-			return EMPTY_STRING;
+			return Util.EMPTY_STRING;
 		}
 		line++;
 		lastNumberOfNewLines = 1;
@@ -492,7 +491,7 @@ public class Scribe {
 				return getNewLine();
 			}
 		}
-		return EMPTY_STRING;
+		return Util.EMPTY_STRING;
 	}
 	
 	public TextEdit getRootEdit() {
@@ -1014,7 +1013,7 @@ public class Scribe {
 
 	private void printEmptyLines(int linesNumber, int insertPosition) {
         final String buffer = getEmptyLines(linesNumber);
-        if (EMPTY_STRING == buffer) return;
+        if (Util.EMPTY_STRING == buffer) return;
         
 		addInsertEdit(insertPosition, buffer);
 	}

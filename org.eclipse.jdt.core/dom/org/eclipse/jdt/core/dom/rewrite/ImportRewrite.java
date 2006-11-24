@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.core.dom.rewrite.ImportRewriteAnalyzer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -226,7 +227,7 @@ public final class ImportRewrite {
 		this.createdImports= null;
 		this.createdStaticImports= null;
 		
-		this.importOrder= new String[0];
+		this.importOrder= CharOperation.NO_STRINGS;
 		this.importOnDemandThreshold= 99;
 		this.staticImportOnDemandThreshold= 99;
 	}
@@ -963,8 +964,8 @@ public final class ImportRewrite {
 		monitor.beginTask(Messages.bind(Messages.importRewrite_processDescription), 2);
 		try {
 			if (!hasRecordedChanges()) {
-				this.createdImports= new String[0];
-				this.createdStaticImports= new String[0];
+				this.createdImports= CharOperation.NO_STRINGS;
+				this.createdStaticImports= CharOperation.NO_STRINGS;
 				return new MultiTextEdit();
 			}
 			
@@ -1078,7 +1079,7 @@ public final class ImportRewrite {
 	
 	private static String[] filterFromList(List imports, char prefix) {
 		if (imports == null) {
-			return new String[0];
+			return CharOperation.NO_STRINGS;
 		}
 		ArrayList res= new ArrayList();
 		for (int i= 0; i < imports.size(); i++) {

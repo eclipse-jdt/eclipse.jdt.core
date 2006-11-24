@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
@@ -62,7 +63,7 @@ public String[] getDocumentNames(Index index) throws java.io.IOException {
 	}
 
 	if (this.documentNames == null)
-		return new String[0];
+		return CharOperation.NO_STRINGS;
 
 	String[] names = new String[this.documentNames.elementSize];
 	int count = 0;

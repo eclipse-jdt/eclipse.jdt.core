@@ -118,7 +118,7 @@ class DOMMethod extends DOMMember implements IDOMMethod {
 	 * The formal type parameters.
 	 * @since 3.0
 	 */
-	protected String[] fTypeParameters = new String[0];
+	protected String[] fTypeParameters = CharOperation.NO_STRINGS;
 
 	/**
 	 * Default value for this attotation type member (only),

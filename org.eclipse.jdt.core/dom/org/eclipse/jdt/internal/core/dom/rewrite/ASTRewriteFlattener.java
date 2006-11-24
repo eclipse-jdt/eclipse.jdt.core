@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.dom.rewrite;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ASTRewriteFlattener extends ASTVisitor {
 	
@@ -28,8 +29,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		node.accept(flattener);
 		return flattener.getResult();
 	}
-	
-	private final String EMPTY= ""; //$NON-NLS-1$
+
 	protected StringBuffer result;
 	private RewriteEventStore store;
 
@@ -441,7 +441,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, FieldDeclaration.MODIFIERS_PROPERTY), this.result);
 		} else {
-			visitList(node, FieldDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+			visitList(node, FieldDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
 		getChildNode(node, FieldDeclaration.TYPE_PROPERTY).accept(this);
 		this.result.append(' ');
@@ -545,7 +545,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, Initializer.MODIFIERS_PROPERTY), this.result);
 		} else {
-			visitList(node, Initializer.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+			visitList(node, Initializer.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
 		getChildNode(node, Initializer.BODY_PROPERTY).accept(this);
 		return false;
@@ -586,7 +586,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, MethodDeclaration.MODIFIERS_PROPERTY), this.result);
 		} else {
-			visitList(node, MethodDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+			visitList(node, MethodDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 			visitList(node, MethodDeclaration.TYPE_PARAMETERS_PROPERTY, String.valueOf(','), String.valueOf('<'), String.valueOf('>'));
 		}
 				
@@ -612,7 +612,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		for (int i = 0; i < extraDims; i++) {
 			this.result.append("[]"); //$NON-NLS-1$
 		}		
-		visitList(node, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY, String.valueOf(','), " throws ", EMPTY); //$NON-NLS-1$
+		visitList(node, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY, String.valueOf(','), " throws ", Util.EMPTY_STRING); //$NON-NLS-1$
 		ASTNode body= getChildNode(node, MethodDeclaration.BODY_PROPERTY);
 		if (body == null) {
 			this.result.append(';');
@@ -757,7 +757,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, SingleVariableDeclaration.MODIFIERS_PROPERTY), this.result);
 		} else {
-			visitList(node, SingleVariableDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+			visitList(node, SingleVariableDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
 		getChildNode(node, SingleVariableDeclaration.TYPE_PROPERTY).accept(this);
 		if (node.getAST().apiLevel() >= AST.JLS3) {
@@ -931,7 +931,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (apiLevel == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, TypeDeclaration.MODIFIERS_PROPERTY), this.result);
 		} else {
-			visitList(node, TypeDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+			visitList(node, TypeDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
 	
 		boolean isInterface= getBooleanAttribute(node, TypeDeclaration.INTERFACE_PROPERTY);
@@ -953,7 +953,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		
 		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == JLS2_INTERNAL) ? TypeDeclaration.SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
 		String lead= isInterface ? "extends " : "implements ";  //$NON-NLS-1$//$NON-NLS-2$
-		visitList(node, superInterfaceProperty, String.valueOf(','), lead, EMPTY);
+		visitList(node, superInterfaceProperty, String.valueOf(','), lead, Util.EMPTY_STRING);
 		this.result.append('{');
 		visitList(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY, null);
 		this.result.append('}');
@@ -988,7 +988,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, VariableDeclarationExpression.MODIFIERS_PROPERTY), this.result);
 		} else {
-			visitList(node, VariableDeclarationExpression.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+			visitList(node, VariableDeclarationExpression.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
 		getChildNode(node, VariableDeclarationExpression.TYPE_PROPERTY).accept(this);
 		this.result.append(' ');
@@ -1020,7 +1020,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
 			printModifiers(getIntAttribute(node, VariableDeclarationStatement.MODIFIERS_PROPERTY), this.result);
 		} else {
-			visitList(node, VariableDeclarationStatement.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+			visitList(node, VariableDeclarationStatement.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		}
 		getChildNode(node, VariableDeclarationStatement.TYPE_PROPERTY).accept(this);
 		this.result.append(' ');
@@ -1137,11 +1137,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (javadoc != null) {
 			javadoc.accept(this);
 		}
-		visitList(node, AnnotationTypeDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+		visitList(node, AnnotationTypeDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		this.result.append("@interface ");//$NON-NLS-1$
 		getChildNode(node, AnnotationTypeDeclaration.NAME_PROPERTY).accept(this);
 		this.result.append('{');
-		visitList(node, AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY, EMPTY); 
+		visitList(node, AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY, Util.EMPTY_STRING); 
 		this.result.append('}');
 		return false;
 	}
@@ -1155,7 +1155,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (javadoc != null) {
 			javadoc.accept(this);
 		}
-		visitList(node, AnnotationTypeMemberDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+		visitList(node, AnnotationTypeMemberDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		getChildNode(node, AnnotationTypeMemberDeclaration.TYPE_PROPERTY).accept(this);
 		this.result.append(' ');
 		getChildNode(node, AnnotationTypeMemberDeclaration.NAME_PROPERTY).accept(this);
@@ -1192,7 +1192,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (javadoc != null) {
 			javadoc.accept(this);
 		}
-		visitList(node, EnumConstantDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+		visitList(node, EnumConstantDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		getChildNode(node, EnumConstantDeclaration.NAME_PROPERTY).accept(this);
 		visitList(node, EnumConstantDeclaration.ARGUMENTS_PROPERTY, String.valueOf(','), String.valueOf('('), String.valueOf(')'));
 		ASTNode classDecl= getChildNode(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY);
@@ -1211,15 +1211,15 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (javadoc != null) {
 			javadoc.accept(this);
 		}
-		visitList(node, EnumDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), EMPTY, String.valueOf(' '));
+		visitList(node, EnumDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		this.result.append("enum ");//$NON-NLS-1$
 		getChildNode(node, EnumDeclaration.NAME_PROPERTY).accept(this);
 		this.result.append(' ');
-		visitList(node, EnumDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, String.valueOf(','), "implements ", EMPTY); //$NON-NLS-1$
+		visitList(node, EnumDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, String.valueOf(','), "implements ", Util.EMPTY_STRING); //$NON-NLS-1$
 
 		this.result.append('{');
-		visitList(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY, String.valueOf(','), EMPTY, EMPTY);
-		visitList(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY, EMPTY, String.valueOf(';'), EMPTY);
+		visitList(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY, String.valueOf(','), Util.EMPTY_STRING, Util.EMPTY_STRING);
+		visitList(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY, Util.EMPTY_STRING, String.valueOf(';'), Util.EMPTY_STRING);
 		this.result.append('}');
 		return false;
 	}
@@ -1304,7 +1304,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(TypeParameter node) {
 		getChildNode(node, TypeParameter.NAME_PROPERTY).accept(this);
-		visitList(node, TypeParameter.TYPE_BOUNDS_PROPERTY, " & ", " extends ", EMPTY); //$NON-NLS-1$ //$NON-NLS-2$
+		visitList(node, TypeParameter.TYPE_BOUNDS_PROPERTY, " & ", " extends ", Util.EMPTY_STRING); //$NON-NLS-1$ //$NON-NLS-2$
 		return false;
 	}
 	

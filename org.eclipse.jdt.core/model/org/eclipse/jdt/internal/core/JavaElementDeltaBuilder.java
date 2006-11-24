@@ -79,7 +79,7 @@ public class JavaElementDeltaBuilder {
 	/**
 	 * Doubly linked list item
 	 */
-	class ListItem {
+	static class ListItem {
 		public IJavaElement previous;
 		public IJavaElement next;
 

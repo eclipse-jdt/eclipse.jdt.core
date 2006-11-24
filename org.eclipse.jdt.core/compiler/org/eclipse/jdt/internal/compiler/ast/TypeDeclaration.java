@@ -21,9 +21,6 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 
 public class TypeDeclaration extends Statement implements ProblemSeverities, ReferenceContext {
-
-	public static final char[] ANONYMOUS_EMPTY_NAME = new char[] {};
-
 	// Type decl kinds
 	public static final int CLASS_DECL = 1;
 	public static final int INTERFACE_DECL = 2;

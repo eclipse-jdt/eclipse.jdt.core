@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.formatter.Scribe2;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.ILineTracker;
@@ -163,7 +163,7 @@ public final class IndentManipulation {
 			}
 		}
 		if (end == 0) {
-			return Scribe2.EMPTY_STRING;
+			return Util.EMPTY_STRING;
 		} else if (end == size) {
 			return line;
 		} else {
@@ -231,7 +231,7 @@ public final class IndentManipulation {
 		}
 		String trimmed;
 		if (start == size)
-			trimmed= Scribe2.EMPTY_STRING;
+			trimmed= Util.EMPTY_STRING;
 		else
 			trimmed= line.substring(start);
 		

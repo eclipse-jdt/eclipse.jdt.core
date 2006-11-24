@@ -89,7 +89,7 @@ public class Util {
 	private static final char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
 	private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
 	private static final char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
-
+	
 	private Util() {
 		// cannot be instantiated
 	}
@@ -2215,7 +2215,7 @@ public class Util {
 			}
 			return signatures;
 		}
-		return new String[0];
+		return CharOperation.NO_STRINGS;
 	}
 
 	/*

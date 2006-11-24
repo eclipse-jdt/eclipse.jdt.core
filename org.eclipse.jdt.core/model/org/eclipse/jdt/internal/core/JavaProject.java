@@ -116,7 +116,7 @@ public class JavaProject
 	/**
 	 * An empty array of strings indicating that a project doesn't have any prerequesite projects.
 	 */
-	protected static final String[] NO_PREREQUISITES = new String[0];
+	protected static final String[] NO_PREREQUISITES = CharOperation.NO_STRINGS;
 
 	/**
 	 * Name of file containing custom project preferences
@@ -753,7 +753,7 @@ public class JavaProject
 			
 		IMarker marker = null;
 		int severity;
-		String[] arguments = new String[0];
+		String[] arguments = CharOperation.NO_STRINGS;
 		boolean isCycleProblem = false, isClasspathFileFormatProblem = false;
 		switch (status.getCode()) {
 	

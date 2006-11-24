@@ -18,12 +18,12 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	private static final boolean DEBUG = false;
 	private boolean DEBUG_PARSECHECK = false;
-	
-	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
+
 	private static final int STACK_INCREMENT = 256;
 	
 //	private static final int ERROR_CODE = 1;
@@ -85,7 +85,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	
 	private boolean reportProblem;
 	
-	private class RepairCandidate {
+	private static class RepairCandidate {
 		public int symbol;
 		public int location;
 		
@@ -95,7 +95,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		}
 	}
 	
-	private class PrimaryRepairInfo {
+	private static class PrimaryRepairInfo {
 		public int distance;
 		public int misspellIndex;
 		public int code;
@@ -122,7 +122,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		}
 	}
 	
-	class SecondaryRepairInfo {
+	static class SecondaryRepairInfo {
 		public int code;
 		public int distance;
 		public int bufferPosition;
@@ -133,7 +133,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		boolean recoveryOnNextStack;
 	} 
 	
-	private class StateInfo {
+	private static class StateInfo {
 	    int state;
 	    int next;
 	    
@@ -144,7 +144,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 	}
 
 	public DiagnoseParser(Parser parser, int firstToken, int start, int end, CompilerOptions options) {
-		this(parser, firstToken, start, end, new int[0], new int[0], new int[0], options);
+		this(parser, firstToken, start, end, Util.EMPTY_INT_ARRAY, Util.EMPTY_INT_ARRAY, Util.EMPTY_INT_ARRAY, options);
 	}
 
 	public DiagnoseParser(Parser parser, int firstToken, int start, int end, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, CompilerOptions options) {
@@ -2097,7 +2097,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		if (nameIndex >= 0) {
 			name = Parser.readableName[nameIndex];
 		} else {
-			name = EMPTY_STRING;
+			name = Util.EMPTY_STRING;
 		}
 
 		int errorStart = lexStream.start(token);
@@ -2345,7 +2345,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		if (nameIndex >= 0) {
 			name = Parser.readableName[nameIndex];
 		} else {
-			name = EMPTY_STRING;	
+			name = Util.EMPTY_STRING;	
 		}
 
 		int errorStart = -1;

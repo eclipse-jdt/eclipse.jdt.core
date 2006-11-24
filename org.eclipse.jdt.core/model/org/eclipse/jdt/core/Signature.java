@@ -424,8 +424,6 @@ public final class Signature {
 	private static final char[] EXTENDS = "extends".toCharArray(); //$NON-NLS-1$
 	private static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	private static final char[] CAPTURE = "capture-of".toCharArray(); //$NON-NLS-1$
-	
-	private static final String EMPTY = new String(CharOperation.NO_CHAR);
 		
 private Signature() {
 	// Not instantiable
@@ -1622,7 +1620,7 @@ public static char[] getQualifier(char[] name) {
  */
 public static String getQualifier(String name) {
 	char[] qualifier = getQualifier(name.toCharArray());
-	if (qualifier.length == 0) return EMPTY;
+	if (qualifier.length == 0) return org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING;
 	return new String(qualifier);
 }
 /**

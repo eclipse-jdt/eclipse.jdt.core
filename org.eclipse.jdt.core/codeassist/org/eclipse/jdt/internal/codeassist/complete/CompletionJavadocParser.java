@@ -243,7 +243,7 @@ public class CompletionJavadocParser extends JavadocParser {
 		if (newLine) {
 			System.arraycopy(this.levelTags[BLOCK_IDX], 0, possibleTags[BLOCK_IDX] = new char[this.levelTagsLength[BLOCK_IDX]][], 0, this.levelTagsLength[BLOCK_IDX]);
 		} else {
-			possibleTags[BLOCK_IDX] = new char[0][];
+			possibleTags[BLOCK_IDX] = CharOperation.NO_CHAR_CHAR;
 		}
 		System.arraycopy(this.levelTags[INLINE_IDX], 0, possibleTags[INLINE_IDX] = new char[this.levelTagsLength[INLINE_IDX]][], 0, this.levelTagsLength[INLINE_IDX]);
 		if (prefix == null || prefix.length == 0) return possibleTags;

@@ -93,7 +93,6 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	/**
 	 * Empty collections used for efficient initialization
 	 */
-	protected static String[] NO_STRINGS = new String[0];
 	protected static byte[] NO_BYTES= new byte[]{};
 
 	protected HashtableOfObject fieldRefCache;
@@ -189,10 +188,10 @@ private void addToChildren(JavaElementInfo parentInfo, JavaElement handle) {
  */
 /* default */ static String[] convertTypeNamesToSigs(char[][] typeNames) {
 	if (typeNames == null)
-		return NO_STRINGS;
+		return CharOperation.NO_STRINGS;
 	int n = typeNames.length;
 	if (n == 0)
-		return NO_STRINGS;
+		return CharOperation.NO_STRINGS;
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	String[] typeSigs = new String[n];
 	for (int i = 0; i < n; ++i) {

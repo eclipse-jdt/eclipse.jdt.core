@@ -31,6 +31,9 @@ public class Util implements SuffixConstants {
 	public final static String UTF_8 = "UTF-8";	//$NON-NLS-1$
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 	
+	public static final String EMPTY_STRING = new String(CharOperation.NO_CHAR);
+	public static final int[] EMPTY_INT_ARRAY= new int[0];
+	
 	/**
 	 * Returns the given bytes as a char array using a given encoding (null means platform default).
 	 */

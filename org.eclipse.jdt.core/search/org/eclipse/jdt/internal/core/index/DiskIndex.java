@@ -45,7 +45,7 @@ private static final int DELETED = -2;
 
 private static final int CHUNK_SIZE = 100;
 
-class IntList {
+static class IntList {
 
 int size;
 int[] elements;
@@ -529,7 +529,7 @@ DiskIndex mergeWith(MemoryIndex memoryIndex) throws IOException {
 }
 private synchronized String[] readAllDocumentNames() throws IOException {
 	if (this.numberOfChunks <= 0)
-		return new String[0];
+		return CharOperation.NO_STRINGS;
 
 	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), this.numberOfChunks > 5 ? 4096 : 2048));
 	try {

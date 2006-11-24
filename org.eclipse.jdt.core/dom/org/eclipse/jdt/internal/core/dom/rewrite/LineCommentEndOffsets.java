@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.LineComment;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class LineCommentEndOffsets {
 	
@@ -49,7 +50,7 @@ public class LineCommentEndOffsets {
 					}
 				}
 			} else {
-				this.offsets= new int[0];
+				this.offsets= Util.EMPTY_INT_ARRAY;
 			}
 		}
 		return this.offsets;

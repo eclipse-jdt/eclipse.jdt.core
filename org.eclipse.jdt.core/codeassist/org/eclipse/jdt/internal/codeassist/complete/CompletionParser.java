@@ -3888,18 +3888,19 @@ public void setAssistIdentifier(char[] assistIdent){
 	((CompletionScanner)scanner).completionIdentifier = assistIdent;
 }
 public  String toString() {
-	String s = ""; //$NON-NLS-1$
-	s = s + "elementKindStack : int[] = {"; //$NON-NLS-1$
+	StringBuffer buffer = new StringBuffer();
+	buffer.append("elementKindStack : int[] = {"); //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
-		s = s + String.valueOf(elementKindStack[i]) + ","; //$NON-NLS-1$
+		buffer.append(String.valueOf(elementKindStack[i])).append(',');
 	}
-	s = s + "}\n"; //$NON-NLS-1$
-	s = s + "elementInfoStack : int[] = {"; //$NON-NLS-1$
+	buffer.append("}\n"); //$NON-NLS-1$
+	buffer.append("elementInfoStack : int[] = {"); //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
-		s = s + String.valueOf(elementInfoStack[i]) + ","; //$NON-NLS-1$
+		buffer.append(String.valueOf(elementInfoStack[i])).append(',');
 	}
-	s = s + "}\n"; //$NON-NLS-1$
-	return s + super.toString();
+	buffer.append("}\n"); //$NON-NLS-1$
+	buffer.append(super.toString());
+	return String.valueOf(buffer);
 }
 
 /*

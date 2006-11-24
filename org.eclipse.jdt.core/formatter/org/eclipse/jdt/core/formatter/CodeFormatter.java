@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.formatter;
 
-import org.eclipse.jdt.internal.formatter.Scribe2;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.text.edits.TextEdit;
 
 /**
@@ -99,6 +99,6 @@ public abstract class CodeFormatter {
 	 * @since 3.2
 	 */
 	public String createIndentationString(int indentationLevel) {
-		return Scribe2.EMPTY_STRING;
+		return Util.EMPTY_STRING;
 	}
 }

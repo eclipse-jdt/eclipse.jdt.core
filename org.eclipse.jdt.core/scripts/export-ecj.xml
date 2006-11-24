@@ -6,12 +6,15 @@
 		<tstamp/>
 		<property name="dest" value="../../ecj-export" />
 		<property name="ecj-temp-folder" value="${basedir}/ecj-temp-folder" />
+		<property name="ecj-temp-src-folder" value="${basedir}/ecj-temp-src-folder" />
+		<mkdir dir="${dest}" />
+		<mkdir dir="${ecj-temp-src-folder}" />
+		<mkdir dir="${ecj-temp-folder}"/>
 	</target>
 	
 	<target name="extract-batch-compiler" depends="init">
 		<property name="target.folder" value="bin"/>
 		<echo message="Extract .class file and properties for the batch compiler" />
-		<mkdir dir="${ecj-temp-folder}"/>
 		<copy todir="${ecj-temp-folder}">
 			<fileset dir="scripts">
 			  <include name="META-INF/**" />
@@ -49,8 +52,6 @@
 	</target>
 
 	<target name="export" depends="init">
-		<mkdir dir="${dest}" />
-
 		<echo message="UPDATE ecj.jar" />
 		<delete file="${dest}/ecj.jar" failonerror="false"/>
 		<zip zipfile="${dest}/ecj.jar">
@@ -71,12 +72,41 @@
 			  <include name="about.html" />
 			</zipfileset>			
   		</zip>
+	</target>
+	
+	<target name="export_src_bin">
+		<echo message="UPDATE ecj_all.jar" />
+		<delete file="${dest}/ecj_all.jar" failonerror="false"/>
+		<mkdir dir="${ecj-temp-src-folder}/src" />
+
+		<copy todir="${ecj-temp-src-folder}/src">
+			<fileset dir="batch" />
+			<fileset dir="compiler" />
+			<fileset dir="antadapter">
+	        	<exclude name="org/eclipse/jdt/core/CheckDebugAttributes.java"/>
+			</fileset>
+		</copy>
+
+		<zip zipfile="${dest}/ecj_all.jar">
+			<fileset dir="${ecj-temp-folder}">
+				<include name="**/*"/>
+				<include name="about.html"/>
+	        </fileset>
+			<fileset dir="${ecj-temp-src-folder}"/>
+		</zip>
+		
+		<delete dir="${ecj-temp-src-folder}" failonerror="false"/>
+	</target>
+
+	<target name="cleanup">
 		<delete dir="${ecj-temp-folder}" failonerror="false"/>
 	</target>
-		
+
 	<target name="export-all" depends="init">
 		<antcall target="extract-batch-compiler"/>
 		<antcall target="extract-ant-adapter-compiler"/>
 		<antcall target="export"/>
+		<antcall target="export_src_bin"/>
+		<antcall target="cleanup"/>
 	</target>
 </project>

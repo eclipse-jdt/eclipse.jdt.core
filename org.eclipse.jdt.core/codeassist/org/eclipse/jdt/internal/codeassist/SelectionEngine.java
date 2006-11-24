@@ -1154,7 +1154,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		if (assistIdentifier == null) return false;
 		
 		ImportReference currentPackage = compilationUnit.currentPackage;
-		char[] packageName = currentPackage == null ? new char[0] : CharOperation.concatWith(currentPackage.tokens, '.');
+		char[] packageName = currentPackage == null ? CharOperation.NO_CHAR : CharOperation.concatWith(currentPackage.tokens, '.');
 		// iterate over the types
 		TypeDeclaration[] types = compilationUnit.types;
 		for (int i = 0, length = types == null ? 0 : types.length; i < length; i++){

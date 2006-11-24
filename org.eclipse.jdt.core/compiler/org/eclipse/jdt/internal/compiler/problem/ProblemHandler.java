@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.problem;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
@@ -29,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ProblemHandler {
 
-	public final static String[] NoArgument = new String[0];
+	public final static String[] NoArgument = CharOperation.NO_STRINGS;
 	
 	final public IErrorHandlingPolicy policy;
 	public final IProblemFactory problemFactory;

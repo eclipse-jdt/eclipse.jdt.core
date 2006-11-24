@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 import org.eclipse.jdt.internal.formatter.align.Alignment2;
 import org.eclipse.jdt.internal.formatter.align.AlignmentException;
@@ -35,10 +36,7 @@ import org.eclipse.text.edits.TextEdit;
  * This class is responsible for dumping formatted source
  * @since 2.1
  */
-public class Scribe2 {
-	public static final String EMPTY_STRING = ""; //$NON-NLS-1$
-
-	private static final int INITIAL_SIZE = 100;
+public class Scribe2 {	private static final int INITIAL_SIZE = 100;
 	
 	private boolean checkLineWrapping;
 	/** one-based column */
@@ -111,7 +109,7 @@ public class Scribe2 {
 			// resize
 			resize();
 		}
-		addOptimizedReplaceEdit(start, end - start + 1, EMPTY_STRING);
+		addOptimizedReplaceEdit(start, end - start + 1, Util.EMPTY_STRING);
 	}
 
 	public final void addInsertEdit(int insertPosition, String insertedString) {
@@ -353,7 +351,7 @@ public class Scribe2 {
 	
 	public String getEmptyLines(int linesNumber) {
 		if (this.nlsTagCounter > 0) {
-			return EMPTY_STRING;
+			return Util.EMPTY_STRING;
 		}
 		StringBuffer buffer = new StringBuffer();
 		if (lastNumberOfNewLines == 0) {
@@ -380,7 +378,7 @@ public class Scribe2 {
 		} else {
 			if ((lastNumberOfNewLines - 1) >= linesNumber) {
 				// there is no need to add new lines
-				return EMPTY_STRING;
+				return Util.EMPTY_STRING;
 			}
 			final int realNewLineNumber = linesNumber - lastNumberOfNewLines + 1;
 			for (int i = 0; i < realNewLineNumber; i++) {
@@ -408,11 +406,11 @@ public class Scribe2 {
 	
 	public String getNewLine() {
 		if (this.nlsTagCounter > 0) {
-			return EMPTY_STRING;
+			return Util.EMPTY_STRING;
 		}
 		if (lastNumberOfNewLines >= 1) {
 			column = 1; // ensure that the scribe is at the beginning of a new line
-			return EMPTY_STRING;
+			return Util.EMPTY_STRING;
 		}
 		line++;
 		lastNumberOfNewLines = 1;
@@ -451,7 +449,7 @@ public class Scribe2 {
 				return getNewLine();
 			}
 		}
-		return EMPTY_STRING;
+		return Util.EMPTY_STRING;
 	}
 	
 	public TextEdit getRootEdit() {
@@ -977,7 +975,7 @@ public class Scribe2 {
 
 	private void printEmptyLines(int linesNumber, int insertPosition) {
         final String buffer = getEmptyLines(linesNumber);
-        if (EMPTY_STRING == buffer) return;
+        if (Util.EMPTY_STRING == buffer) return;
         
 		addInsertEdit(insertPosition, buffer);
 	}

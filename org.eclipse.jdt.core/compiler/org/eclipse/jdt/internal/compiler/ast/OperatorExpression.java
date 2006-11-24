@@ -12,6 +12,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class OperatorExpression extends Expression implements OperatorIds {
 
@@ -73,7 +74,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 					case T_null		: return "null"; //$NON-NLS-1$
 					case T_short	: return "((short) 5)"; //$NON-NLS-1$
 					case T_JavaLangObject	: return "null";} //$NON-NLS-1$
-				return "";} //$NON-NLS-1$
+				return Util.EMPTY_STRING;}
 	
 			public  final String type(int code){
 				switch(code){ 

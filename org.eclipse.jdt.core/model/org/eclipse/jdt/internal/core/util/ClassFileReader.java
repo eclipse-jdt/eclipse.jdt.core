@@ -25,10 +25,10 @@ import org.eclipse.jdt.core.util.IInnerClassesAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.core.util.ISourceAttribute;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClassFileReader extends ClassFileStruct implements IClassFileReader {
 	private static final IFieldInfo[] NO_FIELD_INFOS = new IFieldInfo[0];
-	private static final int[] NO_INTERFACE_INDEXES = new int[0];
 	private static final char[][] NO_INTERFACES_NAMES = CharOperation.NO_CHAR_CHAR;
 	private static final IMethodInfo[] NO_METHOD_INFOS = new IMethodInfo[0];
 	private int accessFlags;
@@ -168,7 +168,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 			this.interfacesCount = u2At(classFileBytes, readOffset, 0);
 			readOffset += 2;
 			this.interfaceNames = NO_INTERFACES_NAMES;
-			this.interfaceIndexes = NO_INTERFACE_INDEXES;
+			this.interfaceIndexes = Util.EMPTY_INT_ARRAY;
 			if (this.interfacesCount != 0) {
 				if ((decodingFlags & IClassFileReader.SUPER_INTERFACES) != IClassFileReader.CONSTANT_POOL) {
 					this.interfaceNames = new char[this.interfacesCount][];

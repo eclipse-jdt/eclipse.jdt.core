@@ -23,6 +23,8 @@ import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
+
 public class ConfigurableOption {
 	private String componentName;
 	private String optionName;
@@ -62,7 +64,7 @@ public ConfigurableOption(
 		category = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
 		name = "Missing ressources entries for"+ componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
 		description = "Missing ressources entries for" + componentName + " options"; //$NON-NLS-1$ //$NON-NLS-2$
-		possibleValues = new String[0];
+		possibleValues = CharOperation.NO_STRINGS;
 		id = -1;
 	}
 	if (resource == null) return;
@@ -97,11 +99,11 @@ public ConfigurableOption(
 			}
 		}
 	} catch (MissingResourceException e) {
-		possibleValues = new String[0];
+		possibleValues = CharOperation.NO_STRINGS;
 	} catch (NoSuchElementException e) {
-		possibleValues = new String[0];
+		possibleValues = CharOperation.NO_STRINGS;
 	} catch (NumberFormatException e) {
-		possibleValues = new String[0];
+		possibleValues = CharOperation.NO_STRINGS;
 	}
 	try {
 		description = resource.getString(optionName + ".description");  //$NON-NLS-1$

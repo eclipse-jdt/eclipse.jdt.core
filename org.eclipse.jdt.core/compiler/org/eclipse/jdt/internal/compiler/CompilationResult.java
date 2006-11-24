@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class CompilationResult {
 	
@@ -74,7 +75,7 @@ public class CompilationResult {
 	int suppressWarningsCount;
 	public char[][] packageName;
 	
-private static final int[] EMPTY_LINE_ENDS = new int[0];
+private static final int[] EMPTY_LINE_ENDS = Util.EMPTY_INT_ARRAY;
 private static final Comparator PROBLEM_COMPARATOR = new Comparator() {
 	public int compare(Object o1, Object o2) {
 		return ((CategorizedProblem) o1).getSourceStart() - ((CategorizedProblem) o2).getSourceStart();

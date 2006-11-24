@@ -549,7 +549,7 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	//lhs check_table asb asr symbol_index
 
 	//[org.eclipse.jdt.internal.compiler.parser.Parser.buildFilesFromLPG("d:/leapfrog/grammar/javadcl.java")]
-	char[] contents = new char[] {};
+	char[] contents = CharOperation.NO_CHAR;
 	try {
 		contents = Util.getFileCharContent(new File(dataFilename), null);
 	} catch (IOException ex) {
@@ -590,7 +590,7 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	
 	String[] newName = buildFileForName(prefix + (++i) + ".rsc", new String(contents)); //$NON-NLS-1$
 	
-	contents = new char[] {};
+	contents = CharOperation.NO_CHAR;
 	try {
 		contents = Util.getFileCharContent(new File(dataFilename2), null);
 	} catch (IOException ex) {
@@ -1222,7 +1222,7 @@ protected void consumeAllocationHeader() {
 	if (this.currentToken == TokenNameLBRACE){
 		// beginning of an anonymous type
 		TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult);
-		anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+		anonymousType.name = CharOperation.NO_CHAR;
 		anonymousType.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
 		anonymousType.sourceStart = this.intStack[this.intPtr--];
 		anonymousType.sourceEnd = this.rParenPos; // closing parenthesis
@@ -2881,7 +2881,7 @@ protected void consumeEnterAnonymousClassBody() {
 	TypeReference typeReference = getTypeReference(0);
 
 	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
-	anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+	anonymousType.name = CharOperation.NO_CHAR;
 	anonymousType.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
 	QualifiedAllocationExpression alloc = new QualifiedAllocationExpression(anonymousType); 
 	markEnclosingMemberWithLocalType();
@@ -3102,7 +3102,7 @@ protected void consumeEnumConstantHeader() {
    if (foundOpeningBrace){
       // qualified allocation expression
       TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult);
-      anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+      anonymousType.name = CharOperation.NO_CHAR;
       anonymousType.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
       final int start = this.scanner.startPosition;
       anonymousType.declarationSourceStart = start;

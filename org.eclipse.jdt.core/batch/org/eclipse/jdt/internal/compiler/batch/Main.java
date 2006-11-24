@@ -1047,7 +1047,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		int count = 0;
 		String[] arguments = new String[10];
 		StringTokenizer tokenizer = new StringTokenizer(commandLine, " \"", true); //$NON-NLS-1$
-		String token = ""; //$NON-NLS-1$
+		String token = Util.EMPTY_STRING;
 		boolean insideQuotes = false;
 		boolean startNewToken = true;
 	
@@ -1070,7 +1070,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				if (!insideQuotes && startNewToken) {
 					if (count == arguments.length)
 						System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
-					arguments[count++] = ""; //$NON-NLS-1$
+					arguments[count++] = Util.EMPTY_STRING;
 				}
 				insideQuotes = !insideQuotes;
 				startNewToken = false;
@@ -1551,7 +1551,7 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 				CompilerOptions.WARNING);
 		}
 	} else if (token.startsWith("tasks")) { //$NON-NLS-1$
-		String taskTags = ""; //$NON-NLS-1$
+		String taskTags = Util.EMPTY_STRING;
 		int start = token.indexOf('(');
 		int end = token.indexOf(')');
 		if (start >= 0 && end >= 0 && start < end){
@@ -1563,7 +1563,7 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 		}
 		this.options.put(
 			CompilerOptions.OPTION_TaskTags,
-			isEnabling ? taskTags : "");  //$NON-NLS-1$
+			isEnabling ? taskTags : Util.EMPTY_STRING);
 	} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
 		this.options.put(
 			CompilerOptions.OPTION_ReportAssertIdentifier,
@@ -1844,7 +1844,7 @@ public void configure(String[] argv) throws InvalidInputException {
 	String customEncoding = null;
 	String customDestinationPath = null;
 	String currentSourceDirectory = null;
-	String currentArg = ""; //$NON-NLS-1$
+	String currentArg = Util.EMPTY_STRING;
 
 	// expand the command line if necessary
 	boolean needExpansion = false;
@@ -2608,7 +2608,7 @@ protected void disableWarnings() {
 			this.options.put(entry.getKey(), CompilerOptions.IGNORE);
 		}
 	}
-	this.options.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
+	this.options.put(CompilerOptions.OPTION_TaskTags, Util.EMPTY_STRING);
 }
 
 public String extractDestinationPathFromSourceFile(CompilationResult result) {
@@ -2683,7 +2683,7 @@ public CompilationUnit[] getCompilationUnits()
 	HashtableOfObject knownFileNames = new HashtableOfObject(fileCount);
 
 	String defaultEncoding = (String) this.options.get(CompilerOptions.OPTION_Encoding);
-	if ("".equals(defaultEncoding)) //$NON-NLS-1$
+	if (Util.EMPTY_STRING.equals(defaultEncoding))
 		defaultEncoding = null;
 
 	for (int i = 0; i < fileCount; i++) {

@@ -692,7 +692,7 @@ private char[] readIndexState() {
 	} catch (IOException ignored) {
 		if (VERBOSE)
 			Util.verbose("Failed to read saved index file names"); //$NON-NLS-1$
-		return new char[0];
+		return CharOperation.NO_CHAR;
 	}
 }
 private synchronized void removeIndexesState(String[] locations) {

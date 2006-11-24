@@ -199,7 +199,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	static final Object[][] NO_PARTICIPANTS = new Object[0][];
 	
-	public class CompilationParticipants {
+	public static class CompilationParticipants {
 		
 		private final int MAX_SOURCE_LEVEL = 6; // 1.1 to 1.6
 	

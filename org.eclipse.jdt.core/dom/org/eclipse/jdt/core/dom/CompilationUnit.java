@@ -20,6 +20,7 @@ import java.util.Map;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
 
@@ -144,7 +145,7 @@ public class CompilationUnit extends ASTNode {
 	 * For example, the source string <code>A\nB\nC</code> has
 	 * line end table {1, 3} (if \n is one character).
 	 */
-	private int[] lineEndTable = new int[0];
+	private int[] lineEndTable = Util.EMPTY_INT_ARRAY;
 
 	/**
 	 * Messages reported by the compiler during parsing or name resolution.

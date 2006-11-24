@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class FileSystem implements INameEnvironment, SuffixConstants {
 	Classpath[] classpaths;
@@ -175,7 +176,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	String qualifiedBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
 	String qualifiedPackageName =
 		qualifiedTypeName.length() == typeName.length
-			? "" //$NON-NLS-1$
+			? Util.EMPTY_STRING
 			: qualifiedBinaryFileName.substring(0, qualifiedTypeName.length() - typeName.length - 1);
 	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
 	NameEnvironmentAnswer suggestedAnswer = null;

@@ -19,7 +19,7 @@ public class BindingKeyParser {
 	
 	static final char C_THROWN = '|';
 
-	class Scanner {
+	static class Scanner {
 		static final int PACKAGE = 0;
 		static final int TYPE = 1;
 		static final int FIELD = 2;

@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class SelectionParser extends AssistParser {
 	// OWNER
@@ -375,7 +376,7 @@ protected void consumeEnterAnonymousClassBody() {
 	this.setAssistIdentifier(oldIdent);		
 
 	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
-	anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
+	anonymousType.name = CharOperation.NO_CHAR;
 	anonymousType.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
 	QualifiedAllocationExpression alloc = new SelectionOnQualifiedAllocationExpression(anonymousType); 
 	markEnclosingMemberWithLocalType();
@@ -1232,7 +1233,7 @@ protected void updateRecoveryState() {
 }
 
 public  String toString() {
-	String s = ""; //$NON-NLS-1$
+	String s = Util.EMPTY_STRING;
 	s = s + "elementKindStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
 		s = s + String.valueOf(elementKindStack[i]) + ","; //$NON-NLS-1$

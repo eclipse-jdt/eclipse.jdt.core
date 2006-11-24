@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClasspathDirectory extends ClasspathLocation {
 
@@ -53,7 +54,7 @@ String[] directoryList(String qualifiedPackageName) {
 		while (--index > last && !ScannerHelper.isUpperCase(qualifiedPackageName.charAt(index))){/*empty*/}
 		if (index > last) {
 			if (last == -1) {
-				if (!doesFileExist(qualifiedPackageName, ""))  //$NON-NLS-1$ 
+				if (!doesFileExist(qualifiedPackageName, Util.EMPTY_STRING))
 					break notFound;
 			} else {
 				String packageName = qualifiedPackageName.substring(last + 1);
@@ -63,7 +64,7 @@ String[] directoryList(String qualifiedPackageName) {
 			}
 		}
 		if ((dirList = dir.list()) == null)
-			dirList = new String[0];
+			dirList = CharOperation.NO_STRINGS;
 		this.directoryCache.put(qualifiedPackageName, dirList);
 		return dirList;
 	}

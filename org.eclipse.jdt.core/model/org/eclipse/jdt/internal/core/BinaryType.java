@@ -44,7 +44,6 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	private static final IMethod[] NO_METHODS = new IMethod[0];
 	private static final IType[] NO_TYPES = new IType[0];
 	private static final IInitializer[] NO_INITIALIZERS = new IInitializer[0];
-	private static final String[] NO_STRINGS = new String[0];
 	public static final String EMPTY_JAVADOC = new String();
 	
 protected BinaryType(JavaElement parent, String name) {
@@ -529,7 +528,7 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 	char[][] names= info.getInterfaceNames();
 	int length;
 	if (names == null || (length = names.length) == 0) {
-		return NO_STRINGS;
+		return CharOperation.NO_STRINGS;
 	}
 	names= ClassFile.translatedNames(names);
 	String[] strings= new String[length];
@@ -581,7 +580,7 @@ public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 		char[][] names= info.getInterfaceNames();
 		int length;
 		if (names == null || (length = names.length) == 0) {
-			return NO_STRINGS;
+			return CharOperation.NO_STRINGS;
 		}
 		names= ClassFile.translatedNames(names);
 		String[] strings= new String[length];

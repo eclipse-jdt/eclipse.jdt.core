@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
@@ -34,8 +35,8 @@ import org.eclipse.jdt.internal.core.SearchableEnvironment;
  */
 class PackageBinding implements IPackageBinding {
 
-	private static final String[] NO_NAME_COMPONENTS = new String[0];
-	private static final String UNNAMED = ""; //$NON-NLS-1$
+	private static final String[] NO_NAME_COMPONENTS = CharOperation.NO_STRINGS;
+	private static final String UNNAMED = Util.EMPTY_STRING;
 	private static final char PACKAGE_NAME_SEPARATOR = '.';
 	
 	private org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding;

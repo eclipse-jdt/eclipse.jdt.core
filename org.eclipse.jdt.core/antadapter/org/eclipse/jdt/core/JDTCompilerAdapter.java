@@ -251,7 +251,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 					this.customDefaultOptions.put(entry.getKey(), CompilerOptions.IGNORE);
 				}
 			}
-			this.customDefaultOptions.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
+			this.customDefaultOptions.put(CompilerOptions.OPTION_TaskTags, Util.EMPTY_STRING);
 			if (this.deprecation) {
 				this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING); 
 				this.customDefaultOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED); 
@@ -444,7 +444,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 
 		// empty path return empty string
 		if (pathElements.length == 0) {
-			arg.setValue(""); //$NON-NLS-1$
+			arg.setValue(Util.EMPTY_STRING);
 			return;
 		}
 

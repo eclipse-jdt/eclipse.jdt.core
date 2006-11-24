@@ -119,7 +119,7 @@ public void build(boolean computeSubtypes) {
 				allPossibleSubtypes = this.determinePossibleSubTypes(localTypes, possibleSubtypesMonitor);
 			} else {
 				// local or anonymous type
-				allPossibleSubtypes = new String[0];
+				allPossibleSubtypes = CharOperation.NO_STRINGS;
 			}
 			if (allPossibleSubtypes != null) {
 				IProgressMonitor buildMonitor = 

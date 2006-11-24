@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClasspathJar extends ClasspathLocation {
 	
@@ -60,7 +61,7 @@ public boolean isPackage(String qualifiedPackageName) {
 		return this.packageCache.containsKey(qualifiedPackageName);
 
 	this.packageCache = new Hashtable(41);
-	this.packageCache.put("", ""); //$NON-NLS-1$ //$NON-NLS-2$
+	this.packageCache.put(Util.EMPTY_STRING, Util.EMPTY_STRING);
 
 	nextEntry : for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
 		String fileName = ((ZipEntry) e.nextElement()).getName();

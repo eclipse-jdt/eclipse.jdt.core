@@ -19,7 +19,7 @@ public class LexStream implements TerminalTokens {
 	public static final int IS_AFTER_JUMP = 1;
 	public static final int LBRACE_MISSING = 2;
 		
-	public class Token{
+	public static class Token{
 		int kind;
 		char[] name;
 		int start;

@@ -124,10 +124,10 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				spaces = spaceEquivalents % tabSize;
 				break;
 			default:
-				return Scribe2.EMPTY_STRING;
+				return Util.EMPTY_STRING;
 		}
 		if (tabs == 0 && spaces == 0) {
-			return Scribe2.EMPTY_STRING;
+			return Util.EMPTY_STRING;
 		}
 		StringBuffer buffer = new StringBuffer(tabs + spaces);
 		for(int i = 0; i < tabs; i++) {
