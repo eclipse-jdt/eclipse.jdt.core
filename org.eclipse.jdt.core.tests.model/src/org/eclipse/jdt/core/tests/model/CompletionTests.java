@@ -802,6 +802,175 @@ public void testDeprecationCheck17() throws JavaModelException {
 		JavaCore.setOptions(options);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+public void testDuplicateLocals1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"	void foo() {\n" + 
+		"		int x = 0;\n" + 
+		"		TestString x = null;\n" + 
+		"		x.bar;\n" + 
+		"	}\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestString.java",
+		"package test;"+
+		"public class TestString {\n" + 
+		"	public void bar() {\n" + 
+		"	}\n" + 
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"bar[METHOD_REF]{bar(), Ltest.TestString;, ()V, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+public void testDuplicateLocals2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"        public static void main(String[] args) {\n" + 
+		"                int x = 2;\n" + 
+		"                try {\n" + 
+		"                \n" + 
+		"                } catch(TestException x) {\n" + 
+		"                        x.bar\n" + 
+		"                } catch(Exception e) {\n" + 
+		"                }\n" + 
+		"        }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestException.java",
+		"package test;"+
+		"public class TestException extends Exception {\n" + 
+		"	public void bar() {\n" + 
+		"	}\n" + 
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"bar[METHOD_REF]{bar(), Ltest.TestException;, ()V, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+public void testDuplicateLocals3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"        public static void main(String[] args) {\n" + 
+		"                int x = x = 0;\n" + 
+		"                if (true) {\n" + 
+		"                        TestString x = x.bar\n" + 
+		"                }\n" + 
+		"        }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestString.java",
+		"package test;"+
+		"public class TestString {\n" + 
+		"	public void bar() {\n" + 
+		"	}\n" + 
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"bar[METHOD_REF]{bar(), Ltest.TestString;, ()V, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+public void testDuplicateLocals4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"        public static void main(String[] args) {\n" + 
+		"                for (int i = 0; i < 10; i++) {\n" + 
+		"                        for (TestString i = null; i.bar < 5;)  {\n" + 
+		"                                // do something\n" + 
+		"                        }\n" + 
+		"                }\n" + 
+		"        }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestString.java",
+		"package test;"+
+		"public class TestString {\n" + 
+		"	public void bar() {\n" + 
+		"	}\n" + 
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"bar[METHOD_REF]{bar(), Ltest.TestString;, ()V, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+public void testDuplicateLocals5() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"        public static void main(String[] args) {\n" + 
+		"                for (int i = 0; i < 10; i++) {\n" + 
+		"                        for (TestString i = null; ;)  {\n" + 
+		"                                i.bar // do something\n" + 
+		"                        }\n" + 
+		"                }\n" + 
+		"        }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestString.java",
+		"package test;"+
+		"public class TestString {\n" + 
+		"	public void bar() {\n" + 
+		"	}\n" + 
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"bar[METHOD_REF]{bar(), Ltest.TestString;, ()V, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139937
 public void testEvaluationContextCompletion() throws JavaModelException {
 	class EvaluationContextCompletionRequestor extends CompletionRequestor {

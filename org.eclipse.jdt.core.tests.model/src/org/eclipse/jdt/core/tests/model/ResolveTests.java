@@ -1218,6 +1218,207 @@ public void testEndOfFile() throws JavaModelException {
 			elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+public void testDuplicateLocals1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"	void foo() {\n" + 
+		"		int x = 0;\n" + 
+		"		TestString x = null;\n" + 
+		"		x.bar;\n" + 
+		"	}\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src/test/TestString.java",
+		"package test;"+
+		"public class TestString {\n" + 
+		"	public void bar() {\n" + 
+		"	}\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("x");
+	int length = "x".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"x [in foo() [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
+			elements
+		);
+	
+	assertEquals(
+			"Unexpected type",
+			"QTestString;",
+			((ILocalVariable)elements[0]).getTypeSignature());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+public void testDuplicateLocals2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"        public static void main(String[] args) {\n" + 
+		"                int x = 2;\n" + 
+		"                try {\n" + 
+		"                \n" + 
+		"                } catch(TestException x) {\n" + 
+		"                        x.bar();\n" + 
+		"                } catch(Exception e) {\n" + 
+		"                }\n" + 
+		"        }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src/test/TestException.java",
+		"package test;"+
+		"public class TestException extends Exception {\n" + 
+		"	public void bar() {\n" + 
+		"	}\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("x.");
+	int length = "x".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"x [in main(String[]) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
+			elements
+		);
+	
+	assertEquals(
+			"Unexpected type",
+			"QTestException;",
+			((ILocalVariable)elements[0]).getTypeSignature());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+public void testDuplicateLocals3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"        public static void main(String[] args) {\n" + 
+		"                int x = x = 0;\n" + 
+		"                if (true) {\n" + 
+		"                        TestString x = x = null;\n" + 
+		"                }\n" + 
+		"        }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src/test/TestString.java",
+		"package test;"+
+		"public class TestString {\n" + 
+		"	public void bar() {\n" + 
+		"	}\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("x");
+	int length = "x".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"x [in main(String[]) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
+			elements
+		);
+	
+	assertEquals(
+			"Unexpected type",
+			"QTestString;",
+			((ILocalVariable)elements[0]).getTypeSignature());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+public void testDuplicateLocals4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"        public static void main(String[] args) {\n" + 
+		"                for (int x = 0; x < 10; x++) {\n" + 
+		"                        for (TestString x = null; x.bar() < 5;)  {\n" + 
+		"                                // do something\n" + 
+		"                        }\n" + 
+		"                }\n" + 
+		"        }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src/test/TestString.java",
+		"package test;"+
+		"public class TestString {\n" + 
+		"	public int bar() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("x");
+	int length = "x".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"x [in main(String[]) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
+			elements
+		);
+	
+	assertEquals(
+			"Unexpected type",
+			"QTestString;",
+			((ILocalVariable)elements[0]).getTypeSignature());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
+public void testDuplicateLocals5() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"        public static void main(String[] args) {\n" + 
+		"                for (int x = 0; x < 10; x++) {\n" + 
+		"                        for (TestString x = null; x.bar() < 5;)  {\n" + 
+		"                                x.bar(); // do something\n" + 
+		"                        }\n" + 
+		"                }\n" + 
+		"        }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src/test/TestString.java",
+		"package test;"+
+		"public class TestString {\n" + 
+		"	public int bar() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("x");
+	int length = "x".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"x [in main(String[]) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
+			elements
+		);
+	
+	assertEquals(
+			"Unexpected type",
+			"QTestString;",
+			((ILocalVariable)elements[0]).getTypeSignature());
+}
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65259
  */
