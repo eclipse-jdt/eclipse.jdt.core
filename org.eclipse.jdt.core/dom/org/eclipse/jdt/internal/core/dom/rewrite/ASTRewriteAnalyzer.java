@@ -1188,24 +1188,27 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		
 		int endPos= new ModifierRewriter(this.formatter.ANNOTATION_SEPARATION).rewriteList(node, property, pos, "", " "); //$NON-NLS-1$ //$NON-NLS-2$
-
-		if (isAllInsert) {
-			RewriteEvent lastChild= children[children.length - 1];
-			String separator;
-			if (lastChild.getNewValue() instanceof Annotation) {
-				separator= this.formatter.ANNOTATION_SEPARATION.getPrefix(getIndent(pos));
-			} else {
-				separator= String.valueOf(' ');
-			}
-			doTextInsert(endPos, separator, getEditGroup(lastChild));
-		} else if (isAllRemove) {
-			try {
-				int nextPos= getScanner().getNextStartOffset(endPos, false); // to the next token
+		
+		try {
+			int nextPos= getScanner().getNextStartOffset(endPos, false);
+			
+			boolean lastUnchanged= children[children.length - 1].getChangeKind() != RewriteEvent.UNCHANGED;
+			
+			if (isAllRemove) {
 				doTextRemove(endPos, nextPos - endPos, getEditGroup(children[children.length - 1]));
 				return nextPos;
-			} catch (CoreException e) {
-				handleException(e);
+			} else if (isAllInsert || (nextPos == endPos && lastUnchanged)) { // see bug 165654
+				RewriteEvent lastChild= children[children.length - 1];
+				String separator;
+				if (lastChild.getNewValue() instanceof Annotation) {
+					separator= this.formatter.ANNOTATION_SEPARATION.getPrefix(getIndent(pos));
+				} else {
+					separator= String.valueOf(' ');
+				}
+				doTextInsert(endPos, separator, getEditGroup(lastChild));
 			}
+		} catch (CoreException e) {
+			handleException(e);
 		}
 		return endPos;
 	}

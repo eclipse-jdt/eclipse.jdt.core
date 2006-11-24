@@ -1666,6 +1666,8 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("public abstract class E {\n");
 		buf.append("    Object foo1() { return null; }\n");
 		buf.append("    Object foo2() { return null; }\n");
+		buf.append("    @Deprecated()Object foo3() { return null; }\n");
+		buf.append("    @Deprecated()Object foo4() { return null; }\n");
 		buf.append("}\n");	
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
@@ -1687,6 +1689,18 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			Modifier modifier= ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 			listRewrite.insertFirst(modifier, null);
 		}
+		{ // insert modifier last
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo3");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			Modifier modifier= ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+			listRewrite.insertLast(modifier, null);
+		}
+		{ // insert modifier first
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo4");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			Modifier modifier= ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+			listRewrite.insertFirst(modifier, null);
+		}
 		
 		String preview= evaluateRewrite(cu, rewrite);
 		
@@ -1696,6 +1710,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    @Override\n");
 		buf.append("    Object foo1() { return null; }\n");
 		buf.append("    public Object foo2() { return null; }\n");
+		buf.append("    @Deprecated()\n");
+		buf.append("    public Object foo3() { return null; }\n");
+		buf.append("    public @Deprecated()Object foo4() { return null; }\n");
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());
 	}
