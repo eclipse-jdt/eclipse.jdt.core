@@ -22,6 +22,7 @@ import java.text.MessageFormat;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
@@ -3167,27 +3168,6 @@ public void test058(){
 		"",
 		false /* do not flush output directory */);
 }
-
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149118
-// .java ending directory name
-// instead of a java source file
-public void test059(){
-	File outputDirectory = new File(OUTPUT_DIR + File.separator + "foo.java");
-	outputDirectory.mkdirs();
-	this.runNegativeTest(
-	    new String[] {},
-	    "\"" + OUTPUT_DIR +  File.separator + "foo.java\""
-	    + " -1.5 -g -preserveAllLocals "
-	    + " -d \"" + OUTPUT_DIR + "/out\"",
-	    "",
-	    "----------\n" + 
-	    "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/foo.java\n" + 
-	    "Cannot read the source from ---OUTPUT_DIR_PLACEHOLDER---/foo.java due to internal exception java.io.FileNotFoundException:---OUTPUT_DIR_PLACEHOLDER---/foo.java (Access is denied)\n" + 
-	    "----------\n" + 
-	    "1 problem (1 error)",
-		false /* do not flush output directory */);
-}
-
 // .java ending directory name
 // subdirectory of a compiled directory, unreferenced
 public void test060(){
