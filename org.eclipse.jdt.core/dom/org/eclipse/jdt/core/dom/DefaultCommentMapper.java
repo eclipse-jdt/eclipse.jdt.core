@@ -268,20 +268,21 @@ class DefaultCommentMapper {
 	 * Search and store node leading comments. Comments are searched in position range
 	 * from previous extended position to node start position. If one or several comment are found,
 	 * returns first comment start position, otherwise returns node start position.
-	 * 
-	 * First look after first comment before node start position and return if none was found...
-	 *
-	 * When first comment was found before node, goes up in comment list until one of
-	 * following condition becomes true:
-	 * 	1) comment end is before previous end
-	 * 	2) comment start and previous end is on the same line but not on same line of node start
-	 * 	3) there's other than white characters between current node and comment
-	 * 	4) there's more than 1 line between current node and comment
-	 * 
-	 * If at least one potential comment has been found, then no token should be on
+	 * <p>
+	 * Starts to search for first comment before node start position and return if none was found...
+	 *</p><p>
+	 * When first comment is found before node, goes up in comment list until one of
+	 * following conditions becomes true:
+	 * <ol>
+	 * 	<li>comment end is before previous end</li>
+	 * 	<li>comment start and previous end is on the same line but not on same line of node start</li>
+	 * 	<li>there's other than white characters between current node and comment</li>
+	 * 	<li>there's more than 1 line between current node and comment</li>
+	 * </ol>
+	 * If some comment have been found, then no token should be on
 	 * on the same line before, so remove all comments which do not verify this assumption.
-	 * 
-	 * If finally there is a subset of comments, then store start and end indexes 
+	 * </p><p>
+	 * If finally there's leading still comments, then stores indexes of the first and last one
 	 * in leading comments table.
 	 */
 	int storeLeadingComments(ASTNode node, int previousEnd) {
@@ -387,20 +388,21 @@ class DefaultCommentMapper {
 	 * Search and store node trailing comments. Comments are searched in position range
 	 * from node end position to specified next start. If one or several comment are found,
 	 * returns last comment end position, otherwise returns node end position.
-	 * 
-	 * First look after first comment after node end position and return if none was found...
-	 *
-	 * When first comment was found after node, goes down in comment list until one of
-	 * following condition becomes true:
-	 * 	1) comment start is after next start
-	 * 	2) there's other than white characters between current node and comment
-	 * 	3) there's more than 1 line between current node and comment
-	 * 
-	 * If at least one potential comment has been found, then all of them has to be separated
+	 * <p>
+	 * Starts to search for first comment after node end position and return if none was found...
+	 *</p><p>
+	 * When first comment is found after node, goes down in comment list until one of
+	 * following conditions becomes true:
+	 * <ol>
+	 * 	<li>comment start is after next start</li>
+	 * 	<li>there's other than white characters between current node and comment</li>
+	 * 	<li>there's more than 1 line between current node and comment</li>
+	 *</ol>
+	 * If at least potential comments have been found, then all of them has to be separated
 	 * from following node. So, remove all comments which do not verify this assumption.
 	 * Note that this verification is not applicable on last node.
-	 * 
-	 * If finally there is a subset of comments, then store start and end indexes 
+	 * </p><p>
+	 * If finally there's still trailing comments, then stores indexes of the first and last one
 	 * in trailing comments table.
 	 */
 	int storeTrailingComments(ASTNode node, int nextStart,  boolean lastChild) {

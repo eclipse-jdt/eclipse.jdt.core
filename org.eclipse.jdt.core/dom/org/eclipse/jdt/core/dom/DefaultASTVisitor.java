@@ -95,6 +95,12 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(EmptyStatement node) {
 		return visitNode(node);
 	}
+	public boolean visit(EnumConstantDeclaration node) {
+		return visitNode(node);
+	}
+	public boolean visit(EnumDeclaration node) {
+		return visitNode(node);
+	}
 	public boolean visit(ExpressionStatement node) {
 		return visitNode(node);
 	}
@@ -307,6 +313,12 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	public void endVisit(EmptyStatement node) {
+		endVisitNode(node);
+	}
+	public void endVisit(EnumConstantDeclaration node) {
+		endVisitNode(node);
+	}
+	public void endVisit(EnumDeclaration node) {
 		endVisitNode(node);
 	}
 	public void endVisit(ExpressionStatement node) {

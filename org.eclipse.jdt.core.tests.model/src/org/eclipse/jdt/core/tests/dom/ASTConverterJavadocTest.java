@@ -114,7 +114,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug70892_JLS3"));
+		suite.addTest(new ASTConverterJavadocTest("testBug165525"));
 		return suite;
 	}
 
@@ -3413,6 +3413,63 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Wrong number of comments", 1, unitComments.size());
 			Comment comment = (Comment) unitComments.get(0);
 			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+		}
+	}
+
+	/**
+	 * @bug 165525: [comments] ASTParser excludes trailing line comments from extended range of fields in enums
+	 * @test Ensure that extended ranges are correct for enum constants and last comments of enum declaration
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=165525"
+	 */
+	public void testBug165525() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b165525/Test.java",
+			"package javadoc.b165525;\n" + 
+			"public enum Test {\n" + 
+			"	ENUM_CONST_1(\"String constant 1\") //$NON-NLS-1$\n" + 
+			"	, ENUM_CONST_2(\"String constant 2\") //$NON-NLS-1$\n" + 
+			"	;\n" + 
+			"	Test(String x) {\n" + 
+			"	}\n" + 
+			"	String a = \"a\"; //$NON-NLS-1$\n" + 
+			"	String b = \"b\"; //$NON-NLS-1$\n" + 
+			"}\n"
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(AST.JLS3, workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify comment type
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 4, unitComments.size());
+
+			// Verify extension of first enum declaration constant
+			Comment comment = (Comment) unitComments.get(0);
+			EnumDeclaration enumDeclaration = (EnumDeclaration) compilUnit.types().get(0);
+			EnumConstantDeclaration constantDeclaration = (EnumConstantDeclaration) enumDeclaration.enumConstants().get(0);
+			int declarationEnd = constantDeclaration.getStartPosition() + compilUnit.getExtendedLength(constantDeclaration) - 1;
+			int commentEnd = comment.getStartPosition() + comment.getLength() - 1;
+			assumeEquals("Enum constant declaration "+constantDeclaration+" does not have the correct length", commentEnd, declarationEnd);
+
+			// Verify extension of second enum declaration constant
+			comment = (Comment) unitComments.get(1);
+			constantDeclaration = (EnumConstantDeclaration) enumDeclaration.enumConstants().get(1);
+			declarationEnd = constantDeclaration.getStartPosition() + compilUnit.getExtendedLength(constantDeclaration) - 1;
+			commentEnd = comment.getStartPosition() + comment.getLength() - 1;
+			assumeEquals("Enum constant declaration "+constantDeclaration+" does not have the correct length", commentEnd, declarationEnd);
+
+			// Verify extension of first field declaration
+			comment = (Comment) unitComments.get(2);
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) enumDeclaration.bodyDeclarations().get(1);
+			declarationEnd = fieldDeclaration.getStartPosition() + compilUnit.getExtendedLength(fieldDeclaration) - 1;
+			commentEnd = comment.getStartPosition() + comment.getLength() - 1;
+			assumeEquals("Enum constant declaration "+constantDeclaration+" does not have the correct length", commentEnd, declarationEnd);
+
+			// Verify extension of second field declaration
+			comment = (Comment) unitComments.get(3);
+			fieldDeclaration = (FieldDeclaration) enumDeclaration.bodyDeclarations().get(2);
+			declarationEnd = fieldDeclaration.getStartPosition() + compilUnit.getExtendedLength(fieldDeclaration) - 1;
+			commentEnd = comment.getStartPosition() + comment.getLength() - 1;
+			assumeEquals("Enum constant declaration "+constantDeclaration+" does not have the correct length", commentEnd, declarationEnd);
 		}
 	}
 }
