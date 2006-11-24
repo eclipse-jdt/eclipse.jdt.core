@@ -971,6 +971,80 @@ public void testDuplicateLocals5() throws JavaModelException {
 			"bar[METHOD_REF]{bar(), Ltest.TestString;, ()V, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165662
+public void testDuplicateLocalsType1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"     class Local {\n" + 
+		"        void foo() {}\n" + 
+		"     }\n" + 
+		"     {\n" + 
+		"        class Local {\n" + 
+		"                Local(int i) {\n" + 
+		"                        this.init(i);\n" + 
+		"                }\n" + 
+		"				 void init(int i) {}\n" +
+		"                public void bar() {}\n" + 
+		"        }\n" + 
+		"        Local l = new Local(0);\n" + 
+		"        l.bar\n" + 
+		"     }\n" + 
+		"  }\n" + 
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"bar[METHOD_REF]{bar(), LLocal;, ()V, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165662
+public void testDuplicateLocalsType2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"        void foo() {\n" + 
+		"                class Local {\n" + 
+		"                        void foo() {\n" + 
+		"                        }\n" + 
+		"                }\n" + 
+		"                {\n" + 
+		"                        class Local {\n" + 
+		"                               Local(int i) {\n" + 
+		"                                       this.init(i);\n" + 
+		"                                       this.bar();\n" + 
+		"                               }\n" + 
+		"				 				void init(int i) {}\n" +
+		"                        		void bar() {\n" + 
+		"                        		}\n" + 
+		"                        }\n" + 
+		"                        Local l = new Local(0);\n" + 
+		"                }\n" + 
+		"                Local l = new Local();\n" + 
+		"                l.foo\n" + 
+		"        }\n" + 
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"foo[METHOD_REF]{foo(), LLocal;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139937
 public void testEvaluationContextCompletion() throws JavaModelException {
 	class EvaluationContextCompletionRequestor extends CompletionRequestor {

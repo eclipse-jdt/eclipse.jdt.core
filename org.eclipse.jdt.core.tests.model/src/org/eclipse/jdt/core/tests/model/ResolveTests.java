@@ -1419,6 +1419,100 @@ public void testDuplicateLocals5() throws JavaModelException {
 			"QTestString;",
 			((ILocalVariable)elements[0]).getTypeSignature());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165662
+public void testDuplicateLocalsType1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"     class Local {\n" + 
+		"        public void foo() {}\n" + 
+		"     }\n" + 
+		"     {\n" + 
+		"        class Local {\n" + 
+		"                Local(int i) {\n" + 
+		"                        this.init(i);\n" + 
+		"                }\n" + 
+		"				 void init(int i) {}\n" +
+		"                public void bar() {}\n" +
+		"        }\n" + 
+		"        Local l = new Local(0);\n" + 
+		"        l.bar();\n" + 
+		"     }\n" + 
+		"  }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src/test/TestString.java",
+		"package test;"+
+		"public class TestString {\n" + 
+		"	public int bar() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("bar");
+	int length = "bar".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"bar() [in Local#2 [in foo() [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]]",
+			elements
+		);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165662
+public void testDuplicateLocalsType2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"        void foo() {\n" + 
+		"                class Local {\n" + 
+		"                        void foo() {\n" + 
+		"                        }\n" + 
+		"                }\n" + 
+		"                {\n" + 
+		"                        class Local {\n" + 
+		"                               Local(int i) {\n" + 
+		"                                       this.init(i);\n" + 
+		"                                       this.bar();\n" + 
+		"                               }\n" + 
+		"				 				void init(int i) {}\n" +
+		"                        		void bar() {\n" + 
+		"                        		}\n" + 
+		"                        }\n" + 
+		"                        Local l = new Local(0);\n" + 
+		"                }\n" + 
+		"                Local l = new Local();\n" + 
+		"                l.foo();\n" + 
+		"        }\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src/test/TestString.java",
+		"package test;"+
+		"public class TestString {\n" + 
+		"	public int bar() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo");
+	int length = "foo".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo() [in Local [in foo() [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]]",
+			elements
+		);
+}
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65259
  */
