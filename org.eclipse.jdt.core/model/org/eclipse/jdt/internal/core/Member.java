@@ -320,7 +320,12 @@ public IType getType(String typeName, int count) {
  * @see IMember#getTypeRoot()
  */
 public ITypeRoot getTypeRoot() {
-	return (ITypeRoot) getAncestor(IJavaElement.TYPE_ROOT);
+	IJavaElement element = this;
+	while (element != null) {
+		if (element instanceof ITypeRoot) return (ITypeRoot) element;
+		element= element.getParent();
+		}
+	return null;
 }
 /**
  * @see IMember
