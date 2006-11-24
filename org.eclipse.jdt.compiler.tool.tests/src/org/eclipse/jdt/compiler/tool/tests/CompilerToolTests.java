@@ -1,16 +1,39 @@
+/*******************************************************************************
+ * Copyright (c) 2006 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
 import java.util.ServiceLoader;
 
 import javax.tools.JavaCompiler;
 
-import org.eclipse.jdt.compiler.tool.EclipseCompiler;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-public class CompilerToolTests {
+/**
+ * If adding new tests, always add them explicitely in the method suite().
+ */
+import org.eclipse.jdt.compiler.tool.EclipseCompiler;
+
+public class CompilerToolTests extends TestCase {
+	public CompilerToolTests(String name) {
+		super(name);
+	}
+	public static TestSuite suite() {
+		TestSuite suite = new TestSuite();
+		suite.addTest(new CompilerToolTests("testInitializeJavaCompiler"));
+		suite.addTest(new CompilerToolTests("testCheckPresence"));
+		suite.addTest(new CompilerToolTests("testCheckOptions"));
+		suite.addTest(new CompilerToolTests("testCleanUp"));
+		return suite;
+	}
 
 	private static JavaCompiler Compiler;
 	private static String[] ONE_ARG_OPTIONS = {
@@ -66,8 +89,10 @@ public class CompilerToolTests {
 		"-showversion"
 	};
 
-	@BeforeClass
-	public static void initializeJavaCompiler() {
+	/*
+	 * Initialize the compiler for all the tests
+	 */
+	public void testInitializeJavaCompiler() {
 		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);
 		int compilerCounter = 0;
 		for (JavaCompiler javaCompiler : javaCompilerLoader) {
@@ -79,14 +104,12 @@ public class CompilerToolTests {
 		assertEquals("Only one compiler available", 1, compilerCounter);
 	}
 	
-	@Test
-	public void checkPresence() {
+	public void testCheckPresence() {
 		// test that the service provided by org.eclipse.jdt.compiler.tool is there
 		assertNotNull("No compiler found", Compiler);
 	}
 	
-	@Test
-	public void checkOptions() {
+	public void testCheckOptions() {
 		for (String option : ONE_ARG_OPTIONS) {
 			assertEquals(option + " requires 1 argument", 1, Compiler.isSupportedOption(option));
 		}
@@ -97,8 +120,10 @@ public class CompilerToolTests {
 		assertEquals("-Xignore requires no argument", 0, Compiler.isSupportedOption("-Xignore"));
 	}
 
-	@AfterClass
-	public static void cleanUp() {
+	/*
+	 * Clean up the compiler
+	 */
+	public void testCleanUp() {
 		Compiler = null;
 	}
 }
