@@ -479,10 +479,19 @@ public class ASTParser {
 		setTypeRoot(source);
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * Sets the source code to be parsed.
+	 * <p>This method automatically sets the project (and compiler
+	 * options) based on the given compilation unit of class file, in a manner
+	 * equivalent to <code>setProject(source.getJavaProject())</code>.</p>
+	 * <p>If the source is a class file without source attachment, the creation of the 
+	 * ast will fail with an IllegalStateException.</p>
+	 *
+	 * @param source the Java model compilation unit or class file whose corresponding source code
+	 * is to be parsed, or <code>null</code> if none
+	 * @since 3.3
 	 */
-	void setTypeRoot(ITypeRoot source) {
+	public void setTypeRoot(ITypeRoot source) {
 		this.typeRoot = source;
 		// clear the raw source
 		this.rawSource = null;

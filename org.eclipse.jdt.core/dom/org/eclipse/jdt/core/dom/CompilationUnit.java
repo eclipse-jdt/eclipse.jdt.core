@@ -491,6 +491,7 @@ public class CompilationUnit extends ASTNode {
 	 * 
 	 * @return the Java element this compilation unit was created from, or <code>null</code> if none
 	 * @since 3.1
+	 * @see #getTypeRoot()
 	 */
 	public IJavaElement getJavaElement() {
 		return this.typeRoot;

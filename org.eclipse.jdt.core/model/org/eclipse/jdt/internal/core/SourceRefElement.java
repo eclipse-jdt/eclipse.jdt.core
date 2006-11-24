@@ -111,7 +111,7 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
  * @see IMember
  */
 public ICompilationUnit getCompilationUnit() {
-	return ((JavaElement)getParent()).getCompilationUnit();
+	return (ICompilationUnit) getAncestor(COMPILATION_UNIT);
 }
 /**
  * Elements within compilation units and class files have no

@@ -138,7 +138,14 @@ public String[] getCategories() throws JavaModelException {
  * @see IMember
  */
 public IClassFile getClassFile() {
-	return ((JavaElement)getParent()).getClassFile();
+	IJavaElement element = getParent();
+	while (element instanceof IMember) {
+		element= element.getParent();
+	}
+	if (element instanceof IClassFile) {
+		return (IClassFile) element;
+	}
+	return null;
 }
 /**
  * @see IMember
@@ -320,12 +327,11 @@ public IType getType(String typeName, int count) {
  * @see IMember#getTypeRoot()
  */
 public ITypeRoot getTypeRoot() {
-	IJavaElement element = this;
-	while (element != null) {
-		if (element instanceof ITypeRoot) return (ITypeRoot) element;
+	IJavaElement element = getParent();
+	while (element instanceof IMember) {
 		element= element.getParent();
 	}
-	return null;
+	return (ITypeRoot) element;
 }
 /**
  * @see IMember
