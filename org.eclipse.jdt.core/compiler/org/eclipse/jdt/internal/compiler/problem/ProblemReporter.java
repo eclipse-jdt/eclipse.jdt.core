@@ -2346,18 +2346,36 @@ public void incompatibleReturnType(MethodBinding currentMethod, MethodBinding in
 		.append(inheritedMethod.shortReadableName());
 
 	int id;
-	if (currentMethod.declaringClass.isInterface() 
+	final ReferenceBinding declaringClass = currentMethod.declaringClass;
+	if (declaringClass.isInterface() 
 			&& !inheritedMethod.isPublic()){ // interface inheriting Object protected method
 		id = IProblem.IncompatibleReturnTypeForNonInheritedInterfaceMethod;
 	} else {
 		id = IProblem.IncompatibleReturnType;
 	}
+	AbstractMethodDeclaration method = currentMethod.sourceMethod();
+	int sourceStart = 0;
+	int sourceEnd = 0;
+	if (method == null) {
+		if (declaringClass instanceof SourceTypeBinding) {
+			SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) declaringClass;
+			sourceStart = sourceTypeBinding.sourceStart();
+			sourceEnd = sourceTypeBinding.sourceEnd();
+		}
+	} else if (method.isConstructor()){
+		sourceStart = method.sourceStart;
+		sourceEnd = method.sourceEnd;
+	} else {
+		TypeReference returnType = ((MethodDeclaration) method).returnType;
+		sourceStart = returnType.sourceStart;
+		sourceEnd = returnType.sourceEnd;
+	}
 	this.handle(
 		id,
 		new String[] {methodSignature.toString()},
 		new String[] {shortSignature.toString()},
-		currentMethod.sourceStart(),
-		currentMethod.sourceEnd());
+		sourceStart,
+		sourceEnd);
 }
 public void incorrectArityForParameterizedType(ASTNode location, TypeBinding type, TypeBinding[] argumentTypes) {
     if (location == null) {

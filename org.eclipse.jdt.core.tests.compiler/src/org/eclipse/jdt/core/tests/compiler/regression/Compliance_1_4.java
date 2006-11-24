@@ -2645,7 +2645,7 @@ public void test081() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	public Y foo() { return this; } \n" + 
-		"	         ^^^^^\n" + 
+		"	       ^\n" + 
 		"The return type is incompatible with X.foo()\n" + 
 		"----------\n");
 }
@@ -2674,7 +2674,7 @@ public void test082() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	String foo() {\n" + 
-		"	       ^^^^^\n" + 
+		"	^^^^^^\n" + 
 		"The return type is incompatible with X.foo()\n" + 
 		"----------\n");
 }

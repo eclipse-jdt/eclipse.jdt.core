@@ -7151,7 +7151,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"3. ERROR in SubTypes.java (at line 9)\n" + 
 			"	@Override public X foo() { return new X(); }\n" + 
-			"	                   ^^^^^\n" + 
+			"	                 ^\n" + 
 			"The return type is incompatible with A.foo()\n" + 
 			"----------\n");
 	}
@@ -11162,12 +11162,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	@Override Class<? extends String> foo() { return null; }\n" + 
-			"	                                  ^^^^^\n" + 
+			"	          ^^^^^\n" + 
 			"The return type is incompatible with Y.foo()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	@Override Class<? extends String>[] foo2() { return null; }\n" + 
-			"	                                    ^^^^^^\n" + 
+			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The return type is incompatible with Y.foo2()\n" + 
 			"----------\n");
 	}
@@ -11192,7 +11192,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	public List<String> getList() { return null; }\n" + 
-			"	                    ^^^^^^^^^\n" + 
+			"	       ^^^^\n" + 
 			"The return type is incompatible with IDoubles.getList()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
@@ -31377,7 +31377,7 @@ public void test0987() {
 	?	"----------\n" + 
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
-		"	                    ^^^^^^^^^^^\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
 		"The return type is incompatible with EditPart.getViewer()\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 11)\n" + 
@@ -31388,7 +31388,7 @@ public void test0987() {
 	:	"----------\n" + 
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
-		"	                    ^^^^^^^^^^^\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
 		"The return type is incompatible with EditPart.getViewer()\n" + 
 		"----------\n";	
 	this.runNegativeTest(
@@ -31482,7 +31482,7 @@ public void test0988() {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	public SheetViewer getViewer() { return null; }	\n" + 
-			"	                   ^^^^^^^^^^^\n" + 
+			"	       ^^^^^^^^^^^\n" + 
 			"The return type is incompatible with AbstractEditPart.getViewer()\n" + 
 			"----------\n");
 }

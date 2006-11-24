@@ -1551,7 +1551,7 @@ public void test043() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 14)\n" + 
 		"	public Object foo(float f) {\n" + 
-		"	              ^^^^^^^^^^^^\n" + 
+		"	       ^^^^^^\n" + 
 		"The return type is incompatible with J.foo(float)\n" + 
 		"----------\n");
 }

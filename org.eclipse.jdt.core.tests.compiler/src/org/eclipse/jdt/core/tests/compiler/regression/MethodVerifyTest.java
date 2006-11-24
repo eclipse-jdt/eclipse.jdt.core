@@ -480,7 +480,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in ALL.java (at line 5)\n" + 
 			"	class J<T> implements I<B> { public T foo() {return null;} }\n" + 
-			"	                                      ^^^^^\n" + 
+			"	                                    ^\n" + 
 			"The return type is incompatible with I<B>.foo()\n" + 
 			"----------\n" + 
 			"2. WARNING in ALL.java (at line 7)\n" + 
@@ -490,7 +490,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"3. ERROR in ALL.java (at line 8)\n" + 
 			"	class Y<T> extends X<A> { @Override public T foo() { return super.foo(); } }\n" + 
-			"	                                             ^^^^^\n" + 
+			"	                                           ^\n" + 
 			"The return type is incompatible with X<A>.foo()\n" + 
 			"----------\n" + 
 			"4. ERROR in ALL.java (at line 8)\n" + 
@@ -554,7 +554,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in J.java (at line 1)\n" + 
 			"	class J<T> implements I<B> { public T foo() {return null;} }\n" + 
-			"	                                      ^^^^^\n" + 
+			"	                                    ^\n" + 
 			"The return type is incompatible with I<B>.foo()\n" + 
 			"----------\n" + 
 			"----------\n" + 
@@ -566,7 +566,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in Y.java (at line 1)\n" + 
 			"	class Y<T> extends X<A> { @Override public T foo() { return super.foo(); } }\n" + 
-			"	                                             ^^^^^\n" + 
+			"	                                           ^\n" + 
 			"The return type is incompatible with X<A>.foo()\n" + 
 			"----------\n" + 
 			"2. ERROR in Y.java (at line 1)\n" + 
@@ -634,7 +634,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"----------\n" + 
 				"1. ERROR in J.java (at line 1)\n" + 
 				"	class J<T> implements I<B> { public T foo() {return null;} }\n" + 
-				"	                                      ^^^^^\n" + 
+				"	                                    ^\n" + 
 				"The return type is incompatible with I<B>.foo()\n" + 
 				"----------\n" + 
 				"----------\n" + 
@@ -646,7 +646,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"----------\n" + 
 				"1. ERROR in Y.java (at line 1)\n" + 
 				"	class Y<T> extends X<A> { @Override public T foo() { return super.foo(); } }\n" + 
-				"	                                             ^^^^^\n" + 
+				"	                                           ^\n" + 
 				"The return type is incompatible with X<A>.foo()\n" + 
 				"----------\n" + 
 				"2. ERROR in Y.java (at line 1)\n" + 
@@ -710,7 +710,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in A.java (at line 2)\r\n" + 
 			"	interface I extends J { Object foo(); }\r\n" + 
-			"	                               ^^^^^\n" + 
+			"	                        ^^^^^^\n" + 
 			"The return type is incompatible with J.foo()\n" + 
 			"----------\n" + 
 			"----------\n" + 
@@ -786,7 +786,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in A.java (at line 2)\r\n" + 
 			"	class B extends A { @Override short get(short i, short s) {return i; } }\r\n" + 
-			"	                                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                              ^^^^^\n" + 
 			"The return type is incompatible with A.get(short, short)\n" + 
 			"----------\n"
 		);
@@ -805,7 +805,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in ALL.java (at line 4)\r\n" + 
 			"	class C extends B { @Override public A foo() { return null; } }\r\n" + 
-			"	                                       ^^^^^\n" + 
+			"	                                     ^\n" + 
 			"The return type is incompatible with B.foo()\n" + 
 			"----------\n"
 			// foo() in C cannot override foo() in B; attempting to use incompatible return type
@@ -1983,7 +1983,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\r\n" + 
 			"	interface X { long hashCode(); }\r\n" + 
-			"	                   ^^^^^^^^^^\n" + 
+			"	              ^^^^\n" + 
 			"The return type is incompatible with Object.hashCode()\n" + 
 			"----------\n"
 			// hashCode() in X cannot override hashCode() in java.lang.Object; attempting to use incompatible return type
@@ -3125,7 +3125,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	class XS extends X { @Override int foo() {} }\n" + 
-			"	                                   ^^^^^\n" + 
+			"	                               ^^^\n" + 
 			"The return type is incompatible with X.foo()\n" + 
 			"----------\n"
 		);
@@ -4860,7 +4860,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		?	"----------\n" + 
 			"1. WARNING in I.java (at line 2)\n" + 
 			"	interface J extends I { @Override void clone(); }\n" + 
-			"	                                       ^^^^^^^\n" + 
+			"	                                  ^^^^\n" + 
 			"The return type is incompatible with Object.clone(), thus this interface cannot be implemented\n" + 
 			"----------\n" + 
 			"2. ERROR in I.java (at line 2)\n" + 
@@ -4871,7 +4871,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		:	"----------\n" + 
 			"1. WARNING in I.java (at line 2)\n" + 
 			"	interface J extends I { @Override void clone(); }\n" + 
-			"	                                       ^^^^^^^\n" + 
+			"	                                  ^^^^\n" + 
 			"The return type is incompatible with Object.clone(), thus this interface cannot be implemented\n" + 
 			"----------\n" + 
 			"2. ERROR in I.java (at line 2)\n" + 
@@ -4893,7 +4893,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		?	"----------\n" + 
 			"1. WARNING in I.java (at line 1)\n" + 
 			"	interface I { @Override void clone(); }\n" + 
-			"	                             ^^^^^^^\n" + 
+			"	                        ^^^^\n" + 
 			"The return type is incompatible with Object.clone(), thus this interface cannot be implemented\n" + 
 			"----------\n" + 
 			"2. ERROR in I.java (at line 1)\n" + 
@@ -4904,7 +4904,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		:	"----------\n" + 
 			"1. WARNING in I.java (at line 1)\n" + 
 			"	interface I { @Override void clone(); }\n" + 
-			"	                             ^^^^^^^\n" + 
+			"	                        ^^^^\n" + 
 			"The return type is incompatible with Object.clone(), thus this interface cannot be implemented\n" + 
 			"----------\n" + 
 			"2. ERROR in I.java (at line 1)\n" + 
@@ -4935,12 +4935,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. WARNING in A.java (at line 2)\n" + 
 			"	int finalize();\n" + 
-			"	    ^^^^^^^^^^\n" + 
+			"	^^^\n" + 
 			"The return type is incompatible with Object.finalize(), thus this interface cannot be implemented\n" + 
 			"----------\n" + 
 			"2. ERROR in A.java (at line 3)\n" + 
 			"	float hashCode();\n" + 
-			"	      ^^^^^^^^^^\n" + 
+			"	^^^^^\n" + 
 			"The return type is incompatible with Object.hashCode()\n" + 
 			"----------\n" + 
 			"3. ERROR in A.java (at line 6)\n" + 
@@ -5224,7 +5224,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	public X append(char c) {\n" + 
-			"	         ^^^^^^^^^^^^^^\n" + 
+			"	       ^\n" + 
 			"The return type is incompatible with IAppendable.append(char)\n" + 
 			"----------\n",
 		null,
@@ -5320,7 +5320,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\r\n" + 
 			"	public <S> A<U> bar() { return null; }\r\n" + 
-			"	                ^^^^^\n" + 
+			"	           ^\n" + 
 			"The return type is incompatible with I.bar()\n" + 
 			"----------\n"
 			// <S>bar() in X cannot implement <S>bar() in I; attempting to use incompatible return type

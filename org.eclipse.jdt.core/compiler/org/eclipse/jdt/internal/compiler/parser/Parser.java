@@ -8327,7 +8327,7 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments, 0, currentTypeArgumentsLength);
 		ParameterizedSingleTypeReference parameterizedSingleTypeReference = new ParameterizedSingleTypeReference(this.identifierStack[this.identifierPtr], typeArguments, dim, this.identifierPositionStack[this.identifierPtr--]);
 		if (dim != 0) {
-			parameterizedSingleTypeReference.sourceEnd = this.endPosition;
+			parameterizedSingleTypeReference.sourceEnd = this.endStatementPosition;
 		}
 		return parameterizedSingleTypeReference;
 	} else {
@@ -8361,7 +8361,7 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 		}
 		ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = new ParameterizedQualifiedTypeReference(tokens, typeArguments, dim, positions);
 		if (dim != 0) {
-			parameterizedQualifiedTypeReference.sourceEnd = this.endPosition;
+			parameterizedQualifiedTypeReference.sourceEnd = this.endStatementPosition;
 		}
 		return parameterizedQualifiedTypeReference;
 	}
