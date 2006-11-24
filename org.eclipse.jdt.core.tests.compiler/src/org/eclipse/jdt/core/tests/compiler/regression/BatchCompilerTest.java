@@ -941,7 +941,8 @@ public void test012(){
         " \n" + 
         " Ignored options:\n" + 
         "    -J<option>         pass option to virtual machine (ignored)\n" + 
-        "    -X<option>         specify non-standard option (ignored)\n" + 
+        "    -X<option>         specify non-standard option (ignored\n" + 
+        "                       expect for -Xemacs)\n" + 
         "    -X                 print non-standard options and exit (ignored)\n" + 
         "    -O                 optimize for execution time (ignored)\n" + 
         " \n" + 
@@ -962,7 +963,8 @@ public void test012(){
         "    -repeat <n>        repeat compilation process <n> times for perf analysis\n" + 
         "    -inlineJSR         inline JSR bytecode (implicit if target >= 1.5)\n" + 
         "    -enableJavadoc     consider references in javadoc\n" + 
-        "    -Xemacs            used to enable emacs-style output\n" + 
+        "    -Xemacs            used to enable emacs-style output in the console.\n" + 
+        "                       It doesnt affect the xml log output\n" + 
         " \n" + 
         "    -? -help           print this help message\n" + 
         "    -v -version        print compiler version\n" + 
