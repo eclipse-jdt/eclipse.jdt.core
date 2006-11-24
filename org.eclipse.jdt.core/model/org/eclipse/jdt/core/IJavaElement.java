@@ -36,95 +36,102 @@ public interface IJavaElement extends IAdaptable {
 
 	/**
 	 * Constant representing a Java model (workspace level object).
-	 * A Java element with this type can be safely cast to <code>IJavaModel</code>.
+	 * A Java element with this type can be safely cast to {@link IJavaModel}.
 	 */
 	int JAVA_MODEL = 1;
 
 	/**
 	 * Constant representing a Java project.
-	 * A Java element with this type can be safely cast to <code>IJavaProject</code>.
+	 * A Java element with this type can be safely cast to {@link IJavaProject}.
 	 */
 	int JAVA_PROJECT = 2;
 
 	/**
 	 * Constant representing a package fragment root.
-	 * A Java element with this type can be safely cast to <code>IPackageFragmentRoot</code>.
+	 * A Java element with this type can be safely cast to {@link IPackageFragmentRoot}.
 	 */
 	int PACKAGE_FRAGMENT_ROOT = 3;
 
 	/**
 	 * Constant representing a package fragment.
-	 * A Java element with this type can be safely cast to <code>IPackageFragment</code>.
+	 * A Java element with this type can be safely cast to {@link IPackageFragment}.
 	 */
 	int PACKAGE_FRAGMENT = 4;
 
 	/**
 	 * Constant representing a Java compilation unit.
-	 * A Java element with this type can be safely cast to <code>ICompilationUnit</code>.
+	 * A Java element with this type can be safely cast to {@link ICompilationUnit}.
 	 */
 	int COMPILATION_UNIT = 5;
 
 	/**
 	 * Constant representing a class file.
-	 * A Java element with this type can be safely cast to <code>IClassFile</code>.
+	 * A Java element with this type can be safely cast to {@link IClassFile}.
 	 */
 	int CLASS_FILE = 6;
 
 	/**
 	 * Constant representing a type (a class or interface).
-	 * A Java element with this type can be safely cast to <code>IType</code>.
+	 * A Java element with this type can be safely cast to {@link IType}.
 	 */
 	int TYPE = 7;
 
 	/**
 	 * Constant representing a field.
-	 * A Java element with this type can be safely cast to <code>IField</code>.
+	 * A Java element with this type can be safely cast to {@link IField}.
 	 */
 	int FIELD = 8;
 
 	/**
 	 * Constant representing a method or constructor.
-	 * A Java element with this type can be safely cast to <code>IMethod</code>.
+	 * A Java element with this type can be safely cast to {@link IMethod}.
 	 */
 	int METHOD = 9;
 
 	/**
 	 * Constant representing a stand-alone instance or class initializer.
-	 * A Java element with this type can be safely cast to <code>IInitializer</code>.
+	 * A Java element with this type can be safely cast to {@link IInitializer}.
 	 */
 	int INITIALIZER = 10;
 
 	/**
 	 * Constant representing a package declaration within a compilation unit.
-	 * A Java element with this type can be safely cast to <code>IPackageDeclaration</code>.
+	 * A Java element with this type can be safely cast to {@link IPackageDeclaration}.
 	 */
 	int PACKAGE_DECLARATION = 11;
 
 	/**
 	 * Constant representing all import declarations within a compilation unit.
-	 * A Java element with this type can be safely cast to <code>IImportContainer</code>.
+	 * A Java element with this type can be safely cast to {@link IImportContainer}.
 	 */
 	int IMPORT_CONTAINER = 12;
 
 	/**
 	 * Constant representing an import declaration within a compilation unit.
-	 * A Java element with this type can be safely cast to <code>IImportDeclaration</code>.
+	 * A Java element with this type can be safely cast to {@link IImportDeclaration}.
 	 */
 	int IMPORT_DECLARATION = 13;
 	
 	/**
 	 * Constant representing a local variable declaration.
-	 * A Java element with this type can be safely cast to <code>ILocalVariable</code>.
+	 * A Java element with this type can be safely cast to {@link ILocalVariable}.
 	 * @since 3.0
 	 */
 	int LOCAL_VARIABLE = 14;
 	
 	/**
 	 * Constant representing a type parameter declaration.
-	 * A Java element with this type can be safely cast to <code>ITypeParameter</code>.
+	 * A Java element with this type can be safely cast to {@link ITypeParameter}.
 	 * @since 3.1
 	 */
 	int TYPE_PARAMETER = 15;
+	
+	/**
+	 * Constant representing a Java type root.
+	 * A Java element with this type can be safely cast to {@link ITypeRoot}.
+	 * @since 3.3
+	 */
+	int TYPE_ROOT = 16;
 
 	/**
 	 * Returns whether this Java element exists in the model.

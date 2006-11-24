@@ -317,6 +317,12 @@ public IType getType(String typeName, int count) {
 	}
 }
 /**
+ * @see IMember#getTypeRoot()
+ */
+public ITypeRoot getTypeRoot() {
+	return (ITypeRoot) getAncestor(IJavaElement.TYPE_ROOT);
+}
+/**
  * @see IMember
  */
 public boolean isBinary() {

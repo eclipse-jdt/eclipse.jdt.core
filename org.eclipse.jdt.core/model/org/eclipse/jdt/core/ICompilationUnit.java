@@ -30,7 +30,7 @@ import org.eclipse.jdt.core.dom.AST;
  * This interface is not intended to be implemented by clients.
  * </p>
  */
-public interface ICompilationUnit extends IJavaElement, ISourceReference, IParent, IOpenable, IWorkingCopy, ISourceManipulation, ICodeAssist {
+public interface ICompilationUnit extends ITypeRoot, IWorkingCopy, ISourceManipulation {
 /**
  * Constant indicating that a reconcile operation should not return an AST.
  * @since 3.0
@@ -254,14 +254,6 @@ void discardWorkingCopy() throws JavaModelException;
  */
 IJavaElement[] findElements(IJavaElement element);
 /**
- * Finds the primary type of this compilation unit (that is, the type with the same name as the
- * compilation unit), or <code>null</code> if no such a type exists.
- * 
- * @return the found primary type of this compilation unit, or <code>null</code> if no such a type exists
- * @since 3.0
- */
-IType findPrimaryType();
-/**
  * Finds the working copy for this compilation unit, given a {@link WorkingCopyOwner}. 
  * If no working copy has been created for this compilation unit associated with this
  * working copy owner, returns <code>null</code>.
@@ -285,20 +277,6 @@ ICompilationUnit findWorkingCopy(WorkingCopyOwner owner);
  *		exception occurs while accessing its corresponding resource
  */
 IType[] getAllTypes() throws JavaModelException;
-/**
- * Returns the smallest element within this compilation unit that 
- * includes the given source position (that is, a method, field, etc.), or
- * <code>null</code> if there is no element other than the compilation
- * unit itself at the given position, or if the given position is not
- * within the source range of this compilation unit.
- *
- * @param position a source position inside the compilation unit
- * @return the innermost Java element enclosing a given source position or <code>null</code>
- *	if none (excluding the compilation unit).
- * @throws JavaModelException if the compilation unit does not exist or if an
- *		exception occurs while accessing its corresponding resource
- */
-IJavaElement getElementAt(int position) throws JavaModelException;
 /**
  * Returns the first import declaration in this compilation unit with the given name.
  * This is a handle-only method. The import declaration may or may not exist. This

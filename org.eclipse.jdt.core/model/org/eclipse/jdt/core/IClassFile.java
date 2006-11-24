@@ -32,7 +32,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * @see IPackageFragmentRoot#attachSource(org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IPath, IProgressMonitor)
  */
  
-public interface IClassFile extends IJavaElement, IParent, IOpenable, ISourceReference, ICodeAssist {
+public interface IClassFile extends ITypeRoot {
 	
 /**
  * Changes this class file handle into a working copy. A new {@link IBuffer} is
@@ -80,21 +80,6 @@ public interface IClassFile extends IJavaElement, IParent, IOpenable, ISourceRef
 ICompilationUnit becomeWorkingCopy(IProblemRequestor problemRequestor, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
 
 /**
- * Returns the smallest element within this class file that 
- * includes the given source position (a method, field, etc.), or
- * <code>null</code> if there is no element other than the class file
- * itself at the given position, or if the given position is not
- * within the source range of this class file.
- *
- * @param position a source position inside the class file
- * @return the innermost Java element enclosing a given source position or <code>null</code>
- *  if none (excluding the class file).
- *
- * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource
- */
-IJavaElement getElementAt(int position) throws JavaModelException;
-/**
  * Returns the type contained in this class file.
  *
  * @return the type contained in this class file
@@ -103,29 +88,6 @@ IJavaElement getElementAt(int position) throws JavaModelException;
  *      exception occurs while accessing its corresponding resource
  */
 IType getType() throws JavaModelException;
-/**
- * Returns a working copy on the source associated with this class file using the given 
- * owner to create the buffer, or <code>null</code> if there is no source associated
- * with the class file.
- * <p>
- * The buffer will be automatically initialized with the source of the class file
- * upon creation.
- * <p>
- * The only valid operations on this working copy are <code>getBuffer()</code> or <code>getPrimary()</code>.
- *
- * @param owner the owner that creates a buffer that is used to get the content of the working copy
- *                 or <code>null</code> if the primary owner should be used
- * @param monitor a progress monitor used to report progress while opening this compilation unit
- *                 or <code>null</code> if no progress should be reported 
- * @return a  a working copy on the source associated with this class file
- * @exception JavaModelException if the source of this class file can
- *   not be determined. Reasons include:
- * <ul>
- * <li> This class file does not exist (ELEMENT_DOES_NOT_EXIST)</li>
- * </ul>
- * @since 3.0
- */
-ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
 /**
  * Returns a working copy on the source associated with this class file using the given 
  * factory to create the buffer, or <code>null</code> if there is no source associated
@@ -147,7 +109,7 @@ ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProgressMonitor monitor
  * <li> This class file does not exist (ELEMENT_DOES_NOT_EXIST)</li>
  * </ul>
  * @since 2.0
- * @deprecated Use {@link #getWorkingCopy(WorkingCopyOwner, IProgressMonitor)} instead
+ * @deprecated Use {@link ITypeRoot#getWorkingCopy(WorkingCopyOwner, IProgressMonitor)} instead
  */
 IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;
 /**

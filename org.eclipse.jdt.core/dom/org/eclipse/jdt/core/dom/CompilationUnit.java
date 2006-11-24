@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -124,11 +125,10 @@ public class CompilationUnit extends ASTNode {
 	private DefaultCommentMapper commentMapper = null;
 	
 	/**
-	 * The Java element (an <code>org.eclipse.jdt.core.ICompilationUnit</code> or an <code>org.eclipse.jdt.core.IClassFile</code>) 
-	 * this compilation unit was created from, or <code>null</code> if it was not created from a Java element.
-	 * @since 3.1
+	 * The Java type root (an <code>org.eclipse.jdt.core.ICompilationUnit</code> or an <code>org.eclipse.jdt.core.IClassFile</code>) 
+	 * this compilation unit was created from, or <code>null</code> if it was not created from a Java type root.
 	 */
-	private IJavaElement element = null;
+	private ITypeRoot typeRoot = null;
 	
 	/**
 	 * The list of import declarations in textual order order; 
@@ -493,7 +493,7 @@ public class CompilationUnit extends ASTNode {
 	 * @since 3.1
 	 */
 	public IJavaElement getJavaElement() {
-		return this.element;
+		return this.typeRoot;
 	}
 	
 	/**
@@ -610,6 +610,17 @@ public class CompilationUnit extends ASTNode {
 	 */
 	public IProblem[] getProblems() {
 		return this.problems;
+	}
+	
+	/**
+	 * The Java type root (a {@link org.eclipse.jdt.core.ICompilationUnit compilation unit} or a {@link org.eclipse.jdt.core.IClassFile class file}) 
+	 * this compilation unit was created from, or <code>null</code> if it was not created from a Java type root.
+	 * 
+	 * @return the Java type root this compilation unit was created from, or <code>null</code> if none
+	 * @since 3.3
+	 */
+	public ITypeRoot getTypeRoot() {
+		return this.typeRoot;
 	}
 
 	/**
@@ -932,16 +943,15 @@ public class CompilationUnit extends ASTNode {
 			this.optionalCommentList = Collections.unmodifiableList(commentList);
 		}
 	}
-		
+
 	/**
-	 * Sets the Java element (an <code>org.eclipse.jdt.core.ICompilationUnit</code> or an <code>org.eclipse.jdt.core.IClassFile</code>) 
-	 * this compilation unit was created from, or <code>null</code> if it was not created from a Java element.
+	 * Sets the Java type root (a {@link org.eclipse.jdt.core.ICompilationUnit compilation unit} or a {@link org.eclipse.jdt.core.IClassFile class file})
+	 * this compilation unit was created from, or <code>null</code> if it was not created from a Java type root.
 	 * 
-	 * @param element the Java element this compilation unit was created from
-	 * @since 3.1
+	 * @param typeRoot the Java type root this compilation unit was created from
 	 */
-	void setJavaElement(IJavaElement element) {
-		this.element = element;
+	void setTypeRoot(ITypeRoot typeRoot) {
+		this.typeRoot = typeRoot;
 	}
 	
 	/**

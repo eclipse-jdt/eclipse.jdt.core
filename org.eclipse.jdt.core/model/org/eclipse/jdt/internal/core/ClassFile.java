@@ -239,6 +239,16 @@ protected IJavaElement findElement(IJavaElement elt, int position, SourceMapper 
 	}
 	return elt;
 }
+/**
+ * @see ITypeRoot#findPrimaryType()
+ */
+public IType findPrimaryType() {
+	IType primaryType= getType();
+	if (primaryType.exists()) {
+		return primaryType;
+	}
+	return null;
+}
 public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
 	return this.getType().getAttachedJavadoc(monitor);
 }
@@ -324,6 +334,12 @@ public IBuffer getBuffer() throws JavaModelException {
  * @see IMember
  */
 public IClassFile getClassFile() {
+	return this;
+}
+/**
+ * @see IMember#getTypeRoot()
+ */
+public ITypeRoot getTypeRoot() {
 	return this;
 }
 /**

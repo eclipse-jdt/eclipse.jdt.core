@@ -716,6 +716,12 @@ public IImportDeclaration[] getImports() throws JavaModelException {
 	return imports;
 }
 /**
+ * @see IMember#getTypeRoot()
+ */
+public ITypeRoot getTypeRoot() {
+	return this;
+}
+/**
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getMainTypeName()
  */
 public char[] getMainTypeName(){
@@ -878,6 +884,12 @@ public IJavaElement getWorkingCopy() throws JavaModelException {
  */
 public ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
 	return getWorkingCopy(new WorkingCopyOwner() {/*non shared working copy*/}, null/*no problem requestor*/, monitor);
+}
+/**
+ * @see ITypeRoot#getWorkingCopy(WorkingCopyOwner, IProgressMonitor)
+ */
+public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) throws JavaModelException {
+	return getWorkingCopy(workingCopyOwner, null, monitor);
 }
 /**
  * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)

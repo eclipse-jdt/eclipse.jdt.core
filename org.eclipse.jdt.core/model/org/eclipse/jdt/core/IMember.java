@@ -124,6 +124,14 @@ ISourceRange getNameRange() throws JavaModelException;
  */
 int getOccurrenceCount();
 /**
+ * Returns the Java type root in which this member is declared.
+ * This is a handle-only method.
+ * 
+ * @return the Java type root in which this member is declared.
+ * @since 3.3
+ */
+ITypeRoot getTypeRoot();
+/**
  * Returns the local or anonymous type declared in this source member with the given simple name and/or
  * with the specified position relative to the order they are defined in the source.
  * The name is empty if it is an anonymous type.

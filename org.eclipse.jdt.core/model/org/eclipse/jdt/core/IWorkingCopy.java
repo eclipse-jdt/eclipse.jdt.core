@@ -172,7 +172,7 @@ public interface IWorkingCopy {
 	 * @return the found primary type of this compilation unit, or <code>null</code> if no such a type exists
 	 * @since 2.0
 	 * 
-	 * @deprecated Use {@link ICompilationUnit#findPrimaryType()} instead.
+	 * @deprecated Use {@link ITypeRoot#findPrimaryType()} instead.
 	 */
 	IType findPrimaryType();
 	

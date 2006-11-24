@@ -269,7 +269,7 @@ public final class AST {
 	
 		CompilationUnit unit = converter.convert(compilationUnitDeclaration, source);
 		unit.setLineEndTable(compilationUnitDeclaration.compilationResult.getLineSeparatorPositions());
-		unit.setJavaElement(workingCopy);
+		unit.setTypeRoot(workingCopy);
 		ast.setDefaultNodeFlag(savedDefaultNodeFlag);
 		return unit;
 	}

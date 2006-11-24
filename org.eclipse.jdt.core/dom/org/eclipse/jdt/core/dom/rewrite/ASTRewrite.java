@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
@@ -231,10 +232,11 @@ public class ASTRewrite {
 			throw new IllegalArgumentException("This API can only be used if the AST is created from a compilation unit"); //$NON-NLS-1$
 		}
 		CompilationUnit astRoot= (CompilationUnit) root;
-		if (!(astRoot.getJavaElement() instanceof ICompilationUnit)) {
+		ITypeRoot typeRoot = astRoot.getTypeRoot();
+		if (!(typeRoot instanceof ICompilationUnit)) {
 			throw new IllegalArgumentException("This API can only be used if the AST is created from a compilation unit"); //$NON-NLS-1$
 		}
-		ICompilationUnit cu= (ICompilationUnit) astRoot.getJavaElement();
+		ICompilationUnit cu= (ICompilationUnit) typeRoot;
 		
 		char[] content= cu.getBuffer().getCharacters();
 		LineInformation lineInfo= LineInformation.create(astRoot);

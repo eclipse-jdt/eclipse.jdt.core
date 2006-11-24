@@ -362,7 +362,7 @@ class CompilationUnitResolver extends Compiler {
 				
 				// convert AST
 				CompilationUnit node = convert(compilationUnitDeclaration, parser.scanner.getSource(), apiLevel, options, false/*don't resolve binding*/, null/*no owner needed*/, null/*no binding table needed*/, monitor);
-				node.setJavaElement(compilationUnits[i]);
+				node.setTypeRoot(compilationUnits[i]);
 				
 				// accept AST
 				astRequestor.acceptAST(compilationUnits[i], node);
@@ -703,7 +703,7 @@ class CompilationUnitResolver extends Compiler {
 						ast.setBindingResolver(resolver);
 						converter.setAST(ast);
 						CompilationUnit compilationUnit = converter.convert(unit, contents);
-						compilationUnit.setJavaElement(source);
+						compilationUnit.setTypeRoot(source);
 						compilationUnit.setLineEndTable(compilationResult.getLineSeparatorPositions());
 						ast.setDefaultNodeFlag(0);
 						ast.setOriginalModificationCount(ast.modificationCount());

@@ -60,10 +60,29 @@ nested types hiding other accessible types in scope (direct enclosing are alread
 <li> Compiler is now more resilient with duplicate local type declarations; thus allowing further
 operation to still be carried out accurately (codeselect, completion, search, DOM AST ops)
 (cf. bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165662">165662</a>).</li>
+<li>New Java Model element interface has been added as common supertype for <code>ICompilationUnit</code> and <code>IClassFile</code>
+(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125504">125504</a>).
+<pre>
+/**
+ * Represents an entire Java type root (either an <code>ICompilationUnit</code>
+ * or an <code>IClassFile</code>).
+ * 
+ * This interface is not intended to be implemented by clients.
+ *
+ * @see ICompilationUnit
+ * @see IClassFile
+ * @since 3.3
+ */
+public interface ITypeRoot extends IJavaElement, IParent, IOpenable, ISourceReference, ICodeAssist {
+...
+}
+</pre>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165525">165525</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=125504">125504</a>
+[API] common supertype for ICompilationUnit and IClassFile
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165525">165525</a>
 [comments] ASTParser excludes trailing line comments from extended range of fields in enums
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165654">165654</a>
 [ast rewrite] add final to parameter does not work with annotations

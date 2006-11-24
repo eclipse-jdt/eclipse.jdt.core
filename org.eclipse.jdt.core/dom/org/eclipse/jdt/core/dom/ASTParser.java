@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -154,14 +155,9 @@ public class ASTParser {
     private char[] rawSource = null;
     
     /**
-     * Java mode compilation unit supplying the source.
+     * Java model class file or compilation unit supplying the source.
      */
-    private ICompilationUnit compilationUnitSource = null;
-    
-    /**
-     * Java model class file supplying the source.
-     */
-    private IClassFile classFileSource = null;
+    private ITypeRoot typeRoot = null;
     
     /**
      * Character-based offset into the source string where parsing is to
@@ -218,8 +214,7 @@ public class ASTParser {
 	private void initializeDefaults() {
 		this.astKind = K_COMPILATION_UNIT;
 		this.rawSource = null;
-		this.classFileSource = null;
-		this.compilationUnitSource = null;
+		this.typeRoot = null;
 		this.resolveBindings = false;
 		this.sourceLength = -1;
 		this.sourceOffset = 0;
@@ -452,9 +447,8 @@ public class ASTParser {
      */
 	public void setSource(char[] source) {
 		this.rawSource = source;
-		// clear the others
-		this.compilationUnitSource = null;
-		this.classFileSource = null;
+		// clear the type root
+		this.typeRoot = null;
 	}
 
 	/**
@@ -467,16 +461,7 @@ public class ASTParser {
      * is to be parsed, or <code>null</code> if none
       */
 	public void setSource(ICompilationUnit source) {
-		this.compilationUnitSource = source;
-		// clear the others
-		this.rawSource = null;
-		this.classFileSource = null;
-		if (source != null) {
-			this.project = source.getJavaProject();
-			Map options = this.project.getOptions(true);
-			options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
-			this.compilerOptions = options;
-		}
+		setTypeRoot(source);
 	}
 	
 	/**
@@ -491,10 +476,16 @@ public class ASTParser {
      * is to be parsed, or <code>null</code> if none
      */
 	public void setSource(IClassFile source) {
-		this.classFileSource = source;
-		// clear the others
+		setTypeRoot(source);
+	}
+
+	/* (non-Javadoc)
+	 * Sets the source code to be parsed.
+	 */
+	void setTypeRoot(ITypeRoot source) {
+		this.typeRoot = source;
+		// clear the raw source
 		this.rawSource = null;
-		this.compilationUnitSource = null;
 		if (source != null) {
 			this.project = source.getJavaProject();
 			Map options = this.project.getOptions(true);
@@ -622,9 +613,7 @@ public class ASTParser {
 	   ASTNode result = null;
 	   if (monitor != null) monitor.beginTask("", 1); //$NON-NLS-1$
 		try {
-			if ((this.rawSource == null)
-		   	  && (this.compilationUnitSource == null)
-		   	  && (this.classFileSource == null)) {
+			if (this.rawSource == null && this.typeRoot == null) {
 		   	  throw new IllegalStateException("source not specified"); //$NON-NLS-1$
 		   }
 	   		result = internalCreateAST(monitor);
@@ -782,28 +771,28 @@ public class ASTParser {
 				try {
 					NodeSearcher searcher = null;
 					org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = null;
-					IJavaElement element = null;
-					if (this.compilationUnitSource != null) {
-						/*
-						 * this.compilationUnitSource is an instance of org.eclipse.jdt.internal.core.CompilationUnit that implements
-						 * both org.eclipse.jdt.core.ICompilationUnit and org.eclipse.jdt.internal.compiler.env.ICompilationUnit
-						 */ 
-						sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) this.compilationUnitSource;
-						/*
-						 * use a BasicCompilation that caches the source instead of using the compilationUnitSource directly
-						 * (if it is a working copy, the source can change between the parse and the AST convertion)
-						 * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75632)
-						 */
-						sourceUnit = new BasicCompilationUnit(sourceUnit.getContents(), sourceUnit.getPackageName(), new String(sourceUnit.getFileName()), this.project);
-						element = this.compilationUnitSource;
-					} else if (this.classFileSource != null) {
+					WorkingCopyOwner wcOwner = this.workingCopyOwner;
+					if (this.typeRoot instanceof ICompilationUnit) {
+							/*
+							 * this.compilationUnitSource is an instance of org.eclipse.jdt.internal.core.CompilationUnit that implements
+							 * both org.eclipse.jdt.core.ICompilationUnit and org.eclipse.jdt.internal.compiler.env.ICompilationUnit
+							 */ 
+							sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) this.typeRoot;
+							/*
+							 * use a BasicCompilation that caches the source instead of using the compilationUnitSource directly
+							 * (if it is a working copy, the source can change between the parse and the AST convertion)
+							 * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75632)
+							 */
+							sourceUnit = new BasicCompilationUnit(sourceUnit.getContents(), sourceUnit.getPackageName(), new String(sourceUnit.getFileName()), this.project);
+							wcOwner = ((ICompilationUnit) this.typeRoot).getOwner();
+					} else if (this.typeRoot instanceof IClassFile) {
 						try {
-							String sourceString = this.classFileSource.getSource();
+							String sourceString = this.typeRoot.getSource();
 							if (sourceString == null) {
 								throw new IllegalStateException();
 							}
-							PackageFragment packageFragment = (PackageFragment) this.classFileSource.getParent();
-							BinaryType type = (BinaryType) this.classFileSource.getType();
+							PackageFragment packageFragment = (PackageFragment) this.typeRoot.getParent();
+							BinaryType type = (BinaryType) this.typeRoot.findPrimaryType();
 							IBinaryType binaryType = (IBinaryType) type.getElementInfo();
 							// file name is used to recreate the Java element, so it has to be the toplevel .class file name
 							char[] fileName = binaryType.getFileName();
@@ -817,7 +806,6 @@ public class ASTParser {
 								fileName = newFileName;
 							}
 							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), new String(fileName), this.project);
-							element = this.classFileSource;
 						} catch(JavaModelException e) {
 							// an error occured accessing the java element
 							throw new IllegalStateException();
@@ -865,10 +853,10 @@ public class ASTParser {
 						this.apiLevel, 
 						this.compilerOptions,
 						needToResolveBindings,
-						this.compilationUnitSource == null ? this.workingCopyOwner : this.compilationUnitSource.getOwner(),
+						wcOwner,
 						needToResolveBindings ? new DefaultBindingResolver.BindingTables() : null, 
 						monitor);
-					result.setJavaElement(element);
+					result.setTypeRoot(this.typeRoot);
 					return result;
 				} finally {
 					if (compilationUnitDeclaration != null && this.resolveBindings) {

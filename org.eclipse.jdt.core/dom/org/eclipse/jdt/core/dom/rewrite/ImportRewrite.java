@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -183,7 +184,8 @@ public final class ImportRewrite {
 		if (astRoot == null) {
 			throw new IllegalArgumentException("AST must not be null"); //$NON-NLS-1$
 		}
-		if (!(astRoot.getJavaElement() instanceof ICompilationUnit)) {
+		ITypeRoot typeRoot = astRoot.getTypeRoot();
+		if (!(typeRoot instanceof ICompilationUnit)) {
 			throw new IllegalArgumentException("AST must have been constructed from a Java element"); //$NON-NLS-1$
 		}
 		List existingImport= null;
@@ -202,7 +204,7 @@ public final class ImportRewrite {
 				existingImport.add(buf.toString());
 			}
 		}
-		return new ImportRewrite((ICompilationUnit) astRoot.getJavaElement(), astRoot, existingImport);
+		return new ImportRewrite((ICompilationUnit) typeRoot, astRoot, existingImport);
 	}
 		
 	private ImportRewrite(ICompilationUnit cu, CompilationUnit astRoot, List existingImports) {
