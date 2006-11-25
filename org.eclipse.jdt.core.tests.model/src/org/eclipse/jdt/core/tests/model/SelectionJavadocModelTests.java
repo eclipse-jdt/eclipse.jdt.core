@@ -919,4 +919,70 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			elements
 		);
 	}
+
+	/**
+	 * @bug 165701: [model] No hint for ambiguous javadoc
+	 * @test Ensure that no exception is thrown while selecting method in javadoc comment
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=165701"
+	 */
+	public void testBug165701() throws JavaModelException {
+		setUnit("b165701/Test.java",
+			"package b165701;\n" + 
+			"/**\n" + 
+			" * @see #fooo(int)\n" + 
+			" */\n" + 
+			"public class Test {\n" + 
+			"	public void foo() {}\n" + 
+			"}\n"
+		);
+		int[] selectionPositions = selectionInfo(workingCopies[0], "fooo", 1);
+		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
+		assertElementsEqual("Invalid selection(s)",
+			"Test [in [Working copy] Test.java [in b165701 [in <project root> [in Tests]]]]",
+			elements
+		);
+	}
+
+	/**
+	 * @bug 165794: [model] No hint for ambiguous javadoc
+	 * @test Ensure that no exception is thrown while selecting method in javadoc comment
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=165794"
+	 */
+	public void testBug165794() throws JavaModelException {
+		setUnit("b165794/Test.java",
+			"package b165794;\n" + 
+			"/**\n" + 
+			" * No reasonable hint for resolving the {@link #getMax(A)}.\n" + 
+			" */\n" + 
+			"public class X {\n" + 
+			"    /**\n" + 
+			"     * Extends Number method.\n" + 
+			"     * @see #getMax(A ipZ)\n" + 
+			"     */\n" + 
+			"    public <T extends Y> T getMax(final A<T> ipY) {\n" + 
+			"        return ipY.t();\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    /**\n" + 
+			"     * Extends Exception method.\n" + 
+			"     * @see #getMax(A ipY)\n" + 
+			"     */\n" + 
+			"    public <T extends Z> T getMax(final A<T> ipZ) {\n" + 
+			"        return ipZ.t();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class A<T> {\n" + 
+			"	T t() { return null; }\n" + 
+			"}\n" + 
+			"class Y {}\n" + 
+			"class Z {}"
+		);
+		int[] selectionPositions = selectionInfo(workingCopies[0], "getMax", 1);
+		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
+		assertElementsEqual("Invalid selection(s)",
+			"getMax(A<T>) [in X [in [Working copy] Test.java [in b165794 [in <project root> [in Tests]]]]]\n" + 
+			"getMax(A<T>) [in X [in [Working copy] Test.java [in b165794 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
 }
