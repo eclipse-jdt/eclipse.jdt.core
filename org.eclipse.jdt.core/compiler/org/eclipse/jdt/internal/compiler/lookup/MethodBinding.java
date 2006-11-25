@@ -325,7 +325,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	int signatureLength = sig.length;
 	
 	// thrown exceptions
-	int thrownExceptionsLength = this.thrownExceptions.length;
+	int thrownExceptionsLength = this.thrownExceptions == null ? 0 : this.thrownExceptions.length;
 	int thrownExceptionsSignatureLength = 0;
 	char[][] thrownExceptionsSignatures = null;
 	boolean addThrownExceptions = thrownExceptionsLength > 0 && (!isGeneric || CharOperation.lastIndexOf('^', sig) < 0);
