@@ -5031,4 +5031,44 @@ public class JavadocBugsTest extends JavadocTest {
 			);
 		}
 	}
+
+	/**
+	 * @bug 165794: [javadoc] Should not report ambiguous on method with parameterized types as parameters
+	 * @test Ensure that no warning are raised when ambiguous parameterized methods are present in javadoc comments
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=165794"
+	 */
+	public void testBug165794() {
+		String[] testFiles = new String[] {
+			"X.java",
+			"/**\n" + 
+			" * No reasonable hint for resolving the {@link #getMax(A)}.\n" + 
+			" */\n" + 
+			"public class X {\n" + 
+			"    /**\n" + 
+			"     * Extends Number method.\n" + 
+			"     * @see #getMax(A ipZ)\n" + 
+			"     */\n" + 
+			"    public <T extends Y> T getMax(final A<T> ipY) {\n" + 
+			"        return ipY.t();\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    /**\n" + 
+			"     * Extends Exception method.\n" + 
+			"     * @see #getMax(A ipY)\n" + 
+			"     */\n" + 
+			"    public <T extends Z> T getMax(final A<T> ipZ) {\n" + 
+			"        return ipZ.t();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class A<T> {\n" + 
+			"	T t() { return null; }\n" + 
+			"}\n" + 
+			"class Y {}\n" + 
+			"class Z {}"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			return;
+		}
+		runConformTest(testFiles);
+	}
 }
