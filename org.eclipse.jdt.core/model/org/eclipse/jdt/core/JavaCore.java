@@ -103,6 +103,8 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
@@ -998,6 +1000,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option value.
 	 * @see #getDefaultOptions()
+	 * @since 3.3
+	 */
+	public static final String VERSION_1_7 = "1.7"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String ABORT = "abort"; //$NON-NLS-1$
@@ -1738,7 +1746,7 @@ public final class JavaCore extends Plugin {
 	 *    Select the compliance level for the compiler. In "1.3" mode, source and target settings
 	 *    should not go beyond "1.3" level.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.compliance"
-	 *     - possible values:   { "1.3", "1.4", "1.5", "1.6" }
+	 *     - possible values:   { "1.3", "1.4", "1.5", "1.6", "1.7" }
 	 *     - default:           "1.4"
 	 * 
 	 * COMPILER / Setting Source Compatibility Mode
@@ -1750,16 +1758,19 @@ public final class JavaCore extends Plugin {
 	 *   and the compliance mode should be "1.5".
 	 *   Source level 1.6 is necessary to enable the computation of stack map tables. Once toggled, the target
 	 *   VM level should be set to "1.6" and the compliance mode should be "1.6".
+	 *   Once the source level 1.7 is toggled, the target VM level should be set to "1.7" and the compliance mode 
+	 *   should be "1.7".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.source"
-	 *     - possible values:   { "1.3", "1.4", "1.5", "1.6" }
+	 *     - possible values:   { "1.3", "1.4", "1.5", "1.6", "1.7" }
 	 *     - default:           "1.3"
 	 * 
 	 * COMPILER / Defining Target Java Platform
 	 *    For binary compatibility reason, .class files can be tagged to with certain VM versions and later.
 	 *    Note that "1.4" target requires to toggle compliance mode to "1.4", "1.5" target requires
-	 *    to toggle compliance mode to "1.5" and "1.6" target requires to toggle compliance mode to "1.6".
+	 *    to toggle compliance mode to "1.5", "1.6" target requires to toggle compliance mode to "1.6" and
+	 *    "1.7" target requires to toggle compliance mode to "1.7".
 	 *     - option id:         "org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5", "1.6" }
+	 *     - possible values:   { "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7" }
 	 *     - default:           "1.2"
 	 *
 	 * COMPILER / Generating Local Variable Debug Attribute
@@ -4204,15 +4215,78 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * Sets the current table of options. All and only the options explicitly included in the given table 
-	 * are remembered; all previous option settings are forgotten, including ones not explicitly
-	 * mentioned.
+	 * Sets the default's compiler options inside the given options map according
+	 * to the given compliance.
+	 * 
+	 * <p>The given compliance must be one of the compliance supported by the compiler.
+	 * Check {@link #getDefaultOptions()} for a list of compliance values.</p>
+	 * 
+	 * <p>The list of modified options is:</p>
+	 * <ul>
+	 * <li>{@link #COMPILER_CODEGEN_TARGET_PLATFORM}</li>
+	 * <li>{@link #COMPILER_SOURCE}</li>
+	 * <li>{@link #COMPILER_COMPLIANCE}</li>
+	 * <li>{@link #COMPILER_PB_ASSERT_IDENTIFIER}</li>
+	 * <li>{@link #COMPILER_PB_ENUM_IDENTIFIER}</li>
+	 * </ul>
+	 *
+	 * <p>If the given compliance is unknown, the given map is unmodified.</p>
+	 *
+	 * @param compliance the given compliance
+	 * @param options the given options map
+	 */
+	public static void setCompilanceOptions(String compliance, Map options) {
+		switch((int) (CompilerOptions.versionToJdkLevel(compliance) >>> 16)) {
+			case ClassFileConstants.MAJOR_VERSION_1_3:
+				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
+				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
+				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.IGNORE);
+				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.IGNORE);
+				break;
+			case ClassFileConstants.MAJOR_VERSION_1_4:
+				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.WARNING);
+				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.WARNING);
+				break;
+			case ClassFileConstants.MAJOR_VERSION_1_5:
+				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+				break;
+			case ClassFileConstants.MAJOR_VERSION_1_6:
+				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
+				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
+				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+				break;
+			case ClassFileConstants.MAJOR_VERSION_1_7:
+				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+		}
+	}
+
+	/**
+	 * Sets the current table of options. All and only the options explicitly
+	 * included in the given table are remembered; all previous option settings
+	 * are forgotten, including ones not explicitly mentioned.
 	 * <p>
-	 * For a complete description of the configurable options, see <code>getDefaultOptions</code>.
+	 * For a complete description of the configurable options, see
+	 * <code>getDefaultOptions</code>.
 	 * </p>
 	 * 
-	 * @param newOptions the new options (key type: <code>String</code>; value type: <code>String</code>),
-	 *   or <code>null</code> to reset all options to their default values
+	 * @param newOptions
+	 *            the new options (key type: <code>String</code>; value type:
+	 *            <code>String</code>), or <code>null</code> to reset all
+	 *            options to their default values
 	 * @see JavaCore#getDefaultOptions()
 	 * @see JavaCorePreferenceInitializer for changing default settings
 	 */

@@ -51,6 +51,11 @@ Eclipse SDK 3.3M4 - ???st November 2006
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_725">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>Added <code>org.eclipse.jdt.core.JavaCore#VERSION_1_7</code>. It can be used to set the compliance, the source or the 
+target platform values. This has no impact right now beside setting the major version inside .class file to 
+<code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants#MAJOR_VERSION_1_7</code>.</li>
+<li>Added new API <code>org.eclipse.jdt.core.JavaCore#setCompilanceOptions(String, Map)</code> to set the compiler's
+options relative to a given compiler's compliance.</li>
 <li>Tuned compiler semantics for unchecked cast detection. As a consequence, more warnings should be issued 
 (also see bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106451">106451</a> and 
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165143">165143</a>). </li>

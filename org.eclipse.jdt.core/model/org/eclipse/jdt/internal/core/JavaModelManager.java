@@ -326,6 +326,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		 * 1.2 -> 1
 		 * ...
 		 * 1.6 -> 5
+		 * 1.7 -> 6
 		 * null -> 0
 		 */
 		private int indexForSourceLevel(String sourceLevel) {
@@ -342,6 +343,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					return 4;
 				case ClassFileConstants.MAJOR_VERSION_1_6:
 					return 5;
+				case ClassFileConstants.MAJOR_VERSION_1_7:
+					return 6;
 				default:
 					// all other cases including ClassFileConstants.MAJOR_VERSION_1_1
 					return 0;
