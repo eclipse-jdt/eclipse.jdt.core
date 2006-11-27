@@ -964,7 +964,7 @@ public void test012(){
         "    -inlineJSR         inline JSR bytecode (implicit if target >= 1.5)\n" + 
         "    -enableJavadoc     consider references in javadoc\n" + 
         "    -Xemacs            used to enable emacs-style output in the console.\n" + 
-        "                       It doesnt affect the xml log output\n" + 
+        "                       It does not affect the xml log output\n" + 
         " \n" + 
         "    -? -help           print this help message\n" + 
         "    -v -version        print compiler version\n" + 
