@@ -4219,7 +4219,7 @@ public final class JavaCore extends Plugin {
 	 * to the given compliance.
 	 * 
 	 * <p>The given compliance must be one of the compliance supported by the compiler.
-	 * Check {@link #getDefaultOptions()} for a list of compliance values.</p>
+	 * See {@link #getDefaultOptions()} for a list of compliance values.</p>
 	 * 
 	 * <p>The list of modified options is:</p>
 	 * <ul>
