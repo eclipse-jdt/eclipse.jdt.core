@@ -35812,7 +35812,7 @@ public void test1088() {
 		"The type Local is hiding the type Y<T>.Local\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165679
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165679 - variation
 public void test1089() {
 	this.runNegativeTest(
 		new String[] {
@@ -35854,6 +35854,67 @@ public void test1089() {
 		"	class U {\n" + 
 		"	      ^\n" + 
 		"The type U is hiding the type X.U\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165679 - variation
+public void _test1090() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T,U> {\n" + 
+			"	class T {} // warn hiding type parameter\n" + 
+			"	class U<U> {}// warn hiding type parameter+warn param hiding member type\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		class Local {\n" + 
+			"			class T {} // warn hiding type parameter\n" + 
+			"			class U<U> {}// warn hiding type parameter+warn param hiding member type\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	static void bar() {\n" + 
+			"		class Local {\n" + 
+			"			class T {} // no warn\n" + 
+			"			class U<U> {} // no warn\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"???");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=165909
+public void test1091() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		  Object a = null;\n" + 
+			"		  Map.Entry<String, String> aa = (Map.Entry<String, String>)a;		\n" + 
+			"	}\n" + 
+			"	void bar() {\n" + 
+			"		  Number a = null;\n" + 
+			"		  Map.Entry<String, String> aa = (Map.Entry<String, String>)a;		\n" + 
+			"		  Zork z;\n" +
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	Map.Entry<String, String> aa = (Map.Entry<String, String>)a;		\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to Map.Entry<String,String>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	Map.Entry<String, String> aa = (Map.Entry<String, String>)a;		\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Number to Map.Entry<String,String>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
 }
