@@ -963,4 +963,25 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType,
 public TypeVariableBinding[] typeVariables() {
 	return Binding.NO_TYPE_VARIABLES;
 }
+
+/**
+ * Return true iff variable participates to the definition of this, directly or
+ * indirectly (through type parameters, bounds, etc.). Type variables are 
+ * matched by names, not by identity.
+ * @param variable the type variable to search for
+ * @return true iff variable participates to the definition of this
+ */
+boolean uses(TypeVariableBinding variable) {
+	return false;
+}
+/**
+ * Return this if variable does not participate to its definition, a new type
+ * binding that contains rawified types instead of parameterized types that
+ * use variable else.
+ * @param variable the type variable to eliminate
+ * @return a type binding that does not use variable
+ */
+TypeBinding clearedOf(TypeVariableBinding variable) {
+	return this;
+}
 }

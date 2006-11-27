@@ -460,12 +460,13 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			TypeBinding[] newArguments = new TypeBinding[length];
 			boolean isStatic = this.isStatic();
 			for (int i = 0; i < length; i++) {
-				newArguments[i] = isStatic ? 
-					originalVariables[i].upperBound() : // do not rawify for statics
+				newArguments[i] = isStatic ?
+					originalVariables[i].semiRawifiedFirstUpperBound() :
+						// full rawification too much for statics
 					environment.convertToRawType(originalVariables[i].upperBound());
 			}
 			this.tiebreakMethod = this.environment.createParameterizedGenericMethod(this.originalMethod, newArguments);
 		} 
 		return this.tiebreakMethod;
-	}	
+	}
 }

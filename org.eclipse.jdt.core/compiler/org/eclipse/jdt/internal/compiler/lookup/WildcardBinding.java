@@ -624,4 +624,11 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 		return this.typeVariable;
 	}
+
+boolean uses(TypeVariableBinding variable) {
+	if (this.bound != null) {
+		return this.bound.uses(variable);
+	}
+	return false;
+}
 }

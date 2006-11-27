@@ -1557,7 +1557,7 @@ public void test043() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163370
-public void _test044() {
+public void test044() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1580,7 +1580,7 @@ public void _test044() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=165620
-public void _test045() {
+public void test045() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1600,6 +1600,36 @@ public void _test045() {
 			"    return null;\n" + 
 			"  }\n" + 
 			"  public static <V extends J<? super V>> void test(final Y<V> a)\n" + 
+			"  {\n" + 
+			"    foo(a);\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163370
+// variant
+public void test046() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"abstract class Y<T, U> implements I<T, U> {\n" + 
+			"}\n" + 
+			"interface I<T, U> { \n" + 
+			"}\n" + 
+			"interface J<T, U> {\n" + 
+			"}\n" + 
+			"class X {\n" + 
+			"  public static <V extends J<V, W>, W extends J<V, W>> V foo(final I<V, W> a)\n" + 
+			"  {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  public static <V extends J<V, W>, W extends J<V, W>> V foo(final Y<V, W> a)\n" + 
+			"  {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  public static <V extends J<V, W>, W extends J<V, W>> void test(final Y<V, W> a)\n" + 
 			"  {\n" + 
 			"    foo(a);\n" + 
 			"  }\n" + 

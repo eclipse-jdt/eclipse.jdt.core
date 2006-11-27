@@ -1058,4 +1058,29 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		} 
 		return Binding.NO_TYPE_VARIABLES;
 	}	
+
+boolean uses(TypeVariableBinding variable) {
+	int argsNb = this.arguments.length;
+	for (int i = 0; i < argsNb; i++) {
+		if (this.arguments[i] == variable || this.arguments[i].uses(variable)) {
+			return true;
+		}
+	}
+	return false;
+}
+TypeBinding clearedOf(TypeVariableBinding variable) {
+	if (uses(variable)) {
+		int argsNb;
+		TypeBinding[] newArguments = new TypeBinding[argsNb = this.arguments.length];
+		for (int i = 0; i < argsNb; i++) {
+			if (this.arguments[i].uses(variable)) {
+				return new RawTypeBinding(this.type, this.enclosingType, this.environment);
+			}
+			newArguments[i] = this.arguments[i].clearedOf(variable);
+		}
+		return new ParameterizedTypeBinding(this.type, newArguments, 
+				this.enclosingType, this.environment);
+	}
+	return this;
+}
 }

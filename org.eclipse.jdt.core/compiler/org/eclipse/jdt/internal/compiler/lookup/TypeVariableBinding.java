@@ -440,5 +440,31 @@ public class TypeVariableBinding extends ReferenceBinding {
 			return this.firstBound;
 	    }
 	    return this.superclass; // java/lang/Object
-	}		
+	}
+	
+/**
+ * Return the first upper bound of this if it does not reference this, else 
+ * elaborate and return a copy of the first upper bound of this where raw types 
+ * replace parameterized types that reference this. The type variables matching 
+ * relies on names. Examples (in which this is named T):
+ * <pre>
+ * T -&gt>; /java/lang/Object
+ * T extends X&amp;I -&gt; X
+ * T extends X&lt;String&gt; -&gt; X&lt;String&gt;
+ * T extends X&lt;T&gt; -&gt; X#RAW
+ * </pre>
+ * The result has the property of not relying upon recursion for its definition.
+ * @return the first upper bound of this if it does not reference this, a 
+ *         modified copy of the first upper bound of this else
+ */
+TypeBinding semiRawifiedFirstUpperBound() {
+	if (this.firstBound == null) {
+		return this.superclass; // java/lang/Object
+	} 
+	return this.firstBound.clearedOf(this); 
+}
+
+boolean uses(TypeVariableBinding variable) {
+	return CharOperation.equals(variable.sourceName, this.sourceName);
+}
 }
