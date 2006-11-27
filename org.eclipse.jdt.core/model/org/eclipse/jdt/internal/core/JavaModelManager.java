@@ -201,7 +201,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	
 	public static class CompilationParticipants {
 		
-		private final int MAX_SOURCE_LEVEL = 6; // 1.1 to 1.6
+		private final int MAX_SOURCE_LEVEL = 7; // 1.1 to 1.7
 	
 		/*
 		 * The registered compilation participants (a table from int (source level) to Object[])
