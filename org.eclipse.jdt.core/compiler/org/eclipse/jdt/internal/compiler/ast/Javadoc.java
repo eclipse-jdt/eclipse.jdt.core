@@ -645,7 +645,7 @@ public class Javadoc extends ASTNode {
 		}
 
 		// If no throws tags then report a problem for each method thrown exception
-		int boundExceptionLength = (md.binding == null || md.binding.thrownExceptions == null) ? 0 : md.binding.thrownExceptions.length;
+		int boundExceptionLength = (md.binding == null) ? 0 : md.binding.thrownExceptions.length;
 		int thrownExceptionLength = md.thrownExceptions == null ? 0 : md.thrownExceptions.length;
 		if (throwsTagsLength == 0) {
 			if (reportMissing) {
