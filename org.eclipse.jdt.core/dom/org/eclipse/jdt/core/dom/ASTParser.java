@@ -461,7 +461,7 @@ public class ASTParser {
      * is to be parsed, or <code>null</code> if none
       */
 	public void setSource(ICompilationUnit source) {
-		setSource(source);
+		setSource((ITypeRoot)source);
 	}
 	
 	/**
@@ -476,7 +476,7 @@ public class ASTParser {
      * is to be parsed, or <code>null</code> if none
      */
 	public void setSource(IClassFile source) {
-		setSource(source);
+		setSource((ITypeRoot)source);
 	}
 
 	/**
