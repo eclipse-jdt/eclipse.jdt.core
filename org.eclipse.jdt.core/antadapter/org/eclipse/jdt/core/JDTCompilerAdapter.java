@@ -107,14 +107,16 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 */
 		cmd.createArgument().setValue("-noExit"); //$NON-NLS-1$
 
-        if (this.bootclasspath != null && this.bootclasspath.size() != 0) {
-			/*
-			 * Set the bootclasspath for the Eclipse compiler.
-			 */
+        if (this.bootclasspath != null) {
 			cmd.createArgument().setValue("-bootclasspath"); //$NON-NLS-1$
-			cmd.createArgument().setPath(this.bootclasspath);        	
-        } else {
-            this.includeJavaRuntime = true;
+        	if (this.bootclasspath.size() != 0) {
+    			/*
+    			 * Set the bootclasspath for the Eclipse compiler.
+    			 */
+    			cmd.createArgument().setPath(this.bootclasspath);
+        	} else {
+    			cmd.createArgument().setValue(Util.EMPTY_STRING);
+        	}
         }
 
         Path classpath = new Path(this.project);

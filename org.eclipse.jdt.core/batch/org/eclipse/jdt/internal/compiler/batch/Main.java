@@ -1220,8 +1220,10 @@ protected void addNewEntry(ArrayList paths, String currentClasspathName,
     			new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$ 
     		accessRuleSet = new AccessRuleSet(accessRules, templates);
     	} else {
-    		// we go on anyway
-    		this.logger.logIncorrectClasspath(currentClasspathName);
+     		if (currentClasspathName.length() != 0) {
+     	   		// we go on anyway
+    			this.logger.logIncorrectClasspath(currentClasspathName);
+    		}
     		return;
     	}
 	}
@@ -1243,7 +1245,7 @@ protected void addNewEntry(ArrayList paths, String currentClasspathName,
 			destPath);
 	if (currentClasspath != null) {
 		paths.add(currentClasspath);
-	} else {
+	} else if (currentClasspathName.length() != 0) {
 		// we go on anyway
 		this.logger.logIncorrectClasspath(currentClasspathName);
 	}
@@ -3023,7 +3025,9 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 			break;
 		default :
 			// we go on anyway
-			this.logger.logIncorrectClasspath(currentPath);
+			if (currentPath.length() != 0) {
+				this.logger.logIncorrectClasspath(currentPath);
+			}
 	}
 }
 
@@ -3264,9 +3268,8 @@ protected void setPaths(ArrayList bootclasspaths,
 						.getClasspath(token, customEncoding, null);
 				if (currentClasspath != null) {
 					classpaths.add(currentClasspath);
-				} else {
+				} else if (token.length() != 0) {
 					this.logger.logIncorrectClasspath(token);
-					// should not happen - we go on anyway
 				}
 			}
 		}
