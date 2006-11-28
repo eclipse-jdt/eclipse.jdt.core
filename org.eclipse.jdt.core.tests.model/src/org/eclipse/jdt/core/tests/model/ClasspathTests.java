@@ -2978,10 +2978,10 @@ public void testCycleDetectionThroughContainerVariants() throws CoreException {
 			p[i] = this.createJavaProject(projectNames[i], new String[] {""}, "");
 		}
 
-		class TestContainer implements IClasspathContainer {
+		class LocalTestContainer implements IClasspathContainer {
 			IPath path;
 			IClasspathEntry[] entries;
-			TestContainer(IPath path, IClasspathEntry[] entries){
+			LocalTestContainer(IPath path, IClasspathEntry[] entries){
 				this.path = path;
 				this.entries = entries;
 			}
@@ -2992,13 +2992,13 @@ public void testCycleDetectionThroughContainerVariants() throws CoreException {
 		}
 
 		IClasspathContainer[] containers = new IClasspathContainer[]{ 
-			new TestContainer(
+			new LocalTestContainer(
 				new Path("container0/default"), 
 				new IClasspathEntry[]{ JavaCore.newProjectEntry(p[3].getPath()) }),
-			new TestContainer(
+			new LocalTestContainer(
 				new Path("container0/default"), 
 				new IClasspathEntry[]{ JavaCore.newProjectEntry(p[1].getPath()) }),
-			new TestContainer(
+			new LocalTestContainer(
 				new Path("container0/default"), 
 				new IClasspathEntry[]{ JavaCore.newProjectEntry(p[4].getPath()) }),
 		};
