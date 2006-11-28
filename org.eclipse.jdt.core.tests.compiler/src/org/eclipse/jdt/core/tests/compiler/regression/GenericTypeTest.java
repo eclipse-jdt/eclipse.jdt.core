@@ -33,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1069, 1070 };
+//		TESTS_NUMBERS = new int[] { 149 };
 //		TESTS_RANGE = new int[] { 1071, -1 };
 	}
 	public static Test suite() {
@@ -1559,11 +1559,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in test\\X.java (at line 7)\n" + 
-				"	X<String, Number, Integer> x;\n" + 
-				"	^\n" + 
-				"Incorrect number of arguments for type X<A1,A2,A3,A4>; it cannot be parameterized with arguments <String, Number, Integer>\n" + 
-				"----------\n"
+			"1. ERROR in test\\X.java (at line 7)\n" + 
+			"	X<String, Number, Integer> x;\n" + 
+			"	^\n" + 
+			"Incorrect number of arguments for type X<A1,A2,A3,A4>; it cannot be parameterized with arguments <String, Number, Integer>\n" + 
+			"----------\n"
 		);
 	}
 	// JSR14-v10[2.1,2.2]: Invalid multiple parameter types: more referenced than declared
@@ -11162,7 +11162,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	@Override Class<? extends String> foo() { return null; }\n" + 
-			"	          ^^^^^\n" + 
+			"	          ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The return type is incompatible with Y.foo()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
@@ -11192,7 +11192,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	public List<String> getList() { return null; }\n" + 
-			"	       ^^^^\n" + 
+			"	       ^^^^^^^^^^^^\n" + 
 			"The return type is incompatible with IDoubles.getList()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 

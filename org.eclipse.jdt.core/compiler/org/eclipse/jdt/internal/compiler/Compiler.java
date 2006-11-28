@@ -616,6 +616,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		parser.scanner.source = null;
 		unitsToProcess = null;
 		if (DebugRequestor != null) DebugRequestor.reset();
+		this.problemReporter.reset();
 	}
 
 	/**

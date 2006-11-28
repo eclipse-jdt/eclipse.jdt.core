@@ -18,9 +18,11 @@ import java.text.MessageFormat;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -30,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 public class ProblemReporter extends ProblemHandler {
 	
 	public ReferenceContext referenceContext;
+	private Scanner positionScanner;
 	
 public static long getIrritant(int problemID) {
 	switch(problemID){
@@ -2368,7 +2371,20 @@ public void incompatibleReturnType(MethodBinding currentMethod, MethodBinding in
 	} else {
 		TypeReference returnType = ((MethodDeclaration) method).returnType;
 		sourceStart = returnType.sourceStart;
-		sourceEnd = returnType.sourceEnd;
+		if (returnType instanceof ParameterizedSingleTypeReference) {
+			ParameterizedSingleTypeReference typeReference = (ParameterizedSingleTypeReference) returnType;
+			TypeReference[] typeArguments = typeReference.typeArguments;
+			if (typeArguments[typeArguments.length - 1].sourceEnd > typeReference.sourceEnd) {
+				sourceEnd = retrieveClosingAngleBracketPosition(typeReference.sourceEnd);
+			} else {
+				sourceEnd = returnType.sourceEnd;
+			}
+		} else if (returnType instanceof ParameterizedQualifiedTypeReference) {
+			ParameterizedQualifiedTypeReference typeReference = (ParameterizedQualifiedTypeReference) returnType;
+			sourceEnd = retrieveClosingAngleBracketPosition(typeReference.sourceEnd);
+		} else {
+			sourceEnd = returnType.sourceEnd;
+		}
 	}
 	this.handle(
 		id,
@@ -5384,6 +5400,48 @@ public void referenceMustBeArrayTypeAt(TypeBinding arrayType, ArrayReference arr
 		new String[] {new String(arrayType.shortReadableName())},
 		arrayRef.sourceStart,
 		arrayRef.sourceEnd);
+}
+public void reset() {
+	this.positionScanner = null;
+}
+private int retrieveClosingAngleBracketPosition(int start) {
+	if (this.referenceContext == null) return start;
+	CompilationResult compilationResult = this.referenceContext.compilationResult();
+	if (compilationResult == null) return start;
+	ICompilationUnit compilationUnit = compilationResult.getCompilationUnit();
+	if (compilationUnit == null) return start;
+	char[] contents = compilationUnit.getContents();
+	if (contents.length == 0) return start;
+	if (this.positionScanner == null) {
+		this.positionScanner = new Scanner(false, false, false, this.options.sourceLevel, this.options.complianceLevel, null, null, false);
+		this.positionScanner.returnOnlyGreater = true;
+	}
+	this.positionScanner.setSource(contents);
+	this.positionScanner.resetTo(start, contents.length);
+	int end = start;
+	int count = 0;
+	try {
+		int token;
+		loop: while ((token = this.positionScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			switch(token) {
+				case TerminalTokens.TokenNameLESS:
+					count++;
+					break;
+				case TerminalTokens.TokenNameGREATER:
+					count--;
+					if (count == 0) {
+						end = this.positionScanner.currentPosition - 1;
+						break loop;
+					}
+					break;
+				case TerminalTokens.TokenNameLBRACE :
+					break loop;
+			}
+		}
+	} catch(InvalidInputException e) {
+		// ignore
+	}
+	return end;
 }
 public void returnTypeCannotBeVoidArray(MethodDeclaration methodDecl) {
 	this.handle(

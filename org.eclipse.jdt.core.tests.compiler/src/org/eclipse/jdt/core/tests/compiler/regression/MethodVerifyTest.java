@@ -5320,7 +5320,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\r\n" + 
 			"	public <S> A<U> bar() { return null; }\r\n" + 
-			"	           ^\n" + 
+			"	           ^^^^\n" + 
 			"The return type is incompatible with I.bar()\n" + 
 			"----------\n"
 			// <S>bar() in X cannot implement <S>bar() in I; attempting to use incompatible return type
