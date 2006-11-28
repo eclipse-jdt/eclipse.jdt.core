@@ -352,6 +352,13 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 	}
 
+public boolean isReferencing(TypeVariableBinding variable) {
+	if (this.bound != null) {
+		return this.bound.isReferencing(variable);
+	}
+	return false;
+}
+
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isSuperclassOf(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)
      */
@@ -624,11 +631,4 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 		return this.typeVariable;
 	}
-
-boolean uses(TypeVariableBinding variable) {
-	if (this.bound != null) {
-		return this.bound.uses(variable);
-	}
-	return false;
-}
 }

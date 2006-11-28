@@ -133,6 +133,16 @@ public int dimensions() {
 	return 0;
 }
 
+/**
+ * Return this if variable does not participate to its definition, a rawified 
+ * type binding else.
+ * @param variable the type variable to eliminate
+ * @return a type binding that does not use variable
+ */
+public TypeBinding eliminateTypeVariable(TypeVariableBinding variable) {
+	return this;
+}
+
 /* Answer the receiver's enclosing type... null if the receiver is a top level type.
  */
 public ReferenceBinding enclosingType() {
@@ -446,6 +456,16 @@ public final boolean isNumericType() {
 }
 
 /**
+ * Return true iff variable participates to the definition of this, directly or
+ * indirectly (through type parameters, bounds, etc.).
+ * @param variable the type variable to search for
+ * @return true iff variable participates to the definition of this
+ */
+public boolean isReferencing(TypeVariableBinding variable) {
+	return false;
+}
+
+/**
  * Returns true if the type is parameterized, e.g. List<String>
  */
 public boolean isParameterizedType() {
@@ -574,6 +594,7 @@ public boolean isReifiable() {
 public boolean isThrowable() {
 	return false;
 }
+
 // JLS3: 4.5.1.1
 public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 	if (this == otherType)
@@ -962,26 +983,5 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType,
 
 public TypeVariableBinding[] typeVariables() {
 	return Binding.NO_TYPE_VARIABLES;
-}
-
-/**
- * Return true iff variable participates to the definition of this, directly or
- * indirectly (through type parameters, bounds, etc.). Type variables are 
- * matched by names, not by identity.
- * @param variable the type variable to search for
- * @return true iff variable participates to the definition of this
- */
-boolean uses(TypeVariableBinding variable) {
-	return false;
-}
-/**
- * Return this if variable does not participate to its definition, a new type
- * binding that contains rawified types instead of parameterized types that
- * use variable else.
- * @param variable the type variable to eliminate
- * @return a type binding that does not use variable
- */
-TypeBinding clearedOf(TypeVariableBinding variable) {
-	return this;
 }
 }

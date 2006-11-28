@@ -291,6 +291,16 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    return nameBuffer.toString();		
 	}
 
+public TypeBinding eliminateTypeVariable(TypeVariableBinding variable) {
+	if ((this.tagBits & TagBits.HasTypeVariable) == 0) {
+		return this;
+	}
+	if (isReferencing(variable)) {
+		return new RawTypeBinding(this.type, this.enclosingType, this.environment);
+	}
+	return this;
+}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#enclosingType()
 	 */
@@ -728,6 +738,24 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public boolean isRawSubstitution() {
 		return isRawType();
 	}
+
+public boolean isReferencing(TypeVariableBinding variable) {
+	int argsNb = this.arguments.length;
+	if ((this.tagBits & TagBits.HasTypeVariable) != 0) {
+		for (int i = 0; i < argsNb; i++) {
+			if (this.arguments[i] == variable) {
+				return true;
+			}
+		}
+		// two separate passes to cut recursion for <V extends J<V, W>, W extends J<V, W>>
+		for (int i = 0; i < argsNb; i++) {
+			if (this.arguments[i].isReferencing(variable)) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#memberTypes()
@@ -1058,29 +1086,4 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		} 
 		return Binding.NO_TYPE_VARIABLES;
 	}	
-
-boolean uses(TypeVariableBinding variable) {
-	int argsNb = this.arguments.length;
-	for (int i = 0; i < argsNb; i++) {
-		if (this.arguments[i] == variable || this.arguments[i].uses(variable)) {
-			return true;
-		}
-	}
-	return false;
-}
-TypeBinding clearedOf(TypeVariableBinding variable) {
-	if (uses(variable)) {
-		int argsNb;
-		TypeBinding[] newArguments = new TypeBinding[argsNb = this.arguments.length];
-		for (int i = 0; i < argsNb; i++) {
-			if (this.arguments[i].uses(variable)) {
-				return new RawTypeBinding(this.type, this.enclosingType, this.environment);
-			}
-			newArguments[i] = this.arguments[i].clearedOf(variable);
-		}
-		return new ParameterizedTypeBinding(this.type, newArguments, 
-				this.enclosingType, this.environment);
-	}
-	return this;
-}
 }
