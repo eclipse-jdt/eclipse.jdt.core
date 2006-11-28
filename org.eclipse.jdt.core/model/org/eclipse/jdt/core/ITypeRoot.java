@@ -21,8 +21,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * This interface is not intended to be implemented by clients.
  * </p>
  *
- * @see ICompilationUnit
- * @see IClassFile
+ * @see ICompilationUnit Note that methods {@link #findPrimaryType()} and {@link #getElementAt(int)}
+ * 	were already implemented in this interface respectively since version 3.0 and version 1.0.
+ * @see IClassFile Note that method {@link #getWorkingCopy(WorkingCopyOwner, IProgressMonitor)}
+ * 	was already implemented in this interface since version 3.0.
  * @since 3.3
  */
 public interface ITypeRoot extends IJavaElement, IParent, IOpenable, ISourceReference, ICodeAssist {
@@ -73,8 +75,8 @@ IJavaElement getElementAt(int position) throws JavaModelException;
  * When the shared working copy instance is created, an ADDED IJavaElementDelta is reported on this
  * working copy.
  * </p><p>
- * Since 2.1, a working copy can be created on a not-yet existing compilation
- * unit. In particular, such a working copy can then be committed in order to create
+ * A working copy can be created on a not-yet existing compilation unit.
+ * In particular, such a working copy can then be committed in order to create
  * the corresponding compilation unit.
  * </p><p>
  * Note that possible problems of this working copy are not reported using this method.

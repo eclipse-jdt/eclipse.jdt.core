@@ -461,7 +461,7 @@ public class ASTParser {
      * is to be parsed, or <code>null</code> if none
       */
 	public void setSource(ICompilationUnit source) {
-		setTypeRoot(source);
+		setSource(source);
 	}
 	
 	/**
@@ -476,7 +476,7 @@ public class ASTParser {
      * is to be parsed, or <code>null</code> if none
      */
 	public void setSource(IClassFile source) {
-		setTypeRoot(source);
+		setSource(source);
 	}
 
 	/**
@@ -491,7 +491,7 @@ public class ASTParser {
 	 * is to be parsed, or <code>null</code> if none
 	 * @since 3.3
 	 */
-	public void setTypeRoot(ITypeRoot source) {
+	public void setSource(ITypeRoot source) {
 		this.typeRoot = source;
 		// clear the raw source
 		this.rawSource = null;
