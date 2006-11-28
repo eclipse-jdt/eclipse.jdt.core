@@ -773,6 +773,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				// targeting a generic method could find an exact match with variable return type
 				if (exactMethod.typeVariables != Binding.NO_TYPE_VARIABLES || invocationSite.genericTypeArguments() != null) {
 					MethodBinding compatibleMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
+					// compatibleMethod should not be null thanks to the conditions guarding this block 
 					if (!compatibleMethod.isValidBinding() && exactMethod.typeVariables != Binding.NO_TYPE_VARIABLES) {
 						return null; // could be a better generic method match (90423), which will be found by non exact match
 					}
