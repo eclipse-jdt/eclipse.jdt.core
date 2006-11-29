@@ -928,8 +928,8 @@ public void test012(){
         "    -target <version>  set classfile target: 1.1 to 1.7 (or 5, 5.0, etc)\n" + 
         " \n" + 
         " Warning options:\n" + 
-        "    -deprecation     + deprecation outside deprecated code (on by default\n" + 
-        "                       unless the default warnings are overriden)\n" +
+        "    -deprecation     + deprecation outside deprecated code (equivalent to\n" + 
+        "                       -warn:+deprecation)\n" + 
         "    -nowarn -warn:none disable all warnings\n" + 
         "    -?:warn -help:warn display advanced warning options\n" + 
         " \n" + 
