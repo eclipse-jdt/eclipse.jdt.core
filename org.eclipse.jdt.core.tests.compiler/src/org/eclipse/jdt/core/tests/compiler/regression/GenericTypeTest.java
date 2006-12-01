@@ -33,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 149 };
+//		TESTS_NUMBERS = new int[] { 1092 };
 //		TESTS_RANGE = new int[] { 1071, -1 };
 	}
 	public static Test suite() {
@@ -35916,5 +35916,105 @@ public void test1091() {
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=166490
+public void test1092() {
+	Map customOptions = this.getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"Class_01.java",
+			"public interface Class_01<H extends Class_02<? extends Class_01>> extends\r\n" + 
+			"		Class_09<H> {\r\n" + 
+			"}",
+			"Class_02.java",
+			"public interface Class_02<E extends Class_01<? extends Class_02>> extends\r\n" + 
+			"		Class_10<E> {\r\n" + 
+			"}",
+			"Class_03.java",
+			"public abstract class Class_03<E extends Class_01<? super H>, H extends Class_02<? super E>, P extends Class_06<? extends Class_07>>\r\n" + 
+			"		extends Class_08<E, H, P> implements Class_05 {\r\n" + 
+			"}",
+			"Class_04.java",
+			"public interface Class_04 extends Class_06<Class_18>, Class_19{\r\n" + 
+			"}",
+			"Class_05.java",
+			"public interface Class_05{\r\n" + 
+			"}",
+			"Class_06.java",
+			"public interface Class_06<H extends Class_07<? extends Class_06>> extends\r\n" + 
+			"		Class_13<H, Class_12>, Class_17 {\r\n" + 
+			"}",
+			"Class_07.java",
+			"public interface Class_07<P extends Class_06<? extends Class_07>> extends\r\n" + 
+			"		Class_14<P, Class_12> {\r\n" + 
+			"}",
+			"Class_08.java",
+			"public abstract class Class_08<E extends Class_09<? super H>, H extends Class_10<? super E>, P extends Class_06<? extends Class_07>>\r\n" + 
+			"		extends Class_11<E, H, Class_12> implements Class_05 {\r\n" + 
+			"}",
+			"Class_09.java",
+			"public interface Class_09<H extends Class_10<? extends Class_09>> extends\r\n" + 
+			"		Class_13<H, Class_12>, Class_17 {\r\n" + 
+			"}",
+			"Class_10.java",
+			"public interface Class_10<E extends Class_09<? extends Class_10>> extends\r\n" + 
+			"		Class_14<E, Class_12> {\r\n" + 
+			"}",
+			"Class_11.java",
+			"public abstract class Class_11<E extends Class_13<? super H, O>, H extends Class_14<? super E, O>, O>\r\n" + 
+			"		extends Class_15<E, H, O> implements Class_05 {\r\n" + 
+			"}",
+			"Class_12.java",
+			"public final class Class_12 {\r\n" + 
+			"}",
+			"Class_13.java",
+			"public interface Class_13<H extends Class_14<?, O>, O>{\r\n" + 
+			"}",
+			"Class_14.java",
+			"public interface Class_14<E extends Class_13<?, O>, O>{\r\n" + 
+			"}",
+			"Class_15.java",
+			"public abstract class Class_15<E extends Class_13<? super H, O>, H extends Class_14<? super E, O>, O>\r\n" + 
+			"		extends Class_16 {\r\n" + 
+			"}",
+			"Class_16.java",
+			"public abstract class Class_16{\r\n" + 
+			"}",
+			"Class_17.java",
+			"public interface Class_17{\r\n" + 
+			"}",
+			"Class_18.java",
+			"public interface Class_18 extends Class_07<Class_04>{\r\n" + 
+			"}",
+			"Class_19.java",
+			"public interface Class_19{\r\n" + 
+			"}",
+			"MyClass.java",
+			"abstract class MyClass<E extends Class_01<? super H>, H extends Class_02<? super E>>\r\n" + 
+			"		extends Class_03<E, H, Class_04> implements Class_05 {\r\n" + 
+			"}"
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+
+	// incremental build
+	this.runConformTest(
+			new String[] {
+					"Class_01.java",
+					"public interface Class_01<H extends Class_02<? extends Class_01>> extends\r\n" + 
+					"		Class_09<H> {\r\n" + 
+					"}",
+			},
+			"",
+			null,
+			false,
+			null,
+			customOptions,
+			null);
 }
 }
