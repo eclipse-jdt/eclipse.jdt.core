@@ -37,7 +37,7 @@ public class JavadocReturnStatement extends ReturnStatement {
 		if (methodType == null || methodType == TypeBinding.VOID) {
 			scope.problemReporter().javadocUnexpectedTag(this.sourceStart, this.sourceEnd);
 		} else if (this.empty) {
-			scope.problemReporter().javadocEmptyReturnTag(this.sourceStart, this.sourceEnd);
+			scope.problemReporter().javadocEmptyReturnTag(this.sourceStart, this.sourceEnd, scope.getDeclarationModifiers());
 		}
 	}
 

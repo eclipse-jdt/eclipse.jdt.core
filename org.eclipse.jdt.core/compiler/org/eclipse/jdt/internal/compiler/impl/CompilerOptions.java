@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -434,7 +435,7 @@ public class CompilerOptions {
 	}
 	
 	public String getVisibilityString(int level) {
-		switch (level) {
+		switch (level & ExtraCompilerModifiers.AccVisibilityMASK) {
 			case ClassFileConstants.AccPublic:
 				return PUBLIC;
 			case ClassFileConstants.AccProtected:

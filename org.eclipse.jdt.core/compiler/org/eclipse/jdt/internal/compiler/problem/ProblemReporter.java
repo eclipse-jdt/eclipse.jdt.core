@@ -1044,6 +1044,7 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocIncorrectArityForParameterizedConstructor:
 		case IProblem.JavadocParameterizedConstructorArgumentTypeMismatch:
 		case IProblem.JavadocTypeArgumentsForRawGenericConstructor:
+		case IProblem.JavadocEmptyReturnTag:
 			if (!this.options.reportInvalidJavadocTags) {
 				return ProblemSeverities.Ignore;		
 			}
@@ -3649,8 +3650,12 @@ public void javadocDuplicatedThrowsClassName(TypeReference typeReference, int mo
 			typeReference.sourceEnd);
 	}
 }
-public void javadocEmptyReturnTag(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.JavadocEmptyReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
+public void javadocEmptyReturnTag(int sourceStart, int sourceEnd, int modifiers) {
+	int severity = computeSeverity(IProblem.JavadocEmptyReturnTag);
+	if (severity == ProblemSeverities.Ignore) return;
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
+		this.handle(IProblem.JavadocEmptyReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
+	}
 }
 public void javadocErrorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeBinding[] params, int modifiers) {
 	int id = recType.isArrayType() ? IProblem.JavadocNoMessageSendOnArrayType : IProblem.JavadocNoMessageSendOnBaseType;
