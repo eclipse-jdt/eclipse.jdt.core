@@ -558,7 +558,7 @@ public class JavadocParser extends AbstractCommentParser {
 							} else {
 								if (this.validValuePositions == -1) {
 									if (this.invalidValuePositions != -1) {
-										if (this.reportProblems) this.sourceParser.problemReporter().javadocDuplicatedTag(tagName, (int) (this.invalidValuePositions>>>32), (int) this.invalidValuePositions);
+										if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag((int) (this.invalidValuePositions>>>32), (int) this.invalidValuePositions);
 									}
 									if (valid) {
 										this.validValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
@@ -567,7 +567,7 @@ public class JavadocParser extends AbstractCommentParser {
 										this.invalidValuePositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
 									}
 								} else {
-									if (this.reportProblems) this.sourceParser.problemReporter().javadocDuplicatedTag(tagName, this.tagSourceStart, this.tagSourceEnd);
+									if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 								}
 							}
 						} else {
