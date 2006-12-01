@@ -73,6 +73,7 @@ public class JavadocBugsTest extends JavadocTest {
 		options.put(CompilerOptions.OPTION_ReportDeprecation, reportDeprecation);
 		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
 		options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 		return options;
 	}
 	/* (non-Javadoc)
@@ -4811,67 +4812,6 @@ public class JavadocBugsTest extends JavadocTest {
 	}
 
 	/**
-	 * @bug 160015: [1.5][javadoc] Missing warning on autoboxing compatible methods
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=160015"
-	 */
-	public void testBug160015() {
-		runNegativeTest(new String[] {
-				"Test.java",
-				"/**\n" + 
-				" * @see #method(Long) Warning!\n" + 
-				" */\n" + 
-				"public class Test {\n" + 
-				"	public void method(long l) {}\n" + 
-				"	/**\n" + 
-				"	 * @see #method(Long) Warning!\n" + 
-				"	 */\n" + 
-				"	void bar() {}\n" + 
-				"}\n"
-			},
-			"----------\n" + 
-			"1. ERROR in Test.java (at line 2)\n" + 
-			"	* @see #method(Long) Warning!\n" + 
-			"	        ^^^^^^\n" + 
-			"Javadoc: The method method(long) in the type Test is not applicable for the arguments (Long)\n" + 
-			"----------\n" + 
-			"2. ERROR in Test.java (at line 7)\n" + 
-			"	* @see #method(Long) Warning!\n" + 
-			"	        ^^^^^^\n" + 
-			"Javadoc: The method method(long) in the type Test is not applicable for the arguments (Long)\n" + 
-			"----------\n"
-		);
-	}
-
-	/**
-	 * @bug 163659: [javadoc] Compiler should warn when method parameters are not identical
-	 * @test Ensure that a warning is raised when method parameter types are not identical
-	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=163659"
-	 */
-	public void testBug163659() {
-		runNegativeTest(
-			new String[] {
-				"Test.java",
-				"/**\n" + 
-				" * @see #foo(MyInterface)\n" + 
-				" * @see #foo(MySubInterface)\n" + 
-				" */\n" + 
-				"public class Test {\n" + 
-				"	public void foo(MyInterface mi) {\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"interface MyInterface {}\n" + 
-				"interface MySubInterface extends MyInterface {} \n"
-			},
-			"----------\n" + 
-			"1. ERROR in Test.java (at line 3)\n" + 
-			"	* @see #foo(MySubInterface)\n" + 
-			"	        ^^^\n" + 
-			"Javadoc: The method foo(MyInterface) in the type Test is not applicable for the arguments (MySubInterface)\n" + 
-			"----------\n"
-		);
-	}
-
-	/**
 	 * @bug 153399: [javadoc] JDT Core should warn if the @value tag is not used correctly
 	 * @test Ensure that 'value' tag is well warned when not used correctly
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=153399"
@@ -4981,12 +4921,12 @@ public class JavadocBugsTest extends JavadocTest {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	* {@value #MY_VALUE}\n" + 
 				"	    ^^^^^\n" + 
-				"Javadoc: Unexpected duplicated tag @value\n" + 
+				"Javadoc: Unexpected tag\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	* {@value}\n" + 
 				"	    ^^^^^\n" + 
-				"Javadoc: Unexpected duplicated tag @value\n" + 
+				"Javadoc: Unexpected tag\n" + 
 				"----------\n"
 			);
 		} else {
@@ -5017,7 +4957,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	* {@value Invalid}\n" + 
 				"	    ^^^^^\n" + 
-				"Javadoc: Unexpected duplicated tag @value\n" + 
+				"Javadoc: Unexpected tag\n" + 
 				"----------\n"
 			);
 		} else {
@@ -5030,6 +4970,67 @@ public class JavadocBugsTest extends JavadocTest {
 				"----------\n"
 			);
 		}
+	}
+
+	/**
+	 * @bug 160015: [1.5][javadoc] Missing warning on autoboxing compatible methods
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=160015"
+	 */
+	public void testBug160015() {
+		runNegativeTest(new String[] {
+				"Test.java",
+				"/**\n" + 
+				" * @see #method(Long) Warning!\n" + 
+				" */\n" + 
+				"public class Test {\n" + 
+				"	public void method(long l) {}\n" + 
+				"	/**\n" + 
+				"	 * @see #method(Long) Warning!\n" + 
+				"	 */\n" + 
+				"	void bar() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	* @see #method(Long) Warning!\n" + 
+			"	        ^^^^^^\n" + 
+			"Javadoc: The method method(long) in the type Test is not applicable for the arguments (Long)\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 7)\n" + 
+			"	* @see #method(Long) Warning!\n" + 
+			"	        ^^^^^^\n" + 
+			"Javadoc: The method method(long) in the type Test is not applicable for the arguments (Long)\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * @bug 163659: [javadoc] Compiler should warn when method parameters are not identical
+	 * @test Ensure that a warning is raised when method parameter types are not identical
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=163659"
+	 */
+	public void testBug163659() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+				" * @see #foo(MyInterface)\n" + 
+				" * @see #foo(MySubInterface)\n" + 
+				" */\n" + 
+				"public class Test {\n" + 
+				"	public void foo(MyInterface mi) {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface MyInterface {}\n" + 
+				"interface MySubInterface extends MyInterface {} \n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 3)\n" + 
+			"	* @see #foo(MySubInterface)\n" + 
+			"	        ^^^\n" + 
+			"Javadoc: The method foo(MyInterface) in the type Test is not applicable for the arguments (MySubInterface)\n" + 
+			"----------\n"
+		);
 	}
 
 	/**
@@ -5070,5 +5071,124 @@ public class JavadocBugsTest extends JavadocTest {
 			return;
 		}
 		runConformTest(testFiles);
+	}
+
+	/**
+	 * @bug 166365: [javadoc] severity level of malformed javadoc comments did not work properly
+	 * @test Ensure that no warning is raised when visibility is lower than the javadoc option one
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=166365"
+	 */
+	public void testBug166365() {
+		String[] testFiles = new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    /**\n" + 
+			"     * @return\n" + 
+			"     */\n" + 
+			"    private String getSomePrivate() {\n" + 
+			"        return \"SomePrivate\";\n" + 
+			"    }\n" + 
+			"    /**\n" + 
+			"     * @return\n" + 
+			"     */\n" + 
+			"    protected String getSomeProtected() {\n" + 
+			"        return \"SomeProtected\";\n" + 
+			"    }\n" + 
+			"    /**\n" + 
+			"     * @return\n" + 
+			"     */\n" + 
+			"    String getSomeDefault() {\n" + 
+			"        return \"SomeDefault\";\n" + 
+			"    }\n" + 
+			"    /**\n" + 
+			"     * @return\n" + 
+			"     */\n" + 
+			"    public String getSomePublic() {\n" + 
+			"        return \"SomePublic\";\n" + 
+			"    }\n" + 
+			"}\n"
+		};
+		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
+		runNegativeTest(testFiles,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 21)\n" + 
+			"	* @return\n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Missing return type description\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * @bug 166436: [javadoc] Potentially wrong javadoc warning for unexpected duplicate tag value
+	 * @test Ensure that no duplicate warning is raised for value tag
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=166436"
+	 */
+	public void testBug166436() {
+		String[] testFiles = new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static final String PUBLIC_CONST = \"public\";\n" + 
+			"	protected static final String PROTECTED_CONST = \"protected\";\n" + 
+			"	static final String DEFAULT_CONST = \"default\"; \n" + 
+			"	private static final String PRIVATE_CONST = \"private\"; \n" + 
+			"	/**\n" + 
+			"	 * Values:\n" + 
+			"	 * <ul>\n" + 
+			"	 * 	<li>{@value #PUBLIC_CONST}</li>\n" + 
+			"	 * 	<li>{@value #PROTECTED_CONST}</li>\n" + 
+			"	 * 	<li>{@value #DEFAULT_CONST}</li>\n" + 
+			"	 * 	<li>{@value #PRIVATE_CONST}</li>\n" + 
+			"	 * </ul>\n" + 
+			"	 */\n" + 
+			"	public X() {\n" + 
+			"	}\n" + 
+			"}\n"
+		};
+		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(testFiles,
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	* 	<li>{@value #PUBLIC_CONST}</li>\n" + 
+				"	  	      ^^^^^\n" + 
+				"Javadoc: Unexpected tag\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 10)\n" + 
+				"	* 	<li>{@value #PROTECTED_CONST}</li>\n" + 
+				"	  	      ^^^^^\n" + 
+				"Javadoc: Unexpected tag\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 11)\n" + 
+				"	* 	<li>{@value #DEFAULT_CONST}</li>\n" + 
+				"	  	      ^^^^^\n" + 
+				"Javadoc: Unexpected tag\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 12)\n" + 
+				"	* 	<li>{@value #PRIVATE_CONST}</li>\n" + 
+				"	  	      ^^^^^\n" + 
+				"Javadoc: Unexpected tag\n" + 
+				"----------\n"
+			);
+		} else {
+			runNegativeTest(testFiles,
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	* 	<li>{@value #PROTECTED_CONST}</li>\n" + 
+				"	  	            ^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: \'public\' visibility for malformed doc comments hides this \'protected\' reference\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 11)\n" + 
+				"	* 	<li>{@value #DEFAULT_CONST}</li>\n" + 
+				"	  	            ^^^^^^^^^^^^^^\n" + 
+				"Javadoc: \'public\' visibility for malformed doc comments hides this \'default\' reference\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 12)\n" + 
+				"	* 	<li>{@value #PRIVATE_CONST}</li>\n" + 
+				"	  	            ^^^^^^^^^^^^^^\n" + 
+				"Javadoc: \'public\' visibility for malformed doc comments hides this \'private\' reference\n" + 
+				"----------\n"
+			);
+		}
 	}
 }
