@@ -291,16 +291,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    return nameBuffer.toString();		
 	}
 
-public TypeBinding eliminateTypeVariable(TypeVariableBinding variable) {
-	if ((this.tagBits & TagBits.HasTypeVariable) == 0) {
-		return this;
-	}
-	if (isReferencing(variable)) {
-		return new RawTypeBinding(this.type, this.enclosingType, this.environment);
-	}
-	return this;
-}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#enclosingType()
 	 */
@@ -738,24 +728,6 @@ public TypeBinding eliminateTypeVariable(TypeVariableBinding variable) {
 	public boolean isRawSubstitution() {
 		return isRawType();
 	}
-
-public boolean isReferencing(TypeVariableBinding variable) {
-	int argsNb = this.arguments.length;
-	if ((this.tagBits & TagBits.HasTypeVariable) != 0) {
-		for (int i = 0; i < argsNb; i++) {
-			if (this.arguments[i] == variable) {
-				return true;
-			}
-		}
-		// two separate passes to cut recursion for <V extends J<V, W>, W extends J<V, W>>
-		for (int i = 0; i < argsNb; i++) {
-			if (this.arguments[i].isReferencing(variable)) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
 	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#memberTypes()

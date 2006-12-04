@@ -799,6 +799,147 @@ public void _test010c() {
 			"135"
 		);
 	}
+	public void test014h() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void x(G x) { System.out.print(true); }\n" + 
+				"	void x(F x) { System.out.print(false); }\n" +  
+				"	void x2(G<C> x) { System.out.print(true); }\n" + 
+				"	void x2(F<C> x) { System.out.print(false); }\n" +  
+				"	void a(G x) {}\n" + 
+				"	void a(F<C> x) {}\n" +  
+				"	void a2(G x) {}\n" + 
+				"	<T extends C> void a2(F<T> x) {}\n" +  
+				"	void a3(G x) {}\n" + 
+				"	<T extends F<C>> void a3(T x) {}\n" + 
+				"	void a4(G x) {}\n" + 
+				"	<T extends C, S extends F<T>> void a4(S x) {}\n" + 
+				"	<T extends G> void a5(T x) {}\n" + 
+				"	void a5(F<C> x) {}\n" +  
+				"	void b(G<C> x) { System.out.print(true); }\n" + 
+				"	void b(F x) { System.out.print(false); }\n" +  
+				"	void b2(G<C> x) { System.out.print(true); }\n" + 
+				"	<T extends F> void b2(T x) { System.out.print(false); }\n" +  
+				"	<T extends C> void b3(G<T> x) { System.out.print(true); }\n" + 
+				"	void b3(F x) { System.out.print(false); }\n" +  
+				"	<T extends G<C>> void b4(T x) { System.out.print(true); }\n" + 
+				"	void b4(F x) { System.out.print(false); }\n" +  
+				"	<T extends C, S extends G<T>> void b5(S x) { System.out.print(true); }\n" + 
+				"	void b5(F x) { System.out.print(false); }\n" + 
+				"	void c(G x) { System.out.print(true); }\n" + 
+				"	<T extends C> void c(F x) { System.out.print(false); }\n" +  
+				"	public static void main(String[] args) {\n" + 
+				"		H<C> h = null;\n" +
+				"		H hraw = null;\n" +
+				"		new X().x(h);\n" +
+				"		new X().x(hraw);\n" +
+				"		new X().x2(h);\n" +
+				"		new X().x2(hraw);\n" +
+				"		new X().b(h);\n" +
+				"		new X().b(hraw);\n" +
+				"		new X().b2(h);\n" +
+				"		new X().b2(hraw);\n" +
+				"		new X().b3(h);\n" +
+				"		new X().b3(hraw);\n" +
+				"		new X().b4(h);\n" +
+				"		new X().b4(hraw);\n" +
+				"		new X().b5(h);\n" +
+				"		new X().b5(hraw);\n" +
+				"		new X().c(h);\n" +
+				"		new X().c(hraw);\n" +
+				"	}\n" + 
+				"}\n" +
+				"class A {}\n" + 
+				"class B extends A {}\n" +
+				"class C extends B {}\n" +
+				"class F<T1> {} \n" + 
+				"class G<T2> extends F<T2> {}\n" +
+				"class H<T3> extends G<T3> {}"
+			},
+			"truetruetruetruetruetruetruetruetruetruetruetruetruetruetruetrue"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"Y.java",
+				"public class Y extends X {\n" + 
+				"	public static void ambiguousCases() {\n" + 
+				"		H<C> h = null;\n" +
+				"		H hraw = null;\n" +
+				"		new X().a(h);\n" +
+				"		new X().a(hraw);\n" +
+				"		new X().a2(h);\n" +
+				"		new X().a2(hraw);\n" +
+				"		new X().a3(h);\n" +
+				"		new X().a3(hraw);\n" +
+				"		new X().a4(h);\n" +
+				"		new X().a4(hraw);\n" +
+				"		new X().a5(h);\n" +
+				"		new X().a5(hraw);\n" +
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in Y.java (at line 4)\n" + 
+			"	H hraw = null;\n" + 
+			"	^\n" + 
+			"H is a raw type. References to generic type H<T3> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in Y.java (at line 5)\n" + 
+			"	new X().a(h);\n" + 
+			"	        ^\n" + 
+			"The method a(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"3. ERROR in Y.java (at line 6)\n" + 
+			"	new X().a(hraw);\n" + 
+			"	        ^\n" + 
+			"The method a(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"4. ERROR in Y.java (at line 7)\n" + 
+			"	new X().a2(h);\n" + 
+			"	        ^^\n" + 
+			"The method a2(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"5. ERROR in Y.java (at line 8)\n" + 
+			"	new X().a2(hraw);\n" + 
+			"	        ^^\n" + 
+			"The method a2(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"6. ERROR in Y.java (at line 9)\n" + 
+			"	new X().a3(h);\n" + 
+			"	        ^^\n" + 
+			"The method a3(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"7. ERROR in Y.java (at line 10)\n" + 
+			"	new X().a3(hraw);\n" + 
+			"	        ^^\n" + 
+			"The method a3(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"8. ERROR in Y.java (at line 11)\n" + 
+			"	new X().a4(h);\n" + 
+			"	        ^^\n" + 
+			"The method a4(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"9. ERROR in Y.java (at line 12)\n" + 
+			"	new X().a4(hraw);\n" + 
+			"	        ^^\n" + 
+			"The method a4(G) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"10. ERROR in Y.java (at line 13)\n" + 
+			"	new X().a5(h);\n" + 
+			"	        ^^\n" + 
+			"The method a5(H<C>) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"11. ERROR in Y.java (at line 14)\n" + 
+			"	new X().a5(hraw);\n" + 
+			"	        ^^\n" + 
+			"The method a5(H) is ambiguous for the type X\n" + 
+			"----------\n",
+			null,
+			false
+		);
+	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79798
 	public void test015() {
 		this.runConformTest(
@@ -913,25 +1054,24 @@ public void _test010c() {
 	public void test018() {
 	this.runConformTest(
 		new String[] {
-			"X.java",
-			"public class X<T extends Object> {\n" + 
+			"Y.java",
+			"class X<T extends Object> {\n" + 
 			"  public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"    System.out.print(false);\n" + 
 			"    return new X<U>();\n" + 
 			"  }\n" + 
 			"}\n" + 
-			"class Y<V extends String> extends X<V> {\n" + 
+			"public class Y<V extends String> extends X<V> {\n" + 
 			"  public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"    System.out.print(true);\n" + 
 			"    return new Y<W>();\n" + 
 			"  }\n" + 
 			"  public static void main(String[] args) throws Exception {\n" + 
 			"    Y.make(String.class);\n" + 
 			"  }\n" + 
-			"  public static Class getClazz() {\n" + 
-			"    return String.class;\n" + 
-			"  }\n" + 
 			"}"
 		},
-		"");
+		"true");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	// in fact, <W extends String> Y<W> make(Class<W> clazz) is the most
@@ -939,14 +1079,16 @@ public void _test010c() {
 	public void test019() {
 	this.runConformTest(
 		new String[] {
-			"X.java",
-			"public class X<T extends Object> {\n" + 
+			"Y.java",
+			"class X<T extends Object> {\n" + 
 			"  public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"    System.out.print(false);\n" + 
 			"    return new X<U>();\n" + 
 			"  }\n" + 
 			"}\n" + 
-			"class Y<V extends String> extends X<V> {\n" + 
+			"public class Y<V extends String> extends X<V> {\n" + 
 			"  public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"    System.out.print(true);\n" + 
 			"    return new Y<W>();\n" + 
 			"  }\n" + 
 			"  public static void main(String[] args) throws Exception {\n" + 
@@ -957,20 +1099,22 @@ public void _test010c() {
 			"  }\n" + 
 			"}"
 		},
-		"");
+		"true");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	public void test020() {
 	this.runConformTest(
 		new String[] {
-			"X.java",
-			"public class X<T extends Object> {\n" + 
+			"Y.java",
+			"class X<T extends Object> {\n" + 
 			"  public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"    System.out.print(true);\n" + 
 			"    return new X<U>();\n" + 
 			"  }\n" + 
 			"}\n" + 
-			"class Y<V extends String> extends X<V> {\n" + 
+			"public class Y<V extends String> extends X<V> {\n" + 
 			"  public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"    System.out.print(false);\n" + 
 			"    return new Y<W>();\n" + 
 			"  }\n" + 
 			"  public static void main(String[] args) throws Exception {\n" + 
@@ -981,21 +1125,23 @@ public void _test010c() {
 			"  }\n" + 
 			"}"
 		},
-		"");
+		"true");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	// variant: having both methods in the same class should not change anything
 	public void test021() {
 	this.runConformTest(
 		new String[] {
-			"X.java",
-			"public class X<T extends Object> {\n" + 
+			"Y.java",
+			"class X<T extends Object> {\n" + 
 			"}\n" + 
-			"class Y<V extends String> extends X<V> {\n" + 
+			"public class Y<V extends String> extends X<V> {\n" + 
 			"  public static <W extends String> Y<W> make(Class<W> clazz) {\n" + 
+			"    System.out.print(true);\n" + 
 			"    return new Y<W>();\n" + 
 			"  }\n" + 
 			"  public static <U extends Object> X<U> make(Class<U> clazz) {\n" + 
+			"    System.out.print(false);\n" + 
 			"    return new X<U>();\n" + 
 			"  }\n" + 
 			"  public static void main(String[] args) throws Exception {\n" + 
@@ -1006,7 +1152,7 @@ public void _test010c() {
 			"  }\n" + 
 			"}"
 		},
-		"");
+		"true");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	// variant: using instances triggers raw methods, which are ambiguous
@@ -1083,19 +1229,33 @@ this.runConformTest(
 		"X.java",
 		"import java.util.*;\n" + 
 		"public class X {\n" +
-		"  public static void foo(Collection<?> p) {\n" +
-		"    System.out.println(1);\n" +
+		"  public static void staticFoo(Collection<?> p) {\n" +
+		"    System.out.print(1);\n" +
 		"  }\n" +
-		"  public static <T extends List<?>> void foo(T p) {\n" + 
-		"    System.out.println(2);\n" +
+		"  public static <T extends List<?>> void staticFoo(T p) {\n" + 
+		"    System.out.print(2);\n" +
+		"  }\n" +
+		"  public void foo(Collection<?> p) {\n" +
+		"    System.out.print(1);\n" +
+		"  }\n" +
+		"  public <T extends List<?>> void foo(T p) {\n" + 
+		"    System.out.print(2);\n" +
+		"  }\n" +
+		"  public void foo2(Collection<?> p) {\n" +
+		"    System.out.print(1);\n" +
+		"  }\n" +
+		"  public void foo2(List<?> p) {\n" + 
+		"    System.out.print(2);\n" +
 		"  }\n" +
 		"  public static void main(String[] args) {\n" + 
-		"    foo(new ArrayList<String>(Arrays.asList(\"\")));\n" + 
+		"    staticFoo(new ArrayList<String>(Arrays.asList(\"\")));\n" + 
+		"    new X().foo(new ArrayList<String>(Arrays.asList(\"\")));\n" + 
+		"    new X().foo2(new ArrayList<String>(Arrays.asList(\"\")));\n" + 
 		"  }\n" +
 		"}"
 	},
-	"2");
-}	
+	"222");
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159711
 // self contained variant
 public void test024() {

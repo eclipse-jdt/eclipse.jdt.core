@@ -133,16 +133,6 @@ public int dimensions() {
 	return 0;
 }
 
-/**
- * Return this if variable does not participate to its definition, a rawified 
- * type binding else.
- * @param variable the type variable to eliminate
- * @return a type binding that does not use variable
- */
-public TypeBinding eliminateTypeVariable(TypeVariableBinding variable) {
-	return this;
-}
-
 /* Answer the receiver's enclosing type... null if the receiver is a top level type.
  */
 public ReferenceBinding enclosingType() {
@@ -453,16 +443,6 @@ public final boolean isNumericType() {
 	default:
 		return false;
 	}
-}
-
-/**
- * Return true iff variable participates to the definition of this, directly or
- * indirectly (through type parameters, bounds, etc.).
- * @param variable the type variable to search for
- * @return true iff variable participates to the definition of this
- */
-public boolean isReferencing(TypeVariableBinding variable) {
-	return false;
 }
 
 /**

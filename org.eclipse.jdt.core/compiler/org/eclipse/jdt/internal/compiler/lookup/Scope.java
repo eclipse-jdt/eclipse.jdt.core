@@ -2496,13 +2496,23 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			for (int i = 0; i < oneParamsLength; i++) {
 				TypeBinding oneParam = oneParams[i];
 				TypeBinding twoParam = twoParams[i];
-				if (oneParam == twoParam) continue;
-				if (oneParam.isRawType()) {
-					TypeBinding match = oneParam.findSuperTypeWithSameErasure(twoParam);
-					if (match != twoParam)
-						return false;
+				if (oneParam == twoParam) {
+					if (oneParam.leafComponentType().isRawType()) {
+						// A#RAW is not more specific than a rawified A<T>
+						if (oneParam == one.original().parameters[i] && oneParam != two.original().parameters[i])
+							return false;
+					}
+					continue;
 				}
-				if (!oneParam.isCompatibleWith(twoParam)) {
+				if (oneParam.isCompatibleWith(twoParam)) {
+					if (oneParam.leafComponentType().isRawType()) {
+						if (oneParam.needsUncheckedConversion(twoParam))
+							return false;
+						// A#RAW is not more specific than a rawified A<T>
+						if (oneParam == one.original().parameters[i] && twoParam != two.original().parameters[i])
+							return false;
+					}
+				} else {
 					if (i == oneParamsLength - 1 && one.isVarargs() && two.isVarargs()) {
 						TypeBinding eType = ((ArrayBinding) twoParam).elementsType();
 						if (oneParam == eType || oneParam.isCompatibleWith(eType))
