@@ -548,26 +548,24 @@ public char[] getName() {
 	return this.className;
 }
 public char[] getSourceName() {
-	if (this.sourceName != null) 
+	if (this.sourceName != null)
 		return this.sourceName;
-	
-	this.sourceName = getInnerSourceName(); // member or local scenario
-	if (this.sourceName == null) {
-		char[] name = getName(); // extract from full name
+
+	char[] name = getInnerSourceName(); // member or local scenario
+	if (name == null) {
+		name = getName(); // extract from full name
 		int start;
 		if (isAnonymous()) {
-			start = CharOperation.indexOf('$', name, CharOperation.lastIndexOf('/', name) + 1) + 1;			
+			start = CharOperation.indexOf('$', name, CharOperation.lastIndexOf('/', name) + 1) + 1;
 		} else {
-			start = CharOperation.lastIndexOf('/', name) + 1;			
+			start = CharOperation.lastIndexOf('/', name) + 1;
 		}
-		if (start == 0) {
-			this.sourceName = name;
-		} else {
-			this.sourceName = new char[name.length - start];
-			System.arraycopy(name, start, this.sourceName, 0, this.sourceName.length);
-		}	
+		if (start > 0) {
+			name = new char[name.length - start];
+			System.arraycopy(name, start, name, 0, name.length);
+		}
 	}
-	return this.sourceName;	
+	return this.sourceName = name;	
 }
 /**
  * Answer the resolved name of the receiver's superclass in the
