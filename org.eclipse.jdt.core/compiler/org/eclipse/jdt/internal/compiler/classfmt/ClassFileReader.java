@@ -561,8 +561,9 @@ public char[] getSourceName() {
 			start = CharOperation.lastIndexOf('/', name) + 1;
 		}
 		if (start > 0) {
-			name = new char[name.length - start];
-			System.arraycopy(name, start, name, 0, name.length);
+			char[] newName = new char[name.length - start];
+			System.arraycopy(name, start, newName, 0, newName.length);
+			name = newName;
 		}
 	}
 	return this.sourceName = name;	
