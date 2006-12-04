@@ -29,7 +29,6 @@ public class CompilerToolTests extends TestCase {
 	public static TestSuite suite() {
 		TestSuite suite = new TestSuite();
 		suite.addTest(new CompilerToolTests("testInitializeJavaCompiler"));
-		suite.addTest(new CompilerToolTests("testCheckPresence"));
 		suite.addTest(new CompilerToolTests("testCheckOptions"));
 		suite.addTest(new CompilerToolTests("testCleanUp"));
 		return suite;
@@ -93,7 +92,7 @@ public class CompilerToolTests extends TestCase {
 	 * Initialize the compiler for all the tests
 	 */
 	public void testInitializeJavaCompiler() {
-		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);
+		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);//, EclipseCompiler.class.getClassLoader());
 		int compilerCounter = 0;
 		for (JavaCompiler javaCompiler : javaCompilerLoader) {
 			compilerCounter++;
@@ -103,13 +102,9 @@ public class CompilerToolTests extends TestCase {
 	     }
 		assertEquals("Only one compiler available", 1, compilerCounter);
 	}
-	
-	public void testCheckPresence() {
-		// test that the service provided by org.eclipse.jdt.compiler.tool is there
-		assertNotNull("No compiler found", Compiler);
-	}
-	
+
 	public void testCheckOptions() {
+		assertNotNull("No compiler found", Compiler);
 		for (String option : ONE_ARG_OPTIONS) {
 			assertEquals(option + " requires 1 argument", 1, Compiler.isSupportedOption(option));
 		}

@@ -21,11 +21,9 @@
 
 	<!-- This target defines the tests that need to be run. -->
 	<target name="suite">
-		<!-- Java Model tests -->
 		<property name="jdt-compiler-tool-folder" value="${eclipse-home}/jdt_compiler_tool_folder" />
 		<delete dir="${jdt-compiler-tool-folder}" quiet="true" />
 		<ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
-			<!-- Use a subdir 'data' so that the JCL jars are put in jdt-model-folder and are deleted at the end of the tests. -->
 			<property name="data-dir" value="${jdt-compiler-tool-folder}/data" />
 			<property name="plugin-name" value="${plugin-name}" />
 			<property name="classname" value="org.eclipse.jdt.compiler.tool.tests.AllTests" />
