@@ -413,7 +413,8 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 
 					OutputStream openOutputStream = javaFileForOutput.openOutputStream();
 					BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(openOutputStream);
-					bufferedOutputStream.write(classFile.getBytes());
+					bufferedOutputStream.write(classFile.header, 0, classFile.headerOffset);
+					bufferedOutputStream.write(classFile.contents, 0, classFile.contentsOffset);
 					bufferedOutputStream.flush();
 					bufferedOutputStream.close();
 				} catch (IOException e) {

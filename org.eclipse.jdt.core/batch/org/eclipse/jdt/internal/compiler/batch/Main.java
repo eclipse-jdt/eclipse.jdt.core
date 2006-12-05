@@ -326,7 +326,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				} catch (IOException e) {
 					this.logNoClassFileCreated(outputPath, relativeFileName, e);
 				}
-			}	
+			}
 		}
 		public void logClasspath(FileSystem.Classpath[] classpaths) {
 			if (classpaths == null) return;
@@ -1095,7 +1095,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		System.arraycopy(arguments, 0, arguments = new String[count], 0, count);
 		return arguments;
 	}
-	Compiler batchCompiler;
+	protected Compiler batchCompiler;
 	/* Bundle containing messages */
 	public ResourceBundle bundle;
 		protected FileSystem.Classpath[] checkedClasspaths;
@@ -1132,7 +1132,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public int maxProblems;
 	public boolean noWarn = false;
 	public Map options;
-	PrintWriter out;
+	protected PrintWriter out;
 	public boolean proceed = true;
 	public boolean proceedOnError = false;
 	public boolean produceRefInfo = false;
@@ -1683,11 +1683,108 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 		throw new InvalidInputException(this.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 	}
 }
+/*
+ * External API
+ */
+protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customEncoding) throws InvalidInputException {
+ 	final int bootclasspathsSize = bootclasspaths == null ? 0 : bootclasspaths.size();
+	if (bootclasspathsSize != 0) {
+		String[] paths = new String[bootclasspathsSize];
+		bootclasspaths.toArray(paths);
+		bootclasspaths.clear();
+		for (int i = 0; i < bootclasspathsSize; i++) {
+			processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, 
+				paths[i], customEncoding, false, true);
+		}
+	} else {
+	 	final File javaHome = getJavaHome();
+	 	bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		/* no bootclasspath specified
+		 * we can try to retrieve the default librairies of the VM used to run
+		 * the batch compiler
+		 */
+		 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
+		 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
+			this.logger.logWrongJDK();
+			this.proceed = false;
+			return null;
+		 }
 
+	 	/*
+	 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
+	 	 */
+	 	 if (javaHome != null) {
+			File[] directoriesToCheck = null;
+			if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
+				directoriesToCheck = new File[] {
+					new File(javaHome, "../Classes"), //$NON-NLS-1$
+				};
+			} else {
+				directoriesToCheck = new File[] { 
+					new File(javaHome, "lib") //$NON-NLS-1$
+				};
+			}
+			File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
+			if (systemLibrariesJars != null) {
+				for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
+					File[] current = systemLibrariesJars[i];
+					if (current != null) {
+						for (int j = 0, max2 = current.length; j < max2; j++) {
+							FileSystem.Classpath classpath = 
+								FileSystem.getClasspath(current[j].getAbsolutePath(),
+									null, false, null, null); 
+							if (classpath != null) {
+								bootclasspaths.add(classpath);
+							}
+						}
+					}
+				}
+			}
+ 		}
+	}
+	return bootclasspaths;
+}
+/*
+ * External API
+ */
+protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding) throws InvalidInputException {
+	final int classpathsSize = classpaths == null ? 0 : classpaths.size();
+	if (classpathsSize != 0) {
+		String[] paths = new String[classpathsSize];
+		classpaths.toArray(paths);
+		classpaths.clear();
+		for (int i = 0; i < classpathsSize; i++) {
+			processPathEntries(DEFAULT_SIZE_CLASSPATH, classpaths, paths[i], 
+					customEncoding, false, true);
+		}
+	} else {
+		// no user classpath specified.
+		classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
+		if ((classProp == null) || (classProp.length() == 0)) {
+			this.logger.logNoClasspath();
+			classpaths.add(FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null));//$NON-NLS-1$
+		} else {
+			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
+			String token;
+			while (tokenizer.hasMoreTokens()) {
+				token = tokenizer.nextToken();
+				FileSystem.Classpath currentClasspath = FileSystem
+						.getClasspath(token, customEncoding, null);
+				if (currentClasspath != null) {
+					classpaths.add(currentClasspath);
+				} else if (token.length() != 0) {
+					this.logger.logIncorrectClasspath(token);
+				}
+			}
+		}
+	}
+	return classpaths;
+}
 /*
  * External API
  * Handle extdirs processing
-*/
+ */
 protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
  	final File javaHome = getJavaHome();
 
@@ -3189,91 +3286,12 @@ protected void setPaths(ArrayList bootclasspaths,
 		ArrayList extdirsClasspaths,
 		ArrayList endorsedDirClasspaths,
 		String customEncoding) throws InvalidInputException {
+	
 	// process bootclasspath, classpath and sourcepaths
- 	final File javaHome = getJavaHome();
- 	final int bootclasspathsSize = bootclasspaths.size();
-	if (bootclasspathsSize != 0) {
-		String[] paths = new String[bootclasspathsSize];
-		bootclasspaths.toArray(paths);
-		bootclasspaths.clear();
-		for (int i = 0; i < bootclasspathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, bootclasspaths, 
-				paths[i], customEncoding, false, true);
-		}
-	} else {
-		/* no bootclasspath specified
-		 * we can try to retrieve the default librairies of the VM used to run
-		 * the batch compiler
-		 */
-		 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
-		 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
-			this.logger.logWrongJDK();
-			this.proceed = false;
-			return;
-		 }
+ 	bootclasspaths = handleBootclasspath(bootclasspaths, customEncoding);
 
-	 	/*
-	 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
-	 	 */
-	 	 if (javaHome != null) {
-			File[] directoriesToCheck = null;
-			if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
-				directoriesToCheck = new File[] {
-					new File(javaHome, "../Classes"), //$NON-NLS-1$
-				};
-			} else {
-				directoriesToCheck = new File[] { 
-					new File(javaHome, "lib") //$NON-NLS-1$
-				};
-			}
-			File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
-			if (systemLibrariesJars != null) {
-				for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
-					File[] current = systemLibrariesJars[i];
-					if (current != null) {
-						for (int j = 0, max2 = current.length; j < max2; j++) {
-							FileSystem.Classpath classpath = 
-								FileSystem.getClasspath(current[j].getAbsolutePath(),
-									null, false, null, null); 
-							if (classpath != null) {
-								bootclasspaths.add(classpath);
-							}
-						}
-					}
-				}
-			}
- 		}
-	}
-	final int classpathsSize = classpaths.size();
-	if (classpaths.size() != 0) {
-		String[] paths = new String[classpathsSize];
-		classpaths.toArray(paths);
-		classpaths.clear();
-		for (int i = 0; i < classpathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, classpaths, paths[i], 
-					customEncoding, false, true);
-		}			
-	} else {
-		// no user classpath specified.
-		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
-		if ((classProp == null) || (classProp.length() == 0)) {
-			this.logger.logNoClasspath();
-			classpaths.add(FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null));//$NON-NLS-1$
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
-			String token;
-			while (tokenizer.hasMoreTokens()) {
-				token = tokenizer.nextToken();
-				FileSystem.Classpath currentClasspath = FileSystem
-						.getClasspath(token, customEncoding, null);
-				if (currentClasspath != null) {
-					classpaths.add(currentClasspath);
-				} else if (token.length() != 0) {
-					this.logger.logIncorrectClasspath(token);
-				}
-			}
-		}
-	}
+	classpaths = handleClasspath(classpaths, customEncoding);
+	
 	if (sourcepathClasspathArg != null) {
 		processPathEntries(DEFAULT_SIZE_CLASSPATH, sourcepathClasspaths, 
 			sourcepathClasspathArg, customEncoding, true, false);
