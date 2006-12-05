@@ -1121,6 +1121,44 @@ public void test036() {
 			"----------\n");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
+public void _test037() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    if (false) {\n" + 
+			"      String s;\n" + 
+			"      System.out.println(s);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	System.out.println(s);\n" + 
+		"	                   ^\n" + 
+		"The local variable s may not have been initialized\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
+// variant: the declaration is outside of the fake reachable block
+public void test038() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    String s;\n" + 
+			"    if (false) {\n" + 
+			"      System.out.println(s);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
