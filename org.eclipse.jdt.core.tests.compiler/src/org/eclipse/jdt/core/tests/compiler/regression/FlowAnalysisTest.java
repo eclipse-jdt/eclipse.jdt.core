@@ -1122,7 +1122,7 @@ public void test036() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
-public void _test037() {
+public void test037() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1158,6 +1158,93 @@ public void test038() {
 			"}"
 		},
 		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
+// variant with deeper nesting
+public void test039() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    if (false) {\n" + 
+			"      String s;\n" + 
+			"      if (System.out != null) {\n" +
+			"        System.out.println(s);\n" +
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	System.out.println(s);\n" + 
+		"	                   ^\n" + 
+		"The local variable s may not have been initialized\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
+// variant - checking duplicate initialization of final variables
+public void test040() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    final String s = \"\";\n" + 
+			"    if (false) {\n" + 
+			"      s = \"\";\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	s = \"\";\n" + 
+		"	^\n" + 
+		"The final local variable s cannot be assigned. It must be blank and not using a compound assignment\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
+// variant - checking duplicate initialization of final variables
+public void test041() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    final String s;\n" + 
+			"    s = \"\";\n" + 
+			"    if (false) {\n" + 
+			"      s = \"\";\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166641
+// variant - checking duplicate initialization of final variables
+public void test042() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    final String s;\n" + 
+			"    if (false) {\n" + 
+			"      s = \"\";\n" + 
+			"    }\n" + 
+			"    s = \"\";\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	s = \"\";\n" + 
+		"	^\n" + 
+		"The final local variable s may already have been assigned\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;
