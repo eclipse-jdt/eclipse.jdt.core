@@ -347,7 +347,7 @@ public class ClassFile
     	if (generatePackagesStructure) {
     		output = new BufferedOutputStream(
     			new FileOutputStream(
-    					new File(buildAllDirectoriesInto(outputPath, relativeFileName))));
+    				new File(buildAllDirectoriesInto(outputPath, relativeFileName))));
     	} else {
     		String fileName = null;
     		char fileSeparatorChar = File.separatorChar;
