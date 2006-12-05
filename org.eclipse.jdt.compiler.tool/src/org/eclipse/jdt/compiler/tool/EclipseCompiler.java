@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,8 +22,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.Processor;
@@ -36,21 +39,28 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.Messages;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 /**
  * Implementation of a batch compiler that supports the jsr199
  */
 public class EclipseCompiler extends Main implements JavaCompiler {
 
+	private HashMap<CompilationUnit, JavaFileObject> javaFileObjectMap;
 	private static Set<SourceVersion> SupportedSourceVersions;
 	static {
 		// Eclipse compiler supports all possible versions from version 0 to
@@ -85,6 +95,13 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 				// request compilation
 				performCompilation();
 			}
+			try {
+				if (this.fileManager != null) {
+					this.fileManager.flush();
+				}
+			} catch (IOException e) {
+				// ignore
+			}
 		} catch (InvalidInputException e) {
 			this.logger.logException(e);
 			if (this.systemExitWhenFinished) {
@@ -115,19 +132,21 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 			}
 			String name = javaFileObject.getName();
 			name = name.replace('\\', '/');
-			int index = name.lastIndexOf('/');
-			units.add(new CompilationUnit(null,
-				index == -1 ? name : name.substring(index),
+			CompilationUnit compilationUnit = new CompilationUnit(null,
+				name,
 				null) {
 				
 				public char[] getContents() {
 					try {
 						return javaFileObject.getCharContent(true).toString().toCharArray();
 					} catch(IOException e) {
+						e.printStackTrace();
 						throw new AbortCompilationUnit(null, e, null);
 					}
 				}				
-			});
+			};
+			units.add(compilationUnit);
+			this.javaFileObjectMap.put(compilationUnit, javaFileObject);
 		}
 		CompilationUnit[] result = new CompilationUnit[units.size()];
 		units.toArray(result);
@@ -267,7 +286,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		this.fileManager = fileManager;
 
 		this.initialize(writerOut, writerErr, false);
-		
+
 		for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
 			fileManager.handleOption(iterator.next(), iterator);
 		}
@@ -290,7 +309,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		} catch (InvalidInputException e) {
 			throw new RuntimeException(e);
 		}
-		
+
 		if (this.fileManager instanceof StandardJavaFileManager) {
 			StandardJavaFileManager javaFileManager = (StandardJavaFileManager) this.fileManager;
 
@@ -301,9 +320,15 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		}
 
 		return new CompilationTask() {
+			private boolean hasRun = false;
     		public Boolean call() {
     			// set up compiler with passed options
-    			return EclipseCompiler.this.call() ? Boolean.TRUE : Boolean.FALSE;
+    			if (this.hasRun) {
+    				throw new IllegalStateException("This task has already been run"); //$NON-NLS-1$
+    			}
+    			Boolean value = EclipseCompiler.this.call() ? Boolean.TRUE : Boolean.FALSE;
+    			this.hasRun = true;
+				return value;
     		}
     		public void setLocale(Locale locale) {
     			EclipseCompiler.this.setLocale(locale);
@@ -314,6 +339,13 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		};
 	}
 
+    @Override
+    protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions) {
+    	// TODO Auto-generated method stub
+    	super.initialize(outWriter, errWriter, systemExit, customDefaultOptions);
+		this.javaFileObjectMap = new HashMap<CompilationUnit, JavaFileObject>();
+    }
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -321,6 +353,81 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	 */
 	public int isSupportedOption(String option) {
 		return Options.processOptions(option);
+	}
+
+	// Dump classfiles onto disk for all compilation units that where successful
+	// and do not carry a -d none spec, either directly or inherited from Main.
+	public void outputClassFiles(CompilationResult unitResult) {
+		if (!((unitResult == null) || (unitResult.hasErrors() && !this.proceedOnError))) {
+			ClassFile[] classFiles = unitResult.getClassFiles();
+			boolean generateClasspathStructure = this.fileManager.hasLocation(StandardLocation.CLASS_OUTPUT);
+			String currentDestinationPath = this.destinationPath;
+			File outputLocation = null;
+			if (currentDestinationPath != null) {
+				outputLocation = new File(currentDestinationPath);
+				outputLocation.mkdirs();
+			}
+			for (int i = 0, fileCount = classFiles.length; i < fileCount; i++) {
+				// retrieve the key and the corresponding classfile
+				ClassFile classFile = classFiles[i];
+				char[] filename = classFile.fileName();
+				int length = filename.length;
+				char[] relativeName = new char[length + 6];
+				System.arraycopy(filename, 0, relativeName, 0, length);
+				System.arraycopy(SuffixConstants.SUFFIX_class, 0, relativeName, length, 6);
+				CharOperation.replace(relativeName, '/', File.separatorChar);
+				String relativeStringName = new String(relativeName);
+				if (this.compilerOptions.verbose) {
+					EclipseCompiler.this.out.println(
+						Messages.bind(
+							Messages.compilation_write,
+							new String[] {
+								String.valueOf(this.exportedClassFilesCounter+1),
+								relativeStringName
+							}));
+				}
+				try {
+					JavaFileObject javaFileForOutput =
+					this.fileManager.getJavaFileForOutput(
+							StandardLocation.CLASS_OUTPUT,
+							new String(filename),
+							JavaFileObject.Kind.CLASS,
+							this.javaFileObjectMap.get(unitResult.compilationUnit));
+
+    				if (generateClasspathStructure) {
+    					if (currentDestinationPath != null) {
+    						int index = CharOperation.lastIndexOf(File.separatorChar, relativeName);
+    						File currentFolder = new File(currentDestinationPath, relativeStringName.substring(0, index));
+    						currentFolder.mkdirs();
+    					} else {
+        					// create the subfolfers is necessary
+    						// need a way to retrieve the folders to create
+        					String path = javaFileForOutput.toUri().getPath();
+        					int index = path.lastIndexOf('/');
+        					if (index != -1) {
+        						File file = new File(path.substring(0, index));
+        						file.mkdirs();
+        					}
+    					}
+    				}
+
+					OutputStream openOutputStream = javaFileForOutput.openOutputStream();
+					BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(openOutputStream);
+					bufferedOutputStream.write(classFile.getBytes());
+					bufferedOutputStream.flush();
+					bufferedOutputStream.close();
+				} catch (IOException e) {
+					this.logger.logNoClassFileCreated(currentDestinationPath, relativeStringName, e);
+				}
+				LookupEnvironment env = EclipseCompiler.this.batchCompiler.lookupEnvironment;
+				if (classFile.isShared) env.classFilePool.release(classFile);
+				this.logger.logClassFile(
+					generateClasspathStructure,
+					currentDestinationPath,
+					relativeStringName);
+				this.exportedClassFilesCounter++;
+			}
+		}
 	}
 
 	/*
@@ -345,44 +452,68 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 			String customEncoding) throws InvalidInputException {
 
 		ArrayList<FileSystem.Classpath> fileSystemClasspaths = new ArrayList<FileSystem.Classpath>();
+		EclipseFileManager javaFileManager = null;
+		StandardJavaFileManager standardJavaFileManager = null;
 		if (this.fileManager instanceof EclipseFileManager) {
-			EclipseFileManager javaFileManager = (EclipseFileManager) this.fileManager;
+			javaFileManager = (EclipseFileManager) this.fileManager;
+		}
+		if (this.fileManager instanceof StandardJavaFileManager) {
+			standardJavaFileManager = (StandardJavaFileManager) this.fileManager;
+		}
 
+		if (javaFileManager != null) {
 			if ((javaFileManager.flags & EclipseFileManager.HAS_ENDORSED_DIRS) == 0
 					&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
 				fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleEndorseddirs(null));
 			}
-			Iterable<? extends File> location = javaFileManager.getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-			if (location != null) {
-				for (File file : location) {
-					fileSystemClasspaths.add(FileSystem.getClasspath(
-	    				file.getAbsolutePath(),
-	    				null,
-	    				null));
-				}
+		}
+		Iterable<? extends File> location = null;
+		if (standardJavaFileManager != null) {
+			location = standardJavaFileManager.getLocation(StandardLocation.PLATFORM_CLASS_PATH);
+		}
+		if (location != null) {
+			for (File file : location) {
+				fileSystemClasspaths.add(FileSystem.getClasspath(
+    				file.getAbsolutePath(),
+    				null,
+    				null));
 			}
-			if ((javaFileManager.flags & EclipseFileManager.HAS_EXT_DIRS) == 0
-					&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
-				fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleExtdirs(null));
+		}
+		if (javaFileManager != null) {
+    		if ((javaFileManager.flags & EclipseFileManager.HAS_EXT_DIRS) == 0
+    				&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
+    			fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleExtdirs(null));
+    		}
+		}
+		if (standardJavaFileManager != null) {
+			location = standardJavaFileManager.getLocation(StandardLocation.SOURCE_PATH);
+		} else {
+			location = null;
+		}
+		if (location != null) {
+			for (File file : location) {
+				fileSystemClasspaths.add(FileSystem.getClasspath(
+    				file.getAbsolutePath(),
+    				null,
+    				null));
 			}
-			location = javaFileManager.getLocation(StandardLocation.SOURCE_PATH);
-			if (location != null) {
-				for (File file : location) {
-					fileSystemClasspaths.add(FileSystem.getClasspath(
-	    				file.getAbsolutePath(),
-	    				null,
-	    				null));
-				}
+		}
+		if (standardJavaFileManager != null) {
+			location = standardJavaFileManager.getLocation(StandardLocation.CLASS_PATH);
+		} else {
+			location = null;
+		}
+		if (location != null) {
+			for (File file : location) {
+				fileSystemClasspaths.add(FileSystem.getClasspath(
+    				file.getAbsolutePath(),
+    				null,
+    				null));
 			}
-			location = javaFileManager.getLocation(StandardLocation.CLASS_PATH);
-			if (location != null) {
-				for (File file : location) {
-					fileSystemClasspaths.add(FileSystem.getClasspath(
-	    				file.getAbsolutePath(),
-	    				null,
-	    				null));
-				}
-			}
+		}
+		if (this.checkedClasspaths == null) {
+			fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleBootclasspath(null, null));
+			fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleClasspath(null, null));
 		}
 		final int size = fileSystemClasspaths.size();
 		if (size != 0) {

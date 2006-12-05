@@ -13,6 +13,8 @@ package org.eclipse.jdt.compiler.tool;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
@@ -116,9 +118,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	public void close() throws IOException {
 		this.locations = null;
 		for (Archive archive : archivesCache.values()) {
-			if (archive.file == null) {
-				System.out.println(archive == Archive.UNKNOWN_ARCHIVE);
-			}
 			archive.close();
 		}
 	}
@@ -207,7 +206,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 * @see javax.tools.JavaFileManager#flush()
 	 */
 	public void flush() throws IOException {
-		this.locations = null;
 		for (Archive archive : archivesCache.values()) {
 			archive.flush();
 		}
@@ -473,7 +471,40 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 		Iterable<? extends File> files = getLocation(location);
 		if (files == null) {
-			throw new IllegalArgumentException("Unknown location : " + location);//$NON-NLS-1$
+			if (!location.equals(StandardLocation.CLASS_OUTPUT))
+				throw new IllegalArgumentException("Unknown location : " + location);//$NON-NLS-1$
+			// we will use either the sibling or user.dir
+			if (sibling != null) {
+				String normalizedFileName = normalized(className);
+				int index = normalizedFileName.lastIndexOf('/');
+				if (index != -1) {
+					normalizedFileName = normalizedFileName.substring(index + 1);
+				}
+				normalizedFileName += kind.extension;
+				URI uri = sibling.toUri();
+				URI uri2 = null;
+				try {
+					String path = uri.getPath();
+					index = path.lastIndexOf('/');
+					if (index != -1) {
+						path = path.substring(0, index + 1);
+						path += normalizedFileName;
+					}
+					uri2 = new URI(uri.getScheme(), uri.getHost(), path, uri.getFragment());
+				} catch (URISyntaxException e) {
+					throw new IllegalArgumentException("invalid sibling");//$NON-NLS-1$
+				}
+				return new EclipseFileObject(className, uri2, kind, this.charset);
+			} else {
+				String normalizedFileName = normalized(className);
+				int index = normalizedFileName.lastIndexOf('/');
+				if (index != -1) {
+					normalizedFileName = normalizedFileName.substring(index + 1);
+				}
+				normalizedFileName += kind.extension;
+				File f = new File(System.getProperty("user.dir"), normalizedFileName);//$NON-NLS-1$
+				return new EclipseFileObject(className, f.toURI(), kind, this.charset);
+			}
 		}
 		final Iterator<? extends File> iterator = files.iterator();
 		if (iterator.hasNext()) {
@@ -542,6 +573,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 * @see javax.tools.StandardJavaFileManager#getLocation(javax.tools.JavaFileManager.Location)
 	 */
 	public Iterable<? extends File> getLocation(Location location) {
+		if (this.locations == null) return null;
 		return this.locations.get(location.getName());
 	}
 
@@ -685,7 +717,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 * @see javax.tools.JavaFileManager#hasLocation(javax.tools.JavaFileManager.Location)
 	 */
 	public boolean hasLocation(Location location) {
-		return this.locations.containsKey(location.getName());
+		return this.locations != null && this.locations.containsKey(location.getName());
 	}
 
 	/* (non-Javadoc)
