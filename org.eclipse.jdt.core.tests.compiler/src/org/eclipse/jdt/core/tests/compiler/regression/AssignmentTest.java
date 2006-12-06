@@ -935,6 +935,60 @@ public void test045() {
 		"The assignment to variable length3 has no effect\n" + 
 		"----------\n");
 }
+// switch and definite assignment
+public void test046() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public abstract class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    for (int i = 0; i < 3; i++) {\n" + 
+			"      System.out.print(i);\n" + 
+			"      switch (i) {\n" + 
+			"        case 1:\n" + 
+			"          final int j;\n" + 
+			"          j = 1;\n" + 
+			"          System.out.println(j);\n" + 
+			"          break;\n" + 
+			"        case 2:\n" + 
+			"          j = 2;\n" + 
+			"          System.out.println(j);\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"011\n22");
+}
+// switch and definite assignment
+public void test047() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public abstract class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    for (int i = 0; i < 3; i++) {\n" + 
+			"      System.out.print(i);\n" + 
+			"      switch (i) {\n" + 
+			"        case 1:\n" + 
+			"          final int j = 1;\n" + 
+			"          System.out.println(j);\n" + 
+			"          break;\n" + 
+			"        case 2:\n" + 
+			"          j = 2;\n" + 
+			"          System.out.println(j);\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	j = 2;\n" + 
+		"	^\n" + 
+		"The final local variable j cannot be assigned. It must be blank and not using a compound assignment\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }
