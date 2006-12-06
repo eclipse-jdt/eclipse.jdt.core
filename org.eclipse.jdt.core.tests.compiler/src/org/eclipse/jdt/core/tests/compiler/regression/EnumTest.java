@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 134 };
+//		TESTS_NUMBERS = new int[] { 143 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -5000,5 +5000,27 @@ public void test142() {
     			"}\n", // =================
      },
      "Monday Tuesday Wednesday Thursday Friday Saturday Sunday Monday Tuesday Wednesday Thursday Friday");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=166866
+public void test143() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"  A {\n" + 
+				"    @Override\n" + 
+				"    public String toString() {\n" + 
+				"      return a();\n" + 
+				"    }\n" + 
+				"    public abstract String a();\n" + 
+				"  }\n" + 
+				"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	public abstract String a();\n" + 
+		"	                       ^^^\n" + 
+		"The abstract method a in type new X(){} can only be defined by an abstract class\n" + 
+		"----------\n");
 }
 }
