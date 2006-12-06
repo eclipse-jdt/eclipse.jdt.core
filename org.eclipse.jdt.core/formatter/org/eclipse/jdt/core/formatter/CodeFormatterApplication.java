@@ -23,7 +23,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import org.eclipse.core.runtime.IPlatformRunnable;
+import org.eclipse.equinox.app.IApplication;
+import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jface.text.BadLocationException;
@@ -45,7 +46,7 @@ import org.eclipse.text.edits.TextEdit;
  * @author Ben Konrath <bkonrath@redhat.com>
  * @since 3.2
  */
-public class CodeFormatterApplication implements IPlatformRunnable {
+public class CodeFormatterApplication implements IApplication {
 
 	/**
 	 * Deals with the messages in the properties file (cut n' pasted from a
@@ -245,7 +246,7 @@ public class CodeFormatterApplication implements IPlatformRunnable {
 	private File[] processCommandLine(String[] argsArray) {
 
 		ArrayList args = new ArrayList();
-		for (int i = 0; i < argsArray.length; i++) {
+		for (int i = 0, max = argsArray.length; i < max; i++) {
 			args.add(argsArray[i]);
 		}
 		int index = 0;
@@ -267,7 +268,7 @@ public class CodeFormatterApplication implements IPlatformRunnable {
 				case DEFAULT_MODE :
 					if (PDE_LAUNCH.equals(currentArg)) {
 						continue loop;
-					}			
+					}
 					if (ARG_HELP.equals(currentArg)) {
 						displayHelp();
 						return null;				
@@ -294,7 +295,7 @@ public class CodeFormatterApplication implements IPlatformRunnable {
 					} else {
 						displayHelp(Messages.bind(Messages.CommandLineErrorFile, currentArg));
 						return null;
-					}	
+					}
 					break;
 				case CONFIG_MODE :
 					this.configName = currentArg;
@@ -358,11 +359,11 @@ public class CodeFormatterApplication implements IPlatformRunnable {
 	/**
 	 * Runs the Java code formatter application
 	 */
-	public Object run(Object args) throws Exception {
-		File[] filesToFormat = processCommandLine((String[]) args);
+	public Object start(IApplicationContext context) throws Exception {
+		File[] filesToFormat = processCommandLine((String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS));
 
 		if (filesToFormat == null) {
-			return EXIT_OK;
+			return IApplication.EXIT_OK;
 		}
 
 		if (!this.quiet) {
@@ -386,7 +387,9 @@ public class CodeFormatterApplication implements IPlatformRunnable {
 			System.out.println(Messages.bind(Messages.CommandLineDone));
 		}
 
-		return EXIT_OK;
+		return IApplication.EXIT_OK;
 	}
-
+	public void stop() {
+		// do nothing
+	}
 }
