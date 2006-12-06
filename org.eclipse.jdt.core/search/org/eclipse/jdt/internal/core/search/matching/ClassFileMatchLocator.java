@@ -241,11 +241,13 @@ boolean matchTypeDeclaration(TypeDeclarationPattern pattern, Object binaryInfo, 
 
 	IBinaryType type = (IBinaryType) binaryInfo;
 	char[] fullyQualifiedTypeName = convertClassFileFormat(type.getName());
-	if (pattern.enclosingTypeNames == null || pattern instanceof QualifiedTypeDeclarationPattern) {
+	boolean qualifiedPattern = pattern instanceof QualifiedTypeDeclarationPattern;
+	if (pattern.enclosingTypeNames == null || qualifiedPattern) {
 		char[] simpleName = (pattern.getMatchMode() == SearchPattern.R_PREFIX_MATCH)
 			? CharOperation.concat(pattern.simpleName, IIndexConstants.ONE_STAR)
 			: pattern.simpleName;
-		if (!checkTypeName(simpleName, pattern.pkg, fullyQualifiedTypeName, pattern.isCaseSensitive(), pattern.isCamelCase())) return false;
+		char[] pkg = qualifiedPattern ? ((QualifiedTypeDeclarationPattern)pattern).qualification : pattern.pkg;
+		if (!checkTypeName(simpleName, pkg, fullyQualifiedTypeName, pattern.isCaseSensitive(), pattern.isCamelCase())) return false;
 	} else {
 		char[] enclosingTypeName = CharOperation.concatWith(pattern.enclosingTypeNames, '.');
 		char[] patternString = pattern.pkg == null

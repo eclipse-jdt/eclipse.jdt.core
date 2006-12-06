@@ -160,6 +160,7 @@ public void setUpSuite() throws Exception {
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b123679.jar", false);
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b140156.jar", false);
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b164791.jar", false);
+	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b166348.jar", false);
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaSearchBugs");
@@ -7760,6 +7761,25 @@ public void testBug164791() throws CoreException {
 		"lib/b164791.jar test.<anonymous> EXACT_MATCH\n" + 
 		"lib/b164791.jar test.<anonymous> EXACT_MATCH",
 		collector
+	);
+}
+
+/**
+ * @bug 166348: [search] Stack trace console resolves wrong source
+ * @test Ensure that only type with same qualification is found in class files
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=166348"
+ */
+public void testBug166348() throws CoreException {
+	search("Test166348", TYPE, DECLARATIONS);
+	assertSearchResults(
+		"lib/b166348.jar pack.Test166348 [No source] EXACT_MATCH\n" + 
+		"lib/b166348.jar test.Test166348 [No source] EXACT_MATCH"
+	);
+}
+public void testBug166348_Qualified() throws CoreException {
+	search("test.Test166348", TYPE, DECLARATIONS);
+	assertSearchResults(
+		"lib/b166348.jar test.Test166348 [No source] EXACT_MATCH"
 	);
 }
 }
