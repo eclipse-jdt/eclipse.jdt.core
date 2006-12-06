@@ -4785,4 +4785,26 @@ public void test141() {
 		"Cannot cast from X to Runnable\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=166866
+public void test142() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"  A {\n" + 
+				"    @Override\n" + 
+				"    public String toString() {\n" + 
+				"      return a();\n" + 
+				"    }\n" + 
+				"    public abstract String a();\n" + 
+				"  }\n" + 
+				"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	public abstract String a();\n" + 
+		"	                       ^^^\n" + 
+		"The abstract method a in type new X(){} can only be defined by an abstract class\n" + 
+		"----------\n");
+}
 }
