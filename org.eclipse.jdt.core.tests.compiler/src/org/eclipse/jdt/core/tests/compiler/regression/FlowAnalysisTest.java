@@ -1246,6 +1246,103 @@ public void test042() {
 		"The final local variable s may already have been assigned\n" + 
 		"----------\n");
 }
+// switch and definite assignment
+public void test043() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public abstract class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    for (int i = 0; i < 3; i++) {\n" + 
+			"      System.out.print(i);\n" + 
+			"      switch (i) {\n" + 
+			"        case 1:\n" + 
+			"          final int j;\n" + 
+			"          j = 1;\n" + 
+			"          System.out.println(j);\n" + 
+			"          break;\n" + 
+			"        case 2:\n" + 
+			"          j = 2;\n" + 
+			"          System.out.println(j);\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"011\n22");
+}
+// switch and definite assignment
+public void test044() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public abstract class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    for (int i = 0; i < 3; i++) {\n" + 
+			"      System.out.print(i);\n" + 
+			"      switch (i) {\n" + 
+			"        case 1:\n" + 
+			"          final int j = 1;\n" + 
+			"          System.out.println(j);\n" + 
+			"          break;\n" + 
+			"        case 2:\n" + 
+			"          j = 2;\n" + 
+			"          System.out.println(j);\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	j = 2;\n" + 
+		"	^\n" + 
+		"The final local variable j cannot be assigned. It must be blank and not using a compound assignment\n" + 
+		"----------\n");
+}
+// switch and definite assignment
+// **
+public void test045() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public abstract class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    switch (args.length) {\n" + 
+			"      case 1:\n" + 
+			"        final int j = 1;\n" + 
+			"      case 2:\n" + 
+			"        switch (5) {\n" + 
+			"          case j:\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	case j:\n" + 
+		"	     ^\n" + 
+		"The local variable j may not have been initialized\n" + 
+		"----------\n");
+}
+// for and definite assignment
+// **
+public void test046() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public abstract class X {\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    for (final int i; 0 < (i = 1); i = i + 1) {\n" + 
+			"      System.out.println(i);\n" + 
+			"      break;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"1");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
