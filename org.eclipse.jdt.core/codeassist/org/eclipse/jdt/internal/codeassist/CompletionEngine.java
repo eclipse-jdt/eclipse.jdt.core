@@ -2987,11 +2987,16 @@ public final class CompletionEngine
 					CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 					proposal.setDeclarationSignature(getSignature(receiverType));
 					proposal.setSignature(
-							createMethodSignature(
-									CharOperation.NO_CHAR_CHAR,
-									CharOperation.NO_CHAR_CHAR,
-									CharOperation.concatWith(JAVA_LANG, '.'),
-									OBJECT));
+							this.compilerOptions.sourceLevel > ClassFileConstants.JDK1_4 && receiverType.isArrayType() ?
+									createMethodSignature(
+											CharOperation.NO_CHAR_CHAR,
+											CharOperation.NO_CHAR_CHAR,
+											getSignature(receiverType)) :
+									createMethodSignature(
+											CharOperation.NO_CHAR_CHAR,
+											CharOperation.NO_CHAR_CHAR,
+											CharOperation.concatWith(JAVA_LANG, '.'),
+											OBJECT));
 					//proposal.setOriginalSignature(null);
 					//proposal.setDeclarationPackageName(null);
 					//proposal.setDeclarationTypeName(null);
@@ -7233,6 +7238,21 @@ public final class CompletionEngine
 	}
 	
 	public static char[] createMethodSignature(char[][] parameterPackageNames, char[][] parameterTypeNames, char[] returnPackagename, char[] returnTypeName) {
+		char[] returnTypeSignature =
+			returnTypeName == null || returnTypeName.length == 0
+			? Signature.createCharArrayTypeSignature(VOID, true)
+			: Signature.createCharArrayTypeSignature(
+					CharOperation.concat(
+							returnPackagename,
+							CharOperation.replaceOnCopy(returnTypeName, '.', '$'), '.'), true);
+		
+		return createMethodSignature(
+				parameterPackageNames,
+				parameterTypeNames,
+				returnTypeSignature);
+	}
+	
+	public static char[] createMethodSignature(char[][] parameterPackageNames, char[][] parameterTypeNames, char[] returnTypeSignature) {
 		char[][] parameterTypeSignature = new char[parameterTypeNames.length][];
 		for (int i = 0; i < parameterTypeSignature.length; i++) {
 			parameterTypeSignature[i] = 
@@ -7241,14 +7261,6 @@ public final class CompletionEngine
 								parameterPackageNames[i],
 								CharOperation.replaceOnCopy(parameterTypeNames[i], '.', '$'), '.'), true);
 		}
-		
-		char[] returnTypeSignature =
-			returnTypeName == null || returnTypeName.length == 0
-			? Signature.createCharArrayTypeSignature(VOID, true)
-			: Signature.createCharArrayTypeSignature(
-					CharOperation.concat(
-							returnPackagename,
-							CharOperation.replaceOnCopy(returnTypeName, '.', '$'), '.'), true);
 			
 		return Signature.createMethodSignature(
 				parameterTypeSignature,
