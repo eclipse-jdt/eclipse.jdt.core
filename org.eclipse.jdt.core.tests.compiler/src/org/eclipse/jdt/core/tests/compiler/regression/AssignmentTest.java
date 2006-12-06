@@ -989,6 +989,31 @@ public void test047() {
 		"The final local variable j cannot be assigned. It must be blank and not using a compound assignment\n" + 
 		"----------\n");
 }
+// switch and definite assignment
+public void test048() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public abstract class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    switch (args.length) {\n" + 
+			"      case 1:\n" + 
+			"        final int j = 1;\n" + 
+			"      case 2:\n" + 
+			"        switch (5) {\n" + 
+			"          case j:\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	case j:\n" + 
+		"	     ^\n" + 
+		"The local variable j may not have been initialized\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }
