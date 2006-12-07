@@ -1561,6 +1561,7 @@ public void test103_missing_required_binaries() throws JavaModelException {
 	IPath y = env.addClass(root3, "", "Y",
 		"public class Y {\n" +
 		"  X m = new X() {};\n" +
+		"  X n = new X() {};\n" +
 		"}\n"
 		);
 
