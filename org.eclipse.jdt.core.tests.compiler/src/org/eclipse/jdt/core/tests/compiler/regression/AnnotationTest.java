@@ -7129,4 +7129,115 @@ public void test215() {
 			"");
 	}
 }
+// extending java.lang.annotation.Annotation
+public void test216() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"import java.lang.annotation.Annotation;\n" + 
+			"public class X {\n" + 
+			"  void bar(MyConstructor constructor, Class<Ann> ann) {\n" + 
+			"    constructor.getAnnotation(ann).message();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"@interface Ann {\n" + 
+			"  String message();\n" + 
+			"}\n" + 
+			"class MyConstructor<V> {\n" + 
+			"  public <T extends Annotation> T getAnnotation(Class<T> c) { return null; }\n" + 
+			"}\n",
+        },
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	void bar(MyConstructor constructor, Class<Ann> ann) {\n" + 
+		"	         ^^^^^^^^^^^^^\n" + 
+		"MyConstructor is a raw type. References to generic type MyConstructor<V> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	constructor.getAnnotation(ann).message();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method getAnnotation(Class) belongs to the raw type MyConstructor. References to generic type MyConstructor<V> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	constructor.getAnnotation(ann).message();\n" + 
+		"	                               ^^^^^^^\n" + 
+		"The method message() is undefined for the type Annotation\n" + 
+		"----------\n");
+}
+// extending java.lang.annotation.Annotation
+// **
+public void test217() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"import java.lang.annotation.Annotation;\n" + 
+			"public class X {\n" + 
+			"  void bar(MyConstructor constructor, Class<Ann> ann) {\n" + 
+			"    constructor.getAnnotation(ann).message();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"@interface Ann {\n" + 
+			"  String message();\n" + 
+			"}\n" + 
+			"interface Z {\n" + 
+			"  <T extends Annotation> T getAnnotation(Class<T> c);\n" + 
+			"}\n" + 
+			"class MyAccessibleObject implements Z {\n" + 
+			"  public <T extends Annotation> T getAnnotation(Class<T> c) { return null; }\n" + 
+			"}\n" + 
+			"class MyConstructor<V> {\n" + 
+			"  public <T extends Annotation> T getAnnotation(Class<T> c) { return null; }\n" + 
+			"}\n",
+        },
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	void bar(MyConstructor constructor, Class<Ann> ann) {\n" + 
+		"	         ^^^^^^^^^^^^^\n" + 
+		"MyConstructor is a raw type. References to generic type MyConstructor<V> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	constructor.getAnnotation(ann).message();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method getAnnotation(Class) belongs to the raw type MyConstructor. References to generic type MyConstructor<V> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	constructor.getAnnotation(ann).message();\n" + 
+		"	                               ^^^^^^^\n" + 
+		"The method message() is undefined for the type Annotation\n" + 
+		"----------\n");
+}
+// extending java.lang.annotation.Annotation
+// **
+public void test218() {
+    this.runNegativeTest(
+        new String[] {
+            "X.java",
+			"import java.lang.annotation.Annotation;\n" + 
+			"import java.lang.reflect.Constructor;\n" + 
+			"public class X {\n" + 
+			"  void bar(Constructor constructor, Class<Ann> ann) {\n" + 
+			"    constructor.getAnnotation(ann).message();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"@interface Ann {\n" + 
+			"  String message();\n" + 
+			"}\n",
+        },
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	void bar(Constructor constructor, Class<Ann> ann) {\n" + 
+		"	         ^^^^^^^^^^^\n" + 
+		"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	constructor.getAnnotation(ann).message();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method getAnnotation(Class) belongs to the raw type Constructor. References to generic type Constructor<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	constructor.getAnnotation(ann).message();\n" + 
+		"	                               ^^^^^^^\n" + 
+		"The method message() is undefined for the type Annotation\n" + 
+		"----------\n");
+}
 }
