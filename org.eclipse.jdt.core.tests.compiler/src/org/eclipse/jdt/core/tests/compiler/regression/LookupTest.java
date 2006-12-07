@@ -2665,6 +2665,69 @@ public void test078() {
 		"The method getValue() from the type D is not visible\n" + 
 		"----------\n");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166354
+public void _test079() {
+	this.runConformTest(
+		new String[] {
+			"X.java",	//===================
+			"abstract class Y {\n" + 
+			"  private void foo(boolean b) {\n" + 
+			"    System.out.println(\"Y\");\n" + 
+			"    return;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  private void foo(String s) {\n" + 
+			"    System.out.println(\"X\");\n" + 
+			"    return;\n" + 
+			"  }\n" + 
+			"  private class Z extends Y {\n" + 
+			"    public void bar(boolean b) {\n" + 
+			"      foo(\"Flag \" + b);\n" + 
+			"      X.this.foo(\"Flag \" + b);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  Z m = new Z();\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    new X().m.bar(true);\n" + 
+			"  }\n" + 
+			"}", 		// =================
+		},
+		"X\nX");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166354
+// variant
+public void test080() {
+	this.runConformTest(
+		new String[] {
+			"X.java",	//===================
+			"abstract class Y {\n" + 
+			"  private void foo(String s) {\n" + 
+			"    System.out.println(\"Y\");\n" + 
+			"    return;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  private void foo(String s) {\n" + 
+			"    System.out.println(\"X\");\n" + 
+			"    return;\n" + 
+			"  }\n" + 
+			"  private class Z extends Y {\n" + 
+			"    public void bar(boolean b) {\n" + 
+			"      foo(\"Flag \" + b);\n" + 
+			"      X.this.foo(\"Flag \" + b);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  Z m = new Z();\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    new X().m.bar(true);\n" + 
+			"  }\n" + 
+			"}", 		// =================
+		},
+		"X\nX");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }
