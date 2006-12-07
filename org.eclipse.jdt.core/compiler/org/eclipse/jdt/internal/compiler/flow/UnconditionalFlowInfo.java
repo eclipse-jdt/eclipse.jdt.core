@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -608,8 +609,8 @@ final public boolean isDefinitelyAssigned(FieldBinding field) {
 }
 
 final public boolean isDefinitelyAssigned(LocalVariableBinding local) {
-	// do not want to complain in unreachable code
-	if ((this.tagBits & UNREACHABLE) != 0) {
+	// do not want to complain in unreachable code if local declared in reachable code
+	if ((this.tagBits & UNREACHABLE) != 0 && (local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0) {
 		return true;
 	}
 	// final constants are inlined, and thus considered as always initialized
