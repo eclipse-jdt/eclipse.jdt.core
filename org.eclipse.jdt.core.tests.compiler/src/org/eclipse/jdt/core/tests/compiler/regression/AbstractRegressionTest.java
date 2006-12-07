@@ -1275,7 +1275,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					// REVIEW consider enabling all warnings instead? Philippe does not see
 					//        this as ez to use (too many changes in logs)
 					javacCommandLineHeader = cmdLineHeader.toString();
-
+					new File(Util.getOutputDirectory()).mkdirs();
+					// TODO maxime check why this happens to miss in some cases
 					javacFullLogFileName = Util.getOutputDirectory() +	File.separatorChar + 
                     							version.replace(' ', '_') + "_" + 
                     					    (new SimpleDateFormat("yyyyMMdd_HHmmss")).format(new Date()) +
