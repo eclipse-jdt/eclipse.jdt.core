@@ -1466,4 +1466,122 @@ public void test101_class_folder_non_exported() throws JavaModelException {
 			new Problem("", "A cannot be resolved to a type", 
 					c, 31 , 32, CategorizedProblem.CAT_TYPE)});
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=164622
+// see also 103; the buildpath error silences all other errors related to the
+// same type, X
+public void test102_missing_required_binaries() throws JavaModelException {
+
+	IPath p1 = env.addProject("P1");
+	env.addExternalJars(p1, Util.getJavaClassLibs());
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p1, "");
+	IPath root1 = env.addPackageFragmentRoot(p1, "src");
+	env.setOutputFolder(p1, "bin");
+
+	IPath p2 = env.addProject("P2");
+	env.addExternalJars(p2, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(p2, "");
+	IPath root2 = env.addPackageFragmentRoot(p2, "src");
+	env.addRequiredProject(p2, p1);
+	env.setOutputFolder(p2, "bin");
+	
+	IPath p3 = env.addProject("P3");
+	env.addExternalJars(p3, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(p3, "");
+	IPath root3 = env.addPackageFragmentRoot(p3, "src");
+//	env.addRequiredProject(p3, p1); - missing dependency
+	env.addRequiredProject(p3, p2);
+	env.setOutputFolder(p3, "bin");
+	
+	env.addClass(root1, "", "I",
+		"public interface I {\n" +
+		"  void foo();\n" +
+		"}\n"
+		);
+		
+	env.addClass(root2, "", "X",
+		"public abstract class X implements I {\n" +
+		"}\n"
+		);
+
+	IPath y = env.addClass(root3, "", "Y",
+		"public abstract class Y extends X {\n" +
+		"  X m = new X();\n" +  // error
+		"  void bar() {\n" +
+		"    this.m.foo();\n" + // OK
+		"  }\n" +
+		"}\n"
+		);
+
+	try {
+		fullBuild();
+		expectingOnlySpecificProblemsFor(p3, new Problem[]{
+			new Problem("p3", 
+				"The project was not built since its build path is incomplete. Cannot find the class file for I. Fix the build path then try building this project", 
+				p3, -1, -1, CategorizedProblem.CAT_BUILDPATH),
+			new Problem("p3", 
+				"The type I cannot be resolved. It is indirectly referenced from required .class files", 
+				y, 32, 33, CategorizedProblem.CAT_BUILDPATH),
+		});
+	} finally {
+		env.setBuildOrder(null);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=164622
+public void test103_missing_required_binaries() throws JavaModelException {
+
+	IPath p1 = env.addProject("P1");
+	env.addExternalJars(p1, Util.getJavaClassLibs());
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p1, "");
+	IPath root1 = env.addPackageFragmentRoot(p1, "src");
+	env.setOutputFolder(p1, "bin");
+
+	IPath p2 = env.addProject("P2");
+	env.addExternalJars(p2, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(p2, "");
+	IPath root2 = env.addPackageFragmentRoot(p2, "src");
+	env.addRequiredProject(p2, p1);
+	env.setOutputFolder(p2, "bin");
+	
+	IPath p3 = env.addProject("P3");
+	env.addExternalJars(p3, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(p3, "");
+	IPath root3 = env.addPackageFragmentRoot(p3, "src");
+	env.addRequiredProject(p3, p1);
+	env.addRequiredProject(p3, p2);
+	env.setOutputFolder(p3, "bin");
+	
+	env.addClass(root1, "", "I",
+		"public interface I {\n" +
+		"  void foo();\n" +
+		"}\n"
+		);
+		
+	env.addClass(root2, "", "X",
+		"public abstract class X implements I {\n" +
+		"}\n"
+		);
+
+	IPath y = env.addClass(root3, "", "Y",
+		"public abstract class Y extends X {\n" +
+		"  X m = new X();\n" +  // error!
+		"  void bar() {\n" +
+		"    this.m.foo();\n" +
+		"  }\n" +
+		"}\n"
+		);
+
+	try {
+		fullBuild();
+		expectingOnlySpecificProblemsFor(p3, new Problem[]{
+			new Problem("p3", 
+				"Cannot instantiate the type X", 
+				y, 48, 49, CategorizedProblem.CAT_TYPE),
+		});
+	} finally {
+		env.setBuildOrder(null);
+	}
+}
 }
