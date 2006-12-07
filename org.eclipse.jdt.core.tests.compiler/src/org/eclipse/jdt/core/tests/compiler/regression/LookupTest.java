@@ -2667,6 +2667,7 @@ public void test078() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166354
+// **
 public void _test079() {
 	this.runConformTest(
 		new String[] {
