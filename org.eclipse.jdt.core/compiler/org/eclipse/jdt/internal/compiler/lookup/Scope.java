@@ -1564,8 +1564,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					return binding;
 				// answer the problem type binding if we are only looking for a type
 			} else if ((mask & Binding.PACKAGE) != 0) {
-				compilationUnitScope().recordSimpleReference(name);
-				if ((binding = environment().getTopLevelPackage(name)) != null)
+				CompilationUnitScope unitScope = compilationUnitScope();
+				unitScope.recordSimpleReference(name);
+				if ((binding = unitScope.environment.getTopLevelPackage(name)) != null)
 					return binding;
 			}
 			if (problemField != null) return problemField;
@@ -1909,55 +1910,66 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	}
 
 	public final ReferenceBinding getJavaIoSerializable() {
-		compilationUnitScope().recordQualifiedReference(JAVA_IO_SERIALIZABLE);
-		return environment().getResolvedType(JAVA_IO_SERIALIZABLE, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_IO_SERIALIZABLE);
+		return unitScope.environment.getResolvedType(JAVA_IO_SERIALIZABLE, this);
 	}
 	
 	public final ReferenceBinding getJavaLangAnnotationAnnotation() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ANNOTATION_ANNOTATION);
-		return environment().getResolvedType(JAVA_LANG_ANNOTATION_ANNOTATION, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_LANG_ANNOTATION_ANNOTATION);
+		return unitScope.environment.getResolvedType(JAVA_LANG_ANNOTATION_ANNOTATION, this);
 	}
 	
 	public final ReferenceBinding getJavaLangAssertionError() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ASSERTIONERROR);
-		return environment().getResolvedType(JAVA_LANG_ASSERTIONERROR, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_LANG_ASSERTIONERROR);
+		return unitScope.environment.getResolvedType(JAVA_LANG_ASSERTIONERROR, this);
 	}
 
 	public final ReferenceBinding getJavaLangClass() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_CLASS);
-		return environment().getResolvedType(JAVA_LANG_CLASS, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_LANG_CLASS);
+		return unitScope.environment.getResolvedType(JAVA_LANG_CLASS, this);
 	}
 
 	public final ReferenceBinding getJavaLangCloneable() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_CLONEABLE);
-		return environment().getResolvedType(JAVA_LANG_CLONEABLE, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_LANG_CLONEABLE);
+		return unitScope.environment.getResolvedType(JAVA_LANG_CLONEABLE, this);
 	}
 	public final ReferenceBinding getJavaLangEnum() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ENUM);
-		return environment().getResolvedType(JAVA_LANG_ENUM, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_LANG_ENUM);
+		return unitScope.environment.getResolvedType(JAVA_LANG_ENUM, this);
 	}
 
 	public final ReferenceBinding getJavaLangIterable() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ITERABLE);
-		return environment().getResolvedType(JAVA_LANG_ITERABLE, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_LANG_ITERABLE);
+		return unitScope.environment.getResolvedType(JAVA_LANG_ITERABLE, this);
 	}
 	public final ReferenceBinding getJavaLangObject() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_OBJECT);
-		return environment().getResolvedType(JAVA_LANG_OBJECT, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_LANG_OBJECT);
+		return unitScope.environment.getResolvedType(JAVA_LANG_OBJECT, this);
 	}
 
 	public final ReferenceBinding getJavaLangString() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_STRING);
-		return environment().getResolvedType(JAVA_LANG_STRING, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_LANG_STRING);
+		return unitScope.environment.getResolvedType(JAVA_LANG_STRING, this);
 	}
 
 	public final ReferenceBinding getJavaLangThrowable() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_THROWABLE);
-		return environment().getResolvedType(JAVA_LANG_THROWABLE, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_LANG_THROWABLE);
+		return unitScope.environment.getResolvedType(JAVA_LANG_THROWABLE, this);
 	}
 	public final ReferenceBinding getJavaUtilIterator() {
-		compilationUnitScope().recordQualifiedReference(JAVA_UTIL_ITERATOR);
-		return environment().getResolvedType(JAVA_UTIL_ITERATOR, this);
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(JAVA_UTIL_ITERATOR);
+		return unitScope.environment.getResolvedType(JAVA_UTIL_ITERATOR, this);
 	}
 
 	/* Answer the type binding corresponding to the typeName argument, relative to the enclosingType.
