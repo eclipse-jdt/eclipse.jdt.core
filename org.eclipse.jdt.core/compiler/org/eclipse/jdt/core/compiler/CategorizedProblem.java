@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
  * <li> its message description and a predicate to check its severity (warning or error). </li>
  * <li> its ID : a number identifying the very nature of this problem. All possible IDs for standard Java 
  * problems are listed as constants on <code>IProblem</code>, </li>
- * <li> its marker type : a string identfying the problem creator. It corresponds to the marker type
+ * <li> its marker type : a string identifying the problem creator. It corresponds to the marker type
  * chosen if this problem was to be persisted. Standard Java problems are associated to marker
  * type "org.eclipse.jdt.core.problem"), </li>
  * <li> its category ID : a number identifying the category this problem belongs to. All possible IDs for 
@@ -45,6 +45,14 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
  * It is intended that <code>CategorizedProblem</code> will be subclassed for custom problem implementation when
  * participating in compilation operations, so as to allow participant to contribute their own marker types, and thus
  * defining their own domain specific problem/category IDs.
+ * 
+ * Note: standard Java problems produced by Java default tooling will set the
+ * marker IMarker#GENERATED_BY attribute to JavaBuilder#GENERATED_BY; compiler
+ * participants may specify the IMarker#GENERATED_BY attribute of their markers 
+ * by adding it to the extra marker attributes of the problems they generate; 
+ * markers resulting from compiler participants' problems that do not have the
+ * IMarker#GENERATED_BY extra attribute set do not have the IMarker#GENERATED_BY
+ * attribute set either.
  * 
  * @since 3.2
  */

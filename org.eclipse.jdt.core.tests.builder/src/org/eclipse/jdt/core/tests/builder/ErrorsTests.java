@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 
 
 /**
@@ -98,4 +99,96 @@ public class ErrorsTests extends BuilderTests {
 		expectingNoProblems();
 	}
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
+// Checking the GENERATED_BY attribute
+public void test0100() throws JavaModelException {
+	IPath projectPath = env.addProject("Project");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());	
+	env.removePackageFragmentRoot(projectPath, "");
+	IPath root = env.addPackageFragmentRoot(projectPath, "src");
+	IPath classTest1 = env.addClass(root, "p1", "Test1",
+		"package p1;\n" +
+		"public class Test1 extends Test2 {}"
+	);
+	fullBuild();
+	Problem[] prob1 = env.getProblemsFor(classTest1);
+	expectingSpecificProblemFor(classTest1, new Problem("p1", "Test2 cannot be resolved to a type", classTest1, 39, 44, 40));
+	assertEquals(JavaBuilder.GENERATED_BY, prob1[0].getGeneratedBy());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
+// Checking the GENERATED_BY attribute
+public void test0101() throws JavaModelException {
+	IPath projectPath = env.addProject("Project");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());	
+	env.removePackageFragmentRoot(projectPath, "");
+	IPath root = env.addPackageFragmentRoot(projectPath, "src");
+	IPath classTest1 = env.addClass(root, "p1", "Test1",
+		"package p1;\n" +
+		"public class Test1 extends {}"
+	);
+	fullBuild();
+	Problem[] prob1 = env.getProblemsFor(classTest1);
+	expectingSpecificProblemFor(classTest1, new Problem("p1", "Syntax error on token \"extends\", Type expected after this token", classTest1, 31, 38, 20));
+	assertEquals(JavaBuilder.GENERATED_BY, prob1[0].getGeneratedBy());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
+// Checking the GENERATED_BY attribute
+public void test0102() throws JavaModelException {
+	IPath projectPath = env.addProject("Project");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());	
+	env.removePackageFragmentRoot(projectPath, "");
+	IPath root = env.addPackageFragmentRoot(projectPath, "src");
+	IPath classTest1 = env.addClass(root, "p1", "Test1",
+		"package p1;\n" +
+		"public class Test1 {\n" +
+		"  private static int i;\n" +
+		"  int j = i;\n" +
+		"}\n" +
+		"class Test2 {\n" +
+		"  static int i = Test1.i;\n" +
+		"}\n"
+	);
+	fullBuild();
+	Problem[] prob1 = env.getProblemsFor(classTest1);
+	expectingSpecificProblemFor(classTest1, new Problem("p1", "The field Test1.i is not visible", classTest1, 109, 110, 50));
+	assertEquals(JavaBuilder.GENERATED_BY, prob1[0].getGeneratedBy());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
+// Checking the GENERATED_BY attribute
+public void test0103() throws JavaModelException {
+	IPath projectPath = env.addProject("Project");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());	
+	env.removePackageFragmentRoot(projectPath, "");
+	IPath root = env.addPackageFragmentRoot(projectPath, "src");
+	IPath classTest1 = env.addClass(root, "p1", "Test1",
+		"package p1;\n" +
+		"public class Test1 {\n" +
+		"  // TODO: marker only\n" +
+		"}\n"
+	);
+	fullBuild();
+	Problem[] prob1 = env.getProblemsFor(classTest1);
+	expectingSpecificProblemFor(classTest1, new Problem("p1", "TODO : marker only", classTest1, 38, 55, -1));
+	assertEquals(JavaBuilder.GENERATED_BY, prob1[0].getGeneratedBy());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
+// Checking the GENERATED_BY attribute
+public void test0104() throws JavaModelException {
+	IPath projectPath = env.addProject("Project");
+	env.removePackageFragmentRoot(projectPath, "");
+	IPath root = env.addPackageFragmentRoot(projectPath, "src");
+	IPath classTest1 = env.addClass(root, "p1", "Test1",
+		"package p1;\n" +
+		"public class Test1 {}"
+	);
+	fullBuild();
+	Problem[] prob1 = env.getProblemsFor(classTest1);
+	expectingSpecificProblemFor(classTest1, 
+		new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, 0, 1, 10));
+	assertEquals(JavaBuilder.GENERATED_BY, prob1[0].getGeneratedBy());
+}
 }

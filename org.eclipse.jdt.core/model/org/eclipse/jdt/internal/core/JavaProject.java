@@ -64,6 +64,7 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -805,6 +806,7 @@ public class JavaProject
 					IJavaModelMarker.ID,
 					IJavaModelMarker.ARGUMENTS ,
 					IJavaModelMarker.CATEGORY_ID,
+					IMarker.GENERATED_BY,
 				},
 				new Object[] {
 					status.getMessage(),
@@ -814,7 +816,8 @@ public class JavaProject
 					isClasspathFileFormatProblem ? "true" : "false",//$NON-NLS-1$ //$NON-NLS-2$
 					new Integer(status.getCode()),
 					Util.getProblemArgumentsForMarker(arguments) ,
-					new Integer(CategorizedProblem.CAT_BUILDPATH)
+					new Integer(CategorizedProblem.CAT_BUILDPATH),
+					JavaBuilder.GENERATED_BY,
 				}
 			);
 		} catch (CoreException e) {

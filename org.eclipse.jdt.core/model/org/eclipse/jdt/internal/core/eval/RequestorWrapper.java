@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.eval.ICodeSnippetRequestor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.eval.IRequestor;
  
 public class RequestorWrapper implements IRequestor {
@@ -60,6 +61,7 @@ public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int
 		//marker.setAttribute(IMarker.LOCATION, "#" + problem.getSourceLineNumber());
 		marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
 		marker.setAttribute(IMarker.SEVERITY, (problem.isWarning() ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR));
+		marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
 		this.requestor.acceptProblem(marker, new String(fragmentSource), fragmentKind);
 	} catch (CoreException e) {
 		e.printStackTrace();
