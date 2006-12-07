@@ -76,6 +76,35 @@ public void testAbstractMethod() throws JavaModelException {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165900
+public void testAmbiguousMethod1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n" + 
+		"  void foo(Test1 t) {}\n" + 
+		"  void foo(Test2 t) {}\n" + 
+		"  void bar(Object o) {\n" + 
+		"    foo(o);\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class Test1 {\n" + 
+		"}\n" + 
+		"class Test2 {\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo(o)");
+	int length = "foo".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Test1) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			elements
+		);
+}
 /**
  * Resolve an argument name
  */

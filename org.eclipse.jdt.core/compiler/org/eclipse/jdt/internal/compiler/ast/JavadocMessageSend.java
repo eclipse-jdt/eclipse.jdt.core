@@ -120,6 +120,7 @@ public class JavadocMessageSend extends MessageSend {
 				case ProblemReasons.NonStaticReferenceInConstructorInvocation:
 				case ProblemReasons.NonStaticReferenceInStaticContext:
 				case ProblemReasons.InheritedNameHidesEnclosingName : 
+				case ProblemReasons.Ambiguous: 
 					MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
 					if (closestMatch != null) {
 						this.binding = closestMatch; // ignore problem if can reach target method through it
@@ -135,11 +136,7 @@ public class JavadocMessageSend extends MessageSend {
 					return null;
 				}
 			}
-			// do not report ambiguous problems on methods as they can appears only when source level >= 1.5 and they cannot be fixed!
-			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=165794
-			if (this.binding.problemId() != ProblemReasons.Ambiguous) {
-				scope.problemReporter().javadocInvalidMethod(this, this.binding, scope.getDeclarationModifiers());
-			}
+			scope.problemReporter().javadocInvalidMethod(this, this.binding, scope.getDeclarationModifiers());
 			// record the closest match, for clients who may still need hint about possible method match
 			if (this.binding instanceof ProblemMethodBinding) {
 				MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;

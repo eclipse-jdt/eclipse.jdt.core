@@ -312,7 +312,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 				if (visibleField == null)
 					visibleField = field;
 				else
-					return new ProblemFieldBinding(visibleField.declaringClass, fieldName, ProblemReasons.Ambiguous);
+					return new ProblemFieldBinding(visibleField, visibleField.declaringClass, fieldName, ProblemReasons.Ambiguous);
 			} else {
 				notVisible = true;
 			}
@@ -334,7 +334,7 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 						if (visibleField == null) {
 							visibleField = field;
 						} else {
-							ambiguous = new ProblemFieldBinding(visibleField.declaringClass, fieldName, ProblemReasons.Ambiguous);
+							ambiguous = new ProblemFieldBinding(visibleField, visibleField.declaringClass, fieldName, ProblemReasons.Ambiguous);
 							break done;
 						}
 					} else {

@@ -74,22 +74,41 @@ public SelectionRequestor(NameLookup nameLookup, Openable openable) {
 	this.nameLookup = nameLookup;
 	this.openable = openable;
 }
-/**
- * Resolve the binary method
- *
- * fix for 1FWFT6Q
- */
-protected void acceptBinaryMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, char[] uniqueKey, boolean isConstructor) {
-	IMethod method= type.getMethod(new String(selector), parameterSignatures);
-	if (method.exists()) {
-		try {
-			if(!isConstructor || ((JavaElement)method).getSourceMapper() == null) {
-				if (uniqueKey != null)
-					method = new ResolvedBinaryMethod(
+private void acceptBinaryMethod(
+		IType type,
+		IMethod method,
+		char[] uniqueKey,
+		boolean isConstructor) {
+	try {
+		if(!isConstructor || ((JavaElement)method).getSourceMapper() == null) {
+			if (uniqueKey != null) {
+				ResolvedBinaryMethod resolvedMethod = new ResolvedBinaryMethod(
+						(JavaElement)method.getParent(),
+						method.getElementName(),
+						method.getParameterTypes(),
+						new String(uniqueKey));
+				resolvedMethod.occurrenceCount = method.getOccurrenceCount();
+				method = resolvedMethod;
+			}
+				
+			addElement(method);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+				System.out.print(method.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
+		} else {
+			ISourceRange range = method.getSourceRange();
+			if (range.getOffset() != -1 && range.getLength() != 0 ) {
+				if (uniqueKey != null) {
+					ResolvedBinaryMethod resolvedMethod = new ResolvedBinaryMethod(
 							(JavaElement)method.getParent(),
 							method.getElementName(),
 							method.getParameterTypes(),
 							new String(uniqueKey));
+					resolvedMethod.occurrenceCount = method.getOccurrenceCount();
+					method = resolvedMethod;
+				}
 				addElement(method);
 				if(SelectionEngine.DEBUG){
 					System.out.print("SELECTION - accept method("); //$NON-NLS-1$
@@ -97,33 +116,49 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
 					System.out.println(")"); //$NON-NLS-1$
 				}
 			} else {
-				ISourceRange range = method.getSourceRange();
-				if (range.getOffset() != -1 && range.getLength() != 0 ) {
-					if (uniqueKey != null)
-						method = new ResolvedBinaryMethod(
-								(JavaElement)method.getParent(),
-								method.getElementName(),
-								method.getParameterTypes(),
-								new String(uniqueKey));
-					addElement(method);
-					if(SelectionEngine.DEBUG){
-						System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-						System.out.print(method.toString());
-						System.out.println(")"); //$NON-NLS-1$
-					}
-				} else {
-					// no range was actually found, but a method was originally given -> default constructor
-					addElement(type);
-					if(SelectionEngine.DEBUG){
-						System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-						System.out.print(type.toString());
-						System.out.println(")"); //$NON-NLS-1$
-					}
+				// no range was actually found, but a method was originally given -> default constructor
+				addElement(type);
+				if(SelectionEngine.DEBUG){
+					System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+					System.out.print(type.toString());
+					System.out.println(")"); //$NON-NLS-1$
 				}
 			}
-		} catch (JavaModelException e) {
-			// an exception occurs, return nothing
 		}
+	} catch (JavaModelException e) {
+		// an exception occurs, return nothing
+	}
+}
+/**
+ * Resolve the binary method
+ *
+ * fix for 1FWFT6Q
+ */
+protected void acceptBinaryMethod(
+		IType type,
+		char[] selector,
+		char[][] parameterPackageNames,
+		char[][] parameterTypeNames,
+		String[] parameterSignatures,
+		char[][] typeParameterNames,
+		char[][][] typeParameterBoundNames,
+		char[] uniqueKey,
+		boolean isConstructor) {
+	IMethod method= type.getMethod(new String(selector), parameterSignatures);
+	
+	if (method.exists()) {
+		if (typeParameterNames != null && typeParameterNames.length != 0) {
+			IMethod[] methods = type.findMethods(method);
+			if (methods.length > 1) {
+				for (int i = 0; i < methods.length; i++) {
+					if (areTypeParametersCompatible(methods[i], typeParameterNames, typeParameterBoundNames)) {
+						acceptBinaryMethod(type, method, uniqueKey, isConstructor);
+					}
+				}
+				return;
+			}
+		}
+		acceptBinaryMethod(type, method, uniqueKey, isConstructor);
 	}
 }
 /**
@@ -155,9 +190,13 @@ public void acceptType(char[] packageName, char[] typeName, int modifiers, boole
 		if(type != null ) {
 			String key = uniqueKey == null ? type.getKey() : new String(uniqueKey);
 			if(type.isBinary()) {
-				type = new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), key);
+				ResolvedBinaryType resolvedType = new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), key);
+				resolvedType.occurrenceCount = type.getOccurrenceCount();
+				type = resolvedType;
 			} else {
-				type = new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), key);
+				ResolvedSourceType resolvedType = new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), key);
+				resolvedType.occurrenceCount = type.getOccurrenceCount();
+				type = resolvedType;
 			}
 		}
 	}
@@ -214,15 +253,19 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 			if (field.exists()) {
 				if (uniqueKey != null) {
 					if(field.isBinary()) {
-						field = new ResolvedBinaryField(
+						ResolvedBinaryField resolvedField = new ResolvedBinaryField(
 								(JavaElement)field.getParent(),
 								field.getElementName(),
 								new String(uniqueKey));
+						resolvedField.occurrenceCount = field.getOccurrenceCount();
+						field = resolvedField;
 					} else {
-						field = new ResolvedSourceField(
+						ResolvedSourceField resolvedField = new ResolvedSourceField(
 								(JavaElement)field.getParent(),
 								field.getElementName(),
 								new String(uniqueKey));
+						resolvedField.occurrenceCount = field.getOccurrenceCount();
+						field = resolvedField;
 					}
 				}
 				addElement(field);
@@ -250,15 +293,19 @@ public void acceptLocalField(FieldBinding fieldBinding) {
 		if (field.exists()) {
 			char[] uniqueKey = fieldBinding.computeUniqueKey();
 			if(field.isBinary()) {
-				field = new ResolvedBinaryField(
+				ResolvedBinaryField resolvedField = new ResolvedBinaryField(
 						(JavaElement)field.getParent(),
 						field.getElementName(),
 						new String(uniqueKey));
+				resolvedField.occurrenceCount = field.getOccurrenceCount();
+				field = resolvedField;
 			} else {
-				field = new ResolvedSourceField(
+				ResolvedSourceField resolvedField = new ResolvedSourceField(
 						(JavaElement)field.getParent(),
 						field.getElementName(),
 						new String(uniqueKey));
+				resolvedField.occurrenceCount = field.getOccurrenceCount();
+				field = resolvedField;
 			}
 			addElement(field);
 			if(SelectionEngine.DEBUG){
@@ -277,17 +324,21 @@ public void acceptLocalMethod(MethodBinding methodBinding) {
 			
 			char[] uniqueKey = methodBinding.computeUniqueKey();
 			if(method.isBinary()) {
-				res = new ResolvedBinaryMethod(
+				ResolvedBinaryMethod resolvedRes = new ResolvedBinaryMethod(
 						(JavaElement)res.getParent(),
 						method.getElementName(),
 						method.getParameterTypes(), 
 						new String(uniqueKey));
+				resolvedRes.occurrenceCount = method.getOccurrenceCount();
+				res = resolvedRes;
 			} else {
-				res = new ResolvedSourceMethod(
+				ResolvedSourceMethod resolvedRes = new ResolvedSourceMethod(
 						(JavaElement)res.getParent(),
 						method.getElementName(),
 						method.getParameterTypes(), 
 						new String(uniqueKey));
+				resolvedRes.occurrenceCount = method.getOccurrenceCount();
+				res = resolvedRes;
 			}
 			addElement(res);
 			if(SelectionEngine.DEBUG){
@@ -390,7 +441,21 @@ public void acceptLocalVariable(LocalVariableBinding binding) {
 /**
  * Resolve the method
  */
-public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeName, String enclosingDeclaringTypeSignature, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, boolean isDeclaration, char[] uniqueKey, int start, int end) {
+public void acceptMethod(
+		char[] declaringTypePackageName,
+		char[] declaringTypeName,
+		String enclosingDeclaringTypeSignature, 
+		char[] selector,
+		char[][] parameterPackageNames,
+		char[][] parameterTypeNames,
+		String[] parameterSignatures,
+		char[][] typeParameterNames,
+		char[][][] typeParameterBoundNames,
+		boolean isConstructor,
+		boolean isDeclaration,
+		char[] uniqueKey,
+		int start,
+		int end) {
 	IJavaElement[] previousElement = this.elements;
 	int previousElementIndex = this.elementIndex;
 	this.elements = JavaElement.NO_ELEMENTS;
@@ -432,9 +497,9 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 					parameterSignatures[0] = Signature.getTypeErasure(enclosingDeclaringTypeSignature);
 				}
 				
-				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, uniqueKey, isConstructor);
+				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, typeParameterNames, typeParameterBoundNames, uniqueKey, isConstructor);
 			} else {
-				acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, uniqueKey);
+				acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, typeParameterNames, typeParameterBoundNames, uniqueKey);
 			}
 		}
 	}
@@ -469,7 +534,16 @@ public void acceptPackage(char[] packageName) {
  *
  * fix for 1FWFT6Q
  */
-protected void acceptSourceMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, char[] uniqueKey) {
+protected void acceptSourceMethod(
+		IType type,
+		char[] selector,
+		char[][] parameterPackageNames,
+		char[][] parameterTypeNames,
+		String[] parameterSignatures,
+		char[][] typeParameterNames,
+		char[][][] typeParameterBoundNames,
+		char[] uniqueKey) {
+	
 	String name = new String(selector);
 	IMethod[] methods = null;
 	try {
@@ -478,12 +552,15 @@ protected void acceptSourceMethod(IType type, char[] selector, char[][] paramete
 			if (methods[i].getElementName().equals(name)
 					&& methods[i].getParameterTypes().length == parameterTypeNames.length) {
 				IMethod method = methods[i];
-				if (uniqueKey != null)
-					method = new ResolvedSourceMethod(
+				if (uniqueKey != null) {
+					ResolvedSourceMethod resolvedMethod = new ResolvedSourceMethod(
 						(JavaElement)method.getParent(),
 						method.getElementName(),
 						method.getParameterTypes(),
 						new String(uniqueKey));
+					resolvedMethod.occurrenceCount = method.getOccurrenceCount();
+					method = resolvedMethod;
+				}
 				addElement(method);
 			}
 		}
@@ -530,6 +607,11 @@ protected void acceptSourceMethod(IType type, char[] selector, char[][] paramete
 				break;
 			}
 		}
+		
+		if (match && !areTypeParametersCompatible(method, typeParameterNames, typeParameterBoundNames)) {
+			match = false;
+		}
+		
 		if (match) {
 			addElement(method);
 			if(SelectionEngine.DEBUG){
@@ -666,7 +748,45 @@ protected void addElement(IJavaElement element) {
 	}
 	this.elements[++this.elementIndex] = element;
 }
-
+private boolean areTypeParametersCompatible(IMethod method, char[][] typeParameterNames, char[][][] typeParameterBoundNames) {
+	try {
+		ITypeParameter[] typeParameters = method.getTypeParameters();
+		int length1 = typeParameters == null ? 0 : typeParameters.length;
+		int length2 = typeParameterNames == null ? 0 : typeParameterNames.length;
+		if (length1 != length2) {
+			return false;
+		} else {
+			for (int j = 0; j < length1; j++) {
+				ITypeParameter typeParameter = typeParameters[j];
+				String typeParameterName = typeParameter.getElementName();
+				if (!typeParameterName.equals(new String(typeParameterNames[j]))) {
+					return false;
+				}
+				
+				String[] bounds = typeParameter.getBounds();
+				int boundCount = typeParameterBoundNames[j] == null ? 0 : typeParameterBoundNames[j].length;
+				
+				if (bounds.length != boundCount) {
+					return false;
+				} else {
+					for (int k = 0; k < boundCount; k++) {
+						String simpleName = Signature.getSimpleName(bounds[k]);
+						int index = simpleName.indexOf('<');
+						if (index != -1) {
+							simpleName = simpleName.substring(0, index);
+						}
+						if (!simpleName.equals(new String(typeParameterBoundNames[j][k]))) {
+							return false;
+						}
+					}
+				}
+			}
+		}
+	} catch (JavaModelException e) {
+		return false;
+	}
+	return true;
+}
 /*
  * findLocalElement() cannot find local variable
  */

@@ -403,6 +403,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
 		switch (this.binding.problemId()) {
 			case ProblemReasons.Ambiguous :
+				break; // no resilience on ambiguous
 			case ProblemReasons.NotVisible :
 			case ProblemReasons.NonStaticReferenceInConstructorInvocation :
 			case ProblemReasons.NonStaticReferenceInStaticContext :

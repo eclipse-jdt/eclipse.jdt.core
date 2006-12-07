@@ -2285,4 +2285,126 @@ public void test0102() throws CoreException, IOException {
 		deleteProject("P");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165900
+public void test103() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n" + 
+		"  <T extends Test1> void foo(T t) {}\n" + 
+		"  <T extends Test2> void foo(T t) {}\n" + 
+		"  void bar(Object o) {\n" + 
+		"    foo(o);\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class Test1 {\n" + 
+		"}\n" + 
+		"class Test2 {\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo(o)");
+	int length = "foo".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(T) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			elements
+		);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165900
+public void test104() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n" + 
+		"  <T extends Test1> T foo(Test3<T> t) {return null;}\n" + 
+		"  <T extends Test2> T foo(Test3<T> t) {return null;}\n" + 
+		"  void bar(Object o) {\n" + 
+		"    foo(o);\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class Test1 {\n" + 
+		"}\n" + 
+		"class Test2 {\n" + 
+		"}\n" + 
+		"class Test3 <U> {\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo(o)");
+	int length = "foo".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Test3<T>) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			elements
+		);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165900
+public void test105() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n" + 
+		"  <T extends Test1> T foo(Test3<T> t) {return null;}\n" + 
+		"  <T extends Test2> T foo(Test3<T> t) {return null;}\n" + 
+		"  void bar(Test3 o) {\n" + 
+		"    foo(o);\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class Test1 {\n" + 
+		"}\n" + 
+		"class Test2 {\n" + 
+		"}\n" + 
+		"class Test3 <U> {\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo(o)");
+	int length = "foo".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Test3<T>) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			elements
+		);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=165900
+public void test106() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;\n"+
+		"public class Test {\n" + 
+		"  <T extends Test1> T foo(Test3<T> t) {return null;}\n" + 
+		"  <T extends Test2> T foo(Test3<T> t) {return null;}\n" + 
+		"  void bar(Test3<Object> o) {\n" + 
+		"    foo(o);\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class Test1 {\n" + 
+		"}\n" + 
+		"class Test2 {\n" + 
+		"}\n" + 
+		"class Test3 <U> {\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo(o)");
+	int length = "foo".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo(Test3<T>) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			elements
+		);
+}
 }

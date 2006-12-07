@@ -1225,7 +1225,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				if (current instanceof ParameterizedMethodBinding)
 					for (int j = i + 1; j < visiblesCount; j++)
 						if (current.declaringClass == candidates[j].declaringClass && current.areParametersEqual(candidates[j]))
-							return new ProblemMethodBinding(candidates[i].selector, candidates[i].parameters, ProblemReasons.Ambiguous);
+							return new ProblemMethodBinding(candidates[i], candidates[i].selector, candidates[i].parameters, ProblemReasons.Ambiguous);
 			}
 		}
 
@@ -3143,7 +3143,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			return method;
 		}
 		if (problemMethod == null)
-			return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
+			return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
 		return problemMethod;
 	}
 	
@@ -3189,7 +3189,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			return method;
 		}
 		if (problemMethod == null)
-			return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
+			return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
 		return problemMethod;
 	}
 
@@ -3256,7 +3256,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				}
 			}
 		} else if (count == 0) {
-			return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
+			return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
 		}
 
 		// found several methods that are mutually acceptable -> must be equal
@@ -3394,7 +3394,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		}
 
 		// if all moreSpecific methods are equal then see if duplicates exist because of substitution
-		return new ProblemMethodBinding(visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
+		return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
 	}
 
 	public final ClassScope outerMostClassScope() {

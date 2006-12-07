@@ -31,7 +31,7 @@ public ProblemMethodBinding(char[] selector, TypeBinding[] args, ReferenceBindin
 public ProblemMethodBinding(MethodBinding closestMatch, char[] selector, TypeBinding[] args, int problemReason) {
 	this(selector, args, problemReason);
 	this.closestMatch = closestMatch;
-	if (closestMatch != null) this.declaringClass = closestMatch.declaringClass;
+	if (closestMatch != null && problemReason != ProblemReasons.Ambiguous) this.declaringClass = closestMatch.declaringClass;
 }
 /* API
 * Answer the problem id associated with the receiver.

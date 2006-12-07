@@ -980,7 +980,6 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		int[] selectionPositions = selectionInfo(workingCopies[0], "getMax", 1);
 		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
 		assertElementsEqual("Invalid selection(s)",
-			"getMax(A<T>) [in X [in [Working copy] Test.java [in b165794 [in <project root> [in Tests]]]]]\n" + 
 			"getMax(A<T>) [in X [in [Working copy] Test.java [in b165794 [in <project root> [in Tests]]]]]",
 			elements
 		);

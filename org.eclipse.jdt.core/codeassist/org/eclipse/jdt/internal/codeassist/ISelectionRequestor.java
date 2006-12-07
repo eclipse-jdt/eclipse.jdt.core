@@ -160,6 +160,8 @@ public interface ISelectionRequestor {
 		char[][] parameterPackageNames,
 		char[][] parameterTypeNames,
 		String[] parameterSignatures,
+		char[][] typeParameterNames,
+		char[][][] typeParameterBoundNames,
 		boolean isConstructor,
 		boolean isDeclaration,
 		char[] uniqueKey,

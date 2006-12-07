@@ -873,6 +873,31 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						parameterSignatures[i] = new String(getSignature(parameterTypes[i])).replace('/', '.');
 					}
 					
+					TypeVariableBinding[] typeVariables = methodBinding.original().typeVariables;
+					length = typeVariables == null ? 0 : typeVariables.length;
+					char[][] typeParameterNames = new char[length][];
+					char[][][] typeParameterBoundNames = new char[length][][];
+					for (int i = 0; i < length; i++) {
+						TypeVariableBinding typeVariable = typeVariables[i];
+						typeParameterNames[i] = typeVariable.sourceName;
+						if (typeVariable.firstBound == null) {
+							typeParameterBoundNames[i] = new char[0][];
+						} else if (typeVariable.firstBound == typeVariable.superclass) {
+							int boundCount = 1 + (typeVariable.superInterfaces == null ? 0 : typeVariable.superInterfaces.length);
+							typeParameterBoundNames[i] = new char[boundCount][];
+							typeParameterBoundNames[i][0] = typeVariable.superclass.sourceName;
+							for (int j = 1; j < boundCount; j++) {
+								typeParameterBoundNames[i][j] = typeVariables[i].superInterfaces[j - 1].sourceName;
+							}
+						} else {
+							int boundCount = typeVariable.superInterfaces == null ? 0 : typeVariable.superInterfaces.length;
+							typeParameterBoundNames[i] = new char[boundCount][];
+							for (int j = 0; j < boundCount; j++) {
+								typeParameterBoundNames[i][j] = typeVariables[i].superInterfaces[j].sourceName;
+							}
+						}
+					}
+					
 					ReferenceBinding declaringClass = methodBinding.declaringClass;
 					if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
 						((SelectionRequestor)this.requestor).acceptLocalMethod(methodBinding);
@@ -887,6 +912,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							parameterPackageNames,
 							parameterTypeNames,
 							parameterSignatures,
+							typeParameterNames,
+							typeParameterBoundNames,
 							methodBinding.isConstructor(), 
 							isDeclaration,
 							methodBinding.computeUniqueKey(),
@@ -1239,6 +1266,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					null, // SelectionRequestor does not need of parameters type for method declaration
 					null, // SelectionRequestor does not need of parameters type for method declaration
 					null, // SelectionRequestor does not need of parameters type for method declaration
+					null, // SelectionRequestor does not need of type parameters name for method declaration
+					null, // SelectionRequestor does not need of type parameters bounds for method declaration
 					method.isConstructor(),
 					true,
 					method.binding != null ? method.binding.computeUniqueKey() : null,
