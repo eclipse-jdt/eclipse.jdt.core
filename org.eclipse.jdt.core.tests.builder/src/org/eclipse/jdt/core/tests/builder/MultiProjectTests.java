@@ -1504,7 +1504,7 @@ public void test102_missing_required_binaries() throws JavaModelException {
 
 	IPath y = env.addClass(root3, "", "Y",
 		"public class Y extends X {\n" +
-		"  X m = new X();\n" +
+		"  X m = new X() {};\n" +
 		"}\n"
 		);
 
@@ -1558,15 +1558,22 @@ public void test103_missing_required_binaries() throws JavaModelException {
 		"}\n"
 		);
 
-	env.addClass(root3, "", "Y",
+	IPath y = env.addClass(root3, "", "Y",
 		"public class Y {\n" +
-		"  X m = new X();\n" +
+		"  X m = new X() {};\n" +
 		"}\n"
 		);
 
 	try {
 		fullBuild();
-		expectingNoProblemsFor(p3);
+		expectingOnlySpecificProblemsFor(p3, new Problem[]{
+				new Problem("p3", 
+					"The project was not built since its build path is incomplete. Cannot find the class file for I. Fix the build path then try building this project", 
+					p3, -1, -1, CategorizedProblem.CAT_BUILDPATH),
+				new Problem("p3", 
+					"The type I cannot be resolved. It is indirectly referenced from required .class files", 
+					y, 0, 1, CategorizedProblem.CAT_BUILDPATH),
+		});
 	} finally {
 		env.setBuildOrder(null);
 	}
