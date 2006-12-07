@@ -58,6 +58,9 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	} 
 	
 	private void acceptName(char[] name) {
+		// the null check is added to fix bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=166570
+		if (name == null) return;
+		
 		if (acceptedNames.includes(name)) return;
 		
 		this.acceptedNames.add(name);
@@ -411,6 +414,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		int i = indexOfFisrtNameAfter(start);
 		done : while (i != -1) {
 			int nameStart = this.potentialVariableNameStarts[i];
+			// the null check is added to fix bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=166570
 			if (start < nameStart && nameStart < end) {
 				this.acceptName(this.potentialVariableNames[i]);
 				this.removeNameAt(i);
