@@ -36017,4 +36017,40 @@ public void test1092() {
 			customOptions,
 			null);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=156952
+// invalid bug - regression test only
+public void test1093() {
+	Map customOptions = this.getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"  X<T> foo() {\n" +
+			"    return this;\n" +
+			"  }\n" +
+			"  T bar(T p) {\n" +
+			"    return p;\n" + "  }\n"	+
+			"  public static void main (String args) {\n" +
+			"    X<String> x1 = new X<String>();\n"	+
+			"    System.out.println(x1.foo().bar(\"OK\"));\n" + // OK
+			"    X x2 = new X<String>();\n"	+
+			"    System.out.println(x2.foo().bar(\"OK\"));\n" + // KO: type safety issue
+			"  }\n" +
+			"}\n"
+		}, 
+		"----------\n" + 
+		"1. WARNING in X.java (at line 12)\n" + 
+		"	System.out.println(x2.foo().bar(\"OK\"));\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method bar(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions,
+		false /* do not generate output */,
+		false /* do not show category */, 
+		false /* do not show warning token */, 
+		false  /* do not skip javac for this peculiar test */,
+		false  /* do not perform statements recovery */);
+}
 }
