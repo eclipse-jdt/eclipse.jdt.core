@@ -1468,8 +1468,6 @@ public void test101_class_folder_non_exported() throws JavaModelException {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=164622
-// see also 103; the buildpath error silences all other errors related to the
-// same type, X
 public void test102_missing_required_binaries() throws JavaModelException {
 
 	IPath p1 = env.addProject("P1");
@@ -1496,21 +1494,17 @@ public void test102_missing_required_binaries() throws JavaModelException {
 	
 	env.addClass(root1, "", "I",
 		"public interface I {\n" +
-		"  void foo();\n" +
 		"}\n"
 		);
 		
 	env.addClass(root2, "", "X",
-		"public abstract class X implements I {\n" +
+		"public class X implements I {\n" +
 		"}\n"
 		);
 
 	IPath y = env.addClass(root3, "", "Y",
-		"public abstract class Y extends X {\n" +
-		"  X m = new X();\n" +  // error
-		"  void bar() {\n" +
-		"    this.m.foo();\n" + // OK
-		"  }\n" +
+		"public class Y extends X {\n" +
+		"  X m = new X();\n" +
 		"}\n"
 		);
 
@@ -1522,12 +1516,13 @@ public void test102_missing_required_binaries() throws JavaModelException {
 				p3, -1, -1, CategorizedProblem.CAT_BUILDPATH),
 			new Problem("p3", 
 				"The type I cannot be resolved. It is indirectly referenced from required .class files", 
-				y, 32, 33, CategorizedProblem.CAT_BUILDPATH),
+				y, 23, 24, CategorizedProblem.CAT_BUILDPATH),
 		});
 	} finally {
 		env.setBuildOrder(null);
 	}
 }
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=164622
 public void test103_missing_required_binaries() throws JavaModelException {
 
@@ -1549,37 +1544,29 @@ public void test103_missing_required_binaries() throws JavaModelException {
 	env.addExternalJars(p3, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(p3, "");
 	IPath root3 = env.addPackageFragmentRoot(p3, "src");
-	env.addRequiredProject(p3, p1);
+//	env.addRequiredProject(p3, p1); - missing dependency
 	env.addRequiredProject(p3, p2);
 	env.setOutputFolder(p3, "bin");
 	
 	env.addClass(root1, "", "I",
 		"public interface I {\n" +
-		"  void foo();\n" +
 		"}\n"
 		);
 		
 	env.addClass(root2, "", "X",
-		"public abstract class X implements I {\n" +
+		"public class X implements I {\n" +
 		"}\n"
 		);
 
-	IPath y = env.addClass(root3, "", "Y",
-		"public abstract class Y extends X {\n" +
-		"  X m = new X();\n" +  // error!
-		"  void bar() {\n" +
-		"    this.m.foo();\n" +
-		"  }\n" +
+	env.addClass(root3, "", "Y",
+		"public class Y {\n" +
+		"  X m = new X();\n" +
 		"}\n"
 		);
 
 	try {
 		fullBuild();
-		expectingOnlySpecificProblemsFor(p3, new Problem[]{
-			new Problem("p3", 
-				"Cannot instantiate the type X", 
-				y, 48, 49, CategorizedProblem.CAT_TYPE),
-		});
+		expectingNoProblemsFor(p3);
 	} finally {
 		env.setBuildOrder(null);
 	}
