@@ -31,7 +31,7 @@
 	        	<exclude name="org/eclipse/jdt/core/compiler/ReconcileContext*.class"/>
 	        	<exclude name="org/eclipse/jdt/internal/compiler/DocumentElementParser*.class"/>
 	        	<exclude name="org/eclipse/jdt/internal/compiler/IDocumentElementRequestor.class"/>
-	        	<exclude name="org/eclipse/jdt/internal/compiler/ISourceElementRequestor.class"/>
+	        	<exclude name="org/eclipse/jdt/internal/compiler/ISourceElementRequestor*.class"/>
 	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceElementParser*.class"/>
 	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceElementRequestorAdapter*.class"/>
 	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceJavadocParser*.class"/>
