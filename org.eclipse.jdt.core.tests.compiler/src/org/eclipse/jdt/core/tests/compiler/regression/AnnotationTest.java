@@ -7206,4 +7206,270 @@ public void test218() {
 		"The method message() is undefined for the type Annotation\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+public void test219() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        @MyB1(MyA2.XX)\n" + 
+			"        public void foo(){}\n" + 
+			"}",
+			"MyA1.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA1 {\n" + 
+			"}",
+			"MyA2.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA2 {\n" + 
+			"        public static final MyA1 XX = null;\n" + 
+			"}",
+			"MyB1.java",
+			"import static java.lang.annotation.ElementType.*;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE, METHOD\n" + 
+			"})\n" + 
+			"public @interface MyB1 {\n" + 
+			"        MyA1 value();\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@MyB1(MyA2.XX)\n" + 
+		"	      ^^^^^^^\n" + 
+		"The value for annotation attribute MyB1.value must be some @MyA1 annotation \n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+public void test220() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        @MyB1({MyA2.XX})\n" + 
+			"        public void foo(){}\n" + 
+			"}",
+			"MyA1.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA1 {\n" + 
+			"}",
+			"MyA2.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA2 {\n" + 
+			"        public static final MyA1 XX = null;\n" + 
+			"}",
+			"MyB1.java",
+			"import static java.lang.annotation.ElementType.*;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE, METHOD\n" + 
+			"})\n" + 
+			"public @interface MyB1 {\n" + 
+			"        MyA1[] value();\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@MyB1({MyA2.XX})\n" + 
+		"	       ^^^^^^^\n" + 
+		"The value for annotation attribute MyB1.value must be some @MyA1 annotation \n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+public void test221() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        @MyB1(null)\n" + 
+			"        public void foo(){}\n" + 
+			"}",
+			"MyA1.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA1 {\n" + 
+			"}",
+			"MyA2.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA2 {\n" + 
+			"        public static final MyA1 XX = null;\n" + 
+			"}",
+			"MyB1.java",
+			"import static java.lang.annotation.ElementType.*;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE, METHOD\n" + 
+			"})\n" + 
+			"public @interface MyB1 {\n" + 
+			"        MyA1 value();\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@MyB1(null)\n" + 
+		"	      ^^^^\n" + 
+		"The value for annotation attribute MyB1.value must be some @MyA1 annotation \n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+public void test222() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        @MyB1({null})\n" + 
+			"        public void foo(){}\n" + 
+			"}",
+			"MyA1.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA1 {\n" + 
+			"}",
+			"MyA2.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA2 {\n" + 
+			"        public static final MyA1 XX = null;\n" + 
+			"}",
+			"MyB1.java",
+			"import static java.lang.annotation.ElementType.*;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE, METHOD\n" + 
+			"})\n" + 
+			"public @interface MyB1 {\n" + 
+			"        MyA1[] value();\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@MyB1({null})\n" + 
+		"	       ^^^^\n" + 
+		"The value for annotation attribute MyB1.value must be some @MyA1 annotation \n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+public void test223() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        @MyB1(@MyA1())\n" + 
+			"        public void foo(){}\n" + 
+			"}",
+			"MyA1.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA1 {\n" + 
+			"}",
+			"MyA2.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA2 {\n" + 
+			"        public static final MyA1 XX = null;\n" + 
+			"}",
+			"MyB1.java",
+			"import static java.lang.annotation.ElementType.*;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE, METHOD\n" + 
+			"})\n" + 
+			"public @interface MyB1 {\n" + 
+			"        MyA1 value();\n" + 
+			"}"
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167217
+public void test224() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        @MyB1({@MyA1(), @MyA1})\n" + 
+			"        public void foo(){}\n" + 
+			"}",
+			"MyA1.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA1 {\n" + 
+			"}",
+			"MyA2.java",
+			"import static java.lang.annotation.ElementType.TYPE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE\n" + 
+			"})\n" + 
+			"public @interface MyA2 {\n" + 
+			"        public static final MyA1 XX = null;\n" + 
+			"}",
+			"MyB1.java",
+			"import static java.lang.annotation.ElementType.*;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"\n" + 
+			"@Target( {\n" + 
+			"	TYPE, METHOD\n" + 
+			"})\n" + 
+			"public @interface MyB1 {\n" + 
+			"        MyA1[] value();\n" + 
+			"}"
+		},
+		"");
+}
 }
