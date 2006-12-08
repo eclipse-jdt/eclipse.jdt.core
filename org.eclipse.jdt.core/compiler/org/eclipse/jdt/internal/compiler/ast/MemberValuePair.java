@@ -199,6 +199,19 @@ public class MemberValuePair extends ASTNode {
 			if (leafType.isAnnotationType()) {
 				if (!valueType.leafComponentType().isAnnotationType()) { // check annotation type and also reject null literal
 					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);
+				} else if (this.value instanceof ArrayInitializer) {
+					ArrayInitializer initializer = (ArrayInitializer) this.value;
+					final Expression[] expressions = initializer.expressions;
+					if (expressions != null) {
+						for (int i =0, max = expressions.length; i < max; i++) {
+							Expression currentExpression = expressions[i];
+							if (currentExpression instanceof NullLiteral || !(currentExpression instanceof Annotation)) {
+								scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, currentExpression, leafType);
+							}
+						}
+					}
+				} else if (!(this.value instanceof Annotation)) {
+					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);
 				}
 				break checkAnnotationMethodType;
 			}
