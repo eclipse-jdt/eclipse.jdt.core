@@ -33,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1092 };
+//		TESTS_NUMBERS = new int[] { 1094 };
 //		TESTS_RANGE = new int[] { 1071, -1 };
 	}
 	public static Test suite() {
@@ -36052,5 +36052,48 @@ public void test1093() {
 		false /* do not show warning token */, 
 		false  /* do not skip javac for this peculiar test */,
 		false  /* do not perform statements recovery */);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167268
+public void _test1094() {
+	Map customOptions = this.getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"Crazy.java",
+			"public interface Crazy<O extends Other, T extends O> {}",
+			"ExampleFactory.java",
+			"public interface ExampleFactory {\n" + 
+			"	<O extends Other, T extends O> Crazy<O, T> createCrazy();\n" + 
+			"}",
+			"Other.java",
+			"public interface Other {}",
+			"ExampleFactoryImpl.java",
+			"public class ExampleFactoryImpl implements ExampleFactory {\n" + 
+			"	public <O extends Other, T extends O> Crazy<O, T> createCrazy() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}"
+		}, 
+		"",
+		null /* no extra class libraries */, 
+		true /* flush output directory */,
+		null /* vm arguments*/,
+		customOptions,
+		null /* compiler requestor*/);
+	this.runConformTest(
+		new String[] {
+			"ExampleFactoryImpl.java",
+			"public class ExampleFactoryImpl implements ExampleFactory {\n" + 
+			"	public <O extends Other, T extends O> Crazy<O, T> createCrazy() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}"
+		}, 
+		"",
+		null /* no extra class libraries */, 
+		false /* flush output directory */,
+		null /* vm arguments*/,
+		customOptions,
+		null /* compiler requestor*/);
 }
 }
