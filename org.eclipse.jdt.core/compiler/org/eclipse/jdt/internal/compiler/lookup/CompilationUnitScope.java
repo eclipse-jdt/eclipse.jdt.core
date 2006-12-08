@@ -428,6 +428,14 @@ public void faultInTypes() {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)
 		topLevelTypes[i].faultInTypesForFieldsAndMethods();
 }
+// this API is for code assist purpose
+public Binding findImport(char[][] compoundName, boolean findStaticImports, boolean onDemand) {
+	if(onDemand) {
+		return findImport(compoundName, compoundName.length);
+	} else {
+		return findSingleImport(compoundName, findStaticImports);
+	}
+}
 private Binding findImport(char[][] compoundName, int length) {
 	recordQualifiedReference(compoundName);
 

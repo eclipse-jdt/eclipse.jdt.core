@@ -230,6 +230,8 @@ public final class CompletionEngine
 	int forbbidenBindingsPtr = -1;
 	Binding[] forbbidenBindings = new Binding[1];
 	
+	ImportBinding[] favoriteReferenceBindings;
+	
 	boolean assistNodeIsClass;
 	boolean assistNodeIsEnum;
 	boolean assistNodeIsException;
@@ -3073,6 +3075,81 @@ public final class CompletionEngine
 		}
 	}
 	
+	private void findFieldsAndMethodsFromFavorites(
+			char[] token,
+			Scope scope,
+			InvocationSite invocationSite,
+			Scope invocationScope,
+			ObjectVector localsFound,
+			ObjectVector fieldsFound,
+			ObjectVector methodsFound) {
+		
+		ImportBinding[] favoriteBindings = getFavoriteReferenceBindings(invocationScope);
+		
+		if (favoriteBindings != null && favoriteBindings.length > 0) {
+			for (int i = 0; i < favoriteBindings.length; i++) {
+				ImportBinding favoriteBinding = favoriteBindings[i];
+				switch (favoriteBinding.resolvedImport.kind()) {
+					case Binding.FIELD:
+						FieldBinding fieldBinding = (FieldBinding) favoriteBinding.resolvedImport;
+						findFieldsFromFavorites(
+								token,
+								new FieldBinding[]{fieldBinding},
+								scope,
+								fieldsFound,
+								localsFound,
+								fieldBinding.declaringClass,
+								invocationSite,
+								invocationScope);
+						break;
+					case Binding.METHOD:
+						MethodBinding methodBinding = (MethodBinding) favoriteBinding.resolvedImport;
+						MethodBinding[] methods = methodBinding.declaringClass.availableMethods();
+						long range;
+						if ((range = ReferenceBinding.binarySearch(methodBinding.selector, methods)) >= 0) {
+							int start = (int) range, end = (int) (range >> 32);
+							int length = end - start + 1;
+							System.arraycopy(methods, start, methods = new MethodBinding[length], 0, length);
+						} else {
+							methods = Binding.NO_METHODS;			
+						}
+						findLocalMethodsFromFavorites(
+								token,
+								methods,
+								scope,
+								methodsFound,
+								methodBinding.declaringClass,
+								invocationSite,
+								invocationScope);
+						break;
+					case Binding.TYPE:
+						ReferenceBinding referenceBinding = (ReferenceBinding) favoriteBinding.resolvedImport;
+						if(favoriteBinding.onDemand) {
+							findFieldsFromFavorites(
+									token,
+									referenceBinding.availableFields(),
+									scope,
+									fieldsFound,
+									localsFound,
+									referenceBinding,
+									invocationSite,
+									invocationScope);
+							
+							findLocalMethodsFromFavorites(
+									token,
+									referenceBinding.availableMethods(),
+									scope,
+									methodsFound,
+									referenceBinding,
+									invocationSite,
+									invocationScope);
+						}
+						break;
+				}
+			}
+		}
+	}
+	
 	private void findFieldsAndMethodsFromMissingFieldType(
 		char[] token,
 		Scope scope,
@@ -3238,6 +3315,81 @@ public final class CompletionEngine
 				}
 			};
 		missingTypesConverter.guess(typeRef, scope, substitutionRequestor);
+	}
+	
+	private void findFieldsFromFavorites(
+			char[] fieldName,
+			FieldBinding[] fields,
+			Scope scope,
+			ObjectVector fieldsFound,
+			ObjectVector localsFound,
+			ReferenceBinding receiverType,
+			InvocationSite invocationSite,
+			Scope invocationScope) {
+		
+		char[] typeName = CharOperation.concatWith(receiverType.compoundName, '.');
+
+		int fieldLength = fieldName.length;
+		next : for (int f = fields.length; --f >= 0;) {			
+			FieldBinding field = fields[f];
+
+			if (field.isSynthetic())	continue next;
+			
+			// only static fields must be proposed
+			if (!field.isStatic()) continue next;
+
+			if (fieldLength > field.name.length) continue next;
+
+			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */)
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))	continue next;
+
+			if (this.options.checkDeprecation &&
+					field.isViewedAsDeprecated() &&
+					!scope.isDefinedInSameUnit(field.declaringClass))
+				continue next;
+			
+			if (this.options.checkVisibility
+				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
+			
+			for (int i = fieldsFound.size; --i >= 0;) {
+				Object[] other = (Object[])fieldsFound.elementAt(i);
+				FieldBinding otherField = (FieldBinding) other[0];
+				
+				if (field == otherField) continue next;
+			}
+			
+			fieldsFound.add(new Object[]{field, receiverType});
+			
+			char[] completion = CharOperation.concat(typeName, field.name, '.');
+
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal(field);
+			if (fieldName != null) relevance += computeRelevanceForCaseMatching(fieldName, field.name);
+			relevance += computeRelevanceForExpectingType(field.type);
+			relevance += computeRelevanceForStatic(true, true);
+			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+			
+			this.noProposal = false;
+			
+			if (!this.isIgnored(CompletionProposal.FIELD_REF)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(getSignature(field.declaringClass));
+				proposal.setSignature(getSignature(field.type));
+				proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
+				proposal.setDeclarationTypeName(field.declaringClass.qualifiedSourceName());
+				proposal.setPackageName(field.type.qualifiedPackageName());
+				proposal.setTypeName(field.type.qualifiedSourceName()); 
+				proposal.setName(field.name);
+				proposal.setCompletion(completion);
+				proposal.setFlags(field.modifiers);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
+		}
 	}
 	
 	private void findImports(CompletionOnImportReference importReference, boolean findMembers) {
@@ -4485,6 +4637,130 @@ public final class CompletionEngine
 		methodsFound.addAll(newMethodsFound);
 	}
 	
+	private void findLocalMethodsFromFavorites(
+			char[] methodName,
+			MethodBinding[] methods,
+			Scope scope,
+			ObjectVector methodsFound,
+			ReferenceBinding receiverType,
+			InvocationSite invocationSite,
+			Scope invocationScope) {
+		
+			char[] typeName = CharOperation.concatWith(receiverType.compoundName, '.');
+
+			int methodLength = methodName.length;
+
+			next : for (int f = methods.length; --f >= 0;) {
+				MethodBinding method = methods[f];
+
+				if (method.isSynthetic()) continue next;
+
+				if (method.isDefaultAbstract())	continue next;
+
+				if (method.isConstructor()) continue next;
+				
+				if (this.options.checkDeprecation &&
+						method.isViewedAsDeprecated() &&
+						!scope.isDefinedInSameUnit(method.declaringClass))
+					continue next;
+				
+				if (!method.isStatic()) continue next;
+
+				if (this.options.checkVisibility
+					&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
+
+				if (methodLength > method.selector.length) continue next;
+					
+				if (!CharOperation.prefixEquals(methodName, method.selector, false /* ignore case */)
+						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector))) {
+					continue next;
+				}
+				
+				for (int i = methodsFound.size; --i >= 0;) {
+					Object[] other = (Object[]) methodsFound.elementAt(i);
+					MethodBinding otherMethod = (MethodBinding) other[0];
+					
+					if (method == otherMethod) continue next;
+				}
+				
+				methodsFound.add(new Object[]{method, receiverType});
+				
+				ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeWithSameErasure(method.declaringClass);
+				if (method.declaringClass != superTypeWithSameErasure) {
+					MethodBinding[] otherMethods = superTypeWithSameErasure.getMethods(method.selector);
+					for (int i = 0; i < otherMethods.length; i++) {
+						if(otherMethods[i].original() == method.original()) {
+							method = otherMethods[i];
+						}
+					}
+				}
+				
+				int length = method.parameters.length;
+				char[][] parameterPackageNames = new char[length][];
+				char[][] parameterTypeNames = new char[length][];
+
+				for (int i = 0; i < length; i++) {
+					TypeBinding type = method.original().parameters[i];
+					parameterPackageNames[i] = type.qualifiedPackageName();
+					parameterTypeNames[i] = type.qualifiedSourceName();
+				}
+				char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
+
+				char[] completion = CharOperation.NO_CHAR;
+				
+				int previousStartPosition = this.startPosition;
+				
+				if (this.source != null
+					&& this.source.length > this.endPosition
+					&& this.source[this.endPosition] == '(') {
+					completion = method.selector;
+				} else {
+					completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
+				}
+				
+				completion = CharOperation.concat(typeName, completion, '.');
+
+				int relevance = computeBaseRelevance();
+				relevance += computeRelevanceForInterestingProposal();
+				if (methodName != null) relevance += computeRelevanceForCaseMatching(methodName, method.selector);
+				relevance += computeRelevanceForExpectingType(method.returnType);
+				relevance += computeRelevanceForStatic(true, method.isStatic());
+				relevance += computeRelevanceForQualification(true);
+				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+
+				
+				this.noProposal = false;
+				// Standard proposal
+				if(!this.isIgnored(CompletionProposal.METHOD_REF)) {
+					CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+					proposal.setDeclarationSignature(getSignature(method.declaringClass));
+					proposal.setSignature(getSignature(method));
+					MethodBinding original = method.original();
+					if(original != method) {
+						proposal.setOriginalSignature(getSignature(original));
+					}
+					proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+					proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+					proposal.setParameterPackageNames(parameterPackageNames);
+					proposal.setParameterTypeNames(parameterTypeNames);
+					proposal.setPackageName(method.returnType.qualifiedPackageName());
+					proposal.setTypeName(method.returnType.qualifiedSourceName());
+					proposal.setName(method.selector);
+					proposal.setCompletion(completion);
+					proposal.setFlags(method.modifiers);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					if(parameterNames != null) proposal.setParameterNames(parameterNames);
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
+				
+				this.startPosition = previousStartPosition;
+			}
+		}
+	
 	private CompletionProposal createRequiredTypeProposal(Binding binding, int start, int end, int relevance) {
 		CompletionProposal proposal = null;
 		if (binding instanceof ReferenceBinding) {
@@ -4525,8 +4801,11 @@ public final class CompletionEngine
 		char[] methodName,
 		MethodBinding[] methods,
 		Scope scope,
+		ObjectVector methodsFound,
 		ReferenceBinding receiverType,
 		InvocationSite invocationSite) {
+		
+		ObjectVector newMethodsFound =  new ObjectVector();
 
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding method = methods[f];
@@ -4550,6 +4829,22 @@ public final class CompletionEngine
 			if (!CharOperation.equals(methodName, method.selector, false /* ignore case */)
 					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector)))
 				continue next;
+			
+			for (int i = methodsFound.size; --i >= 0;) {
+				Object[] other = (Object[]) methodsFound.elementAt(i);
+				MethodBinding otherMethod = (MethodBinding) other[0];
+				ReferenceBinding otherReceiverType = (ReferenceBinding) other[1];
+				if (method == otherMethod && receiverType == otherReceiverType)
+					continue next;
+				
+				if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
+					if (lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
+						continue next;
+					}
+				}
+			}
+
+			newMethodsFound.add(new Object[]{method, receiverType});
 
 			int length = method.parameters.length;
 			char[][] parameterPackageNames = new char[length][];
@@ -4611,6 +4906,8 @@ public final class CompletionEngine
 			}
 			this.startPosition = previousStartPosition;
 		}
+		
+		methodsFound.addAll(newMethodsFound);
 	}
 	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
 		if (this.options.camelCaseMatch) {
@@ -5101,6 +5398,10 @@ public final class CompletionEngine
 	private boolean isIgnored(int kind, boolean missingTypes) {
 		return this.requestor.isIgnored(kind) ||
 			(missingTypes && !this.requestor.isAllowingRequiredProposals(kind, CompletionProposal.TYPE_REF));
+	}
+	
+	private boolean isIgnored(int kind) {
+		return this.requestor.isIgnored(kind);
 	}
 	
 	private void findMethods(
@@ -6173,6 +6474,7 @@ public final class CompletionEngine
 				currentScope = currentScope.parent;
 			}
 			
+			// search in static import
 			ImportBinding[] importBindings = scope.compilationUnitScope().imports;
 			for (int i = 0; i < importBindings.length; i++) {
 				ImportBinding importBinding = importBindings[i];
@@ -6249,6 +6551,7 @@ public final class CompletionEngine
 											methodBinding.selector,
 											methodBinding.declaringClass.methods(),
 											scope,
+											methodsFound,
 											methodBinding.declaringClass,
 											invocationSite);
 								}
@@ -6256,6 +6559,18 @@ public final class CompletionEngine
 						}
 					}
 				}
+			}
+			
+			if (this.assistNodeInJavadoc == 0) {
+				// search in favorites import
+				findFieldsAndMethodsFromFavorites(
+						token,
+						scope,
+						invocationSite,
+						invocationScope,
+						localsFound,
+						fieldsFound,
+						methodsFound);
 			}
 		}
 	}
@@ -6493,6 +6808,76 @@ public final class CompletionEngine
 				excludeNames,
 				type.dimensions());
 		}*/
+	}
+	
+	private ImportBinding[] getFavoriteReferenceBindings(Scope scope) {
+		if (this.favoriteReferenceBindings != null) return this.favoriteReferenceBindings;
+		
+		String[] favoriteReferences = this.requestor.getFavoriteReferences();
+		
+		if (favoriteReferences == null || favoriteReferences.length == 0) return null;
+		
+		ImportBinding[] resolvedImports = new ImportBinding[favoriteReferences.length];
+		
+		int count = 0;
+		next : for (int i = 0; i < favoriteReferences.length; i++) {
+			String favoriteReference = favoriteReferences[i];
+			
+			int length;
+			if (favoriteReference == null || (length = favoriteReference.length()) == 0) continue next;
+			
+			boolean onDemand = favoriteReference.charAt(length - 1) == '*';
+			
+			char[][] compoundName = CharOperation.splitOn('.', favoriteReference.toCharArray());
+			if (onDemand) {
+				compoundName = CharOperation.subarray(compoundName, 0, compoundName.length - 1);
+			}
+			
+			// remove duplicate and conflicting
+			for (int j = 0; j < count; j++) {
+				ImportReference f = resolvedImports[j].reference;
+				
+				if (CharOperation.equals(f.tokens, compoundName)) continue next;
+				
+				if (!onDemand && !f.onDemand) {
+					if (CharOperation.equals(f.tokens[f.tokens.length - 1], compoundName[compoundName.length - 1]))
+						continue next;
+				}
+			}
+			
+			boolean isStatic = this.compilerOptions.sourceLevel > ClassFileConstants.JDK1_4;
+			
+			ImportReference importReference =
+				new ImportReference(
+						compoundName,
+						new long[compoundName.length],
+						onDemand,
+						isStatic ? ClassFileConstants.AccStatic : ClassFileConstants.AccDefault);
+			
+			Binding importBinding = this.unitScope.findImport(compoundName, isStatic, onDemand);
+			
+			if (!importBinding.isValidBinding()) {
+				continue next;
+			}
+			
+			if (onDemand) {
+				if (importReference.isStatic() && importBinding instanceof PackageBinding) {
+					importReference.modifiers = importReference.modifiers & ~ClassFileConstants.AccStatic;
+				}
+			} else {
+				if (importBinding instanceof PackageBinding) {
+					continue next;
+				}
+			}
+			
+			resolvedImports[count++] =
+				new ImportBinding(compoundName, onDemand, importBinding, importReference);
+		}
+		
+		if (resolvedImports.length > count)
+			System.arraycopy(resolvedImports, 0, resolvedImports = new ImportBinding[count], 0, count);
+		
+		return this.favoriteReferenceBindings = resolvedImports;
 	}
 	
 	public AssistParser getParser() {

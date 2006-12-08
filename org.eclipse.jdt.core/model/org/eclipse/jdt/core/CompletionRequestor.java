@@ -60,6 +60,8 @@ public abstract class CompletionRequestor {
 	 */
 	private int ignoreSet = 0;
 	
+	private String[] favoriteReferences;
+	
 	/**
 	 * The set of CompletionProposal kinds that this requestor
 	 * allows for required proposals; <code>0</code> means the set is empty.
@@ -191,6 +193,39 @@ public abstract class CompletionRequestor {
 		} else {
 			this.requiredProposalAllowSet[proposalKind] &= ~(1 << requiredProposalKind);
 		}
+	}
+	
+	/**
+	 * Returns the favorites references which are used to compute some completion proposals.
+	 * <p>
+	 * A favorite reference is a qualified reference as it can be seen in an import statement.<br>
+	 * e.g. <code>{"java.util.Arrays"}</code><br>
+	 * It can be an on demand reference.<br>
+	 * e.g. <code>{"java.util.Arrays.*"}</code>
+	 * It can be a reference to a static method or field (as in a static import)<br>
+	 * e.g. <code>{"java.util.Arrays.equals"}</code>
+	 * </p>
+	 *
+	 * @return favorites imports
+	 * 
+	 * @since 3.3
+	 */
+	public String[] getFavoriteReferences() {
+		return this.favoriteReferences;
+	}
+	
+	/**
+	 * Set the favorites references which will be used to compute some completion proposals.
+	 * A favorite reference is a qualified reference as it can be seen in an import statement.<br>
+	 * 
+	 * @param favoriteImports
+	 * 
+	 * @see #getFavoriteReferences()
+	 * 
+	 * @since 3.3
+	 */
+	public void setFavoriteReferences(String[] favoriteImports) {
+		this.favoriteReferences = favoriteImports;
 	}
 	
 	/**
