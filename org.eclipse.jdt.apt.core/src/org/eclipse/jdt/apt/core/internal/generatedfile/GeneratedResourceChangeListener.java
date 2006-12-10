@@ -55,6 +55,9 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		if ( event.getType() == IResourceChangeEvent.PRE_CLOSE )
 		{
 			IProject p = (IProject)event.getResource();
+			if( AptPlugin.DEBUG_GFM ) 
+				AptPlugin.trace(
+						"generated resource change listener got a pre-close event: project = " + p.getName()); //$NON-NLS-1$
 			IJavaProject jp = JavaCore.create(p);
 			AptPlugin.getAptProject(jp).projectClosed();
 		}
@@ -63,6 +66,9 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			// TODO:  need to update projectDeleted() to delete the generated_src folder
 			// in an async thread.  The resource tree is locked here.
 			IProject p = (IProject)event.getResource();
+			if( AptPlugin.DEBUG_GFM ) 
+				AptPlugin.trace(
+						"generated resource change listener got a pre-delete event: project = " + p.getName()); //$NON-NLS-1$
 			IJavaProject jp = JavaCore.create(p);
 			AptPlugin.getAptProject(jp).projectDeleted();
 			AptPlugin.deleteAptProject(jp);
@@ -71,8 +77,8 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		{
 			try
 			{ 
-				if( AptPlugin.DEBUG )
-					AptPlugin.trace("---- generated resource change listener got a pre-build event"); //$NON-NLS-1$
+				if( AptPlugin.DEBUG_GFM ) 
+					AptPlugin.trace("generated resource change listener got a pre-build event"); //$NON-NLS-1$
 				
 				final PreBuildVisitor pbv = new PreBuildVisitor();
 				
@@ -95,6 +101,9 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			}
 		}
 		else if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
+			if( AptPlugin.DEBUG_GFM ) 
+				AptPlugin.trace(
+						"generated resource change listener got a post-change event"); //$NON-NLS-1$
 			PostChangeVisitor pcv = new PostChangeVisitor();
 			try {
 				event.getDelta().accept(pcv);
@@ -126,6 +135,10 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 
 		public boolean visit(IResourceDelta delta) throws CoreException {
 			if( delta.getKind() == IResourceDelta.REMOVED ){
+				if (AptPlugin.DEBUG_GFM) {
+					AptPlugin.trace("generated resource post-change listener adding to deletedResources:" +  //$NON-NLS-1$
+							delta.getResource().getName());
+				}
 				deletedResources.add(delta.getResource());
 			}
 			
@@ -166,6 +179,9 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		}	
 		
 		private void handleDeletion(IResource resource) throws CoreException {
+			if (AptPlugin.DEBUG_GFM) {
+				AptPlugin.trace("handleDeletion: resource = " + resource.getName()); //$NON-NLS-1$
+			}
 			IProject project = resource.getProject();
 			final IJavaProject javaProj = JavaCore.create(project);
 			final AptProject aptProj = AptPlugin.getAptProject(javaProj);

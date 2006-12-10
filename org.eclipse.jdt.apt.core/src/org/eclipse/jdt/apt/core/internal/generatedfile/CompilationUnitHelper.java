@@ -45,6 +45,8 @@ public class CompilationUnitHelper
 	}
 	
 	/**
+	 * Get an in-memory working copy.  This does not create the type or package on disk.
+	 * <p>
 	 * The methods called by this routine are all read-only with respect to the resource
 	 * tree, so they do not require taking any scheduling locks.  Therefore we think
 	 * it's safe to call this method within a synchronized block. 
@@ -53,7 +55,7 @@ public class CompilationUnitHelper
 	 * @return a working copy that is ready to be modified.  The working copy may not
 	 * yet be backed by a file on disk.
 	 */
-	public ICompilationUnit createWorkingCopy(String typeName, IPackageFragmentRoot root)
+	public ICompilationUnit getWorkingCopy(String typeName, IPackageFragmentRoot root)
 	{
 		String[] names = parseTypeName(typeName);
 		String pkgName = names[0];
@@ -62,7 +64,6 @@ public class CompilationUnitHelper
 		IPackageFragment pkgFragment;
 		ICompilationUnit workingCopy = null;
 		try {
-			//pkgFragment = root.createPackageFragment(pkgName, true, null); // causes rule violation
 			pkgFragment = root.getPackageFragment(pkgName );
 			workingCopy = pkgFragment.getCompilationUnit(fname);
 			workingCopy.becomeWorkingCopy(null, null);
@@ -78,7 +79,7 @@ public class CompilationUnitHelper
 
 	/**
 	 * Discard a working copy, ie, remove it from memory. Each call to
-	 * {@link #createWorkingCopy(String typeName, IPackageFragmentRoot root)} 
+	 * {@link #getWorkingCopy(String typeName, IPackageFragmentRoot root)} 
 	 * must be balanced with exactly one call to this method.
 	 */
 	public void discardWorkingCopy(ICompilationUnit wc)

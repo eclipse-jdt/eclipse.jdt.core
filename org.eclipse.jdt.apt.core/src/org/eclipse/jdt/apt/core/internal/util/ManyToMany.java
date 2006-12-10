@@ -72,15 +72,15 @@ public class ManyToMany<T1, T2> {
 	
 	/**
 	 * Is there a key that is mapped to the specified value?
-	 * Search within the reverse map.
+	 * Search within the forward map.
 	 * @return true if such a key exists
 	 */
-	public synchronized boolean containsKeyValuePair(T2 value, T1 key) {
-		Set<T1> keys = _reverse.get(value);
-		if (null == keys) {
+	public synchronized boolean containsKeyValuePair(T1 key, T2 value) {
+		Set<T2> values = _forward.get(key);
+		if (null == values) {
 			return false;
 		}
-		return keys.contains(value);
+		return values.contains(value);
 	}
 	
 	/**
@@ -320,16 +320,6 @@ public class ManyToMany<T1, T2> {
 			return true;
 		else // size == 1
 			return !keys.contains(key);
-	}
-
-	/**
-	 * @return a copy of the set of all values (that is, all items of type T2).
-	 * If the map is empty, the set will be empty (not null).  The returned
-	 * set can be modified by the caller; this will not affect the map.
-	 */
-	public synchronized Set<T2> values() {
-		Set<T2> values = new HashSet<T2>(_reverse.keySet());
-		return values;
 	}
 
 	/**

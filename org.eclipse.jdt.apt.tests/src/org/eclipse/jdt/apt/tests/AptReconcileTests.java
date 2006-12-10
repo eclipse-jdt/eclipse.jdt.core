@@ -369,6 +369,13 @@ public class AptReconcileTests extends ModifyingResourceTests
 	@SuppressWarnings("nls")
 	public void setUp() throws Exception 
 	{
+		// This increments the project name for each test, which helps get past
+		// sporadic threading problems.  It has not been necessary lately - WHarley 12/06
+		//++_testProjectNum;
+		_testProject = TEST_PROJECT + _testProjectNum;
+		_testFolder = "/" + _testProject + "/src/test";
+		AptPlugin.trace("Setting up " + _testProject );
+		
 		super.setUp();			
 		// disable auto-build.  We don't want build-time type-generation interfering with
 		// our reconcile tests.
@@ -378,13 +385,6 @@ public class AptReconcileTests extends ModifyingResourceTests
 
 		this._problemRequestor = new ProblemRequestor();
 
-		++_testProjectNum;
-		_testProject = TEST_PROJECT + _testProjectNum;
-		_testFolder = "/" + _testProject //$NON-NLS-1$
-		+ "/src/test"; //$NON-NLS-1$
-		
-
-		
 		final IJavaProject project = createJavaProject( _testProject,
 				new String[] { "src" }, new String[] { "JCL15_LIB" },
 				"bin", "1.5" );
@@ -396,6 +396,8 @@ public class AptReconcileTests extends ModifyingResourceTests
 	}
 	public void tearDown() throws Exception
 	{
+		AptPlugin.trace("Tearing down " + _testProject );
+
 		deleteProject( _testProject );
 		super.tearDown();
 	}

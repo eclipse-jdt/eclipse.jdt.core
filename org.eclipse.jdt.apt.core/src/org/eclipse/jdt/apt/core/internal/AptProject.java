@@ -76,7 +76,7 @@ public class AptProject {
 	
 	public void projectClean( boolean deleteFiles )
 	{
-		_gfm.discardAllState();
+		_gfm.projectCleaned();
 		
 		// delete the contents of the generated source folder, but don't delete
 		// the generated source folder because that will cause a classpath change,
@@ -102,23 +102,25 @@ public class AptProject {
 	}
 	
 	/**
-	 * invoked when a project is closed.  This will discard any open working-copies
-	 * of generated files.
+	 * Invoked when a project is closed.  
 	 */
 	public void projectClosed()
 	{
-		_gfm.discardWorkingCopyState();
+		_gfm.projectClosed();
 	}
 	
 	/**
-	 * Invoked when a project has been deleted.  This will remove this generated file manager
-	 * from the static map of projects->generated file managers, and this will flush any known
-	 * in-memory state tracking generated files.  This will not delete any of the project's generated files
-	 * from disk.  
+	 * Invoked when a project has been deleted, to clean up
+	 * state associated with the project.
+	 * This will not delete any of the project's generated files
+	 * from disk, nor will it delete this object (which in turn
+	 * owns the GeneratedFileManager for this project).
 	 */
 	public void projectDeleted()
 	{
-		_gfm.discardAllState();
+		if (AptPlugin.DEBUG)
+			AptPlugin.trace("AptProject.projectDeleted cleaning state for project " + _javaProject.getElementName()); //$NON-NLS-1$
+		_gfm.projectDeleted();
 	}
 
 }
