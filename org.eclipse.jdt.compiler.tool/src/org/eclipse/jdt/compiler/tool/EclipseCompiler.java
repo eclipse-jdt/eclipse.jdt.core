@@ -340,6 +340,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	}
 
     @Override
+	@SuppressWarnings("unchecked")
     protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions) {
     	// TODO Auto-generated method stub
     	super.initialize(outWriter, errWriter, systemExit, customDefaultOptions);
