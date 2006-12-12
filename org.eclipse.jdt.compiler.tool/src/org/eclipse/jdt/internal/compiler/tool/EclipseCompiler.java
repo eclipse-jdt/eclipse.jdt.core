@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.compiler.tool;
+package org.eclipse.jdt.internal.compiler.tool;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -72,8 +72,8 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	}
 
 	Iterable<? extends JavaFileObject> compilationUnits;
-	DiagnosticListener<? super JavaFileObject> diagnosticListener;
-	JavaFileManager fileManager;
+	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
+	public JavaFileManager fileManager;
 
 	public EclipseCompiler(PrintWriter out, PrintWriter err, boolean systemExitWhenFinished) {
 		super(out, err, systemExitWhenFinished);

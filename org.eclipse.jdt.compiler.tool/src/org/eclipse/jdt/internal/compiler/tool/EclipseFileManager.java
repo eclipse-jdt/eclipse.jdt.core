@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.compiler.tool;
+package org.eclipse.jdt.internal.compiler.tool;
 
 import java.io.File;
 import java.io.IOException;
@@ -254,13 +254,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 * @see javax.tools.JavaFileManager#getClassLoader(javax.tools.JavaFileManager.Location)
 	 */
 	public ClassLoader getClassLoader(Location location) {
-		Iterable<? extends File> iterable = getLocation(location);
-		if (iterable == null) {
+		Iterable<? extends File> files = getLocation(location);
+		if (files == null) {
 			// location is unknown
 			return null;
 		}
 		ArrayList<URL> allURLs = new ArrayList<URL>();
-		for (File f : iterable) {
+		for (File f : files) {
 			try {
 				allURLs.add(f.toURI().toURL());
 			} catch (MalformedURLException e) {

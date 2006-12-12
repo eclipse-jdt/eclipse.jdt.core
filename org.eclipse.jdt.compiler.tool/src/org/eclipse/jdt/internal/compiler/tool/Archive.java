@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.compiler.tool;
+package org.eclipse.jdt.internal.compiler.tool;
 
 import java.io.File;
 import java.io.IOException;
