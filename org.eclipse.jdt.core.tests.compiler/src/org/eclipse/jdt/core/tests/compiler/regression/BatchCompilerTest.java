@@ -943,7 +943,7 @@ public void test012(){
         " Ignored options:\n" + 
         "    -J<option>         pass option to virtual machine (ignored)\n" + 
         "    -X<option>         specify non-standard option (ignored\n" + 
-        "                       expect for -Xemacs)\n" + 
+        "                       except for -Xemacs)\n" + 
         "    -X                 print non-standard options and exit (ignored)\n" + 
         "    -O                 optimize for execution time (ignored)\n" + 
         " \n" + 
