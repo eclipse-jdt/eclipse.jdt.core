@@ -51,7 +51,11 @@ public IBuffer getBuffer() throws JavaModelException {
 
 public char[] getContents() {
 	try {
-		return getBuffer().getCharacters();
+		IBuffer buffer = getBuffer();
+		if (buffer == null) return CharOperation.NO_CHAR;
+		char[] characters = buffer.getCharacters();
+		if (characters == null) return CharOperation.NO_CHAR;
+		return characters;
 	} catch (JavaModelException e) {
 		return CharOperation.NO_CHAR;
 	}
