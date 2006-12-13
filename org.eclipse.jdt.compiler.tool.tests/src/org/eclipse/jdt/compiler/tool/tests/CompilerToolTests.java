@@ -36,7 +36,7 @@ import javax.tools.JavaFileObject.Kind;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.eclipse.jdt.compiler.tool.EclipseCompiler;
+import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 public class CompilerToolTests extends TestCase {
 	public CompilerToolTests(String name) {
@@ -51,6 +51,7 @@ public class CompilerToolTests extends TestCase {
 		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler"));
 		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler2"));
 		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler3"));
+		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler4"));
 		suite.addTest(new CompilerToolTests("testCleanUp"));
 		return suite;
 	}
@@ -504,6 +505,53 @@ public class CompilerToolTests extends TestCase {
 
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());		
+	}
+
+	public void testCompilerOneClassWithEclipseCompiler4() {
+		String tmpFolder = System.getProperty("java.io.tmpdir");
+		File inputFile = new File(tmpFolder, "X.java");
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile));
+			writer.write(
+				"package p;\n" +
+				"public class X {}");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		// create new list containing inputfile
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
+		StandardJavaFileManager manager = systemCompiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+ 		CompilationTask task = Compiler.getTask(null, null, null, options, null, units);
+ 		// check the classpath location
+		Boolean result = task.call();
+		printWriter.flush();
+		printWriter.close();
+ 		if (!result.booleanValue()) {
+ 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+ 	 		assertTrue("Compilation failed ", false);
+ 		}
+		// check that the .class file exist for X
+		assertTrue("delete failed", inputFile.delete());
 	}
 
 	/*
