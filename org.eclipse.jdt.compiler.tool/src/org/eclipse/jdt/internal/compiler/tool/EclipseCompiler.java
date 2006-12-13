@@ -283,17 +283,22 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		}
 		this.compilationUnits = compilationUnits;
 		this.diagnosticListener = diagnosticListener;
-		this.fileManager = fileManager;
+		if (fileManager != null) {
+			this.fileManager = fileManager;
+		} else {
+			this.fileManager = this.getStandardFileManager(diagnosticListener, null, null);
+		}
 
 		this.initialize(writerOut, writerErr, false);
 
-		for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
-			fileManager.handleOption(iterator.next(), iterator);
-		}
-		
 		ArrayList<String> allOptions = new ArrayList<String>();
-		for (String option : options) {
-			allOptions.add(option);
+		if (options != null) {
+    		for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
+    			this.fileManager.handleOption(iterator.next(), iterator);
+    		}
+    		for (String option : options) {
+    			allOptions.add(option);
+    		}
 		}
 
 		if (compilationUnits != null) {
