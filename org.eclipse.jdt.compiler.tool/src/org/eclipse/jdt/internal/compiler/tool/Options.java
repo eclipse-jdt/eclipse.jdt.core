@@ -55,6 +55,10 @@ public final class Options {
 		ZERO_ARGUMENT_OPTIONS.add("-1.6");//$NON-NLS-1$
 		ZERO_ARGUMENT_OPTIONS.add("-6");//$NON-NLS-1$
 		ZERO_ARGUMENT_OPTIONS.add("-6.0");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-proc:only");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-proc:none");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-XprintProcessorInfo");//$NON-NLS-1$
+		ZERO_ARGUMENT_OPTIONS.add("-XprintRounds");//$NON-NLS-1$
 
 		FILE_MANAGER_OPTIONS = new HashSet<String>();
 		FILE_MANAGER_OPTIONS.add("-bootclasspath");//$NON-NLS-1$
@@ -65,6 +69,8 @@ public final class Options {
 		FILE_MANAGER_OPTIONS.add("-sourcepath");//$NON-NLS-1$
 		FILE_MANAGER_OPTIONS.add("-extdirs");//$NON-NLS-1$
 		FILE_MANAGER_OPTIONS.add("-endorseddirs");//$NON-NLS-1$
+		FILE_MANAGER_OPTIONS.add("-s");//$NON-NLS-1$
+		FILE_MANAGER_OPTIONS.add("-processorpath");//$NON-NLS-1$
 
 		ONE_ARGUMENT_OPTIONS = new HashSet<String>();
 		ONE_ARGUMENT_OPTIONS.addAll(FILE_MANAGER_OPTIONS);
@@ -73,6 +79,7 @@ public final class Options {
 		ONE_ARGUMENT_OPTIONS.add("-maxProblems");//$NON-NLS-1$
 		ONE_ARGUMENT_OPTIONS.add("-source");//$NON-NLS-1$
 		ONE_ARGUMENT_OPTIONS.add("-target");//$NON-NLS-1$
+		ONE_ARGUMENT_OPTIONS.add("-processor");//$NON-NLS-1$
 	
 	}
 	public static int processOptionsFileManager(String option) {
@@ -218,7 +225,9 @@ public final class Options {
 				return 0;
 			}
 		}
-		if (option.startsWith("-J") || option.startsWith("-X")) {//$NON-NLS-1$//$NON-NLS-2$
+		if (option.startsWith("-J")//$NON-NLS-1$
+				|| option.startsWith("-X")//$NON-NLS-1$
+				|| option.startsWith("-A")) {//$NON-NLS-1$
 			return 0;
 		}
 		return -1;

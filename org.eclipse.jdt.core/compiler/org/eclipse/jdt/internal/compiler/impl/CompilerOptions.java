@@ -108,6 +108,8 @@ public class CompilerOptions {
 	public static final String OPTION_ReportParameterAssignment =  "org.eclipse.jdt.core.compiler.problem.parameterAssignment"; //$NON-NLS-1$
 	public static final String OPTION_ReportFallthroughCase =  "org.eclipse.jdt.core.compiler.problem.fallthroughCase"; //$NON-NLS-1$
 	public static final String OPTION_ReportOverridingMethodWithoutSuperInvocation =  "org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation"; //$NON-NLS-1$
+	public static final String OPTION_GenerateClassFiles = "org.eclipse.jdt.core.compiler.generateClassFiles"; //$NON-NLS-1$
+	public static final String OPTION_Process_Annotations = "org.eclipse.jdt.core.compiler.processAnnotations"; //$NON-NLS-1$
 	
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -303,6 +305,10 @@ public class CompilerOptions {
 	// store annotations
 	public boolean storeAnnotations = false;
 	
+	// annotation processing
+	public boolean generateClassFiles = true;
+	public boolean processAnnotations = true;
+	
 	/** 
 	 * Initializing the compiler options with defaults
 	 */
@@ -412,6 +418,8 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportParameterAssignment, getSeverityString(ParameterAssignment));
 		optionsMap.put(OPTION_ReportFallthroughCase, getSeverityString(FallthroughCase));
 		optionsMap.put(OPTION_ReportOverridingMethodWithoutSuperInvocation, getSeverityString(OverridingMethodWithoutSuperInvocation));
+		optionsMap.put(OPTION_GenerateClassFiles, this.generateClassFiles ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_Process_Annotations, this.processAnnotations ? ENABLED : DISABLED); 
 		return optionsMap;		
 	}
 	
@@ -740,6 +748,20 @@ public class CompilerOptions {
 				this.reportMissingJavadocCommentsOverriding = false;
 			}
 		}
+		if ((optionValue = optionsMap.get(OPTION_GenerateClassFiles)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.generateClassFiles = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.generateClassFiles = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_Process_Annotations)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.processAnnotations = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.processAnnotations = false;
+			}
+		}
 	}
 
 	public String toString() {
@@ -819,6 +841,8 @@ public class CompilerOptions {
 		buf.append("\n\t- unused label: ").append(getSeverityString(UnusedLabel)); //$NON-NLS-1$
 		buf.append("\n\t- treat optional error as fatal: ").append(this.treatOptionalErrorAsFatal ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- parameter assignment: ").append(getSeverityString(ParameterAssignment)); //$NON-NLS-1$
+		buf.append("\n\t- generate class files: ").append(this.generateClassFiles ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- process annotations: ").append(this.processAnnotations ? ENABLED : DISABLED); //$NON-NLS-1$
 		return buf.toString();
 	}
 

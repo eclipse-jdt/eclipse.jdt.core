@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -940,7 +941,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$
 				}
 			} catch (FileNotFoundException e) {
-				throw new InvalidInputException(this.main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
+				throw new InvalidInputException(this.main.bind("configure.cannotOpenLog", logFileName)); //$NON-NLS-1$
 			}
 		}
 
@@ -1150,6 +1151,10 @@ public int timesCounter;
 public boolean timing = false;
 
 public boolean verbose = false;
+
+private String[] expandedCommandLine;
+
+private PrintWriter err;
 
 public Main(PrintWriter outWriter, PrintWriter errWriter, boolean systemExitWhenFinished) {
 	this(outWriter, errWriter, systemExitWhenFinished, null);
@@ -1918,6 +1923,9 @@ public void configure(String[] argv) throws InvalidInputException {
 	final int INSIDE_SOURCE_PATH_start = 13;
 	final int INSIDE_ENDORSED_DIRS = 15;
 	final int INSIDE_SOURCE_DIRECTORY_DESTINATION_PATH = 16;
+	final int INSIDE_PROCESSOR_PATH_start = 17;
+	final int INSIDE_PROCESSOR_start = 18;
+	final int INSIDE_S_start = 19;
 
 	final int DEFAULT = 0;
 	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
@@ -1996,6 +2004,7 @@ public void configure(String[] argv) throws InvalidInputException {
 		}
 	}
 	argCount = newCommandLineArgs.length;
+	this.expandedCommandLine = newCommandLineArgs;
 	while (++index < argCount) {
 
 		if (customEncoding != null) {
@@ -2422,6 +2431,42 @@ public void configure(String[] argv) throws InvalidInputException {
 					this.logger.setEmacs();
 					continue;
 				}
+				// annotation processing
+				if (currentArg.startsWith("-A")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-processorpath")) { //$NON-NLS-1$
+					mode = INSIDE_PROCESSOR_PATH_start;
+					continue;
+				}
+				if (currentArg.equals("-processor")) { //$NON-NLS-1$
+					mode = INSIDE_PROCESSOR_start;
+					continue;
+				}
+				if (currentArg.equals("-proc:only")) { //$NON-NLS-1$
+					this.options.put(
+						CompilerOptions.OPTION_GenerateClassFiles,
+						CompilerOptions.DISABLED);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-proc:none")) { //$NON-NLS-1$
+					this.options.put(
+						CompilerOptions.OPTION_Process_Annotations,
+						CompilerOptions.DISABLED);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-s")) { //$NON-NLS-1$
+					mode = INSIDE_S_start;
+					continue;
+				}
+				if (currentArg.equals("-XprintProcessorInfo") //$NON-NLS-1$
+						|| currentArg.equals("-XprintRounds")) { //$NON-NLS-1$ 
+					mode = DEFAULT;
+					continue;
+				}
 				// tolerated javac options - quietly filtered out
 				if (currentArg.startsWith("-X")) { //$NON-NLS-1$
 					mode = DEFAULT;
@@ -2576,7 +2621,19 @@ public void configure(String[] argv) throws InvalidInputException {
 						this.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$ 
 							"[-d " + currentArg)); //$NON-NLS-1$
 				}
-				// continue; fall through on purpose
+				break;
+			case INSIDE_PROCESSOR_PATH_start :
+				// nothing to do here. This is consumed again by the AnnotationProcessorManager
+				mode = DEFAULT;
+				continue;
+			case INSIDE_PROCESSOR_start :
+				// nothing to do here. This is consumed again by the AnnotationProcessorManager
+				mode = DEFAULT;
+				continue;
+			case INSIDE_S_start :
+				// nothing to do here. This is consumed again by the AnnotationProcessorManager
+				mode = DEFAULT;
+				continue;			
 		}
 
 		// default is input directory, if no custom destination path exists
@@ -2678,13 +2735,14 @@ public void configure(String[] argv) throws InvalidInputException {
 		this.timesCounter = 0;
 	}
 	
-	if (filesCount != 0)
+	if (filesCount != 0) {
 		System.arraycopy(
 			this.filenames,
 			0,
 			(this.filenames = new String[filesCount]),
 			0,
 			filesCount);
+	}
 
 	setPaths(bootclasspaths,
 			sourcepathClasspathArg,
@@ -2857,6 +2915,7 @@ protected void initialize(PrintWriter outWriter,
 		Map customDefaultOptions) {
 	this.logger = new Logger(this, outWriter, errWriter);
 	this.out = outWriter;
+	this.err = errWriter;
 	this.systemExitWhenFinished = systemExit;
 	this.options = new CompilerOptions().getMap();
 	if (customDefaultOptions != null) {
@@ -2952,6 +3011,11 @@ public void performCompilation() throws InvalidInputException {
 			getProblemFactory(),
 			this.out);
 
+	if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
+			&& this.compilerOptions.processAnnotations) {
+		initializeAnnotationProcessorManager();
+	}
+
 	// set the non-externally configurable options.
 	this.compilerOptions.verbose = this.verbose;
 	this.compilerOptions.produceReferenceInfo = this.produceRefInfo;
@@ -2967,7 +3031,24 @@ public void performCompilation() throws InvalidInputException {
 	// cleanup
 	environment.cleanup();
 }
-
+protected void initializeAnnotationProcessorManager() {
+	try {
+		Class c = Class.forName("org.eclipse.jdt.internal.compiler.apt.dispatch.AnnotationProcessorManager"); //$NON-NLS-1$
+		AbstractAnnotationProcessorManager annotationManager = (AbstractAnnotationProcessorManager) c.newInstance();
+		annotationManager.configure(this, this.expandedCommandLine);
+		annotationManager.setErr(this.err);
+		annotationManager.setOut(this.out);
+		this.batchCompiler.annotationProcessorManager = annotationManager;
+	} catch (ClassNotFoundException e) {
+		// ignore
+	} catch (InstantiationException e) {
+		// should not happen
+		throw new org.eclipse.jdt.internal.compiler.problem.AbortCompilation();
+	} catch (IllegalAccessException e) {
+		// should not happen
+		throw new org.eclipse.jdt.internal.compiler.problem.AbortCompilation();
+	}
+}
 public void printUsage() {
 	printUsage("misc.usage"); //$NON-NLS-1$
 }

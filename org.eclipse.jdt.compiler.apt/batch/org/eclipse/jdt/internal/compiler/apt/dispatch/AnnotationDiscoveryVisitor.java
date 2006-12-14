@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -23,9 +24,9 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 public class AnnotationDiscoveryVisitor extends ASTVisitor {
 
 Binding currentBinding;
-List collector;
+List<AnnotationBinding> collector;
 public AnnotationDiscoveryVisitor() {
-	this.collector = new ArrayList();
+	this.collector = new ArrayList<AnnotationBinding>();
 }
 public boolean visit(Argument argument, BlockScope scope) {
 	this.currentBinding = argument.binding;

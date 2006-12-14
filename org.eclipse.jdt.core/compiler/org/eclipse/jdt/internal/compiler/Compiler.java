@@ -40,6 +40,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	// ONCE STABILIZED, THESE SHOULD RETURN TO A FINAL FIELD
 	public static boolean DEBUG = false;
 	public int parseThreshold = -1;
+	
+	public AbstractAnnotationProcessorManager annotationProcessorManager;
+
 	// number of initial units parsed at once (-1: none)
 
 	/*
@@ -354,34 +357,30 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			CompilationUnitDeclaration parsedUnit;
 			CompilationResult unitResult =
 				new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
-			try {
-				if (options.verbose) {
-					this.out.println(
-						Messages.bind(Messages.compilation_request,
-						new String[] {
-							String.valueOf(i + 1),
-							String.valueOf(maxUnits),
-							new String(sourceUnits[i].getFileName())
-						}));
-				}
-				// diet parsing for large collection of units
-				if (totalUnits < parseThreshold) {
-					parsedUnit = parser.parse(sourceUnits[i], unitResult);
-				} else {
-					parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
-				}
-				// initial type binding creation
-				lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-				this.addCompilationUnit(sourceUnits[i], parsedUnit);
-				ImportReference currentPackage = parsedUnit.currentPackage;
-				if (currentPackage != null) {
-					unitResult.recordPackageName(currentPackage.tokens);
-				}
-				//} catch (AbortCompilationUnit e) {
-				//	requestor.acceptResult(unitResult.tagAsAccepted());
-			} finally {
-				sourceUnits[i] = null; // no longer hold onto the unit
+			if (options.verbose) {
+				this.out.println(
+					Messages.bind(Messages.compilation_request,
+					new String[] {
+						String.valueOf(i + 1),
+						String.valueOf(maxUnits),
+						new String(sourceUnits[i].getFileName())
+					}));
 			}
+			// diet parsing for large collection of units
+			if (totalUnits < parseThreshold) {
+				parsedUnit = parser.parse(sourceUnits[i], unitResult);
+			} else {
+				parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
+			}
+			ImportReference currentPackage = parsedUnit.currentPackage;
+			if (currentPackage != null) {
+				unitResult.recordPackageName(currentPackage.tokens);
+			}
+			// initial type binding creation
+			lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+			this.addCompilationUnit(sourceUnits[i], parsedUnit);
+			//} catch (AbortCompilationUnit e) {
+			//	requestor.acceptResult(unitResult.tagAsAccepted());
 		}
 		// binding resolution
 		lookupEnvironment.completeTypeBindings();
@@ -394,14 +393,19 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 */
 	public void compile(ICompilationUnit[] sourceUnits) {
 		CompilationUnitDeclaration unit = null;
-		int i = 0;
 		try {
 			// build and record parsed units
 
 			beginToCompile(sourceUnits);
 
+			if (this.annotationProcessorManager != null) {
+				processAnnotations(sourceUnits);
+				if (!options.generateClassFiles) {
+					return;
+				}
+			}
 			// process all units (some more could be injected in the loop by the lookup environment)
-			for (; i < this.totalUnits; i++) {
+			for (int i = 0; i < this.totalUnits; i++) {
 				unit = unitsToProcess[i];
 				try {
 					if (options.verbose)
@@ -447,6 +451,33 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				this.out.println(
 					Messages.bind(Messages.compilation_unit, String.valueOf(this.totalUnits))); 
 			}
+		}
+	}
+
+	protected void processAnnotations(ICompilationUnit[] sourceUnits) {
+		int newUnitSize = 0;
+		do {
+			this.annotationProcessorManager.processAnnotations(unitsToProcess, false);
+    		List newUnits = this.annotationProcessorManager.getNewUnits();
+    		newUnitSize = newUnits.size();
+    		ICompilationUnit[] newSourceUnits = sourceUnits;
+    		if (newUnitSize != 0) {
+    			// we reset the compiler in order to restart with the new units
+    			this.reset();
+    			int sourceUnitsLength = sourceUnits.length;
+    			newSourceUnits = new ICompilationUnit[sourceUnitsLength + newUnitSize];
+    			newUnits.toArray(newSourceUnits);
+    			System.arraycopy(sourceUnits, 0, newSourceUnits, newUnitSize, sourceUnitsLength);
+    			beginToCompile(newSourceUnits);
+    			this.annotationProcessorManager.reset();
+    		}
+		} while (newUnitSize != 0);
+		// one more loop to create possible resources
+		// this loop cannot create any java source files
+		this.annotationProcessorManager.processAnnotations(unitsToProcess, true);
+		List newUnits = this.annotationProcessorManager.getNewUnits();
+		if (newUnits.size() != 0) {
+			// TODO report error
 		}
 	}
 

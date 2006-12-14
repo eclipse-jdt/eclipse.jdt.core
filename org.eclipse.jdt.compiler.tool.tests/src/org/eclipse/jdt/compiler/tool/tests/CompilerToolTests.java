@@ -70,7 +70,10 @@ public class CompilerToolTests extends TestCase {
 		"-target",
 		"-maxProblems",
 		"-log",
-		"-repeat"
+		"-repeat",
+		"-processorpath",
+		"-s",
+		"-processor",
 	};
 	private static String[] ZERO_ARG_OPTIONS = {
 		"-1.3",
@@ -107,7 +110,11 @@ public class CompilerToolTests extends TestCase {
 		"-help",
 		"-v",
 		"-version",
-		"-showversion"
+		"-showversion",
+		"-XprintRounds",
+		"-XprintProcessorInfo",
+		"-proc:none",
+		"-proc:only",
 	};
 
 	private void displayLocation(StandardJavaFileManager manager, StandardLocation standardLocation) {
@@ -144,6 +151,7 @@ public class CompilerToolTests extends TestCase {
 		}
 		assertEquals("-Jignore requires no argument", 0, Compiler.isSupportedOption("-Jignore"));
 		assertEquals("-Xignore requires no argument", 0, Compiler.isSupportedOption("-Xignore"));
+		assertEquals("-Akey=value requires no argument", 0, Compiler.isSupportedOption("-Akey=value"));
 	}
 
 	public void testCompilerOneClassWithSystemCompiler() {

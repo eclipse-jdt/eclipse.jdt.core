@@ -65,7 +65,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 		try {
 			this.setLocation(StandardLocation.PLATFORM_CLASS_PATH, getDefaultBootclasspath());
-			this.setLocation(StandardLocation.CLASS_PATH, getDefaultClasspath());
+			Iterable<? extends File> defaultClasspath = getDefaultClasspath();
+			this.setLocation(StandardLocation.CLASS_PATH, defaultClasspath);
+			this.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, defaultClasspath);
 		} catch (IOException e) {
 			// ignore
 		}
@@ -193,6 +195,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 
 	private Iterable<? extends File> concatFiles(Iterable<? extends File> iterable, Iterable<? extends File> iterable2) {
 		ArrayList<File> list = new ArrayList<File>();
+		if (iterable2 == null) return iterable;
 		for (Iterator<? extends File> iterator = iterable.iterator(); iterator.hasNext(); ) {
 			list.add(iterator.next());
 		}
@@ -236,20 +239,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		return archive;
 	}
 
-	private Iterable<? extends File> getBootclasspathFrom(String path) {
-		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
-		ArrayList<File> files = new ArrayList<File>();
-		try {
-			this.compiler.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
-		} catch (InvalidInputException e) {
-			return null;
-		}
-		for (FileSystem.Classpath classpath : paths) {
-			files.add(new File(classpath.getPath()));
-		}
-		return files;
-	}
-
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getClassLoader(javax.tools.JavaFileManager.Location)
 	 */
@@ -272,7 +261,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		return new URLClassLoader(allURLs.toArray(result), getClass().getClassLoader());
 	}
 
-	private Iterable<? extends File> getClasspathFrom(String path) {
+	private Iterable<? extends File> getPathsFrom(String path) {
 		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
 		ArrayList<File> files = new ArrayList<File>();
 		try {
@@ -471,7 +460,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 		Iterable<? extends File> files = getLocation(location);
 		if (files == null) {
-			if (!location.equals(StandardLocation.CLASS_OUTPUT))
+			if (!location.equals(StandardLocation.CLASS_OUTPUT)
+					&& !location.equals(StandardLocation.SOURCE_OUTPUT))
 				throw new IllegalArgumentException("Unknown location : " + location);//$NON-NLS-1$
 			// we will use either the sibling or user.dir
 			if (sibling != null) {
@@ -590,20 +580,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		return list;
 	}
 
-	private Iterable<? extends File> getSourcepathFrom(String path) {
-		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
-		ArrayList<File> files = new ArrayList<File>();
-		try {
-			this.compiler.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
-		} catch (InvalidInputException e) {
-			return null;
-		}
-		for (FileSystem.Classpath classpath : paths) {
-			files.add(new File(classpath.getPath()));
-		}
-		return files;
-	}
-
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#handleOption(java.lang.String, java.util.Iterator)
 	 */
@@ -612,7 +588,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			if ("-bootclasspath".equals(current)) {//$NON-NLS-1$
 				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
-					final Iterable<? extends File> bootclasspaths = getBootclasspathFrom(remaining.next());
+					final Iterable<? extends File> bootclasspaths = getPathsFrom(remaining.next());
 					if (bootclasspaths != null) {
 						Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
 						if ((this.flags & HAS_ENDORSED_DIRS) == 0
@@ -639,7 +615,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			if ("-classpath".equals(current) || "-cp".equals(current)) {//$NON-NLS-1$//$NON-NLS-2$
 				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
-					final Iterable<? extends File> classpaths = getClasspathFrom(remaining.next());
+					final Iterable<? extends File> classpaths = getPathsFrom(remaining.next());
 					if (classpaths != null) setLocation(StandardLocation.CLASS_PATH, classpaths);
 					remaining.remove();
 					return true;
@@ -660,7 +636,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			if ("-sourcepath".equals(current)) {//$NON-NLS-1$
 				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
-					final Iterable<? extends File> sourcepaths = getSourcepathFrom(remaining.next());
+					final Iterable<? extends File> sourcepaths = getPathsFrom(remaining.next());
 					if (sourcepaths != null) setLocation(StandardLocation.SOURCE_PATH, sourcepaths);
 					remaining.remove();
 					return true;
@@ -694,12 +670,40 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					throw new IllegalArgumentException();
 				}
 			}
-			if ("-d".equals(current)) {//$NON-NLS-1$
+			if ("-d".equals(current)) { //$NON-NLS-1$
 				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> outputDir = getOutputDir(remaining.next());
 					if (outputDir != null) {
 						setLocation(StandardLocation.CLASS_OUTPUT, outputDir);
+					}
+					remaining.remove();
+					return true;
+				} else {
+					throw new IllegalArgumentException();
+				}
+			}
+			if ("-s".equals(current)) { //$NON-NLS-1$
+				remaining.remove(); // remove the current option
+				if (remaining.hasNext()) {
+					final Iterable<? extends File> outputDir = getOutputDir(remaining.next());
+					if (outputDir != null) {
+						setLocation(StandardLocation.SOURCE_OUTPUT, outputDir);
+					}
+					remaining.remove();
+					return true;
+				} else {
+					throw new IllegalArgumentException();
+				}				
+			}
+			if ("-processorpath".equals(current) || "-cp".equals(current)) {//$NON-NLS-1$//$NON-NLS-2$
+				remaining.remove(); // remove the current option
+				if (remaining.hasNext()) {
+					final Iterable<? extends File> processorpaths = getPathsFrom(remaining.next());
+					if (processorpaths != null) {
+						Iterable<? extends File> iterable = getLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH);
+						setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, 
+							prependFiles(iterable, processorpaths));
 					}
 					remaining.remove();
 					return true;
@@ -797,6 +801,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 
 	private Iterable<? extends File> prependFiles(Iterable<? extends File> iterable,
 			Iterable<? extends File> iterable2) {
+		if (iterable2 == null) return iterable;
 		ArrayList<File> list = new ArrayList<File>();
 		for (Iterator<? extends File> iterator = iterable2.iterator(); iterator.hasNext(); ) {
 			list.add(iterator.next());

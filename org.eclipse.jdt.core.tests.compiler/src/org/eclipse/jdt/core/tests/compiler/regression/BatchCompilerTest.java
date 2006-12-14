@@ -940,12 +940,26 @@ public void test012(){
         "    -g:none            no debug info\n" + 
         "    -preserveAllLocals preserve unused local vars for debug purpose\n" + 
         " \n" + 
-        " Ignored options:\n" + 
-        "    -J<option>         pass option to virtual machine (ignored)\n" + 
-        "    -X<option>         specify non-standard option (ignored\n" + 
-        "                       except for -Xemacs)\n" + 
-        "    -X                 print non-standard options and exit (ignored)\n" + 
-        "    -O                 optimize for execution time (ignored)\n" + 
+        " Annotation processing options:\n" + 
+        "   These options are meaningful only in a 1.6 environment.\n" + 
+        "    -Akey[=value]        annotation processors options that are made to\n" + 
+        "                         annotation processors. key are identifiers separated\n" + 
+        "                         by ..\n" + 
+        "    -processorpath <directories and zip/jar files separated by ;>\n" + 
+        "                         specify locations where to find annotation processors\n" + 
+        "                         If this option is not used, the classpath will be\n" + 
+        "                         searched for processors.\n" + 
+        "    -processor <class1[,class2,...]>\n" + 
+        "                         Qualified names of the annotation processors to run.\n" + 
+        "                         This bypasses the default annotation discovery process\n" + 
+        "    -proc:only           run annotation processors, but do not compile\n" + 
+        "    -proc:none           perform compilation but do not run annotation\n" + 
+        "                         processors\n" + 
+        "    -s <dir>             specify a directory where to put the generated source\n" + 
+        "                         files\n" + 
+        "    -XprintProcessorInfo print information about which annotations and which\n" + 
+        "                         elements a processor is asked to process\n" + 
+        "    -XprintRounds        print information about annotation processing rounds.\n" + 
         " \n" + 
         " Advanced options:\n" + 
         "    @<file>            read command line arguments from file\n" + 
@@ -970,6 +984,13 @@ public void test012(){
         "    -? -help           print this help message\n" + 
         "    -v -version        print compiler version\n" + 
         "    -showversion       print compiler version and continue\n" + 
+        " \n" + 
+        " Ignored options:\n" + 
+        "    -J<option>         pass option to virtual machine (ignored)\n" + 
+        "    -X<option>         specify non-standard option (ignored\n" + 
+        "                       except for listed -X options)\n" + 
+        "    -X                 print non-standard options and exit (ignored)\n" + 
+        "    -O                 optimize for execution time (ignored)\n" + 
         "\n";
 	String expandedExpectedOutput = 
 		MessageFormat.format(expectedOutput, new String[] {
@@ -1137,6 +1158,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.sourceFile\" value=\"generate\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.doc.comment.support\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.generateClassFiles\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.maxProblemPerUnit\" value=\"100\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotationSuperInterface\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.assertIdentifier\" value=\"warning\"/>\n" + 
@@ -1203,6 +1225,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.processAnnotations\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\n" + 
