@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 16, 23, 146, 169, 191 };
+//		TESTS_NUMBERS = new int[] { 232, 233 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -7375,5 +7375,114 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			typeBinding= typeBinding.getSuperclass();
 		}
 		assertEquals("Wrong number of annotations", "020", String.valueOf(buffer));
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=167958
+	 */
+	public void test0232() throws JavaModelException {
+		/*
+			package test0232;
+			import static java.lang.annotation.ElementType.*;
+			import static java.lang.annotation.RetentionPolicy.*;
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.Target;
+			
+			@Target(TYPE)
+			@Retention(RUNTIME)
+			@interface Annot {
+			}
+			package test0232;
+			@Annot
+			public class X {
+			}
+		 */
+		String contents =
+			"import test0232.X;\n" +
+			"public class A {\n" + 
+			"    X test() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/A.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			workingCopy,
+			true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		Type type = declaration.getReturnType2();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertTrue("Not a binary type binding", !typeBinding.isFromSource());
+		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+		assertNotNull("No annotations", annotations);
+		assertEquals("Wrong size", 1, annotations.length);
+		IAnnotationBinding annotationBinding = annotations[0];
+		assertEquals("Wrong name", "Annot", annotationBinding.getName());
+		ITypeBinding binding = annotationBinding.getAnnotationType();
+		assertEquals("Wrong name", "test0232.Annot", binding.getQualifiedName());
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=167958
+	 */
+	public void test0233() throws JavaModelException {
+		/*
+			package test0233;
+			
+			import static java.lang.annotation.ElementType.*;
+			import static java.lang.annotation.RetentionPolicy.*;
+			
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.Target;
+			
+			@Target(TYPE)
+			@Retention(CLASS)
+			@interface Annot {
+				String message() default "";
+			}
+			
+			package test0233;
+			
+			@Annot(message="Hello, World!")
+			public class X {
+			}
+		 */
+		String contents =
+			"import test0233.X;\n" +
+			"public class A {\n" + 
+			"    X test() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/A.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			workingCopy,
+			true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		Type type = declaration.getReturnType2();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertTrue("Not a binary type binding", !typeBinding.isFromSource());
+		IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+		assertNotNull("No annotations", annotations);
+		assertEquals("Wrong size", 1, annotations.length);
+		IAnnotationBinding annotationBinding = annotations[0];
+		assertEquals("Wrong name", "Annot", annotationBinding.getName());
+		ITypeBinding binding = annotationBinding.getAnnotationType();
+		assertEquals("Wrong name", "test0233.Annot", binding.getQualifiedName());
+		IMemberValuePairBinding[] pairs = annotationBinding.getAllMemberValuePairs();
+		assertEquals("Wrong number", 1, pairs.length);
+		assertEquals("Wrong key", "message", pairs[0].getName());
+		assertEquals("Wrong value", "Hello, World!", pairs[0].getValue());
 	}
 }
