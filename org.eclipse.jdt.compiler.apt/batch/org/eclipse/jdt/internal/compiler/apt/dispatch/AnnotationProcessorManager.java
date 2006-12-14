@@ -20,6 +20,7 @@ public class AnnotationProcessorManager extends AbstractAnnotationProcessorManag
 	List<ICompilationUnit> addedUnits;
 	JavaFileManager fileManager;
 	
+	@Override
 	public void configure(Main batchCompiler, String[] commandLineArguments) {
 		if (batchCompiler instanceof EclipseCompiler) {
 			this.fileManager = ((EclipseCompiler) batchCompiler).fileManager;
@@ -42,30 +43,43 @@ public class AnnotationProcessorManager extends AbstractAnnotationProcessorManag
 		this.addedUnits = new ArrayList<ICompilationUnit>();
 	}
 
-	public void processAnnotations(CompilationUnitDeclaration[] units, boolean isLastRound) {
+	@Override
+	public void processAnnotation(CompilationUnitDeclaration unit) {
 		// do nothing
 	}
-	
+
 	public void addNewUnit(ICompilationUnit unit) {
 		this.addedUnits.add(unit);
 	}
 
-	public List<ICompilationUnit> getNewUnits() {
-		return this.addedUnits;
+	@Override
+	public ICompilationUnit[] getNewUnits() {
+		ICompilationUnit[] result = new ICompilationUnit[this.addedUnits.size()];
+		this.addedUnits.toArray(result);
+		return result;
 	}
 	
+	@Override
+	public void processLastRound() {
+		// do nothing
+	}
+	
+	@Override
 	public void reset() {
 		this.addedUnits.clear();
 	}
 
+	@Override
 	public void setErr(PrintWriter err) {
 		// do nothing
 	}
 
+	@Override
 	public void setProcessors(Object[] processors) {
 		// do nothing
 	}
 	
+	@Override
 	public void setOut(PrintWriter out) {
 		// do nothing
 	}

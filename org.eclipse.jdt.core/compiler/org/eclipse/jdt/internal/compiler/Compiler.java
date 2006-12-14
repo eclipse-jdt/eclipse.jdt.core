@@ -431,6 +431,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 							new String(unit.getFileName())
 						}));
 			}
+			if (this.annotationProcessorManager != null) {
+				this.annotationProcessorManager.processLastRound();
+			}
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
 		} catch (Error e) {
@@ -452,34 +455,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			}
 		}
 	}
-
-	protected void processAnnotations(ICompilationUnit[] sourceUnits) {
-		int newUnitSize = 0;
-		do {
-			this.annotationProcessorManager.processAnnotations(unitsToProcess, false);
-    		List newUnits = this.annotationProcessorManager.getNewUnits();
-    		newUnitSize = newUnits.size();
-    		ICompilationUnit[] newSourceUnits = sourceUnits;
-    		if (newUnitSize != 0) {
-    			// we reset the compiler in order to restart with the new units
-    			this.reset();
-    			int sourceUnitsLength = sourceUnits.length;
-    			newSourceUnits = new ICompilationUnit[sourceUnitsLength + newUnitSize];
-    			newUnits.toArray(newSourceUnits);
-    			System.arraycopy(sourceUnits, 0, newSourceUnits, newUnitSize, sourceUnitsLength);
-    			beginToCompile(newSourceUnits);
-    			this.annotationProcessorManager.reset();
-    		}
-		} while (newUnitSize != 0);
-		// one more loop to create possible resources
-		// this loop cannot create any java source files
-		this.annotationProcessorManager.processAnnotations(unitsToProcess, true);
-		List newUnits = this.annotationProcessorManager.getNewUnits();
-		if (newUnits.size() != 0) {
-			// TODO report error
-		}
-	}
-
 	/*
 	 * Compiler crash recovery in case of unexpected runtime exceptions
 	 */
@@ -614,6 +589,18 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 * Process a compilation unit already parsed and build.
 	 */
 	public void process(CompilationUnitDeclaration unit, int i) {
+		if (this.annotationProcessorManager != null) {
+			this.annotationProcessorManager.processAnnotation(unit);
+    		ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
+			for (int j = 0, max = newUnits.length; j < max; j++) {
+				this.accept(newUnits[j], null);
+			}
+			this.annotationProcessorManager.reset();
+			if (!this.options.generateClassFiles) {
+				// compiler was called with -proc:only
+				return;
+			}
+		}
 
 		this.parser.getMethodBodies(unit);
 
