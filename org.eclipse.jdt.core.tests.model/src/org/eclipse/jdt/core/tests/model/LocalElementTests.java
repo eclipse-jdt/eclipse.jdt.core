@@ -27,7 +27,7 @@ public class LocalElementTests extends ModifyingResourceTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testLocalType5" };
+//		TESTS_NAMES = new String[] { "testLocalType8" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 13 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -479,5 +479,102 @@ public class LocalElementTests extends ModifyingResourceTests {
 			deleteFile("/P/X.java");
 		}
 	}
+    
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
+    public void _testLocalType6() throws CoreException {
+        try {
+            createFile(
+                "/P/X.java",
+                "public class X {\n" +
+                "  void foo() {\n" +
+                "    class Y {\n" +
+                "      {\n" +
+                "        class Z {\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}"
+            );
+            ICompilationUnit cu = getCompilationUnit("/P/X.java");
+            assertElementDescendants(
+                "Unexpected compilation unit contents",
+                "X.java\n" + 
+                "  class X\n" + 
+                "    void foo()\n" + 
+                "      class Y\n" + 
+                "        <initializer #1>\n" + 
+                "          class Z",
+                cu);
+        } finally {
+            deleteFile("/P/X.java");
+        }
+    }    
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
+    public void _testLocalType7() throws CoreException {
+        try {
+            createFile(
+                "/P/X.java",
+                "public class X {\n" +
+                "  void foo() {\n" +
+                "    class Y {\n" +
+                "      {\n" +
+                "        class Z {\n" +
+                "        }\n" +
+                "      }\n" +
+                "      String s = null;\n" +
+                "    }\n" +
+                "  }\n" +
+                "}"
+            );
+            ICompilationUnit cu = getCompilationUnit("/P/X.java");
+            assertElementDescendants(
+                "Unexpected compilation unit contents",
+                "X.java\n" + 
+                "  class X\n" + 
+                "    void foo()\n" + 
+                "      class Y\n" + 
+                "        <initializer #1>\n" + 
+                "          class Z\n" +
+                "        String s", 
+                cu);
+        } finally {
+            deleteFile("/P/X.java");
+        }
+    }         
+    
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
+    public void _testLocalType8() throws CoreException {
+        try {
+            createFile(
+                "/P/X.java",
+                "public class X {\n" +
+                "  void foo() {\n" +
+                "    class Y {\n" +
+                "      String s = null;\n" +
+                "      {\n" +
+                "        class Z {\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}"
+            );
+            ICompilationUnit cu = getCompilationUnit("/P/X.java");
+            assertElementDescendants(
+                "Unexpected compilation unit contents",
+                "X.java\n" + 
+                "  class X\n" + 
+                "    void foo()\n" + 
+                "      class Y\n" + 
+                "        String s\n"+ 
+                "        <initializer #1>\n" + 
+                "          class Z",
+                cu);
+        } finally {
+            deleteFile("/P/X.java");
+        }
+    }      
+    
 }

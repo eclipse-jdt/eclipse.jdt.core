@@ -143,6 +143,9 @@ protected void addImport(SourceImport sourceImport) {
 	currentImports[numberOfImports++] = sourceImport;
 }
 public void dietParse(String s, String testName) {
+	this.dietParse(s, testName, false);
+}
+public void dietParse(String s, String testName, boolean recordLocalDeclaration) {
 
 	this.source = s.toCharArray();
 	reset();
@@ -151,7 +154,7 @@ public void dietParse(String s, String testName) {
 			this, 
 			new DefaultProblemFactory(Locale.getDefault()), 
 			new CompilerOptions(getCompilerOptions()),
-			false/*don't record local declarations*/,
+			recordLocalDeclaration/*don't record local declarations*/,
 			true/*optimize string literals*/); 
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
@@ -305,14 +308,16 @@ protected void exitAbstractMethod(int declarationEnd) {
 	currentMethod.setDeclarationSourceEnd(declarationEnd);
 }
 public void fullParse(String s, String testName) {
-
+	this.fullParse(s, testName, false);
+}
+public void fullParse(String s, String testName, boolean recordLocalDeclaration) {
 	this.source = s.toCharArray();
 	reset();
 	SourceElementParser parser = 
 		new SourceElementParser(
 			this, new DefaultProblemFactory(Locale.getDefault()), 
 			new CompilerOptions(getCompilerOptions()),
-			false/*don't record local declarations*/,
+			recordLocalDeclaration/*don't record local declarations*/,
 			true/*optimize string literals*/); 
 
 	ICompilationUnit sourceUnit = new CompilationUnit(source, testName, null);
@@ -5155,5 +5160,113 @@ public void testBug99662() {
 	fullParse(s,testName);
 
 	assertNull("package-info.java file should not have ANY type!",  this.currentType);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
+public void _test77() {
+
+	String s =
+		"public class X {\n" + 
+		"	void foo() {\n" + 
+		"		class Y {\n" + 
+		"			String s = null;\n" + 
+		"			{\n" + 
+		"				class Z {\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+
+	String expectedUnitToString = 
+		"public class X implements Y, String, {\n"
+		+ "}";
+			
+	String testName = "test77: diet parse";
+	dietParse(s,testName, true);
+	assertEquals(
+		"Invalid source " + testName, 
+		expectedUnitToString, 
+		currentType.toString()); 
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
+public void _test78() {
+
+	String s =
+		"public class X {\n" + 
+		"	void foo() {\n" + 
+		"		class Y {\n" + 
+		"			String s = null;\n" + 
+		"			{\n" + 
+		"				class Z {\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+
+	String expectedUnitToString = 
+		"public class X implements Y, String, {\n"
+		+ "}";
+			
+	String testName = "test78: full parse";
+	fullParse(s,testName, true);
+	assertEquals(
+		"Invalid source " + testName, 
+		expectedUnitToString, 
+		currentType.toString()); 
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
+public void _test79() {
+
+	String s =
+		"public class X {\n" + 
+		"	void foo() {\n" + 
+		"		class Y {\n" + 
+		"			{\n" + 
+		"				class Z {\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"			String s = null;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+
+	String expectedUnitToString = 
+		"public class X implements Y, String, {\n"
+		+ "}";
+			
+	String testName = "test79: diet parse";
+	dietParse(s,testName, true);
+	assertEquals(
+		"Invalid source " + testName, 
+		expectedUnitToString, 
+		currentType.toString()); 
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
+public void _test80() {
+
+	String s =
+		"public class X {\n" + 
+		"	void foo() {\n" + 
+		"		class Y {\n" + 
+		"			{\n" + 
+		"				class Z {\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"			String s = null;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+
+	String expectedUnitToString = 
+		"public class X implements Y, String, {\n"
+		+ "}";
+			
+	String testName = "test80: full parse";
+	fullParse(s,testName, true);
+	assertEquals(
+		"Invalid source " + testName, 
+		expectedUnitToString, 
+		currentType.toString()); 
 }
 }
