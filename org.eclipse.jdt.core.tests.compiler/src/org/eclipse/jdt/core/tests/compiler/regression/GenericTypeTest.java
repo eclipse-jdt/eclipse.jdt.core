@@ -33,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1094 };
+//		TESTS_NUMBERS = new int[] { 1095, 1096 };
 //		TESTS_RANGE = new int[] { 1071, -1 };
 	}
 	public static Test suite() {
@@ -36095,5 +36095,74 @@ public void _test1094() {
 		null /* vm arguments*/,
 		customOptions,
 		null /* compiler requestor*/);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167952
+//invalid bug - regression test only
+public void test1095() {
+	Map customOptions = this.getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"import java.lang.reflect.Constructor;\n" + 
+			"\n" + 
+			"@interface Annot {\n" + 
+			"	String message() default \"\"; //$NON-NLS-1$\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	X() {\n" + 
+			"	}\n" + 
+			"	public String getAnnotationValue(Constructor constructor){\n" + 
+			"		Annot annotation = constructor.getAnnotation(Annot.class);\n" + 
+			"		return (annotation != null) ? annotation.message() : null;\n" + 
+			"	}\n" + 
+			"}"
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	Annot annotation = constructor.getAnnotation(Annot.class);\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Annotation to Annot\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions,
+		false /* do not generate output */,
+		false /* do not show category */, 
+		false /* do not show warning token */, 
+		false  /* do not skip javac for this peculiar test */,
+		false  /* do not perform statements recovery */);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167952
+//invalid bug - regression test only
+public void test1096() {
+	Map customOptions = this.getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.reflect.Constructor;\n" + 
+			"\n" + 
+			"@interface Annot {\n" + 
+			"	String message() default \"\"; //$NON-NLS-1$\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	X() {\n" + 
+			"	}\n" + 
+			"	public String getAnnotationValue(Constructor<X> constructor){\n" + 
+			"		Annot annotation = constructor.getAnnotation(Annot.class);\n" + 
+			"		return (annotation != null) ? annotation.message() : null;\n" + 
+			"	}\n" + 
+			"}"
+		}, 
+		"",
+		null /* no extra class libraries */, 
+		true /* flush output directory */,
+		null,
+		customOptions,
+		null/* do not perform statements recovery */);
 }
 }
