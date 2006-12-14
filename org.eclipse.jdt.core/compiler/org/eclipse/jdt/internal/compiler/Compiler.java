@@ -357,30 +357,34 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			CompilationUnitDeclaration parsedUnit;
 			CompilationResult unitResult =
 				new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
-			if (options.verbose) {
-				this.out.println(
-					Messages.bind(Messages.compilation_request,
-					new String[] {
-						String.valueOf(i + 1),
-						String.valueOf(maxUnits),
-						new String(sourceUnits[i].getFileName())
-					}));
+			try {
+				if (options.verbose) {
+					this.out.println(
+						Messages.bind(Messages.compilation_request,
+						new String[] {
+							String.valueOf(i + 1),
+							String.valueOf(maxUnits),
+							new String(sourceUnits[i].getFileName())
+						}));
+				}
+				// diet parsing for large collection of units
+				if (totalUnits < parseThreshold) {
+					parsedUnit = parser.parse(sourceUnits[i], unitResult);
+				} else {
+					parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
+				}
+				// initial type binding creation
+				lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+				this.addCompilationUnit(sourceUnits[i], parsedUnit);
+				ImportReference currentPackage = parsedUnit.currentPackage;
+				if (currentPackage != null) {
+					unitResult.recordPackageName(currentPackage.tokens);
+				}
+				//} catch (AbortCompilationUnit e) {
+				//	requestor.acceptResult(unitResult.tagAsAccepted());
+			} finally {
+				sourceUnits[i] = null; // no longer hold onto the unit
 			}
-			// diet parsing for large collection of units
-			if (totalUnits < parseThreshold) {
-				parsedUnit = parser.parse(sourceUnits[i], unitResult);
-			} else {
-				parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
-			}
-			ImportReference currentPackage = parsedUnit.currentPackage;
-			if (currentPackage != null) {
-				unitResult.recordPackageName(currentPackage.tokens);
-			}
-			// initial type binding creation
-			lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-			this.addCompilationUnit(sourceUnits[i], parsedUnit);
-			//} catch (AbortCompilationUnit e) {
-			//	requestor.acceptResult(unitResult.tagAsAccepted());
 		}
 		// binding resolution
 		lookupEnvironment.completeTypeBindings();
@@ -393,19 +397,14 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 */
 	public void compile(ICompilationUnit[] sourceUnits) {
 		CompilationUnitDeclaration unit = null;
+		int i = 0;
 		try {
 			// build and record parsed units
 
 			beginToCompile(sourceUnits);
 
-			if (this.annotationProcessorManager != null) {
-				processAnnotations(sourceUnits);
-				if (!options.generateClassFiles) {
-					return;
-				}
-			}
 			// process all units (some more could be injected in the loop by the lookup environment)
-			for (int i = 0; i < this.totalUnits; i++) {
+			for (; i < this.totalUnits; i++) {
 				unit = unitsToProcess[i];
 				try {
 					if (options.verbose)
