@@ -335,9 +335,14 @@ public class SourceTypeConverter {
 				if ((this.flags & FIELD_INITIALIZATION) != 0) {
 					if (hasDefaultValue) {
 						char[] defaultValueSource = CharOperation.subarray(getSource(), annotationMethodInfo.defaultValueStart, annotationMethodInfo.defaultValueEnd+1);
-						Expression expression =  parseMemberValue(defaultValueSource);
-						if (expression != null) {
-							annotationMethodDeclaration.defaultValue = expression;
+						if (defaultValueSource != null) {
+    						Expression expression =  parseMemberValue(defaultValueSource);
+    						if (expression != null) {
+    							annotationMethodDeclaration.defaultValue = expression;
+    						}
+						} else {
+							// could not retrieve the default value
+							hasDefaultValue = false;
 						}
 					}
 				}
@@ -598,15 +603,17 @@ public class SourceTypeConverter {
 			int start = (int) (position >>> 32);
 			int end = (int) position;
 			char[] annotationSource = CharOperation.subarray(cuSource, start, end+1);
-			Expression expression = parseMemberValue(annotationSource);
-			/*
-			 * expression can be null or not an annotation if the source has changed between
-			 * the moment where the annotation source positions have been retrieved and the moment were
-			 * this parsing occured.
-			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=90916
-			 */
-			if (expression instanceof Annotation) {
-				annotations[recordedAnnotations++] = (Annotation) expression;
+			if (annotationSource != null) {
+    			Expression expression = parseMemberValue(annotationSource);
+    			/*
+    			 * expression can be null or not an annotation if the source has changed between
+    			 * the moment where the annotation source positions have been retrieved and the moment were
+    			 * this parsing occured.
+    			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=90916
+    			 */
+    			if (expression instanceof Annotation) {
+    				annotations[recordedAnnotations++] = (Annotation) expression;
+    			}
 			}
 		}
 		if (length != recordedAnnotations) {
@@ -1124,9 +1131,7 @@ public class SourceTypeConverter {
 	}
 	
 	private Expression parseMemberValue(char[] memberValue) {
-		if (memberValue == null) {
-			return null;
-		}
+		// memberValue must not be null
 		if (this.parser == null) {
 			this.parser = new Parser(this.problemReporter, true);
 		}
