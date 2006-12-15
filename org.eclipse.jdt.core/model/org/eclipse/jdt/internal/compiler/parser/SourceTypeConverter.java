@@ -1124,6 +1124,9 @@ public class SourceTypeConverter {
 	}
 	
 	private Expression parseMemberValue(char[] memberValue) {
+		if (memberValue == null) {
+			return null;
+		}
 		if (this.parser == null) {
 			this.parser = new Parser(this.problemReporter, true);
 		}
