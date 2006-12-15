@@ -13343,6 +13343,41 @@ public void testBug164311() throws JavaModelException {
 			"zzzzzz[FIELD_REF]{zzzzzz, Ltest.Test;, I, zzzzzz, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=164311
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167750
+public void testBug164311_2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n"+
+		"public class X {\n"+
+		"    public void zork() { \n"+
+		"    } \n"+
+		"    public void foo() { \n"+
+		"        this.foo(new Object(){\n"+
+		"            public void bar() {\n"+
+		"                if (zzz>(Integer)vvv.foo(i)) {\n"+
+		"                    return;\n"+
+		"                }\n"+
+		"                if (true) {\n"+
+		"                    return;\n"+
+		"                }\n"+
+		"                zor\n"+
+		"            }        \n"+    
+		"        });\n"+
+		"    }\n"+
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "zor";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"zork[METHOD_REF]{zork(), Ltest.X;, ()V, zork, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
 public void testFavoriteImports001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
