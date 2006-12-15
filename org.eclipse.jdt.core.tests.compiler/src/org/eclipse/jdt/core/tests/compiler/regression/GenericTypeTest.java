@@ -34,7 +34,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
 //		TESTS_NUMBERS = new int[] { 1095, 1096 };
-//		TESTS_RANGE = new int[] { 1071, -1 };
+//		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
 		return buildComparableTestSuite(testClass());
@@ -3625,6 +3625,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
+	// test generic method
+	public void test0118a() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"class A<T> {}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	static <T extends A<U>, U> void foo() {}\n" + 
+				"	void bar(A<?> a) {\n" + 
+				"		foo();\n" + 
+				"	}\n" + 
+				"}"
+			}, 
+			"");
+	}	
 	// test binary member types **
 	public void _test0119() {
 		this.runConformTest(
@@ -3684,7 +3700,23 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"SUCCESS");
-	}			
+	}
+	// test generic method
+	public void test0120a() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<E> {\n" + 
+				"    <U extends X<?>> U foo() {\n" + 
+				"    	return null;\n" + 
+				"    }\n" + 
+				"    <V extends X<?>> V bar() {\n" + 
+				"        return foo();\n" + 
+				"    }\n" + 
+				"}"
+			}, 
+			"");
+	}
 	// substitute array types
 	public void test0121() {
 		this.runConformTest(
@@ -12474,6 +12506,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
+	public void test0429a() { 
 		this.runConformTest(
 			new String[] {
 				"X2.java",
@@ -12483,6 +12518,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
+	public void test0429b() { 
 		this.runConformTest(
 			new String[] {
 				"X3.java",
@@ -12492,6 +12530,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			""
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
+	public void test0429c() { 
 		this.runNegativeTest(
 			new String[] {
 				"X4.java",
@@ -12508,6 +12549,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 			// no complaints about duplicates if they are both parameterized with same args
 			// but you cannot extend Comparable & Comparable so we'll report an error
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
+	public void test0429d() { 
 		this.runNegativeTest(
 			new String[] {
 				"X5.java",
@@ -12527,6 +12571,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <X5> and <Y>
 		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
+	public void test0429e() { 
 		this.runNegativeTest(
 			new String[] {
 				"X6.java",
@@ -12547,6 +12594,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <X6> and <Y>
 		);
+	}
+		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
+	public void test0429f() { 
 		this.runNegativeTest(
 			new String[] {
 				"X7.java",
@@ -12568,6 +12619,35 @@ public class GenericTypeTest extends AbstractComparableTest {
 			// Comparable cannot be inherited with different arguments: <Z> and <X7>
 		);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
+	public void test0429g() {
+		this.runNegativeTest(new String[] {
+				"X.java",
+				"interface I<T> {}\n" + 
+				"\n" + 
+				"class A implements I<A>, I<A> {}\n" + 
+				"public class X<E extends A & I<E> & I<E>>  {\n" + 
+				"}"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	class A implements I<A>, I<A> {}\n" + 
+			"	                         ^\n" + 
+			"Duplicate interface I<A> for the type A\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	public class X<E extends A & I<E> & I<E>>  {\n" + 
+			"	                             ^\n" + 
+			"The interface I cannot be implemented more than once with different arguments: I<E> and I<A>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	public class X<E extends A & I<E> & I<E>>  {\n" + 
+			"	                                    ^\n" + 
+			"Duplicate bound I<E>\n" + 
+			"----------\n");
+	}
+	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=79797
 	public void test0430() {
 		this.runConformTest(
@@ -13241,7 +13321,21 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"");
-	}			
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
+	public void test0448a() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	class Y {}\n" + 
+				"	X<?>.Y[] tab = new X<?>.Y[] {};\n" + 
+				"}"
+			}, 
+			"");
+	}
+
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
 	public void test0449() {
@@ -32516,6 +32610,22 @@ public void test1018() {
 		},
 		"");
 }
+public void test1018a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {}\n" + 
+			"\n" + 
+			"class B<E> extends A<X<String>> {}\n" + 
+			"\n" + 
+			"public class X<E extends String> extends B<E> {\n" +
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"}"
+		}, 
+		"SUCCESS");
+}
 public void test1019() {
 	this.runNegativeTest(
 		new String[] {
@@ -36164,5 +36274,25 @@ public void test1096() {
 		null,
 		customOptions,
 		null/* do not perform statements recovery */);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=168232
+public void test1097() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	String[] foo = new <Zork>String[] {};\n" + 
+			"}"
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	String[] foo = new <Zork>String[] {};\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on token(s), misplaced construct(s)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	String[] foo = new <Zork>String[] {};\n" + 
+		"	                        ^\n" + 
+		"Syntax error on token \">\", , expected\n" + 
+		"----------\n");
 }
 }
