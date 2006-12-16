@@ -17,9 +17,7 @@ public abstract class AbstractAnnotationProcessorManager {
 	
 	public abstract void reset();
 	
-	public abstract void processAnnotation(CompilationUnitDeclaration unit);
+	public abstract void processAnnotations(CompilationUnitDeclaration[] units, boolean isLastRound);
 	
 	public abstract void setProcessors(Object[] processors);
-	
-	public abstract void processLastRound();
 }

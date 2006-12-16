@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
 public class AnnotationProcessorManager extends AbstractAnnotationProcessorManager {
 	List<ICompilationUnit> addedUnits;
 	JavaFileManager fileManager;
-	
+
 	@Override
 	public void configure(Main batchCompiler, String[] commandLineArguments) {
 		if (batchCompiler instanceof EclipseCompiler) {
@@ -32,9 +32,9 @@ public class AnnotationProcessorManager extends AbstractAnnotationProcessorManag
 			for (String argument : commandLineArguments) {
 				options.add(argument);
 			}
-    		for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
-    			manager.handleOption(iterator.next(), iterator);
-    		}
+			for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
+				manager.handleOption(iterator.next(), iterator);
+			}
 			this.fileManager = manager;
 		}
 	}
@@ -44,7 +44,7 @@ public class AnnotationProcessorManager extends AbstractAnnotationProcessorManag
 	}
 
 	@Override
-	public void processAnnotation(CompilationUnitDeclaration unit) {
+	public void processAnnotations(CompilationUnitDeclaration[] units, boolean isLastRound) {
 		// do nothing
 	}
 
@@ -58,12 +58,7 @@ public class AnnotationProcessorManager extends AbstractAnnotationProcessorManag
 		this.addedUnits.toArray(result);
 		return result;
 	}
-	
-	@Override
-	public void processLastRound() {
-		// do nothing
-	}
-	
+
 	@Override
 	public void reset() {
 		this.addedUnits.clear();
@@ -78,7 +73,7 @@ public class AnnotationProcessorManager extends AbstractAnnotationProcessorManag
 	public void setProcessors(Object[] processors) {
 		// do nothing
 	}
-	
+
 	@Override
 	public void setOut(PrintWriter out) {
 		// do nothing

@@ -301,6 +301,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			} else {
 				parsedUnit = parser.dietParse(sourceUnit, unitResult);
 			}
+			parsedUnit.bits |= ASTNode.IsImplicitUnit;
 			// initial type binding creation
 			lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
 			this.addCompilationUnit(sourceUnit, parsedUnit);
@@ -403,6 +404,13 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 
 			beginToCompile(sourceUnits);
 
+			if (this.annotationProcessorManager != null) {
+				processAnnotations(sourceUnits);
+				if (!options.generateClassFiles) {
+					// -proc:only was set on the command line
+					return;
+				}
+			}
 			// process all units (some more could be injected in the loop by the lookup environment)
 			for (; i < this.totalUnits; i++) {
 				unit = unitsToProcess[i];
@@ -430,9 +438,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 							String.valueOf(this.totalUnits),
 							new String(unit.getFileName())
 						}));
-			}
-			if (this.annotationProcessorManager != null) {
-				this.annotationProcessorManager.processLastRound();
 			}
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
@@ -589,19 +594,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 * Process a compilation unit already parsed and build.
 	 */
 	public void process(CompilationUnitDeclaration unit, int i) {
-		if (this.annotationProcessorManager != null) {
-			this.annotationProcessorManager.processAnnotation(unit);
-    		ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
-			for (int j = 0, max = newUnits.length; j < max; j++) {
-				this.accept(newUnits[j], null);
-			}
-			this.annotationProcessorManager.reset();
-			if (!this.options.generateClassFiles) {
-				// compiler was called with -proc:only
-				return;
-			}
-		}
-
 		this.parser.getMethodBodies(unit);
 
 		// fault in fields & methods
@@ -628,6 +620,43 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		// refresh the total number of units known at this stage
 		unit.compilationResult.totalUnitsKnown = totalUnits;
 	}
+	
+
+	protected void processAnnotations(ICompilationUnit[] sourceUnits) {
+		int newUnitSize = 0;
+		int bottom = 0;
+		int top = this.unitsToProcess.length;
+		if (top == 0) return;
+		do {
+			// extract units to process
+			int length = top - bottom + 1;
+			CompilationUnitDeclaration[] currentUnits = new CompilationUnitDeclaration[length];
+			int index = 0;
+			for (int i = bottom; i < top; i++) {
+				CompilationUnitDeclaration currentUnit = this.unitsToProcess[i];
+				if ((currentUnit.bits & ASTNode.IsImplicitUnit) == 0) {
+					currentUnits[index++] = currentUnit;
+				}
+			}
+			if (index != length) {
+				System.arraycopy(currentUnits, 0, (currentUnits = new CompilationUnitDeclaration[index]), 0, index);
+			}
+			this.annotationProcessorManager.processAnnotations(currentUnits, false);
+			ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
+			if (newUnits.length != 0) {
+				// we reset the compiler in order to restart with the new units
+				beginToCompile(newUnits);
+				bottom = top + 1;
+				top = this.unitsToProcess.length;
+				this.annotationProcessorManager.reset();
+			}
+		} while (newUnitSize != 0);
+		// one more loop to create possible resources
+		// this loop cannot create any java source files
+		this.annotationProcessorManager.processAnnotations(unitsToProcess, true);
+		// TODO we might want to check if this loop created new units
+	}
+
 	public void reset() {
 		lookupEnvironment.reset();
 		parser.scanner.source = null;

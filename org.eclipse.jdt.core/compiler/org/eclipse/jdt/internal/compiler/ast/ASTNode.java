@@ -159,6 +159,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	// for compilation unit
 	public static final int HasAllMethodBodies = Bit5;
+	public static final int IsImplicitUnit = Bit1;
 	
 	// for references in Javadoc comments
 	public static final int InsideJavadoc = Bit16;
