@@ -1,3 +1,4 @@
+package c11;
 public class A {}
 class A1 extends A {}
 class A2 extends A {

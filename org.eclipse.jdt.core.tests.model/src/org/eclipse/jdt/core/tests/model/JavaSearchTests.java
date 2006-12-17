@@ -3692,4 +3692,43 @@ public void testCamelCaseTypePattern09() throws CoreException {
 		"q1.AA",
 		requestor);
 }
+
+/**
+ * @bug 160323: [search] TypeNameMatch: support hashCode/equals
+ * @test Ensure that match equals and hashCode methods return same values than those of stored {@link IType}.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160323"
+ */
+public void testBug160323() throws CoreException {
+	// Search all type names with TypeNameMatchRequestor
+	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		public String toString(){
+			return toFullyQualifiedNamesString();
+		}
+	};
+	new SearchEngine().searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		null,
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		getJavaSearchScope(),
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Search all type names with TypeNameRequestor
+	SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
+	new SearchEngine().searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		null,
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		getJavaSearchScope(),
+		requestor,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Should have same types with these 2 searches
+	assertEquals("We should get some types!", requestor.size(), collector.size());
+	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
+}
 }

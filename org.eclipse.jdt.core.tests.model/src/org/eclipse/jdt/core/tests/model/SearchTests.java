@@ -97,6 +97,9 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			}
 			return buffer.toString();
 		}
+		public int size() {
+			return this.results.size();
+		}
 	}
 	class WaitingJob implements IJob {
 		static final int MAX_WAIT = 30000; // wait 30s max

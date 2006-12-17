@@ -865,4 +865,57 @@ public void testBug163072() throws CoreException {
 		deleteProject("P2");
 	}
 }
+
+/**
+ * @bug 167743: [search] Open Type Dialog cannot find types from projects migrated from 3.2.1 workspace
+ * @test Ensure that types are found even in default package fragment root
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=167743"
+ */
+public void testBug167743() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		createFolder("/P/test");
+		createFile(
+			"/P/test/TestClass.java",
+			"package test;\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+
+		// Search all type names with TypeNameMatchRequestor
+		AbstractJavaSearchTests.TypeNameMatchCollector collector = new AbstractJavaSearchTests.TypeNameMatchCollector() {
+			public String toString(){
+				return toFullyQualifiedNamesString();
+			}
+		};
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p });
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			new char[] { '*' },
+			SearchPattern.R_PATTERN_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		// Search all type names with TypeNameRequestor
+		SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			new char[] { '*' },
+			SearchPattern.R_PATTERN_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		// Should have same types with these 2 searches
+		assertEquals("Invalid number of types found!", requestor.size(), collector.size());
+		assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
+	} finally {
+		deleteProject("P");
+	}
+}
 }

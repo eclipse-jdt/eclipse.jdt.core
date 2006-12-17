@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.Test;
@@ -84,47 +83,6 @@ class TypeReferencesCollector extends JavaSearchResultCollector {
 	}
 }
 
-class TypeNameMatchCollector extends TypeNameMatchRequestor {
-	List matches = new ArrayList();
-	public void acceptTypeNameMatch(TypeNameMatch match) {
-		IType type = match.getType();
-		if (type != null) {
-			this.matches.add(type);
-		}
-	}
-	public int size() {
-		return this.matches.size();
-	}
-	private String toString(int kind) {
-		int size = size();
-		if (size == 0) return "";
-		String[] strings = new String[size];
-		for (int i=0; i<size; i++) {
-			IType type = (IType) this.matches.get(i);
-			switch (kind) {
-				case 1: // fully qualified name
-					strings[i] = type.getFullyQualifiedName();
-					break;
-				case 0:
-				default:
-					strings[i] = type.toString();
-			}
-		}
-		Arrays.sort(strings);
-		StringBuffer buffer = new StringBuffer();
-		for (int i=0; i<size; i++) {
-			if (i>0) buffer.append('\n');
-			buffer.append(strings[i]);
-		}
-		return buffer.toString();
-	}
-	public String toString() {
-		return toString(0);
-	}
-	public String toFullyQualifiedNamesString() {
-		return toString(1);
-	}
-}
 IJavaSearchScope getJavaSearchScopeBugs() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
 }
