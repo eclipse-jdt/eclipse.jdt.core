@@ -74,7 +74,6 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	Iterable<? extends JavaFileObject> compilationUnits;
 	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
 	public JavaFileManager fileManager;
-	protected Processor[] processors;
 
 	public EclipseCompiler(PrintWriter out, PrintWriter err, boolean systemExitWhenFinished) {
 		super(out, err, systemExitWhenFinished);
@@ -308,7 +307,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
     		}
 		}
 
-		final String[] optionsToProcess = new String[allOptions.size()];
+		String[] optionsToProcess = new String[allOptions.size()];
 		allOptions.toArray(optionsToProcess);
 		try {
 			this.configure(optionsToProcess);
@@ -340,13 +339,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
     			EclipseCompiler.this.setLocale(locale);
     		}
     		public void setProcessors(Iterable<? extends Processor> processors) {
-    			ArrayList<Processor> temp = new ArrayList<Processor>();
-    			for (Processor processor : processors) {
-    				temp.add(processor);
-    			}
-    			Processor[] processors2 = new Processor[temp.size()];
-    			temp.toArray(processors2);
-    			EclipseCompiler.this.processors = processors2;
+    			throw new UnsupportedOperationException();
     		}
 		};
 	}
@@ -356,16 +349,6 @@ public class EclipseCompiler extends Main implements JavaCompiler {
     protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions) {
     	super.initialize(outWriter, errWriter, systemExit, customDefaultOptions);
 		this.javaFileObjectMap = new HashMap<CompilationUnit, JavaFileObject>();
-    }
-
-    @Override
-    protected void initializeAnnotationProcessorManager() {
-    	super.initializeAnnotationProcessorManager();
-    	if (this.batchCompiler.annotationProcessorManager != null) {
-    		this.batchCompiler.annotationProcessorManager.setProcessors(this.processors);
-    	} else if (this.processors != null) {
-    		throw new UnsupportedOperationException("Cannot handle annotation processing"); //$NON-NLS-1$
-    	}
     }
 
 	/*
