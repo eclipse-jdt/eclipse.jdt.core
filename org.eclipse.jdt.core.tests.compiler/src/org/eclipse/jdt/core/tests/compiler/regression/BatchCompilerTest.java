@@ -944,7 +944,7 @@ public void test012(){
         "   These options are meaningful only in a 1.6 environment.\n" + 
         "    -Akey[=value]        annotation processors options that are made to\n" + 
         "                         annotation processors. key are identifiers separated\n" + 
-        "                         by ..\n" + 
+        "                         by ''.''.\n" + 
         "    -processorpath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
         "                         specify locations where to find annotation processors\n" + 
         "                         If this option is not used, the classpath will be\n" + 
