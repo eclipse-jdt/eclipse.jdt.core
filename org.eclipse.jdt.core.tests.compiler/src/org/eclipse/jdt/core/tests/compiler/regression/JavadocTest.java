@@ -366,11 +366,11 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		createOutputTestDirectory(Character.toUpperCase(testName.charAt(0)) + 
 				testName.substring(1));
 		System.out.println("Write test file to " + 
-				this.outputTestDirectoryPath + "...");
+				this.outputTestDirectory.getPath() + "...");
 		for (int i=0, length=testFiles.length; i<length; i++) {
 			String contents = testFiles[i+1];
 			String fileName = testFiles[i++];
-			String dirFileName = this.outputTestDirectoryPath.toString();
+			String dirFileName = this.outputTestDirectory.getPath();
 			if (fileName.indexOf("Visibility")>0) {
 				continue;
 			} else {
@@ -412,7 +412,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			// Cleanup javac output dir if needed
 			File javacOutputDirectory = new File(JAVAC_OUTPUT_DIR);
 			if (shouldFlushOutputDirectory) {
-				cleanupDirectory(javacOutputDirectory);
+				Util.delete(javacOutputDirectory);
 			}
 			
 			// Write files in dir
@@ -443,7 +443,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 
 			// Launch process
 			compileProcess = Runtime.getRuntime().exec(
-				cmdLine.toString(), null, this.outputTestDirectoryPath.toFile());
+				cmdLine.toString(), null, this.outputTestDirectory);
 
 			// Log errors
       Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");            
@@ -549,7 +549,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			//           the test itself
 		} 
 		finally {
-			cleanupDirectory(outputTestDirectoryPath.toFile());
+			Util.delete(outputTestDirectory);
 		}
 	}
 	

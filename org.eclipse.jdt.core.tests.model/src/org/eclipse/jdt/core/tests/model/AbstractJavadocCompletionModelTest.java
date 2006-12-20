@@ -455,10 +455,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 			if (!PACKAGE_FILES.contains(packageDir)) {
 				if (packageDir.exists()) {
 					PACKAGE_FILES.add(packageDir);
-					File[] files = packageDir.listFiles();
-					for (int j=0, fl=files.length; j<fl; j++) {
-						files[j].delete();
-					}
+					Util.delete(packageDir);
 				} else if (packageDir.mkdirs()) {
 					PACKAGE_FILES.add(packageDir);
 				} else {

@@ -1170,29 +1170,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return project;
 	}
 	public void deleteFile(File file) {
-		file = file.getAbsoluteFile();
-		if (!file.exists())
-			return;
-		if (file.isDirectory()) {
-			String[] files = file.list();
-			//file.list() can return null
-			if (files != null) {
-				for (int i = 0; i < files.length; ++i) {
-					deleteFile(new File(file, files[i]));
-				}
+		int retryCount = 0;
+		while (++retryCount <= 60) { // wait 1 minute at most
+			if (org.eclipse.jdt.core.tests.util.Util.delete(file)) {
+				break;
 			}
 		}
-		boolean success = file.delete();
-		int retryCount = 60; // wait 1 minute at most
-		while (!success && --retryCount >= 0) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
-			success = file.delete();
-		}
-		if (success) return;
-		System.err.println("Failed to delete " + file.getPath());
 	}
 	protected void deleteFolder(IPath folderPath) throws CoreException {
 		deleteResource(getFolder(folderPath));
@@ -1231,44 +1214,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Delete this resource.
 	 */
 	public void deleteResource(IResource resource) throws CoreException {
-		CoreException lastException = null;
-		try {
-			resource.delete(true, null);
-			return;
-		} catch (CoreException e) {
-			lastException = e;
-			// just print for info
-			System.out.println(e.getMessage() + " [" + resource.getFullPath() + "]");
-		} catch (IllegalArgumentException iae) {
-			// just print for info
-			System.out.println(iae.getMessage() + " [" + resource.getFullPath() + "]");
-		}
 		int retryCount = 0; // wait 1 minute at most
-		while (resource.isAccessible() && ++retryCount <= 60) {
-			System.out.println("Running GC and waiting 1s...");
-			try {
+		while (++retryCount <= 60) {
+			if (!org.eclipse.jdt.core.tests.util.Util.delete(resource)) {
 				System.gc();
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
 			}
-			try {
-				resource.delete(true, null);
-			} catch (CoreException e) {
-				lastException = e;
-				// just print for info
-				System.out.println("Retry "+retryCount+": "+ e.getMessage() + " [" + resource.getFullPath() + "]");
-			} catch (IllegalArgumentException iae) {
-				// just print for info
-				System.out.println("Retry "+retryCount+": "+ iae.getMessage() + " [" + resource.getFullPath() + "]");
-			}
-		}
-		if (!resource.isAccessible()) {
-			System.out.println("Succeed to delete resource [" + resource.getFullPath() + "]");
-			return;
-		}
-		System.err.println("Failed to delete resource [" + resource.getFullPath() + "]");
-		if (lastException != null) {
-			throw lastException;
 		}
 	}
 	/**
@@ -1716,9 +1666,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IProject project = javaProject.getProject();
 		String projectPath = '/' + project.getName() + '/';
 		removeLibraryEntry(javaProject, new Path(projectPath + jarName));
-		project.getFile(jarName).delete(false, null);
+		org.eclipse.jdt.core.tests.util.Util.delete(project.getFile(jarName));
 		if (sourceZipName != null && sourceZipName.length() != 0) {
-			project.getFile(sourceZipName).delete(false, null);
+			org.eclipse.jdt.core.tests.util.Util.delete(project.getFile(sourceZipName));
 		}
 	}
 	protected void removeLibraryEntry(Path path) throws JavaModelException {

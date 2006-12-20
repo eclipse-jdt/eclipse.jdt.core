@@ -20,6 +20,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 
 /**
@@ -2072,7 +2073,7 @@ public void testSearchScope05() throws CoreException, IOException { // was testE
 			this.resultCollector);
 		
 	} finally {
-		externalJar.delete();
+		Util.delete(externalJar);
 		project.setRawClasspath(classpath, null);
 	}
 	

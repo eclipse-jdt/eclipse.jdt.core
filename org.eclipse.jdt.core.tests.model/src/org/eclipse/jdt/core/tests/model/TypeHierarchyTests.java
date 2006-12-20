@@ -501,9 +501,9 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 		);
 	} finally {
 		if (externalJar1 != null)
-			new File(externalJar1).delete();
+			Util.delete(externalJar1);
 		if (externalJar2 != null)
-			new File(externalJar2).delete();
+			Util.delete(externalJar2);
 		deleteProject("P");
 	}
 }

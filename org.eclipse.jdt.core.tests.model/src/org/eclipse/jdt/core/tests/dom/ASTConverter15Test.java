@@ -5980,7 +5980,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			};
 			Util.compile(pathsAndContents, options, classesPath);
 			folder.refreshLocal(IResource.DEPTH_INFINITE, null);
-			folder.getFolder("p").getFile("Bin.class").delete(false, null);
+//			folder.getFolder("p").getFile("Bin.class").delete(false, null);
+			Util.delete(folder.getFolder("p").getFile("Bin.class"));
 	    	this.workingCopy = getWorkingCopy("/P/src/X.java", true/*resolve*/);
 	    	String contents =
 				"public class X {\n" + 

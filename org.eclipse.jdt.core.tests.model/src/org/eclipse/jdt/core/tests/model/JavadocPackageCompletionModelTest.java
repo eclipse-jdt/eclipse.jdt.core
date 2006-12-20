@@ -80,14 +80,7 @@ protected void writeFiles(String[] sources) {
 		if (!PACKAGE_FILES.contains(packageDir)) {
 			if (packageDir.exists()) {
 				PACKAGE_FILES.add(packageDir);
-				File[] dirs= packageDir.listFiles();
-				for (int j=0, dl=dirs.length; j<dl; j++) {
-					File[] files = dirs[j].listFiles();
-					for (int k=0, fl=files.length; k<fl; k++) {
-						files[k].delete();
-					}
-					dirs[j].delete();
-				}
+				Util.flushDirectoryContent(packageDir);
 			} else if (packageDir.mkdirs()) {
 				PACKAGE_FILES.add(packageDir);
 			} else {

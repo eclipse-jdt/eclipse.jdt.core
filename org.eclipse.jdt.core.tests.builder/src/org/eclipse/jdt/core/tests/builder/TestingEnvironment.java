@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.Util;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
@@ -601,35 +602,24 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		return (IProject)fProjects.get(projectPath.lastSegment());
 	}
 
-private File tmpDirectory;
-File getTmpDirectory() {
-	if (this.tmpDirectory == null) {
-		this.tmpDirectory = new File(System.getProperty("java.io.tmpdir") + 
-				File.separator + "org.eclipse.jdt.core.builder.tests.tmp");
-		if (this.tmpDirectory.exists() && !this.tmpDirectory.isDirectory()) {
-			this.tmpDirectory.delete();
+	private File tmpDirectory;
+	File getTmpDirectory() {
+		if (this.tmpDirectory == null) {
+			this.tmpDirectory = new File(System.getProperty("java.io.tmpdir") + 
+					File.separator + "org.eclipse.jdt.core.builder.tests.tmp");
+			if (this.tmpDirectory.exists() && !this.tmpDirectory.isDirectory()) {
+				Util.delete(this.tmpDirectory);
+			}
+			this.tmpDirectory.mkdir();
 		}
-		this.tmpDirectory.mkdir();
+		return this.tmpDirectory;
 	}
-	return this.tmpDirectory;
-}
-void deleteTmpDirectory() {
-	if (this.tmpDirectory != null) {
-		deleteDirectory(this.tmpDirectory);
-		this.tmpDirectory = null;
-	}
-}
-private void deleteDirectory(File dir) {
-	File[] files = dir.listFiles();
-	for (int i = 0 ; i < files.length ; i++) {
-		if (files[i].isDirectory()) {
-			deleteDirectory(files[i]);
-		} else {
-			files[i].delete();
+	void deleteTmpDirectory() {
+		if (this.tmpDirectory != null) {
+			Util.delete(this.tmpDirectory);
+			this.tmpDirectory = null;
 		}
 	}
-	dir.delete();
-}
 
 	/**
 	* Returns the workspace.

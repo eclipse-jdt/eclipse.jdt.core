@@ -156,12 +156,8 @@ public class DebugEvaluationTest extends EvaluationTest {
 	}
 	public void removeTempClass(String className) {
 		resetEnv(); // needed to reinitialize the caches
-		File sourceFile = new File(SOURCE_DIRECTORY + File.separator + className + ".java");
-		sourceFile.delete();
-	
-		File binaryFile = new File(EvaluationSetup.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY + File.separator + className + ".class");
-	
-		binaryFile.delete();
+		Util.delete(SOURCE_DIRECTORY + File.separator + className + ".java");
+		Util.delete(EvaluationSetup.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY + File.separator + className + ".class");
 	}
 	/*public static Test suite(Class evaluationTestClass) {
 		junit.framework.TestSuite suite = new junit.framework.TestSuite();

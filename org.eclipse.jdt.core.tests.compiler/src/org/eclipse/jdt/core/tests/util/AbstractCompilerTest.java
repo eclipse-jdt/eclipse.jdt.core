@@ -458,9 +458,8 @@ public class AbstractCompilerTest extends TestCase {
 	}
 	
 	// Output files management
-	protected IPath 
-		outputRootDirectoryPath = new Path(Util.getOutputDirectory()),
-		outputTestDirectoryPath;
+	protected IPath outputRootDirectoryPath = new Path(Util.getOutputDirectory());
+	protected File outputTestDirectory;
 
 	/**
 	 * Create a test specific output directory as a subdirectory of 
@@ -470,11 +469,9 @@ public class AbstractCompilerTest extends TestCase {
 	 * @param suffixPath a valid relative path for the subdirectory
 	 */
 	protected void createOutputTestDirectory(String suffixPath) {
-		this.outputTestDirectoryPath = 
-			((IPath) this.outputRootDirectoryPath.clone()).append(suffixPath);
-		File dir = this.outputTestDirectoryPath.toFile();
-		if (!dir.exists()) {
-			dir.mkdirs();
+		this.outputTestDirectory =  new File(this.outputRootDirectoryPath.toFile(), suffixPath);
+		if (!this.outputTestDirectory.exists()) {
+			this.outputTestDirectory.mkdirs();
 		}
 	}
 	/*
@@ -488,15 +485,14 @@ public class AbstractCompilerTest extends TestCase {
 		for (int i = 0, length = testFiles.length; i < length; ) {
 			String fileName = testFiles[i++];
 			String contents = testFiles[i++];
-			IPath filePath = 
-				((IPath) this.outputTestDirectoryPath.clone()).append(fileName);
+			File file = new File(this.outputTestDirectory, fileName);
 			if (fileName.lastIndexOf('/') >= 0) {
-				File dir = filePath.removeLastSegments(1).toFile();
+				File dir = file.getParentFile();
 				if (!dir.exists()) {
 					dir.mkdirs();
 				}
 			}
-			Util.writeToFile(contents, filePath.toString());
+			Util.writeToFile(contents, file.getPath());
 		}
 	}
 	

@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IClassFileReader;
 
 import junit.framework.Test;
@@ -196,7 +197,7 @@ public void testDeleteCompilationUnit2() throws CoreException {
 		ICompilationUnit cu = getCompilationUnit("P/X.java");
 
 		startDeltas();
-		file.delete(false, null);
+		Util.delete(file);
 		assertTrue("Should be able to delete a CU", !cu.exists());
 		assertDeltas(
 			"Unexpected delta",
@@ -808,7 +809,7 @@ public void testDeleteProjectAfterUsingJar() throws CoreException, IOException {
 		);
 		IClassFile classFile = getClassFile("P78128", "lib.jar", "p", "X.class");
 		ToolFactory.createDefaultClassFileReader(classFile, IClassFileReader.ALL);
-		javaProject.getProject().delete(false, null);
+		Util.delete(javaProject.getProject());
 	} finally {
 		if (getProject("P78128").exists()) 
 			System.gc();

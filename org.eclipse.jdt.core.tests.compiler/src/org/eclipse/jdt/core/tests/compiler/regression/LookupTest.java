@@ -1516,7 +1516,7 @@ public void test044() {
 		},
 		"SUCCESS");
 	// delete binary file Dumbo$Clyde (i.e. simulate removing it from classpath for subsequent compile)
-	new File(OUTPUT_DIR, "p" + File.separator + "Dumbo$Clyde.class").delete();
+	Util.delete(new File(OUTPUT_DIR, "p" + File.separator + "Dumbo$Clyde.class"));
 	
 	this.runConformTest(
 		new String[] {

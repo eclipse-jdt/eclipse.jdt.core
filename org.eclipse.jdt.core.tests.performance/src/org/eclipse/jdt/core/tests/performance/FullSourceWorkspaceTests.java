@@ -836,10 +836,10 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		this.scenarioComment.append(warnings);
 	}
 
-	/**
+	/*
 	 * Delete a directory from file system.
 	 * @param directory
-	 */
+	 *
 	protected void cleanupDirectory(File directory) {
 		if (!directory.isDirectory() || !directory.exists()) {
 			return;
@@ -857,6 +857,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		if (!directory.delete())
 			System.out.println("Could not delete directory " + directory.getPath()); //$NON-NLS-1$
 	}
+	*/
 
 	/*
 	 * Clear given options
@@ -925,7 +926,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			}
 		}
 		if (!"none".equals(COMPILER_OUTPUT_DIR)) {
-			cleanupDirectory(new File(COMPILER_OUTPUT_DIR));
+			Util.delete(COMPILER_OUTPUT_DIR);
 		}
 		warnings = warmup.globalWarningsCount;
 		if (!log) Util.writeToFile(errStrWriter.toString(), logFileName);
@@ -957,7 +958,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			}
 			stopMeasuring();
 			if (!"none".equals(COMPILER_OUTPUT_DIR)) {
-				cleanupDirectory(new File(COMPILER_OUTPUT_DIR));
+				Util.delete(COMPILER_OUTPUT_DIR);
 			}
 		}
 		

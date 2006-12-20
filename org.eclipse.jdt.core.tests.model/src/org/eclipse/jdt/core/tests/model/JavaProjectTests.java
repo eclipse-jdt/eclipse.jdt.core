@@ -894,13 +894,7 @@ public void testPackageFragmentRootRawEntry() throws CoreException, IOException 
 		//System.out.println((System.currentTimeMillis() - start)+ "ms for "+roots.length+" roots");
 	} finally {
 		if (libDir != null) {
-			String[] libJars = libDir.list();
-			if (libJars != null) {
-				for (int i = 0, length = libJars.length; i < length; i++) {
-					new File(libDir, libJars[i]).delete();
-				}
-			}
-			libDir.delete();
+			org.eclipse.jdt.core.tests.util.Util.delete(libDir);
 		}
 		this.deleteProject("P");
 		JavaCore.removeClasspathVariable("MyVar", null);
@@ -933,13 +927,7 @@ public void testPackageFragmentRootRawEntryWhenDuplicate() throws CoreException,
 		assertEquals("unexpected root raw entry:", classpath[0], rawEntry); // ensure first entry is associated to the root
 	} finally {
 		if (libDir != null) {
-			String[] libJars = libDir.list();
-			if (libJars != null) {
-				for (int i = 0, length = libJars.length; i < length; i++) {
-					new File(libDir, libJars[i]).delete();
-				}
-			}
-			libDir.delete();
+			org.eclipse.jdt.core.tests.util.Util.delete(libDir);
 		}
 		this.deleteProject("P");
 		JavaCore.removeClasspathVariable("MyVar", null);

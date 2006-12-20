@@ -1747,7 +1747,7 @@ public void test019(){
 	        "",
 	        true);
 		if (jarCreated) {
-			new File(libPath).delete();
+			Util.delete(libPath);
 		}
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -extdirs extends the classpath before -classpath
@@ -2375,11 +2375,11 @@ public void test035(){
 		        false);
 		final String userDir = System.getProperty("user.dir");
 		File f = new File(userDir, "X.java");
-		if (!f.delete()) {
+		if (!Util.delete(f)) {
 			System.out.println("Could not delete X");
 		}
 		f = new File(userDir, "p" + File.separator + "Y.java");
-		if (!f.delete()) {
+		if (!Util.delete(f)) {
 			System.out.println("Could not delete Y");
 		}
 		
@@ -3285,8 +3285,8 @@ public void _test062(){
 	} catch (IOException e) {
 		fail("could not create jar file");
 	}
-	new File(outputDirName + File.separator + "Y.class").delete();
-	new File(outputDirName + File.separator + "Y.java").delete();
+	Util.delete(outputDirName + File.separator + "Y.class");
+	Util.delete(outputDirName + File.separator + "Y.java");
 	this.runConformTest(
 		new String[] {
 			"d/X.java",
@@ -3334,8 +3334,8 @@ public void test063(){
 	} catch (IOException e) {
 		fail("could not create jar file");
 	}
-	new File(outputDirName + File.separator + "Y.class").delete();
-	new File(outputDirName + File.separator + "Y.java").delete();
+	Util.delete(outputDirName + File.separator + "Y.class");
+	Util.delete(outputDirName + File.separator + "Y.java");
 	this.runConformTest(
 		new String[] {
 			"d/X.java",
@@ -4145,7 +4145,7 @@ public void test089_per_source_output_directory(){
 			"public class X {}");
 		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
 		if (standardXOutputFile.exists()) {
-			standardXOutputFile.delete();
+			Util.delete(standardXOutputFile);
 		}
 	} catch (IOException e) {
 		fail("could not create jar file");
@@ -4197,7 +4197,7 @@ public void test090_per_source_output_directory(){
 			"public class X {}");
 		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
 		if (standardXOutputFile.exists()) {
-			standardXOutputFile.delete();
+			Util.delete(standardXOutputFile);
 		}
 	} catch (IOException e) {
 		fail("could not create jar file");
@@ -4248,7 +4248,7 @@ public void test091_per_source_output_directory(){
 			"public class X {}");
 		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
 		if (standardXOutputFile.exists()) {
-			standardXOutputFile.delete();
+			Util.delete(standardXOutputFile);
 		}
 	} catch (IOException e) {
 		fail("could not create jar file");
