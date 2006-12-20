@@ -1221,6 +1221,36 @@ public class Util {
 		}
 		return -1;
 	}
+	/**
+	 * Returns whether the local file system supports accessing and modifying
+	 * the given attribute.
+	 */
+	protected static boolean isAttributeSupported(int attribute) {
+		return (EFS.getLocalFileSystem().attributes() & attribute) != 0;
+	}
+	
+	/**
+	 * Returns whether the given resource is read-only or not.
+	 * @param resource
+	 * @return <code>true</code> if the resource is read-only, <code>false</code> if it is not or
+	 * 	if the file system does not support the read-only attribute.
+	 */
+	public static boolean isReadOnly(IResource resource) {
+		if (isReadOnlySupported()) {
+			ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+			if (resourceAttributes == null) return false; // not supported on this platform for this resource
+			return resourceAttributes.isReadOnly();
+		}
+		return false;
+	}
+
+	/**
+	 * Returns whether the local file system supports accessing and modifying
+	 * the read only flag.
+	 */
+	public static boolean isReadOnlySupported() {
+		return isAttributeSupported(EFS.ATTRIBUTE_READ_ONLY);
+	}
 
 	/*
 	 * Returns whether the given java element is exluded from its root's classpath.
@@ -1832,19 +1862,24 @@ public class Util {
 		split[currentWord] = string.substring(last, end);
 		return split;
 	}
-	public static boolean isReadOnly(IResource resource) {
-		ResourceAttributes resourceAttributes = resource.getResourceAttributes();
-		if (resourceAttributes == null) return false; // not supported on this platform for this resource
-		return resourceAttributes.isReadOnly();
-	}
+	/**
+	 * Sets or unsets the given resource as read-only in the file system.
+	 * It's a no-op if the file system does not support the read-only attribute.
+	 * 
+	 * @param resource The resource to set as read-only
+	 * @param readOnly <code>true</code> to set it to read-only, 
+	 *		<code>false</code> to unset
+	 */
 	public static void setReadOnly(IResource resource, boolean readOnly) {
-		ResourceAttributes resourceAttributes = resource.getResourceAttributes();
-		if (resourceAttributes == null) return; // not supported on this platform for this resource
-		resourceAttributes.setReadOnly(readOnly);
-		try {
-			resource.setResourceAttributes(resourceAttributes);
-		} catch (CoreException e) {
-			// ignore
+		if (isReadOnlySupported()) {
+			ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+			if (resourceAttributes == null) return; // not supported on this platform for this resource
+			resourceAttributes.setReadOnly(readOnly);
+			try {
+				resource.setResourceAttributes(resourceAttributes);
+			} catch (CoreException e) {
+				// ignore
+			}
 		}
 	}
 	public static void sort(char[][] list) {

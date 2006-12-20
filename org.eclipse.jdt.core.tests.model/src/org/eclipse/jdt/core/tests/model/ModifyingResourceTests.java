@@ -330,19 +330,4 @@ public IClasspathEntry createSourceEntry(String referingProjectName, String src,
 		return JavaCore.newSourceEntry(folderPath, accessibleFiles, nonAccessibleFiles, null); 
 	}
 }
-public void setReadOnly(IResource resource, boolean readOnly) throws CoreException {
-	ResourceAttributes resourceAttributes = resource.getResourceAttributes();
-	if (resourceAttributes != null) {
-		resourceAttributes.setReadOnly(readOnly);
-		resource.setResourceAttributes(resourceAttributes);
-	}		
-}
-
-public boolean isReadOnly(IResource resource) throws CoreException {
-	ResourceAttributes resourceAttributes = resource.getResourceAttributes();
-	if (resourceAttributes != null) {
-		return resourceAttributes.isReadOnly();
-	}
-	return false;
-}
 }

@@ -11,13 +11,8 @@
 package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFileModificationValidator;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.team.core.RepositoryProvider;
 
 /**
@@ -89,18 +84,12 @@ public class TestPessimisticProvider extends RepositoryProvider implements IFile
 	}
 
 	public void setReadOnly(IResource resource, boolean readOnly) throws CoreException {
-		ResourceAttributes resourceAttributes = resource.getResourceAttributes();
-		if (resourceAttributes != null) {
-			resourceAttributes.setReadOnly(readOnly);
-			resource.setResourceAttributes(resourceAttributes);
-		}		
-	}
-
-	public boolean isReadOnly(IResource resource) throws CoreException {
-		ResourceAttributes resourceAttributes = resource.getResourceAttributes();
-		if (resourceAttributes != null) {
-			return resourceAttributes.isReadOnly();
+		if (Util.isReadOnlySupported()) {
+			ResourceAttributes resourceAttributes = resource.getResourceAttributes();
+			if (resourceAttributes != null) {
+				resourceAttributes.setReadOnly(readOnly);
+				resource.setResourceAttributes(resourceAttributes);
+			}		
 		}
-		return false;
 	}
 }

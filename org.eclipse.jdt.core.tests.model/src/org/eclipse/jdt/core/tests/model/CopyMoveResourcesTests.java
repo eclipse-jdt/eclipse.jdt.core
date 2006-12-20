@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class CopyMoveResourcesTests extends CopyMoveTests {
 /**
@@ -319,6 +320,10 @@ public void testCopyCURename() throws CoreException {
  * Ensures that a read-only CU can be copied to a different package.
  */
 public void testCopyCUReadOnly() throws CoreException {
+	if (!Util.isReadOnlySupported()) {
+		// Do not test if file system does not support read-only attribute
+		return;
+	}
 	IFile file = null;
 	IFile file2 = null;
 	try {
@@ -329,7 +334,7 @@ public void testCopyCUReadOnly() throws CoreException {
 			"public class X {\n" +
 			"}"
 		);
-		setReadOnly(file, true);
+		Util.setReadOnly(file, true);
 		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 	
 		this.createFolder("/P/src/p2");
@@ -341,10 +346,10 @@ public void testCopyCUReadOnly() throws CoreException {
 		assertTrue("Destination cu should be read-only", file2.isReadOnly());
 	} finally {
 		if (file != null) {
-			setReadOnly(file, false);
+			Util.setReadOnly(file, false);
 		}
 		if (file2 != null) {
-			setReadOnly(file2, false);
+			Util.setReadOnly(file2, false);
 		}
 		deleteFolder("/P/src/p1");
 		deleteFolder("/P/src/p2");
@@ -486,6 +491,10 @@ public void testCopyPackageFragment() throws CoreException {
  * Ensures that a package fragment can be copied to a different package fragment root.
  */
 public void testCopyReadOnlyPackageFragment() throws CoreException {
+	if (!Util.isReadOnlySupported()) {
+		// Do not test if file system does not support read-only attribute
+		return;
+	}
 	IPackageFragment pkgSource = null;
 	IPackageFragment pkg2 = null;
 	try {
@@ -496,42 +505,42 @@ public void testCopyReadOnlyPackageFragment() throws CoreException {
 			"public class X {\n" +
 			"}"
 		);
-		setReadOnly(getFile("/P/src/p1/p2/p3/X.java"), true);
+		Util.setReadOnly(getFile("/P/src/p1/p2/p3/X.java"), true);
 		pkgSource = getPackage("/P/src/p1");
-		setReadOnly(pkgSource.getResource(), true);
+		Util.setReadOnly(pkgSource.getResource(), true);
 		pkg2 = getPackage("/P/src/p1/p2/p3");
-		setReadOnly(pkg2.getResource(), true);
+		Util.setReadOnly(pkg2.getResource(), true);
 	
 		IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
 	
 		copyPositive(pkg2, rootDest, null, null, false);
 		
-		assertTrue("Not readOnly", isReadOnly(getPackage("/P/src2/p1").getResource()));
-		assertTrue("Is readOnly", !isReadOnly(getPackage("/P/src2/p1/p2").getResource()));
-		assertTrue("Not readOnly", isReadOnly(getPackage("/P/src2/p1/p2/p3").getResource()));
-		assertTrue("Is readOnly", isReadOnly(getFile("/P/src2/p1/p2/p3/X.java")));
+		assertTrue("Not readOnly", Util.isReadOnly(getPackage("/P/src2/p1").getResource()));
+		assertTrue("Is readOnly", !Util.isReadOnly(getPackage("/P/src2/p1/p2").getResource()));
+		assertTrue("Not readOnly", Util.isReadOnly(getPackage("/P/src2/p1/p2/p3").getResource()));
+		assertTrue("Is readOnly", Util.isReadOnly(getFile("/P/src2/p1/p2/p3/X.java")));
 	} finally {
 		IFile xSrcFile = getFile("/P/src/p1/p2/p3/X.java");
 		if (xSrcFile != null) {
-			setReadOnly(xSrcFile, false);
+			Util.setReadOnly(xSrcFile, false);
 		}
 		if (pkg2 != null) {
-			setReadOnly(pkg2.getResource(), false);
+			Util.setReadOnly(pkg2.getResource(), false);
 		}
 		if (pkgSource != null) {
-			setReadOnly(pkgSource.getResource(), false);
+			Util.setReadOnly(pkgSource.getResource(), false);
 		}
 		IPackageFragment p1Fragment = getPackage("/P/src2/p1");
 		if (p1Fragment != null) {
-			setReadOnly(p1Fragment.getResource(), false);
+			Util.setReadOnly(p1Fragment.getResource(), false);
 		}
 		IPackageFragment p3Fragment = getPackage("/P/src2/p1/p2/p3");
 		if (p3Fragment != null) {
-			setReadOnly(p3Fragment.getResource(), false);
+			Util.setReadOnly(p3Fragment.getResource(), false);
 		}
 		IFile xFile = getFile("/P/src2/p1/p2/p3/X.java");
 		if (xFile != null) {
-			setReadOnly(xFile, false);
+			Util.setReadOnly(xFile, false);
 		}
 		deleteFolder("/P/src/p1");
 	}
@@ -924,6 +933,10 @@ public void testMovePackageFragment() throws CoreException {
  * Ensures that a package fragment can be copied to a different package fragment root.
  */
 public void testMoveReadOnlyPackageFragment() throws CoreException {
+	if (!Util.isReadOnlySupported()) {
+		// Do not test if file system does not support read-only attribute
+		return;
+	}
 	IPackageFragment pkgSource = null;
 	IPackageFragment pkg2 = null;
 	try {
@@ -934,42 +947,42 @@ public void testMoveReadOnlyPackageFragment() throws CoreException {
 			"public class X {\n" +
 			"}"
 		);
-		setReadOnly(getFile("/P/src/p1/p2/p3/X.java"), true);
+		Util.setReadOnly(getFile("/P/src/p1/p2/p3/X.java"), true);
 		pkgSource = getPackage("/P/src/p1");
-		setReadOnly(pkgSource.getResource(), true);
+		Util.setReadOnly(pkgSource.getResource(), true);
 		pkg2 = getPackage("/P/src/p1/p2/p3");
-		setReadOnly(pkg2.getResource(), true);
+		Util.setReadOnly(pkg2.getResource(), true);
 	
 		IPackageFragmentRoot rootDest= getPackageFragmentRoot("P", "src2");
 	
 		movePositive(pkg2, rootDest, null, null, false);
 		
-		assertTrue("Not readOnly", isReadOnly(getPackage("/P/src2/p1").getResource()));
-		assertTrue("Is readOnly", !isReadOnly(getPackage("/P/src2/p1/p2").getResource()));
-		assertTrue("Not readOnly", isReadOnly(getPackage("/P/src2/p1/p2/p3").getResource()));
-		assertTrue("Is readOnly", isReadOnly(getFile("/P/src2/p1/p2/p3/X.java")));
+		assertTrue("Not readOnly", Util.isReadOnly(getPackage("/P/src2/p1").getResource()));
+		assertTrue("Is readOnly", !Util.isReadOnly(getPackage("/P/src2/p1/p2").getResource()));
+		assertTrue("Not readOnly", Util.isReadOnly(getPackage("/P/src2/p1/p2/p3").getResource()));
+		assertTrue("Is readOnly", Util.isReadOnly(getFile("/P/src2/p1/p2/p3/X.java")));
 	} finally {
 		IFile xSrcFile = getFile("/P/src/p1/p2/p3/X.java");
 		if (xSrcFile != null) {
-			setReadOnly(xSrcFile, false);
+			Util.setReadOnly(xSrcFile, false);
 		}
 		if (pkg2 != null) {
-			setReadOnly(pkg2.getResource(), false);
+			Util.setReadOnly(pkg2.getResource(), false);
 		}
 		if (pkgSource != null) {
-			setReadOnly(pkgSource.getResource(), false);
+			Util.setReadOnly(pkgSource.getResource(), false);
 		}
 		IPackageFragment p1Fragment = getPackage("/P/src2/p1");
 		if (p1Fragment != null) {
-			setReadOnly(p1Fragment.getResource(), false);
+			Util.setReadOnly(p1Fragment.getResource(), false);
 		}
 		IPackageFragment p3Fragment = getPackage("/P/src2/p1/p2/p3");
 		if (p3Fragment != null) {
-			setReadOnly(p3Fragment.getResource(), false);
+			Util.setReadOnly(p3Fragment.getResource(), false);
 		}
 		IFile xFile = getFile("/P/src2/p1/p2/p3/X.java");
 		if (xFile != null) {
-			setReadOnly(xFile, false);
+			Util.setReadOnly(xFile, false);
 		}
 		deleteFolder("/P/src/p1");
 	}

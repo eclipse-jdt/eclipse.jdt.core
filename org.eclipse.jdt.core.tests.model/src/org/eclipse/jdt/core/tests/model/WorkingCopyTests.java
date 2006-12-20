@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.team.core.RepositoryProvider;
 
 
@@ -131,17 +132,21 @@ public void testChangeContent() throws CoreException {
  * Ensures that one cannot commit the contents of a working copy on a read only cu. 
  */
 public void testChangeContentOfReadOnlyCU1() throws CoreException {
+	if (!Util.isReadOnlySupported()) {
+		// Do not test if file system does not support read-only attribute
+		return;
+	}
 	IResource resource = this.cu.getUnderlyingResource();
-	boolean readOnlyFlag = isReadOnly(resource);
+	boolean readOnlyFlag = Util.isReadOnly(resource);
 	boolean didComplain = false;
 	try {
-		setReadOnly(resource, true);
+		Util.setReadOnly(resource, true);
 		this.copy.getBuffer().setContents("invalid");
 		this.copy.commitWorkingCopy(true, null);
 	} catch(JavaModelException e){
 		didComplain = true;
 	} finally {
-		setReadOnly(resource, readOnlyFlag);
+		Util.setReadOnly(resource, readOnlyFlag);
 	}
 	assertTrue("Should have complained about modifying a read-only unit:", didComplain);
 	assertTrue("ReadOnly buffer got modified:", !this.cu.getBuffer().getContents().equals("invalid"));
@@ -152,6 +157,10 @@ public void testChangeContentOfReadOnlyCU1() throws CoreException {
  * provider allows it. 
  */
 public void testChangeContentOfReadOnlyCU2() throws CoreException {
+	if (!Util.isReadOnlySupported()) {
+		// Do not test if file system does not support read-only attribute
+		return;
+	}
 	String newContents =
 		"package x.y;\n" +
 		"public class A {\n" +
@@ -160,11 +169,11 @@ public void testChangeContentOfReadOnlyCU2() throws CoreException {
 		"}";
 	IResource resource = this.cu.getUnderlyingResource();
 	IProject project = resource.getProject();
-	boolean readOnlyFlag = isReadOnly(resource);
+	boolean readOnlyFlag = Util.isReadOnly(resource);
 	try {
 		RepositoryProvider.map(project, TestPessimisticProvider.NATURE_ID);
 		TestPessimisticProvider.markWritableOnSave = true;
-		setReadOnly(resource, true);
+		Util.setReadOnly(resource, true);
 		
 		this.copy.getBuffer().setContents(newContents);
 		this.copy.commitWorkingCopy(true, null);
@@ -175,7 +184,7 @@ public void testChangeContentOfReadOnlyCU2() throws CoreException {
 	} finally {
 		TestPessimisticProvider.markWritableOnSave = false;
 		RepositoryProvider.unmap(project);
-		setReadOnly(resource, readOnlyFlag);
+		Util.setReadOnly(resource, readOnlyFlag);
 	}
 }
 
