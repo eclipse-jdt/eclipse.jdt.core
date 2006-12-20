@@ -25,6 +25,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.compiler.regression.Requestor;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -37,8 +40,101 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class Util {
+	// Trace for delete operation
+	/*
+	 * Maximum time wasted repeating delete operations while running JDT/Core tests.
+	 */
+	private static int DELETE_MAX_TIME = 0;
+	/**
+	 * Trace deletion operations while running JDT/Core tests.
+	 */
+	public static boolean DELETE_DEBUG = false;
+	/**
+	 * Maximum of time in ms to wait in deletion operation while running JDT/Core tests.
+	 * Default is 10 seconds. This number cannot exceed 1 minute (ie. 60000).
+	 * <br>
+	 * To avoid too many loops while waiting, the ten first ones are done waiting
+	 * 10ms before repeating, the ten loops after are done waiting 100ms and
+	 * the other loops are done waiting 1s...
+	 */
+	public static int DELETE_MAX_WAIT = 10000;
+
 	private static final boolean DEBUG = false;
-	public static String OUTPUT_DIRECTORY = "comptest";
+
+	// Output directory initialization
+	/**
+	 * Initially, output directory was located in System.getProperty("user.home")+"\comptest".
+	 * To allow user to run several compiler tests at the same time, main output directory
+	 * is now located in a sub-directory of "comptest" which name is "run."+<code>System.currentMilliseconds</code>.
+	 * 
+	 * @see #DELAY_BEFORE_CLEAN_PREVIOUS
+	 */
+	private final static String OUTPUT_DIRECTORY;
+	/**
+	 * Let user specify the delay in hours before output directories are removed from file system
+	 * while starting a new test run. Default value is 2 hours.
+	 * <p>
+	 * Note that this value may be a float and so have time less than one hour.
+	 * If value is 0 or negative, then all previous run directories will be removed...
+	 * 
+	 * @see #OUTPUT_DIRECTORY
+	 */
+	private final static String DELAY_BEFORE_CLEAN_PREVIOUS = System.getProperty("delay");
+	/*
+	 * Static initializer to clean directories created while running previous test suites.
+	 */
+	static {
+		// Get delay for cleaning sub-directories
+		long millisecondsPerHour = 1000L * 3600L;
+		long delay = millisecondsPerHour * 2; // default is to keep previous run directories for 2 hours
+		try {
+			if (DELAY_BEFORE_CLEAN_PREVIOUS != null) {
+				float hours = Float.parseFloat(DELAY_BEFORE_CLEAN_PREVIOUS);
+				delay = (int) (millisecondsPerHour * hours);
+			}
+		}
+		catch (NumberFormatException nfe) {
+			// use default
+		}
+
+		// Get output directory root from system properties
+		String container = System.getProperty("jdt.test.output_directory");
+		if (container == null){
+			container = System.getProperty("user.home");
+		}
+		if (container == null) {
+			container = ".";	// use current directory
+		}
+		
+		// Get file for root directory
+		if (Character.isLowerCase(container.charAt(0)) && container.charAt(1) == ':') {
+			container = Character.toUpperCase(container.charAt(0)) + container.substring(1);
+		}
+		File dir = new File(new File(container), "comptest");
+
+		// If root directory already exists, clean it
+		if (dir.exists()) {
+			long now = System.currentTimeMillis();
+			if ((now - dir.lastModified()) > delay) {
+				// remove all directory content
+				flushDirectoryContent(dir);
+			} else {
+				// remove only old sub-dirs
+				File[] testDirs = dir.listFiles();
+				for (int i=0,l=testDirs.length; i<l; i++) {
+					if (testDirs[i].isDirectory()) {
+						if ((now - testDirs[i].lastModified()) > delay) {
+							delete(testDirs[i]);
+						}
+					}
+				}
+			}
+		}
+
+		// Computed test run directory name based on current time
+		File dateDir = new File(dir, "run."+System.currentTimeMillis());
+		OUTPUT_DIRECTORY = dateDir.getPath();
+	}
 
 public static void appendProblem(StringBuffer problems, IProblem problem, char[] source, int problemCount) {
 	problems.append(problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
@@ -158,8 +254,10 @@ public static void copy(String sourcePath, String destPath) {
 		try {
 			in = new FileInputStream(source);
 			File destFile = new File(dest, source.getName());
-			if (destFile.exists() && !destFile.delete()) {
-				throw new IOException(destFile + " is in use");
+			if (destFile.exists()) {
+				if (!delete(destFile)) {
+					throw new IOException(destFile + " is in use");
+				}
 			}
 		 	out = new FileOutputStream(destFile);
 			int bufferLength = 1024;
@@ -229,6 +327,54 @@ public static void createSourceZip(String[] pathsAndContents, String zipPath) th
 		createFile(sourcePath, pathsAndContents[i+1]);
 	}
 	zip(sourcesDir, zipPath);
+}
+/**
+ * Delete a file or directory and insure that the file is no longer present
+ * on file system. In case of directory, delete all the hierarchy underneath.
+ * 
+ * @param file The file or directory to delete
+ * @return true iff the file was really delete, false otherwise
+ */
+public static boolean delete(File file) {
+	// flush all directory content
+	if (file.isDirectory()) {
+		flushDirectoryContent(file);
+	}
+	// remove file
+	file.delete();
+	if (isFileDeleted(file)) {
+		return true;
+	}
+	return waitUntilFileDeleted(file);
+}
+/**
+ * Delete a file or directory and insure that the file is no longer present
+ * on file system. In case of directory, delete all the hierarchy underneath.
+ * 
+ * @param resource The resource to delete
+ * @return true iff the file was really delete, false otherwise
+ */
+public static boolean delete(IResource resource) {
+	try {
+		resource.delete(true, null);
+		if (isResourceDeleted(resource)) {
+			return true;
+		}
+	}
+	catch (CoreException e) {
+		//	skip
+	}
+	return waitUntilResourceDeleted(resource);
+}
+/**
+ * Delete a file or directory and insure that the file is no longer present
+ * on file system. In case of directory, delete all the hierarchy underneath.
+ * 
+ * @param path The path of the file or directory to delete
+ * @return true iff the file was really delete, false otherwise
+ */
+public static boolean delete(String path) {
+	return delete(new File(path));
 }
 /**
  * Generate a display string from the given String.
@@ -446,17 +592,10 @@ public static void fileContentToDisplayString(String sourceFilePath, int indent,
  * no-op if not a directory.
  */
 public static void flushDirectoryContent(File dir) {
-	if (dir.isDirectory()) {
-		String[] files = dir.list();
-		if (files == null) return;
-		for (int i = 0, max = files.length; i < max; i++) {
-			File current = new File(dir, files[i]);
-			if (current.isDirectory()) {
-				flushDirectoryContent(current);
-			}
-			if (!current.delete()) 
-				System.err.println("Could not delete " + current.getName());
-		}
+	File[] files = dir.listFiles();
+	if (files == null) return;
+	for (int i = 0, max = files.length; i < max; i++) {
+		delete(files[i]);
 	}
 }
 /**
@@ -547,11 +686,82 @@ public static String getJREDirectory() {
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.getOutputDirectory()]
 */
 public static String getOutputDirectory() {
-	String container = System.getProperty("user.home");
-	if (container == null){
-		return null;
+	return OUTPUT_DIRECTORY;
+}
+/**
+ * Returns the parent's child file matching the given file or null if not found.
+ * 
+ * @param file The searched file in parent
+ * @return The parent's child matching the given file or null if not found.
+ */
+private static File getParentChildFile(File file) {
+	File parent = file.getParentFile();
+	if (parent == null || !parent.exists()) return null;
+	File[] files = parent.listFiles();
+	int length = files==null ? 0 : files.length;
+	if (length > 0) {
+		for (int i=0; i<length; i++) {
+			if (files[i] == file) {
+				return files[i];
+			} else if (files[i].equals(file)) {
+				return files[i];
+			} else if (files[i].getPath().equals(file.getPath())) {
+				return files[i];
+			}
+		}
 	}
-	return toNativePath(container) + File.separator + OUTPUT_DIRECTORY;
+	return null;
+}
+/**
+ * Returns parent's child resource matching the given resource or null if not found.
+ * 
+ * @param resource The searched file in parent
+ * @return The parent's child matching the given file or null if not found.
+ */
+private static IResource getParentChildResource(IResource resource) {
+	IContainer parent = resource.getParent();
+	if (parent == null || !parent.exists()) return null;
+	try {
+		IResource[] members = parent.members();
+		int length = members ==null ? 0 : members.length;
+		if (length > 0) {
+			for (int i=0; i<length; i++) {
+				if (members[i] == resource) {
+					return members[i];
+				} else if (members[i].equals(resource)) {
+					return members[i];
+				} else if (members[i].getFullPath().equals(resource.getFullPath())) {
+					return members[i];
+				}
+			}
+		}
+	}
+	catch (CoreException ce) {
+		// skip
+	}
+	return null;
+}
+/**
+ * Returns the test name from stack elements info.
+ * 
+ * @return The name of the test currently running
+ */
+private static String getTestName() {
+	StackTraceElement[] elements = new Exception().getStackTrace();
+	int idx = 0, length=elements.length;
+	while (idx<length && !elements[idx++].getClassName().startsWith("org.eclipse.jdt")) {
+		// loop until JDT/Core class appears in the stack
+	}
+	if (idx<length) {
+		StackTraceElement testElement = null;
+		while (idx<length && elements[idx].getClassName().startsWith("org.eclipse.jdt")) {
+			testElement = elements[idx++];
+		}
+		if (testElement != null) {
+			return testElement.getClassName() + " - " + testElement.getMethodName();
+		}
+	}
+	return "?";
 }
 public static String indentString(String inputString, int indent) {
 	if (inputString == null)
@@ -571,8 +781,131 @@ public static String indentString(String inputString, int indent) {
 	}
 	return buffer.toString();
 }
+/**
+ * Returns whether a file is really deleted or not.
+ * Does not only rely on {@link File#exists()} method but also
+ * look if it's not in its parent children {@link #getParentChildFile(File)}.
+ * 
+ * @param file The file to test if deleted
+ * @return true if the file does not exist and was not found in its parent children.
+ */
+public static boolean isFileDeleted(File file) {
+	return !file.exists() && getParentChildFile(file) == null;
+}
 public static boolean isMacOS() {
 	return System.getProperty("os.name").indexOf("Mac") != -1;
+}
+/**
+ * Returns whether a resource is really deleted or not.
+ * Does not only rely on {@link IResource#isAccessible()} method but also
+ * look if it's not in its parent children {@link #getParentChildResource(IResource)}.
+ * 
+ * @param resource The resource to test if deleted
+ * @return true if the resource is not accessible and was not found in its parent children.
+ */
+public static boolean isResourceDeleted(IResource resource) {
+	return !resource.isAccessible() && getParentChildResource(resource) == null;
+}
+/**
+ * Print given file information with specified indentation.
+ * These information are:<ul>
+ * 	<li>read {@link File#canRead()}</li>
+ * 	<li>write {@link File#canWrite()}</li>
+ * 	<li>exists {@link File#exists()}</li>
+ * 	<li>is file {@link File#isFile()}</li>
+ * 	<li>is directory {@link File#isDirectory()}</li>
+ * 	<li>is hidden {@link File#isHidden()}</li>
+ * </ul>
+ * May recurse several level in parents hierarchy.
+ * May also display children, but then will not recusre in parent
+ * hierarchy to avoid infinite loop...
+ * 
+ * @param file The file to display information
+ * @param indent Number of tab to print before the information
+ * @param recurse Display also information on <code>recurse</code>th parents in hierarchy.
+ * 	If negative then display children information instead.
+ */
+private static void printFileInfo(File file, int indent, int recurse) {
+	String tab = "";
+	for (int i=0; i<indent; i++) tab+="\t";
+	System.out.print(tab+"- "+file.getName()+" file info: ");
+	String sep = "";
+	if (file.canRead()) {
+		System.out.print("read");
+		sep = ", ";
+	}
+	if (file.canWrite()) {
+		System.out.print(sep+"write");
+		sep = ", ";
+	}
+	if (file.exists()) {
+		System.out.print(sep+"exist");
+		sep = ", ";
+	}
+	if (file.isDirectory()) {
+		System.out.print(sep+"dir");
+		sep = ", ";
+	}
+	if (file.isFile()) {
+		System.out.print(sep+"file");
+		sep = ", ";
+	}
+	if (file.isHidden()) {
+		System.out.print(sep+"hidden");
+		sep = ", ";
+	}
+	System.out.println();
+	File[] files = file.listFiles();
+	int length = files==null ? 0 : files.length;
+	if (length > 0) {
+		boolean children = recurse < 0;
+		System.out.print(tab+"	+ children: ");
+		if (children) System.out.println();
+		for (int i=0; i<length; i++) {
+			if (children) { // display children
+				printFileInfo(files[i], indent+2, -1);
+			} else {
+				if (i>0) System.out.print(", ");
+				System.out.print(files[i].getName());
+				if (files[i].isDirectory()) System.out.print("[dir]");
+				else if (files[i].isFile()) System.out.print("[file]");
+				else System.out.print("[?]");
+			}
+		}
+		if (!children) System.out.println();
+	}
+	if (recurse > 0) {
+		File parent = file.getParentFile();
+		if (parent != null) printFileInfo(parent, indent+1, recurse-1);
+	}
+}
+/**
+ * Print stack trace with only JDT/Core elements.
+ * 
+ * @param exception Exception of the stack trace. May be null, then a fake exception is used.
+ * @param indent Number of tab to display before the stack elements to display.
+ */
+private static void printJdtCoreStackTrace(Exception exception, int indent) {
+	String tab = "";
+	for (int i=0; i<indent; i++) tab+="\t";
+	StackTraceElement[] elements = (exception==null?new Exception():exception).getStackTrace();
+	int idx = 0, length=elements.length;
+	while (idx<length && !elements[idx++].getClassName().startsWith("org.eclipse.jdt")) {
+		// loop until JDT/Core class appears in the stack
+	}
+	if (idx<length) {
+		System.out.print(tab+"- stack trace");
+		if (exception == null)
+			System.out.println(":");
+		else
+			System.out.println(" for exception "+exception+":");
+		while (idx<length && elements[idx].getClassName().startsWith("org.eclipse.jdt")) {
+			StackTraceElement testElement = elements[idx++];
+			System.out.println(tab+"	-> "+testElement);
+		}
+	} else {
+		exception.printStackTrace(System.out);
+	}
 }
 /**
  * Makes the given path a path using native path separators as returned by File.getPath()
@@ -637,6 +970,157 @@ public static void unzip(String zipPath, String destDirPath) throws IOException 
 		}
 	}
 }
+/**
+ * Wait until the file is _really_ deleted on file system.
+ * 
+ * @param file Deleted file
+ * @return true if the file was finally deleted, false otherwise
+ */
+private static boolean waitUntilFileDeleted(File file) {
+	if (DELETE_DEBUG) {
+		System.out.println();
+		System.out.println("WARNING in test: "+getTestName());
+		System.out.println("	- problems occured while deleting "+file);
+		printJdtCoreStackTrace(null, 1);
+		printFileInfo(file.getParentFile(), 1, -1); // display parent with its children
+		System.out.print("	- wait for ("+DELETE_MAX_WAIT+"ms max): ");
+	}
+	int count = 0;
+	int delay = 10; // ms
+	int maxRetry = DELETE_MAX_WAIT / delay;
+	int time = 0;
+	while (count < maxRetry) {
+		try {
+			count++;
+			Thread.sleep(delay);
+			time += delay;
+			if (time > DELETE_MAX_TIME) DELETE_MAX_TIME = time;
+			if (DELETE_DEBUG) System.out.print('.');
+			if (file.exists()) {
+				if (file.delete()) {
+					// SUCCESS
+					if (DELETE_DEBUG) {
+						System.out.println();
+						System.out.println("	=> file really removed after "+time+"ms (max="+DELETE_MAX_TIME+"ms)");
+						System.out.println();
+					}
+					return true;
+				}
+			}
+			if (isFileDeleted(file)) {
+				// SUCCESS
+				if (DELETE_DEBUG) {
+					System.out.println();
+					System.out.println("	=> file disappeared after "+time+"ms (max="+DELETE_MAX_TIME+"ms)");
+					System.out.println();
+				}
+				return true;
+			}
+			// Increment waiting delay exponentially
+			if (count >= 10 && delay <= 100) {
+				count = 1;
+				delay *= 10;
+				maxRetry = DELETE_MAX_WAIT / delay;
+				if ((DELETE_MAX_WAIT%delay) != 0) {
+					maxRetry++;
+				}
+			}
+		}
+		catch (InterruptedException ie) {
+			break; // end loop
+		}
+	}
+	if (!DELETE_DEBUG) {
+		System.out.println();
+		System.out.println("WARNING in test: "+getTestName());
+		System.out.println("	- problems occured while deleting "+file);
+		printJdtCoreStackTrace(null, 1);
+		printFileInfo(file.getParentFile(), 1, -1); // display parent with its children
+	}
+	System.out.println();
+	System.out.println("	!!! ERROR: "+file+" was never deleted even after having waited "+DELETE_MAX_TIME+"ms!!!");
+	System.out.println();
+	return false;
+}
+/**
+ * Wait until a resource is _really_ deleted on file system.
+ * 
+ * @param resource Deleted resource
+ * @return true if the file was finally deleted, false otherwise
+ */
+private static boolean waitUntilResourceDeleted(IResource resource) {
+	File file = resource.getLocation().toFile();
+	if (DELETE_DEBUG) {
+		System.out.println();
+		System.out.println("WARNING in test: "+getTestName());
+		System.out.println("	- problems occured while deleting resource "+resource);
+		printJdtCoreStackTrace(null, 1);
+		printFileInfo(file.getParentFile(), 1, -1); // display parent with its children
+		System.out.print("	- wait for ("+DELETE_MAX_WAIT+"ms max): ");
+	}
+	int count = 0;
+	int delay = 10; // ms
+	int maxRetry = DELETE_MAX_WAIT / delay;
+	int time = 0;
+	while (count < maxRetry) {
+		try {
+			count++;
+			Thread.sleep(delay);
+			time += delay;
+			if (time > DELETE_MAX_TIME) DELETE_MAX_TIME = time;
+			if (DELETE_DEBUG) System.out.print('.');
+			if (resource.isAccessible()) {
+				try {
+					resource.delete(true, null);
+					if (isResourceDeleted(resource) && isFileDeleted(file)) {
+						// SUCCESS
+						if (DELETE_DEBUG) {
+							System.out.println();
+							System.out.println("	=> resource really removed after "+time+"ms (max="+DELETE_MAX_TIME+"ms)");
+							System.out.println();
+						}
+						return true;
+					}
+				}
+				catch (CoreException e) {
+					//	skip
+				}
+			}
+			if (isResourceDeleted(resource) && isFileDeleted(file)) {
+				// SUCCESS
+				if (DELETE_DEBUG) {
+					System.out.println();
+					System.out.println("	=> resource disappeared after "+time+"ms (max="+DELETE_MAX_TIME+"ms)");
+					System.out.println();
+				}
+				return true;
+			}
+			// Increment waiting delay exponentially
+			if (count >= 10 && delay <= 100) {
+				count = 1;
+				delay *= 10;
+				maxRetry = DELETE_MAX_WAIT / delay;
+				if ((DELETE_MAX_WAIT%delay) != 0) {
+					maxRetry++;
+				}
+			}
+		}
+		catch (InterruptedException ie) {
+			break; // end loop
+		}
+	}
+	if (!DELETE_DEBUG) {
+		System.out.println();
+		System.out.println("WARNING in test: "+getTestName());
+		System.out.println("	- problems occured while deleting resource "+resource);
+		printJdtCoreStackTrace(null, 1);
+		printFileInfo(file.getParentFile(), 1, -1); // display parent with its children
+	}
+	System.out.println();
+	System.out.println("	!!! ERROR: "+resource+" was never deleted even after having waited "+DELETE_MAX_TIME+"ms!!!");
+	System.out.println();
+	return false;
+}
 public static void writeToFile(String contents, String destinationFilePath) {
 	File destFile = new File(destinationFilePath);
 	FileOutputStream output = null;
@@ -660,7 +1144,9 @@ public static void writeToFile(String contents, String destinationFilePath) {
 public static void zip(File rootDir, String zipPath) throws IOException {
 	ZipOutputStream zip = null;
 	try {
-		zip  = new ZipOutputStream(new FileOutputStream(zipPath));
+		File zipFile = new File(zipPath);
+		if (zipFile.exists()) delete(zipFile);
+		zip = new ZipOutputStream(new FileOutputStream(zipFile));
 		zip(rootDir, zip, rootDir.getPath().length()+1); // 1 for last slash
 	} finally {
 		if (zip != null) {
@@ -669,20 +1155,19 @@ public static void zip(File rootDir, String zipPath) throws IOException {
 	}
 }
 private static void zip(File dir, ZipOutputStream zip, int rootPathLength) throws IOException {
-	String[] list = dir.list();
-	if (list != null) {
-		for (int i = 0, length = list.length; i < length; i++) {
-			String name = list[i];
-			File file = new File(dir, name);
-			if (file.isDirectory()) {
-				zip(file, zip, rootPathLength);
-			} else {
+	File[] files = dir.listFiles();
+	if (files != null) {
+		for (int i = 0, length = files.length; i < length; i++) {
+			File file = files[i];
+			if (file.isFile()) {
 				String path = file.getPath();
 				path = path.substring(rootPathLength);
 				ZipEntry entry = new ZipEntry(path.replace('\\', '/'));
 				zip.putNextEntry(entry);
 				zip.write(org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file));
 				zip.closeEntry();
+			} else {
+				zip(file, zip, rootPathLength);
 			}
 		}
 	}

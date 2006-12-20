@@ -259,7 +259,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		if (fileNames != null) {
 			for (int i = 0, max = fileNames.length; i < max; i++) {
 				if (fileNames[i].indexOf(className) != -1) {
-					new File(SOURCE_DIRECTORY + File.separator + fileNames[i]).delete();
+					Util.delete(SOURCE_DIRECTORY + File.separator + fileNames[i]);
 				}
 			}
 		}
@@ -269,7 +269,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		if (fileNames != null) {
 			for (int i = 0, max = fileNames.length; i < max; i++) {
 				if (fileNames[i].indexOf(className) != -1) {
-					new File(EVAL_DIRECTORY + File.separator + fileNames[i]).delete();
+					Util.delete(EVAL_DIRECTORY + File.separator + fileNames[i]);
 				}
 			}
 		}
@@ -883,7 +883,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		File outputDir = new File(OUTPUT_DIR);
 		if (outputDir.exists()) {
 			Util.flushDirectoryContent(outputDir);
-			outputDir.delete();
 		}
 		super.tearDown();
 		if (RUN_JAVAC) {
@@ -978,29 +977,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	 * Specific method to let tests Sun javac compilation available...
 	 #######################################*/
 	/*
-	 * Cleans up the given directory by removing all the files it contains as well
-	 * but leaving the directory.
-	 * @throws TargetException if the target path could not be cleaned up
-	 */
-	protected void cleanupDirectory(File directory) {
-		if (!directory.exists()) {
-			return;
-		}
-		String[] fileNames = directory.list();
-		for (int i = 0; i < fileNames.length; i++) {
-			File file = new File(directory, fileNames[i]);
-			if (file.isDirectory()) {
-				cleanupDirectory(file);
-			} else {
-				if (!file.delete())
-					System.out.println("Could not delete file " + file.getPath());
-			}
-		}
-		if (!directory.delete())
-			System.out.println("Could not delete directory " + directory.getPath());
-	}
-
-	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
 	 */
@@ -1051,7 +1027,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			// Cleanup javac output dir if needed
 			File javacOutputDirectory = new File(JAVAC_OUTPUT_DIR);
 			if (shouldFlushOutputDirectory) {
-				cleanupDirectory(javacOutputDirectory);
+				Util.delete(javacOutputDirectory);
 			}
 			
 			// Write files in dir
@@ -1082,7 +1058,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 
 			// Launch process
 			compileProcess = Runtime.getRuntime().exec(
-				cmdLine.toString(), null, this.outputTestDirectoryPath.toFile());
+				cmdLine.toString(), null, this.outputTestDirectory);
 
 			// Log errors
       Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");            
@@ -1147,7 +1123,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 						javaCmdLine.append(cp);
 						javaCmdLine.append(' ').append(testFiles[0].substring(0, testFiles[0].indexOf('.')));
 							// assume executable class is name of first test file - PREMATURE check if this is also the case in other test fwk classes
-						execProcess = Runtime.getRuntime().exec(javaCmdLine.toString(), null, this.outputTestDirectoryPath.toFile());
+						execProcess = Runtime.getRuntime().exec(javaCmdLine.toString(), null, this.outputTestDirectory);
 						Logger logger = new Logger(execProcess.getInputStream(), "");
 						// PREMATURE implement consistent error policy
 	     				logger.start();
@@ -1216,7 +1192,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		} 
 		finally {
 			// Clean up written file(s)
-			cleanupDirectory(outputTestDirectoryPath.toFile());
+			Util.delete(outputTestDirectory);
 		}
 	}
 

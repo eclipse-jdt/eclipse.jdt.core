@@ -1682,7 +1682,7 @@ public void test019(){
 	        "",
 	        true);
 		if (jarCreated) {
-			new File(libPath).delete();
+			Util.delete(libPath);
 		}
 	}
 	//	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -extdirs extends the classpath before -classpath
@@ -2280,11 +2280,11 @@ public void test035(){
 		        false);
 		final String userDir = System.getProperty("user.dir");
 		File f = new File(userDir, "X.java");
-		if (!f.delete()) {
+		if (!Util.delete(f)) {
 			System.out.println("Could not delete X");
 		}
 		f = new File(userDir, "p" + File.separator + "Y.java");
-		if (!f.delete()) {
+		if (!Util.delete(f)) {
 			System.out.println("Could not delete Y");
 		}
 		
