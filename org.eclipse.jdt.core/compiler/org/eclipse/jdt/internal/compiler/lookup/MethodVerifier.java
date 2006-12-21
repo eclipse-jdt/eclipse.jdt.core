@@ -196,9 +196,18 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 	if (concreteMethod.isStatic())
 		// Cannot inherit a static method which is specified as an instance method by an interface
 		problemReporter().staticInheritedMethodConflicts(type, concreteMethod, abstractMethods);	
-	if (!concreteMethod.isPublic())
-		// Cannot reduce visibility of a public method specified by an interface
-		problemReporter().inheritedMethodReducesVisibility(type, concreteMethod, abstractMethods);
+	if (!concreteMethod.isPublic()) {
+		int index = 0, length = abstractMethods.length;
+		if (concreteMethod.isProtected()) {
+			for (; index < length; index++)
+				if (abstractMethods[index].isPublic()) break;
+		} else if (concreteMethod.isDefault()) {
+			for (; index < length; index++)
+				if (!abstractMethods[index].isDefault()) break;
+		}
+		if (index < length)
+			problemReporter().inheritedMethodReducesVisibility(type, concreteMethod, abstractMethods);
+	}
 	if (concreteMethod.thrownExceptions != Binding.NO_EXCEPTIONS)
 		for (int i = abstractMethods.length; --i >= 0;)
 			checkExceptions(concreteMethod, abstractMethods[i]);

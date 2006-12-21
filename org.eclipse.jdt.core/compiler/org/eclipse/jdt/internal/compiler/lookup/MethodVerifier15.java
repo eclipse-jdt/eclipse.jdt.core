@@ -259,15 +259,45 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 }
 void checkInheritedMethods(MethodBinding[] methods, int length) {
 	int count = length;
-	nextMethod : for (int i = 0, l = length - 1; i < l;) {
-		MethodBinding method = methods[i++];
-		for (int j = i; j <= l; j++) {
-			if (method.declaringClass == methods[j].declaringClass && areMethodsEqual(method, methods[j])) {
-				// found an inherited ParameterizedType that defines duplicate methods
-				problemReporter().duplicateInheritedMethods(this.type, method, methods[j]);
-				count--;
-				methods[i - 1] = null;
-				continue nextMethod;
+	int[] skip = new int[count];
+	nextMethod : for (int i = 0, l = length - 1; i < l; i++) {
+		if (skip[i] == -1) continue nextMethod;
+		MethodBinding method = methods[i];
+		MethodBinding[] duplicates = null;
+		for (int j = i + 1; j <= l; j++) {
+			MethodBinding method2 = methods[j];
+			if (method.declaringClass == method2.declaringClass && areMethodsEqual(method, method2)) {
+				skip[j] = -1;
+				if (duplicates == null)
+					duplicates = new MethodBinding[length];
+				duplicates[j] = method2;
+			}
+		}
+		if (duplicates != null) {
+			// found an inherited ParameterizedType that defines duplicate methods
+			// if all methods are abstract or more than 1 concrete method exists, then consider them to be duplicates
+			// if a single concrete method 'implements' the abstract methods, then do not report a duplicate error
+			int concreteCount = method.isAbstract() ? 0 : 1;
+			MethodBinding methodToKeep = method; // if a concrete method exists, keep it, otherwise keep the first method
+			for (int m = 0, s = duplicates.length; m < s; m++) {
+				if (duplicates[m] != null) {
+					if (!duplicates[m].isAbstract()) {
+						methodToKeep = duplicates[m];
+						concreteCount++;
+					}
+				}
+			}
+			if (concreteCount != 1) {
+				for (int m = 0, s = duplicates.length; m < s; m++) {
+					if (duplicates[m] != null) {
+						problemReporter().duplicateInheritedMethods(this.type, method, duplicates[m]);
+						count--;
+						if (methodToKeep == duplicates[m])
+							methods[i] = null;
+						else
+							methods[m] = null;
+					}
+				}
 			}
 		}
 	}
