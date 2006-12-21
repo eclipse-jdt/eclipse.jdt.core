@@ -7308,4 +7308,40 @@ public void test119() {
 		options
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=161541
+public void test120() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	abstract class M<T extends CharSequence, S> {\n" + 
+			"		abstract void a(T t);\n" + 
+			"		abstract void a(S s);\n" + 
+			"		void a(String s) {}\n" + 
+			"\n" + 
+			"		abstract void b(T t);\n" + 
+			"		protected void b(String s) {}\n" + 
+			"		protected abstract void b(S s);\n" + 
+			"\n" + 
+			"		public void c(String s) {}\n" + 
+			"		protected abstract void c(T t);\n" + 
+			"		abstract void c(S s);\n" + 
+			"\n" + 
+			"		protected abstract void d(T t);\n" + 
+			"		public void d(S s) {}\n" + 
+			"\n" + 
+			"		void e(T t) {}\n" + 
+			"		void e(S s) {}\n" +
+			"	}\n" + 
+			"	class N extends M<String, String> {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 21)\n" + 
+		"	class N extends M<String, String> {}\n" + 
+		"	      ^\n" + 
+		"Duplicate methods named e with the parameters (S) and (T) are defined by the type X.M<String,String>\n" + 
+		"----------\n"
+	);
+}
 }
