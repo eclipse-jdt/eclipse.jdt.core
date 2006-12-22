@@ -34,7 +34,9 @@ public class QualifiedTypeReference extends TypeReference {
 	}
 
 	protected TypeBinding findNextTypeBinding(int tokenIndex, Scope scope, PackageBinding packageBinding) {
+		LookupEnvironment env = scope.environment();
 		try {
+			env.missingClassFileLocation = this;
 		    if (this.resolvedType == null) {
 				this.resolvedType = scope.getType(this.tokens[tokenIndex], packageBinding);
 		    } else {
@@ -51,6 +53,8 @@ public class QualifiedTypeReference extends TypeReference {
 		} catch (AbortCompilation e) {
 			e.updateContext(this, scope.referenceCompilationUnit().compilationResult);
 			throw e;
+		} finally {
+			env.missingClassFileLocation = null;
 		}
 	}
 

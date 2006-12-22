@@ -209,14 +209,6 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage())); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-	} catch (MissingClassFileException e) {
-		// do not log this exception since its thrown to handle aborted compiles because of missing class files
-		if (DEBUG)
-			System.out.println(Messages.bind(Messages.build_incompleteClassPath, e.missingClassFile)); 
-		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_incompleteClassPath, e.missingClassFile)); 
-		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
 	} catch (MissingSourceFileException e) {
 		// do not log this exception since its thrown to handle aborted compiles because of missing source files
 		if (DEBUG)
@@ -430,6 +422,14 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 	IProject[] result = new IProject[projects.size()];
 	projects.toArray(result);
 	return result;
+}
+
+boolean hasBuildpathErrors() throws CoreException {
+	IMarker[] markers = this.currentProject.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+	for (int i = 0, l = markers.length; i < l; i++)
+		if (markers[i].getAttribute(IJavaModelMarker.CATEGORY_ID, -1) == CategorizedProblem.CAT_BUILDPATH)
+			return true;
+	return false;
 }
 
 private boolean hasClasspathChanged() {

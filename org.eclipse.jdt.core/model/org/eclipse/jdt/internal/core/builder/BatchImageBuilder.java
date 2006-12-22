@@ -79,48 +79,6 @@ protected void acceptSecondaryType(ClassFile classFile) {
 		this.secondaryTypes.add(classFile.fileName());
 }
 
-protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreException {
-	for (int i = 0, l = sourceLocations.length; i < l; i++) {
-		final ClasspathMultiDirectory sourceLocation = sourceLocations[i];
-		final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
-		final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
-		final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
-		final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
-		final IContainer outputFolder = sourceLocation.binaryFolder;
-		final boolean isOutputFolder = sourceLocation.sourceFolder.equals(outputFolder);
-		sourceLocation.sourceFolder.accept(
-			new IResourceProxyVisitor() {
-				public boolean visit(IResourceProxy proxy) throws CoreException {
-					switch(proxy.getType()) {
-						case IResource.FILE :
-							if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
-								IResource resource = proxy.requestResource();
-								if (exclusionPatterns != null || inclusionPatterns != null)
-									if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
-								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation));
-							}
-							return false;
-						case IResource.FOLDER :
-							if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
-								if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns)) return false;
-							IPath folderPath = null;
-							if (isAlsoProject)
-								if (isExcludedFromProject(folderPath = proxy.requestFullPath())) return false;
-							if (!isOutputFolder) {
-								if (folderPath == null)
-									folderPath = proxy.requestFullPath();
-								createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
-							}
-					}
-					return true;
-				}
-			},
-			IResource.NONE
-		);
-		notifier.checkCancel();
-	}
-}
-
 protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 	boolean deleteAll = JavaCore.CLEAN.equals(
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));

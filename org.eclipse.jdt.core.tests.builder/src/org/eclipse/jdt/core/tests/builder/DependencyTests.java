@@ -806,6 +806,77 @@ public class DependencyTests extends BuilderTests {
 		expectingNoProblems();
 	}
 
+	public void testMissingClassFile() throws JavaModelException {
+		IPath project1Path = env.addProject("Project1"); //$NON-NLS-1$
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(project1Path,""); //$NON-NLS-1$
+
+		IPath root1 = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
+		env.setOutputFolder(project1Path, "bin"); //$NON-NLS-1$
+
+		env.addClass(root1, "p1", "MissingClass", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class MissingClass {}" //$NON-NLS-1$
+		);
+
+		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, project1Path);
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(project2Path,""); //$NON-NLS-1$
+
+		IPath root2 = env.addPackageFragmentRoot(project2Path, "src"); //$NON-NLS-1$
+		env.setOutputFolder(project2Path, "bin"); //$NON-NLS-1$
+
+		env.addClass(root2, "p2", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"import p1.MissingClass;\n" +
+			"public class A {\n"+ //$NON-NLS-1$
+			"	public void foo(MissingClass data) {}\n"+ //$NON-NLS-1$
+			"	public void foo(String data) {}\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+		);
+
+		IPath project3Path = env.addProject("Project3"); //$NON-NLS-1$
+		env.addExternalJars(project3Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project3Path, project2Path);
+		// missing required Project1 so MissingClass cannot be found
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(project3Path,""); //$NON-NLS-1$
+
+		IPath root3 = env.addPackageFragmentRoot(project3Path, "src"); //$NON-NLS-1$
+		env.setOutputFolder(project3Path, "bin"); //$NON-NLS-1$
+	
+		IPath bPath = env.addClass(root3, "p3", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p3;\n"+ //$NON-NLS-1$
+			"import p2.A;\n" +
+			"public class B {\n"+ //$NON-NLS-1$
+			"	public static void main(String[] args) {\n" + //$NON-NLS-1$
+			"		new A().foo(new String());\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+		);
+
+		fullBuild();
+		expectingOnlyProblemsFor(new IPath[] {project3Path, bPath});
+		expectingSpecificProblemFor(project3Path, new Problem("Project3", "The project was not built since its build path is incomplete. Cannot find the class file for p1.MissingClass. Fix the build path then try building this project", project3Path, -1, -1, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.MissingClass cannot be resolved. It is indirectly referenced from required .class files", bPath, 86, 111, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.addClass(root2, "p2", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class A {\n"+ //$NON-NLS-1$
+			"	public void foo(String data) {}\n"+ //$NON-NLS-1$
+			"}\n" //$NON-NLS-1$
+		);
+
+		incrementalBuild();
+		expectingNoProblems();
+	}
+
 	// 72468
 	public void testTypeDeleting() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$

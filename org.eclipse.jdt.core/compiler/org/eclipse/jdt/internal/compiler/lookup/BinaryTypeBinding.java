@@ -30,21 +30,21 @@ Non-public fields have accessors which should be used everywhere you expect the 
 null is NOT a valid value for a non-public field... it just means the field is not initialized.
 */
 
-public final class BinaryTypeBinding extends ReferenceBinding {
+public class BinaryTypeBinding extends ReferenceBinding {
 
 	// all of these fields are ONLY guaranteed to be initialized if accessed using their public accessor method
-	private ReferenceBinding superclass;
-	private ReferenceBinding enclosingType;
-	private ReferenceBinding[] superInterfaces;
-	private FieldBinding[] fields;
-	private MethodBinding[] methods;
-	private ReferenceBinding[] memberTypes;
+	protected ReferenceBinding superclass;
+	protected ReferenceBinding enclosingType;
+	protected ReferenceBinding[] superInterfaces;
+	protected FieldBinding[] fields;
+	protected MethodBinding[] methods;
+	protected ReferenceBinding[] memberTypes;
 	protected TypeVariableBinding[] typeVariables;
 
 	// For the link with the principle structure
-	private LookupEnvironment environment;
+	protected LookupEnvironment environment;
 
-	private SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
+	protected SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
 
 static Object convertMemberValue(Object binaryValue, LookupEnvironment env) {
 	if (binaryValue == null) return null;
@@ -144,7 +144,19 @@ static ReferenceBinding resolveUnresolvedType(ReferenceBinding type, LookupEnvir
 	return type;
 }
 
+/**
+ * Default empty constructor for subclasses only.
+ */
+protected BinaryTypeBinding() {
+	// only for subclasses
+}
 
+/**
+ * Standard constructor for creating binary type bindings from binary models (classfiles)
+ * @param packageBinding
+ * @param binaryType
+ * @param environment
+ */
 public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, LookupEnvironment environment) {
 	this.compoundName = CharOperation.splitOn('/', binaryType.getName());
 	computeId();
@@ -927,6 +939,8 @@ public ReferenceBinding superclass() {
 
 	// finish resolving the type
 	this.superclass = resolveType(this.superclass, this.environment, true);
+	if (this.superclass.problemId() == ProblemReasons.NotFound)
+		this.tagBits |= TagBits.HierarchyHasProblems; // propagate type inconsistency
 	return this.superclass;
 }
 // NOTE: superInterfaces of binary types are resolved when needed
@@ -938,8 +952,11 @@ public ReferenceBinding[] superInterfaces() {
 		this.superInterfaces[i] = resolveUnresolvedType(this.superInterfaces[i], this.environment, true);
 	this.tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
 
-	for (int i = this.superInterfaces.length; --i >= 0;)
+	for (int i = this.superInterfaces.length; --i >= 0;) {
 		this.superInterfaces[i] = resolveType(this.superInterfaces[i], this.environment, true);
+		if (this.superInterfaces[i].problemId() == ProblemReasons.NotFound)
+			this.tagBits |= TagBits.HierarchyHasProblems; // propagate type inconsistency
+	}
 	return this.superInterfaces;
 }
 public TypeVariableBinding[] typeVariables() {

@@ -41,12 +41,11 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 		targetType = this.fPackage.getType0(this.compoundName[this.compoundName.length - 1]);
 		if (targetType == this)
 			targetType = environment.askForType(this.compoundName);
-		if (targetType != null && targetType != this) { // could not resolve any better, error was already reported against it
-			setResolvedType(targetType, environment);
-		} else {
-			environment.problemReporter.isClassPathCorrect(this.compoundName, null);
-			return null; // will not get here since the above error aborts the compilation
+		if (targetType == null || targetType == this) { // could not resolve any better, error was already reported against it
+			// create a proxy for the missing BinaryType
+			targetType = environment.cacheMissingBinaryType(this.compoundName, null);
 		}
+		setResolvedType(targetType, environment);
 	}
 	if (convertGenericToRawType) {
 		targetType = (ReferenceBinding) environment.convertUnresolvedBinaryToRawType(targetType);
