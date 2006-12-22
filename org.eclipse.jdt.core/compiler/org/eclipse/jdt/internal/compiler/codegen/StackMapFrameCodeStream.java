@@ -768,7 +768,8 @@ public void getfield(FieldBinding fieldBinding) {
 	this.currentFrame.stackItems[this.currentFrame.numberOfStackItems - 1] = new VerificationTypeInfo(fieldBinding.type);
 }
 private VerificationTypeInfo getLocal(int resolvedPosition, StackMapFrame frame) {
-	final VerificationTypeInfo verificationTypeInfo = frame.locals[resolvedPosition];
+	VerificationTypeInfo verificationTypeInfo = frame.locals[resolvedPosition];
+
 	if (verificationTypeInfo == null) {
 		return null;
 	}
@@ -1041,7 +1042,7 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
 				frame.putLocal(resolvedPosition, new VerificationTypeInfo(TypeBinding.INT));
 				resolvedPosition++;
 			}
-			
+
 			// take into account the synthetic parameters
 			if (methodBinding.declaringClass.isNestedType()) {
 				ReferenceBinding enclosingInstanceTypes[];
@@ -1053,6 +1054,23 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
 						resolvedPosition++;
 					}
 				}
+
+				TypeBinding[] arguments;
+				if ((arguments = methodBinding.parameters) != null) {
+					for (int i = 0, max = arguments.length; i < max; i++) {
+						final TypeBinding typeBinding = arguments[i];
+						frame.putLocal(resolvedPosition, new VerificationTypeInfo(typeBinding));
+						switch(typeBinding.id) {
+							case TypeIds.T_double :
+							case TypeIds.T_long :
+								resolvedPosition += 2;
+								break;
+							default:
+								resolvedPosition++;
+						}
+					}
+				}
+
 				SyntheticArgumentBinding syntheticArguments[];
 				if ((syntheticArguments = methodBinding.declaringClass.syntheticOuterLocalVariables()) != null) {
 					for (int i = 0, max = syntheticArguments.length; i < max; i++) {
@@ -1068,21 +1086,37 @@ public void initializeMaxLocals(MethodBinding methodBinding) {
 						}
 					}
 				}
+			} else {
+				TypeBinding[] arguments;
+				if ((arguments = methodBinding.parameters) != null) {
+					for (int i = 0, max = arguments.length; i < max; i++) {
+						final TypeBinding typeBinding = arguments[i];
+						frame.putLocal(resolvedPosition, new VerificationTypeInfo(typeBinding));
+						switch(typeBinding.id) {
+							case TypeIds.T_double :
+							case TypeIds.T_long :
+								resolvedPosition += 2;
+								break;
+							default:
+								resolvedPosition++;
+						}
+					}
+				}
 			}
-		}
-
-		TypeBinding[] arguments;
-		if ((arguments = methodBinding.parameters) != null) {
-			for (int i = 0, max = arguments.length; i < max; i++) {
-				final TypeBinding typeBinding = arguments[i];
-				frame.putLocal(resolvedPosition, new VerificationTypeInfo(typeBinding));
-				switch(typeBinding.id) {
-					case TypeIds.T_double :
-					case TypeIds.T_long :
-						resolvedPosition += 2;
-						break;
-					default:
-						resolvedPosition++;
+		} else {
+			TypeBinding[] arguments;
+			if ((arguments = methodBinding.parameters) != null) {
+				for (int i = 0, max = arguments.length; i < max; i++) {
+					final TypeBinding typeBinding = arguments[i];
+					frame.putLocal(resolvedPosition, new VerificationTypeInfo(typeBinding));
+					switch(typeBinding.id) {
+						case TypeIds.T_double :
+						case TypeIds.T_long :
+							resolvedPosition += 2;
+							break;
+						default:
+							resolvedPosition++;
+					}
 				}
 			}
 		}

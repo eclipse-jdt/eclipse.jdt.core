@@ -2111,4 +2111,46 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
+	
+	public void test024() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"public class X {\n" + 
+        		"	public static final int MAX_PROPERTIES = 25;\n" + 
+        		"	public C c = new C();\n" + 
+        		"	void foo(int i) {\n" + 
+        		"		final int len = c.foo2();\n" + 
+        		"		A f = new A(\" Test \", i, 1, MAX_PROPERTIES) {\n" + 
+        		"			@Override\n" + 
+        		"			public double bar() {\n" + 
+        		"				return len;\n" + 
+        		"			}\n" + 
+        		"			@Override\n" + 
+        		"			public String toString() {\n" + 
+        		"				return \"SUCCESS\";\n" + 
+        		"			}\n" + 
+        		"		};\n" + 
+        		"		System.out.println(f);\n" + 
+        		"	}\n" + 
+        		"	public static void main(String[] args) {\n" + 
+        		"		new X().foo(0);\n" + 
+        		"	}\n" + 
+        		"}",
+        		"A.java",
+        		"class A {\n" + 
+        		"	A(String s, double d, double d1, double d2) {}\n" + 
+        		"	public double bar() {\n" + 
+        		"		return 0.0;\n" + 
+        		"	}\n" + 
+        		"}",
+        		"C.java",
+        		"class C {\n" + 
+        		"	public int foo2() {\n" + 
+        		"		return 0;\n" + 
+        		"	}\n" + 
+        		"}",
+            },
+			"SUCCESS");
+	}
 }
