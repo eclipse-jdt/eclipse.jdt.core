@@ -12,7 +12,9 @@ package org.eclipse.jdt.core.tests.formatter;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -27,11 +29,33 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.ibm.icu.util.StringTokenizer;
+
 public class DecodeCodeFormatterPreferences extends DefaultHandler {
 	
 	private boolean record;
 	private Map entries;
 	private String profileName;
+
+	public static Map decodeCodeFormatterOptions(String fileName) {
+		try {
+			LineNumberReader reader = new LineNumberReader(new FileReader(fileName));
+			Map options = new HashMap();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				if (line.startsWith("#")) {
+					continue;
+				}
+				StringTokenizer stringTokenizer = new StringTokenizer(line, "=");
+				options.put(stringTokenizer.nextElement(), stringTokenizer.nextElement());
+			}
+			reader.close();
+			return options;
+		} catch (IOException e) {
+			// ignore
+		}
+		return null;
+	}
 
 	public static Map decodeCodeFormatterOptions(String fileName, String profileName) {
 		try {
