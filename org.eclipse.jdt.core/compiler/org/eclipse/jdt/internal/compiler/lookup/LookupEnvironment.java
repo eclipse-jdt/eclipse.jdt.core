@@ -64,6 +64,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private SimpleLookupTable uniqueParameterizedGenericMethodBindings;
 	
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units
+	public Object missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
 
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private MethodVerifier verifier;
@@ -171,6 +172,26 @@ public BinaryTypeBinding cacheBinaryType(IBinaryType binaryType, boolean needFie
 		// only add the binary type if its not already in the cache
 		return createBinaryTypeFrom(binaryType, computePackageFrom(compoundName), needFieldsAndMethods, accessRestriction);
 	return null; // the type already exists & can be retrieved from the cache
+}
+public BinaryTypeBinding cacheMissingBinaryType(char[][] compoundName, CompilationUnitDeclaration unit) {
+	// report the missing class file first
+	problemReporter.isClassPathCorrect(
+		compoundName, 
+		unit == null ? this.unitBeingCompleted : unit, 
+		this.missingClassFileLocation);
+
+	PackageBinding packageBinding = computePackageFrom(compoundName);
+	// create a proxy for the missing BinaryType
+	MissingBinaryTypeBinding type = new MissingBinaryTypeBinding(packageBinding, compoundName, this);
+	if (type.id != TypeIds.T_JavaLangObject) {
+		// make Object be its superclass - it could in turn be missing as well
+		ReferenceBinding objectType = getType(TypeConstants.JAVA_LANG_OBJECT);
+		if (objectType == null)
+			objectType = cacheMissingBinaryType(TypeConstants.JAVA_LANG_OBJECT, unit);	// create a proxy for the missing Object type		
+		type.setMissingSuperclass(objectType);
+	}
+	packageBinding.addType(type);
+	return type;	
 }
 /*
 * 1. Connect the type hierarchy for the type bindings created for parsedUnits.
@@ -860,8 +881,10 @@ public ReferenceBinding getResolvedType(char[][] compoundName, Scope scope) {
 	ReferenceBinding type = getType(compoundName);
 	if (type != null) return type;
 
-	problemReporter.isClassPathCorrect(compoundName, scope == null ? null : scope.referenceCompilationUnit());
-	return null; // will not get here since the above error aborts the compilation
+	// create a proxy for the missing BinaryType
+	return cacheMissingBinaryType(
+		compoundName, 
+		scope == null ? this.unitBeingCompleted : scope.referenceCompilationUnit());
 }
 /* Answer the top level package named name.
 * Ask the oracle for the package if its not in the cache.
@@ -886,7 +909,7 @@ PackageBinding getTopLevelPackage(char[] name) {
 }
 /* Answer the type corresponding to the compoundName.
 * Ask the name environment for the type if its not in the cache.
-* Answer null if the type cannot be found... likely a fatal error.
+* Answer null if the type cannot be found.
 */
 
 public ReferenceBinding getType(char[][] compoundName) {
@@ -947,8 +970,6 @@ private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, Ty
 * unresolved type is returned which must be resolved before used.
 *
 * NOTE: Does NOT answer base types nor array types!
-*
-* NOTE: Aborts compilation if the class file cannot be found.
 */
 
 ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean isParameterized) {
@@ -958,11 +979,11 @@ ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean isParame
 		binding = new UnresolvedReferenceBinding(compoundName, packageBinding);
 		packageBinding.addType(binding);
 	} else if (binding == TheNotFoundType) {
-		problemReporter.isClassPathCorrect(compoundName, null);
-		return null; // will not get here since the above error aborts the compilation
+		// create a proxy for the missing BinaryType
+		binding = cacheMissingBinaryType(compoundName, this.unitBeingCompleted);
 	} else if (!isParameterized) {
 	    // check raw type, only for resolved types
-        binding = (ReferenceBinding)convertUnresolvedBinaryToRawType(binding);
+        binding = (ReferenceBinding) convertUnresolvedBinaryToRawType(binding);
 	}
 	return binding;
 }
@@ -971,8 +992,6 @@ ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean isParame
 * unresolved type is returned which must be resolved before used.
 *
 * NOTE: Does NOT answer base types nor array types!
-*
-* NOTE: Aborts compilation if the class file cannot be found.
 */
 
 ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int end, boolean isParameterized) {
@@ -987,8 +1006,6 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 * unresolved type is returned which must be resolved before used.
 *
 * NOTE: Does answer base types & array types.
-*
-* NOTE: Aborts compilation if the class file cannot be found.
 */
 
 TypeBinding getTypeFromSignature(char[] signature, int start, int end, boolean isParameterized, TypeBinding enclosingType) {

@@ -3318,7 +3318,8 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		if (isRecoveredName(ref.tokens)) return;
 		if (type instanceof ReferenceBinding) {
 			char[][] name = ((ReferenceBinding) type).compoundName;
-			end = (int) ref.sourcePositions[name.length - 1];
+			if (name.length <= ref.sourcePositions.length)
+				end = (int) ref.sourcePositions[name.length - 1];
 		}
 	} else if (location instanceof ImportReference) {
 		ImportReference ref = (ImportReference) location;
@@ -3443,16 +3444,27 @@ public void invalidUsageOfVarargs(Argument argument) {
 		argument.type.sourceStart,
 		argument.sourceEnd);
 }
-public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl) {
+public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location) {
 	this.referenceContext = compUnitDecl;
 	String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName)};
+	int start = 0, end = 0;
+	if (location != null) {
+		if (location instanceof InvocationSite) {
+			InvocationSite site = (InvocationSite) location;
+			start = site.sourceStart();
+			end = site.sourceEnd();
+		} else if (location instanceof ASTNode) {
+			ASTNode node = (ASTNode) location;
+			start = node.sourceStart();
+			end = node.sourceEnd();
+		}
+	}
 	this.handle(
 		IProblem.IsClassPathCorrect,
 		arguments, 
 		arguments,
-		ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
-		0,
-		0);
+		start,
+		end);
 }
 private boolean isIdentifier(int token) {
 	return token == TerminalTokens.TokenNameIdentifier;

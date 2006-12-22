@@ -957,11 +957,15 @@ public class ClassScope extends Scope {
 				problemReporter().hierarchyHasProblems(sourceType);
 		}
 		connectMemberTypes();
+		LookupEnvironment env = environment();
 		try {
+			env.missingClassFileLocation = referenceContext;
 			checkForInheritedMemberTypes(sourceType);
 		} catch (AbortCompilation e) {
 			e.updateContext(referenceContext, referenceCompilationUnit().compilationResult);
 			throw e;
+		} finally {
+			env.missingClassFileLocation = null;
 		}
 	}
 	
@@ -1099,19 +1103,24 @@ public class ClassScope extends Scope {
 	}
 
 	private ReferenceBinding findSupertype(TypeReference typeReference) {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		LookupEnvironment env = unitScope.environment;
 		try {
+			env.missingClassFileLocation = typeReference;
 			typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
-			compilationUnitScope().recordQualifiedReference(typeReference.getTypeName());
+			unitScope.recordQualifiedReference(typeReference.getTypeName());
 			this.superTypeReference = typeReference;
 			ReferenceBinding superType = (ReferenceBinding) typeReference.resolveSuperType(this);
-			this.superTypeReference = null;
 			return superType;
 		} catch (AbortCompilation e) {
 			SourceTypeBinding sourceType = this.referenceContext.binding;
 			if (sourceType.superInterfaces == null)  sourceType.superInterfaces = Binding.NO_SUPERINTERFACES; // be more resilient for hierarchies (144976)
 			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);
 			throw e;
-		}			
+		} finally {
+			env.missingClassFileLocation = null;
+			this.superTypeReference = null;
+		}
 	}
 
 	/* Answer the problem reporter to use for raising new problems.

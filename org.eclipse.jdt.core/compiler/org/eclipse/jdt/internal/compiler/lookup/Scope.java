@@ -1355,8 +1355,10 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	 *	Limitations: cannot request FIELD independently of LOCAL, or vice versa
 	 */
 	public Binding getBinding(char[] name, int mask, InvocationSite invocationSite, boolean needResolve) {
-
+		CompilationUnitScope unitScope = compilationUnitScope();
+		LookupEnvironment env = unitScope.environment;
 		try {
+			env.missingClassFileLocation = invocationSite;
 			Binding binding = null;
 			FieldBinding problemField = null;
 			if ((mask & Binding.VARIABLE) != 0) {
@@ -1499,7 +1501,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 				if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 					// at this point the scope is a compilation unit scope & need to check for imported static fields
-					CompilationUnitScope unitScope = (CompilationUnitScope) scope;
 					ImportBinding[] imports = unitScope.imports;
 					if (imports != null) {
 						// check single static imports
@@ -1564,9 +1565,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					return binding;
 				// answer the problem type binding if we are only looking for a type
 			} else if ((mask & Binding.PACKAGE) != 0) {
-				CompilationUnitScope unitScope = compilationUnitScope();
 				unitScope.recordSimpleReference(name);
-				if ((binding = unitScope.environment.getTopLevelPackage(name)) != null)
+				if ((binding = env.getTopLevelPackage(name)) != null)
 					return binding;
 			}
 			if (problemField != null) return problemField;
@@ -1576,12 +1576,16 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		} catch (AbortCompilation e) {
 			e.updateContext(invocationSite, referenceCompilationUnit().compilationResult);
 			throw e;
+		} finally {
+			env.missingClassFileLocation = null;
 		}
 	}
 
 	public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		LookupEnvironment env = unitScope.environment;
 		try {
-			CompilationUnitScope unitScope = compilationUnitScope();
+			env.missingClassFileLocation = invocationSite;
 			unitScope.recordTypeReference(receiverType);
 			unitScope.recordTypeReferences(argumentTypes);
 			MethodBinding methodBinding = receiverType.getExactConstructor(argumentTypes);
@@ -1636,6 +1640,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		} catch (AbortCompilation e) {
 			e.updateContext(invocationSite, referenceCompilationUnit().compilationResult);
 			throw e;
+		} finally {
+			env.missingClassFileLocation = null;
 		}
 	}
 
@@ -1680,7 +1686,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	}
 
 	public FieldBinding getField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite) {
+		LookupEnvironment env = environment();
 		try {
+			env.missingClassFileLocation = invocationSite;
 			FieldBinding field = findField(receiverType, fieldName, invocationSite, true /*resolve*/);
 			if (field != null) return field;
 	
@@ -1691,7 +1699,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		} catch (AbortCompilation e) {
 			e.updateContext(invocationSite, referenceCompilationUnit().compilationResult);
 			throw e;
-		}			
+		} finally {
+			env.missingClassFileLocation = null;
+		}
 	}
 	
 	/* API
@@ -1981,15 +1991,18 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	}
 
 	public MethodBinding getMethod(TypeBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		LookupEnvironment env = unitScope.environment;
 		try {
+			env.missingClassFileLocation = invocationSite;
 			switch (receiverType.kind()) {
 				case Binding.BASE_TYPE :
 					return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
 				case Binding.ARRAY_TYPE :
-					compilationUnitScope().recordTypeReference(receiverType);
+					unitScope.recordTypeReference(receiverType);
 					return findMethodForArray((ArrayBinding) receiverType, selector, argumentTypes, invocationSite);
 			}
-			compilationUnitScope().recordTypeReference(receiverType);
+			unitScope.recordTypeReference(receiverType);
 
 			ReferenceBinding currentType = (ReferenceBinding) receiverType;
 			if (!currentType.canBeSeenBy(this))
@@ -2016,6 +2029,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		} catch (AbortCompilation e) {
 			e.updateContext(invocationSite, referenceCompilationUnit().compilationResult);
 			throw e;
+		} finally {
+			env.missingClassFileLocation = null;
 		}
 	}
 

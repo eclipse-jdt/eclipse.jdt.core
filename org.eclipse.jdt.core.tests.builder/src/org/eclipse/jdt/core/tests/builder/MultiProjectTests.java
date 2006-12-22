@@ -783,7 +783,7 @@ public class MultiProjectTests extends BuilderTests {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=114349
 // this one fails; compare with testCycle7 (only one change in Object source),
 // which passes
-public void _testCycle6() throws JavaModelException {
+public void testCycle6() throws JavaModelException {
 	Hashtable options = JavaCore.getOptions();
 	Hashtable newOptions = JavaCore.getOptions();
 	newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);

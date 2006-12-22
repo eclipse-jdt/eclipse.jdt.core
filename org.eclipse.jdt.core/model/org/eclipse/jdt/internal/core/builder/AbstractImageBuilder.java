@@ -50,6 +50,7 @@ protected boolean compiledAllAtOnce;
 
 private boolean inCompiler;
 
+protected boolean keepStoringProblemMarkers;
 protected SimpleSet filesWithAnnotations = null;
 
 public static int MAX_AT_ONCE = 2000; // best compromise between space used and speed
@@ -85,6 +86,7 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, S
 	this.nameEnvironment = javaBuilder.nameEnvironment;
 	this.sourceLocations = this.nameEnvironment.sourceLocations;
 	this.notifier = javaBuilder.notifier;
+	this.keepStoringProblemMarkers = true; // may get disabled when missing classfiles are encountered
 
 	if (buildStarting) {
 		this.newState = newState == null ? new State(javaBuilder) : newState;
@@ -198,6 +200,48 @@ public void acceptResult(CompilationResult result) {
 
 protected void acceptSecondaryType(ClassFile classFile) {
 	// noop
+}
+
+protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreException {
+	for (int i = 0, l = sourceLocations.length; i < l; i++) {
+		final ClasspathMultiDirectory sourceLocation = sourceLocations[i];
+		final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
+		final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
+		final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
+		final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
+		final IContainer outputFolder = sourceLocation.binaryFolder;
+		final boolean isOutputFolder = sourceLocation.sourceFolder.equals(outputFolder);
+		sourceLocation.sourceFolder.accept(
+			new IResourceProxyVisitor() {
+				public boolean visit(IResourceProxy proxy) throws CoreException {
+					switch(proxy.getType()) {
+						case IResource.FILE :
+							if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
+								IResource resource = proxy.requestResource();
+								if (exclusionPatterns != null || inclusionPatterns != null)
+									if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
+								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation));
+							}
+							return false;
+						case IResource.FOLDER :
+							if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
+								if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns)) return false;
+							IPath folderPath = null;
+							if (isAlsoProject)
+								if (isExcludedFromProject(folderPath = proxy.requestFullPath())) return false;
+							if (!isOutputFolder) {
+								if (folderPath == null)
+									folderPath = proxy.requestFullPath();
+								createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
+							}
+					}
+					return true;
+				}
+			},
+			IResource.NONE
+		);
+		notifier.checkCancel();
+	}
 }
 
 protected void cleanUp() {
@@ -550,25 +594,42 @@ protected void recordParticipantResult(CompilationParticipantResult result) {
  */
 protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] problems) throws CoreException {
 	if (sourceFile == null || problems == null || problems.length == 0) return;
+	 // once a classpath error is found, ignore all other problems for this project so the user can see the main error
+	// but still try to compile as many source files as possible to help the case when the base libraries are in source
+	if (!this.keepStoringProblemMarkers) return; // only want the one error recorded on this source file
 
-	String missingClassFile = null;
 	IResource resource = sourceFile.resource;
 	HashSet managedMarkerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
 	for (int i = 0, l = problems.length; i < l; i++) {
 		CategorizedProblem problem = problems[i];
 		int id = problem.getID();
+
+		// handle missing classfile situation
 		if (id == IProblem.IsClassPathCorrect) {
-			JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject); // make this the only problem for this project
-			String[] args = problem.getArguments();
-			missingClassFile = args[0];
+			String missingClassfileName = problem.getArguments()[0];
+			if (JavaBuilder.DEBUG)
+				System.out.println(Messages.bind(Messages.build_incompleteClassPath, missingClassfileName));
+			boolean isInvalidClasspathError = JavaCore.ERROR.equals(javaBuilder.javaProject.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true));
+			// insert extra classpath problem, and make it the only problem for this project (optional)
+			if (isInvalidClasspathError && JavaCore.ABORT.equals(javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, true))) {
+				JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject); // make this the only problem for this project
+				this.keepStoringProblemMarkers = false;
+			}
+			IMarker marker = this.javaBuilder.currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
+			marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_incompleteClassPath, missingClassfileName)); 
+			marker.setAttribute(IMarker.SEVERITY, isInvalidClasspathError ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING);
+			marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
+			marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
+			// even if we're not keeping more markers, still fall through rest of the problem reporting, so that offending
+			// IsClassPathCorrect problem gets recorded since it may help locate the offending reference
 		}
-		
+
 		String markerType = problem.getMarkerType();
 		boolean managedProblem = false;
 		if (IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER.equals(markerType)
-				|| (managedProblem = managedMarkerTypes.contains(markerType))) {			
+				|| (managedProblem = managedMarkerTypes.contains(markerType))) {
 			IMarker marker = resource.createMarker(markerType);
-			
+
 			// standard attributes
 			marker.setAttributes(
 				JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES,
@@ -593,9 +654,9 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 			if (extraLength > 0) {
 				marker.setAttributes(extraAttributeNames, problem.getExtraMarkerAttributeValues());
 			}
+
+			if (!this.keepStoringProblemMarkers) return; // only want the one error recorded on this source file
 		}
-		if (missingClassFile != null)
-			throw new MissingClassFileException(missingClassFile);
 	}
 }
 

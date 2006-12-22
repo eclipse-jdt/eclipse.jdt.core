@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.builder;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
@@ -77,28 +77,38 @@ public boolean build(SimpleLookupTable deltas) {
 	try {
 		resetCollections();
 
-		notifier.subTask(Messages.build_analyzingDeltas); 
-		IResourceDelta sourceDelta = (IResourceDelta) deltas.get(javaBuilder.currentProject);
-		if (sourceDelta != null)
-			if (!findSourceFiles(sourceDelta)) return false;
-		notifier.updateProgressDelta(0.10f);
+		notifier.subTask(Messages.build_analyzingDeltas);
+		if (javaBuilder.hasBuildpathErrors()) {
+			// if a mssing class file was detected in the last build, a build state was saved since its no longer fatal
+			// but we need to rebuild every source file since problems were not recorded
+			// AND to avoid the infinite build scenario if this project is involved in a cycle, see bug 160550
+			// we need to avoid unnecessary deltas caused by doing a full build in this case
+			javaBuilder.currentProject.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+			addAllSourceFiles(sourceFiles);
+			notifier.updateProgressDelta(0.25f);
+		} else {
+			IResourceDelta sourceDelta = (IResourceDelta) deltas.get(javaBuilder.currentProject);
+			if (sourceDelta != null)
+				if (!findSourceFiles(sourceDelta)) return false;
+			notifier.updateProgressDelta(0.10f);
 
-		Object[] keyTable = deltas.keyTable;
-		Object[] valueTable = deltas.valueTable;
-		for (int i = 0, l = valueTable.length; i < l; i++) {
-			IResourceDelta delta = (IResourceDelta) valueTable[i];
-			if (delta != null) {
-				IProject p = (IProject) keyTable[i];
-				ClasspathLocation[] classFoldersAndJars = (ClasspathLocation[]) javaBuilder.binaryLocationsPerProject.get(p);
-				if (classFoldersAndJars != null)
-					if (!findAffectedSourceFiles(delta, classFoldersAndJars, p)) return false;
+			Object[] keyTable = deltas.keyTable;
+			Object[] valueTable = deltas.valueTable;
+			for (int i = 0, l = valueTable.length; i < l; i++) {
+				IResourceDelta delta = (IResourceDelta) valueTable[i];
+				if (delta != null) {
+					IProject p = (IProject) keyTable[i];
+					ClasspathLocation[] classFoldersAndJars = (ClasspathLocation[]) javaBuilder.binaryLocationsPerProject.get(p);
+					if (classFoldersAndJars != null)
+						if (!findAffectedSourceFiles(delta, classFoldersAndJars, p)) return false;
+				}
 			}
-		}
-		notifier.updateProgressDelta(0.10f);
+			notifier.updateProgressDelta(0.10f);
 
-		notifier.subTask(Messages.build_analyzingSources); 
-		addAffectedSourceFiles();
-		notifier.updateProgressDelta(0.05f);
+			notifier.subTask(Messages.build_analyzingSources); 
+			addAffectedSourceFiles();
+			notifier.updateProgressDelta(0.05f);
+		}
 
 		this.compileLoop = 0;
 		float increment = 0.40f;
@@ -590,7 +600,7 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 					IPath typePath = resource.getFullPath().removeFirstSegments(segmentCount).removeFileExtension();
 					if (newState.isKnownType(typePath.toString())) {
 						if (JavaBuilder.DEBUG)
-							System.out.println("MOST DO FULL BUILD. Found change to class file " + typePath); //$NON-NLS-1$
+							System.out.println("MUST DO FULL BUILD. Found change to class file " + typePath); //$NON-NLS-1$
 						return false;
 					}
 				}

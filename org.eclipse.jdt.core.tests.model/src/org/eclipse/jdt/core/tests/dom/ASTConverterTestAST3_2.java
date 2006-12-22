@@ -6087,8 +6087,9 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
 		String expectedResult = 
+			"The hierarchy of the type X is inconsistent\n" + 
 			"The type test0599.Zork2 cannot be resolved. It is indirectly referenced from required .class files";
-		assertProblemsSize(compilationUnit, 1, expectedResult);
+		assertProblemsSize(compilationUnit, 2, expectedResult);
 		compilationUnit.accept(new ASTVisitor() {
 			public void endVisit(MethodDeclaration methodDeclaration) {
 				Block body = methodDeclaration.getBody();

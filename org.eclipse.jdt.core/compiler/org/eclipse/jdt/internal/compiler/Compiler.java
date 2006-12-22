@@ -594,6 +594,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 * Process a compilation unit already parsed and build.
 	 */
 	public void process(CompilationUnitDeclaration unit, int i) {
+		this.lookupEnvironment.unitBeingCompleted = unit;
+
 		this.parser.getMethodBodies(unit);
 
 		// fault in fields & methods
@@ -619,8 +621,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 
 		// refresh the total number of units known at this stage
 		unit.compilationResult.totalUnitsKnown = totalUnits;
+
+		this.lookupEnvironment.unitBeingCompleted = null;
 	}
-	
 
 	protected void processAnnotations(ICompilationUnit[] sourceUnits) {
 		int newUnitSize = 0;

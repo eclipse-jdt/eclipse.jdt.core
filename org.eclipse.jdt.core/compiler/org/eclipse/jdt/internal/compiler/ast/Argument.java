@@ -115,8 +115,8 @@ public class Argument extends LocalDeclaration {
 		}
 		if (exceptionType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
 			scope.problemReporter().cannotThrowType(this.type, exceptionType);
-			return null;
-		}			
+			// fall thru to create the variable - avoids additional errors because the variable is missing
+		}
 		
 		Binding existingVariable = scope.getBinding(name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){

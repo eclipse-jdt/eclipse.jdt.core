@@ -166,29 +166,35 @@ private IType findSuperClass(IGenericType type, ReferenceBinding typeBinding) {
 	
 	if (superBinding != null) {
 		superBinding = (ReferenceBinding) superBinding.erasure();
-		if (superBinding.id == TypeIds.T_JavaLangObject && typeBinding.isHierarchyInconsistent()) {
-			char[] superclassName;
-			char separator;
-			if (type instanceof IBinaryType) {
-				superclassName = ((IBinaryType)type).getSuperclassName();
-				separator = '/';
-			} else if (type instanceof ISourceType) {
-				superclassName = ((ISourceType)type).getSuperclassName();
-				separator = '.';
-			} else if (type instanceof HierarchyType) {
-				superclassName = ((HierarchyType)type).superclassName;
-				separator = '.';
-			} else {
+		if (typeBinding.isHierarchyInconsistent()) {
+			if (superBinding.problemId() == ProblemReasons.NotFound) {
+				this.hasMissingSuperClass = true;
+				this.builder.hierarchy.missingTypes.add(new String(superBinding.sourceName)); // note: this could be Map$Entry
 				return null;
-			}
-			
-			if (superclassName != null) { // check whether subclass of Object due to broken hierarchy (as opposed to explicitly extending it)
-				int lastSeparator = CharOperation.lastIndexOf(separator, superclassName);
-				char[] simpleName = lastSeparator == -1 ? superclassName : CharOperation.subarray(superclassName, lastSeparator+1, superclassName.length);
-				if (!CharOperation.equals(simpleName, TypeConstants.OBJECT)) {
-					this.hasMissingSuperClass = true;
-					this.builder.hierarchy.missingTypes.add(new String(simpleName));
+			} else if ((superBinding.id == TypeIds.T_JavaLangObject)) {
+				char[] superclassName;
+				char separator;
+				if (type instanceof IBinaryType) {
+					superclassName = ((IBinaryType)type).getSuperclassName();
+					separator = '/';
+				} else if (type instanceof ISourceType) {
+					superclassName = ((ISourceType)type).getSuperclassName();
+					separator = '.';
+				} else if (type instanceof HierarchyType) {
+					superclassName = ((HierarchyType)type).superclassName;
+					separator = '.';
+				} else {
 					return null;
+				}
+				
+				if (superclassName != null) { // check whether subclass of Object due to broken hierarchy (as opposed to explicitly extending it)
+					int lastSeparator = CharOperation.lastIndexOf(separator, superclassName);
+					char[] simpleName = lastSeparator == -1 ? superclassName : CharOperation.subarray(superclassName, lastSeparator+1, superclassName.length);
+					if (!CharOperation.equals(simpleName, TypeConstants.OBJECT)) {
+						this.hasMissingSuperClass = true;
+						this.builder.hierarchy.missingTypes.add(new String(simpleName));
+						return null;
+					}
 				}
 			}
 		}

@@ -558,9 +558,11 @@ ImportBinding[] getDefaultImports() {
 	if (importBinding != null)
 		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(JAVA_LANG[1]);
 
-	// abort if java.lang cannot be found...
-	if (importBinding == null || !importBinding.isValidBinding())
-		problemReporter().isClassPathCorrect(JAVA_LANG_OBJECT, referenceCompilationUnit());
+	if (importBinding == null || !importBinding.isValidBinding()) {
+		// create a proxy for the missing BinaryType
+		BinaryTypeBinding missingObject = environment.cacheMissingBinaryType(JAVA_LANG_OBJECT, this.referenceContext);
+		importBinding = missingObject.fPackage;
+	}
 
 	return environment.defaultImports = new ImportBinding[] {new ImportBinding(JAVA_LANG, true, importBinding, null)};
 }
