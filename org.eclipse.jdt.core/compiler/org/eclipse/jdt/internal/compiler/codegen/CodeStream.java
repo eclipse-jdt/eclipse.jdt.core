@@ -2308,7 +2308,7 @@ public void generateSyntheticBodyForConstructorAccess(SyntheticMethodBinding acc
 	if (declaringClass.erasure().id == TypeIds.T_JavaLangEnum || declaringClass.isEnum()) {
 		this.aload_1(); // pass along name param as name arg
 		this.iload_2(); // pass along ordinal param as ordinal arg
-        resolvedPosition += 2;
+		resolvedPosition += 2;
 	}	
 	if (declaringClass.isNestedType()) {
 		NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
