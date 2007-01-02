@@ -153,9 +153,8 @@ public class CompilerAptTests extends TestCase {
 	
 	/**
 	 * Read annotation values and generate a class using Eclipse compiler
-	 * TODO: disabled until APT is working
 	 */
-	public void _testCompilerOneClassWithEclipseCompiler() {
+	public void testCompilerOneClassWithEclipseCompiler() {
 		// Eclipse compiler
 		JavaCompiler compiler = _eclipseCompiler;
 		compileOneClass(compiler);

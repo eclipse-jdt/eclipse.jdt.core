@@ -1,0 +1,5 @@
+Inherited annotations
+Processors that support "*"
+Package annotations
+Annotations on nested types
+Processor discovery on classpath, procpath, and explicit
