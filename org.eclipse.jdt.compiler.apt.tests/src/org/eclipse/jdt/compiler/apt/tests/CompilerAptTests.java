@@ -39,6 +39,8 @@ import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 public class CompilerAptTests extends TestCase {
 	
+	private static boolean _verbose = false; 
+	
 	// relative to workspace root
 	protected static final String _processorJarName = "..\\export\\apttestprocessors.jar";
 	
@@ -50,6 +52,14 @@ public class CompilerAptTests extends TestCase {
 			"@GenClass(clazz=\"gen.XGen\", method=\"foo\")\n" +
 			"public class X {\n" +
 			"\tXGen _xgen;\n" +
+			"}\n" ;
+	
+	// class that causes processor args to be echoed to stdout, using processor for @EchoArgs
+	protected static final String _echoArgsSource = 
+			"package p;\n" +
+			"import anno.EchoArgs;\n" + 
+			"@EchoArgs\n" +
+			"public class TestEchoArgs {\n" +
 			"}\n" ;
 	
 	// locations to generate files
@@ -139,6 +149,17 @@ public class CompilerAptTests extends TestCase {
 			assertEquals(option + " requires no argument", 0, _eclipseCompiler.isSupportedOption(option));
 		}
 	}
+	
+	public void testProcessorArgumentsWithSystemCompiler() {
+		// System compiler
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestProcessorArguments(compiler);
+	}
+	
+	public void testProcessorArgumentsWithEclipseCompiler() {
+		JavaCompiler compiler = _eclipseCompiler;
+		internalTestProcessorArguments(compiler);
+	}
 
 	/**
 	 * Read annotation values and generate a class using system compiler (javac)
@@ -148,7 +169,7 @@ public class CompilerAptTests extends TestCase {
 	public void testCompilerOneClassWithSystemCompiler() {
 		// System compiler
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		compileOneClass(compiler);
+		internalTestGenerateClass(compiler);
 	}
 	
 	/**
@@ -157,7 +178,7 @@ public class CompilerAptTests extends TestCase {
 	public void testCompilerOneClassWithEclipseCompiler() {
 		// Eclipse compiler
 		JavaCompiler compiler = _eclipseCompiler;
-		compileOneClass(compiler);
+		internalTestGenerateClass(compiler);
 	}
 	
 	/*
@@ -167,41 +188,12 @@ public class CompilerAptTests extends TestCase {
 		_eclipseCompiler = null;
 	}
 	
-	/**
-	 * Create a class that contains an annotation that generates another class, 
-	 * and compile it.  Verify that generation and compilation succeeded.
-	 */
-	private void compileOneClass(JavaCompiler compiler) {
-		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = getForwardingFileManager(manager);
-
+	private void internalTestGenerateClass(JavaCompiler compiler) {
 		File inputFile = writeSourceFile(_tmpSrcFolderName, "X.java", _echoSource);
 		
-		// create new list containing inputfile
-		List<File> files = new ArrayList<File>();
-		files.add(inputFile);
-		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);
-		
 		List<String> options = new ArrayList<String>();
-		if (compiler == _eclipseCompiler) {
-			options.add("-6.0"); // not the default for Eclipse compiler
-		}
-		options.add("-d");
-		options.add(_tmpBinFolderName);
-		options.add("-s");
-		options.add(_tmpGenFolderName);
-		options.add("-cp");
-		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarName);
-		options.add("-XprintRounds");
- 		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
-		Boolean result = task.call();
+		compileOneClass(compiler, inputFile, options);
 		
- 		if (!result.booleanValue()) {
- 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
- 		}
 		// check that the src and class files were generated
  		File genSrcFile = new File(_tmpGenFolderName + File.separator + "gen" + File.separator + "XGen.java");
  		assertTrue("generated src file does not exist", genSrcFile.exists());
@@ -209,8 +201,20 @@ public class CompilerAptTests extends TestCase {
  		assertTrue("ordinary src file was not compiled", classFile.exists());
  		File genClassFile = new File(_tmpBinFolderName + File.separator + "gen" + File.separator + "XGen.class");
  		assertTrue("generated src file was not compiled", genClassFile.exists());
+		
 	}
 	
+	private void internalTestProcessorArguments(JavaCompiler compiler) {
+		File inputFile = writeSourceFile(_tmpSrcFolderName, "TestEchoArgs.java", _echoArgsSource);
+		
+		List<String> options = new ArrayList<String>();
+		// See corresponding list in ArgsTestProc processor.
+		// Processor will throw IllegalStateException if it detects a mismatch.
+		options.add("-Afoo=bar");
+		options.add("-Anovalue");
+		compileOneClass(compiler, inputFile, options);
+	}
+
 	/**
 	 * Recursively delete the contents of a directory, including any subdirectories.
 	 * This is not optimized to handle very large or deep directory trees efficiently.
@@ -242,13 +246,15 @@ public class CompilerAptTests extends TestCase {
 			@Override
 			public FileObject getFileForInput(Location location, String packageName, String relativeName)
 					throws IOException {
-				System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+				if (_verbose)
+					System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
 				return super.getFileForInput(location, packageName, relativeName);
 			}
 			@Override
 			public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind)
 					throws IOException {
-				System.out.println("Create java file for input : " + className + " in location " + location);
+				if (_verbose)
+					System.out.println("Create java file for input : " + className + " in location " + location);
 				return super.getJavaFileForInput(location, className, kind);
 			}
 			@Override
@@ -257,18 +263,56 @@ public class CompilerAptTests extends TestCase {
 					Kind kind,
 					FileObject sibling) throws IOException {
 				
-				if (null != sibling) {
-					System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
-				}
-				else {
-					System.out.println("Create .class file for " + className + " in location " + location);
+				if (_verbose) {
+					if (null != sibling) {
+						System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+					}
+					else {
+						System.out.println("Create .class file for " + className + " in location " + location);
+					}
 				}
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
-				System.out.println(javaFileForOutput.toUri());
+				if (_verbose)
+					System.out.println(javaFileForOutput.toUri());
 				return javaFileForOutput;
 			}
 		};
 		return forwardingJavaFileManager;
+	}
+
+	/**
+	 * Create a class that contains an annotation that generates another class, 
+	 * and compile it.  Verify that generation and compilation succeeded.
+	 */
+	private void compileOneClass(JavaCompiler compiler, File inputFile, List<String> options) {
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = getForwardingFileManager(manager);
+	
+		
+		// create new list containing inputfile
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		
+		if (compiler == _eclipseCompiler) {
+			options.add("-6.0"); // not the default for Eclipse compiler
+		}
+		options.add("-d");
+		options.add(_tmpBinFolderName);
+		options.add("-s");
+		options.add(_tmpGenFolderName);
+		options.add("-cp");
+		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarName);
+		options.add("-XprintRounds");
+		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
+		Boolean result = task.call();
+		
+		if (!result.booleanValue()) {
+			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+	 		assertTrue("Compilation failed ", false);
+		}
 	}
 
 	/**

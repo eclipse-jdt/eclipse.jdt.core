@@ -13,7 +13,9 @@ package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -29,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.apt.model.ElementsImpl;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
 
@@ -45,6 +48,7 @@ public class BatchProcessingEnvImpl implements ProcessingEnvironment {
 	protected final Filer _filer;
 	protected final Messager _messager;
 	protected final Elements _elementUtils;
+	protected final Map<String, String> _processorOptions;
 
 	public BatchProcessingEnvImpl(AnnotationProcessorManager dispatchManager, Main batchCompiler,
 			String[] commandLineArguments) 
@@ -66,12 +70,54 @@ public class BatchProcessingEnvImpl implements ProcessingEnvironment {
     		}
 			_fileManager = manager;
 		}
-		//TODO: parse processor -A options
+		_processorOptions = parseProcessorOptions(commandLineArguments);
 		_filer = new BatchFilerImpl(_dispatchManager, this);
 		_messager = new BatchMessagerImpl(_compiler.batchCompiler.problemReporter);
 		_elementUtils = new ElementsImpl(this);
 	}
 	
+	/**
+	 * Parse the -A command line arguments so that they can be delivered to
+	 * processors with {@link ProcessingEnvironment#getOptions().  In Sun's Java 6
+	 * version of javac, unlike in the Java 5 apt tool, only the -A options are
+	 * passed to processors, not the other command line options; that behavior
+	 * is repeated here. 
+	 * @param args the equivalent of the args array from the main() method.
+	 * @return a map of key to value, or key to null if there is no value for
+	 * a particular key.  The "-A" is stripped from the key, so a command-line
+	 * argument like "-Afoo=bar" will result in an entry with key "foo" and
+	 * value "bar".
+	 */
+	private Map<String, String> parseProcessorOptions(String[] args) {
+		Map<String, String> options = new LinkedHashMap<String, String>();
+		for (String arg : args) {
+			if (!arg.startsWith("-A")) {
+				continue;
+			}
+			int equals = arg.indexOf('=');
+			if (equals == 2) {
+				// option begins "-A=" - not valid
+				Exception e = new IllegalArgumentException("-A option must have a key before the equals sign");
+				throw new AbortCompilation(null, e);
+			}
+			if (equals == arg.length() - 1) {
+				// option ends with "=" - not valid
+				Exception e = new IllegalArgumentException("-A option must not end with an equals sign");
+				throw new AbortCompilation(null, e);
+			}
+			
+			if (equals == -1) {
+				// no value
+				options.put(arg.substring(2), null);
+			}
+			else {
+				// value and key
+				options.put(arg.substring(2, equals), arg.substring(equals + 1));
+			}
+		}
+		return options;
+	}
+
 	public JavaFileManager getFileManager() {
 		return _fileManager;
 	}
@@ -102,8 +148,7 @@ public class BatchProcessingEnvImpl implements ProcessingEnvironment {
 
 	@Override
 	public Map<String, String> getOptions() {
-		// TODO return options
-		return null;
+		return Collections.unmodifiableMap(_processorOptions);
 	}
 
 	@Override
