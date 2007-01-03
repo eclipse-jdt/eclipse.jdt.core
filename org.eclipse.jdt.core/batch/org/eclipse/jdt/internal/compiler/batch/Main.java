@@ -1096,7 +1096,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		System.arraycopy(arguments, 0, arguments = new String[count], 0, count);
 		return arguments;
 	}
-	protected Compiler batchCompiler;
+	public Compiler batchCompiler;
 	/* Bundle containing messages */
 	public ResourceBundle bundle;
 		protected FileSystem.Classpath[] checkedClasspaths;

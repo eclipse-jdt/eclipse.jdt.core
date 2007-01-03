@@ -361,7 +361,8 @@ public class EclipseCompiler extends Main implements JavaCompiler {
     @Override
     protected void initializeAnnotationProcessorManager() {
     	super.initializeAnnotationProcessorManager();
-    	if (this.batchCompiler.annotationProcessorManager != null) {
+    	if (this.batchCompiler.annotationProcessorManager != null &&
+    			this.processors != null) {
     		this.batchCompiler.annotationProcessorManager.setProcessors(this.processors);
     	} else if (this.processors != null) {
     		throw new UnsupportedOperationException("Cannot handle annotation processing"); //$NON-NLS-1$

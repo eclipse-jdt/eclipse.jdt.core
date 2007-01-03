@@ -46,6 +46,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	static final int HAS_EXT_DIRS = 1;
 	static final int HAS_BOOTCLASSPATH = 2;
 	static final int HAS_ENDORSED_DIRS = 4;
+	static final int HAS_PROCESSORPATH = 8;
 
 	Map<File, Archive> archivesCache;
 	Charset charset;
@@ -616,7 +617,12 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> classpaths = getPathsFrom(remaining.next());
-					if (classpaths != null) setLocation(StandardLocation.CLASS_PATH, classpaths);
+					if (classpaths != null) {
+						setLocation(StandardLocation.CLASS_PATH, classpaths);
+						if ((this.flags & HAS_PROCESSORPATH) == 0) {
+							setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, classpaths);
+						}
+					}
 					remaining.remove();
 					return true;
 				} else {
@@ -696,16 +702,15 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					throw new IllegalArgumentException();
 				}				
 			}
-			if ("-processorpath".equals(current) || "-cp".equals(current)) {//$NON-NLS-1$//$NON-NLS-2$
+			if ("-processorpath".equals(current)) {//$NON-NLS-1$
 				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> processorpaths = getPathsFrom(remaining.next());
 					if (processorpaths != null) {
-						Iterable<? extends File> iterable = getLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH);
-						setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, 
-							prependFiles(iterable, processorpaths));
+						setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, processorpaths);
 					}
 					remaining.remove();
+					this.flags |= HAS_PROCESSORPATH;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
