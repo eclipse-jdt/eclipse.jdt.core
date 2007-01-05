@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,10 @@ import org.eclipse.jdt.internal.formatter.comment.JavaDocLine;
 import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
 
 public class JavaDocTestCase extends CommentTestCase {
+	
+	static {
+//		TESTS_NAMES = new String[] { "testNoExtraNewlineWithPre1" } ;
+	}
 
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
 
@@ -90,7 +94,15 @@ public class JavaDocTestCase extends CommentTestCase {
 		String postfix= DELIMITER + INFIX + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$
 		String input= prefix + "while (i != 0) i--;" + postfix; //$NON-NLS-1$
 		String expected= prefix + "while (i != 0)" + DELIMITER + INFIX + "\ti--;" + postfix;    //$NON-NLS-1$//$NON-NLS-2$
-		assertEquals(expected, testFormat(input));
+		String result= testFormat(input);
+		assertEquals(expected, result);
+		
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		
+		assertEquals(expected, result);
 	}
 	
 	/**
@@ -102,13 +114,29 @@ public class JavaDocTestCase extends CommentTestCase {
 		String postfix= DELIMITER + INFIX + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$
 		String input= prefix + "while (i != 0) { i--; }" + postfix; //$NON-NLS-1$
 		String expected= prefix + "while (i != 0) {" + DELIMITER + INFIX + "\ti--;" + DELIMITER + INFIX + "}" + postfix; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		assertEquals(expected, testFormat(input));
+		String result= testFormat(input);
+		assertEquals(expected, result);
+		
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		
+		assertEquals(expected, result);
 	}
 	
 	public void testMultiLineCommentCodeSnippet3() {
 		String input= PREFIX + DELIMITER + "<pre>" + DELIMITER + "while (i != 0)" + DELIMITER + "i--;" + DELIMITER + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String expected= PREFIX + DELIMITER + INFIX + "<pre>" + DELIMITER + INFIX + "while (i != 0)" + DELIMITER + INFIX + "\ti--;" + DELIMITER + INFIX + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		assertEquals(expected, testFormat(input));
+		String result= testFormat(input);
+		assertEquals(expected, result);
+		
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		
+		assertEquals(expected, result);
 	}
 	
 	public void testMultiLineCommentCodeSnippetHtmlEntities1() {
@@ -116,7 +144,15 @@ public class JavaDocTestCase extends CommentTestCase {
 		String postfix= DELIMITER + INFIX + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$
 		String input= prefix + "System.out.println(\"test\");" + postfix; //$NON-NLS-1$
 		String expected= prefix + "System.out.println(&quot;test&quot;);" + postfix; //$NON-NLS-1$
-		assertEquals(expected, testFormat(input));
+		String result= testFormat(input);
+		assertEquals(expected, result);
+		
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		
+		assertEquals(expected, result);
 	}
 	
 	public void testMultiLineCommentIndentTabs1() {
@@ -453,9 +489,31 @@ public class JavaDocTestCase extends CommentTestCase {
 		result= testFormat(result);
 		result= testFormat(result);
 		
-		// XXX: workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=99738
-		String WORKAROUND_BUG_99738= "    ";  //$NON-NLS-1$
-		expected= PREFIX + DELIMITER + INFIX + "<pre>" + DELIMITER + INFIX + WORKAROUND_BUG_99738 + "wrap here" + DELIMITER + INFIX + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$; //$NON-NLS-2$; //$NON-NLS-3$;
+		expected= PREFIX + DELIMITER + INFIX + "<pre>" + DELIMITER + INFIX + "wrap here" + DELIMITER + INFIX + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$; //$NON-NLS-2$; //$NON-NLS-3$;
+		assertEquals(expected, result);
+	}
+	
+	/**
+	 * [formatting] Javadoc formatting: extra newline with [pre]
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=52921
+	 * <p>
+	 * This test only formats once.
+	 * </p>
+	 */
+	public void testNoExtraNewlineWithPre2() {
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE, DefaultCodeFormatterConstants.FALSE);
+		String input= PREFIX + DELIMITER + INFIX + "<pre>wrap here</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$
+		String expected= PREFIX + DELIMITER + INFIX + "<pre>wrap here</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$
+		String result= testFormat(input);
+		assertEquals(expected, result);
+
+		// now re-format several times
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		
+		expected= PREFIX + DELIMITER + INFIX + "<pre>wrap here</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$
 		assertEquals(expected, result);
 	}
 	
