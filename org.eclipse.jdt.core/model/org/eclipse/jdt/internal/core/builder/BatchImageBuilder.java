@@ -131,13 +131,15 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
 									IResource resource = proxy.requestResource();
 									if (exclusionPatterns != null || inclusionPatterns != null)
-										if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
+										if (Util.isExcluded(resource.getFullPath(), inclusionPatterns, exclusionPatterns, false))
+											return false;
 									resource.delete(IResource.FORCE, null);
 								}
 								return false;
 							}
 							if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
-								if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns)) return false;
+								if (Util.isExcluded(proxy.requestFullPath(), null, exclusionPatterns, true))
+									return false;
 							notifier.checkCancel();
 							return true;
 						}
@@ -193,7 +195,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 						resource = proxy.requestResource();
 						if (javaBuilder.filterExtraResource(resource)) return false;
 						if (exclusionPatterns != null || inclusionPatterns != null)
-							if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
+							if (Util.isExcluded(resource.getFullPath(), inclusionPatterns, exclusionPatterns, false))
 								return false;
 
 						IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
@@ -220,7 +222,8 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 						if (javaBuilder.filterExtraResource(resource)) return false;
 						if (isAlsoProject && isExcludedFromProject(resource.getFullPath())) return false; // the sourceFolder == project
 						if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
-							if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
+							if (Util.isExcluded(resource.getFullPath(), null, exclusionPatterns, true))
+								return false;
 				}
 				return true;
 			}

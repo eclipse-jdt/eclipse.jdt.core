@@ -289,7 +289,7 @@ public class MultiSourceFolderAndOutputFolderTests extends BuilderTests {
 	public void test0012() throws JavaModelException {
 		IPath projectPath = env.addProject("P");
 		env.removePackageFragmentRoot(projectPath, "");
-		IPath src = env.addPackageFragmentRoot(projectPath, "", new IPath[] {new Path("p1/p2/p3/X.java"), new Path("Y.java")}, false/*inclusion*/, "");
+		IPath src = env.addPackageFragmentRoot(projectPath, "", new IPath[] {new Path("p1/p2/p3/X.java"), new Path("Y.java")}, null, "");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		
 		env.addClass(src, "p1.p2.p3", "X", 

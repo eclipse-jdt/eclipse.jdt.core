@@ -219,16 +219,25 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 							if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(proxy.getName())) {
 								IResource resource = proxy.requestResource();
 								if (exclusionPatterns != null || inclusionPatterns != null)
-									if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
+									if (Util.isExcluded(resource.getFullPath(), inclusionPatterns, exclusionPatterns, false))
+										return false;
 								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation));
 							}
 							return false;
 						case IResource.FOLDER :
-							if (exclusionPatterns != null && inclusionPatterns == null) // must walk children if inclusionPatterns != null
-								if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns)) return false;
 							IPath folderPath = null;
 							if (isAlsoProject)
-								if (isExcludedFromProject(folderPath = proxy.requestFullPath())) return false;
+								if (isExcludedFromProject(folderPath = proxy.requestFullPath()))
+									return false;
+							if (exclusionPatterns != null) {
+								if (folderPath == null)
+									folderPath = proxy.requestFullPath();
+								if (Util.isExcluded(folderPath, inclusionPatterns, exclusionPatterns, true)) {
+									// must walk children if inclusionPatterns != null, can skip them if == null
+									// but folder is excluded so do not create it in the output folder
+									return inclusionPatterns != null;
+								}
+							}
 							if (!isOutputFolder) {
 								if (folderPath == null)
 									folderPath = proxy.requestFullPath();
