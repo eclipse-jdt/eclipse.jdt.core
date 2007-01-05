@@ -87,7 +87,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.caughtExceptionTypes,
 				this.scope,
 				flowInfo.unconditionalInits());
-		handlingContext.initsOnFinally = 
+		handlingContext.initsOnFinally =
 			new NullInfoRegistry(flowInfo.unconditionalInits());
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
@@ -179,7 +179,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// analyse finally block first
 		insideSubContext = new InsideSubRoutineFlowContext(flowContext, this);
 
-		subInfo = 
+		subInfo =
 			this.finallyBlock
 				.analyseCode(
 					currentScope,
@@ -238,8 +238,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 				else {
 				catchInfo =
-					flowInfo.unconditionalCopy().
-						addPotentialInitializationsFrom(
+					flowInfo.unconditionalCopy()
+						.addPotentialInitializationsFrom(
 							handlingContext.initsOnException(
 								this.caughtExceptionTypes[i]))
 						.addPotentialInitializationsFrom(
@@ -270,14 +270,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 						currentScope,
 						insideSubContext,
 						catchInfo);
-				this.catchExits[i] = 
+				this.catchExits[i] =
 					(catchInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
 				tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
 			}
 		}
 		// we also need to check potential multiple assignments of final variables inside the finally block
 		// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
-		finallyContext.complainOnDeferredChecks( 
+		finallyContext.complainOnDeferredChecks(
 			handlingContext.initsOnFinally.mitigateNullInfoOf(
 				(tryInfo.tagBits & FlowInfo.UNREACHABLE) == 0 ?
 					flowInfo.unconditionalCopy().
