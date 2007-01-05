@@ -431,6 +431,18 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 	ArrayList visited = this.makeOutputFolderConsistent ? new ArrayList(sourceLocations.length) : null;
 	for (int i = 0, l = sourceLocations.length; i < l; i++) {
 		ClasspathMultiDirectory md = sourceLocations[i];
+		if (this.makeOutputFolderConsistent && md.hasIndependentOutputFolder && !visited.contains(md.binaryFolder)) {
+			// even a project which acts as its own source folder can have an independent/nested output folder
+			visited.add(md.binaryFolder);
+			IResourceDelta binaryDelta = delta.findMember(md.binaryFolder.getProjectRelativePath());
+			if (binaryDelta != null) {
+				int segmentCount = binaryDelta.getFullPath().segmentCount();
+				IResourceDelta[] children = binaryDelta.getAffectedChildren();
+				for (int j = 0, m = children.length; j < m; j++)
+					if (!checkForClassFileChanges(children[j], md, segmentCount))
+						return false;
+			}
+		}
 		if (md.sourceFolder.equals(javaBuilder.currentProject)) {
 			// skip nested source & output folders when the project is a source folder
 			int segmentCount = delta.getFullPath().segmentCount();
@@ -440,17 +452,6 @@ protected boolean findSourceFiles(IResourceDelta delta) throws CoreException {
 					if (!findSourceFiles(children[j], md, segmentCount))
 						return false;
 		} else {
-			if (this.makeOutputFolderConsistent && md.hasIndependentOutputFolder && !visited.contains(md.binaryFolder)) {
-				visited.add(md.binaryFolder);
-				IResourceDelta binaryDelta = delta.findMember(md.binaryFolder.getProjectRelativePath());
-				if (binaryDelta != null) {
-					int segmentCount = binaryDelta.getFullPath().segmentCount();
-					IResourceDelta[] children = binaryDelta.getAffectedChildren();
-					for (int j = 0, m = children.length; j < m; j++)
-						if (!checkForClassFileChanges(children[j], md, segmentCount))
-							return false;
-				}
-			}
 			IResourceDelta sourceDelta = delta.findMember(md.sourceFolder.getProjectRelativePath());
 			if (sourceDelta != null) {
 				if (sourceDelta.getKind() == IResourceDelta.REMOVED) {
