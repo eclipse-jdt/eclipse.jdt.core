@@ -2153,4 +2153,23 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=169596
+	public void test025() {
+		this.runConformTest(
+	        new String[] {
+	    		"X.java",
+	    		"public class X {\n" + 
+	    		"	public static void main(String[] args) {\n" + 
+	    		"		System.out.println(\"SUCCESS\");\n" + 
+	    		"	}\n" + 
+	    		"	\n" + 
+	    		"	void foo(Object[] o) {}\n" + 
+	    		"\n" + 
+	    		"	void bar(boolean b) {\n" + 
+	    		"		foo(new Object[] {\"\", \"\", b ? \"\" : \"\"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ \n" + 
+	    		"	}\n" + 
+	    		"}"
+	        },
+			"SUCCESS");
+	}
 }
