@@ -111,7 +111,13 @@ public void aload_3() {
 }
 public void anewarray(TypeBinding typeBinding) {
 	super.anewarray(typeBinding);
-	this.currentFrame.stackItems[this.currentFrame.numberOfStackItems - 1] = new VerificationTypeInfo(typeBinding);
+	char[] constantPoolName = typeBinding.constantPoolName();
+	int length = constantPoolName.length;
+	System.arraycopy(constantPoolName, 0, (constantPoolName = new char[length + 3]), 2, length);
+	constantPoolName[0] = '[';
+	constantPoolName[1] = 'L';
+	constantPoolName[length + 2] = ';';
+	this.currentFrame.stackItems[this.currentFrame.numberOfStackItems - 1] = new VerificationTypeInfo(typeBinding.id, constantPoolName);
 }
 public void areturn() {
 	super.areturn();

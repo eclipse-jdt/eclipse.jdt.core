@@ -2015,7 +2015,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
-	// 155423
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423
 	public void test021() {
 		this.runConformTest(
             new String[] {
@@ -2071,7 +2071,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 	
-	// 157247
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=157247
 	public void test022() {
 		this.runConformTest(
             new String[] {
@@ -2098,7 +2098,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
-	// 168665
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=168665
 	public void test023() {
 		this.runConformTest(
             new String[] {
@@ -2138,4 +2138,23 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 		}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=169596
+	public void test024() {
+		this.runConformTest(
+	        new String[] {
+	    		"X.java",
+	    		"public class X {\n" + 
+	    		"	public static void main(String[] args) {\n" + 
+	    		"		System.out.println(\"SUCCESS\");\n" + 
+	    		"	}\n" + 
+	    		"	\n" + 
+	    		"	void foo(Object[] o) {}\n" + 
+	    		"\n" + 
+	    		"	void bar(boolean b) {\n" + 
+	    		"		foo(new Object[] {\"\", \"\", b ? \"\" : \"\"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ \n" + 
+	    		"	}\n" + 
+	    		"}"
+	        },
+			"SUCCESS");
+	}
 }
