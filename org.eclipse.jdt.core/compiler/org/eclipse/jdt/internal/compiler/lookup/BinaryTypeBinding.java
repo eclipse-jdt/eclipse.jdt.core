@@ -822,7 +822,6 @@ private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBi
 	variable.superInterfaces = bounds == null ? Binding.NO_SUPERINTERFACES : bounds;
 	if (firstBound == null) {
 		firstBound = variable.superInterfaces.length == 0 ? null : variable.superInterfaces[0];
-		variable.modifiers |= ClassFileConstants.AccInterface;
 	}
 	variable.firstBound = firstBound;
 }

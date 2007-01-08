@@ -35102,7 +35102,6 @@ public void test1067() {
 			"DoingImpl.java", // =================
 			"public class DoingImpl implements Doing {\n" + 
 			"        public <S extends Something, T extends S> T get(Class<S> clazz) {\n" + 
-			"                // TODO Auto-generated method stub\n" + 
 			"                return null;\n" + 
 			"        }\n" + 
 			"}" // =================
@@ -35111,7 +35110,7 @@ public void test1067() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162991
 // using source and binary types
-public void _test1068() {
+public void test1068() {
 	this.runConformTest(
 		new String[] {
 			"Something.java",
@@ -35129,7 +35128,6 @@ public void _test1068() {
 			"DoingImpl.java", // =================
 			"public class DoingImpl implements Doing {\n" + 
 			"        public <S extends Something, T extends S> T get(Class<S> clazz) {\n" + 
-			"                // TODO Auto-generated method stub\n" + 
 			"                return null;\n" + 
 			"        }\n" + 
 			"}" // =================
