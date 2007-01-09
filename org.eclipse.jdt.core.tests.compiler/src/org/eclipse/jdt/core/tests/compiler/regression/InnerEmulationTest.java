@@ -5326,6 +5326,80 @@ public void test132() {
 		"The type Local is hiding the type Local\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
+public void _test133() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+		this.runConformTest(
+			new String[] {
+				"X.java",	//===================
+				"public class X {\n" + 
+				"  public static interface I {\n" + 
+				"  }\n" + 
+				"  public static interface IE extends I {\n" + 
+				"  }\n" + 
+				"  public static interface J {\n" + 
+				"    I getI(int i);\n" + 
+				"  }\n" + 
+				"  public static interface JE extends J {\n" + 
+				"    IE getI(int i);\n" + 
+				"  }\n" + 
+				"  public static class Y implements JE {\n" + 
+				"    public IE getI(int i) {\n" + 
+				"      return null;\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"  private J j = new Y();\n" + 
+				"  public void foo() {\n" + 
+				"    j.getI(0);\n" + 
+				"    System.out.println(\"SUCCESS\");\n" + 
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    new X().foo();\n" + 
+				"  }\n" + 
+				"}", 		// =================
+			},
+			"SUCCESS");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
+public void _test134() {
+	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+		this.runConformTest(
+			new String[] {
+				"X.java",	//===================
+				"public class X {\n" + 
+				"  public interface I {\n" + 
+				"    public String foo();\n" + 
+				"  }\n" + 
+				"  public interface J {\n" + 
+				"    public I getI();\n" + 
+				"  }\n" + 
+				"  public static class XI implements I {\n" + 
+				"    public String foo() {\n" + 
+				"      return \"XI\";\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"  public interface K extends J {\n" + 
+				"    public XI getI();\n" + 
+				"  }\n" + 
+				"  public static abstract class XK implements K {\n" + 
+				"    public XI getI() {\n" + 
+				"      return new XI();\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"  public static class Y extends XK {\n" + 
+				"  }\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    K k = new Y();\n" + 
+				"    System.out.println(k.getI().foo());\n" + 
+				"    J j = k;\n" + 
+				"    System.out.println(j.getI().foo());\n" + 
+				"  }\n" + 
+				"}", 		// =================
+			},
+			"XI\nXI");
+	}
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
