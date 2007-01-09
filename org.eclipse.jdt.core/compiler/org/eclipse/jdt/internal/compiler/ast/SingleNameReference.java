@@ -202,6 +202,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				&& fieldBinding.id >= methodScope.lastVisibleFieldID
 				&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
 			scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
+			this.bits |= ASTNode.IgnoreNoEffectAssignCheck;
 		}
 		return fieldBinding.type;
 	

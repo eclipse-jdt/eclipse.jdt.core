@@ -99,6 +99,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 }
 
 public static Binding getDirectBinding(Expression someExpression) {
+	if ((someExpression.bits & ASTNode.IgnoreNoEffectAssignCheck) != 0) {
+		return null;
+	}
 	if (someExpression instanceof SingleNameReference) {
 		return ((SingleNameReference)someExpression).binding;
 	} else if (someExpression instanceof FieldReference) {

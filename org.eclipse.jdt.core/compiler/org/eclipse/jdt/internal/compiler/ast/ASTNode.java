@@ -52,7 +52,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit27 = 0x4000000; 			// parenthesis count (expression)
 	public final static int Bit28 = 0x8000000; 			// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000; 		// parenthesis count (expression)
-	public final static int Bit30 = 0x20000000; 		// elseif (if statement) | try block exit (try statement) | fall-through (case statement)
+	public final static int Bit30 = 0x20000000; 		// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref)
 	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment)
 	public final static int Bit32 = 0x80000000; 		// reachable (statement)
 
@@ -145,6 +145,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for expression 
 	public static final int ParenthesizedSHIFT = 21; // Bit22 -> Bit29
 	public static final int ParenthesizedMASK = Bit22|Bit23|Bit24|Bit25|Bit26|Bit27|Bit28|Bit29; // 8 bits for parenthesis count value (max. 255)
+	public static final int IgnoreNoEffectAssignCheck = Bit30;
 
 	// for references on lhs of assignment
 	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones

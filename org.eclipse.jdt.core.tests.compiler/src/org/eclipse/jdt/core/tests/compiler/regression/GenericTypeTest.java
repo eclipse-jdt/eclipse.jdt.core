@@ -35789,47 +35789,37 @@ public void test1085() {
 			"}", // =================
 		},
 		"----------\n" + 
-		"1. WARNING in Y.java (at line 2)\n" + 
-		"	Z z1 = z1;\n" + 
-		"	  ^^^^^^^\n" + 
-		"The assignment to variable z1 has no effect\n" + 
-		"----------\n" + 
-		"2. ERROR in Y.java (at line 2)\n" + 
+		"1. ERROR in Y.java (at line 2)\n" + 
 		"	Z z1 = z1;\n" + 
 		"	       ^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"3. WARNING in Y.java (at line 3)\n" + 
-		"	Z[] z2 = z2;\n" + 
-		"	    ^^^^^^^\n" + 
-		"The assignment to variable z2 has no effect\n" + 
-		"----------\n" + 
-		"4. ERROR in Y.java (at line 3)\n" + 
+		"2. ERROR in Y.java (at line 3)\n" + 
 		"	Z[] z2 = z2;\n" + 
 		"	         ^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"5. ERROR in Y.java (at line 6)\n" + 
+		"3. ERROR in Y.java (at line 6)\n" + 
 		"	E e0 = es[0];\n" + 
 		"	       ^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"6. ERROR in Y.java (at line 7)\n" + 
+		"4. ERROR in Y.java (at line 7)\n" + 
 		"	E e = e;\n" + 
 		"	      ^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"7. ERROR in Y.java (at line 8)\n" + 
+		"5. ERROR in Y.java (at line 8)\n" + 
 		"	E[] es = es;\n" + 
 		"	         ^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"8. ERROR in Y.java (at line 9)\n" + 
+		"6. ERROR in Y.java (at line 9)\n" + 
 		"	E e2 = e2.e;\n" + 
 		"	       ^^^^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"9. ERROR in Y.java (at line 9)\n" + 
+		"7. ERROR in Y.java (at line 9)\n" + 
 		"	E e2 = e2.e;\n" + 
 		"	       ^^^^\n" + 
 		"e2.e cannot be resolved or is not a field\n" + 
@@ -35948,17 +35938,12 @@ public void test1089() {
 		"	  ^\n" + 
 		"The field T.t is hiding another local variable defined in an enclosing type scope\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 5)\n" + 
-		"	T t = t;\n" + 
-		"	  ^^^^^\n" + 
-		"The assignment to variable t has no effect\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 5)\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
 		"	T t = t;\n" + 
 		"	      ^\n" + 
 		"Cannot reference a field before it is defined\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 7)\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
 		"	class U {\n" + 
 		"	      ^\n" + 
 		"The type U is hiding the type X.U\n" + 
