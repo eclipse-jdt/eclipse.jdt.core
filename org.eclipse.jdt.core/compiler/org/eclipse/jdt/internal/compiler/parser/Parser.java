@@ -4471,7 +4471,7 @@ protected void consumeMethodInvocationSuper() {
 	// MethodInvocation ::= 'super' '.' 'Identifier' '(' ArgumentListopt ')'
 
 	MessageSend m = newMessageSend();
-	m.sourceStart = this.intStack[this.intPtr--];
+	m.sourceStart = this.intStack[this.intPtr--]; // start position of the super keyword
 	m.sourceEnd = this.rParenPos;
 	m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr];
 	m.selector = this.identifierStack[this.identifierPtr--];
@@ -4483,7 +4483,7 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 	// MethodInvocation ::= 'super' '.' TypeArguments 'Identifier' '(' ArgumentListopt ')'
 
 	MessageSend m = newMessageSendWithTypeArguments();
-	m.sourceStart = this.intStack[this.intPtr--];
+	intPtr--; // start position of the typeArguments
 	m.sourceEnd = this.rParenPos;
 	m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr];
 	m.selector = this.identifierStack[this.identifierPtr--];
@@ -4493,7 +4493,7 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
-	intPtr--;
+	m.sourceStart = this.intStack[this.intPtr--]; // start position of the super keyword
 
 	m.receiver = new SuperReference(m.sourceStart, this.endPosition);
 	pushOnExpressionStack(m);

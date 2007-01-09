@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 232, 233 };
+//		TESTS_NUMBERS = new int[] { 234 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -7485,5 +7485,36 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong number", 1, pairs.length);
 		assertEquals("Wrong key", "message", pairs[0].getName());
 		assertEquals("Wrong value", "Hello, World!", pairs[0].getValue());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=169744
+	 */
+	public void test0234() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"class B {\n" + 
+			"	<T> int m() {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X<T> extends B {\n" + 
+			"	int i = super.<T> m();\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 1, 0);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		checkSourceRange(expression, "super.<T> m()", contents);
 	}
 }
