@@ -1351,7 +1351,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	Argument[] arguments = methodDecl.arguments;
 	if (arguments != null) {
 		int size = arguments.length;
-		method.parameters = new TypeBinding[size];
+		method.parameters = Binding.NO_PARAMETERS;
+		TypeBinding[] newParameters = new TypeBinding[size];
 		for (int i = 0; i < size; i++) {
 			Argument arg = arguments[i];
 			TypeBinding parameterType = arg.type.resolveType(methodDecl.scope, true /* check bounds*/);
@@ -1367,9 +1368,12 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				TypeBinding leafType = parameterType.leafComponentType();
 			    if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-				method.parameters[i] = parameterType;
+				newParameters[i] = parameterType;
 			}
 		}
+		// only assign parameters if no problems are found
+		if (!foundArgProblem)
+			method.parameters = newParameters;
 	}
 
 	boolean foundReturnTypeProblem = false;

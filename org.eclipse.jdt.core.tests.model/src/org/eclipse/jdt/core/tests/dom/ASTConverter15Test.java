@@ -5992,7 +5992,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"}";
 		   	IBinding[] bindings = resolveBindings(contents, this.workingCopy, false/*don't report errors*/);
 		   	assertBindingsEqual(
-		   		"LX;.foo<T:>():TT;",
+		   		"LX;.foo<T:Ljava.lang.Object;>():TT;",
 		   		bindings);
 		} finally {
 			deleteProject("P");

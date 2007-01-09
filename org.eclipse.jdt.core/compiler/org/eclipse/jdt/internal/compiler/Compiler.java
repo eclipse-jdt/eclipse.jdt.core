@@ -692,6 +692,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				// binding resolution
 				lookupEnvironment.completeTypeBindings();
 			}
+			this.lookupEnvironment.unitBeingCompleted = unit;
 			this.parser.getMethodBodies(unit);
 			if (unit.scope != null) {
 				// fault in fields & methods
@@ -723,6 +724,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
+			this.lookupEnvironment.unitBeingCompleted = null;
 			// No reset is performed there anymore since,
 			// within the CodeAssist (or related tools),
 			// the compiler may be called *after* a call
