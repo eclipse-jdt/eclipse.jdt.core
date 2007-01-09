@@ -330,6 +330,33 @@ public void test014() {
 			"Duplicate local variable x\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157379
+public void test015() {
+	Map options = getCompilerOptions();
+	if (this.complianceLevel.equals(COMPLIANCE_1_3)) return;
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"        public static boolean test() {\n" + 
+				"                boolean b = false;\n" + 
+				"                assert b = true;\n" + 
+				"                return false;\n" + 
+				"        }\n" + 
+				"        public static void main(String[] args) {\n" + 
+				"                test();\n" + 
+				"                System.out.println(\"SUCCESS\");\n" + 
+				"        }\n" + 
+				"}\n",
+			},
+			"SUCCESS",
+			null,
+			true,
+			null,
+			options,
+			null);
+}
 public static Class testClass() {
 	return LocalVariableTest.class;
 }
