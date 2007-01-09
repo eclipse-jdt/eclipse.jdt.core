@@ -1253,7 +1253,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 	
-	public IClasspathContainer getClasspathContainer(IPath containerPath, IJavaProject project) throws JavaModelException {
+	public IClasspathContainer getClasspathContainer(final IPath containerPath, IJavaProject project) throws JavaModelException {
 
 		IClasspathContainer container = containerGet(project, containerPath);
 
@@ -1262,9 +1262,33 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				// avoid deep recursion while initializaing container on workspace restart
 				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=60437)
 				this.batchContainerInitializations = false;
-				return initializeAllContainers(project, containerPath);
+				container = initializeAllContainers(project, containerPath);
+			} else {
+				container = initializeContainer(project, containerPath);
 			}
-			return initializeContainer(project, containerPath);
+			if (container == null) { // initializer failed to do its job: redirect to a default container
+				ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
+				final String description = initializer == null ? containerPath.makeRelative().toString() : initializer.getDescription(containerPath, project);
+		    	container = 
+		    		new IClasspathContainer() {
+						public IClasspathEntry[] getClasspathEntries() { 
+							return new IClasspathEntry[0]; 
+						}
+						public String getDescription() { 
+							return description;
+						}
+						public int getKind() { 
+							return 0; 
+						}
+						public IPath getPath() { 
+							return containerPath; 
+						}
+						public String toString() { 
+							return getDescription(); 
+						}
+					};
+				containerPut(project, containerPath, container);
+			}
 		}
 		return container;			
 	}

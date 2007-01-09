@@ -298,7 +298,7 @@ public void testContainerInitializer05() throws CoreException {
 		waitForAutoBuild();
 		nullInitializer.hasRun = false; // reset		
 		getJavaProject("P1").getResolvedClasspath(true);
-		assertTrue("initializer did not run", nullInitializer.hasRun); // initializer should have run again (since keep setting to null)
+		assertFalse("initializer did not run", nullInitializer.hasRun); // initializer should not have run again (since a default container is created: https://bugs.eclipse.org/bugs/show_bug.cgi?id=161846)
 
 		// assigning new (non-null) value to container
 		waitForAutoBuild();
@@ -672,6 +672,70 @@ public void testContainerInitializer12() throws CoreException {
 		createFile("/P1/lib.jar", "");
 		assertTrue("/P1/lib.jar should exist", root.exists());
 		assertTrue("Should have been initialized", initializer.initialized);
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+	}
+}
+
+/*
+ * Ensures that a misbehaving container (that initializes another project than the one asked for) doesn't cause
+ * the container to be initialized again
+ * (regression test for bug 160005 Add protection about misbehaving container initializer, which was partially backported to 3.2.x)
+ */
+public void testContainerInitializer14() throws CoreException {
+	try {
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
+		class Container extends DefaultContainerInitializer {
+			int initializeCount = 0;
+			Container(String[] values) {
+				super(values);
+			}
+			public void initialize(IPath containerPath, IJavaProject project) 	throws CoreException {
+				this.initializeCount++;
+				super.initialize(containerPath, getJavaProject("P1"));
+			}
+		}
+		Container container = new Container(new String[] {"P2", "/P1/lib.jar"});
+		ContainerInitializer.setInitializer(container);
+		IJavaProject p2 = createJavaProject(
+				"P2", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		p2.getResolvedClasspath(true);
+		assertEquals("Unexpected number of initalizations", 1, container.initializeCount);
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+
+/*
+ * Ensures that if a container is misbehaving (it doesn't initialize a project when asked for),
+ * then the resulting container's classpath is not null
+ * (regression test for bug 161846 Expanding a java project with invalid classpath container entries in Project Explorer causes CPU to stay at 100%)
+ */
+public void testContainerInitializer15() throws CoreException {
+	try {
+		class Container extends DefaultContainerInitializer {
+			Container(String[] values) {
+				super(values);
+			}
+			public void initialize(IPath containerPath, IJavaProject project) 	throws CoreException {
+			}
+		}
+		Container container = new Container(new String[] {"P1", "/P1/lib.jar"});
+		ContainerInitializer.setInitializer(container);
+		IJavaProject p1 = createJavaProject(
+				"P1", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		IClasspathContainer classpathContainer = JavaCore.getClasspathContainer(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"), p1);
+		assertClasspathEquals(classpathContainer.getClasspathEntries(), "");
 	} finally {
 		stopDeltas();
 		deleteProject("P1");
