@@ -3837,4 +3837,26 @@ public void test128() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=155104
+public void test129() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X{\n" + 
+			"   java.io.Serializable field=this==null?8:\"\".getBytes();\n" + 
+			"	Zork z;\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\r\n" + 
+		"	java.io.Serializable field=this==null?8:\"\".getBytes();\r\n" + 
+		"	                                      ^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
