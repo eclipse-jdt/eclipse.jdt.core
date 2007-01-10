@@ -1996,4 +1996,49 @@ public class VarargsTest extends AbstractComparableTest {
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n");
 	}		
-	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162171
+	public void test058() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"    public void testPassingSubclassArrayAsVararg() {\n" + 
+					"        // The argument of type VarargsTest.Subclass[] should explicitly be\n" + 
+					"        // cast to VarargsTest.Parent[] for the invocation of the varargs\n" + 
+					"        // method processVararg(VarargsTest.Parent...) from type VarargsTest.\n" + 
+					"        // It could alternatively be cast to VarargsTest.Parent for a varargs\n" + 
+					"        // invocation\n" + 
+					"        processVararg(new Subclass[] {});\n" + 
+					"    }\n" + 
+					"\n" + 
+					"    public void testPassingSubclassArrayAsVarargWithCast() {\n" + 
+					"        // Unnecessary cast from VarargsTest.Subclass[] to\n" + 
+					"        // VarargsTest.Parent[]\n" + 
+					"        processVararg((Parent[]) new Subclass[] {});\n" + 
+					"        processVararg(new Subclass[] {});\n" + 
+					"        Zork z;\n" + 
+					"    }\n" + 
+					"\n" + 
+					"    private void processVararg(Parent... objs) {\n" + 
+					"    }\n" + 
+					"\n" + 
+					"    class Parent {\n" + 
+					"    }\n" + 
+					"\n" + 
+					"    class Subclass extends Parent {\n" + 
+					"    }\n" + 
+					"}\n", // =================
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 14)\n" + 
+				"	processVararg((Parent[]) new Subclass[] {});\n" + 
+				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Unnecessary cast from X.Subclass[] to X.Parent[]\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 16)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}		
+}
