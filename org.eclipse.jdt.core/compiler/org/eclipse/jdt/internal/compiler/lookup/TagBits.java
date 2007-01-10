@@ -106,4 +106,7 @@ public interface TagBits {
 	long AllStandardAnnotationsMask = AnnotationTargetMASK | AnnotationRetentionMASK | AnnotationDeprecated | AnnotationDocumented | AnnotationInherited |  AnnotationOverride | AnnotationSuppressWarnings;
 	
 	long DefaultValueResolved = ASTNode.Bit52L;
+	
+	// set when type contains non-private constructor(s)
+	long HasNonPrivateConstructor = ASTNode.Bit53L;
 }

@@ -6344,9 +6344,6 @@ public void unusedLocalVariable(LocalDeclaration localDecl) {
 }
 public void unusedPrivateConstructor(ConstructorDeclaration constructorDecl) {
 	
-	// no complaint for no-arg constructors (or default ones) - known pattern to block instantiation
-	if (constructorDecl.arguments == null || constructorDecl.arguments.length == 0) return;
-
 	int severity = computeSeverity(IProblem.UnusedPrivateConstructor);
 	if (severity == ProblemSeverities.Ignore) return;
 					

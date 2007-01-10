@@ -98,4 +98,39 @@ public void test002() {
 		"This method requires a body instead of a semicolon\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=163443
+public void test003() {
+	this.runNegativeTest(
+		new String[] {
+			"Example.java",
+			"class Example {\n" + 
+			"  private Example() {\n" + 
+			"  }\n" + 
+			"  public Example(int i) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class E1 {\n" + 
+			"    private E1(int i) {}\n" + 
+			"    private E1(long l) {}\n" + 
+			"}\n" + 
+			"class E2 {\n" + 
+			"    private E2(int i) {}\n" + 
+			"}\n" + 
+			"class E3 {\n" + 
+			"    public E3(int i) {}\n" + 
+			"    Zork z;\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Example.java (at line 2)\n" + 
+		"	private Example() {\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"The constructor Example() is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in Example.java (at line 16)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }

@@ -51,10 +51,19 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 	int nonStaticFieldInfoReachMode = flowInfo.reachMode();
 	flowInfo.setReachMode(initialReachMode);
 	
-	if (this.binding != null && !this.binding.isUsed() && (this.binding.isPrivate() || (this.binding.declaringClass.tagBits & (TagBits.IsAnonymousType|TagBits.IsLocalType)) == TagBits.IsLocalType)) {
-		if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
-			this.scope.problemReporter().unusedPrivateConstructor(this);
+	checkUnused: {
+		MethodBinding constructorBinding;
+		if ((constructorBinding = this.binding) == null) break checkUnused;
+		if (this.isDefaultConstructor) break checkUnused;
+		if (constructorBinding.isUsed()) break checkUnused;
+		if (constructorBinding.isPrivate()) {
+			if ((this.binding.declaringClass.tagBits & TagBits.HasNonPrivateConstructor) == 0)
+				break checkUnused; // tolerate as known pattern to block instantiation
+		} else if ((this.binding.declaringClass.tagBits & (TagBits.IsAnonymousType|TagBits.IsLocalType)) != TagBits.IsLocalType) {
+			break checkUnused;
 		}
+		// complain unused
+		this.scope.problemReporter().unusedPrivateConstructor(this);
 	}
 		
 	// check constructor recursion, once all constructor got resolved
@@ -412,29 +421,30 @@ public void resolveJavadoc() {
  * for recursive constructor invocations.
  */
 public void resolveStatements() {
-	if (!CharOperation.equals(this.scope.enclosingSourceType().sourceName, this.selector)){
+	SourceTypeBinding sourceType = this.scope.enclosingSourceType();
+	if (!CharOperation.equals(sourceType.sourceName, this.selector)){
 		this.scope.problemReporter().missingReturnType(this);
 	}
-
 	if (this.typeParameters != null) {
 		for (int i = 0, length = this.typeParameters.length; i < length; i++) {
 			this.typeParameters[i].resolve(this.scope);
 		}
 	}
-	
+	if (this.binding != null && !this.binding.isPrivate()) {
+		sourceType.tagBits |= TagBits.HasNonPrivateConstructor;
+	}
 	// if null ==> an error has occurs at parsing time ....
 	if (this.constructorCall != null) {
-		// e.g. using super() in java.lang.Object
-		if (this.binding != null
-			&& this.binding.declaringClass.id == TypeIds.T_JavaLangObject
-			&& this.constructorCall.accessMode != ExplicitConstructorCall.This) {
-				if (this.constructorCall.accessMode == ExplicitConstructorCall.Super) {
-					this.scope.problemReporter().cannotUseSuperInJavaLangObject(this.constructorCall);
-				}
-				this.constructorCall = null;
+		if (sourceType.id == TypeIds.T_JavaLangObject
+				&& this.constructorCall.accessMode != ExplicitConstructorCall.This) {
+			// cannot use super() in java.lang.Object
+			if (this.constructorCall.accessMode == ExplicitConstructorCall.Super) {
+				this.scope.problemReporter().cannotUseSuperInJavaLangObject(this.constructorCall);
+			}
+			this.constructorCall = null;
 		} else {
 			this.constructorCall.resolve(this.scope);
-		}
+		}	
 	}
 	if ((this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) {
 		this.scope.problemReporter().methodNeedBody(this);		
