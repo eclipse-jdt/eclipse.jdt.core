@@ -455,9 +455,16 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 	}
 
 	// know binding is now a ReferenceBinding
-	binding = environment().convertToRawType((ReferenceBinding) binding);
+	ReferenceBinding referenceBinding = (ReferenceBinding) binding;
+	binding = environment().convertToRawType(referenceBinding);
+	if (invocationSite instanceof ASTNode) {
+		ASTNode invocationNode = (ASTNode) invocationSite;
+		if (invocationNode.isTypeUseDeprecated(referenceBinding, this)) {
+			problemReporter().deprecatedType(referenceBinding, invocationNode);
+		}
+	}
 	while (currentIndex < length) {
-		ReferenceBinding referenceBinding = (ReferenceBinding) binding;
+		referenceBinding = (ReferenceBinding) binding;
 		char[] nextName = compoundName[currentIndex++];
 		invocationSite.setFieldIndex(currentIndex);
 		invocationSite.setActualReceiverType(referenceBinding);
@@ -489,6 +496,13 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 				CharOperation.subarray(compoundName, 0, currentIndex),
 				((ReferenceBinding)binding).closestMatch(),
 				binding.problemId());
+		if (invocationSite instanceof ASTNode) {
+			referenceBinding = (ReferenceBinding) binding;
+			ASTNode invocationNode = (ASTNode) invocationSite;
+			if (invocationNode.isTypeUseDeprecated(referenceBinding, this)) {
+				problemReporter().deprecatedType(referenceBinding, invocationNode);
+			}
+		}
 	}
 	if ((mask & Binding.FIELD) != 0 && (binding instanceof FieldBinding)) {
 		// was looking for a field and found a field

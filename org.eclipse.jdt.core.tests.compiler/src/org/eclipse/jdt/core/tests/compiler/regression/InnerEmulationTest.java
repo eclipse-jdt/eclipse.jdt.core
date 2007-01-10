@@ -5458,45 +5458,50 @@ public void test135() {
 		"----------\n" + 
 		"5. WARNING in p\\X.java (at line 6)\n" + 
 		"	A.M2.MM1 mm1 = (A.M2.MM1) o;\n" + 
-		"	                ^^^^^^^^\n" + 
-		"The type A.M1.MM1 is deprecated\n" + 
-		"----------\n" + 
-		"6. WARNING in p\\X.java (at line 7)\n" + 
-		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
-		"	^^^^^^^^\n" + 
+		"	                ^\n" + 
 		"The type A is deprecated\n" + 
 		"----------\n" + 
-		"7. WARNING in p\\X.java (at line 7)\n" + 
-		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
-		"	^^^^^^^^\n" + 
+		"6. WARNING in p\\X.java (at line 6)\n" + 
+		"	A.M2.MM1 mm1 = (A.M2.MM1) o;\n" + 
+		"	                ^^^^\n" + 
 		"The type A.M2 is deprecated\n" + 
+		"----------\n" + 
+		"7. WARNING in p\\X.java (at line 6)\n" + 
+		"	A.M2.MM1 mm1 = (A.M2.MM1) o;\n" + 
+		"	                ^^^^^^^^\n" + 
+		"The type A.M1.MM1 is deprecated\n" + 
 		"----------\n" + 
 		"8. WARNING in p\\X.java (at line 7)\n" + 
 		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
 		"	^^^^^^^^\n" + 
-		"The type A.M1.MM1 is deprecated\n" + 
+		"The type A is deprecated\n" + 
 		"----------\n" + 
 		"9. WARNING in p\\X.java (at line 7)\n" + 
 		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
-		"	                   ^^^^^^^^\n" + 
-		"The type A is deprecated\n" + 
+		"	^^^^^^^^\n" + 
+		"The type A.M2 is deprecated\n" + 
 		"----------\n" + 
 		"10. WARNING in p\\X.java (at line 7)\n" + 
 		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
-		"	                   ^^^^^^^^\n" + 
-		"The type A.M2 is deprecated\n" + 
+		"	^^^^^^^^\n" + 
+		"The type A.M1.MM1 is deprecated\n" + 
 		"----------\n" + 
 		"11. WARNING in p\\X.java (at line 7)\n" + 
 		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
 		"	                   ^^^^^^^^\n" + 
+		"The type A is deprecated\n" + 
+		"----------\n" + 
+		"12. WARNING in p\\X.java (at line 7)\n" + 
+		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
+		"	                   ^^^^^^^^\n" + 
+		"The type A.M2 is deprecated\n" + 
+		"----------\n" + 
+		"13. WARNING in p\\X.java (at line 7)\n" + 
+		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
+		"	                   ^^^^^^^^\n" + 
 		"The type A.M1.MM1 is deprecated\n" + 
 		"----------\n" + 
-		"12. WARNING in p\\X.java (at line 9)\n" + 
-		"	private interface Outer {\n" + 
-		"	                  ^^^^^\n" + 
-		"The type X.Outer is never used locally\n" + 
-		"----------\n" + 
-		"13. ERROR in p\\X.java (at line 16)\n" + 
+		"14. ERROR in p\\X.java (at line 16)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -5549,12 +5554,7 @@ public void test137() {
 			"}", // =================,
 		}, 
 		"----------\n" + 
-		"1. WARNING in p\\X.java (at line 8)\n" + 
-		"	private interface Outer2 extends Outer {\n" + 
-		"	                  ^^^^^^\n" + 
-		"The type X.Outer2 is never used locally\n" + 
-		"----------\n" + 
-		"2. ERROR in p\\X.java (at line 12)\n" + 
+		"1. ERROR in p\\X.java (at line 12)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 

@@ -1015,12 +1015,12 @@ public int nullStatus(FlowInfo flowInfo) {
 						bits &= ~RestrictiveFlagMASK; // clear bits
 						bits |= Binding.FIELD;
 						
-						// check for deprecated receiver type
-						// deprecation check for receiver type if not first token
-						if (indexOfFirstFieldBinding > 1) {
-							if (isTypeUseDeprecated(this.actualReceiverType, scope))
-								scope.problemReporter().deprecatedType(this.actualReceiverType, this);
-						}
+//						// check for deprecated receiver type
+//						// deprecation check for receiver type if not first token
+//						if (indexOfFirstFieldBinding > 1) {
+//							if (isTypeUseDeprecated(this.actualReceiverType, scope))
+//								scope.problemReporter().deprecatedType(this.actualReceiverType, this);
+//						}
 						
 						return this.resolvedType = getOtherFieldBindings(scope);
 					}
@@ -1029,8 +1029,8 @@ public int nullStatus(FlowInfo flowInfo) {
 					bits |= Binding.TYPE;
 				case Binding.TYPE : //=============only type ==============
 				    TypeBinding type = (TypeBinding) binding;
-					if (isTypeUseDeprecated(type, scope))
-						scope.problemReporter().deprecatedType(type, this);
+//					if (isTypeUseDeprecated(type, scope))
+//						scope.problemReporter().deprecatedType(type, this);
 					type = scope.environment().convertToRawType(type);
 					return this.resolvedType = type;
 			}
