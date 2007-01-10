@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 
 public class JavadocArraySingleTypeReference extends ArrayTypeReference {
@@ -26,8 +27,8 @@ public class JavadocArraySingleTypeReference extends ArrayTypeReference {
 	protected void reportInvalidType(Scope scope) {
 		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
 	}
-	protected void reportDeprecatedType(Scope scope) {
-		scope.problemReporter().javadocDeprecatedType(this.resolvedType, this, scope.getDeclarationModifiers());
+	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
+		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
 	}
 
 	/* (non-Javadoc)

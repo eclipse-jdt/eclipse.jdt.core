@@ -178,7 +178,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 
 		this.resolvedType = parameterizedType;
 		if (isTypeUseDeprecated(this.resolvedType, scope))
-			reportDeprecatedType(scope);
+			reportDeprecatedType(this.resolvedType, scope);
 
 		// array type ?
 		if (this.dimensions > 0) {

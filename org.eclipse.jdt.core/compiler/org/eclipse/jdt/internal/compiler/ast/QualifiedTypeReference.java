@@ -73,7 +73,7 @@ public class QualifiedTypeReference extends TypeReference {
 	    PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
 	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 	    ReferenceBinding qualifiedType = null;
-		for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length; i < max; i++) {
+		for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length, last = max-1; i < max; i++) {
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!this.resolvedType.isValidBinding())
 				return this.resolvedType;
@@ -81,7 +81,9 @@ public class QualifiedTypeReference extends TypeReference {
 				scope.problemReporter().illegalAccessFromTypeVariable((TypeVariableBinding) this.resolvedType, this);
 				return this.resolvedType = null;
 			}
-
+			if (i < last && isTypeUseDeprecated(this.resolvedType, scope)) {
+				reportDeprecatedType(this.resolvedType, scope);			
+			}
 			if (isClassScope)
 				if (((ClassScope) scope).detectHierarchyCycle(this.resolvedType, this, null)) // must connect hierarchy to find inherited member types
 					return null;

@@ -36278,4 +36278,65 @@ public void test1097() {
 		"Syntax error on token \">\", , expected\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961
+public void test1098() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"public class X { \n" + 
+			"   private class A {\n" + 
+			"    class B {}\n" + 
+			"  }\n" + 
+			"  private class Y<T> extends A {\n" + 
+			"  }\n" + 
+			"  Y<String>.B d = null;\n" + 
+			"}\n" + 
+			"class Y extends Zork {}\n"
+		}, 
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	private class Y<T> extends A {\n" + 
+		"	              ^\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	class Y extends Zork {}\n" + 
+		"	                ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+public void test1099() {
+	this.runConformTest(new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    public class A {};\n" + 
+			"    public class B extends A {\n" + 
+			"    	@Override\n" + 
+			"    	public String toString() {\n" + 
+			"    		return \"SUCCESS\";\n" + 
+			"    	}\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        X x = new X();\n" + 
+			"        List<A> l = x.newList(x.new B());\n" + 
+			"		for (A a: l) {\n" + 
+			"			System.out.println(a);\n" + 
+			"		}\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public <U, V extends U> List<U> newList(V... values) {\n" + 
+			"        List<U> l = new ArrayList<U>();\n" + 
+			"        for (V v : values) {\n" + 
+			"            l.add(v);\n" + 
+			"        }\n" + 
+			"        return l;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"}\n"
+		}, 
+		"SUCCESS");
+}
 }

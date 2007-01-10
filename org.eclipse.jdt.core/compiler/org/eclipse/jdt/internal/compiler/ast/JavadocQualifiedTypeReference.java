@@ -12,7 +12,13 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 
 public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
@@ -24,14 +30,14 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 		super(sources, pos);
 		this.tagSourceStart = tagStart;
 		this.tagSourceEnd = tagEnd;
-		this.bits |= InsideJavadoc;
+		this.bits |= ASTNode.InsideJavadoc;
 	}
 
 	protected void reportInvalidType(Scope scope) {
-		scope.problemReporter().javadocInvalidType(this, resolvedType, scope.getDeclarationModifiers());
+		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
 	}
-	protected void reportDeprecatedType(Scope scope) {
-		scope.problemReporter().javadocDeprecatedType(resolvedType, this, scope.getDeclarationModifiers());
+	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
+		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
 	}
 
 	/* (non-Javadoc)
@@ -52,26 +58,26 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	 */
 	private TypeBinding internalResolveType(Scope scope, boolean checkBounds) {
 		// handle the error here
-		constant = Constant.NotAConstant;
-		if (resolvedType != null) // is a shared type reference which was already resolved
-			return resolvedType.isValidBinding() ? resolvedType : null; // already reported error
+		this.constant = Constant.NotAConstant;
+		if (this.resolvedType != null) // is a shared type reference which was already resolved
+			return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 
-		resolvedType = getTypeBinding(scope);
-		if (!resolvedType.isValidBinding()) {
-			Binding binding = scope.getTypeOrPackage(tokens);
+		this.resolvedType = getTypeBinding(scope);
+		if (!this.resolvedType.isValidBinding()) {
+			Binding binding = scope.getTypeOrPackage(this.tokens);
 			if (binding instanceof PackageBinding) {
-				packageBinding = (PackageBinding) binding;
+				this.packageBinding = (PackageBinding) binding;
 			} else {
 				reportInvalidType(scope);
 			}
 			return null;
 		}
-		if (isTypeUseDeprecated(resolvedType, scope))
-			reportDeprecatedType(scope);
-		if (resolvedType instanceof ParameterizedTypeBinding) {
-			resolvedType = ((ParameterizedTypeBinding)resolvedType).type;
+		if (isTypeUseDeprecated(this.resolvedType, scope))
+			reportDeprecatedType(this.resolvedType, scope);
+		if (this.resolvedType instanceof ParameterizedTypeBinding) {
+			this.resolvedType = ((ParameterizedTypeBinding)this.resolvedType).type;
 		}
-		return resolvedType;
+		return this.resolvedType;
 	}
 
 	public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {

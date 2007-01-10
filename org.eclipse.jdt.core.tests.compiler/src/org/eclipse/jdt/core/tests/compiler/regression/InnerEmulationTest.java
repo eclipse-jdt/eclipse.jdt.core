@@ -5400,6 +5400,33 @@ public void _test134() {
 			"XI\nXI");
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961
+public void test135() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X { \n" + 
+			"   private class A {\n" + 
+			"    class B {}\n" + 
+			"  }\n" + 
+			"  private class Y extends A {\n" + 
+			"  }\n" + 
+			"  Y.B d = null;\n" + 
+			"}\n" + 
+			"class Y extends Zork {}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	private class Y extends A {\n" + 
+		"	              ^\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	class Y extends Zork {}\n" + 
+		"	                ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }

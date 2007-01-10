@@ -75,15 +75,15 @@ public class JavadocImplicitTypeReference extends TypeReference {
 			return null;
 		}
 		if (isTypeUseDeprecated(this.resolvedType, scope))
-			reportDeprecatedType(scope);
+			reportDeprecatedType(this.resolvedType, scope);
 		return this.resolvedType;
 	}
 
 	protected void reportInvalidType(Scope scope) {
 		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
 	}
-	protected void reportDeprecatedType(Scope scope) {
-		scope.problemReporter().javadocDeprecatedType(this.resolvedType, this, scope.getDeclarationModifiers());
+	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
+		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
 	}
 
 	public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {

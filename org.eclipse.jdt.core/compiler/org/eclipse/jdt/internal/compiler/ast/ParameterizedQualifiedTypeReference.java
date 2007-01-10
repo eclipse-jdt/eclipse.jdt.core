@@ -245,10 +245,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 													: currentType;
 				}
 			}
+			if (isTypeUseDeprecated(qualifiedType, scope))
+				reportDeprecatedType(qualifiedType, scope);		    
 		}
 		this.resolvedType = qualifiedType;
-		if (isTypeUseDeprecated(this.resolvedType, scope))
-			reportDeprecatedType(scope);
 		// array type ?
 		if (this.dimensions > 0) {
 			if (dimensions > 255)
