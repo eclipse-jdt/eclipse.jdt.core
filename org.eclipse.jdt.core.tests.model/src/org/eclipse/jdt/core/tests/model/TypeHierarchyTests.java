@@ -507,6 +507,48 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 		deleteProject("P");
 	}
 }
+/*
+ * Ensures that a hierarchy can be constructed on a binary type in a jar that has '.class' in its name.
+ * (regression test for bug 157035 "Open Type Hierarchy" fails if subtype is anonymous or local class and location for this subtype contains ".class")
+ */
+public void testBinaryTypeInDotClassJar() throws CoreException, IOException {
+	String externalJar = null;
+	try {
+		externalJar = Util.getOutputDirectory() + File.separator + "test.classic.jar";
+		Util.createJar(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" + 
+				"}" ,
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"    new X() {\n" +
+				"    };\n" +
+				" }\n" +
+				"}" 
+			},
+			new HashMap(),
+			externalJar
+		);
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB", externalJar}, "");
+		IType focus = project.getPackageFragmentRoot(externalJar).getPackageFragment("p").getClassFile("X.class").getType();
+		assertHierarchyEquals(
+			"Focus: X [in X.class [in p [in " + externalJar + "]]]\n" + 
+			"Super types:\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"Sub types:\n" + 
+			"  <anonymous> [in Y$1.class [in p [in " + externalJar + "]]]\n",
+			focus.newTypeHierarchy(null)
+		);
+	} finally {
+		if (externalJar != null)
+			Util.delete(externalJar);
+		deleteProject("P");
+	}
+}
 /**
  * Ensures that the creation of a type hierarchy can be cancelled.
  */
