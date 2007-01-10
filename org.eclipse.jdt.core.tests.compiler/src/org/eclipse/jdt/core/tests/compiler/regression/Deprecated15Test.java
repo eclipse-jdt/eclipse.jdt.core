@@ -136,9 +136,14 @@ public void test002() {
 		"1. ERROR in p\\M1.java (at line 4)\n" + 
 		"	a.N1.N2.N3 m = null;\n" + 
 		"	^^^^^^^^^^\n" + 
+		"The type N1.N2 is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\M1.java (at line 4)\n" + 
+		"	a.N1.N2.N3 m = null;\n" + 
+		"	^^^^^^^^^^\n" + 
 		"The type N1.N2.N3 is deprecated\n" + 
 		"----------\n" + 
-		"2. ERROR in p\\M1.java (at line 5)\n" + 
+		"3. ERROR in p\\M1.java (at line 5)\n" + 
 		"	m.foo();\n" + 
 		"	^^^^^^^\n" + 
 		"The method foo() from the type N1.N2.N3 is deprecated\n" + 
