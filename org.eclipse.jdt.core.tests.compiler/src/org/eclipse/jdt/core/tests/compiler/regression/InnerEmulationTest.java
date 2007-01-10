@@ -5404,6 +5404,193 @@ public void _test134() {
 public void test135() {
 	this.runNegativeTest(
 		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"import p.A;\n" + 
+			"public class X {\n" + 
+			"	\n" + 
+			"	void foo(Object o, Object [] os) {\n" + 
+			"		A.M2.MM1 mm1 = (A.M2.MM1) o;\n" + 
+			"		A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
+			"	}\n" + 
+			"	private interface Outer {\n" + 
+			"		interface Inner {\n" + 
+			"			String variable = \"my testing\";\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(Outer.Inner.variable);\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}", // =================,
+			"p/A.java",
+			"package p;\n" +
+			"/** @deprecated */\n" +
+			"public class A {\n" + 
+			"	public class M1 {\n" +
+			"		public class MM1 {\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public class M2 extends M1 {\n" +
+			"	}\n" +
+			"}", // =================,
+		}, 
+		"----------\n" + 
+		"1. WARNING in p\\X.java (at line 2)\n" + 
+		"	import p.A;\n" + 
+		"	       ^^^\n" + 
+		"The type A is deprecated\n" + 
+		"----------\n" + 
+		"2. WARNING in p\\X.java (at line 6)\n" + 
+		"	A.M2.MM1 mm1 = (A.M2.MM1) o;\n" + 
+		"	^^^^^^^^\n" + 
+		"The type A is deprecated\n" + 
+		"----------\n" + 
+		"3. WARNING in p\\X.java (at line 6)\n" + 
+		"	A.M2.MM1 mm1 = (A.M2.MM1) o;\n" + 
+		"	^^^^^^^^\n" + 
+		"The type A.M2 is deprecated\n" + 
+		"----------\n" + 
+		"4. WARNING in p\\X.java (at line 6)\n" + 
+		"	A.M2.MM1 mm1 = (A.M2.MM1) o;\n" + 
+		"	^^^^^^^^\n" + 
+		"The type A.M1.MM1 is deprecated\n" + 
+		"----------\n" + 
+		"5. WARNING in p\\X.java (at line 6)\n" + 
+		"	A.M2.MM1 mm1 = (A.M2.MM1) o;\n" + 
+		"	                ^^^^^^^^\n" + 
+		"The type A.M1.MM1 is deprecated\n" + 
+		"----------\n" + 
+		"6. WARNING in p\\X.java (at line 7)\n" + 
+		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
+		"	^^^^^^^^\n" + 
+		"The type A is deprecated\n" + 
+		"----------\n" + 
+		"7. WARNING in p\\X.java (at line 7)\n" + 
+		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
+		"	^^^^^^^^\n" + 
+		"The type A.M2 is deprecated\n" + 
+		"----------\n" + 
+		"8. WARNING in p\\X.java (at line 7)\n" + 
+		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
+		"	^^^^^^^^\n" + 
+		"The type A.M1.MM1 is deprecated\n" + 
+		"----------\n" + 
+		"9. WARNING in p\\X.java (at line 7)\n" + 
+		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
+		"	                   ^^^^^^^^\n" + 
+		"The type A is deprecated\n" + 
+		"----------\n" + 
+		"10. WARNING in p\\X.java (at line 7)\n" + 
+		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
+		"	                   ^^^^^^^^\n" + 
+		"The type A.M2 is deprecated\n" + 
+		"----------\n" + 
+		"11. WARNING in p\\X.java (at line 7)\n" + 
+		"	A.M2.MM1[] mm1s = (A.M2.MM1[]) os;\n" + 
+		"	                   ^^^^^^^^\n" + 
+		"The type A.M1.MM1 is deprecated\n" + 
+		"----------\n" + 
+		"12. WARNING in p\\X.java (at line 9)\n" + 
+		"	private interface Outer {\n" + 
+		"	                  ^^^^^\n" + 
+		"The type X.Outer is never used locally\n" + 
+		"----------\n" + 
+		"13. ERROR in p\\X.java (at line 16)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961 - variation
+public void test136() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"public class X {\n" + 
+			"	private interface Outer {\n" + 
+			"		interface Inner {\n" + 
+			"			String variable = \"my testing\";\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Outer.Inner variable = null;\n" + 
+			"		System.out.println(variable);\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}", // =================,
+		}, 
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 11)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961 - variation
+public void test137() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" +
+			"public class X {\n" + 
+			"	private interface Outer {\n" + 
+			"		interface Inner {\n" + 
+			"			String variable = \"my testing\";\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	private interface Outer2 extends Outer {\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(Outer2.Inner.variable);\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}", // =================,
+		}, 
+		"----------\n" + 
+		"1. WARNING in p\\X.java (at line 8)\n" + 
+		"	private interface Outer2 extends Outer {\n" + 
+		"	                  ^^^^^^\n" + 
+		"The type X.Outer2 is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 12)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961 - variation
+public void test138() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"public class X {\n" + 
+			"	private interface Outer {\n" + 
+			"		interface Inner {\n" + 
+			"			String variable = \"my testing\";\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	private interface Outer2 extends Outer {\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Outer2.Inner variable = null;\n" + 
+			"		System.out.println(variable);\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}", // =================,
+		}, 
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 12)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961 - variation
+public void test139() {
+	this.runNegativeTest(
+		new String[] {
 			"X.java",
 			"public class X { \n" + 
 			"   private class A {\n" + 
