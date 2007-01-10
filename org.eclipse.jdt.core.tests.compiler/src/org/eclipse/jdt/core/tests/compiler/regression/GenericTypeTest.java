@@ -36146,8 +36146,8 @@ public void test1093() {
 		false  /* do not skip javac for this peculiar test */,
 		false  /* do not perform statements recovery */);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=167268
-public void _test1094() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167268
+public void test1094() {
 	Map customOptions = this.getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	this.runConformTest(
