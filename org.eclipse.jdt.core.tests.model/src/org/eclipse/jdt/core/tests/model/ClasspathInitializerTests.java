@@ -785,7 +785,32 @@ public void testContainerInitializer15() throws CoreException {
 		deleteProject("P1");
 	}
 }
-
+/*
+ * Ensure that an initializer cannot return a project entry that points to the project of the container (cycle).
+ */
+public void testContainerInitializer16() throws CoreException {
+	try {
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1"}));
+		JavaModelException exception = null;
+		try {
+			IJavaProject p1 = createJavaProject(
+				"P1", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+			p1.getResolvedClasspath(true);
+		} catch (JavaModelException e) {
+			exception = e;
+		}
+		assertExceptionEquals(
+			"Unexpected expection", 
+			"Project cannot reference itself: P1", 
+			exception);
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+	}
+}
 public void testVariableInitializer01() throws CoreException {
 	try {
 		createProject("P1");
