@@ -22,8 +22,6 @@ public class MethodVerifier {
 	SourceTypeBinding type;
 	HashtableOfObject inheritedMethods;
 	HashtableOfObject currentMethods;
-	ReferenceBinding runtimeException;
-	ReferenceBinding errorException;
 	LookupEnvironment environment;
 	private boolean allowCompatibleReturnTypes;
 /*
@@ -47,8 +45,6 @@ MethodVerifier(LookupEnvironment environment) {
 	this.type = null;  // Initialized with the public method verify(SourceTypeBinding)
 	this.inheritedMethods = null;
 	this.currentMethods = null;
-	this.runtimeException = null;
-	this.errorException = null;
 	this.environment = environment;
 	this.allowCompatibleReturnTypes =
 		environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_5
