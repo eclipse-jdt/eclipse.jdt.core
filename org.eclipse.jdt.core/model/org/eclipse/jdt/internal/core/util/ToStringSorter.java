@@ -32,7 +32,7 @@ public boolean compare(String stringOne, String stringTwo) {
 private void quickSort(int left, int right) {
 	int originalLeft = left;
 	int originalRight = right;
-	int midIndex =  (left + right) / 2;
+	int midIndex =  left + (right - left) / 2;
 	String midToString = this.sortedStrings[midIndex];
 	
 	do {
