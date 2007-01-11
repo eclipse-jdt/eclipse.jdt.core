@@ -32,7 +32,7 @@ import org.eclipse.text.edits.TextEdit;
  * @since 3.2
  */
 public class CodeFormatterVisitor2 extends ASTVisitor {
-	public static boolean DEBUG = false;
+	public final static boolean DEBUG = false;
 	
 	private static final int[] CLOSING_GENERICS_EXPECTEDTOKENS = new int[] {
 		TerminalTokens.TokenNameRIGHT_SHIFT,

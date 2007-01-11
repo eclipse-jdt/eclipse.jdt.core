@@ -145,7 +145,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 	}
 	
-	public static boolean DEBUG = false;
+	public final static boolean DEBUG = false;
 	private static final int NO_MODIFIERS = 0;
 	/*
 	 * Set of expected tokens type for a single type reference.
