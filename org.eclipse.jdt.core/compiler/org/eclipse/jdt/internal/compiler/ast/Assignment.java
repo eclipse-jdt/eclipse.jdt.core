@@ -134,8 +134,10 @@ FieldBinding getLastField(Expression someExpression) {
         return ((FieldReference)someExpression).binding;
     } else if (someExpression instanceof QualifiedNameReference) {
         QualifiedNameReference qName = (QualifiedNameReference) someExpression;
-        if (qName.otherBindings == null && ((someExpression.bits & RestrictiveFlagMASK) == Binding.FIELD)) {
-            return (FieldBinding)qName.binding;
+        if (qName.otherBindings == null) {
+        	if ((someExpression.bits & RestrictiveFlagMASK) == Binding.FIELD) {
+        		return (FieldBinding)qName.binding;
+        	}
         } else {
             return qName.otherBindings[qName.otherBindings.length - 1];
         }
