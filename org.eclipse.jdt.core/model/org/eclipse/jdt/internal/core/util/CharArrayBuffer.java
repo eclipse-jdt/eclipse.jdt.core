@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
+import org.eclipse.jdt.internal.compiler.util.Util;
+
 /**
  * The <code>CharArrayBuffer</code> is intended as a lightweight partial implementation
  * of the StringBuffer class, but using <code>char[]'s</code> instead of Strings.
@@ -182,10 +184,10 @@ public char[] getContents() {
 }
 /**
  * Returns the contents of the buffer as a String, or
- * <code>null</code> if the buffer is empty.
+ * an empty string if the buffer is empty.
  */
 public String toString() {
 	char[] contents = getContents();
-	return (contents != null) ? new String(contents) : null;
+	return (contents != null) ? new String(contents) : Util.EMPTY_STRING;
 }
 }
