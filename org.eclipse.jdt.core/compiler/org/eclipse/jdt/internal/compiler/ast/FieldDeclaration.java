@@ -269,7 +269,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 					}
 					*/
 					this.javadoc.resolve(initializationScope);
-				} else if (this.binding != null && this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
+				} else if (this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
 					initializationScope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd, this.binding.modifiers);
 				}
 			} finally {
