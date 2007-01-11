@@ -275,16 +275,14 @@ class DefaultBindingResolver extends BindingResolver {
 				case ProblemReasons.NonStaticReferenceInStaticContext :
 					if (referenceBinding instanceof ProblemReferenceBinding) {
 						ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) referenceBinding;
-						Binding binding2 = problemReferenceBinding.closestMatch();
-						if (binding2 instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-							TypeBinding binding = (TypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(binding2);
-							if (binding != null) {
-								return binding;
-							}
-							binding = new TypeBinding(this, (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding2);
-							this.bindingTables.compilerBindingsToASTBindings.put(binding2, binding);
+						ReferenceBinding binding2 = problemReferenceBinding.closestMatch();
+						TypeBinding binding = (TypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(binding2);
+						if (binding != null) {
 							return binding;
-						} 
+						}
+						binding = new TypeBinding(this, binding2);
+						this.bindingTables.compilerBindingsToASTBindings.put(binding2, binding);
+						return binding;
 					}
 			}
 			return null;
