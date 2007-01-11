@@ -617,7 +617,7 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		}
 		this.categoryTables.put(categoryName, categoryTable);
 		// cache the table as long as its not too big
-		// in practise, some tables can be greater than 500K when the contain more than 10K elements
+		// in practice, some tables can be greater than 500K when they contain more than 10K elements
 		this.cachedCategoryName = categoryTable.elementSize < 10000 ? categoryName : null;
 	} finally {
 		stream.close();
