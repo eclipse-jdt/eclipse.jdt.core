@@ -255,17 +255,19 @@ private IType[] findSuperInterfaces(IGenericType type, ReferenceBinding typeBind
 	int index = 0;
 	next : for (int i = 0; i < length; i++) {
 		char[] superInterfaceName = superInterfaceNames[i];
-		int lastSeparator = CharOperation.lastIndexOf(separator, superInterfaceName);
-		int start = lastSeparator + 1; 
 		int end = superInterfaceName.length;
+		
+		// find the end of simple name
+		int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, superInterfaceName);
+		if (genericStart != -1) end = genericStart;
+				
+		// find the start of simple name
+		int lastSeparator = CharOperation.lastIndexOf(separator, superInterfaceName, 0, end);
+		int start = lastSeparator + 1; 
 		
 		// case of binary inner type -> take the last part
 		int lastDollar = CharOperation.lastIndexOf('$', superInterfaceName, start);
 		if (lastDollar != -1) start = lastDollar + 1;
-		
-		// case of a parameterized type -> take the first part
-		int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, superInterfaceName, start);
-		if (genericStart != -1) end = genericStart;
 		
 		char[] simpleName = CharOperation.subarray(superInterfaceName, start, end);
 		

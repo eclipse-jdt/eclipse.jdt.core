@@ -851,6 +851,41 @@ public void testGeneric09() throws CoreException {
 		deleteFile("/TypeHierarchy15/src/X_136095.java");
 	}
 }
+/*
+ * Ensures that a super type hierarchy is where the focus type implements a generic type with a qualified type parameter is correct
+ * (regression test for bug 140340 [5.0][templates] foreach template does not work when an Iterable over a static inner class exists)
+ */
+public void testGeneric10() throws CoreException {
+	try {
+		createFile(
+			"/TypeHierarchy15/src/Y_140340.java", 
+			"public class Y_140340 {\n" + 
+			"  public static class Z {\n" +
+			"  }\n" +
+			"}"
+		);
+		createFile(
+			"/TypeHierarchy15/src/X_140340.java", 
+			"public class X_140340 implements I1_140340<Y_140340.Z> {\n" + 
+			"}\n" +
+			"interface I1_140340<T> {\n" +
+			"}"
+		);
+		IType type = getCompilationUnit("/TypeHierarchy15/src/X_140340.java").getType("X_140340");
+		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: X_140340 [in X_140340.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+			"Super types:\n" + 
+			"  I1_140340 [in X_140340.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
+			"Sub types:\n",
+			hierarchy
+		);
+	} finally {
+		deleteFile("/TypeHierarchy15/src/Y_140340.java");
+		deleteFile("/TypeHierarchy15/src/X_140340.java");
+	}
+}
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.
  */
