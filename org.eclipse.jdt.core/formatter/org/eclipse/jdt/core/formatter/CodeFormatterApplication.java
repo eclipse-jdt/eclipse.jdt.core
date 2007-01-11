@@ -148,19 +148,19 @@ public class CodeFormatterApplication implements IApplication {
 		}
 	}
 
-	private final String ARG_CONFIG = "-config"; //$NON-NLS-1$
+	private static final String ARG_CONFIG = "-config"; //$NON-NLS-1$
 
-	private final String ARG_HELP = "-help"; //$NON-NLS-1$
+	private static final String ARG_HELP = "-help"; //$NON-NLS-1$
 
-	private final String ARG_QUIET = "-quiet"; //$NON-NLS-1$
+	private static final String ARG_QUIET = "-quiet"; //$NON-NLS-1$
 
-	private final String ARG_VERBOSE = "-verbose"; //$NON-NLS-1$
+	private static final String ARG_VERBOSE = "-verbose"; //$NON-NLS-1$
 
 	private String configName;
 
 	private Properties options = null;
 
-	private final String PDE_LAUNCH = "-pdelaunch"; //$NON-NLS-1$
+	private static final String PDE_LAUNCH = "-pdelaunch"; //$NON-NLS-1$
 
 	private boolean quiet = false;
 
