@@ -18,7 +18,7 @@ public class LongLiteralMinValue extends LongLiteral {
 	final static Constant MIN_VALUE = LongConstant.fromValue(Long.MIN_VALUE) ; 
 
 public LongLiteralMinValue(){
-	super(CharValue,0,0,Long.MIN_VALUE);
+	super(CharValue,0,0);
 	constant = MIN_VALUE;
 }
 public void computeConstant() {

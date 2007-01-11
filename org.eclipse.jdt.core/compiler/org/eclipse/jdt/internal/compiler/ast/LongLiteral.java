@@ -17,16 +17,10 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class LongLiteral extends NumberLiteral {
-	long value;
-	
 	static final Constant FORMAT_ERROR = DoubleConstant.fromValue(1.0/0.0); // NaN;	
 		
 public LongLiteral(char[] token, int s,int e) {
 	super(token, s,e);
-}
-public LongLiteral(char[] token, int s,int e, long value) {
-	this(token, s,e);
-	this.value = value;
 }
 public void computeConstant() {
 	//the overflow (when radix=10) is tested using the fact that
@@ -51,7 +45,7 @@ public void computeConstant() {
 			j++; //jump over redondant zero
 			if ( j == length) {
 				//watch for 0000000000000L
-				constant = LongConstant.fromValue(value = 0L);
+				constant = LongConstant.fromValue(0L);
 				return ;
 			}
 		}
@@ -96,7 +90,7 @@ public void computeConstant() {
 				return /*constant stays null*/;
 		}
 	}
-	constant = LongConstant.fromValue(value = computedValue);
+	constant = LongConstant.fromValue(computedValue);
 }
 /**
  * Code generation for long literal
