@@ -174,7 +174,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	private static void quickSort(int[] list1, char[][] list2, int left, int right) {
 		int original_left= left;
 		int original_right= right;
-		int mid= list1[(left + right) / 2];
+		int mid= list1[left + (right - left) / 2];
 		do {
 			while (list1[left] < mid) {
 				left++;
@@ -338,7 +338,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		next : while (true) {
 			if (right < left) return -1;
 			
-			int mid = (left + right) / 2;
+			int mid = left + (right - left) / 2;
 			int midPosition = this.potentialVariableNameStarts[mid];
 			if (midPosition < 0) {
 				int nextMid = indexOfNextName(mid);

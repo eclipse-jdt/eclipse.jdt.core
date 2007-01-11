@@ -358,7 +358,7 @@ private void quickPrioritize(CategorizedProblem[] problemList, int left, int rig
 	// sort the problems by their priority... starting with the highest priority
 	int original_left = left;
 	int original_right = right;
-	int mid = computePriority(problemList[(left + right) / 2]);
+	int mid = computePriority(problemList[left + (right - left) / 2]);
 	do {
 		while (computePriority(problemList[right]) < mid)
 			right--;
