@@ -68,7 +68,7 @@ public class Scanner implements TerminalTokens {
 	public boolean scanningFloatLiteral = false;
 
 	//support for /** comments
-	public static int COMMENT_ARRAYS_SIZE = 30;
+	public final static int COMMENT_ARRAYS_SIZE = 30;
 	public int[] commentStops = new int[COMMENT_ARRAYS_SIZE];
 	public int[] commentStarts = new int[COMMENT_ARRAYS_SIZE];
 	public int[] commentTagStarts = new int[COMMENT_ARRAYS_SIZE];
