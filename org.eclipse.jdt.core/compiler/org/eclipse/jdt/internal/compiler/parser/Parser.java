@@ -233,6 +233,8 @@ private final static void buildFile(String filename, List listToDump) {
     	}
     	writer.flush();
 	} catch(IOException e) {
+		// ignore
+	} finally {
 		if (writer != null) {
         	try {
 				writer.close();
