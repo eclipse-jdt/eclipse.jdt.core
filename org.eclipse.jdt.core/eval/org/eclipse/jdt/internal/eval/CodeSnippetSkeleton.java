@@ -49,7 +49,7 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 		)
 	};
 
-	public class BinaryMethodSkeleton implements IBinaryMethod {
+	public static class BinaryMethodSkeleton implements IBinaryMethod {
 		char[][] exceptionTypeNames;
 		char[] methodDescriptor;
 		char[] selector;

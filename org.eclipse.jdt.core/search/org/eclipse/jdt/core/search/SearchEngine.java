@@ -50,7 +50,7 @@ public class SearchEngine {
 	 * Internal adapter class.
 	 * @deprecated marking deprecated as it uses deprecated IJavaSearchResultCollector
 	 */
-	class ResultCollectorAdapter extends SearchRequestor {
+	static class ResultCollectorAdapter extends SearchRequestor {
 		IJavaSearchResultCollector resultCollector;
 		ResultCollectorAdapter(IJavaSearchResultCollector resultCollector) {
 			this.resultCollector = resultCollector;
@@ -85,7 +85,7 @@ public class SearchEngine {
 	 * Internal adapter class.
 	 * @deprecated marking deprecated as it uses deprecated ITypeNameRequestor
 	 */
-	class TypeNameRequestorAdapter implements IRestrictedAccessTypeRequestor {
+	static class TypeNameRequestorAdapter implements IRestrictedAccessTypeRequestor {
 		ITypeNameRequestor nameRequestor;
 		TypeNameRequestorAdapter(ITypeNameRequestor requestor) {
 			this.nameRequestor = requestor;
