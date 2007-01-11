@@ -2999,13 +2999,18 @@ public void test076() {
 				"} 	\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	B() {	\n" + 
+			"	^^^\n" + 
+			"The constructor B() is never used locally\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"				});	\n" + 
 			"	      ^^^^^^^^^^^^^^^\n" + 
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 9)\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"	          ^^^\n" + 
 			"Access to enclosing constructor A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
@@ -3032,7 +3037,12 @@ public void test076() {
 				"} 	\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	B() {	\n" + 
+			"	^^^\n" + 
+			"The constructor B() is never used locally\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"				});	\n" + 
 			"	      ^^^^^^^^^^^^^^^\n" + 
@@ -3119,24 +3129,29 @@ public void test078() {
 				"} 	\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	B() {	\n" + 
+			"	^^^\n" + 
+			"The constructor B() is never used locally\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"					void foo() { System.out.println(X.this);	} \n" + 
 			"				});	\n" + 
 			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 9)\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"	          ^^^\n" + 
 			"Access to enclosing constructor A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 10)\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
 			"	void foo() { System.out.println(X.this);	} \n" + 
 			"	     ^^^^^\n" + 
 			"The method foo() from the type new A(){} is never used locally\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 10)\n" + 
+			"5. ERROR in X.java (at line 10)\n" + 
 			"	void foo() { System.out.println(X.this);	} \n" + 
 			"	                                ^^^^^^\n" + 
 			"No enclosing instance of the type X is accessible in scope\n" + 
@@ -3164,19 +3179,24 @@ public void test078() {
 				"} 	\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	B() {	\n" + 
+			"	^^^\n" + 
+			"The constructor B() is never used locally\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"					void foo() { System.out.println(X.this);	} \n" + 
 			"				});	\n" + 
 			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 10)\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
 			"	void foo() { System.out.println(X.this);	} \n" + 
 			"	     ^^^^^\n" + 
 			"The method foo() from the type new A(){} is never used locally\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 10)\n" + 
+			"4. ERROR in X.java (at line 10)\n" + 
 			"	void foo() { System.out.println(X.this);	} \n" + 
 			"	                                ^^^^^^\n" + 
 			"No enclosing instance of the type X is accessible in scope\n" + 
