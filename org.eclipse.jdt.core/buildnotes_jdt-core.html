@@ -51,6 +51,11 @@ Eclipse SDK 3.3M5 - ?th January 2007
 <br>Project org.eclipse.jdt.core v_731
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_731">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>The compiler is now better able to detect unused private constructors, it now tolerates more than the 
+private constructor with no parameter as the known pattern for blocking instantiation. Basically, unless a
+non private constructor is defined as well, it will ignore unused private constructors from now on (also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=163443">163443</a>).</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=163443">163443</a>
