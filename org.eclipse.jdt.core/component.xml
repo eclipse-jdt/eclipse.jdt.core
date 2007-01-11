@@ -96,7 +96,7 @@
    <type name="AST" subclass="false" instantiate="false"/>
    <type name="ASTConverter" reference="false"/>
    <type name="ASTMatcher"/>
-   <type name="ASTNode" instantiate="false"/>
+   <type name="ASTNode" subclass="false" instantiate="false"/>
    <type name="ASTParser" instantiate="false"/>
    <type name="ASTRecoveryPropagator" reference="false"/>  
    <type name="ASTRequestor" instantiate="false"/>

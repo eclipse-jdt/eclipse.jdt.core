@@ -112,6 +112,7 @@ import java.util.Map;
  * an alternative way to describe and serialize changes to a
  * read-only AST.
  * </p>
+ * This class is not intended to be subclassed by clients.
  * 
  * @see ASTParser
  * @see ASTVisitor
@@ -2316,6 +2317,15 @@ public abstract class ASTNode {
 	 */
 	public final boolean equals(Object obj) {
 		return this == obj; // equivalent to Object.equals
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * This makes it consistent with the fact that a equals methods has been provided.
+	 * @see java.lang.Object#hashCode()
+	 */
+	public final int hashCode() {
+		return super.hashCode();
 	}
 
 	/**
