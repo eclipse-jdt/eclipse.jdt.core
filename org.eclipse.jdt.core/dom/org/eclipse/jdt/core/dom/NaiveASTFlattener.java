@@ -1456,20 +1456,8 @@ class NaiveASTFlattener extends ASTVisitor {
 		}
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
-		BodyDeclaration prev = null;
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
 			BodyDeclaration d = (BodyDeclaration) it.next();
-			if (prev instanceof EnumConstantDeclaration) {
-				// enum constant declarations do not include punctuation
-				if (d instanceof EnumConstantDeclaration) {
-					// enum constant declarations are separated by commas
-					this.buffer.append(", ");//$NON-NLS-1$
-				} else {
-					// semicolon separates last enum constant declaration from 
-					// first class body declarations
-					this.buffer.append("; ");//$NON-NLS-1$
-				}
-			}
 			d.accept(this);
 		}
 		this.indent--;
