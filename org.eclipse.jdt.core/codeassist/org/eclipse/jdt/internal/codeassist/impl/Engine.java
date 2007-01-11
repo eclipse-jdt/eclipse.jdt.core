@@ -336,7 +336,9 @@ public abstract class Engine implements ITypeRequestor {
 			}
 			methodBinding.modifiers = oldMod;
 		}
-		result = CharOperation.replaceOnCopy(result, '/', '.');
+		if (result != null) {
+			result = CharOperation.replaceOnCopy(result, '/', '.');
+		}
 		return result;
 	}
 	
