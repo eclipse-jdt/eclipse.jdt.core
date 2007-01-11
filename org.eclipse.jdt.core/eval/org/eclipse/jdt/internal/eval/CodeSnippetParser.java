@@ -169,7 +169,7 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		//considerates the fieldReference beginning at the 'super' ....	
 		fr.sourceStart = this.intStack[this.intPtr--];
 		problemReporter().codeSnippetMissingClass(null,0, 0);
-		fr.receiver = new CodeSnippetSuperReference(fr.sourceStart, this.endPosition, this.evaluationContext);
+		fr.receiver = new CodeSnippetSuperReference(fr.sourceStart, this.endPosition);
 		pushOnExpressionStack(fr);
 	} else {
 		//optimize push/pop
@@ -377,7 +377,7 @@ protected void consumeMethodInvocationSuper() {
 	m.nameSourcePosition = this.identifierPositionStack[this.identifierPtr];
 	m.selector = this.identifierStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
-	m.receiver = new CodeSnippetSuperReference(m.sourceStart, this.endPosition, this.evaluationContext);
+	m.receiver = new CodeSnippetSuperReference(m.sourceStart, this.endPosition);
 	pushOnExpressionStack(m);
 }
 protected void consumePrimaryNoNewArrayThis() {

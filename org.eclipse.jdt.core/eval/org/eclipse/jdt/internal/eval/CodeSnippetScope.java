@@ -83,7 +83,7 @@ public final boolean canBeSeenByForCodeSnippet(FieldBinding fieldBinding, TypeBi
 			// receiverType can be an array binding in one case... see if you can change it
 			if (receiverType instanceof ArrayBinding)
 				return false;
-			if (invocationType == receiverType || invocationType.isSuperclassOf((ReferenceBinding) receiverType))
+			if (invocationType.isSuperclassOf((ReferenceBinding) receiverType))
 				return true;
 			if (fieldBinding.isStatic())
 				return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
@@ -153,7 +153,7 @@ public final boolean canBeSeenByForCodeSnippet(MethodBinding methodBinding, Type
 			// receiverType can be an array binding in one case... see if you can change it
 			if (receiverType instanceof ArrayBinding)
 				return false;
-			if (invocationType == receiverType || invocationType.isSuperclassOf((ReferenceBinding) receiverType))
+			if (invocationType.isSuperclassOf((ReferenceBinding) receiverType))
 				return true;
 			if (methodBinding.isStatic())
 				return true; // see 1FMEPDL - return invocationSite.isTypeAccess();

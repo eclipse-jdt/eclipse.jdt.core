@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
  * the corresponding class files. Or it reports problems against these variables.
  */
 public class VariablesEvaluator extends Evaluator implements EvaluationConstants {
-	int startPosOffset = 0;
 /**
  * Creates a new global variables evaluator.
  */
@@ -210,7 +209,6 @@ protected char[] getSource() {
 	buffer.append(ROOT_CLASS_NAME);
 	buffer.append(" {").append(this.context.lineSeparator); //$NON-NLS-1$
 	lineNumberOffset++;
-	this.startPosOffset = buffer.length();
 
 	// field declarations
 	GlobalVariable[] vars = this.context.variables;

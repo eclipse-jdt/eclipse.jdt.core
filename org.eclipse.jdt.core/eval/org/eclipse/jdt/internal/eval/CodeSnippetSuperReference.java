@@ -23,11 +23,9 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  * reference are not supported in code snippet.
  */
 public class CodeSnippetSuperReference extends SuperReference implements EvaluationConstants, InvocationSite {
-	EvaluationContext evaluationContext;
 	
-public CodeSnippetSuperReference(int pos, int sourceEnd, 	EvaluationContext evaluationContext) {
+public CodeSnippetSuperReference(int pos, int sourceEnd) {
 	super(pos, sourceEnd);
-	this.evaluationContext = evaluationContext;
 }
 
 /**
