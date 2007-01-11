@@ -44,7 +44,7 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	private static final IMethod[] NO_METHODS = new IMethod[0];
 	private static final IType[] NO_TYPES = new IType[0];
 	private static final IInitializer[] NO_INITIALIZERS = new IInitializer[0];
-	public static final String EMPTY_JAVADOC = new String();
+	public static final String EMPTY_JAVADOC = org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING;
 	
 protected BinaryType(JavaElement parent, String name) {
 	super(parent, name);
