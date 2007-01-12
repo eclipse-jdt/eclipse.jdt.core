@@ -477,7 +477,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private void saveProcessorOptions(List<ProcessorOption> elements) {
 		Map<String, String> map = new LinkedHashMap<String, String>(elements.size());
 		for (ProcessorOption o : elements) {
-			map.put(o.key, o.value);
+			map.put(o.key, (o.value.length() > 0) ? o.value : null);
 		}
 		AptConfig.setProcessorOptions(map, fJProj);
 	}
@@ -491,7 +491,11 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		for (Map.Entry<String, String> entry : parsedOptions.entrySet()) {
 			ProcessorOption o = new ProcessorOption();
 			o.key = entry.getKey();
-			o.value = entry.getValue();
+			if (o.key == null || o.key.length() < 1) {
+				// Don't allow defective entries
+				continue;
+			}
+			o.value = (entry.getValue() == null) ? "" : entry.getValue(); //$NON-NLS-1$
 			options.add(o);
 		}
 		fProcessorOptionsField.setElements(options);
