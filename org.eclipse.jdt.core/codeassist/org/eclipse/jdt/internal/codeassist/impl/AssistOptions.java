@@ -46,6 +46,8 @@ public class AssistOptions {
 		"org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"; 	//$NON-NLS-1$
 	public static final String OPTION_CamelCaseMatch =
 		"org.eclipse.jdt.core.codeComplete.camelCaseMatch"; 	//$NON-NLS-1$
+	public static final String OPTION_SuggestStaticImports =
+		"org.eclipse.jdt.core.codeComplete.suggestStaticImports"; 	//$NON-NLS-1$
 	
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
@@ -56,6 +58,7 @@ public class AssistOptions {
 	public boolean checkDiscouragedReference = false;
 	public boolean forceImplicitQualification = false;
 	public boolean camelCaseMatch = true;
+	public boolean suggestStaticImport = true;
 	public char[][] fieldPrefixes = null;
 	public char[][] staticFieldPrefixes = null;
 	public char[][] localPrefixes = null;
@@ -204,6 +207,13 @@ public class AssistOptions {
 				this.checkDeprecation = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.checkDeprecation = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_SuggestStaticImports)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.suggestStaticImport = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.suggestStaticImport = false;
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2005 IBM Corporation and others.
+ * Copyright (c) 2004, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
  * </p>
  * <p>
  * The code assist engine normally invokes methods on completion
- * requestors in the following sequence:
+ * requestor in the following sequence:
  * <pre>
  * requestor.beginReporting();
  * requestor.acceptContext(context);
@@ -158,7 +158,7 @@ public abstract class CompletionRequestor {
 	 * Sets whether a proposal of a given kind with a required proposal
 	 * of the given kind is allowed.
 	 * 
-	 * Currenlty only a subset of kinds support required proposals. To see what combinations
+	 * Currently only a subset of kinds support required proposals. To see what combinations
 	 * are supported you must look at {@link CompletionProposal#getRequiredProposals()}
 	 * documentation.
 	 * 
@@ -196,7 +196,7 @@ public abstract class CompletionRequestor {
 	}
 	
 	/**
-	 * Returns the favorites references which are used to compute some completion proposals.
+	 * Returns the favorite references which are used to compute some completion proposals.
 	 * <p>
 	 * A favorite reference is a qualified reference as it can be seen in an import statement.<br>
 	 * e.g. <code>{"java.util.Arrays"}</code><br>
@@ -205,8 +205,12 @@ public abstract class CompletionRequestor {
 	 * It can be a reference to a static method or field (as in a static import)<br>
 	 * e.g. <code>{"java.util.Arrays.equals"}</code>
 	 * </p>
-	 *
-	 * @return favorites imports
+	 * <p>
+	 * Currently only on demand type references (<code>"java.util.Arrays.*"</code>),
+	 * references to a static method or a static field are used to compute completion proposals.
+	 * Other kind of reference could be used in the future.
+	 * </p>
+	 * @return favorite imports
 	 * 
 	 * @since 3.3
 	 */
@@ -215,7 +219,7 @@ public abstract class CompletionRequestor {
 	}
 	
 	/**
-	 * Set the favorites references which will be used to compute some completion proposals.
+	 * Set the favorite references which will be used to compute some completion proposals.
 	 * A favorite reference is a qualified reference as it can be seen in an import statement.<br>
 	 * 
 	 * @param favoriteImports

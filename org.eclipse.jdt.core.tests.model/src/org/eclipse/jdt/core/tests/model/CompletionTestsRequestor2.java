@@ -71,8 +71,8 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	}
 	
 	public void allowAllRequiredProposals() {
-		for (int i = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; i <= CompletionProposal.JAVADOC_INLINE_TAG; i++) {
-			for (int j = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; j <= CompletionProposal.JAVADOC_INLINE_TAG; j++) {
+		for (int i = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; i <= CompletionProposal.TYPE_IMPORT; i++) {
+			for (int j = CompletionProposal.ANONYMOUS_CLASS_DECLARATION; j <= CompletionProposal.TYPE_IMPORT; j++) {
 				this.setAllowsRequiredProposals(i, j, true);
 			}
 		}
@@ -289,6 +289,15 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.JAVADOC_VALUE_REF :
 				buffer.append("JAVADOC_VALUE_REF"); //$NON-NLS-1$
 				break;
+			case CompletionProposal.FIELD_IMPORT :
+				buffer.append("FIELD_IMPORT"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.METHOD_IMPORT :
+				buffer.append("METHOD_IMPORT"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.TYPE_IMPORT :
+				buffer.append("TYPE_IMPORT"); //$NON-NLS-1$
+				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$
 				break;
@@ -412,6 +421,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.ANONYMOUS_CLASS_DECLARATION :
 				return new String(Signature.getSignatureSimpleName(proposal.getDeclarationSignature()));
 			case CompletionProposal.TYPE_REF :
+			case CompletionProposal.TYPE_IMPORT :
 			case CompletionProposal.JAVADOC_TYPE_REF :
 				return new String(Signature.getSignatureSimpleName(proposal.getSignature()));
 			case CompletionProposal.FIELD_REF :
@@ -430,6 +440,8 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.JAVADOC_METHOD_REF :
 			case CompletionProposal.JAVADOC_PARAM_REF :
 			case CompletionProposal.JAVADOC_VALUE_REF :
+			case CompletionProposal.FIELD_IMPORT :
+			case CompletionProposal.METHOD_IMPORT :
 				return new String(proposal.getName());
 			case CompletionProposal.PACKAGE_REF:
 				return new String(proposal.getDeclarationSignature());	

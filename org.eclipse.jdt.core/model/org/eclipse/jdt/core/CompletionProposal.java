@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2006 IBM Corporation and others.
+ * Copyright (c) 2004, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -631,6 +631,101 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	public static final int JAVADOC_INLINE_TAG = 20;
 
 	/**
+	 * Completion is an import of reference to a static field.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the field that is imported
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags (including ACC_ENUM) of the field that is imported
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the field that is imported
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the type signature of the field's type (as opposed to the
+	 * signature of the type in which the referenced field
+	 * is declared)
+	 * </li>
+	 * <li>{@link #getAdditionalFlags()} -
+	 * the completion flags (including ComletionFlags.StaticImport)
+	 * of the proposed import
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * 
+	 * @since 3.3
+	 */
+	public static final int FIELD_IMPORT = 21;
+	
+	/**
+	 * Completion is an import of reference to a static method.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the method that is imported
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags of the method that is imported
+	 * </li>
+	 * <li>{@link #getName()} -
+	 * the simple name of the method that is imported
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the method signature of the method that is imported
+	 * </li>
+	 * <li>{@link #getAdditionalFlags()} -
+	 * the completion flags (including ComletionFlags.StaticImport)
+	 * of the proposed import
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * 
+	 * @since 3.3
+	 */
+	public static final int METHOD_IMPORT = 22;
+	
+	/**
+	 * Completion is an import of reference to a type.
+	 * Only reference to reference types are allowed.
+	 * <p>
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * <ul>
+	 * <li>{@link #getDeclarationSignature()} -
+	 * the dot-based package name of the package that contains
+	 * the type that is imported
+	 * </li>
+	 * <li>{@link #getSignature()} -
+	 * the type signature of the type that is imported
+	 * </li>
+	 * <li>{@link #getFlags()} -
+	 * the modifiers flags (including Flags.AccInterface, AccEnum,
+	 * and AccAnnotation) of the type that is imported
+	 * </li>
+	 * <li>{@link #getAdditionalFlags()} -
+	 * the completion flags (including ComletionFlags.StaticImport)
+	 * of the proposed import
+	 * </li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see #getKind()
+	 * 
+	 * @since 3.3
+	 */
+	public static final int TYPE_IMPORT = 23;
+	
+	/**
 	 * First valid completion kind.
 	 * 
 	 * @since 3.1
@@ -642,7 +737,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * 
 	 * @since 3.1
 	 */
-	protected static final int LAST_KIND = JAVADOC_INLINE_TAG;
+	protected static final int LAST_KIND = TYPE_IMPORT;
 	
 	/**
 	 * Kind of completion request.
@@ -732,7 +827,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	
 	/**
 	 * Array of required completion proposals, or <code>null</code> if none.
-	 * The proposal can not be applied if the required prooposals aren't applied.
+	 * The proposal can not be applied if the required proposals aren't applied.
 	 * Defaults to <code>null</code>.
 	 */
 	private CompletionProposal[] requiredProposals;
@@ -743,6 +838,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * Defaults to <code>Flags.AccDefault</code>.
 	 */
 	private int flags = Flags.AccDefault;
+	
+	/**
+	 * Completion flags relevant in the context, or
+	 * <code>CompletionFlags.Default</code> if none.
+	 * Defaults to <code>CompletionFlags.Default</code>.
+	 */
+	private int additionalFlags = CompletionFlags.Default;
 	
 	/**
 	 * Parameter names (for method completions), or
@@ -801,6 +903,56 @@ public final class CompletionProposal extends InternalCompletionProposal {
 		}
 		this.completionKind = kind;
 		this.completionLocation = completionLocation;
+	}
+	
+	/**
+	 * Returns the completion flags relevant in the context, or
+	 * <code>CompletionFlags.Default</code> if none.
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 * <li><code>FIELD_IMPORT</code> - completion flags
+	 * of the attribute that is referenced. Completion flags for
+	 * this proposal kind can only include <code>CompletionFlags.StaticImport</code></li>
+	 * <li><code>METHOD_IMPORT</code> - completion flags
+	 * of the attribute that is referenced. Completion flags for
+	 * this proposal kind can only include <code>CompletionFlags.StaticImport</code></li>
+	 * <li><code>TYPE_IMPORT</code> - completion flags
+	 * of the attribute that is referenced. Completion flags for
+	 * this proposal kind can only include <code>CompletionFlags.StaticImport</code></li>
+	 * </ul>
+	 * For other kinds of completion proposals, this method returns
+	 * <code>CompletionFlags.Default</code>.
+	 * </p>
+	 * 
+	 * @return the completion flags, or
+	 * <code>CompletionFlags.Default</code> if none
+	 * @see CompletionFlags
+	 * 
+	 * @since 3.3
+	 */
+	public int getAdditionalFlags() {
+		return this.additionalFlags;
+	}
+
+	/**
+	 * Sets the completion flags relevant in the context.
+	 * <p>
+	 * If not set, defaults to none.
+	 * </p>
+	 * <p>
+	 * The completion engine creates instances of this class and sets
+	 * its properties; this method is not intended to be used by other clients.
+	 * </p>
+	 * 
+	 * @param additionalFlags the completion flags, or
+	 * <code>CompletionFlags.Default</code> if none
+	 * 
+	 * @since 3.3
+	 */
+	public void setAdditionalFlags(int additionalFlags) {
+		this.additionalFlags = additionalFlags;
 	}
 	
 	/**
@@ -1057,16 +1209,22 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * of the annotation that declares the attribute that is referenced</li>
 	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - type signature
 	 * of the type that is being subclassed or implemented</li>
-	 * 	<li><code>FIELD_REF</code> - type signature
+	 * 	<li><code>FIELD_IMPORT</code> - type signature
+	 * of the type that declares the field that is imported</li>
+	 *  <li><code>FIELD_REF</code> - type signature
 	 * of the type that declares the field that is referenced</li>
-	 * 	<li><code>METHOD_REF</code> - type signature
+	 * 	<li><code>METHOD_IMPORT</code> - type signature
+	 * of the type that declares the method that is imported</li>
+	 *  <li><code>METHOD_REF</code> - type signature
 	 * of the type that declares the method that is referenced</li>
 	 * 	<li><code>METHOD_DECLARATION</code> - type signature
 	 * of the type that declares the method that is being
 	 * implemented or overridden</li>
 	 * 	<li><code>PACKAGE_REF</code> - dot-based package 
 	 * name of the package that is referenced</li>
-	 * 	<li><code>TYPE_REF</code> - dot-based package 
+	 * 	<li><code>TYPE_IMPORT</code> - dot-based package 
+	 * name of the package containing the type that is imported</li>
+	 *  <li><code>TYPE_REF</code> - dot-based package 
 	 * name of the package containing the type that is referenced</li>
 	 *  <li><code>POTENTIAL_METHOD_DECLARATION</code> - type signature
 	 * of the type that declares the method that is being created</li>
@@ -1156,11 +1314,13 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * completion proposals:
 	 * <ul>
 	 *  <li><code>ANNOTATION_ATTRIBUT_REF</code> - the name of the attribute</li>
-	 * 	<li><code>FIELD_REF</code> - the name of the field</li>
+	 * 	<li><code>FIELD_IMPORT</code> - the name of the field</li>
+	 *  <li><code>FIELD_REF</code> - the name of the field</li>
 	 * 	<li><code>KEYWORD</code> - the keyword</li>
 	 * 	<li><code>LABEL_REF</code> - the name of the label</li>
 	 * 	<li><code>LOCAL_VARIABLE_REF</code> - the name of the local variable</li>
-	 * 	<li><code>METHOD_REF</code> - the name of the method (the type simple name for constructor)</li>
+	 * 	<li><code>METHOD_IMPORT</code> - the name of the method</li>
+	 *  <li><code>METHOD_REF</code> - the name of the method (the type simple name for constructor)</li>
 	 * 	<li><code>METHOD_DECLARATION</code> - the name of the method (the type simple name for constructor)</li>
 	 * 	<li><code>VARIABLE_DECLARATION</code> - the name of the variable</li>
 	 *  <li><code>POTENTIAL_METHOD_DECLARATION</code> - the name of the method</li>
@@ -1208,14 +1368,20 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * of the referenced attribute's type</li>
 	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - method signature
 	 * of the constructor that is being invoked</li>
-	 * 	<li><code>FIELD_REF</code> - the type signature
+	 * 	<li><code>FIELD_IMPORT</code> - the type signature
+	 * of the referenced field's type</li>
+	 *  <li><code>FIELD_REF</code> - the type signature
 	 * of the referenced field's type</li>
 	 * 	<li><code>LOCAL_VARIABLE_REF</code> - the type signature
 	 * of the referenced local variable's type</li>
-	 * 	<li><code>METHOD_REF</code> - method signature
+	 * 	<li><code>METHOD_IMPORT</code> - method signature
+	 * of the method that is imported</li>
+	 *  <li><code>METHOD_REF</code> - method signature
 	 * of the method that is referenced</li>
 	 * 	<li><code>METHOD_DECLARATION</code> - method signature
 	 * of the method that is being implemented or overridden</li>
+	 * 	<li><code>TYPE_IMPORT</code> - type signature
+	 * of the type that is imported</li>
 	 * 	<li><code>TYPE_REF</code> - type signature
 	 * of the type that is referenced</li>
 	 * 	<li><code>VARIABLE_DECLARATION</code> - the type signature
@@ -1306,10 +1472,10 @@ public final class CompletionProposal extends InternalCompletionProposal {
 //	 * of the type that is being subclassed or implemented</li>
 //	 * 	<li><code>FIELD_REF</code> - the dot-based type name
 //	 * of the type that declares the field that is referenced
-//	 * or an anonymous type instanciation ("new X(){}") if it is an anonymous type</li>
+//	 * or an anonymous type instantiation ("new X(){}") if it is an anonymous type</li>
 //	 * 	<li><code>METHOD_REF</code> - the dot-based type name
 //	 * of the type that declares the method that is referenced
-//	 * or an anonymous type instanciation ("new X(){}") if it is an anonymous type</li>
+//	 * or an anonymous type instantiation ("new X(){}") if it is an anonymous type</li>
 //	 * 	<li><code>METHOD_DECLARATION</code> - the dot-based type name
 //	 * of the type that declares the method that is being
 //	 * implemented or overridden</li>
@@ -1437,7 +1603,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 //	}
 //	
 //	/**
-//	 * Returns the parameter type names without teh package fragment of
+//	 * Returns the parameter type names without the package fragment of
 //	 * the method relevant in the context, or <code>null</code> if none.
 //	 * <p>
 //	 * This field is available for the following kinds of
@@ -1512,23 +1678,33 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * of the attribute that is referenced; 
 	 * <li><code>ANONYMOUS_CLASS_DECLARATION</code> - modifier flags
 	 * of the constructor that is referenced</li>
-	 * 	<li><code>FIELD_REF</code> - modifier flags
+	 * 	<li><code>FIELD_IMPORT</code> - modifier flags
+	 * of the field that is imported.</li>
+	 *  <li><code>FIELD_REF</code> - modifier flags
 	 * of the field that is referenced; 
 	 * <code>Flags.AccEnum</code> can be used to recognize
 	 * references to enum constants
 	 * </li>
 	 * 	<li><code>KEYWORD</code> - modifier flag
-	 * corrresponding to the modifier keyword</li>
+	 * corresponding to the modifier keyword</li>
 	 * 	<li><code>LOCAL_VARIABLE_REF</code> - modifier flags
 	 * of the local variable that is referenced</li>
+	 *  <li><code>METHOD_IMPORT</code> - modifier flags
+	 * of the method that is imported;
+	 *  </li>
 	 * 	<li><code>METHOD_REF</code> - modifier flags
 	 * of the method that is referenced;
 	 * <code>Flags.AccAnnotation</code> can be used to recognize
 	 * references to annotation type members
 	 * </li>
-	 * 	<li><code>METHOD_DECLARATION</code> - modifier flags
+	 * <li><code>METHOD_DECLARATION</code> - modifier flags
 	 * for the method that is being implemented or overridden</li>
-	 * 	<li><code>TYPE_REF</code> - modifier flags
+	 * <li><code>TYPE_IMPORT</code> - modifier flags
+	 * of the type that is imported; <code>Flags.AccInterface</code>
+	 * can be used to recognize references to interfaces, 
+	 * <code>Flags.AccEnum</code> enum types,
+	 * and <code>Flags.AccAnnotation</code> annotation types</li>
+	 * <li><code>TYPE_REF</code> - modifier flags
 	 * of the type that is referenced; <code>Flags.AccInterface</code>
 	 * can be used to recognize references to interfaces, 
 	 * <code>Flags.AccEnum</code> enum types,
@@ -1571,7 +1747,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	/**
 	 * Returns the required completion proposals.
 	 * The proposal can be apply only if these required completion proposals are also applied.
-	 * If the required proposal aren't applied the completion could create complations problems.
+	 * If the required proposal aren't applied the completion could create completion problems.
 	 * 
 	 * <p>
 	 * This field is available for the following kinds of
@@ -1580,11 +1756,15 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * 	<li><code>FIELD_REF</code> - The allowed required proposals for this kind are:
 	 *   <ul>
 	 *    <li><code>TYPE_REF</code></li>
+	 *    <li><code>TYPE_IMPORT</code></li>
+	 *    <li><code>FIELD_IMPORT</code></li>
 	 *   </ul>
 	 * </li>
 	 * 	<li><code>METHOD_REF</code> - The allowed required proposals for this kind are:
 	 *   <ul>
 	 *    <li><code>TYPE_REF</code></li>
+	 *    <li><code>TYPE_IMPORT</code></li>
+	 *    <li><code>METHOD_IMPORT</code></li>
 	 *   </ul>
 	 *  </li>
 	 * </ul>
@@ -1836,6 +2016,15 @@ public final class CompletionProposal extends InternalCompletionProposal {
 				break;
 			case CompletionProposal.JAVADOC_VALUE_REF :
 				buffer.append("JAVADOC_VALUE_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.FIELD_IMPORT :
+				buffer.append("FIELD_IMPORT"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.METHOD_IMPORT :
+				buffer.append("METHOD_IMPORT"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.TYPE_IMPORT :
+				buffer.append("TYPE_IMPORT"); //$NON-NLS-1$
 				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$

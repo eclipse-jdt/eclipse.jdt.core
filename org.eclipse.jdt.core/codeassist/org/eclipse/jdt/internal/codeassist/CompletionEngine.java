@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.eclipse.jdt.core.CompletionContext;
+import org.eclipse.jdt.core.CompletionFlags;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;
@@ -213,6 +214,11 @@ public final class CompletionEngine
 	private final static char[] SUPER = "super".toCharArray();  //$NON-NLS-1$
 	
 	private final static char[] VARARGS = "...".toCharArray();  //$NON-NLS-1$
+	
+	private final static char[] IMPORT = "import".toCharArray();  //$NON-NLS-1$
+	private final static char[] STATIC = "static".toCharArray();  //$NON-NLS-1$
+	private final static char[] ON_DEMAND = ".*".toCharArray();  //$NON-NLS-1$
+	private final static char[] IMPORT_END = ";\n".toCharArray();  //$NON-NLS-1$
 	
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
@@ -3360,8 +3366,6 @@ public final class CompletionEngine
 			
 			fieldsFound.add(new Object[]{field, receiverType});
 			
-			char[] completion = CharOperation.concat(typeName, field.name, '.');
-
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForInterestingProposal(field);
 			if (fieldName != null) relevance += computeRelevanceForCaseMatching(fieldName, field.name);
@@ -3369,24 +3373,92 @@ public final class CompletionEngine
 			relevance += computeRelevanceForStatic(true, true);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 			
+			CompilationUnitDeclaration cu = this.unitScope.referenceContext;
+			int importStart = cu.types[0].declarationSourceStart;
+			int importEnd = importStart;
+			
 			this.noProposal = false;
 			
-			if (!this.isIgnored(CompletionProposal.FIELD_REF)) {
-				CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
-				proposal.setDeclarationSignature(getSignature(field.declaringClass));
-				proposal.setSignature(getSignature(field.type));
-				proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
-				proposal.setDeclarationTypeName(field.declaringClass.qualifiedSourceName());
-				proposal.setPackageName(field.type.qualifiedPackageName());
-				proposal.setTypeName(field.type.qualifiedSourceName()); 
-				proposal.setName(field.name);
-				proposal.setCompletion(completion);
-				proposal.setFlags(field.modifiers);
-				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-				proposal.setRelevance(relevance);
-				this.requestor.accept(proposal);
-				if(DEBUG) {
-					this.printDebug(proposal);
+			if (this.compilerOptions.complianceLevel < ClassFileConstants.JDK1_5 ||
+					!this.options.suggestStaticImport) {
+				if (!this.isIgnored(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT)) {
+					char[] completion = CharOperation.concat(receiverType.sourceName, field.name, '.');
+					
+					CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+					proposal.setDeclarationSignature(getSignature(field.declaringClass));
+					proposal.setSignature(getSignature(field.type));
+					proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
+					proposal.setDeclarationTypeName(field.declaringClass.qualifiedSourceName());
+					proposal.setPackageName(field.type.qualifiedPackageName());
+					proposal.setTypeName(field.type.qualifiedSourceName()); 
+					proposal.setName(field.name);
+					proposal.setCompletion(completion);
+					proposal.setFlags(field.modifiers);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					
+					char[] typeImportCompletion = createImportCharArray(typeName, false, false);
+					
+					CompletionProposal typeImportProposal = this.createProposal(CompletionProposal.TYPE_IMPORT, this.actualCompletionPosition);
+					typeImportProposal.nameLookup = this.nameEnvironment.nameLookup;
+					typeImportProposal.completionEngine = this;
+					char[] packageName = receiverType.qualifiedPackageName();
+					typeImportProposal.setDeclarationSignature(packageName);
+					typeImportProposal.setSignature(getSignature(receiverType));
+					typeImportProposal.setPackageName(packageName);
+					typeImportProposal.setTypeName(receiverType.qualifiedSourceName());
+					typeImportProposal.setCompletion(typeImportCompletion);
+					typeImportProposal.setFlags(receiverType.modifiers);
+					typeImportProposal.setAdditionalFlags(CompletionFlags.Default);
+					typeImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+					typeImportProposal.setRelevance(relevance);
+					
+					proposal.setRequiredProposals(new CompletionProposal[]{typeImportProposal});
+					
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
+			} else {
+				if (!this.isIgnored(CompletionProposal.FIELD_REF, CompletionProposal.FIELD_IMPORT)) {
+					char[] completion = field.name;
+					
+					CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
+					proposal.setDeclarationSignature(getSignature(field.declaringClass));
+					proposal.setSignature(getSignature(field.type));
+					proposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
+					proposal.setDeclarationTypeName(field.declaringClass.qualifiedSourceName());
+					proposal.setPackageName(field.type.qualifiedPackageName());
+					proposal.setTypeName(field.type.qualifiedSourceName()); 
+					proposal.setName(field.name);
+					proposal.setCompletion(completion);
+					proposal.setFlags(field.modifiers);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					
+					char[] fieldImportCompletion = createImportCharArray(CharOperation.concat(typeName, field.name, '.'), true, false);
+
+					CompletionProposal fieldImportProposal = this.createProposal(CompletionProposal.FIELD_IMPORT, this.actualCompletionPosition);
+					fieldImportProposal.setDeclarationSignature(getSignature(field.declaringClass));
+					fieldImportProposal.setSignature(getSignature(field.type));
+					fieldImportProposal.setDeclarationPackageName(field.declaringClass.qualifiedPackageName());
+					fieldImportProposal.setDeclarationTypeName(field.declaringClass.qualifiedSourceName());
+					fieldImportProposal.setPackageName(field.type.qualifiedPackageName());
+					fieldImportProposal.setTypeName(field.type.qualifiedSourceName()); 
+					fieldImportProposal.setName(field.name);
+					fieldImportProposal.setCompletion(fieldImportCompletion);
+					fieldImportProposal.setFlags(field.modifiers);
+					fieldImportProposal.setAdditionalFlags(CompletionFlags.StaticImport);
+					fieldImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+					fieldImportProposal.setRelevance(relevance);
+					
+					proposal.setRequiredProposals(new CompletionProposal[]{fieldImportProposal});
+					
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
 				}
 			}
 		}
@@ -4681,6 +4753,32 @@ public final class CompletionEngine
 					MethodBinding otherMethod = (MethodBinding) other[0];
 					
 					if (method == otherMethod) continue next;
+					
+					if (CharOperation.equals(method.selector, otherMethod.selector, true)) {
+						if (lookupEnvironment.methodVerifier().doesMethodOverride(otherMethod, method)) {
+							continue next;
+						}
+					}
+				}
+				
+				boolean proposeStaticImport = !(this.compilerOptions.complianceLevel < ClassFileConstants.JDK1_5) &&
+					this.options.suggestStaticImport;
+				
+				boolean isAlreadyImported = false;
+				if (!proposeStaticImport) {
+					if(!this.importCachesInitialized) {
+						this.initializeImportCaches();
+					}
+					for (int j = 0; j < this.importCacheCount; j++) {
+						char[][] importName = this.importsCache[j];
+						if(CharOperation.equals(receiverType.sourceName, importName[0])) {
+							if (!CharOperation.equals(typeName, importName[1])) {
+								continue next;
+							} else {
+								isAlreadyImported = true;
+							}
+						}
+					}
 				}
 				
 				methodsFound.add(new Object[]{method, receiverType});
@@ -4718,8 +4816,6 @@ public final class CompletionEngine
 					completion = CharOperation.concat(method.selector, new char[] { '(', ')' });
 				}
 				
-				completion = CharOperation.concat(typeName, completion, '.');
-
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForInterestingProposal();
 				if (methodName != null) relevance += computeRelevanceForCaseMatching(methodName, method.selector);
@@ -4728,32 +4824,138 @@ public final class CompletionEngine
 				relevance += computeRelevanceForQualification(true);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 
+				CompilationUnitDeclaration cu = this.unitScope.referenceContext;
+				int importStart = cu.types[0].declarationSourceStart;
+				int importEnd = importStart;
 				
 				this.noProposal = false;
-				// Standard proposal
-				if(!this.isIgnored(CompletionProposal.METHOD_REF)) {
-					CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
-					proposal.setDeclarationSignature(getSignature(method.declaringClass));
-					proposal.setSignature(getSignature(method));
-					MethodBinding original = method.original();
-					if(original != method) {
-						proposal.setOriginalSignature(getSignature(original));
+				
+				if (!proposeStaticImport) {
+					if (isAlreadyImported) {
+						if (!isIgnored(CompletionProposal.METHOD_REF)) {
+							completion = CharOperation.concat(receiverType.sourceName, completion, '.');
+							
+							CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+							proposal.setDeclarationSignature(getSignature(method.declaringClass));
+							proposal.setSignature(getSignature(method));
+							MethodBinding original = method.original();
+							if(original != method) {
+								proposal.setOriginalSignature(getSignature(original));
+							}
+							proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+							proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+							proposal.setParameterPackageNames(parameterPackageNames);
+							proposal.setParameterTypeNames(parameterTypeNames);
+							proposal.setPackageName(method.returnType.qualifiedPackageName());
+							proposal.setTypeName(method.returnType.qualifiedSourceName());
+							proposal.setName(method.selector);
+							proposal.setCompletion(completion);
+							proposal.setFlags(method.modifiers);
+							proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+							proposal.setRelevance(relevance);
+							if(parameterNames != null) proposal.setParameterNames(parameterNames);
+							
+							this.requestor.accept(proposal);
+							if(DEBUG) {
+								this.printDebug(proposal);
+							}
+						}
+					} else if (!this.isIgnored(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_IMPORT)) {
+						completion = CharOperation.concat(receiverType.sourceName, completion, '.');
+						
+						CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+						proposal.setDeclarationSignature(getSignature(method.declaringClass));
+						proposal.setSignature(getSignature(method));
+						MethodBinding original = method.original();
+						if(original != method) {
+							proposal.setOriginalSignature(getSignature(original));
+						}
+						proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+						proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+						proposal.setParameterPackageNames(parameterPackageNames);
+						proposal.setParameterTypeNames(parameterTypeNames);
+						proposal.setPackageName(method.returnType.qualifiedPackageName());
+						proposal.setTypeName(method.returnType.qualifiedSourceName());
+						proposal.setName(method.selector);
+						proposal.setCompletion(completion);
+						proposal.setFlags(method.modifiers);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setRelevance(relevance);
+						if(parameterNames != null) proposal.setParameterNames(parameterNames);
+						
+						char[] typeImportCompletion = createImportCharArray(typeName, false, false);
+						
+						CompletionProposal typeImportProposal = this.createProposal(CompletionProposal.TYPE_IMPORT, this.actualCompletionPosition);
+						typeImportProposal.nameLookup = this.nameEnvironment.nameLookup;
+						typeImportProposal.completionEngine = this;
+						char[] packageName = receiverType.qualifiedPackageName();
+						typeImportProposal.setDeclarationSignature(packageName);
+						typeImportProposal.setSignature(getSignature(receiverType));
+						typeImportProposal.setPackageName(packageName);
+						typeImportProposal.setTypeName(receiverType.qualifiedSourceName());
+						typeImportProposal.setCompletion(typeImportCompletion);
+						typeImportProposal.setFlags(receiverType.modifiers);
+						typeImportProposal.setAdditionalFlags(CompletionFlags.Default);
+						typeImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+						typeImportProposal.setRelevance(relevance);
+						
+						proposal.setRequiredProposals(new CompletionProposal[]{typeImportProposal});
+						
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
 					}
-					proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
-					proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
-					proposal.setParameterPackageNames(parameterPackageNames);
-					proposal.setParameterTypeNames(parameterTypeNames);
-					proposal.setPackageName(method.returnType.qualifiedPackageName());
-					proposal.setTypeName(method.returnType.qualifiedSourceName());
-					proposal.setName(method.selector);
-					proposal.setCompletion(completion);
-					proposal.setFlags(method.modifiers);
-					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-					proposal.setRelevance(relevance);
-					if(parameterNames != null) proposal.setParameterNames(parameterNames);
-					this.requestor.accept(proposal);
-					if(DEBUG) {
-						this.printDebug(proposal);
+				} else {
+					if (!this.isIgnored(CompletionProposal.METHOD_REF, CompletionProposal.METHOD_IMPORT)) {
+						CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+						proposal.setDeclarationSignature(getSignature(method.declaringClass));
+						proposal.setSignature(getSignature(method));
+						MethodBinding original = method.original();
+						if(original != method) {
+							proposal.setOriginalSignature(getSignature(original));
+						}
+						proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+						proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+						proposal.setParameterPackageNames(parameterPackageNames);
+						proposal.setParameterTypeNames(parameterTypeNames);
+						proposal.setPackageName(method.returnType.qualifiedPackageName());
+						proposal.setTypeName(method.returnType.qualifiedSourceName());
+						proposal.setName(method.selector);
+						proposal.setCompletion(completion);
+						proposal.setFlags(method.modifiers);
+						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+						proposal.setRelevance(relevance);
+						if(parameterNames != null) proposal.setParameterNames(parameterNames);
+						
+						char[] methodImportCompletion = createImportCharArray(CharOperation.concat(typeName, method.selector, '.'), true, false);
+						
+						CompletionProposal methodImportProposal = this.createProposal(CompletionProposal.METHOD_IMPORT, this.actualCompletionPosition);
+						methodImportProposal.setDeclarationSignature(getSignature(method.declaringClass));
+						methodImportProposal.setSignature(getSignature(method));
+						if(original != method) {
+							proposal.setOriginalSignature(getSignature(original));
+						}
+						methodImportProposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+						methodImportProposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+						methodImportProposal.setParameterPackageNames(parameterPackageNames);
+						methodImportProposal.setParameterTypeNames(parameterTypeNames);
+						methodImportProposal.setPackageName(method.returnType.qualifiedPackageName());
+						methodImportProposal.setTypeName(method.returnType.qualifiedSourceName());
+						methodImportProposal.setName(method.selector);
+						methodImportProposal.setCompletion(methodImportCompletion);
+						methodImportProposal.setFlags(method.modifiers);
+						methodImportProposal.setAdditionalFlags(CompletionFlags.StaticImport);
+						methodImportProposal.setReplaceRange(importStart - this.offset, importEnd - this.offset);
+						methodImportProposal.setRelevance(relevance);
+						if(parameterNames != null) methodImportProposal.setParameterNames(parameterNames);
+						
+						proposal.setRequiredProposals(new CompletionProposal[]{methodImportProposal});
+						
+						this.requestor.accept(proposal);
+						if(DEBUG) {
+							this.printDebug(proposal);
+						}
 					}
 				}
 				
@@ -5326,6 +5528,17 @@ public final class CompletionEngine
 			createType(type, completion);
 		}
 	}
+	private char[] createImportCharArray(char[] importedElement, boolean isStatic, boolean onDemand) {
+		char[] result = IMPORT;
+		if (isStatic) {
+			result = CharOperation.concat(result, STATIC, ' ');
+		}
+		result = CharOperation.concat(result, importedElement, ' ');
+		if (onDemand) {
+			result = CharOperation.concat(result, ON_DEMAND);
+		}
+		return CharOperation.concat(result, IMPORT_END);
+	}
 	private void createMethod(MethodBinding method, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, StringBuffer completion) {
 		//// Modifiers
 		// flush uninteresting modifiers
@@ -5402,6 +5615,11 @@ public final class CompletionEngine
 	
 	private boolean isIgnored(int kind) {
 		return this.requestor.isIgnored(kind);
+	}
+	
+	private boolean isIgnored(int kind, int requiredProposalKind) {
+		return this.requestor.isIgnored(kind) ||
+			!this.requestor.isAllowingRequiredProposals(kind, requiredProposalKind);
 	}
 	
 	private void findMethods(
@@ -6845,7 +7063,7 @@ public final class CompletionEngine
 				}
 			}
 			
-			boolean isStatic = this.compilerOptions.sourceLevel > ClassFileConstants.JDK1_4;
+			boolean isStatic = true;
 			
 			ImportReference importReference =
 				new ImportReference(
@@ -6860,14 +7078,8 @@ public final class CompletionEngine
 				continue next;
 			}
 			
-			if (onDemand) {
-				if (importReference.isStatic() && importBinding instanceof PackageBinding) {
-					importReference.modifiers = importReference.modifiers & ~ClassFileConstants.AccStatic;
-				}
-			} else {
-				if (importBinding instanceof PackageBinding) {
-					continue next;
-				}
+			if (importBinding instanceof PackageBinding) {
+				continue next;
 			}
 			
 			resolvedImports[count++] =
@@ -7877,6 +8089,15 @@ public final class CompletionEngine
 				break;
 			case CompletionProposal.ANNOTATION_ATTRIBUTE_REF :
 				buffer.append("ANNOTATION_ATTRIBUT_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.FIELD_IMPORT :
+				buffer.append("FIELD_IMPORT"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.METHOD_IMPORT :
+				buffer.append("METHOD_IMPORT"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.TYPE_IMPORT :
+				buffer.append("TYPE_IMPORT"); //$NON-NLS-1$
 				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$

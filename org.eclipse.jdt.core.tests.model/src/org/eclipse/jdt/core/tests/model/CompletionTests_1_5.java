@@ -9444,7 +9444,8 @@ public void testFavoriteImports001() throws JavaModelException {
 			"    public static int foo;\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9452,8 +9453,14 @@ public void testFavoriteImports001() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[FIELD_REF]{test.p.ZZZ.foo, Ltest.p.ZZZ;, I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			"foo[FIELD_REF]{foo, Ltest.p.ZZZ;, I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[FIELD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9475,16 +9482,23 @@ public void testFavoriteImports002() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
 	
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "foo";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
+	
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9506,7 +9520,8 @@ public void testFavoriteImports003() throws JavaModelException {
 			"    public static int foo;\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9537,7 +9552,8 @@ public void testFavoriteImports004() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9568,16 +9584,23 @@ public void testFavoriteImports005() throws JavaModelException {
 			"    public static int foo;\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
 	
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "foo";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
+	
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[FIELD_REF]{test.p.ZZZ.foo, Ltest.p.ZZZ;, I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			"foo[FIELD_REF]{foo, Ltest.p.ZZZ;, I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[FIELD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9599,7 +9622,8 @@ public void testFavoriteImports006() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9607,8 +9631,14 @@ public void testFavoriteImports006() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9631,7 +9661,8 @@ public void testFavoriteImports007() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9639,8 +9670,14 @@ public void testFavoriteImports007() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9663,16 +9700,19 @@ public void testFavoriteImports008() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
 	
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "foo";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
+	
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
 	assertResults(
-			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED +R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED +R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9695,7 +9735,8 @@ public void testFavoriteImports009() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9703,8 +9744,14 @@ public void testFavoriteImports009() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9727,7 +9774,8 @@ public void testFavoriteImports010() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9735,8 +9783,10 @@ public void testFavoriteImports010() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
 	assertResults(
-			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED +R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9759,7 +9809,8 @@ public void testFavoriteImports011() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9767,8 +9818,14 @@ public void testFavoriteImports011() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9791,7 +9848,8 @@ public void testFavoriteImports012() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9799,8 +9857,10 @@ public void testFavoriteImports012() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
 	assertResults(
-			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED +R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9823,7 +9883,8 @@ public void testFavoriteImports013() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9831,8 +9892,14 @@ public void testFavoriteImports013() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9855,7 +9922,8 @@ public void testFavoriteImports014() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9863,8 +9931,10 @@ public void testFavoriteImports014() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
 	assertResults(
-			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED +R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9894,7 +9964,8 @@ public void testFavoriteImports015() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.q.ZZZ2.foo"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9902,9 +9973,10 @@ public void testFavoriteImports015() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
 	assertResults(
-			"foo[METHOD_REF]{test.q.ZZZ2.foo(), Ltest.q.ZZZ2;, ()I, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}\n" +
-			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9928,17 +10000,24 @@ public void testFavoriteImports016() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
 	
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "foo";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
+	
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class Test");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}\n" +
-			"Test.foo[TYPE_REF]{foo, test, Ltest.Test$foo;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
+			"Test.foo[TYPE_REF]{foo, test, Ltest.Test$foo;, null, null, ["+start1+", "+end1+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9960,7 +10039,8 @@ public void testFavoriteImports017() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -9968,9 +10048,10 @@ public void testFavoriteImports017() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}\n" +
-			"foo[METHOD_REF]{foo(), Ltest.Test;, ()V, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.Test;, ()V, foo, null, ["+start1+", "+end1+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -9993,7 +10074,8 @@ public void testFavoriteImports018() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -10001,9 +10083,15 @@ public void testFavoriteImports018() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}\n" +
-			"foo[FIELD_REF]{foo, Ltest.Test;, I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n"+
+			"foo[FIELD_REF]{foo, Ltest.Test;, I, foo, null, ["+start1+", "+end1+"], " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -10026,7 +10114,8 @@ public void testFavoriteImports019() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -10034,9 +10123,15 @@ public void testFavoriteImports019() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}\n" +
-			"foo[LOCAL_VARIABLE_REF]{foo, null, I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n"+
+			"foo[LOCAL_VARIABLE_REF]{foo, null, I, foo, null, ["+start1+", "+end1+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -10059,7 +10154,8 @@ public void testFavoriteImports020() throws JavaModelException {
 			"    public static int foo(int i){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -10067,9 +10163,16 @@ public void testFavoriteImports020() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}\n" +
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, (I)I, foo, (i), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n"+
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, (I)I, foo, (i), ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, (I)I, foo, (i), ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -10091,7 +10194,8 @@ public void testFavoriteImports021() throws JavaModelException {
 			"    public static <T> int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -10099,8 +10203,14 @@ public void testFavoriteImports021() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
 	assertResults(
-			"foo[METHOD_REF]{test.p.ZZZ.foo(), Ltest.p.ZZZ;, <T:Ljava.lang.Object;>()I, foo, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED)+"}",
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, <T:Ljava.lang.Object;>()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, <T:Ljava.lang.Object;>()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
@@ -10122,7 +10232,8 @@ public void testFavoriteImports022() throws JavaModelException {
 			"    public static int foo(){}\n" +
 			"}");
 	
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
 	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
 	
 	String str = this.workingCopies[0].getSource();
@@ -10133,5 +10244,307 @@ public void testFavoriteImports022() throws JavaModelException {
 	assertResults(
 			"",
 			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
+public void testFavoriteImports023() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"/** */\n" +
+			"public class Test {\n" +
+			"    public void method() {\n" +
+			"        foo\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/p/ZZZ.java",
+			"package test.p;\n" +
+			"public class ZZZ {\n" +
+			"    public static int foo;\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("/** */");
+	int end2 = start2 + "".length();
+	assertResults(
+			"foo[FIELD_REF]{foo, Ltest.p.ZZZ;, I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[FIELD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
+public void testFavoriteImports024() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    public void method() {\n" +
+			"        foo\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/p/ZZZ.java",
+			"package test.p;\n" +
+			"public class ZZZ {\n" +
+			"    public int foo;\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
+public void testFavoriteImports025() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    public void method() {\n" +
+			"        foo\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/p/ZZZ.java",
+			"package test.p;\n" +
+			"public class ZZZ {\n" +
+			"    public int foo;\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
+public void testFavoriteImports026() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    public void method() {\n" +
+			"        foo\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/p/ZZZ.java",
+			"package test.p;\n" +
+			"public class ZZZ {\n" +
+			"    public int foo(){return 0;};\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
+public void testFavoriteImports027() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    public void method() {\n" +
+			"        foo\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/p/ZZZ.java",
+			"package test.p;\n" +
+			"public class ZZZ {\n" +
+			"    public int foo(){return 0;};\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
+public void testFavoriteImports029() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"import test.p.ZZZ;\n" +
+			"public class Test {\n" +
+			"    public void method() {\n" +
+			"        foo\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/p/ZZZ.java",
+			"package test.p;\n" +
+			"public class ZZZ {\n" +
+			"    public static int foo(){return 0;};\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+	requestor.allowAllRequiredProposals();
+	requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.foo"});
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("foo") + "".length();
+	int end1 = start1 + "foo".length();
+	int start2 = str.lastIndexOf("public class");
+	int end2 = start2 + "".length();
+	assertResults(
+			"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+			"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
+public void testFavoriteImports030() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	
+	try {
+		Hashtable options = new Hashtable(this.oldOptions);
+		options.put(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, JavaCore.DISABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src3/test/Test.java",
+				"package test;\n" +
+				"public class Test {\n" +
+				"    public void method() {\n" +
+				"        foo\n" +
+				"    }\n" +
+				"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src3/test/p/ZZZ.java",
+				"package test.p;\n" +
+				"public class ZZZ {\n" +
+				"    public static int foo(){}\n" +
+				"}");
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+		requestor.allowAllRequiredProposals();
+		requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
+		
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "foo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+		int start1 = str.lastIndexOf("foo") + "".length();
+		int end1 = start1 + "foo".length();
+		int start2 = str.lastIndexOf("public class");
+		int end2 = start2 + "".length();
+		assertResults(
+				"foo[METHOD_REF]{ZZZ.foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+				"   ZZZ[TYPE_IMPORT]{import test.p.ZZZ;\n, test.p, Ltest.p.ZZZ;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
+public void testFavoriteImports031() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	
+	try {
+		Hashtable options = new Hashtable(this.oldOptions);
+		options.put(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src3/test/Test.java",
+				"package test;\n" +
+				"public class Test {\n" +
+				"    public void method() {\n" +
+				"        foo\n" +
+				"    }\n" +
+				"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src3/test/p/ZZZ.java",
+				"package test.p;\n" +
+				"public class ZZZ {\n" +
+				"    public static int foo(){}\n" +
+				"}");
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true);
+		requestor.allowAllRequiredProposals();
+		requestor.setFavoriteReferences(new String[]{"test.p.ZZZ.*"});
+		
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "foo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED;
+		int start1 = str.lastIndexOf("foo") + "".length();
+		int end1 = start1 + "foo".length();
+		int start2 = str.lastIndexOf("public class");
+		int end2 = start2 + "".length();
+		assertResults(
+				"foo[METHOD_REF]{foo(), Ltest.p.ZZZ;, ()I, foo, null, ["+start1+", "+end1+"], "+(relevance1)+"}\n" +
+				"   foo[METHOD_IMPORT]{import static test.p.ZZZ.foo;\n, Ltest.p.ZZZ;, ()I, foo, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 }

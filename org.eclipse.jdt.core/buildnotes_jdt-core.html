@@ -55,10 +55,161 @@ Eclipse SDK 3.3M5 - ?th January 2007
 <li>The compiler is now better able to detect unused private constructors, it now tolerates more than the 
 private constructor with no parameter as the known pattern for blocking instantiation. Basically, unless a
 non private constructor is defined as well, it will ignore unused private constructors from now on (also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=163443">163443</a>).</li>
+<li>Code Assist can propose import statements:
+<pre>
+public class CompletionProposal {
+	...
+	/**
+	 * Completion is an import of reference to a static field.
+	 * &lt;p&gt;
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the field that is imported
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getFlags()} -
+	 * the modifiers flags (including ACC_ENUM) of the field that is imported
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getName()} -
+	 * the simple name of the field that is imported
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getSignature()} -
+	 * the type signature of the field's type (as opposed to the
+	 * signature of the type in which the referenced field
+	 * is declared)
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getAdditionalFlags()} -
+	 * the completion flags (including ComletionFlags.StaticImport)
+	 * of the proposed import
+	 * &lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * &lt;/p&gt;
+	 * 
+	 * @see #getKind()
+	 * 
+	 * @since 3.3
+	 */
+	public static final int FIELD_IMPORT;
+	
+	/**
+	 * Completion is an import of reference to a static method.
+	 * &lt;p&gt;
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;{@link #getDeclarationSignature()} -
+	 * the type signature of the type that declares the method that is imported
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getFlags()} -
+	 * the modifiers flags of the method that is imported
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getName()} -
+	 * the simple name of the method that is imported
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getSignature()} -
+	 * the method signature of the method that is imported
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getAdditionalFlags()} -
+	 * the completion flags (including ComletionFlags.StaticImport)
+	 * of the proposed import
+	 * &lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * &lt;/p&gt;
+	 * 
+	 * @see #getKind()
+	 * 
+	 * @since 3.3
+	 */
+	public static final int METHOD_IMPORT;
+	
+	/**
+	 * Completion is an import of reference to a type.
+	 * Only reference to reference types are allowed.
+	 * &lt;p&gt;
+	 * The following additional context information is available
+	 * for this kind of completion proposal at little extra cost:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;{@link #getDeclarationSignature()} -
+	 * the dot-based package name of the package that contains
+	 * the type that is imported
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getSignature()} -
+	 * the type signature of the type that is imported
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getFlags()} -
+	 * the modifiers flags (including Flags.AccInterface, AccEnum,
+	 * and AccAnnotation) of the type that is imported
+	 * &lt;/li&gt;
+	 * &lt;li&gt;{@link #getAdditionalFlags()} -
+	 * the completion flags (including ComletionFlags.StaticImport)
+	 * of the proposed import
+	 * &lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * &lt;/p&gt;
+	 * 
+	 * @see #getKind()
+	 * 
+	 * @since 3.3
+	 */
+	public static final int TYPE_IMPORT;
+	...
+}
+</pre></li>
+<li>Code Assist propose completions computed from a list a favorite references.
+<pre>
+public class CompletionRequestor {
+	...
+	/**
+	 * Returns the favorite references which are used to compute some completion proposals.
+	 * &lt;p&gt;
+	 * A favorite reference is a qualified reference as it can be seen in an import statement.&lt;br&gt;
+	 * e.g. &lt;code&gt;{"java.util.Arrays"}&lt;/code&gt;&lt;br&gt;
+	 * It can be an on demand reference.&lt;br&gt;
+	 * e.g. &lt;code&gt;{"java.util.Arrays.*"}&lt;/code&gt;
+	 * It can be a reference to a static method or field (as in a static import)&lt;br&gt;
+	 * e.g. &lt;code&gt;{"java.util.Arrays.equals"}&lt;/code&gt;
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * Currently only on demand type references (&lt;code&gt;"java.util.Arrays.*"&lt;/code&gt;),
+	 * references to a static method or a static field are used to compute completion proposals.
+	 * Other kind of reference could be used in the future.
+	 * &lt;/p&gt;
+	 * @return favorite imports
+	 * 
+	 * @since 3.3
+	 */
+	public String[] getFavoriteReferences() {...}
+	
+	/**
+	 * Set the favorite references which will be used to compute some completion proposals.
+	 * A favorite reference is a qualified reference as it can be seen in an import statement.&lt;br&gt;
+	 * 
+	 * @param favoriteImports
+	 * 
+	 * @see #getFavoriteReferences()
+	 * 
+	 * @since 3.3
+	 */
+	public void setFavoriteReferences(String[] favoriteImports) {...}
+	...
+}
+</pre>
+With the following example if the favorite reference is <b>"java.util.Arrays.*"</b> then a proposal
+will be the method <b>"sort()"</b> with a required proposal of a static import <b>"import static java.util.Arrays.sort;"</b>.
+If the completion level is lesser than 1.5 the proposal will be <b>"Arrays.sort()"</b> with a required proposal of an import
+<b>"import java.util.Arrays;"</b>.
+<p>
+The option <code>JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS</code> can be disabled to avoid to propose static import
+even if compliance is 1.5 or greater.
+</p>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=170247">170247</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=152123">152123</a>
+[1.5][assist] Code assist for references that require static imports
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=170247">170247</a>
 [model] Document reasons to use or not use CompilationParticipant
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=140340">140340</a>
 [5.0][templates] foreach template does not work when an Iterable over a static inner class exists

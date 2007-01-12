@@ -935,7 +935,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static final String CODEASSIST_DISCOURAGED_REFERENCE_CHECK= PLUGIN_ID + ".codeComplete.discouragedReferenceCheck"; //$NON-NLS-1$
-
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.3
+	 */
+	public static final String CODEASSIST_SUGGEST_STATIC_IMPORTS= PLUGIN_ID + ".codeComplete.suggestStaticImports"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2601,6 +2606,13 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, completion shows proposals whose name match the CamelCase 
 	 *    pattern.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.camelCaseMatch"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
+	 *     
+	 * CODEASSIST / Activate Suggestion of Static Import
+	 *    When enabled, completion proposals can contain static import
+	 *    pattern.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.suggestStaticImport"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 * </pre>
