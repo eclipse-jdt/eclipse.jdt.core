@@ -31465,22 +31465,32 @@ public void test0986() {
 			},
 			"S100MyClass = [Terry]MyClass = [Corbet]SUCCESS");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643
 public void test0987() {
 	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
 	?	"----------\n" + 
-		"1. ERROR in X.java (at line 11)\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+		"	               ^^^^^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	       ^^^^^^^^^^^^\n" + 
 		"The return type is incompatible with EditPart.getViewer()\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	                    ^^^^^^^^^^^\n" + 
 		"The method getViewer() of type AbstractLinkView<M> must override a superclass method\n" + 
 		"----------\n"
 	:	"----------\n" + 
-		"1. ERROR in X.java (at line 11)\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+		"	               ^^^^^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
 		"	public ISheetViewer getViewer() { return null; }	\n" + 
 		"	       ^^^^^^^^^^^^\n" + 
 		"The return type is incompatible with EditPart.getViewer()\n" + 
@@ -31521,7 +31531,7 @@ public void test0987() {
 			},
 			expectedOutput);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643 - variation
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643 - variation
 public void test0988() {
 	this.runNegativeTest(
 			new String[] {
@@ -31572,7 +31582,7 @@ public void test0988() {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
 			"	               ^^^^^^^^^^^^^^^^\n" + 
-			"The return type is incompatible with AbstractEditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+			"The return type is incompatible with ILinkViewElement.getViewer(), AbstractEditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	public SheetViewer getViewer() { return null; }	\n" + 
@@ -36338,5 +36348,38 @@ public void test1099() {
 			"}\n"
 		}, 
 		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170318
+public void test1100() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"class X<T> {\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"  public void foo(final X<?> x) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Z extends Y {\n" + 
+			"  public void foo(final X<?> x) {\n" + 
+			"    super.foo(x);\n" + 
+			"  }\n" + 
+			"}"
+		}, 
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	class Z extends Y {\n" + 
+		"	                ^\n" + 
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	public void foo(final X<?> x) {\n" + 
+		"	            ^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method foo(X<?>) of type Z has the same erasure as foo(X<?>) of type Y<T> but does not override it\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 9)\n" + 
+		"	super.foo(x);\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"Type safety: The method foo(X) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n");
 }
 }
