@@ -23,6 +23,11 @@ import org.eclipse.jdt.core.IJavaProject;
  * So the notified events are the result of a build action, a clean action, a reconcile operation 
  * (for a working copy), etc.
  * <p>
+ * Code that participates in the build should in general be implemented with a separate Builder,
+ * rather than a CompilationParticipant. It is only necessary to use a CompilationParticipant if 
+ * the build step needs to interact with the Java build, for instance by creating additional 
+ * Java source files that must themselves in turn be compiled. 
+ * <p>
  * Clients wishing to participate in the compilation process must suclass this class, and implement
  * {@link #isActive(IJavaProject)}, {@link #aboutToBuild(IJavaProject)}, 
  * {@link #reconcile(ReconcileContext)}, etc.
