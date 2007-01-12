@@ -32753,4 +32753,37 @@ public void test1094() {
 		customOptions,
 		null /* compiler requestor*/);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170318
+public void test1100() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"class X<T> {\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"  public void foo(final X<?> x) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Z extends Y {\n" + 
+			"  public void foo(final X<?> x) {\n" + 
+			"    super.foo(x);\n" + 
+			"  }\n" + 
+			"}"
+		}, 
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	class Z extends Y {\n" + 
+		"	                ^\n" + 
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	public void foo(final X<?> x) {\n" + 
+		"	            ^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method foo(X<?>) of type Z has the same erasure as foo(X<?>) of type Y<T> but does not override it\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 9)\n" + 
+		"	super.foo(x);\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"Type safety: The method foo(X) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n");
+}
 }
