@@ -218,10 +218,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 							break;
 						case INACCURATE_MATCH:
 							match = locator.newFieldReferenceMatch(element, elementBinding, SearchMatch.A_INACCURATE, -1, -1, reference);
-							if (otherBinding.type.isParameterizedType() && this.pattern.hasTypeArguments()) {
+							if (otherBinding.type != null && otherBinding.type.isParameterizedType() && this.pattern.hasTypeArguments()) {
 								updateMatch((ParameterizedTypeBinding) otherBinding.type, this.pattern.getTypeArguments(), locator);
 							}
-							matches[indexOfFirstFieldBinding] = match;
+							matches[i] = match;
 							break;
 					}
 				}

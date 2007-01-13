@@ -6806,6 +6806,72 @@ public void testBug140156() throws CoreException {
 }
 
 /**
+ * Bug 144044: [search] NPE when trying to find references to field variable
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=144044"
+ */
+public void testBug144044() throws CoreException {
+	workingCopies = new ICompilationUnit[2];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test1/p/Test.java",
+		"package test1.p;\n" + 
+		"import test1.q.X;\n" + 
+		"public class Test {\n" + 
+		"	String foo(X val) {\n" + 
+		"		return val.str;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test1/q/X.java",
+		"package test1.q;\n" + 
+		"public class X {\n" + 
+		"	String str;\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[1].getType("X");
+	IField field = type.getField("str");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"src/test1/p/Test.java String test1.p.Test.foo(X) [str] POTENTIAL_MATCH"
+	);
+}
+public void testBug144044b() throws CoreException {
+	workingCopies = new ICompilationUnit[4];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test2/p/Test.java",
+		"package test2.p;\n" + 
+		"import test2.q.X;\n" + 
+		"public class Test {\n" + 
+		"	X foo() {\n" + 
+		"		return X.y_field.z_field.x_field.y_field.z_field.x_field;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test2/q/X.java",
+		"package test2.q;\n" + 
+		"public class X {\n" + 
+		"	public static Y y_field;\n" + 
+		"}\n"
+	);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/test2/q/Y.java",
+		"package test2.q;\n" + 
+		"public class Y {\n" + 
+		"	public static Z z_field;\n" + 
+		"}\n"
+	);
+	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/test2/q/Z.java",
+		"package test2.q;\n" + 
+		"public class Z {\n" + 
+		"	static X x_field;\n" + 
+		"}\n"
+	);
+	IType type = this.workingCopies[3].getType("Z");
+	IField field = type.getField("x_field");
+	search(field, REFERENCES);
+	assertSearchResults(
+		"src/test2/p/Test.java X test2.p.Test.foo() [x_field] POTENTIAL_MATCH\n" + 
+		"src/test2/p/Test.java X test2.p.Test.foo() [x_field] POTENTIAL_MATCH"
+	);
+}
+
+/**
  * Bug 148215: [search] correct results are missing in java search
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=148215"
  */
