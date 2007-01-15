@@ -708,14 +708,19 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"abstract class X2 extends A implements J {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in A.java (at line 2)\r\n" + 
-			"	interface I extends J { Object foo(); }\r\n" + 
+			"1. ERROR in A.java (at line 1)\n" + 
+			"	abstract class A implements I {}\n" + 
+			"	               ^\n" + 
+			"The return type is incompatible with J.foo(), I.foo()\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 2)\n" + 
+			"	interface I extends J { Object foo(); }\n" + 
 			"	                        ^^^^^^\n" + 
 			"The return type is incompatible with J.foo()\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\r\n" + 
-			"	abstract class X2 extends A implements J {}\r\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	abstract class X2 extends A implements J {}\n" + 
 			"	               ^^\n" + 
 			"The return type is incompatible with I.foo(), J.foo()\n" + 
 			"----------\n"

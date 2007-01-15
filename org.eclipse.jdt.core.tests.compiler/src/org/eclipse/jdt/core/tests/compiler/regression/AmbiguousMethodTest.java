@@ -1474,7 +1474,28 @@ public void _test032() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
-// variant that passes
+// variant that shows that the use of a substitution is needed during the bounds
+// check
+public void _test032a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Z { }\n" +
+			"class Y <U> extends Z { }" +
+			"interface I {\n" + 
+			"  <T extends Y<T> & Cloneable> T foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends I {\n" + 
+			"  XX foo(Number n);\n" + 
+			"}\n" + 
+			"public abstract class X implements J {\n" + 
+			"}\n" + 
+			"abstract class XX extends Y<XX> implements Cloneable {}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// variant
 public void test033() {
 	this.runConformTest(
 		new String[] {
@@ -1524,7 +1545,7 @@ public void test034() {
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	public abstract class X implements J, K {\n" + 
 		"	                      ^\n" + 
-		"The return type is incompatible with K.foo(Number), J.foo(Number)\n" + 
+		"The return type is incompatible with I.foo(Number), K.foo(Number), J.foo(Number)\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065

@@ -5392,7 +5392,7 @@ public void test132() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
-public void _test133() {
+public void test133() {
 	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
 		this.runConformTest(
 			new String[] {
@@ -5427,7 +5427,7 @@ public void _test133() {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
-public void _test134() {
+public void test134() {
 	if (this.complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
 		this.runConformTest(
 			new String[] {
