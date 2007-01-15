@@ -52,6 +52,7 @@ Eclipse SDK 3.3M5 - ?th January 2007
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_731">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>The compiler can now detect unused local types (as opposed to only private types up until now). </li>
 <li>The compiler is now better able to detect unused private constructors, it now tolerates more than the 
 private constructor with no parameter as the known pattern for blocking instantiation. Basically, unless a
 non private constructor is defined as well, it will ignore unused private constructors from now on (also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=163443">163443</a>).</li>
@@ -207,7 +208,9 @@ even if compliance is 1.5 or greater.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144044">144044</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=170181">170181</a>
+[compiler] Could diagnose unused local types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144044">144044</a>
 [search] NPE when trying to find references to field variable
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=152123">152123</a>
 [1.5][assist] Code assist for references that require static imports
