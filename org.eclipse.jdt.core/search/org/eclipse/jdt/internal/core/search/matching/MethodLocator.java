@@ -516,9 +516,8 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 		}
 		method = type.getMethod(new String(bindingSelector), parameterTypes);
 	}
-	if (method == null || knownMethods.includes(method)) return;
+	if (method == null || knownMethods.addIfNotIncluded(method) == null) return;
 
-	knownMethods.add(method);
 	IResource resource = type.getResource();
 	IBinaryType info = null;
 	if (isBinary) {

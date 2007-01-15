@@ -30,10 +30,8 @@ public void finished() {
 }
 public boolean search(Index index, IProgressMonitor progressMonitor) {
 	if (index == null) return COMPLETE;
-	if (!indexes.includes(index)) {
-		indexes.add(index);
+	if (indexes.addIfNotIncluded(index) == index)
 		index.startQuery();
-	}
 	return super.search(index, progressMonitor);
 }
 }

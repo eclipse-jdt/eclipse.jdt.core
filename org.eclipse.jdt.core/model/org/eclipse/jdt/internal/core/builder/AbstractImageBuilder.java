@@ -521,8 +521,7 @@ protected BuildContext[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
 					for (int f = unitsAboutToCompile.length; --f >= 0;)
 						uniqueFiles.add(unitsAboutToCompile[f]);
 				}
-				if (!uniqueFiles.includes(sourceFile))
-					uniqueFiles.add(sourceFile);
+				if (uniqueFiles.addIfNotIncluded(sourceFile) == sourceFile) {
 					CompilationParticipantResult newResult = new BuildContext(sourceFile);
 					// is there enough room to add all the addedGeneratedFiles.length ?
 					if (toAdd == null) {
@@ -533,6 +532,7 @@ protected BuildContext[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
 							System.arraycopy(toAdd, 0, toAdd = new CompilationParticipantResult[length + addedGeneratedFiles.length], 0, length);
 					}
 					toAdd[added++] = newResult;
+				}
 			}
 		}
 	}

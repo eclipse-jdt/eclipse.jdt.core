@@ -327,9 +327,8 @@ public FieldBinding findFieldForCodeSnippet(TypeBinding receiverType, char[] fie
 			ReferenceBinding[] interfaces = interfacesToVisit[i];
 			for (int j = 0, length = interfaces.length; j < length; j++) {
 				ReferenceBinding anInterface = interfaces[j];
-				if (!interfacesSeen.includes(anInterface)) {
+				if (interfacesSeen.addIfNotIncluded(anInterface) == anInterface) {
 					// if interface as not already been visited
-					interfacesSeen.add(anInterface);
 					if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
 						if (visibleField == null) {
 							visibleField = field;

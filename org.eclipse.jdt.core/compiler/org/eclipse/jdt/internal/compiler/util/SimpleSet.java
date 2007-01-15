@@ -48,6 +48,21 @@ public Object add(Object object) {
 	return object;
 }
 
+public Object addIfNotIncluded(Object object) {
+	int length = this.values.length;
+	int index = (object.hashCode() & 0x7FFFFFFF) % length;
+	Object current;
+	while ((current = this.values[index]) != null) {
+		if (current.equals(object)) return null; // already existed
+		if (++index == length) index = 0;
+	}
+	this.values[index] = object;
+
+	// assumes the threshold is never equal to the size of the table
+	if (++this.elementSize > this.threshold) rehash();
+	return object;
+}
+
 public void asArray(Object[] copy) {
 	if (this.elementSize != copy.length)
 		throw new IllegalArgumentException();

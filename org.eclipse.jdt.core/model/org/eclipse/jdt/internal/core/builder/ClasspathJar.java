@@ -65,9 +65,8 @@ static SimpleSet findPackageSet(ClasspathJar jar) {
 		while (last > 0) {
 			// extract the package name
 			String packageName = fileName.substring(0, last);
-			if (packageSet.includes(packageName))
-				continue nextEntry;
-			packageSet.add(packageName);
+			if (packageSet.addIfNotIncluded(packageName) == null)
+				continue nextEntry; // already existed
 			last = packageName.lastIndexOf('/');
 		}
 	}

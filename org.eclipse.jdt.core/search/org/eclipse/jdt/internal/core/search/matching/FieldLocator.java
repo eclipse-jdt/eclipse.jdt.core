@@ -254,9 +254,8 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 
 	char[] bindingName = fieldBinding.name;
 	IField field = type.getField(new String(bindingName));
-	if (knownFields.includes(field)) return;
+	if (knownFields.addIfNotIncluded(field) == null) return;
 
-	knownFields.add(field);
 	IResource resource = type.getResource();
 	boolean isBinary = type.isBinary();
 	IBinaryType info = null;
