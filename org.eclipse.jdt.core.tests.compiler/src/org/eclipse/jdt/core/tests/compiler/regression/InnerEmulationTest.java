@@ -2999,18 +2999,23 @@ public void test076() {
 				"} 	\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 8)\n" + 
+			"1. WARNING in X.java (at line 7)\n" +
+			"	class B extends X {	\n" +
+			"	      ^\n" +
+			"The type B is never used locally\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 8)\n" + 
 			"	B() {	\n" + 
 			"	^^^\n" + 
 			"The constructor B() is never used locally\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"				});	\n" + 
 			"	      ^^^^^^^^^^^^^^^\n" + 
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 9)\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"	          ^^^\n" + 
 			"Access to enclosing constructor A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
@@ -3037,12 +3042,17 @@ public void test076() {
 				"} 	\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 8)\n" + 
+			"1. WARNING in X.java (at line 7)\n" +
+			"	class B extends X {	\n" +
+			"	      ^\n" +
+			"The type B is never used locally\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 8)\n" + 
 			"	B() {	\n" + 
 			"	^^^\n" + 
 			"The constructor B() is never used locally\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"				});	\n" + 
 			"	      ^^^^^^^^^^^^^^^\n" + 
@@ -3129,29 +3139,34 @@ public void test078() {
 				"} 	\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 8)\n" + 
+			"1. WARNING in X.java (at line 7)\n" +
+			"	class B extends X {	\n" +
+			"	      ^\n" +
+			"The type B is never used locally\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 8)\n" + 
 			"	B() {	\n" + 
 			"	^^^\n" + 
 			"The constructor B() is never used locally\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"					void foo() { System.out.println(X.this);	} \n" + 
 			"				});	\n" + 
 			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 9)\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"	          ^^^\n" + 
 			"Access to enclosing constructor A() is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 10)\n" + 
+			"5. WARNING in X.java (at line 10)\n" + 
 			"	void foo() { System.out.println(X.this);	} \n" + 
 			"	     ^^^^^\n" + 
 			"The method foo() from the type new A(){} is never used locally\n" + 
 			"----------\n" + 
-			"5. ERROR in X.java (at line 10)\n" + 
+			"6. ERROR in X.java (at line 10)\n" + 
 			"	void foo() { System.out.println(X.this);	} \n" + 
 			"	                                ^^^^^^\n" + 
 			"No enclosing instance of the type X is accessible in scope\n" + 
@@ -3179,24 +3194,29 @@ public void test078() {
 				"} 	\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 8)\n" + 
+			"1. WARNING in X.java (at line 7)\n" +
+			"	class B extends X {	\n" +
+			"	      ^\n" +
+			"The type B is never used locally\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 8)\n" + 
 			"	B() {	\n" + 
 			"	^^^\n" + 
 			"The constructor B() is never used locally\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
 			"	super(new A(){	\n" + 
 			"					void foo() { System.out.println(X.this);	} \n" + 
 			"				});	\n" + 
 			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 10)\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
 			"	void foo() { System.out.println(X.this);	} \n" + 
 			"	     ^^^^^\n" + 
 			"The method foo() from the type new A(){} is never used locally\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 10)\n" + 
+			"5. ERROR in X.java (at line 10)\n" + 
 			"	void foo() { System.out.println(X.this);	} \n" + 
 			"	                                ^^^^^^\n" + 
 			"No enclosing instance of the type X is accessible in scope\n" + 
@@ -3959,7 +3979,12 @@ public void test108() {
 				"}",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
+			"1. WARNING in X.java (at line 5)\n" +
+			"	class Local2 extends Local1 {\n" +
+			"	      ^^^^^^\n" +
+			"The type Local2 is never used locally\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	class Local2 extends Local1 {\n" + 
 			"	      ^^^^^^\n" + 
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
@@ -4017,7 +4042,12 @@ public void test109() {
 			"	            ^^^^^\n" + 
 			"The method foo() from the type new X(){} is never used locally\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 13)\n" + 
+			"3. WARNING in X.java (at line 13)\n" +
+			"	class D extends C {\n" +
+			"	      ^\n" +
+			"The type D is never used locally\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 13)\n" + 
 			"	class D extends C {\n" + 
 			"	      ^\n" + 
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
@@ -5335,15 +5365,30 @@ public void test132() {
 			"}", // =================
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 5)\n" + 
+		"1. WARNING in X.java (at line 3)\n" +
+		"	class Local {}\n" +
+		"	      ^^^^^\n" +
+		"The type Local is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" +
+		"	class Foo {\n" +
+		"	      ^^^\n" +
+		"The type Foo is never used locally\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 5)\n" + 
 		"	void foo() {\n" + 
 		"	     ^^^^^\n" + 
 		"The method foo() from the type Foo is never used locally\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
+		"4. WARNING in X.java (at line 6)\n" + 
 		"	class Local {}\n" + 
 		"	      ^^^^^\n" + 
 		"The type Local is hiding the type Local\n" + 
+		"----------\n" +
+		"5. WARNING in X.java (at line 6)\n" +
+		"	class Local {}\n" +
+		"	      ^^^^^\n" +
+		"The type Local is never used locally\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331

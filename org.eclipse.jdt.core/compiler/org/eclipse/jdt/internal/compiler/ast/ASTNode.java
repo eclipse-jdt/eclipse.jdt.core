@@ -398,7 +398,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 		ReferenceBinding refType = (ReferenceBinding) type;
 
-		if ((refType.isPrivate() /*|| refType.isLocalType()*/) && !scope.isDefinedInType(refType)) {
+		if ((refType.isPrivate() || refType.isLocalType()) && !scope.isDefinedInType(refType)) {
 			// ignore cases where type is used from within inside itself 
 			((ReferenceBinding)refType.erasure()).modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}

@@ -35867,48 +35867,68 @@ public void test1087() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165679
 public void test1088() {
 	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X<M> {\n" + 
-			"	static public class M {}\n" + 
-			"	Zork z;\n" +
-			"	void foo() {\n" + 
-			"		class M {} // hides member\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class Y <T> {\n" + 
-			"	class Local {}\n" + 
-			"	void foo() {\n" + 
-			"		class T {}; // hiding warning\n" + 
-			"		class Local {};\n" + 
-			"	}\n" + 
-			"	static void bar() {\n" + 
-			"		class T {}; // no hiding warning\n" + 
-			"		class Local {}; // no hiding warning\n" + 
-			"	}	\n" + 
-			"}\n", // =================
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 5)\n" + 
-		"	class M {} // hides member\n" + 
-		"	      ^\n" + 
-		"The type M is hiding the type X<M>.M\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 11)\n" + 
-		"	class T {}; // hiding warning\n" + 
-		"	      ^\n" + 
-		"The nested type T is hiding the type parameter T of type Y<T>\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 12)\n" + 
-		"	class Local {};\n" + 
-		"	      ^^^^^\n" + 
-		"The type Local is hiding the type Y<T>.Local\n" + 
-		"----------\n");
+			new String[] {
+				"X.java",
+				"public class X<M> {\n" + 
+				"	static public class M {}\n" + 
+				"	Zork z;\n" +
+				"	void foo() {\n" + 
+				"		class M {} // hides member\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Y <T> {\n" + 
+				"	class Local {}\n" + 
+				"	void foo() {\n" + 
+				"		class T {}; // hiding warning\n" + 
+				"		class Local {};\n" + 
+				"	}\n" + 
+				"	static void bar() {\n" + 
+				"		class T {}; // no hiding warning\n" + 
+				"		class Local {}; // no hiding warning\n" + 
+				"	}	\n" + 
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	class M {} // hides member\n" + 
+			"	      ^\n" + 
+			"The type M is hiding the type X<M>.M\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 11)\n" + 
+			"	class T {}; // hiding warning\n" + 
+			"	      ^\n" + 
+			"The nested type T is hiding the type parameter T of type Y<T>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" +
+			"	class T {}; // hiding warning\n" +
+			"	      ^\n" +
+			"The type T is never used locally\n" +
+			"----------\n" +
+			"5. WARNING in X.java (at line 12)\n" + 
+			"	class Local {};\n" + 
+			"	      ^^^^^\n" + 
+			"The type Local is hiding the type Y<T>.Local\n" + 
+			"----------\n" +
+			"6. WARNING in X.java (at line 12)\n" +
+			"	class Local {};\n" +
+			"	      ^^^^^\n" +
+			"The type Local is never used locally\n" +
+			"----------\n" +
+			"7. WARNING in X.java (at line 15)\n" +
+			"	class T {}; // no hiding warning\n" +
+			"	      ^\n" +
+			"The type T is never used locally\n" +
+			"----------\n" +
+			"8. WARNING in X.java (at line 16)\n" +
+			"	class Local {}; // no hiding warning\n" +
+			"	      ^^^^^\n" +
+			"The type Local is never used locally\n" +
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165679 - variation
 public void test1089() {

@@ -1906,17 +1906,22 @@ public void test059() {
 			"}",
 		}, 
 		"----------\n" + 
-		"1. WARNING in p\\FieldQualification.java (at line 6)\n" + 
+		"1. WARNING in p\\FieldQualification.java (at line 5)\n" +
+		"	class Local {\n" +
+		"	      ^^^^^\n" +
+		"The type Local is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in p\\FieldQualification.java (at line 6)\n" + 
 		"	String field = \"Enclosing field for anonymous type\";\n" + 
 		"	       ^^^^^\n" + 
 		"The field Local.field is hiding a field from type FieldQualification\n" + 
 		"----------\n" + 
-		"2. WARNING in p\\FieldQualification.java (at line 6)\n" + 
+		"3. WARNING in p\\FieldQualification.java (at line 6)\n" + 
 		"	String field = \"Enclosing field for anonymous type\";\n" + 
 		"	       ^^^^^\n" + 
 		"The field Local.field is never read locally\n" + 
 		"----------\n" + 
-		"3. WARNING in p\\FieldQualification.java (at line 7)\n" + 
+		"4. WARNING in p\\FieldQualification.java (at line 7)\n" + 
 		"	void foo() {\n" + 
 		"	     ^^^^^\n" + 
 		"The method foo() from the type Local is never used locally\n" + 
