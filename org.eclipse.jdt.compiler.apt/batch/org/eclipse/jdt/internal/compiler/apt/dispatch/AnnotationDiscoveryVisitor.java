@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
@@ -40,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 public class AnnotationDiscoveryVisitor extends ASTVisitor {
 
 	Binding currentBinding;
+	boolean storeAnnotations;
 
 	/**
 	 * Collects a many-to-many map of annotation types to
@@ -156,6 +158,18 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	 */
 	public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
 		this.currentBinding = typeDeclaration.binding;
+		return true;
+	}
+
+	@Override
+	public void endVisit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope) {
+		scope.compilerOptions().storeAnnotations = this.storeAnnotations;
+	}
+
+	@Override
+	public boolean visit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope) {
+		this.storeAnnotations = scope.compilerOptions().storeAnnotations;
+		scope.compilerOptions().storeAnnotations = true;
 		return true;
 	}
 
