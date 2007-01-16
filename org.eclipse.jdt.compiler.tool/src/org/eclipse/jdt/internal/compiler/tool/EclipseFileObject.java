@@ -39,12 +39,14 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	private File f;
 	private Charset charset;
 	private String className;
+	private boolean parentsExist; // parent directories exist
 	
 	public EclipseFileObject(String className, URI uri, Kind kind, Charset charset) {
 		super(uri, kind);
 		this.f = new File(this.uri);
 		this.charset = charset;
 		this.className = className;
+		this.parentsExist = false;
 	}
 
 	/* (non-Javadoc)
@@ -162,6 +164,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	 * @see javax.tools.FileObject#openOutputStream()
 	 */
 	public OutputStream openOutputStream() throws IOException {
+		ensureParentDirectoriesExist();
 		return new FileOutputStream(this.f);
 	}
 
@@ -176,6 +179,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	 * @see javax.tools.FileObject#openWriter()
 	 */
 	public Writer openWriter() throws IOException {
+		ensureParentDirectoriesExist();
 		return new FileWriter(this.f);
 	}
 	
@@ -183,4 +187,20 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	public String toString() {
 		return this.f.getAbsolutePath();
 	}
+	
+    private void ensureParentDirectoriesExist() throws IOException {
+        if (!this.parentsExist) {
+            File parent = f.getParentFile();
+            if (parent != null && !parent.exists()) {
+                if (!parent.mkdirs()) {
+                    // could have been concurrently created
+                    if (!parent.exists() || !parent.isDirectory())
+                        throw new IOException("Unable to create parent directories for " + f); //$NON-NLS-1$
+                }
+            }
+            this.parentsExist = true;
+        }
+    }
+
+
 }
