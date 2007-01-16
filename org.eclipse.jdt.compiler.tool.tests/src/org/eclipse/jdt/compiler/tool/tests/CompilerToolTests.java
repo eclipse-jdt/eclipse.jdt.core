@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 IBM Corporation and others.
+ * Copyright (c) 2006, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -231,7 +231,7 @@ public class CompilerToolTests extends TestCase {
 	 * Run the system compiler using the Eclipse java file manager
 	 * TODO need to investigate why rt.jar gets removed from the PLATFORM_CLASSPATH location 
 	 */ 
-	public void testCompilerOneClassWithSystemCompiler2() {
+	public void _testCompilerOneClassWithSystemCompiler2() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
 		BufferedWriter writer = null;
