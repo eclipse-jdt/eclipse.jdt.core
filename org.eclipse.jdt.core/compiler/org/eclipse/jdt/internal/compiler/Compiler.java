@@ -392,6 +392,51 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	}
 
 	/**
+	 * Add the initial set of compilation units into the loop
+	 *  ->  build compilation unit declarations, their bindings and record their results.
+	 */
+	protected void processBeginToCompile(ICompilationUnit[] sourceUnits) {
+		int maxUnits = sourceUnits.length;
+
+		// Switch the current policy and compilation result for this unit to the requested one.
+		for (int i = 0; i < maxUnits; i++) {
+			CompilationUnitDeclaration parsedUnit;
+			CompilationResult unitResult =
+				new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
+			try {
+				if (options.verbose) {
+					this.out.println(
+						Messages.bind(Messages.compilation_request,
+						new String[] {
+							String.valueOf(i + 1),
+							String.valueOf(maxUnits),
+							new String(sourceUnits[i].getFileName())
+						}));
+				}
+				// diet parsing for large collection of units
+				if (totalUnits < parseThreshold) {
+					parsedUnit = parser.parse(sourceUnits[i], unitResult);
+				} else {
+					parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
+				}
+				// initial type binding creation
+				lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+				this.addCompilationUnit(sourceUnits[i], parsedUnit);
+				ImportReference currentPackage = parsedUnit.currentPackage;
+				if (currentPackage != null) {
+					unitResult.recordPackageName(currentPackage.tokens);
+				}
+				//} catch (AbortCompilationUnit e) {
+				//	requestor.acceptResult(unitResult.tagAsAccepted());
+			} finally {
+				sourceUnits[i] = null; // no longer hold onto the unit
+			}
+		}
+		// binding resolution
+		lookupEnvironment.completeTypeBindings();
+	}
+
+	/**
 	 * General API
 	 * -> compile each of supplied files
 	 * -> recompile any required types for which we have an incomplete principle structure
@@ -648,7 +693,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
 			if (newUnits.length != 0) {
 				// we reset the compiler in order to restart with the new units
-				beginToCompile(newUnits);
+				processBeginToCompile(newUnits);
 				bottom = top + 1;
 				top = this.unitsToProcess.length;
 				this.annotationProcessorManager.reset();
