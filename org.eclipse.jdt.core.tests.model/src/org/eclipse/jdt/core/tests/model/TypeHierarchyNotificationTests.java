@@ -514,16 +514,20 @@ public void testAddProject() throws CoreException {
 	System.arraycopy(originalCP, 0 , newCP, 0, originalCP.length);
 	newCP[originalCP.length]= newEntry;
 
-	IProject newProject = null;
 	try {
 		// set the new classpath
 		project.setRawClasspath(newCP, null);
 
 		// now create the actual resource for the root and populate it
 		this.reset();
-		newProject = project.getJavaModel().getWorkspace().getRoot().getProject("NewProject");
-		newProject.create(null);
-		newProject.open(null);
+		final IProject newProject = project.getJavaModel().getWorkspace().getRoot().getProject("NewProject");
+		IWorkspaceRunnable create = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				newProject.create(null, null);
+				newProject.open(null);
+			}
+		};
+		getWorkspace().run(create, null);
 		IProjectDescription description = newProject.getDescription();
 		description.setNatureIds(new String[] {JavaCore.NATURE_ID});
 		newProject.setDescription(description, null);

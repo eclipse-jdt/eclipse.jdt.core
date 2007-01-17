@@ -3471,9 +3471,14 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 public void testNestedSourceFolders() throws CoreException, IOException {
 	try {
 		// create project using Platform/Resources API
-		IProject project = getProject("P");
-		project.create(null);
-		project.open(null);
+		final IProject project = getProject("P");
+		IWorkspaceRunnable create = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				project.create(null, null);
+				project.open(null);
+			}
+		};
+		getWorkspace().run(create, null);
 		
 		// create folders src and src/src2 using java.io API
 		File pro = project.getLocation().toFile();
@@ -3587,10 +3592,15 @@ public void testOptionalEntry3() throws CoreException {
 public void testOutputFolder1() throws CoreException, IOException {
 	try {
 		// create project using Platform/Resources API
-		IProject project = getProject("P");
-		project.create(null);
-		project.open(null);
-		
+		final IProject project = getProject("P");
+		IWorkspaceRunnable create = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				project.create(null, null);
+				project.open(null);
+			}
+		};
+		getWorkspace().run(create, null);
+
 		// create folders src and src/src2 using java.io API
 		File pro = project.getLocation().toFile();
 		File src = createFolder(pro, "src");

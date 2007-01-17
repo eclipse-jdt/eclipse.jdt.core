@@ -27,7 +27,6 @@ import java.util.*;
 public class TestingEnvironment {
 	
 	private boolean fIsOpen = false;
-	private boolean fWasBuilt = false;
 
 	private IWorkspace fWorkspace = null;
 	private Hashtable fProjects = null;
@@ -333,7 +332,6 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	
 	private void closeWorkspace() {
 		fIsOpen = false;
-		fWasBuilt = false;
 	}
 
 	private IFile createFile(IPath path, byte[] contents) {
@@ -376,17 +374,20 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	}
 
 	private IProject createProject(String projectName) {
-		IProject project = null;
+		final IProject project = fWorkspace.getRoot().getProject(projectName);
 		try {
-			project = fWorkspace.getRoot().getProject(projectName);
-			project.create(null, null);
-			project.open(null);
+			IWorkspaceRunnable create = new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					project.create(null, null);
+					project.open(null);
+				}
+			};
+			fWorkspace.run(create, null);
 			fProjects.put(projectName, project);
 			addBuilderSpecs(projectName);
 		} catch (CoreException e) {
 			handle(e);
 		}
-		
 		return project;
 	}
 
@@ -394,14 +395,12 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	 * open.
 	 */
 	public void fullBuild() {
-		waitForAutoBuild();
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		try {
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		} catch (CoreException e) {
 			handle(e);
 		}
-		fWasBuilt = true;
 	}
 
 	/**
@@ -415,14 +414,12 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	 * Batch builds a project.  A workspace must be open.
 	 */
 	public void fullBuild(String projectName) {
-		waitForAutoBuild();
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
 		try {
 			getProject(projectName).build(IncrementalProjectBuilder.FULL_BUILD, null);
 		} catch (CoreException e) {
 			handle(e);
 		}
-		fWasBuilt = true;
 	}
 	
 	/**
@@ -676,9 +673,7 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	 * open.
 	 */
 	public void incrementalBuild() {
-		waitForAutoBuild();
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
-		checkAssertion("the workspace must have been built", fWasBuilt); //$NON-NLS-1$
 		try {
 			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 		} catch (CoreException e) {
@@ -690,9 +685,7 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	 * open.
 	 */
 	public void incrementalBuild(IPath projectPath) {
-		waitForAutoBuild();
 		checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
-		checkAssertion("the workspace must have been built", fWasBuilt); //$NON-NLS-1$
 		try {
 			getProject(projectPath).build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 		} catch (CoreException e) {
@@ -1034,6 +1027,5 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 				wasInterrupted = true;
 			}
 		} while (wasInterrupted);
-		fWasBuilt = true;
 	}	
 }
