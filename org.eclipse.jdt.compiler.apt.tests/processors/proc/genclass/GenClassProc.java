@@ -81,11 +81,14 @@ public class GenClassProc extends AbstractProcessor {
 					// find the "clazz" and "msg" values
 					for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
 						// System.out.println("found a value named " + entry.getKey().getSimpleName() + " with value " + entry.getValue().getValue());
-						if ("clazz".equals(entry.getKey().getSimpleName().toString())) {
-							clazz = (String)entry.getValue().getValue();
+						ExecutableElement key = entry.getKey();
+						AnnotationValue value = entry.getValue();
+						String keyName = key.getSimpleName().toString();
+						if ("clazz".equals(keyName)) {
+							clazz = (String)(value.getValue());
 						}
-						if ("method".equals(entry.getKey().getSimpleName().toString())) {
-							method = (String)entry.getValue().getValue();
+						if ("method".equals(keyName)) {
+							method = (String)(value.getValue());
 						}
 					}
 					

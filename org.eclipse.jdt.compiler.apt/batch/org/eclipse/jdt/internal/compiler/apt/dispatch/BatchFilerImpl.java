@@ -13,8 +13,6 @@
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
@@ -33,27 +31,19 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
  */
 public class BatchFilerImpl implements Filer {
 	
-	protected final AnnotationProcessorManager _dispatchManager;
-	protected final BatchProcessingEnvImpl _env;
+	protected final BaseAnnotationProcessorManager _dispatchManager;
+	protected final BaseProcessingEnvImpl _env;
 	protected final JavaFileManager _fileManager;
-	private List<ICompilationUnit> addedUnits;
 
-	public BatchFilerImpl(AnnotationProcessorManager dispatchManager, BatchProcessingEnvImpl env) 
+	public BatchFilerImpl(BaseAnnotationProcessorManager dispatchManager, BatchProcessingEnvImpl env) 
 	{
-		this.addedUnits = new ArrayList<ICompilationUnit>();
 		_dispatchManager = dispatchManager;
 		_fileManager = env._fileManager;
 		_env = env;
 	}
 
 	public void addNewUnit(ICompilationUnit unit) {
-		this.addedUnits.add(unit);
-	}
-
-	public ICompilationUnit[] getNewUnits() {
-		ICompilationUnit[] result = new ICompilationUnit[this.addedUnits.size()];
-		this.addedUnits.toArray(result);
-		return result;
+		_env.addNewUnit(unit);
 	}
 
 	/* (non-Javadoc)
@@ -90,7 +80,7 @@ public class BatchFilerImpl implements Filer {
 			Element... originatingElements) throws IOException {
 		//TODO: do we need to check validity of 'name', or can we trust the filemanager to handle that?
 		JavaFileObject jfo = _fileManager.getJavaFileForOutput(
-				StandardLocation.SOURCE_OUTPUT, name.toString(), JavaFileObject.Kind.CLASS, null);
+				StandardLocation.SOURCE_OUTPUT, name.toString(), JavaFileObject.Kind.SOURCE, null);
 
 		// hook the file object's writers to create compilation unit and add to addedUnits()
 		return new HookedJavaFileObject(jfo, jfo.getName(), this);
@@ -106,14 +96,6 @@ public class BatchFilerImpl implements Filer {
 		FileObject fo = _fileManager.getFileForInput(
 				StandardLocation.SOURCE_PATH, pkg.toString(), relativeName.toString());
 		return fo;
-	}
-
-	/**
-	 * Called when AnnotationProcessorManager has retrieved the list of 
-	 * newly generated compilation units.
-	 */
-	public void reset() {
-		addedUnits.clear();
 	}
 
 }

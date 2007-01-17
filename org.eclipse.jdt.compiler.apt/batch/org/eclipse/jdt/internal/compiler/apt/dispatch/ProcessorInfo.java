@@ -49,7 +49,7 @@ public class ProcessorInfo {
 	 * {@link Processor#init(javax.annotation.processing.ProcessingEnvironment)} must already have
 	 * been called). Its getSupportedXXX() methods will be called and the results will be cached.
 	 */
-	ProcessorInfo(Processor p) 
+	public ProcessorInfo(Processor p) 
 	{
 		_processor = p;
 		_hasBeenCalled = false;

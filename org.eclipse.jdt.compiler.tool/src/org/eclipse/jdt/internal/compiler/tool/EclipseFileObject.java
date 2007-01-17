@@ -39,14 +39,12 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 public class EclipseFileObject extends SimpleJavaFileObject {
 	private File f;
 	private Charset charset;
-	private String className;
 	private boolean parentsExist; // parent directories exist
 	
 	public EclipseFileObject(String className, URI uri, Kind kind, Charset charset) {
 		super(uri, kind);
 		this.f = new File(this.uri);
 		this.charset = charset;
-		this.className = className;
 		this.parentsExist = false;
 	}
 
@@ -146,7 +144,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	}
 
 	public String getName() {
-        return this.className;
+        return this.f.getPath();
     }
     
 	public int hashCode() {

@@ -3033,7 +3033,7 @@ public void performCompilation() throws InvalidInputException {
 }
 protected void initializeAnnotationProcessorManager() {
 	try {
-		Class c = Class.forName("org.eclipse.jdt.internal.compiler.apt.dispatch.AnnotationProcessorManager"); //$NON-NLS-1$
+		Class c = Class.forName("org.eclipse.jdt.internal.compiler.apt.dispatch.BatchAnnotationProcessorManager"); //$NON-NLS-1$
 		AbstractAnnotationProcessorManager annotationManager = (AbstractAnnotationProcessorManager) c.newInstance();
 		annotationManager.configure(this, this.expandedCommandLine);
 		annotationManager.setErr(this.err);

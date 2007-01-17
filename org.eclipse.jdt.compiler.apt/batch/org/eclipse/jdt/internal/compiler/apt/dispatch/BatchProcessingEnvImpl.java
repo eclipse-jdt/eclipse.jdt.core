@@ -19,18 +19,10 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.annotation.processing.Filer;
-import javax.annotation.processing.Messager;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.SourceVersion;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
 import javax.tools.JavaFileManager;
 
-import org.eclipse.jdt.internal.compiler.apt.model.ElementsImpl;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
@@ -39,21 +31,20 @@ import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
  * The implementation of ProcessingEnvironment that is used when compilation is
  * driven by the command line or by the Tool interface.  This environment uses
  * the JavaFileManager provided by the compiler.
+ * @see org.eclipse.jdt.internal.compiler.apt.ide.dispatch.IdeProcessingEnvImpl
  */
-public class BatchProcessingEnvImpl implements ProcessingEnvironment {
+public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 
-	protected final AnnotationProcessorManager _dispatchManager;
+	protected final BaseAnnotationProcessorManager _dispatchManager;
 	protected final JavaFileManager _fileManager;
-	protected final Main _compiler;
-	protected final Filer _filer;
-	protected final Messager _messager;
-	protected final Elements _elementUtils;
-	protected final Map<String, String> _processorOptions;
-
-	public BatchProcessingEnvImpl(AnnotationProcessorManager dispatchManager, Main batchCompiler,
+	protected final Main _compilerOwner;
+	
+	public BatchProcessingEnvImpl(BaseAnnotationProcessorManager dispatchManager, Main batchCompiler,
 			String[] commandLineArguments) 
 	{
-		_compiler = batchCompiler;
+		super();
+		_compilerOwner = batchCompiler;
+		_compiler = batchCompiler.batchCompiler;
 		_dispatchManager = dispatchManager;
 		if (batchCompiler instanceof EclipseCompiler) {
 			_fileManager = ((EclipseCompiler) batchCompiler).fileManager;
@@ -70,10 +61,9 @@ public class BatchProcessingEnvImpl implements ProcessingEnvironment {
     		}
 			_fileManager = manager;
 		}
-		_processorOptions = parseProcessorOptions(commandLineArguments);
+		_processorOptions = Collections.unmodifiableMap(parseProcessorOptions(commandLineArguments));
 		_filer = new BatchFilerImpl(_dispatchManager, this);
-		_messager = new BatchMessagerImpl(_compiler.batchCompiler.problemReporter);
-		_elementUtils = new ElementsImpl(this);
+		_messager = new BatchMessagerImpl(_compilerOwner.batchCompiler.problemReporter);
 	}
 	
 	/**
@@ -123,44 +113,8 @@ public class BatchProcessingEnvImpl implements ProcessingEnvironment {
 	}
 
 	@Override
-	public Elements getElementUtils() {
-		return _elementUtils;
-	}
-
-	@Override
-	public Filer getFiler() {
-		return _filer;
-	}
-
-	@Override
 	public Locale getLocale() {
-		return _compiler.compilerLocale;
+		return _compilerOwner.compilerLocale;
 	}
 	
-	public LookupEnvironment getLookupEnvironment() {
-		return _compiler.batchCompiler.lookupEnvironment;
-	}
-
-	@Override
-	public Messager getMessager() {
-		return _messager;
-	}
-
-	@Override
-	public Map<String, String> getOptions() {
-		return Collections.unmodifiableMap(_processorOptions);
-	}
-
-	@Override
-	public SourceVersion getSourceVersion() {
-		// TODO get source version from compiler options
-		return null;
-	}
-
-	@Override
-	public Types getTypeUtils() {
-		// TODO implement type utilities object
-		return null;
-	}
-
 }

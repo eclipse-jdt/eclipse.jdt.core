@@ -11,47 +11,25 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.tools.StandardLocation;
 
-import org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.Main;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
- * This class is the central dispatch point for Java 6 annotation processing.
- * This is created and configured by the JDT core; specifics depend on how
- * compilation is being performed, ie from the command line, via the Tool
- * interface, or within the IDE.  This class manages the discovery of annotation
- * processors and other information spanning multiple rounds of processing;
- * context that is valid only within a single round is managed by
- * {@link RoundDispatcher}. 
- *  
- * TODO: do something useful with _supportedOptions and _supportedAnnotationTypes.
+ * Java 6 annotation processor manager used when compiling from the command line
+ * or via the javax.tools.JavaCompiler interface.
+ * @see org.eclipse.jdt.internal.compiler.apt.ide.dispatch.IdeAnnotationProcessorManager
  */
-public class AnnotationProcessorManager extends AbstractAnnotationProcessorManager
-		implements IProcessorProvider
+public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorManager
 {
-	
-	private PrintWriter _out;
-	private PrintWriter _err;
-	private ProcessingEnvironment _processingEnv;
-	
-	/**
-	 * The list of processors that have been loaded so far.  A processor on this
-	 * list has been initialized, but may not yet have been called to process().
-	 */
-	private List<ProcessorInfo> _processors;
 	
 	/**
 	 * Processors that have been set by calling CompilationTask.setProcessors().
@@ -66,28 +44,25 @@ public class AnnotationProcessorManager extends AbstractAnnotationProcessorManag
 	private Iterator<String> _commandLineProcessorIter = null;
 	
 	private ServiceLoader<Processor> _serviceLoader = null;
-	
-	private Main _batchCompiler = null;
-	private boolean _isFirstRound = true;
-	private ClassLoader _procLoader;
 	private Iterator<Processor> _serviceLoaderIter;
 	
+	private ClassLoader _procLoader;
+	
 	/**
-	 * An AnnotationProcessorManager cannot be used until its
+	 * Zero-arg constructor so this object can be easily created via reflection.
+	 * A BatchAnnotationProcessorManager cannot be used until its
 	 * {@link #configure(Main, String[])} method has been called.
 	 */
-	public AnnotationProcessorManager() 
+	public BatchAnnotationProcessorManager() 
 	{
 	}
 
 	@Override
 	public void configure(Main batchCompiler, String[] commandLineArguments) {
-		if (null != _batchCompiler) {
+		if (null != _processingEnv) {
 			throw new IllegalStateException(
 					"Calling configure() more than once on an AnnotationProcessorManager is not supported");
 		}
-		_batchCompiler  = batchCompiler;
-		_processors = new ArrayList<ProcessorInfo>();
 		BatchProcessingEnvImpl processingEnv = new BatchProcessingEnvImpl(this, batchCompiler, commandLineArguments);
 		_processingEnv = processingEnv;
 		_procLoader = processingEnv.getFileManager().getClassLoader(StandardLocation.ANNOTATION_PROCESSOR_PATH);
@@ -117,41 +92,6 @@ public class AnnotationProcessorManager extends AbstractAnnotationProcessorManag
 			}
 		}
 		return result;
-	}
-
-	@Override
-	public ICompilationUnit[] getNewUnits() {
-		return ((BatchFilerImpl)_processingEnv.getFiler()).getNewUnits();
-	}
-
-	/**
-	 * A single "round" of processing, in the sense implied in
-	 * {@link javax.lang.annotation.processing.Processor}.
-	 * <p>
-	 * The Java 6 Processor spec contains ambiguities about how processors that support "*" are
-	 * handled. Eclipse tries to match Sun's implementation in javac. What that actually does is
-	 * analogous to inspecting the set of annotions found in the root units and adding an
-	 * "imaginary" annotation if the set is empty. Processors are then called in order of discovery;
-	 * for each processor, the intersection between the set of root annotations and the set of
-	 * annotations the processor supports is calculated, and if it is non-empty, the processor is
-	 * called. If the processor returns <code>true</code> then the intersection (including the
-	 * imaginary annotation if one exists) is removed from the set of root annotations and the loop
-	 * continues, until the set is empty. Of course, the imaginary annotation is not actually
-	 * included in the set of annotations passed in to the processor. A processor's process() method
-	 * is not called until its intersection set is non-empty, but thereafter it is called on every
-	 * round. Note that even if a processor is not called in the first round, if it is called in
-	 * subsequent rounds, it will be called in the order in which the processors were discovered,
-	 * rather than being added to the end of the list.
-	 */
-	@Override
-	public void processAnnotations(CompilationUnitDeclaration[] units, boolean isLastRound) 
-	{
-		BatchRoundEnvImpl roundEnv = new BatchRoundEnvImpl(units, isLastRound);
-		if (_isFirstRound) {
-			_isFirstRound = false;
-		}
-		RoundDispatcher dispatcher = new RoundDispatcher(this, roundEnv, roundEnv.getRootAnnotations());
-		dispatcher.round();
 	}
 
 	@Override
@@ -211,25 +151,11 @@ public class AnnotationProcessorManager extends AbstractAnnotationProcessorManag
 	}
 
 	@Override
-	public List<ProcessorInfo> getDiscoveredProcessors() {
-		return _processors;
-	}
-
-	@Override
-	public void reset() {
-		((BatchFilerImpl)_processingEnv.getFiler()).reset();
-	}
-
-	@Override
-	public void setErr(PrintWriter err) {
-		_err = err;
+	public void reportProcessorException(Processor p, Exception e) {
+		// TODO: if (verbose) report the processor
+		throw new AbortCompilation(null, e);
 	}
 	
-	@Override
-	public void setOut(PrintWriter out) {
-		_out = out;
-	}
-
 	@Override
 	public void setProcessors(Object[] processors) {
 		if (!_isFirstRound) {

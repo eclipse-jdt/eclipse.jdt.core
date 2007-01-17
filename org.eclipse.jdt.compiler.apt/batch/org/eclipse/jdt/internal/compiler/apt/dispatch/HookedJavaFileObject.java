@@ -184,6 +184,11 @@ public class HookedJavaFileObject extends
 	 */
 	protected final String _fileName;
 	
+	/**
+	 * A compilation unit is created when the writer or stream is closed.  Only do this once.
+	 */
+	private boolean _closed = false;
+	
 	public HookedJavaFileObject(JavaFileObject fileObject, String fileName, BatchFilerImpl filer) {
 		super(fileObject);
 		_filer = filer;
@@ -201,8 +206,11 @@ public class HookedJavaFileObject extends
 	}
 	
 	protected void closed() {
-		//TODO: support encoding
-		CompilationUnit unit = new CompilationUnit(null, _fileName, null /* encoding */);
-		_filer.addNewUnit(unit);
+		if (!_closed) {
+			_closed = true;
+			//TODO: support encoding
+			CompilationUnit unit = new CompilationUnit(null, _fileName, null /* encoding */);
+			_filer.addNewUnit(unit);
+		}
 	}
 }

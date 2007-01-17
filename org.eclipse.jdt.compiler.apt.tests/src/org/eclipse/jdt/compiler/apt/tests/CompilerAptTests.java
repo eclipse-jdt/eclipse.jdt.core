@@ -41,8 +41,8 @@ public class CompilerAptTests extends TestCase {
 	
 	private static boolean _verbose = false; 
 	
-	// relative to workspace root
-	protected static final String _processorJarName = "..\\export\\apttestprocessors.jar";
+	// relative to plugin directory
+	protected static final String _processorJarName = "export\\apttestprocessors.jar";
 	
 	// class that generates another class, using processor for @Echo
 	protected static final String _echoSource = 

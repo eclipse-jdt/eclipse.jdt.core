@@ -11,7 +11,7 @@ import javax.lang.model.element.TypeElement;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 
-public class BatchRoundEnvImpl implements RoundEnvironment
+public class RoundEnvImpl implements RoundEnvironment
 {
 
 	private boolean _errorRaised = false;
@@ -19,7 +19,7 @@ public class BatchRoundEnvImpl implements RoundEnvironment
 	private final CompilationUnitDeclaration[] _units;
 	private final ManyToMany<TypeElement, Element> _annoToUnit;
 
-	public BatchRoundEnvImpl(CompilationUnitDeclaration[] units, boolean isLastRound) {
+	public RoundEnvImpl(CompilationUnitDeclaration[] units, boolean isLastRound) {
 		_isLastRound = isLastRound;
 		_units = units;
 		

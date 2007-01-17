@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="WINDOWS-1252"?>
 <jardesc>
-<jar path="./export/apttestprocessors.jar"/>
+<jar path="org.eclipse.jdt.compiler.apt.tests/export/apttestprocessors.jar"/>
 <options buildIfNeeded="true" compress="true" descriptionLocation="/org.eclipse.jdt.compiler.apt.tests/apttestprocessors.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
 <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
 <selectedProjects/>

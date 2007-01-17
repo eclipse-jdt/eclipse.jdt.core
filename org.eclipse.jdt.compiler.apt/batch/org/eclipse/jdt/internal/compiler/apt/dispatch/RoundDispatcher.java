@@ -16,11 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.TypeElement;
-
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
  * Manages context during a single round of annotation processing.
@@ -101,16 +98,11 @@ public class RoundDispatcher {
 					}
 				}
 			}
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			// If a processor throws an exception (as opposed to reporting an error),
 			// report it and abort compilation by throwing AbortCompilation.
-			handleFatalProcessorException(pi._processor, e);
+			_provider.reportProcessorException(pi._processor, e);
 		}
 	}
 	
-	private void handleFatalProcessorException(Processor processor, Throwable e)
-	{
-		// TODO: if (verbose) report the processor
-		throw new AbortCompilation(null, e);
-	}
 }

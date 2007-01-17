@@ -14,6 +14,8 @@ package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
 import java.util.List;
 
+import javax.annotation.processing.Processor;
+
 /**
  * Implementors know how to discover annotation processors, and maintain a list of processors that
  * have been discovered and initialized so far.
@@ -33,4 +35,13 @@ public interface IProcessorProvider {
 	 *         {@link #discoverNextProcessor()} is called.
 	 */
 	List<ProcessorInfo> getDiscoveredProcessors();
+	
+	/**
+	 * Called when a processor throws an exception.  This may abort compilation, throw an
+	 * unchecked exception, etc; the caller should not assume that this method will return.
+	 * 
+	 * @param p the processor, if known, or null if not.
+	 * @param e
+	 */
+	void reportProcessorException(Processor p, Exception e);
 }

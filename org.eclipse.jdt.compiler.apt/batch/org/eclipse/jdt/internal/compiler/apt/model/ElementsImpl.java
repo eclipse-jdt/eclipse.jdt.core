@@ -25,7 +25,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 
-import org.eclipse.jdt.internal.compiler.apt.dispatch.BatchProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 
 /**
@@ -34,9 +34,9 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
  */
 public class ElementsImpl implements Elements {
 	
-	private final BatchProcessingEnvImpl _env;
+	private final BaseProcessingEnvImpl _env;
 	
-	public ElementsImpl(BatchProcessingEnvImpl env) {
+	public ElementsImpl(BaseProcessingEnvImpl env) {
 		_env = env;
 	}
 

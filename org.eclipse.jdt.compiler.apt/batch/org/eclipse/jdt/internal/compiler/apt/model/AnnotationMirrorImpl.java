@@ -32,11 +32,12 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 
 	public Map<? extends ExecutableElement, ? extends AnnotationValue> getElementValues() {
 		ElementValuePair[] pairs = _binding.getElementValuePairs();
-		Map<? extends ExecutableElement, ? extends AnnotationValue> valueMap =
+		Map<ExecutableElement, AnnotationValue> valueMap =
 			new HashMap<ExecutableElement, AnnotationValue>(pairs.length);
 		for (ElementValuePair pair : pairs) {
 			ExecutableElement e = new ExecutableElementImpl(pair.getMethodBinding());
 			AnnotationValue v = new AnnotationValueImpl(pair.getValue());
+			valueMap.put(e, v);
 		}
 		return valueMap;
 	}

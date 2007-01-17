@@ -76,8 +76,7 @@ public class ElementImpl implements javax.lang.model.element.Element {
 	}
 
 	public Name getSimpleName() {
-		// TODO Auto-generated method stub
-		return null;
+		return new NameImpl(_binding.shortReadableName());
 	}
 
 	@Override
