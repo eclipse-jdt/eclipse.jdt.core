@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2006 IBM Corporation and others.
+ * Copyright (c) 2004, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
@@ -191,13 +192,15 @@ public class ASTRewrite {
 	
 	/**
 	 * Converts all modifications recorded by this rewriter into an object representing the the corresponding text
-	 * edits to the source of a {@link ICompilationUnit} from which the AST was created from.
-	 * The compilation unit itself is not modified.
+	 * edits to the source of a {@link ITypeRoot} from which the AST was created from.
+	 * The type root's source itself is not modified by this method call.
 	 * <p>
 	 * Important: This API can only be used if the modified AST has been created from a
-	 * {@link ICompilationUnit}. That means {@link ASTParser#setSource(ICompilationUnit)}
+	 * {@link ITypeRoot} with source. That means {@link ASTParser#setSource(ICompilationUnit)},
+	 * {@link ASTParser#setSource(IClassFile)} or {@link ASTParser#setSource(ITypeRoot)}
 	 * has been used when initializing the {@link ASTParser}. A {@link IllegalArgumentException} is thrown
-	 * otherwise. Use {@link #rewriteAST(IDocument, Map)} for all ASTs not created from a {@link ICompilationUnit}.
+	 * otherwise. An {@link IllegalArgumentException} is also thrown when the type roots buffer does not correspond
+	 * anymore to the AST. Use {@link #rewriteAST(IDocument, Map)} for all ASTs created from other content.
 	 * </p>
 	 * <p>
 	 * For nodes in the original that are being replaced or deleted,
@@ -229,19 +232,18 @@ public class ASTRewrite {
 		
 		ASTNode root= rootNode.getRoot();
 		if (!(root instanceof CompilationUnit)) {
-			throw new IllegalArgumentException("This API can only be used if the AST is created from a compilation unit"); //$NON-NLS-1$
+			throw new IllegalArgumentException("This API can only be used if the AST is created from a compilation unit or class file"); //$NON-NLS-1$
 		}
 		CompilationUnit astRoot= (CompilationUnit) root;
 		ITypeRoot typeRoot = astRoot.getTypeRoot();
-		if (!(typeRoot instanceof ICompilationUnit)) {
-			throw new IllegalArgumentException("This API can only be used if the AST is created from a compilation unit"); //$NON-NLS-1$
+		if (typeRoot == null || typeRoot.getBuffer() == null) {
+			throw new IllegalArgumentException("This API can only be used if the AST is created from a compilation unit or class file"); //$NON-NLS-1$
 		}
-		ICompilationUnit cu= (ICompilationUnit) typeRoot;
 		
-		char[] content= cu.getBuffer().getCharacters();
+		char[] content= typeRoot.getBuffer().getCharacters();
 		LineInformation lineInfo= LineInformation.create(astRoot);
-		String lineDelim= cu.findRecommendedLineSeparator();
-		Map options= cu.getJavaProject().getOptions(true);
+		String lineDelim= typeRoot.findRecommendedLineSeparator();
+		Map options= typeRoot.getJavaProject().getOptions(true);
 		
 		return internalRewriteAST(content, lineInfo, lineDelim, astRoot.getCommentList(), options, rootNode);
 	}
