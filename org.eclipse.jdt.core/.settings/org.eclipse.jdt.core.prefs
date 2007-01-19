@@ -1,9 +1,9 @@
-#Fri Feb 17 16:48:15 CET 2006
+#Fri Jan 19 14:33:51 CET 2007
 eclipse.preferences.version=1
 org.eclipse.jdt.core.builder.cleanOutputFolder=clean
 org.eclipse.jdt.core.builder.duplicateResourceTask=warning
 org.eclipse.jdt.core.builder.invalidClasspath=abort
-org.eclipse.jdt.core.builder.resourceCopyExclusionFilter=*.launch
+org.eclipse.jdt.core.builder.resourceCopyExclusionFilter=*.launch,.svn/
 org.eclipse.jdt.core.circularClasspath=error
 org.eclipse.jdt.core.classpath.exclusionPatterns=enabled
 org.eclipse.jdt.core.classpath.multipleOutputLocations=enabled
