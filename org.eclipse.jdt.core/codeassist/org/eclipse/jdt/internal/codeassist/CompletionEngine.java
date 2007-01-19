@@ -220,6 +220,7 @@ public final class CompletionEngine
 	private final static char[] ON_DEMAND = ".*".toCharArray();  //$NON-NLS-1$
 	private final static char[] IMPORT_END = ";\n".toCharArray();  //$NON-NLS-1$
 	
+	private final static int NONE = 0;
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
 	
@@ -235,6 +236,7 @@ public final class CompletionEngine
 	Binding[] uninterestingBindings = new Binding[1];
 	int forbbidenBindingsPtr = -1;
 	Binding[] forbbidenBindings = new Binding[1];
+	int forbbidenBindingsFilter;
 	
 	ImportBinding[] favoriteReferenceBindings;
 	
@@ -829,7 +831,7 @@ public final class CompletionEngine
 			this.completionToken = type.token;
 			setSourceRange(type.sourceStart, type.sourceEnd);
 			
-			findTypesAndPackages(this.completionToken, scope);
+			findTypesAndPackages(this.completionToken, scope, new ObjectVector());
 			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 				findKeywordsForMember(this.completionToken, field.modifiers);
 			}
@@ -851,7 +853,7 @@ public final class CompletionEngine
 			SingleTypeReference type = (CompletionOnSingleTypeReference) method.returnType;
 			this.completionToken = type.token;
 			setSourceRange(type.sourceStart, type.sourceEnd);
-			findTypesAndPackages(this.completionToken, scope.parent);
+			findTypesAndPackages(this.completionToken, scope.parent, new ObjectVector());
 			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 				findKeywordsForMember(this.completionToken, method.modifiers);
 			}
@@ -880,7 +882,7 @@ public final class CompletionEngine
 					this.findEnumConstant(this.completionToken, (SwitchStatement) astNodeParent);
 				}
 			} else if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
-				findTypesAndPackages(this.completionToken, scope);
+				findTypesAndPackages(this.completionToken, scope, new ObjectVector());
 			} else {
 				findVariablesAndMethods(
 					this.completionToken,
@@ -890,7 +892,7 @@ public final class CompletionEngine
 					insideTypeAnnotation,
 					singleNameReference.isInsideAnnotationAttribute);
 				// can be the start of a qualified type name
-				findTypesAndPackages(this.completionToken, scope);
+				findTypesAndPackages(this.completionToken, scope, new ObjectVector());
 				if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 					if (this.completionToken != null && this.completionToken.length != 0) {
 						findKeywords(this.completionToken, singleNameReference.possibleKeywords, false, false);
@@ -929,7 +931,16 @@ public final class CompletionEngine
 					
 					findParameterizedType((TypeReference)astNodeParent, scope);
 				} else { 
-					findTypesAndPackages(this.completionToken, scope);
+					ObjectVector typesFound = new ObjectVector();
+					if (this.assistNodeIsException && astNodeParent instanceof TryStatement) {
+						findExceptionFromTryStatement(
+								this.completionToken,
+								null,
+								scope.enclosingSourceType(),
+								(BlockScope)scope,
+								typesFound);
+					}
+					findTypesAndPackages(this.completionToken, scope, typesFound);
 				}
 			} else if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 				findMemberTypes(
@@ -1112,6 +1123,18 @@ public final class CompletionEngine
 			if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
 				if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 					setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+					
+					ObjectVector typesFound = new ObjectVector();
+					
+					if (this.assistNodeIsException && astNodeParent instanceof TryStatement) {
+						findExceptionFromTryStatement(
+								this.completionToken,
+								(ReferenceBinding)qualifiedBinding,
+								scope.enclosingSourceType(),
+								(BlockScope)scope,
+								typesFound);
+					}
+					
 					findMemberTypes(
 						this.completionToken,
 						(ReferenceBinding) qualifiedBinding,
@@ -1119,7 +1142,7 @@ public final class CompletionEngine
 						scope.enclosingSourceType(),
 						false,
 						false,
-						new ObjectVector());
+						typesFound);
 				}
 			} else if (qualifiedBinding instanceof PackageBinding) {
 
@@ -1335,6 +1358,17 @@ public final class CompletionEngine
 				this.completionToken = ref.completionIdentifier;
 				long completionPosition = ref.sourcePositions[ref.tokens.length];
 				setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+				
+				ObjectVector typesFound = new ObjectVector();
+				if (this.assistNodeIsException && astNodeParent instanceof TryStatement) {
+					findExceptionFromTryStatement(
+							this.completionToken,
+							(ReferenceBinding)qualifiedBinding,
+							scope.enclosingSourceType(),
+							(BlockScope)scope,
+							typesFound);
+				}
+				
 				findMemberTypes(
 					this.completionToken,
 					(ReferenceBinding) qualifiedBinding,
@@ -1342,7 +1376,7 @@ public final class CompletionEngine
 					scope.enclosingSourceType(),
 					false,
 					false,
-					new ObjectVector());
+					typesFound);
 			}
 		} else if (astNode instanceof CompletionOnMarkerAnnotationName) {
 			CompletionOnMarkerAnnotationName annot = (CompletionOnMarkerAnnotationName) astNode;
@@ -1353,7 +1387,7 @@ public final class CompletionEngine
 				this.completionToken = type.token;
 				setSourceRange(type.sourceStart, type.sourceEnd);
 				
-				findTypesAndPackages(this.completionToken, scope);
+				findTypesAndPackages(this.completionToken, scope, new ObjectVector());
 			} else if (annot.type instanceof CompletionOnQualifiedTypeReference) {
 				this.insideQualifiedReference = true;
 				
@@ -1392,7 +1426,7 @@ public final class CompletionEngine
 				}
 				if (this.assistNodeCanBeSingleMemberAnnotation) {
 					if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
-						findTypesAndPackages(this.completionToken, scope);
+						findTypesAndPackages(this.completionToken, scope, new ObjectVector());
 					} else {
 						findVariablesAndMethods(
 							this.completionToken,
@@ -1402,7 +1436,7 @@ public final class CompletionEngine
 							insideTypeAnnotation,
 							true);
 						// can be the start of a qualified type name
-						findTypesAndPackages(this.completionToken, scope);
+						findTypesAndPackages(this.completionToken, scope, new ObjectVector());
 					}
 				}
 			}
@@ -1463,7 +1497,7 @@ public final class CompletionEngine
 				this.completionToken = typeRef.token;
 				this.javadocTagPosition = typeRef.tagSourceStart;
 				setSourceRange(typeRef.sourceStart, typeRef.sourceEnd);
-				findTypesAndPackages(this.completionToken, scope);
+				findTypesAndPackages(this.completionToken, scope, new ObjectVector());
 
 			} else if (astNode instanceof CompletionOnJavadocQualifiedTypeReference) {
 
@@ -1646,7 +1680,7 @@ public final class CompletionEngine
 		}
 		return true;
 	}
-	
+
 	public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){	
 		if(this.requestor != null){
 			this.requestor.beginReporting();
@@ -2242,6 +2276,196 @@ public final class CompletionEngine
 					}
 				}
 			}
+		}
+	}
+	
+	private void findExceptionFromTryStatement(
+			char[] typeName,
+			ReferenceBinding exceptionType,
+			ReferenceBinding receiverType,
+			SourceTypeBinding invocationType, 
+			BlockScope scope, 
+			ObjectVector typesFound,
+			boolean searchSuperClasses) {
+		
+		if (isForbidden(exceptionType)) {
+			this.knownTypes.put(CharOperation.concat(exceptionType.qualifiedPackageName(), exceptionType.qualifiedSourceName(), '.'), this);
+			return;
+		}
+		
+		if (searchSuperClasses) {
+			ReferenceBinding javaLangThrowable = scope.getJavaLangThrowable();
+			if (exceptionType != javaLangThrowable) {
+				ReferenceBinding superClass = exceptionType.superclass();
+				while(superClass != null && superClass != javaLangThrowable) {
+					findExceptionFromTryStatement(typeName, superClass, receiverType, invocationType, scope, typesFound, false);
+					superClass = superClass.superclass();
+				}
+			}
+		}
+		
+		if (typeName.length > exceptionType.sourceName.length)
+			return;
+
+		if (!CharOperation.prefixEquals(typeName, exceptionType.sourceName, false/* ignore case */)
+				&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, exceptionType.sourceName)))
+			return;
+
+		if (this.options.checkDeprecation &&
+				exceptionType.isViewedAsDeprecated() &&
+				!scope.isDefinedInSameUnit(exceptionType))
+			return;
+		
+		if (this.options.checkVisibility) {
+			if (invocationType != null && !exceptionType.canBeSeenBy(receiverType, invocationType)) {
+				return;
+			} else if(invocationType == null && !exceptionType.canBeSeenBy(this.unitScope.fPackage)) {
+				return;
+			}
+		}
+
+		for (int j = typesFound.size; --j >= 0;) {
+			ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
+
+			if (exceptionType == otherType)
+				return;
+
+			if (CharOperation.equals(exceptionType.sourceName, otherType.sourceName, true)) {
+
+				if (exceptionType.enclosingType().isSuperclassOf(otherType.enclosingType()))
+					return;
+
+				if (otherType.enclosingType().isInterface())
+					if (exceptionType.enclosingType()
+						.implementsInterface(otherType.enclosingType(), true))
+						return;
+
+				if (exceptionType.enclosingType().isInterface())
+					if (otherType.enclosingType()
+						.implementsInterface(exceptionType.enclosingType(), true))
+						return;
+			}
+		}
+
+		typesFound.add(exceptionType);
+		
+		char[] completionName = exceptionType.sourceName();
+		
+		boolean isQualified = false;
+		
+		if(!this.insideQualifiedReference) {
+			isQualified = true;
+			
+			char[] memberPackageName = exceptionType.qualifiedPackageName();
+			char[] memberTypeName = exceptionType.sourceName();
+			char[] memberEnclosingTypeNames = null;
+			
+			ReferenceBinding enclosingType = exceptionType.enclosingType();
+			if (enclosingType != null) {
+				memberEnclosingTypeNames = exceptionType.enclosingType().qualifiedSourceName();
+			}
+			
+			Scope currentScope = scope;
+			done : while (currentScope != null) { // done when a COMPILATION_UNIT_SCOPE is found
+
+				switch (currentScope.kind) {
+
+					case Scope.METHOD_SCOPE :
+					case Scope.BLOCK_SCOPE :
+						BlockScope blockScope = (BlockScope) currentScope;
+
+						for (int j = 0, length = blockScope.subscopeCount; j < length; j++) {
+
+							if (blockScope.subscopes[j] instanceof ClassScope) {
+								SourceTypeBinding localType =
+									((ClassScope) blockScope.subscopes[j]).referenceContext.binding;
+								
+								if (localType == exceptionType) {
+									isQualified = false;
+									break done;
+								}
+							}
+						}
+						break;
+
+					case Scope.CLASS_SCOPE :
+						SourceTypeBinding type = ((ClassScope)currentScope).referenceContext.binding;
+						ReferenceBinding[] memberTypes = type.memberTypes();
+						if (memberTypes != null) {
+							for (int j = 0; j < memberTypes.length; j++) {
+								if (memberTypes[j] == exceptionType) {
+									isQualified = false;
+									break done;
+								}
+							}
+						}
+						
+						
+						break;
+
+					case Scope.COMPILATION_UNIT_SCOPE :
+						SourceTypeBinding[] types = ((CompilationUnitScope)currentScope).topLevelTypes;
+						if (types != null) {
+							for (int j = 0; j < types.length; j++) {
+								if (types[j] == exceptionType) {
+									isQualified = false;
+									break done;
+								}
+							}
+						}
+						break done;
+				}
+				currentScope = currentScope.parent;
+			}
+			
+			if (isQualified && mustQualifyType(memberPackageName, memberTypeName, memberEnclosingTypeNames, exceptionType.modifiers)) {
+				if (memberPackageName == null || memberPackageName.length == 0)
+					if (this.unitScope != null && this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
+						return; // ignore types from the default package from outside it
+			} else {
+				isQualified = false;
+			}
+			
+			if (isQualified) {
+				completionName =
+					CharOperation.concat(
+							memberPackageName,
+							CharOperation.concat(
+									memberEnclosingTypeNames,
+									memberTypeName,
+									'.'),
+							'.');
+			}
+		}
+		
+		int relevance = computeBaseRelevance();
+		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForCaseMatching(typeName, exceptionType.sourceName);
+		relevance += computeRelevanceForExpectingType(exceptionType);
+		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+		if(!insideQualifiedReference) {
+			relevance += computeRelevanceForQualification(isQualified);
+		}
+		relevance += computeRelevanceForClass();
+		relevance += computeRelevanceForException();
+			
+		this.noProposal = false;
+		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+			createTypeProposal(exceptionType, exceptionType.qualifiedSourceName(), IAccessRule.K_ACCESSIBLE, completionName, relevance);
+		}
+	}
+	
+	private void findExceptionFromTryStatement(
+			char[] typeName,
+			ReferenceBinding receiverType,
+			SourceTypeBinding invocationType, 
+			BlockScope scope, 
+			ObjectVector typesFound) {
+		
+		for (int i = 0; i <= this.expectedTypesPtr; i++) {
+			ReferenceBinding exceptionType = (ReferenceBinding)this.expectedTypes[i];
+			
+			findExceptionFromTryStatement(typeName, exceptionType, receiverType, invocationType, scope, typesFound, true);
 		}
 	}
 	private void findExplicitConstructors(
@@ -5185,6 +5409,12 @@ public final class CompletionEngine
 		}
 		return 0;
 	}
+	private int computeRelevanceForException(){
+		if (this.assistNodeIsException) {
+			return R_EXCEPTION;
+		}
+		return 0;
+	}
 	private int computeRelevanceForException(char[] proposalName){
 		
 		if((this.assistNodeIsException || (this.assistNodeInJavadoc & CompletionOnJavadoc.EXCEPTION) != 0 )&&
@@ -5925,6 +6155,13 @@ public final class CompletionEngine
 										&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, localType.sourceName)))
 									continue next;
 								
+								for (int j = typesFound.size; --j >= 0;) {
+									ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
+
+									if (localType == otherType)
+										continue next;
+								}
+								
 								if(this.assistNodeIsClass) {
 									if(!localType.isClass()) continue next;
 								} else if(this.assistNodeIsInterface) {
@@ -6070,8 +6307,7 @@ public final class CompletionEngine
 			scope = scope.parent;
 		}
 	}
-	
-	private void findTypesAndPackages(char[] token, Scope scope) {
+	private void findTypesAndPackages(char[] token, Scope scope, ObjectVector typesFound) {
 
 		if (token == null)
 			return;
@@ -6088,8 +6324,6 @@ public final class CompletionEngine
 		boolean proposeType = !this.requestor.isIgnored(CompletionProposal.TYPE_REF);
 		
 		boolean proposeAllMemberTypes = !this.assistNodeIsConstructor;
-		
-		ObjectVector typesFound = new ObjectVector();
 		
 		if (!skip && proposeType && scope.enclosingSourceType() != null) {
 			findNestedTypes(token, scope.enclosingSourceType(), scope, proposeAllMemberTypes, typesFound);
@@ -6212,6 +6446,13 @@ public final class CompletionEngine
 							}
 						}
 						
+						for (int j = 0; j < typesFound.size(); j++) {
+							ReferenceBinding typeFound = (ReferenceBinding)typesFound.elementAt(j);
+							if (typeFound == refBinding) {
+								continue next;
+							}
+						}
+						
 						boolean inSameUnit = this.unitScope.isDefinedInSameUnit(refBinding);
 						
 						// top level types of the current unit are already proposed.
@@ -6248,6 +6489,7 @@ public final class CompletionEngine
 							
 							if(refBinding.isClass()) {
 								relevance += computeRelevanceForClass();
+								relevance += computeRelevanceForException(typeName);
 							} else if(refBinding.isEnum()) {
 								relevance += computeRelevanceForEnum();
 							} else if(refBinding.isInterface()) {
@@ -7483,6 +7725,26 @@ public final class CompletionEngine
 					}
 				}
 			}
+		} else if (parent instanceof TryStatement) {
+			boolean isException = false;
+			if (node instanceof CompletionOnSingleTypeReference) {
+				isException = ((CompletionOnSingleTypeReference)node).isException();
+			} else if (node instanceof CompletionOnQualifiedTypeReference) {
+				isException = ((CompletionOnQualifiedTypeReference)node).isException();
+			} else if (node instanceof CompletionOnParameterizedQualifiedTypeReference) {
+				isException = ((CompletionOnParameterizedQualifiedTypeReference)node).isException();
+			}
+			if (isException) {
+				ThrownExceptionFinder thrownExceptionFinder = new ThrownExceptionFinder();
+				ReferenceBinding[] bindings = thrownExceptionFinder.find((TryStatement) parent, (BlockScope)scope);
+				if (bindings != null && bindings.length > 0) {
+					for (int i = 0; i < bindings.length; i++) {
+						addExpectedType(bindings[i], scope);
+					}
+					this.expectedTypesFilter = SUPERTYPE;
+				}
+			}
+			
 		// Expected types for javadoc
 		} else if (parent instanceof Javadoc) {
 			if (scope.kind == Scope.METHOD_SCOPE) {
@@ -7654,6 +7916,7 @@ public final class CompletionEngine
 	}
 
 	private Scope computeForbiddenBindings(ASTNode astNode, ASTNode astNodeParent, Scope scope) {
+		this.forbbidenBindingsFilter = NONE;
 		if(scope instanceof ClassScope) {
 			TypeDeclaration typeDeclaration = ((ClassScope)scope).referenceContext;
 			if(typeDeclaration.superclass == astNode) {
@@ -7666,6 +7929,29 @@ public final class CompletionEngine
 				if(superInterfaces[i] == astNode) {
 					this.addForbiddenBindings(typeDeclaration.binding);
 					return scope.parent;
+				}
+			}
+		} else {
+			if (astNodeParent != null && astNodeParent instanceof TryStatement) {
+				boolean isException = false;
+				if (astNode instanceof CompletionOnSingleTypeReference) {
+					isException = ((CompletionOnSingleTypeReference)astNode).isException();
+				} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
+					isException = ((CompletionOnQualifiedTypeReference)astNode).isException();
+				} else if (astNode instanceof CompletionOnParameterizedQualifiedTypeReference) {
+					isException = ((CompletionOnParameterizedQualifiedTypeReference)astNode).isException();
+				}
+				if (isException) {
+					Argument[] catchArguments = ((TryStatement) astNodeParent).catchArguments;
+					int length = catchArguments == null ? 0 : catchArguments.length;
+					for (int i = 0; i < length; i++) {
+						TypeBinding caughtException = catchArguments[i].type.resolvedType;
+						if (caughtException != null) {
+							this.addForbiddenBindings(caughtException);
+							this.knownTypes.put(CharOperation.concat(caughtException.qualifiedPackageName(), caughtException.qualifiedSourceName(), '.'), this);
+						}
+					}
+					this.forbbidenBindingsFilter = SUBTYPE;
 				}
 			}
 		}
@@ -7744,6 +8030,13 @@ public final class CompletionEngine
 		for (int i = 0; i <= this.forbbidenBindingsPtr; i++) {
 			if(this.forbbidenBindings[i] == binding) {
 				return true;
+			}
+			if((this.forbbidenBindingsFilter & SUBTYPE) != 0) {
+				if (binding instanceof TypeBinding && 
+						this.forbbidenBindings[i] instanceof TypeBinding &&
+						((TypeBinding)binding).isCompatibleWith((TypeBinding)this.forbbidenBindings[i])) {
+					return true;
+				}
 			}
 		}
 		return false;

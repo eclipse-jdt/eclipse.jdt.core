@@ -9393,6 +9393,50 @@ public void test0299() throws JavaModelException {
 			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0300() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"	public void throwing() throws IZZAException, Top<Object>.IZZException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IZZAException e) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/IZZAException.java",
+			"package test;"+
+			"public class IZZAException extends Exception {\n" + 
+			"}\n");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/test/IZZException.java",
+			"package test;"+
+			"public class Top<T> {\n" + 
+			"  public class IZZException extends Exception {\n" + 
+			"  }\n" + 
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Top<java.lang.Object>.IZZException[TYPE_REF]{test.Top.IZZException, test, Ltest.Top<Ljava.lang.Object;>.IZZException;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXCEPTION + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
 public void testEC001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];

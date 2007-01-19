@@ -1587,7 +1587,12 @@ public void testEA_1() {
 		"  public EA() {\n" + 
 		"  }\n" + 
 		"  void foo() {\n" + 
-		"    <CompleteOnException:E>;\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        throw new Error();\n" + 
+		"      }\n" + 
+		"    catch (<CompleteOnException:E>  )       {\n" + 
+		"      }\n" + 
 		"  }\n" + 
 		"}\n";
 

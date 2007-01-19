@@ -51,9 +51,26 @@ Eclipse SDK 3.3M5 - ??th January 2007
 <br>Project org.eclipse.jdt.core v_732
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_732">cvs</a>).
 <h2>What's new in this drop</h2>
-
+<ul>
+<li>Code Assist: Exception thrown in a try block are more relevant if the completion occurs in a catch clause.
+Already caught exceptions are filtered.
+<pre>
+public class X {
+  void foo() throws XAException, XBException {}
+  void bar() {
+    try {
+    	foo();
+    } catch(XAException e) {
+    } catch(X| //do ctrl + space at |
+  }
+</pre>
+In this example XBException will more relenvant than XCException and XAException won't be proposed.
+</li>
+</ul>
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=171016">171016</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=157584">157584</a>
+[content assist] There is no content assist for catching exceptions
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=171016">171016</a>
 [javadoc][assist] No completion for tag when uppercase is used
 
 

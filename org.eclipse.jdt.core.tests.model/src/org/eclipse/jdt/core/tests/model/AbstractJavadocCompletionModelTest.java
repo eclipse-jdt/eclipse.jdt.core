@@ -63,6 +63,8 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	protected static final int R_DICNREET = R_DICNR+R_EXACT_EXPECTED_TYPE;
 	/** R_DEFAULT+R_INTERESTING+R_CASE+R_UNQUALIFIED<br>+R_NON_RESTRICTED+R_EXACT_EXPECTED_TYPE<br>= 51 */
 	protected static final int R_DICUNREET = R_DICUNR+R_EXACT_EXPECTED_TYPE;
+	/** R_DEFAULT+R_INTERESTING+R_CASE+R_UNQUALIFIED<br>+R_NON_RESTRICTED+R_EXACT_EXPECTED_TYPE+R_EXCEPTION<br>= 71 */
+	protected static final int R_DICUNREETE = R_DICUNR+R_EXACT_EXPECTED_TYPE+R_EXCEPTION;
 
 	// Exact Expected Exception relevance values
 	/** R_DEFAULT+R_INTERESTING+R_CASE+R_NON_RESTRICTED<br>+R_EXCEPTION+R_EXACT_EXPECTED_TYPE<br>= 68 */

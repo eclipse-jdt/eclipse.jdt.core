@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9319,6 +9319,365 @@ public void test0166() {
 		"  }\n" + 
 		"  public boolean foo() {\n" + 
 		"    <CompleteOnClassLiteralAccess:int.>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0167() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IllegalAccessException e) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	expectedParentNodeToString =
+		"try \n" + 
+		"  {\n" + 
+		"    throwing();\n" + 
+		"  }\n" + 
+		"catch (IllegalAccessException e)   {\n" + 
+		"  }\n" + 
+		"catch (<CompleteOnException:IZZ>  )   {\n" + 
+		"  }";
+	completionIdentifier = "IZZ";
+	expectedReplacedSource = "IZZ";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        throwing();\n" + 
+		"      }\n" + 
+		"    catch (IllegalAccessException e)       {\n" + 
+		"      }\n" + 
+		"    catch (<CompleteOnException:IZZ>  )       {\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0168() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IllegalAccessException e) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"      catch (IZZ\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	expectedParentNodeToString =
+		"try \n" + 
+		"  {\n" + 
+		"    throwing();\n" + 
+		"  }\n" + 
+		"catch (IllegalAccessException e)   {\n" + 
+		"  }\n" + 
+		"catch (<CompleteOnException:IZZ>  )   {\n" + 
+		"  }";
+	completionIdentifier = "IZZ";
+	expectedReplacedSource = "IZZ";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        throwing();\n" + 
+		"      }\n" + 
+		"    catch (IllegalAccessException e)       {\n" + 
+		"      }\n" + 
+		"    catch (<CompleteOnException:IZZ>  )       {\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0169() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IllegalAccessException e) {\n" +
+		"         bar()\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "IZZ";
+	expectedReplacedSource = "IZZ";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"    <CompleteOnException:IZZ>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0170() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      #\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IllegalAccessException e) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "IZZ";
+	expectedReplacedSource = "IZZ";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"    <CompleteOnException:IZZ>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0171() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	expectedParentNodeToString =
+		"try \n" + 
+		"  {\n" + 
+		"    throwing();\n" + 
+		"  }\n" + 
+		"catch (<CompleteOnException:IZZ>  )   {\n" + 
+		"  }"
+;
+	completionIdentifier = "IZZ";
+	expectedReplacedSource = "IZZ";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public boolean foo() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        throwing();\n" + 
+		"      }\n" + 
+		"    catch (<CompleteOnException:IZZ>  )       {\n" + 
+		"      }\n" + 
 		"  }\n" + 
 		"}\n";
 

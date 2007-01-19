@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,11 +58,11 @@ public void testBug3270() throws JavaModelException {
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "@throws ", 0); // empty token
 	if (CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertSortedResults(
-			"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNREET+"}"
+			"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNREETE+"}"
 		);
 	} else {
 		assertSortedResults(
-			"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNREET+"}\n" + 
+			"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNREETE+"}\n" + 
 			"BasicTestBugs[TYPE_REF]{BasicTestBugs, javadoc.bugs, Ljavadoc.bugs.BasicTestBugs;, null, null, "+this.positions+R_DICUNR+"}"
 		);
 	}

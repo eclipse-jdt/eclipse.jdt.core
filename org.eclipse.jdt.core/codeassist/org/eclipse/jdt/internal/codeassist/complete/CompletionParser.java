@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,6 +74,7 @@ public class CompletionParser extends AssistParser {
 	
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
 	public final static char[] FAKE_METHOD_NAME = new char[]{' '};
+	public final static char[] FAKE_ARGUMENT_NAME = new char[]{' '};
 	public final static char[] VALUE = new char[]{'v', 'a', 'l', 'u', 'e'};
 	
 	/* public fields */
@@ -235,6 +236,23 @@ protected void attachOrphanCompletionNode(){
 				currentElement.add(fakeType, 0);
 				return;
 		}
+		
+		if ((topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CATCH_AND_RIGHT_PAREN)) {
+			if (this.assistNode instanceof CompletionOnSingleTypeReference &&
+					((CompletionOnSingleTypeReference)this.assistNode).isException()) {
+				buildMoreTryStatementCompletionContext((TypeReference)this.assistNode);
+				return;
+			} else if (this.assistNode instanceof CompletionOnQualifiedTypeReference &&
+					((CompletionOnQualifiedTypeReference)this.assistNode).isException()) {
+				buildMoreTryStatementCompletionContext((TypeReference)this.assistNode);
+				return;
+			} else if (this.assistNode instanceof CompletionOnParameterizedQualifiedTypeReference &&
+					((CompletionOnParameterizedQualifiedTypeReference)this.assistNode).isException()) {
+				buildMoreTryStatementCompletionContext((TypeReference)this.assistNode);
+				return;
+			}
+		}
+		
 		// add the completion node to the method declaration or constructor declaration
 		if (orphan instanceof Statement) {
 			/* check for completion at the beginning of method body
@@ -903,6 +921,56 @@ private void buildMoreGenericsCompletionContext(ASTNode node, boolean consumeTyp
 				}
 				break;
 		}
+	}
+}
+private void buildMoreTryStatementCompletionContext(TypeReference exceptionRef) {
+	if (this.astLengthPtr > -1 &&
+			this.astPtr > 1 &&
+			this.astStack[this.astPtr] instanceof Block &&
+			this.astStack[this.astPtr - 1] instanceof Argument) {
+		TryStatement tryStatement = new TryStatement();
+	
+		int newAstPtr = this.astPtr;
+		
+		int length = this.astLengthStack[this.astLengthPtr];
+		Block[] bks = (tryStatement.catchBlocks = new Block[length + 1]);
+		Argument[] args = (tryStatement.catchArguments = new Argument[length + 1]);
+		if (length != 0) {
+			while (length-- > 0) {
+				bks[length] = (Block) this.astStack[newAstPtr--];
+				bks[length].statements = null; // statements of catch block won't be used
+				args[length] = (Argument) this.astStack[newAstPtr--];
+			}
+		}
+		
+		bks[bks.length - 1] = new Block(0);
+		args[args.length - 1] = new Argument(FAKE_ARGUMENT_NAME,0,exceptionRef,0);
+		
+		tryStatement.tryBlock = (Block) this.astStack[newAstPtr--];
+		
+		assistNodeParent = tryStatement;
+		
+		currentElement.add(tryStatement, 0);
+	} else if (this.astLengthPtr > -1 &&
+			this.astPtr > -1 &&
+			this.astStack[this.astPtr] instanceof Block) {
+		TryStatement tryStatement = new TryStatement();
+		
+		int newAstPtr = this.astPtr;
+		
+		Block[] bks = (tryStatement.catchBlocks = new Block[1]);
+		Argument[] args = (tryStatement.catchArguments = new Argument[1]);
+		
+		bks[0] = new Block(0);
+		args[0] = new Argument(FAKE_ARGUMENT_NAME,0,exceptionRef,0);
+		
+		tryStatement.tryBlock = (Block) this.astStack[newAstPtr--];
+		
+		assistNodeParent = tryStatement;
+		
+		currentElement.add(tryStatement, 0);
+	}else {
+		currentElement = currentElement.add(exceptionRef, 0);
 	}
 }
 public int bodyEnd(AbstractMethodDeclaration method){

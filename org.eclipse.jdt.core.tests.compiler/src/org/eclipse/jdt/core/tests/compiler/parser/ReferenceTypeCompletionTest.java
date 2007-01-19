@@ -153,8 +153,13 @@ public void testCatchClause1() {
 		"class Bar {\n" + 
 		"  Bar() {\n" + 
 		"  }\n" + 
-		"  void foo() {\n" +
-		"    <CompleteOnException:X>;\n" + 
+		"  void foo() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        fred();\n" + 
+		"      }\n" + 
+		"    catch (<CompleteOnException:X>  )       {\n" + 
+		"      }\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -187,8 +192,13 @@ public void testCatchClause2() {
 		"class Bar {\n" + 
 		"  Bar() {\n" + 
 		"  }\n" + 
-		"  void foo() {\n" +
-		"    <CompleteOnException:X>;\n" + 
+		"  void foo() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        fred();\n" + 
+		"      }\n" + 
+		"    catch (<CompleteOnException:X>  )       {\n" + 
+		"      }\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
@@ -221,8 +231,13 @@ public void testCatchClause3() {
 		"class Bar {\n" + 
 		"  Bar() {\n" + 
 		"  }\n" + 
-		"  void foo() {\n" +
-		"    <CompleteOnException:x.y.X>;\n" + 
+		"  void foo() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        fred();\n" + 
+		"      }\n" + 
+		"    catch (<CompleteOnException:x.y.X>  )       {\n" + 
+		"      }\n" + 
 		"  }\n" + 
 		"}\n",
 		// expectedCompletionIdentifier:
