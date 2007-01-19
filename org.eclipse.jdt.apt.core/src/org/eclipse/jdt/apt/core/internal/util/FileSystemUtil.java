@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 
 /**
  *  Simple utility class to encapsulate an mkdirs() that avoids a timing issue
@@ -58,14 +59,14 @@ public final class FileSystemUtil
 				deleteFolder &= deleteDerivedResources(members[i]);
 			}
 			if( deleteFolder ){
-				resource.delete(true, null);
+				deleteResource(resource);
 				return true;
 			}
 			return false; 
 		}
 		else if( resource.getType() == IResource.FILE ){
 			if( resource.isDerived() ){
-				resource.delete(true, null);
+				deleteResource(resource);
 				return true;
 			}
 			return false;
@@ -73,6 +74,20 @@ public final class FileSystemUtil
 		// will skip pass everything else.
 		else
 			return false;
+	}
+	
+	/**
+	 * Delete a resource without throwing an exception.
+	 */
+	private static void deleteResource(IResource resource) {
+		try {
+			resource.delete(true, null);
+		} catch (CoreException e) {
+			// might have been concurrently deleted
+			if (resource.exists()) {
+				AptPlugin.log(e, "Unable to delete derived resource " + resource); //$NON-NLS-1$
+			}
+		}
 	}
 	
     public static void mkdirs( File parent )
