@@ -999,4 +999,63 @@ public void testBug144866() throws JavaModelException {
 		"EXAMPLE[FIELD_REF]{EXAMPLE, Lbugs.b144866.BasicTestBugs;, I, EXAMPLE, null, "+this.positions+R_DICNR+"}"
 	);
 }
+
+/**
+ * @bug 171016: [javadoc][assist] No completion for tag when uppercase is used
+ * @test Ensure that tag is proposed when prefix match a tag case insensitive 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=171016"
+ */
+public void testBug171016() throws JavaModelException {
+	String source =
+		"package bugs.b171016;\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	public void foo() {}" +
+		"}\n" +
+		"class X extends BasicTestBugs {\n" +
+		"	/**\n" + 
+		"	 * {@In\n" + 
+		"	 */\n" + 
+		"	public void foo() {}" +
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b171016/BasicTestBugs.java", source, true, "{@In", 1);
+	assertSortedResults(
+		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+	);
+}
+public void testBug171016b() throws JavaModelException {
+	String source =
+		"package bugs.b171016;\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	public void foo() {}" +
+		"}\n" +
+		"class X extends BasicTestBugs {\n" +
+		"	/**\n" + 
+		"	 * @In\n" + 
+		"	 */\n" + 
+		"	public void foo() {}" +
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b171016/BasicTestBugs.java", source, true, "@In", 1);
+	assertSortedResults(
+		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+	);
+}
+
+/**
+ * @bug 171031: [javadoc][assist] 'inheritDoc' tag is proposed while completing even if the method does not override any
+ * @test Ensure that no 'inheritDoc' tag is proposed when method does not override any 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=171031"
+ */
+// TODO (eric) enable when bug will be fixed
+public void _testBug171031() throws JavaModelException {
+	String source =
+		"package bugs.b171031;\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	/**\n" + 
+		"	 * @In+\n" + 
+		"	 */\n" + 
+		"	public void foo() {}" +
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b171031/BasicTestBugs.java", source, true, "@In", 1);
+	assertSortedResults(""); // should not have any proposal as 
+}
 }
