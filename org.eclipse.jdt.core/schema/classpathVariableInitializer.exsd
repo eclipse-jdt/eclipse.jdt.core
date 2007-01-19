@@ -63,6 +63,23 @@
                </appInfo>
             </annotation>
          </attribute>
+         <attribute name="deprecated" type="string">
+            <annotation>
+               <documentation>
+                  String explaining the reason why the associated variable is deprecated
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="readOnly" type="boolean">
+            <annotation>
+               <documentation>
+                  Indicates that the associated variable cannot be modified
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

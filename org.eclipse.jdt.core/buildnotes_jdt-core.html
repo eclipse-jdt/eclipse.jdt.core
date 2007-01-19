@@ -66,9 +66,84 @@ public class X {
 </pre>
 In this example XBException will more relenvant than XCException and XAException won't be proposed.
 </li>
+<li>Classpath variable may now be flagged as deprecated or read-only (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=138599">138599</a>
+and bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=156226">156226</a>).<br>
+Two new attributes have been added on <code>ClasspathVariableInitializer</code> schema:
+<pre>
+   &lt;element name="classpathVariableInitializer"&gt;
+      &lt;complexType&gt;
+         ...
+         &lt;attribute name="deprecated" type="string"&gt;
+            &lt;annotation&gt;
+               &lt;documentation&gt;
+                  String explaining the reason why the associated variable is deprecated
+               &lt;/documentation&gt;
+               &lt;appInfo&gt;
+                  &lt;meta.attribute translatable="true"/&gt;
+               &lt;/appInfo&gt;
+            &lt;/annotation&gt;
+         &lt;/attribute&gt;
+         &lt;attribute name="readOnly" type="boolean"&gt;
+            &lt;annotation&gt;
+               &lt;documentation&gt;
+                  Indicates that the associated variable cannot be modified
+               &lt;/documentation&gt;
+            &lt;/annotation&gt;
+         &lt;/attribute&gt;
+      &lt;/complexType&gt;
+   &lt;/element&gt;
+</pre>
+When deprecated attribute is set on ClasspathVariableInitializer extension point, classpath entry validation
+returns a warning status if no other error was previously detected.
+<br>
+For example, following <code> classpathVariableInitializer</code> extension point set
+the <code>TEST</code> classpath variable as deprecated and read-only:
+<pre>
+   &lt;extension
+         point="org.eclipse.jdt.core.classpathVariableInitializer"&gt;
+      &lt;classpathVariableInitializer
+            class="org.eclipse.jdt.tests.model.TestInitializer"
+            deprecated="The reason why this variable is deprecated"
+            readOnly="true"
+            variable="TEST"&gt;
+      &lt;/classpathVariableInitializer&gt;
+   &lt;/extension&gt;
+</pre>
+Calling <code>JavaConventions.validateClasspathEntry(IJavaProject, IClasspathEntry, boolean)</code>
+method on this variable entry will return a <code>IStatus.WARNING</code> status with following message:
+.
+<br>
+Classpath variable deprecation message and read-only information are accessible using two new added
+<code>JavaCore</code> API methods:
+<pre>
+/**
+ * Returns deprecation message of a given classpath variable.
+ *
+ * @param variableName
+ * @return A string if the classpath variable is deprecated, <code>null</code> otherwise.
+ * @since 3.3
+ */
+public static String getClasspathVariableDeprecationMessage(String variableName) 
+
+/**
+ * Returns whether a given classpath variable is read-only or not.
+ *
+ * @param variableName
+ * @return <code>true</code> if the classpath variable is read-only,
+ * 	<code>false</code> otherwise.
+ * @since 3.3
+ */
+public static boolean isClasspathVariableReadOnly(String variableName)
+</pre>
+</li>
 </ul>
+
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=157584">157584</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=156226">156226</a>
+[model][classpath] Allow classpath variable to be marked as non modifiable
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=138599">138599</a>
+[model][classpath] Need a way to mark a classpath variable as deprecated
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=157584">157584</a>
 [content assist] There is no content assist for catching exceptions
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=171016">171016</a>
 [javadoc][assist] No completion for tag when uppercase is used

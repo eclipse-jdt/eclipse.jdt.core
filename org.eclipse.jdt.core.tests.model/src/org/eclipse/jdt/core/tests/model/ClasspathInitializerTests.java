@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 import org.eclipse.jdt.internal.core.UserLibraryManager;
 
@@ -1084,6 +1085,115 @@ public void testVariableInitializer11() throws CoreException {
 		assertEquals("JavaCore preferences value should be unchanged", preferences.get(varName, "X"), initialValue);
 	} finally {
 		VariablesInitializer.reset();
+	}
+}
+
+/**
+ * @bug 138599: [model][classpath] Need a way to mark a classpath variable as deprecated
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=138599"
+ */
+public void testVariableInitializerDeprecated() throws CoreException {
+	try {
+		// Create initializer
+		String varName = "TEST_DEPRECATED";
+		String filePath = "/P1/lib.jar";
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {varName, filePath}));
+		assertEquals("JavaCore classpath value should have been initialized", JavaCore.getClasspathVariable(varName).toString(), filePath);
+		
+		// Verify that Classpath Variable is deprecated
+		assertEquals("JavaCore classpath variable should be deprecated", "Test deprecated flag", JavaCore.getClasspathVariableDeprecationMessage(varName));
+
+		// Create project
+		IJavaProject project = createJavaProject("P1");
+		createFile("/P1/lib.jar", "");
+		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED"), null, null);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
+		assertStatus("Classpath variable 'TEST_DEPRECATED' in project P1 is deprecated: 'Test deprecated flag'", status);
+		assertFalse("Status should not be OK", status.isOK());
+		assertEquals("Status should have WARNING severity", IStatus.WARNING, status.getSeverity());
+		assertEquals("Status should have deprecated code", IJavaModelStatusConstants.DEPRECATED_VARIABLE, status.getCode());
+	} finally {
+		VariablesInitializer.reset();
+		deleteProject("P1");
+	}
+}
+public void testVariableInitializerUnboundAndDeprecated() throws CoreException {
+	try {
+		// Create initializer
+		String varName = "TEST_DEPRECATED";
+		String filePath = "/P1/lib.jar";
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {varName, filePath}));
+		assertEquals("JavaCore classpath value should have been initialized", JavaCore.getClasspathVariable(varName).toString(), filePath);
+		
+		// Verify that Classpath Variable is deprecated
+		assertEquals("JavaCore classpath variable should be deprecated", "Test deprecated flag", JavaCore.getClasspathVariableDeprecationMessage(varName));
+
+		// Create project
+		IJavaProject project = createJavaProject("P1");
+		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED"), null, null);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
+		assertStatus("Project P1 is missing required library: 'lib.jar'", status);
+		assertFalse("Status should not be OK", status.isOK());
+		assertEquals("Status should have WARNING severity", IStatus.ERROR, status.getSeverity());
+		assertEquals("Status should have deprecated code", IJavaModelStatusConstants.INVALID_CLASSPATH, status.getCode());
+	} finally {
+		VariablesInitializer.reset();
+		deleteProject("P1");
+	}
+}
+
+/**
+ * @bug 156226: [model][classpath] Allow classpath variable to be marked as non modifiable
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156226"
+ */
+public void testVariableInitializerReadOnly() throws CoreException {
+	try {
+		// Create initializer
+		String varName = "TEST_READ_ONLY";
+		String path = "/P1/lib.jar";
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] { varName, path }));
+		assertEquals("JavaCore classpath value should have been initialized", JavaCore.getClasspathVariable(varName).toString(), path);
+
+		// verify that Classpath Variable is read-only
+		assertTrue("JavaCore classpath variable should be read-only", JavaCore.isClasspathVariableReadOnly(varName));
+
+		// Create project
+		IJavaProject project = createJavaProject("P1");
+		createFile("/P1/lib.jar", "");
+		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_READ_ONLY"), null, null);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
+		assertStatus("OK", status);
+		assertTrue("Status should be OK", status.isOK());
+		assertEquals("Status should be VERIFIED_OK", JavaModelStatus.VERIFIED_OK, status);
+	} finally {
+		VariablesInitializer.reset();
+		deleteProject("P1");
+	}
+}
+public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException {
+	try {
+		// Create initializer
+		String varName = "TEST_DEPRECATED_READ_ONLY";
+		String path = "/P1/lib.jar";
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] { varName, path }));
+		assertEquals("JavaCore classpath value should have been initialized", JavaCore.getClasspathVariable(varName).toString(), path);
+
+		// verify that Classpath Variable is read-only
+		assertEquals("JavaCore classpath variable should be deprecated", "A deprecated and read-only initializer", JavaCore.getClasspathVariableDeprecationMessage(varName));
+		assertTrue("JavaCore classpath variable should be read-only", JavaCore.isClasspathVariableReadOnly(varName));
+
+		// Create project
+		IJavaProject project = createJavaProject("P1");
+		createFile("/P1/lib.jar", "");
+		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
+		assertStatus("Classpath variable 'TEST_DEPRECATED_READ_ONLY' in project P1 is deprecated: 'A deprecated and read-only initializer'", status);
+		assertFalse("Status should not be OK", status.isOK());
+		assertEquals("Status should have WARNING severity", IStatus.WARNING, status.getSeverity());
+		assertEquals("Status should have deprecated code", IJavaModelStatusConstants.DEPRECATED_VARIABLE, status.getCode());
+	} finally {
+		VariablesInitializer.reset();
+		deleteProject("P1");
 	}
 }
 

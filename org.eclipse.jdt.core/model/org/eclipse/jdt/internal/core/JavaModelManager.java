@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -87,9 +87,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	public HashMap variables = new HashMap(5);
 	public HashSet variablesWithInitializer = new HashSet(5);
+	public HashMap deprecatedVariables = new HashMap(5);
+	public HashSet readOnlyVariables = new HashSet(5);
 	public HashMap previousSessionVariables = new HashMap(5);
 	private ThreadLocal variableInitializationInProgress = new ThreadLocal();
-		
+
 	/**
 	 * Classpath containers pool
 	 */
@@ -120,6 +122,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
 	public final static String CP_ENTRY_IGNORE = "##<cp entry ignore>##"; //$NON-NLS-1$
 	public final static IPath CP_ENTRY_IGNORE_PATH = new Path(CP_ENTRY_IGNORE);
+	public final static String TRUE = "true"; //$NON-NLS-1$
 	
 	private final static int VARIABLES_AND_CONTAINERS_FILE_VERSION = 2;
 
@@ -278,9 +281,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						continue;
 					}
 					// add config element in the group it belongs to
-					if ("true".equals(configElement.getAttribute("modifiesEnvironment"))) //$NON-NLS-1$ //$NON-NLS-2$
+					if (TRUE.equals(configElement.getAttribute("modifiesEnvironment"))) //$NON-NLS-1$
 						modifyingEnv.add(configElement);
-					else if ("true".equals(configElement.getAttribute("createsProblems"))) //$NON-NLS-1$ //$NON-NLS-2$
+					else if (TRUE.equals(configElement.getAttribute("createsProblems"))) //$NON-NLS-1$
 						creatingProblems.add(configElement);
 					else
 						others.add(configElement);
@@ -1200,58 +1203,58 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void configurePluginDebugOptions(){
 		if(JavaCore.getPlugin().isDebugging()){
 			String option = Platform.getDebugOption(BUFFER_MANAGER_DEBUG);
-			if(option != null) BufferManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) BufferManager.VERBOSE = option.equalsIgnoreCase(TRUE) ;
 			
 			option = Platform.getDebugOption(BUILDER_DEBUG);
-			if(option != null) JavaBuilder.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) JavaBuilder.DEBUG = option.equalsIgnoreCase(TRUE) ;
 			
 			option = Platform.getDebugOption(COMPILER_DEBUG);
-			if(option != null) Compiler.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) Compiler.DEBUG = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(COMPLETION_DEBUG);
-			if(option != null) CompletionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) CompletionEngine.DEBUG = option.equalsIgnoreCase(TRUE) ;
 			
 			option = Platform.getDebugOption(CP_RESOLVE_DEBUG);
-			if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(DELTA_DEBUG);
-			if(option != null) DeltaProcessor.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) DeltaProcessor.DEBUG = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(DELTA_DEBUG_VERBOSE);
-			if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) DeltaProcessor.VERBOSE = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(HIERARCHY_DEBUG);
-			if(option != null) TypeHierarchy.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) TypeHierarchy.DEBUG = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(INDEX_MANAGER_DEBUG);
-			if(option != null) JobManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) JobManager.VERBOSE = option.equalsIgnoreCase(TRUE) ;
 			
 			option = Platform.getDebugOption(JAVAMODEL_DEBUG);
-			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) JavaModelManager.VERBOSE = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(JAVAMODELCACHE_DEBUG);
-			if(option != null) JavaModelCache.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) JavaModelCache.VERBOSE = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(POST_ACTION_DEBUG);
-			if(option != null) JavaModelOperation.POST_ACTION_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) JavaModelOperation.POST_ACTION_VERBOSE = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(RESOLUTION_DEBUG);
-			if(option != null) NameLookup.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) NameLookup.VERBOSE = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(SEARCH_DEBUG);
-			if(option != null) BasicSearchEngine.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) BasicSearchEngine.VERBOSE = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(SELECTION_DEBUG);
-			if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) SelectionEngine.DEBUG = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
-			if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase(TRUE) ;
 			
 			option = Platform.getDebugOption(SOURCE_MAPPER_DEBUG_VERBOSE);
-			if(option != null) SourceMapper.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) SourceMapper.VERBOSE = option.equalsIgnoreCase(TRUE) ;
 			
 			option = Platform.getDebugOption(ENABLE_NEW_FORMATTER);
-			if(option != null) DefaultCodeFormatter.USE_NEW_FORMATTER = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			if(option != null) DefaultCodeFormatter.USE_NEW_FORMATTER = option.equalsIgnoreCase(TRUE) ;
 		}
 		
 		// configure performance options
@@ -3950,7 +3953,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		
 		// Note: no need to close the Java model as this just removes Java element infos from the Java model cache
 	}
-		
+
 	public synchronized IPath variableGet(String variableName){
 		// check initialization in progress first
 		HashSet initializations = variableInitializationInProgress();

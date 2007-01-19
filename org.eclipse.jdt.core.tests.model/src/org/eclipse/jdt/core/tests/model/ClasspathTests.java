@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,7 +35,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
@@ -127,22 +126,6 @@ private void assertEncodeDecodeEntry(String projectName, String expectedEncoded,
 		"Unexpected decoded entry",
 		entry,
 		decoded);
-}
-protected void assertStatus(String expected, IStatus status) {
-	String actual = status.getMessage();
-	if (!expected.equals(actual)) {
-	 	System.out.print(Util.displayString(actual, 2));
-	 	System.out.println(",");
-	}
-	assertEquals(expected, actual);
-}
-protected void assertStatus(String message, String expected, IStatus status) {
-	String actual = status.getMessage();
-	if (!expected.equals(actual)) {
-	 	System.out.print(Util.displayString(actual, 2));
-	 	System.out.println(",");
-	}
-	assertEquals(message, expected, actual);
 }
 protected File createFile(File parent, String name, String content) throws IOException {
 	File file = new File(parent, name);
@@ -1795,6 +1778,7 @@ public void testClasspathDuplicateExtraAttribute() throws CoreException {
 		this.deleteProject("P2");
 	}
 }
+
 /**
  * Adding an entry to the classpath for a library that does not exist
  * should not break the model. The classpath should contain the

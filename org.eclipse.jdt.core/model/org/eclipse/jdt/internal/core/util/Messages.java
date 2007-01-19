@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -161,6 +161,7 @@ public final class Messages extends NLS {
 	public static String classpath_disabledMultipleOutputLocations;
 	public static String classpath_incompatibleLibraryJDKLevel;
 	public static String classpath_duplicateEntryExtraAttribute;
+	public static String classpath_deprecated_variable;
 	public static String file_notFound;
 	public static String file_badFormat;
 	public static String path_nullPath;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -126,7 +126,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 		this(code, new IJavaElement[]{element});
 		this.string = string;
 	}
-	
+
 	/**
 	 * Constructs an Java model status with the given corresponding
 	 * element and path
@@ -134,7 +134,8 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	public JavaModelStatus(int code, IJavaElement element, IPath path) {
 		this(code, new IJavaElement[]{element});
 		this.path = path;
-	}	
+	}
+
 	/**
 	 * Constructs an Java model status with the given corresponding
 	 * element, path and string
@@ -144,7 +145,19 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 		this.path = path;
 		this.string = string;
 	}	
+
 	/**
+     * Constructs an Java model status with the given corresponding
+     * element and path
+     */
+    public JavaModelStatus(int severity, int code, IJavaElement element, IPath path, String msg) {
+    	super(severity, JavaCore.PLUGIN_ID, code, "JavaModelStatus", null); //$NON-NLS-1$
+    	this.elements= new IJavaElement[]{element};
+    	this.path = path;
+    	this.string = msg;
+    }
+
+    /**
 	 * Constructs an Java model status with no corresponding elements.
 	 */
 	public JavaModelStatus(CoreException coreException) {
@@ -326,53 +339,59 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					if (description == null) description = path.makeRelative().toString();
 					return Messages.bind(Messages.classpath_invalidContainer, new String[] {description, javaProject.getElementName()}); 
 
-			case CP_VARIABLE_PATH_UNBOUND:
-				javaProject = (IJavaProject)elements[0];
-				return Messages.bind(Messages.classpath_unboundVariablePath, new String[] {path.makeRelative().toString(), javaProject.getElementName()}); 
-					
-			case CLASSPATH_CYCLE: 
-				javaProject = (IJavaProject)elements[0];
-				return Messages.bind(Messages.classpath_cycle, javaProject.getElementName()); 
-												 
-			case DISABLED_CP_EXCLUSION_PATTERNS:
-				javaProject = (IJavaProject)elements[0];
-				String projectName = javaProject.getElementName();
-				IPath newPath = path;
-				if (path.segment(0).toString().equals(projectName)) {
-					newPath = path.removeFirstSegments(1);
-				}
-				return Messages.bind(Messages.classpath_disabledInclusionExclusionPatterns, new String[] {newPath.makeRelative().toString(), projectName}); 
-
-			case DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS:
-				javaProject = (IJavaProject)elements[0];
-				projectName = javaProject.getElementName();
-				newPath = path;
-				if (path.segment(0).toString().equals(projectName)) {
-					newPath = path.removeFirstSegments(1);
-				}
-				return Messages.bind(Messages.classpath_disabledMultipleOutputLocations, new String[] {newPath.makeRelative().toString(), projectName}); 
-
-			case INCOMPATIBLE_JDK_LEVEL:
+				case CP_VARIABLE_PATH_UNBOUND:
 					javaProject = (IJavaProject)elements[0];
-					return Messages.bind(Messages.classpath_incompatibleLibraryJDKLevel, new String[]{	
-						javaProject.getElementName(), 
-						javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true), 
-						path.makeRelative().toString(),
-						string,
-					});
-			case CANNOT_RETRIEVE_ATTACHED_JAVADOC :
-				if (elements != null && elements.length == 1) {
-					if (this.string != null) {
-						return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, ((JavaElement)elements[0]).toStringWithAncestors(), this.string); 
+					return Messages.bind(Messages.classpath_unboundVariablePath, new String[] {path.makeRelative().toString(), javaProject.getElementName()}); 
+
+				case CLASSPATH_CYCLE: 
+					javaProject = (IJavaProject)elements[0];
+					return Messages.bind(Messages.classpath_cycle, javaProject.getElementName()); 
+
+				case DISABLED_CP_EXCLUSION_PATTERNS:
+					javaProject = (IJavaProject)elements[0];
+					String projectName = javaProject.getElementName();
+					IPath newPath = path;
+					if (path.segment(0).toString().equals(projectName)) {
+						newPath = path.removeFirstSegments(1);
 					}
-					return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, ((JavaElement)elements[0]).toStringWithAncestors(), ""); //$NON-NLS-1$
-				}
-				if (this.string != null) {
-					return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, this.string, "");//$NON-NLS-1$
-				}
-				break;
-			case UNKNOWN_JAVADOC_FORMAT :
-				return Messages.bind(Messages.status_unknown_javadoc_format, ((JavaElement)elements[0]).toStringWithAncestors()); 
+					return Messages.bind(Messages.classpath_disabledInclusionExclusionPatterns, new String[] {newPath.makeRelative().toString(), projectName}); 
+
+				case DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS:
+					javaProject = (IJavaProject)elements[0];
+					projectName = javaProject.getElementName();
+					newPath = path;
+					if (path.segment(0).toString().equals(projectName)) {
+						newPath = path.removeFirstSegments(1);
+					}
+					return Messages.bind(Messages.classpath_disabledMultipleOutputLocations, new String[] {newPath.makeRelative().toString(), projectName}); 
+
+				case INCOMPATIBLE_JDK_LEVEL:
+						javaProject = (IJavaProject)elements[0];
+						return Messages.bind(Messages.classpath_incompatibleLibraryJDKLevel, new String[]{	
+							javaProject.getElementName(), 
+							javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true), 
+							path.makeRelative().toString(),
+							string,
+						});
+
+				case CANNOT_RETRIEVE_ATTACHED_JAVADOC :
+					if (elements != null && elements.length == 1) {
+						if (this.string != null) {
+							return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, ((JavaElement)elements[0]).toStringWithAncestors(), this.string); 
+						}
+						return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, ((JavaElement)elements[0]).toStringWithAncestors(), ""); //$NON-NLS-1$
+					}
+					if (this.string != null) {
+						return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, this.string, "");//$NON-NLS-1$
+					}
+					break;
+
+				case UNKNOWN_JAVADOC_FORMAT :
+					return Messages.bind(Messages.status_unknown_javadoc_format, ((JavaElement)elements[0]).toStringWithAncestors()); 
+
+				case DEPRECATED_VARIABLE :
+					javaProject = (IJavaProject)elements[0];
+					return Messages.bind(Messages.classpath_deprecated_variable, new String[] {path.segment(0).toString(), javaProject.getElementName(), this.string}); 
 			}
 			if (string != null) {
 				return string;

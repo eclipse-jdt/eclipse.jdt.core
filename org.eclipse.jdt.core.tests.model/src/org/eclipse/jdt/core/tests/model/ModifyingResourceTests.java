@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,9 +20,6 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.core.JavaElement;
 
-/*
- * Tests that modify resources in the workspace.
- */
 public class ModifyingResourceTests extends AbstractJavaModelTests {
 	
 public ModifyingResourceTests(String name) {
@@ -37,6 +34,22 @@ protected void assertElementDescendants(String message,  String expected, IJavaE
 		message,
 		expected,
 		actual);
+}
+protected void assertStatus(String expected, IStatus status) {
+	String actual = status.getMessage();
+	if (!expected.equals(actual)) {
+	 	System.out.print(Util.displayString(actual, 2));
+	 	System.out.println(",");
+	}
+	assertEquals(expected, actual);
+}
+protected void assertStatus(String message, String expected, IStatus status) {
+	String actual = status.getMessage();
+	if (!expected.equals(actual)) {
+	 	System.out.print(Util.displayString(actual, 2));
+	 	System.out.println(",");
+	}
+	assertEquals(message, expected, actual);
 }
 /**
  * E.g. <code>

@@ -12,6 +12,22 @@
 		<classpathVariableInitializer
 			variable="TEST_ROOT"
 			class="org.eclipse.jdt.core.tests.model.VariablesInitializer"/>
+  <classpathVariableInitializer
+        class="org.eclipse.jdt.core.tests.model.VariablesInitializer"
+        deprecated="Test deprecated flag"
+        variable="TEST_DEPRECATED">
+  </classpathVariableInitializer>
+  <classpathVariableInitializer
+        class="org.eclipse.jdt.core.tests.model.VariablesInitializer"
+        readOnly="true"
+        variable="TEST_READ_ONLY">
+  </classpathVariableInitializer>
+  <classpathVariableInitializer
+        class="org.eclipse.jdt.core.tests.model.VariablesInitializer"
+        deprecated="A deprecated and read-only initializer"
+        readOnly="true"
+        variable="TEST_DEPRECATED_READ_ONLY">
+  </classpathVariableInitializer>
 	</extension>		
 
 	<!-- Classpath container initializer -->

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
@@ -1627,7 +1628,18 @@ public class ClasspathEntry implements IClasspathEntry {
 					if (entry == null){
 						return new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, project, path);
 					}
-					return validateClasspathEntry(project, entry, checkSourceAttachment, recurseInContainers);
+
+					// get validation status
+					IJavaModelStatus status = validateClasspathEntry(project, entry, checkSourceAttachment, recurseInContainers);
+					if (!status.isOK()) return status;
+
+					// return deprecation status if any
+					String variableName = path.segment(0);
+					String deprecatedMessage = JavaCore.getClasspathVariableDeprecationMessage(variableName);
+					if (deprecatedMessage != null) {
+						return new JavaModelStatus(IStatus.WARNING, IJavaModelStatusConstants.DEPRECATED_VARIABLE, project, path, deprecatedMessage);
+					}
+					return status;
 				} else {
 					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalVariablePath, new String[] {entryPathMsg, projectName}));					 
 				}

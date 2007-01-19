@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1669,6 +1669,17 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
+	 * Returns deprecation message of a given classpath variable.
+	 *
+	 * @param variableName
+	 * @return A string if the classpath variable is deprecated, <code>null</code> otherwise.
+	 * @since 3.3
+	 */
+	public static String getClasspathVariableDeprecationMessage(String variableName) {
+	    return (String) JavaModelManager.getJavaModelManager().deprecatedVariables.get(variableName);
+	}
+
+	/**
 	 * Helper method finding the classpath variable initializer registered for a given classpath variable name 
 	 * or <code>null</code> if none was found while iterating over the contributions to extension point to
 	 * the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
@@ -1690,7 +1701,8 @@ public final class JavaCore extends Plugin {
 				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
 				for(int j = 0; j < configElements.length; j++){
 					try {
-						String varAttribute = configElements[j].getAttribute("variable"); //$NON-NLS-1$
+						IConfigurationElement configElement = configElements[j];
+						String varAttribute = configElement.getAttribute("variable"); //$NON-NLS-1$
 						if (variable.equals(varAttribute)) {
 							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
 								Util.verbose(
@@ -1700,7 +1712,16 @@ public final class JavaCore extends Plugin {
 							}						
 							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
 							if (execExt instanceof ClasspathVariableInitializer){
-								return (ClasspathVariableInitializer)execExt;
+								ClasspathVariableInitializer initializer = (ClasspathVariableInitializer)execExt;
+								String deprecatedAttribute = configElement.getAttribute("deprecated"); //$NON-NLS-1$
+								if (deprecatedAttribute != null) {
+									JavaModelManager.getJavaModelManager().deprecatedVariables.put(variable, deprecatedAttribute);
+								}
+								String readOnlyAttribute = configElement.getAttribute("readOnly"); //$NON-NLS-1$
+								if (JavaModelManager.TRUE.equals(readOnlyAttribute)) {
+									JavaModelManager.getJavaModelManager().readOnlyVariables.add(variable);
+								}
+								return initializer;
 							}
 						}
 					} catch(CoreException e){
@@ -3012,7 +3033,19 @@ public final class JavaCore extends Plugin {
 			if (monitor != null) monitor.done();
 		}
 	}
-	
+
+	/**
+	 * Returns whether a given classpath variable is read-only or not.
+	 *
+	 * @param variableName
+	 * @return <code>true</code> if the classpath variable is read-only,
+	 * 	<code>false</code> otherwise.
+	 * @since 3.3
+	 */
+	public static boolean isClasspathVariableReadOnly(String variableName) {
+	    return JavaModelManager.getJavaModelManager().readOnlyVariables.contains(variableName);
+	}
+
 	/**
 	 * Returns whether the given file name's extension is a Java-like extension.
 	 * 
@@ -3023,7 +3056,7 @@ public final class JavaCore extends Plugin {
 	public static boolean isJavaLikeFileName(String fileName) {
 		return Util.isJavaLikeFileName(fileName);
 	}
-	
+
 	/**
 	 * Returns whether the given marker references the given Java element.
 	 * Used for markers, which denote a Java element rather than a resource.
