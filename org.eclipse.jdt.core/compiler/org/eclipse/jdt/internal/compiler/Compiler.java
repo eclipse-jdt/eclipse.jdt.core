@@ -350,90 +350,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 */
 	protected void beginToCompile(ICompilationUnit[] sourceUnits) {
 		int maxUnits = sourceUnits.length;
-		totalUnits = 0;
-		unitsToProcess = new CompilationUnitDeclaration[maxUnits];
+		this.totalUnits = 0;
+		this.unitsToProcess = new CompilationUnitDeclaration[maxUnits];
 
-		// Switch the current policy and compilation result for this unit to the requested one.
-		for (int i = 0; i < maxUnits; i++) {
-			CompilationUnitDeclaration parsedUnit;
-			CompilationResult unitResult =
-				new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
-			try {
-				if (options.verbose) {
-					this.out.println(
-						Messages.bind(Messages.compilation_request,
-						new String[] {
-							String.valueOf(i + 1),
-							String.valueOf(maxUnits),
-							new String(sourceUnits[i].getFileName())
-						}));
-				}
-				// diet parsing for large collection of units
-				if (totalUnits < parseThreshold) {
-					parsedUnit = parser.parse(sourceUnits[i], unitResult);
-				} else {
-					parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
-				}
-				// initial type binding creation
-				lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-				this.addCompilationUnit(sourceUnits[i], parsedUnit);
-				ImportReference currentPackage = parsedUnit.currentPackage;
-				if (currentPackage != null) {
-					unitResult.recordPackageName(currentPackage.tokens);
-				}
-				//} catch (AbortCompilationUnit e) {
-				//	requestor.acceptResult(unitResult.tagAsAccepted());
-			} finally {
-				sourceUnits[i] = null; // no longer hold onto the unit
-			}
-		}
-		// binding resolution
-		lookupEnvironment.completeTypeBindings();
-	}
-
-	/**
-	 * Add the initial set of compilation units into the loop
-	 *  ->  build compilation unit declarations, their bindings and record their results.
-	 */
-	protected void processBeginToCompile(ICompilationUnit[] sourceUnits) {
-		int maxUnits = sourceUnits.length;
-
-		// Switch the current policy and compilation result for this unit to the requested one.
-		for (int i = 0; i < maxUnits; i++) {
-			CompilationUnitDeclaration parsedUnit;
-			CompilationResult unitResult =
-				new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
-			try {
-				if (options.verbose) {
-					this.out.println(
-						Messages.bind(Messages.compilation_request,
-						new String[] {
-							String.valueOf(i + 1),
-							String.valueOf(maxUnits),
-							new String(sourceUnits[i].getFileName())
-						}));
-				}
-				// diet parsing for large collection of units
-				if (totalUnits < parseThreshold) {
-					parsedUnit = parser.parse(sourceUnits[i], unitResult);
-				} else {
-					parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
-				}
-				// initial type binding creation
-				lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-				this.addCompilationUnit(sourceUnits[i], parsedUnit);
-				ImportReference currentPackage = parsedUnit.currentPackage;
-				if (currentPackage != null) {
-					unitResult.recordPackageName(currentPackage.tokens);
-				}
-				//} catch (AbortCompilationUnit e) {
-				//	requestor.acceptResult(unitResult.tagAsAccepted());
-			} finally {
-				sourceUnits[i] = null; // no longer hold onto the unit
-			}
-		}
-		// binding resolution
-		lookupEnvironment.completeTypeBindings();
+		internalBeginToCompile(sourceUnits, maxUnits);
 	}
 
 	/**
@@ -450,7 +370,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			beginToCompile(sourceUnits);
 
 			if (this.annotationProcessorManager != null) {
-				processAnnotations(sourceUnits);
+				processAnnotations();
 				if (!options.generateClassFiles) {
 					// -proc:only was set on the command line
 					return;
@@ -636,6 +556,49 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	}
 	
 	/**
+	 * Add the initial set of compilation units into the loop
+	 *  ->  build compilation unit declarations, their bindings and record their results.
+	 */
+	protected void internalBeginToCompile(ICompilationUnit[] sourceUnits, int maxUnits) {
+		// Switch the current policy and compilation result for this unit to the requested one.
+		for (int i = 0; i < maxUnits; i++) {
+			CompilationUnitDeclaration parsedUnit;
+			CompilationResult unitResult =
+				new CompilationResult(sourceUnits[i], i, maxUnits, this.options.maxProblemsPerUnit);
+			try {
+				if (options.verbose) {
+					this.out.println(
+						Messages.bind(Messages.compilation_request,
+						new String[] {
+							String.valueOf(i + 1),
+							String.valueOf(maxUnits),
+							new String(sourceUnits[i].getFileName())
+						}));
+				}
+				// diet parsing for large collection of units
+				if (totalUnits < parseThreshold) {
+					parsedUnit = parser.parse(sourceUnits[i], unitResult);
+				} else {
+					parsedUnit = parser.dietParse(sourceUnits[i], unitResult);
+				}
+				// initial type binding creation
+				lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+				this.addCompilationUnit(sourceUnits[i], parsedUnit);
+				ImportReference currentPackage = parsedUnit.currentPackage;
+				if (currentPackage != null) {
+					unitResult.recordPackageName(currentPackage.tokens);
+				}
+				//} catch (AbortCompilationUnit e) {
+				//	requestor.acceptResult(unitResult.tagAsAccepted());
+			} finally {
+				sourceUnits[i] = null; // no longer hold onto the unit
+			}
+		}
+		// binding resolution
+		lookupEnvironment.completeTypeBindings();
+	}
+
+	/**
 	 * Process a compilation unit already parsed and build.
 	 */
 	public void process(CompilationUnitDeclaration unit, int i) {
@@ -670,7 +633,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		this.lookupEnvironment.unitBeingCompleted = null;
 	}
 
-	protected void processAnnotations(ICompilationUnit[] sourceUnits) {
+	protected void processAnnotations() {
 		int newUnitSize = 0;
 		int bottom = 0;
 		int top = this.unitsToProcess.length;
@@ -691,9 +654,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			}
 			this.annotationProcessorManager.processAnnotations(currentUnits, false);
 			ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
-			if (newUnits.length != 0) {
+			newUnitSize = newUnits.length;
+			if (newUnitSize != 0) {
 				// we reset the compiler in order to restart with the new units
-				processBeginToCompile(newUnits);
+				internalBeginToCompile(newUnits, newUnitSize);
 				bottom = top + 1;
 				top = this.unitsToProcess.length;
 				this.annotationProcessorManager.reset();
