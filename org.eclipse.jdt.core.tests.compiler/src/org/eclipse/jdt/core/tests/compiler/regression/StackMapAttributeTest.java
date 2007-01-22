@@ -33,7 +33,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 23 };
+//		TESTS_NUMBERS = new int[] { 28 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
@@ -2098,17 +2098,17 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 	public void _test023() {
 		this.runConformTest(
-            new String[] {
-        		"X.java",
-        		"public class X {\n" + 
-        		"	public static void main(String[] args) {\n" + 
-        		"		boolean a = true, x;\n" + 
-        		"		if (a ? false : (x = true))\n" + 
-        		"			a = x;\n" + 
-        		"		System.out.println(\"SUCCESS\");\n" + 
-        		"	}\n" + 
-        		"}",
-            },
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		boolean a = true, x;\n" + 
+				"		if (a ? false : (x = true))\n" + 
+				"			a = x;\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}",
+			},
 			"SUCCESS");
 	}
 	
@@ -2171,5 +2171,290 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	    		"}"
 	        },
 			"SUCCESS");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=169017
+	public void test026() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static final Object EXIT_OK = new Object();\n" + 
+				"	public static final Object EXIT_RELAUNCH = new Object();\n" + 
+				"	public static final Object EXIT_RESTART = new Object();\n" + 
+				"	public static final int RETURN_RESTART = 1;\n" + 
+				"	public static final String PROP_EXIT_CODE = \"\";\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"	private static int createAndRunWorkbench(Display display, IDEWorkbenchAdvisor advisor) {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				" \n" + 
+				"    public Object run(Object args) throws Exception {\n" + 
+				"        Display display = createDisplay();\n" + 
+				"        try {\n" + 
+				"            Shell shell = new Shell(display, SWT.ON_TOP);\n" + 
+				"            try {\n" + 
+				"                if (!checkInstanceLocation(shell)) {\n" + 
+				"                    Platform.endSplash();\n" + 
+				"                    return EXIT_OK;\n" + 
+				"                }\n" + 
+				"            } finally {\n" + 
+				"                if (shell != null) {\n" + 
+				"					shell.dispose();\n" + 
+				"				}\n" + 
+				"            }\n" + 
+				"            int returnCode = X.createAndRunWorkbench(display,\n" + 
+				"                    new IDEWorkbenchAdvisor());\n" + 
+				"            if (returnCode != X.RETURN_RESTART) {\n" + 
+				"				return EXIT_OK;\n" + 
+				"			}\n" + 
+				"            return EXIT_RELAUNCH.equals(Integer.getInteger(PROP_EXIT_CODE)) ? EXIT_RELAUNCH\n" + 
+				"                    : EXIT_RESTART;\n" + 
+				"        } finally {\n" + 
+				"            if (display != null) {\n" + 
+				"				display.dispose();\n" + 
+				"			}\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"	private boolean checkInstanceLocation(Shell shell) {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"	private Display createDisplay() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}",
+				"Display.java",
+				"class Display {\n" + 
+				"\n" + 
+				"	public void dispose() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"}",
+				"Shell.java",
+				"class Shell {\n" + 
+				"	public Shell(Display display, int i) {\n" + 
+				"		// TODO Auto-generated constructor stub\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void dispose() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"}",
+				"Platform.java",
+				"class Platform {\n" + 
+				"\n" + 
+				"	public static void endSplash() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"}",
+				"SWT.java", 
+				"class SWT {\n" + 
+				"	public static final int ON_TOP = 1; \n" + 
+				"}",
+				"IDEWorkbenchAdvisor.java",
+				"class IDEWorkbenchAdvisor {\n" +
+				"}"
+    	},
+		"SUCCESS");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=169017
+	public void test027() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.IOException;\n" + 
+				"import java.io.InputStream;\n" + 
+				"public class X {\n" + 
+				"	private static final int BUF_SIZE = 8192;\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"	BundleActivator activator;\n" + 
+				"	BundleHost bundle;\n" + 
+				"	public byte[] getBytes() throws IOException {\n" + 
+				"		InputStream in = getInputStream();\n" + 
+				"		int length = (int) getSize();\n" + 
+				"		byte[] classbytes;\n" + 
+				"		int bytesread = 0;\n" + 
+				"		int readcount;\n" + 
+				"		if (Debug.DEBUG && Debug.DEBUG_LOADER)\n" + 
+				"			Debug.println(\"  about to read \" + length + \" bytes from \" + getName()); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+				"		try {\n" + 
+				"			if (length > 0) {\n" + 
+				"				classbytes = new byte[length];\n" + 
+				"				for (; bytesread < length; bytesread += readcount) {\n" + 
+				"					readcount = in.read(classbytes, bytesread, length - bytesread);\n" + 
+				"					if (readcount <= 0)\n" + 
+				"						break;\n" + 
+				"				}\n" + 
+				"			} else {\n" + 
+				"				length = BUF_SIZE;\n" + 
+				"				classbytes = new byte[length];\n" + 
+				"				readloop: while (true) {\n" + 
+				"					for (; bytesread < length; bytesread += readcount) {\n" + 
+				"						readcount = in.read(classbytes, bytesread, length - bytesread);\n" + 
+				"						if (readcount <= 0)\n" + 
+				"							break readloop;\n" + 
+				"					}\n" + 
+				"					byte[] oldbytes = classbytes;\n" + 
+				"					length += BUF_SIZE;\n" + 
+				"					classbytes = new byte[length];\n" + 
+				"					System.arraycopy(oldbytes, 0, classbytes, 0, bytesread);\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"			if (classbytes.length > bytesread) {\n" + 
+				"				byte[] oldbytes = classbytes;\n" + 
+				"				classbytes = new byte[bytesread];\n" + 
+				"				System.arraycopy(oldbytes, 0, classbytes, 0, bytesread);\n" + 
+				"			}\n" + 
+				"		} finally {\n" + 
+				"			try {\n" + 
+				"				in.close();\n" + 
+				"			} catch (IOException ee) {\n" + 
+				"				// ignore\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return classbytes;\n" + 
+				"	}\n" + 
+				"	protected void stop(Throwable t) throws BundleException {\n" + 
+				"			String clazz = \"\";//(activator == null) ? \"\" : activator.getClass().getName(); //$NON-NLS-1$\n" + 
+				"			throw new BundleException(NLS.bind(Msg.BUNDLE_ACTIVATOR_EXCEPTION, new Object[] {clazz, \"stop\", bundle.getSymbolicName() == null ? \"\" + bundle.getBundleId() : bundle.getSymbolicName()}), t); //$NON-NLS-1$ //$NON-NLS-2$ \n" + 
+				"	}\n" + 
+				"	private String getName() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	private int getSize() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	private InputStream getInputStream() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}",
+				"Debug.java",
+				"class Debug {\n" + 
+				"	public static final boolean DEBUG = false;\n" + 
+				"	public static final boolean DEBUG_LOADER = false;\n" + 
+				"	public static final boolean DEBUG_GENERAL = false;\n" + 
+				"	public static void println(String string) {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"	public static void printStackTrace(Throwable t) {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"}",
+				"AccessController.java",
+				"class AccessController {\n" + 
+				"	static void doPrivileged(Object o) {\n" + 
+				"	}\n" + 
+				"}",
+				"BundleException",
+				"class BundleException extends Exception {\n" + 
+				"	private static final long serialVersionUID = 5758882959559471648L;\n" + 
+				"\n" + 
+				"	public BundleException(String bind, Throwable t) {\n" + 
+				"		// TODO Auto-generated constructor stub\n" + 
+				"	}\n" + 
+				"}",
+				"PrivilegedExceptionAction.java",
+				"class PrivilegedExceptionAction {\n" + 
+				"}",
+				"BundleActivator.java",
+				"class BundleActivator {\n" + 
+				"	public void stop(X x) {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"}",
+				"BundleHost.java",
+				"class BundleHost {\n" + 
+				"	public Object getSymbolicName() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public String getBundleId() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}",
+				"NLS.java",
+				"class NLS {\n" + 
+				"	public static String bind(String bundleActivatorException, Object[] objects) {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}",
+				"PrivilegedActionException.java",
+				"class PrivilegedActionException extends Exception {\n" + 
+				"	private static final long serialVersionUID = 3919969055057660822L;\n" + 
+				"	public Throwable getException() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" +
+				"}",
+				"Msg.java",
+				"class Msg {\n" + 
+				"	public static final String BUNDLE_ACTIVATOR_EXCEPTION = \"\";\n" + 
+				"}"
+    	},
+		"SUCCESS");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=169017
+	public void test028() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.StringReader;\r\n" + 
+				"\r\n" + 
+				"public class X {\r\n" + 
+				"	public void loadVariablesAndContainers() {\r\n" + 
+				"		// backward compatibility, consider persistent property	\r\n" + 
+				"		String qName = \"1\";\r\n" + 
+				"		String xmlString = \"2\";\r\n" + 
+				"		\r\n" + 
+				"		try {\r\n" + 
+				"			if (xmlString != null){\r\n" + 
+				"				StringReader reader = new StringReader(xmlString);\r\n" + 
+				"				Object o;\r\n" + 
+				"				try {\r\n" + 
+				"					StringBuffer buffer = null;\r\n" + 
+				"					o = new Object();\r\n" + 
+				"				} catch(RuntimeException e) {\r\n" + 
+				"					return;\r\n" + 
+				"				} catch(Exception e){\r\n" + 
+				"					return;\r\n" + 
+				"				} finally {\r\n" + 
+				"					reader.close();\r\n" + 
+				"				}\r\n" + 
+				"				System.out.println(reader);\r\n" + 
+				"			}\r\n" + 
+				"		} catch(Exception e){\r\n" + 
+				"			// problem loading xml file: nothing we can do\r\n" + 
+				"		} finally {\r\n" + 
+				"			if (xmlString != null){\r\n" + 
+				"				System.out.println(xmlString);\r\n" + 
+				"			}\r\n" + 
+				"		}\r\n" + 
+				"	}\r\n" + 
+				"\r\n" + 
+				"	public static void main(String[] args) {\r\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\r\n" + 
+				"}"
+		},
+		"SUCCESS");
 	}
 }

@@ -4525,11 +4525,11 @@ public void ireturn() {
 }
 public boolean isDefinitelyAssigned(Scope scope, int initStateIndex, LocalVariableBinding local) {
 	// Mirror of UnconditionalFlowInfo.isDefinitelyAssigned(..)
-	if (initStateIndex == -1)
-		return false;
 	if ((local.tagBits & TagBits.IsArgument) != 0) {
 		return true;
 	}
+	if (initStateIndex == -1)
+		return false;
 	int localPosition = local.id + maxFieldCount;
 	MethodScope methodScope = scope.methodScope();
 	// id is zero-based

@@ -39,9 +39,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	if (this.expression != null) {
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
-		this.initStateIndex =
-			currentScope.methodScope().recordInitializationStates(flowInfo);
 	}
+	this.initStateIndex =
+		currentScope.methodScope().recordInitializationStates(flowInfo);
 	// compute the return sequence (running the finally blocks)
 	FlowContext traversedContext = flowContext;
 	int subCount = 0;
@@ -132,12 +132,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		Object reusableJSRTarget = this.expression == null ? (Object)TypeBinding.VOID : this.expression.reusableJSRTarget();
 		for (int i = 0, max = this.subroutines.length; i < max; i++) {
 			SubRoutineStatement sub = this.subroutines[i];
-			boolean didEscape = sub.generateSubRoutineInvocation(currentScope, codeStream, reusableJSRTarget);
+			boolean didEscape = sub.generateSubRoutineInvocation(currentScope, codeStream, reusableJSRTarget, this.initStateIndex, this.saveValueVariable);
 			if (didEscape) {
-					if (this.initStateIndex != -1) {
-						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
-						codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
-					}
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
 					SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, i, codeStream);
 					return;
@@ -174,7 +170,9 @@ public void generateReturnBytecode(CodeStream codeStream) {
 }
 
 public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
-	if (this.saveValueVariable != null) codeStream.store(this.saveValueVariable, false);
+	if (this.saveValueVariable != null) {
+		codeStream.store(this.saveValueVariable, false);
+	}
 }
 
 public boolean needValue() {

@@ -47,6 +47,7 @@ public class TryStatement extends SubRoutineStatement {
 	// for inlining/optimizing JSR instructions
 	private Object[] reusableJSRTargets;
 	private BranchLabel[] reusableJSRSequenceStartLabels;
+	private int[] reusableJSRStateIndexes;
 	private int reusableJSRTargetsCount = 0;
 	
 	private final static int NO_FINALLY = 0;										// no finally block
@@ -57,7 +58,7 @@ public class TryStatement extends SubRoutineStatement {
 	// for local variables table attributes
 	int mergedInitStateIndex = -1;
 	int preTryInitStateIndex = -1;
-	int postTryInitStateIndex = -1;
+	int naturalExitMergeInitStateIndex = -1;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -95,12 +96,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		FlowInfo tryInfo;
 		if (this.tryBlock.isEmptyBlock()) {
 			tryInfo = flowInfo;
-			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
 		} else {
 			tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
 			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
 				this.bits |= ASTNode.IsTryBlockExiting;
-			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
 		}
 
 		// check unreachable catch blocks
@@ -207,12 +206,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		FlowInfo tryInfo;
 		if (this.tryBlock.isEmptyBlock()) {
 			tryInfo = flowInfo;
-			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
 		} else {
 			tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
 			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
 				this.bits |= ASTNode.IsTryBlockExiting;
-			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
 		}
 
 		// check unreachable catch blocks
@@ -293,6 +290,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			flowContext.initsOnFinally.add(handlingContext.initsOnFinally);
 		}
 
+		this.naturalExitMergeInitStateIndex =
+			currentScope.methodScope().recordInitializationStates(tryInfo);
 		if (subInfo == FlowInfo.DEAD_END) {
 			this.mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(subInfo);
@@ -404,16 +403,16 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				case FINALLY_SUBROUTINE :
 				case FINALLY_INLINE :
 					requiresNaturalExit = true;
-					if (this.postTryInitStateIndex != -1) {
-						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
-						codeStream.addDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+					if (this.naturalExitMergeInitStateIndex != -1) {
+						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
+						codeStream.addDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
 					}
 					codeStream.goto_(naturalExitLabel);
 					break;
 				case NO_FINALLY :
-					if (this.postTryInitStateIndex != -1) {
-						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
-						codeStream.addDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+					if (this.naturalExitMergeInitStateIndex != -1) {
+						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
+						codeStream.addDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
 					}
 					codeStream.goto_(naturalExitLabel);
 					break;
@@ -464,9 +463,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 							requiresNaturalExit = true;
 							// fall through
 						case NO_FINALLY :
-							if (this.postTryInitStateIndex != -1) {
-								codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
-								codeStream.addDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+							if (this.naturalExitMergeInitStateIndex != -1) {
+								codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
+								codeStream.addDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
 							}
 							codeStream.goto_(naturalExitLabel);
 							break;
@@ -491,6 +490,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			if (this.preTryInitStateIndex != -1) {
 				// reset initialization state, as for a normal catch block
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
+				codeStream.addDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
 			}
 			this.placeAllAnyExceptionHandler();
 			if (naturalExitExceptionHandler != null) naturalExitExceptionHandler.place();
@@ -557,9 +557,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 						break;
 					case FINALLY_INLINE :
 						// inlined finally here can see all merged variables
-						if (this.postTryInitStateIndex != -1) {
-							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
-							codeStream.addDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+						boolean isStackMapFrameCodeStream = codeStream instanceof StackMapFrameCodeStream;
+						if (isStackMapFrameCodeStream) {
+							((StackMapFrameCodeStream) codeStream).pushStateIndex(this.naturalExitMergeInitStateIndex);
+						}
+						if (this.naturalExitMergeInitStateIndex != -1) {
+							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
+							codeStream.addDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
 						}
 						naturalExitLabel.place();
 						// entire sequence for finally is associated to finally block
@@ -571,6 +575,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 							codeStream.recordPositionsFrom(
 									position,
 									this.finallyBlock.sourceEnd);
+						}
+						if (isStackMapFrameCodeStream) {
+							((StackMapFrameCodeStream) codeStream).popStateIndex();
 						}
 						break;
 					case FINALLY_DOES_NOT_COMPLETE :
@@ -617,10 +624,11 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 }
 
 /**
- * @see SubRoutineStatement#generateSubRoutineInvocation(BlockScope, CodeStream, Object)
+ * @see SubRoutineStatement#generateSubRoutineInvocation(BlockScope, CodeStream, Object, int, LocalVariableBinding)
  */
-public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream codeStream, Object targetLocation) {
+public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex, LocalVariableBinding secretLocal) {
 
+	boolean isStackMapFrameCodeStream = codeStream instanceof StackMapFrameCodeStream;
 	int finallyMode = finallyMode();
 	switch(finallyMode) {
 		case FINALLY_DOES_NOT_COMPLETE :
@@ -633,6 +641,7 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 	}
 	// optimize subroutine invocation sequences, using the targetLocation (if any)
 	if (targetLocation != null) {
+		boolean reuseTargetLocation = true;
 		if (this.reusableJSRTargetsCount > 0) {
 			nextReusableTarget: for (int i = 0, count = this.reusableJSRTargetsCount; i < count; i++) {
 				Object reusableJSRTarget = this.reusableJSRTargets[i];
@@ -648,32 +657,58 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 					continue nextReusableTarget;
 				}
 				// current target has been used in the past, simply branch to its label
-				codeStream.goto_(this.reusableJSRSequenceStartLabels[i]);
-				return true;
+				if ((this.reusableJSRStateIndexes[i] != stateIndex) && finallyMode == FINALLY_INLINE && isStackMapFrameCodeStream) {
+					reuseTargetLocation = false;
+					break nextReusableTarget;
+				} else {
+					codeStream.goto_(this.reusableJSRSequenceStartLabels[i]);
+					return true;
+				}
 			}
 		} else {
 			this.reusableJSRTargets = new Object[3];
 			this.reusableJSRSequenceStartLabels = new BranchLabel[3];
+			this.reusableJSRStateIndexes = new int[3];
 		}
-		if (this.reusableJSRTargetsCount == this.reusableJSRTargets.length) {
-			System.arraycopy(this.reusableJSRTargets, 0, this.reusableJSRTargets = new Object[2*this.reusableJSRTargetsCount], 0, this.reusableJSRTargetsCount);
-			System.arraycopy(this.reusableJSRSequenceStartLabels, 0, this.reusableJSRSequenceStartLabels = new BranchLabel[2*this.reusableJSRTargetsCount], 0, this.reusableJSRTargetsCount);
+		if (reuseTargetLocation) {
+			if (this.reusableJSRTargetsCount == this.reusableJSRTargets.length) {
+				System.arraycopy(this.reusableJSRTargets, 0, this.reusableJSRTargets = new Object[2*this.reusableJSRTargetsCount], 0, this.reusableJSRTargetsCount);
+				System.arraycopy(this.reusableJSRSequenceStartLabels, 0, this.reusableJSRSequenceStartLabels = new BranchLabel[2*this.reusableJSRTargetsCount], 0, this.reusableJSRTargetsCount);
+				System.arraycopy(this.reusableJSRStateIndexes, 0, this.reusableJSRStateIndexes = new int[2*this.reusableJSRTargetsCount], 0, this.reusableJSRTargetsCount);
+			}
+			this.reusableJSRTargets[this.reusableJSRTargetsCount] = targetLocation;
+			BranchLabel reusableJSRSequenceStartLabel = new BranchLabel(codeStream);
+			reusableJSRSequenceStartLabel.place();
+			this.reusableJSRStateIndexes[this.reusableJSRTargetsCount] = stateIndex;
+			this.reusableJSRSequenceStartLabels[this.reusableJSRTargetsCount++] = reusableJSRSequenceStartLabel;
 		}
-		this.reusableJSRTargets[this.reusableJSRTargetsCount] = targetLocation;
-		BranchLabel reusableJSRSequenceStartLabel = new BranchLabel(codeStream);
-		reusableJSRSequenceStartLabel.place();
-		this.reusableJSRSequenceStartLabels[this.reusableJSRTargetsCount++] = reusableJSRSequenceStartLabel;
-	}			
+	}
 	if (finallyMode == FINALLY_INLINE) {
-		if (this.preTryInitStateIndex != -1) {
-			// reset initialization state, as for a normal catch block
-			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
+		if (isStackMapFrameCodeStream) {
+			((StackMapFrameCodeStream) codeStream).pushStateIndex(stateIndex);
+			if (this.naturalExitMergeInitStateIndex != -1 || stateIndex != -1) {
+				// reset initialization state, as for a normal catch block
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
+				codeStream.addDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
+			}
+		} else {
+			if (this.naturalExitMergeInitStateIndex != -1) {
+				// reset initialization state, as for a normal catch block
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
+				codeStream.addDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
+			}
+		}
+		if (secretLocal != null) {
+			codeStream.addVariable(secretLocal);
 		}
 		// cannot use jsr bytecode, then simply inline the subroutine
 		// inside try block, ensure to deactivate all catch block exception handlers while inlining finally block
 		exitAnyExceptionHandler();
 		exitDeclaredExceptionHandlers(codeStream);
 		this.finallyBlock.generateCode(currentScope, codeStream);
+		if (isStackMapFrameCodeStream) {
+			((StackMapFrameCodeStream) codeStream).popStateIndex();
+		}
 	} else {
 		// classic subroutine invocation, distinguish case of non-returning subroutine
 		codeStream.jsr(this.subRoutineStartLabel);
@@ -682,7 +717,6 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 	}
 	return false;
 }
-
 public boolean isSubRoutineEscaping() {
 	return (this.bits & ASTNode.IsSubRoutineEscaping) != 0;
 }

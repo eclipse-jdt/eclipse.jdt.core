@@ -38,6 +38,9 @@ public class StackMapFrameCodeStream extends CodeStream {
 	
 	public ArrayList variablesModificationsPositions;
 	
+	public int[] stateIndexes;
+	public int stateIndexesCounter;
+	
 public StackMapFrameCodeStream(ClassFile givenClassFile) {
 	super(givenClassFile);
 }
@@ -56,11 +59,34 @@ public void aconst_null() {
 }
 public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
-	for (int i = 0; i < visibleLocalsCount; i++) {
+	loop: for (int i = 0; i < visibleLocalsCount; i++) {
 		LocalVariableBinding localBinding = visibleLocals[i];
 		if (localBinding != null) {
 			// Check if the local is definitely assigned
-			if (isDefinitelyAssigned(scope, initStateIndex, localBinding)) {
+			boolean isDefinitelyAssigned = isDefinitelyAssigned(scope, initStateIndex, localBinding);
+			if (!isDefinitelyAssigned) {
+				if (this.stateIndexes != null) {
+					for (int j = 0, max = this.stateIndexesCounter; j < max; j++) {
+						if (isDefinitelyAssigned(scope, this.stateIndexes[j], localBinding)) {
+							currentFrame.putLocal(localBinding.resolvedPosition, new VerificationTypeInfo(localBinding.type));
+							if ((localBinding.initializationCount == 0) || (localBinding.initializationPCs[((localBinding.initializationCount - 1) << 1) + 1] != -1)) {
+								/* There are two cases:
+								 * 1) there is no initialization interval opened ==> add an opened interval
+								 * 2) there is already some initialization intervals but the last one is closed ==> add an opened interval
+								 * An opened interval means that the value at localBinding.initializationPCs[localBinding.initializationCount - 1][1]
+								 * is equals to -1.
+								 * initializationPCs is a collection of pairs of int:
+								 * 	first value is the startPC and second value is the endPC. -1 one for the last value means that the interval
+								 * 	is not closed yet.
+								 */
+								localBinding.recordInitializationStartPC(position);
+							}
+							continue loop;
+						}
+					}
+				}
+			} else {
+				currentFrame.putLocal(localBinding.resolvedPosition, new VerificationTypeInfo(localBinding.type));
 				if ((localBinding.initializationCount == 0) || (localBinding.initializationPCs[((localBinding.initializationCount - 1) << 1) + 1] != -1)) {
 					/* There are two cases:
 					 * 1) there is no initialization interval opened ==> add an opened interval
@@ -71,7 +97,7 @@ public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 					 * 	first value is the startPC and second value is the endPC. -1 one for the last value means that the interval
 					 * 	is not closed yet.
 					 */
-					currentFrame.putLocal(localBinding.resolvedPosition, new VerificationTypeInfo(localBinding.type));
+					localBinding.recordInitializationStartPC(position);
 				}
 			}
 		}
@@ -81,7 +107,6 @@ public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 		this.variablesModificationsPositions.add(newValue);
 	}
 	storeStackMapFrame();
-	super.addDefinitelyAssignedVariables(scope, initStateIndex);
 }
 public void addVariable(LocalVariableBinding localBinding) {
 	currentFrame.putLocal(localBinding.resolvedPosition, new VerificationTypeInfo(localBinding.type));	
@@ -1746,6 +1771,9 @@ public void pop2() {
 			this.currentFrame.numberOfStackItems -= 2;
 	}
 }
+public void popStateIndex() {
+	this.stateIndexesCounter--;
+}
 public void pushOnStack(TypeBinding binding) {
 	super.pushOnStack(binding);
 	this.currentFrame.addStackItem(binding);
@@ -1753,6 +1781,18 @@ public void pushOnStack(TypeBinding binding) {
 public void putfield(FieldBinding fieldBinding) {
 	super.putfield(fieldBinding);
 	this.currentFrame.numberOfStackItems -= 2;	
+}
+
+public void pushStateIndex(int naturalExitMergeInitStateIndex) {
+	if (this.stateIndexes == null) {
+		this.stateIndexes = new int[3];
+	}
+	int length = this.stateIndexes.length;
+	if (length == this.stateIndexesCounter) {
+		// resize
+		System.arraycopy(this.stateIndexes, 0, (this.stateIndexes = new int[length * 2]), 0, length);
+	}
+	this.stateIndexes[this.stateIndexesCounter++] = naturalExitMergeInitStateIndex;
 }
 public void putstatic(FieldBinding fieldBinding) {
 	super.putstatic(fieldBinding);
@@ -1768,11 +1808,21 @@ public void removeVariable(LocalVariableBinding localBinding) {
 }
 public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	int index = this.visibleLocalsCount;
-	for (int i = 0; i < index; i++) {
+	loop : for (int i = 0; i < index; i++) {
 		LocalVariableBinding localBinding = visibleLocals[i];
-		if (localBinding != null && !isDefinitelyAssigned(scope, initStateIndex, localBinding)
-				&& localBinding.initializationCount > 0) {
-			this.currentFrame.removeLocals(localBinding.resolvedPosition);
+		if (localBinding != null && localBinding.initializationCount > 0) {
+			boolean isDefinitelyAssigned = isDefinitelyAssigned(scope, initStateIndex, localBinding);
+			if (!isDefinitelyAssigned) {
+				if (this.stateIndexes != null) {
+					for (int j = 0, max = this.stateIndexesCounter; j < max; j++) {
+						if (isDefinitelyAssigned(scope, this.stateIndexes[j], localBinding)) {
+							continue loop;
+						}
+					}
+				}
+				this.currentFrame.removeLocals(localBinding.resolvedPosition);
+				localBinding.recordInitializationEndPC(position);
+			}
 		}
 	}
 	Integer newValue = new Integer(this.position);
@@ -1780,7 +1830,6 @@ public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex
 		this.variablesModificationsPositions.add(newValue);
 	}
 	storeStackMapFrame();
-	super.removeNotDefinitelyAssignedVariables(scope, initStateIndex);
 }
 public void storeStackMapFrame() {
 	int frameSize = this.frames.size();

@@ -45,7 +45,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (this.subroutines != null){
 		for (int i = 0, max = this.subroutines.length; i < max; i++){
 			SubRoutineStatement sub = this.subroutines[i];
-			boolean didEscape = sub.generateSubRoutineInvocation(currentScope, codeStream, this.targetLabel);
+			boolean didEscape = sub.generateSubRoutineInvocation(currentScope, codeStream, this.targetLabel, this.initStateIndex, null);
 			if (didEscape) {
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
 					SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, i, codeStream);

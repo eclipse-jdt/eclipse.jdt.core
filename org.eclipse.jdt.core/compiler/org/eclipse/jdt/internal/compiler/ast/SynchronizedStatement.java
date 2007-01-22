@@ -152,9 +152,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 }
 
 /**
- * @see SubRoutineStatement#generateSubRoutineInvocation(BlockScope, CodeStream, Object)
+ * @see SubRoutineStatement#generateSubRoutineInvocation(BlockScope, CodeStream, Object, int, LocalVariableBinding)
  */
-public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream codeStream, Object targetLocation) {
+public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex, LocalVariableBinding secretLocal) {
 	codeStream.load(this.synchroVariable);
 	codeStream.monitorexit();
 	exitAnyExceptionHandler();
