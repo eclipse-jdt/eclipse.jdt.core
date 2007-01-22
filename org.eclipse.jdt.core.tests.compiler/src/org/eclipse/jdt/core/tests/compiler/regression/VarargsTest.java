@@ -2041,4 +2041,27 @@ public class VarargsTest extends AbstractComparableTest {
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n");
 	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=170765
+	public void test059() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public void foo() {\n" + 
+					"		Integer[] array = null;\n" + 
+					"		varargs(array);\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public void varargs(Number... o) {\n" + 
+					"	}\n" + 
+					"    Zork z;\n" +	 
+					"}\n", // =================
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}		
 }
