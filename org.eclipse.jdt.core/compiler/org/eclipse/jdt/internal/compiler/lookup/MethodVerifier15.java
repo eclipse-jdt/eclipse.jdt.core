@@ -516,7 +516,8 @@ boolean detectNameClash(MethodBinding current, MethodBinding inherited) {
 	MethodBinding original = inherited.original(); // can be the same as inherited
 	if (!current.areParameterErasuresEqual(original) || current.returnType.erasure() != original.returnType.erasure()) return false;
 
-	problemReporter(current).methodNameClash(current, original);
+	problemReporter(current).methodNameClash(current, 
+			inherited.declaringClass.isRawType() ? inherited : original);
 	return true;
 }
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
