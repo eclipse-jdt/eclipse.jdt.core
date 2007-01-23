@@ -1991,6 +1991,8 @@ public void test032() throws CoreException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101885
 public void test033() throws CoreException {
+	ICompilationUnit unit = null;
+	
 	try {
 		this.createFile(
 			"/P/src/X.java",
@@ -2002,7 +2004,7 @@ public void test033() throws CoreException {
 			"public enum X {\n" + 
 			"	A, B, C, Z;\n" + 
 			"}";
-		ICompilationUnit unit = this.getCompilationUnit("/P/src/X.java");
+		unit = this.getCompilationUnit("/P/src/X.java");
 		unit.becomeWorkingCopy(null, null);
 		String source = unit.getSource();
 		Document document = new Document(source);
@@ -2040,10 +2042,14 @@ public void test033() throws CoreException {
 		assertEquals("Different output", expectedResult, document.get());
 	} finally {
 		this.deleteFile("/P/src/X.java");
+		if (unit != null) {
+			unit.discardWorkingCopy();
+		}
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101885
 public void test034() throws CoreException {
+	ICompilationUnit unit = null;
 	try {
 		this.createFile(
 			"/P/src/X.java",
@@ -2051,7 +2057,7 @@ public void test034() throws CoreException {
 			"	Z, A, C, B;\n" + 
 			"}"
 		);
-		ICompilationUnit unit = this.getCompilationUnit("/P/src/X.java");
+		unit = this.getCompilationUnit("/P/src/X.java");
 		unit.becomeWorkingCopy(null, null);
 		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
@@ -2074,6 +2080,9 @@ public void test034() throws CoreException {
 		assertNull("Should be null", edit);
 	} finally {
 		this.deleteFile("/P/src/X.java");
+		if (unit != null) {
+			unit.discardWorkingCopy();
+		}
 	}
 }
 }
