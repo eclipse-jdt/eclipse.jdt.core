@@ -3482,7 +3482,9 @@ public void testBug118823c() throws CoreException, InterruptedException {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=107931
-public void _test1001() throws CoreException, InterruptedException, IOException {
+// won't be fixed; this test watches the current behavior in case we change
+// our mind
+public void test1001() throws CoreException, InterruptedException, IOException {
 	try {
 		// Resources creation
 		String sources[] = new String[3];
@@ -3537,12 +3539,13 @@ public void _test1001() throws CoreException, InterruptedException, IOException 
 			"----------\n" + 
 			"1. ERROR in /P3/Y.java (at line 1)\n" + 
 			"	class Y implements I {\n" + 
-			"	      ^\n" + 
-			"The type Y must implement the inherited abstract method I.bar(X)\n" + 
-			"----------\n" + 
-			"2. ERROR in /P3/Y.java (at line 1)\n" + 
-			"	class Y implements I {\n" + 
-			"	      ^\n" + 
+			"	      ^\n" +
+// we miss the first diagnostic - see justification in bugzilla
+//			"The type Y must implement the inherited abstract method I.bar(X)\n" + 
+//			"----------\n" + 
+//			"2. ERROR in /P3/Y.java (at line 1)\n" + 
+//			"	class Y implements I {\n" + 
+//			"	      ^\n" + 
 			"The type Y must implement the inherited abstract method I.foo()\n" + 
 			"----------\n"
 		);
