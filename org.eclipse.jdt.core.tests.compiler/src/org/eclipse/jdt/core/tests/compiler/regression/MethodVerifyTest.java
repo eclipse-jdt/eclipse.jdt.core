@@ -100,7 +100,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"2. ERROR in YY.java (at line 1)\n" + 
 			"	public class YY<T> extends X { public void foo(T t) {} }\n" + 
 			"	                                           ^^^^^^^^\n" + 
-			"Name clash: The method foo(T) of type YY<T> has the same erasure as foo(U) of type X<U> but does not override it\n" + 
+			"Name clash: The method foo(T) of type YY<T> has the same erasure as foo(Object) of type X but does not override it\n" + 
 			"----------\n"
 			// name clash: foo(T) in YY<T> and foo(U) in X have the same erasure, yet neither overrides the other
 		);
@@ -126,7 +126,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"3. ERROR in JJ.java (at line 1)\n" + 
 				"	public class JJ<T> implements I { public void foo(T t) {} }\n" + 
 				"	                                              ^^^^^^^^\n" + 
-				"Name clash: The method foo(T) of type JJ<T> has the same erasure as foo(U) of type I<U> but does not override it\n" + 
+				"Name clash: The method foo(T) of type JJ<T> has the same erasure as foo(Object) of type I but does not override it\n" + 
 				"----------\n"
 				// JJ is not abstract and does not override abstract method foo(java.lang.Object) in I
 		);
@@ -210,7 +210,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"2. ERROR in YY.java (at line 1)\n" + 
 			"	public class YY<T> extends X { public void foo(T t) {} }\n" + 
 			"	                                           ^^^^^^^^\n" + 
-			"Name clash: The method foo(T) of type YY<T> has the same erasure as foo(U) of type X<U> but does not override it\n" + 
+			"Name clash: The method foo(T) of type YY<T> has the same erasure as foo(Object) of type X but does not override it\n" + 
 			"----------\n"
 			// name clash: foo(T) in YY<T> and foo(U) in X have the same erasure, yet neither overrides the other
 		);
@@ -237,7 +237,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"3. ERROR in JJ.java (at line 1)\n" + 
 			"	public class JJ<T> implements I { public void foo(T t) {} }\n" + 
 			"	                                              ^^^^^^^^\n" + 
-			"Name clash: The method foo(T) of type JJ<T> has the same erasure as foo(U) of type I<U> but does not override it\n" + 
+			"Name clash: The method foo(T) of type JJ<T> has the same erasure as foo(Object) of type I but does not override it\n" + 
 			"----------\n"
 			// JJ is not abstract and does not override abstract method foo(java.lang.Object) in I
 		);
@@ -360,7 +360,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"2. ERROR in YY.java (at line 1)\n" + 
 			"	public class YY<T> extends X { public void foo(T t) {} }\n" + 
 			"	                                           ^^^^^^^^\n" + 
-			"Name clash: The method foo(T) of type YY<T> has the same erasure as foo(U) of type X<U> but does not override it\n" + 
+			"Name clash: The method foo(T) of type YY<T> has the same erasure as foo(Object) of type X but does not override it\n" + 
 			"----------\n",
 			// name clash: foo(T) in YY<T> and foo(U) in X have the same erasure, yet neither overrides the other
 			null,
@@ -401,7 +401,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"3. ERROR in JJ.java (at line 1)\n" + 
 			"	public class JJ<T> implements I { public void foo(T t) {} }\n" + 
 			"	                                              ^^^^^^^^\n" + 
-			"Name clash: The method foo(T) of type JJ<T> has the same erasure as foo(U) of type I<U> but does not override it\n" + 
+			"Name clash: The method foo(T) of type JJ<T> has the same erasure as foo(Object) of type I but does not override it\n" + 
 			"----------\n",
 			// JJ is not abstract and does not override abstract method foo(java.lang.Object) in I
 			null,
@@ -5255,7 +5255,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"2. ERROR in A.java (at line 2)\r\n" + 
 			"	class B extends A { void x(A<String> s) {} }\r\n" + 
 			"	                         ^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method x(A<String>) of type B has the same erasure as x(A<String>) of type A<E> but does not override it\n" + 
+			"Name clash: The method x(A<String>) of type B has the same erasure as x(A) of type A but does not override it\n" + 
 			"----------\n" + 
 			"3. WARNING in A.java (at line 3)\r\n" + 
 			"	class C extends A { @Override void x(A s) {} }\r\n" + 
@@ -5275,7 +5275,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"6. ERROR in A.java (at line 4)\r\n" + 
 			"	class D extends A { void x(A<Object> s) {} }\r\n" + 
 			"	                         ^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method x(A<Object>) of type D has the same erasure as x(A<String>) of type A<E> but does not override it\n" + 
+			"Name clash: The method x(A<Object>) of type D has the same erasure as x(A) of type A but does not override it\n" + 
 			"----------\n"
 			// name clash: x(A<java.lang.String>) in B and x(A<java.lang.String>) in A have the same erasure, yet neither overrides the other
 			// name clash: x(A<java.lang.Object>) in D and x(A<java.lang.String>) in A have the same erasure, yet neither overrides the other
@@ -5826,12 +5826,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"5. ERROR in DataSet.java (at line 6)\n" + 
 			"	public <S> S[] toArray(S[] s) {\n" + 
 			"	               ^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method toArray(S[]) of type DataSet<T> has the same erasure as toArray(T[]) of type List<E> but does not override it\n" + 
+			"Name clash: The method toArray(S[]) of type DataSet<T> has the same erasure as toArray(Object[]) of type List but does not override it\n" + 
 			"----------\n" + 
 			"6. ERROR in DataSet.java (at line 6)\n" + 
 			"	public <S> S[] toArray(S[] s) {\n" + 
 			"	               ^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method toArray(S[]) of type DataSet<T> has the same erasure as toArray(T[]) of type Collection<E> but does not override it\n" + 
+			"Name clash: The method toArray(S[]) of type DataSet<T> has the same erasure as toArray(Object[]) of type Collection but does not override it\n" + 
 			"----------\n" + 
 			"7. WARNING in DataSet.java (at line 12)\n" + 
 			"	public boolean addAll(Collection c) {	return false; }\n" + 

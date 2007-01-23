@@ -36394,7 +36394,7 @@ public void test1100() {
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	public void foo(final X<?> x) {\n" + 
 		"	            ^^^^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method foo(X<?>) of type Z has the same erasure as foo(X<?>) of type Y<T> but does not override it\n" + 
+		"Name clash: The method foo(X<?>) of type Z has the same erasure as foo(X) of type Y but does not override it\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 9)\n" + 
 		"	super.foo(x);\n" + 
