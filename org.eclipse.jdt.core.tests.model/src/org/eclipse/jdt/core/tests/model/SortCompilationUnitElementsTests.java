@@ -19,9 +19,17 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.util.CompilationUnitSorter;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * 
@@ -1977,6 +1985,93 @@ public void test032() throws CoreException {
 			"	<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);\n" +
 			"}";
 		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101885
+public void test033() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public enum X {\n" + 
+			"	Z, A, C, B;\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public enum X {\n" + 
+			"	A, B, C, Z;\n" + 
+			"}";
+		ICompilationUnit unit = this.getCompilationUnit("/P/src/X.java");
+		unit.becomeWorkingCopy(null, null);
+		String source = unit.getSource();
+		Document document = new Document(source);
+		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setCompilerOptions(options.getMap());
+		parser.setSource(unit);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setResolveBindings(true);
+		org.eclipse.jdt.core.dom.CompilationUnit ast = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+
+		Comparator comparator = new Comparator() {
+			public int compare(Object o1, Object o2) {
+				switch(((ASTNode) o1).getNodeType()) {
+					case ASTNode.ENUM_CONSTANT_DECLARATION :
+						if (o2 instanceof EnumConstantDeclaration) {
+							return ((EnumConstantDeclaration) o1).getName().getIdentifier().compareTo(((EnumConstantDeclaration) o2).getName().getIdentifier());
+						}
+				}
+				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
+				BodyDeclaration bodyDeclaration2 = (BodyDeclaration) o2;
+				final int sourceStart1 = ((Integer) bodyDeclaration1.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+				final int sourceStart2 = ((Integer) bodyDeclaration2.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+				return sourceStart1 - sourceStart2;
+			}
+		};
+		TextEdit edit = CompilationUnitSorter.sort(ast , comparator, 0, null, new NullProgressMonitor());
+		try {
+			edit.apply(document);
+		} catch (MalformedTreeException e) {
+			assertTrue("Should not happen", false);
+		} catch (BadLocationException e) {
+			assertTrue("Should not happen", false);
+		}
+		assertEquals("Different output", expectedResult, document.get());
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101885
+public void test034() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public enum X {\n" + 
+			"	Z, A, C, B;\n" + 
+			"}"
+		);
+		ICompilationUnit unit = this.getCompilationUnit("/P/src/X.java");
+		unit.becomeWorkingCopy(null, null);
+		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setCompilerOptions(options.getMap());
+		parser.setSource(unit);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setResolveBindings(false);
+		org.eclipse.jdt.core.dom.CompilationUnit ast = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+
+		Comparator comparator = new Comparator() {
+			public int compare(Object o1, Object o2) {
+				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
+				BodyDeclaration bodyDeclaration2 = (BodyDeclaration) o2;
+				final int sourceStart1 = ((Integer) bodyDeclaration1.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+				final int sourceStart2 = ((Integer) bodyDeclaration2.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+				return sourceStart1 - sourceStart2;
+			}
+		};
+		TextEdit edit = CompilationUnitSorter.sort(ast , comparator, 0, null, new NullProgressMonitor());
+		assertNull("Should be null", edit);
 	} finally {
 		this.deleteFile("/P/src/X.java");
 	}

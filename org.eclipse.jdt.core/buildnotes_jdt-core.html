@@ -52,9 +52,129 @@ Eclipse SDK 3.3M5 - ??? January 2007
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_733">cvs</a>).
 
 <h2>What's new in this drop</h2>
+<li>New API added in <code>org.eclipse.jdt.core.util.CompilationUnitSorter</code>:<br>
+<pre>	/**
+	 * Reorders the declarations in the given compilation unit according to the
+	 * specified comparator. The caller is responsible for arranging in advance
+	 * that the given compilation unit is a working copy, and for applying the
+	 * returned TextEdit afterwards.
+	 *
+	 * <b>Note:</b> Reordering the members within a type declaration might be
+	 * more than a cosmetic change and could have potentially serious
+	 * repercussions. Firstly, the order in which the fields of a type are
+	 * initialized is significant in the Java language; reordering fields and
+	 * initializers may result in compilation errors or change the execution
+	 * behavior of the code. Secondly, reordering a class's members may affect
+	 * how its instances are serialized. This operation should therefore be used
+	 * with caution and due concern for potential negative side effects.
+	 * 
+	 * 
+	 * The <code>compare</code> method of the given comparator is passed pairs
+	 * of body declarations (subclasses of <code>BodyDeclaration</code>)
+	 * representing body declarations at the same level. The nodes are from an
+	 * AST of the specified level ({@link org.eclipse.jdt.core.dom.ASTParser#newParser(int)}.
+	 * Clients will generally use AST.JLS3 since that will cover all
+	 * constructs found in Java 1.0, 1.1, 1.2, 1.3, 1.4, and 1.5 source code.
+	 * The comparator is called on body declarations of nested classes,
+	 * including anonymous and local classes, but always at the same level.
+	 * Clients need to provide a comparator implementation (there is no standard
+	 * comparator). The <code>RELATIVE_ORDER</code> property attached to these
+	 * AST nodes affords the comparator a way to preserve the original relative
+	 * order.
+	 * 
+	 * 
+	 * The body declarations passed as parameters to the comparator always carry
+	 * at least the following minimal signature information: 
+	 * 
+	 * 
+	 * <code>TypeDeclaration</code>
+	 * <code>modifiers, isInterface, name, superclass,
+	 *        superInterfaces, typeParameters
+	 *        RELATIVE_ORDER property</code>
+	 *
+	 * <code>FieldDeclaration</code>
+	 * <code>modifiers, type, fragments
+	 *        (VariableDeclarationFragments
+	 *        with name only)
+	 *        RELATIVE_ORDER property</code>
+	 * 
+	 * <code>MethodDeclaration</code>
+	 * <code>modifiers, isConstructor, returnType, name,
+	 *        typeParameters, parameters
+	 *        (SingleVariableDeclarations with name, type, and modifiers only),
+	 *        thrownExceptions
+	 *        RELATIVE_ORDER property</code>
+	 *
+	 * <code>Initializer</code>
+	 * <code>modifiers
+	 *        RELATIVE_ORDER property</code>
+	 *
+	 * <code>AnnotationTypeDeclaration</code>
+	 * <code>modifiers, name
+	 *        RELATIVE_ORDER property</code>
+	 *
+	 * <code>AnnotationTypeMemberDeclaration</code>
+	 * <code>modifiers, name, type, default
+	 *        RELATIVE_ORDER property</code>
+	 *
+	 * <code>EnumDeclaration</code>
+	 * <code>modifiers, name, superInterfaces
+	 *        RELATIVE_ORDER property</code>
+	 *
+	 * <code>EnumConstantDeclaration</code>
+	 * <code>modifiers, name, arguments
+	 *        RELATIVE_ORDER property</code>
+	 * 
+	 * Clients should not rely on the AST nodes being properly parented
+	 * or on having source range information. (Future releases may provide
+	 * options for requesting additional information like source positions, full
+	 * ASTs, non-recursive sorting, etc.)
+	 * 
+	 * @param unit
+	 *            the CompilationUnit to sort
+	 * @param comparator
+	 *            the comparator capable of ordering
+	 *            <code>BodyDeclaration</code>s; this comparator is passed
+	 *            AST nodes from an AST of the specified AST level
+	 * @param options
+	 *            bitwise-or of option flags; <code>0</code> for default
+	 *            behavior (reserved for future growth)
+	 * @param group
+	 *            the text edit group to use when generating text edits, or <code>null</code>
+	 * @param monitor
+	 *            the progress monitor to notify, or <code>null</code> if none
+	 * @return a TextEdit describing the required edits to do the sort, or <code>null</code> 
+	 *            if sorting is not required
+	 * @exception JavaModelException
+	 *                if the compilation unit could not be sorted. Reasons
+	 *                include:
+	 *                - The given compilation unit does not exist
+	 *                (ELEMENT_DOES_NOT_EXIST)
+	 *                - The given compilation unit is not a working copy
+	 *                (INVALID_ELEMENT_TYPES)
+	 *                - A <code>CoreException</code> occurred while
+	 *                accessing the underlying resource
+	 *                - The given compilation unit doesn't come from an ICompilationUnit and this ICompilationUnit is
+	 *                not a working copy (NO_ELEMENTS_TO_PROCESS)
+	 * @exception IllegalArgumentException
+	 *                if the given compilation unit is null or if the given
+	 *                comparator is null, or if <code>options</code> is not one
+	 *                of the supported levels.
+	 * @see org.eclipse.jdt.core.dom.BodyDeclaration
+	 * @see #RELATIVE_ORDER
+	 * @since 3.3
+	 */
+	 public static TextEdit sort(CompilationUnit unit,
+			Comparator comparator,
+			int options,
+			TextEditGroup group,
+			IProgressMonitor monitor) throws JavaModelException;</pre>
+</li>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=170318">170318</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=171066">171066</a>
+Provide TextEdit when sorting compilation unit
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=170318">170318</a>
 [1.5][compiler] improve message on nameclash when overriding method with "wildcard" parameter
 
 <a name="v_732"></a>

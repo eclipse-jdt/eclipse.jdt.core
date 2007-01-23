@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Alex Blewitt - alex_blewitt@yahoo.com https://bugs.eclipse.org/bugs/show_bug.cgi?id=171066
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -23,7 +24,6 @@ import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -43,6 +43,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.RangeMarker;
 import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.TextEditGroup;
 
 /**
  * This operation is used to sort elements in a compilation unit according to
@@ -112,6 +113,33 @@ public class SortElementsOperation extends JavaModelOperation {
 			done();
 		}
 	}
+	
+	/**
+	 * Calculates the required text edits to sort the <code>unit</code>
+	 * @param group 
+	 * @return the edit or null if no sorting is required
+	 */
+	public TextEdit calculateEdit(org.eclipse.jdt.core.dom.CompilationUnit unit, TextEditGroup group) throws JavaModelException {
+		IJavaModelStatus status= this.verify();
+		if (!status.isOK()) {
+			throw new JavaModelException(status);
+		}
+		try {
+			beginTask(Messages.operation_sortelements, getMainAmountOfWork());
+			
+			ICompilationUnit cu= (ICompilationUnit)this.elementsToProcess[0];
+			String content= cu.getBuffer().getContents();
+			ASTRewrite rewrite= sortCompilationUnit(unit, group);
+			if (rewrite == null) {
+				return null;
+			}
+			
+			Document document= new Document(content);
+			return rewrite.rewriteAST(document, null);
+		} finally {
+			done();
+		}
+	}
 
 	/**
 	 * Method processElement.
@@ -119,14 +147,45 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * @param source
 	 */
 	private String processElement(ICompilationUnit unit, char[] source) {
+		Document document = new Document(new String(source));
 		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
 		ASTParser parser = ASTParser.newParser(this.apiLevel);
 		parser.setCompilerOptions(options.getMap());
 		parser.setSource(source);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setResolveBindings(false);
-		org.eclipse.jdt.core.dom.CompilationUnit domUnit = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
-		domUnit.accept(new ASTVisitor() {
+		org.eclipse.jdt.core.dom.CompilationUnit ast = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+        
+		ASTRewrite rewriter= sortCompilationUnit(ast, null);
+		if (rewriter == null)
+			return document.get();
+		
+		TextEdit edits = rewriter.rewriteAST(document, null);
+		
+		RangeMarker[] markers = null;
+		if (this.positions != null) {
+			markers = new RangeMarker[this.positions.length];
+			for (int i = 0, max = this.positions.length; i < max; i++) {
+				markers[i]= new RangeMarker(this.positions[i], 0);
+				insert(edits, markers[i]);
+			}
+		}
+		try {
+			edits.apply(document, TextEdit.UPDATE_REGIONS);
+			if (this.positions != null) {
+				for (int i= 0, max = markers.length; i < max; i++) {
+					this.positions[i]= markers[i].getOffset();
+				}
+			}
+		} catch (BadLocationException e) {
+			// ignore
+		}
+		return document.get();
+	}
+	
+	
+	private ASTRewrite sortCompilationUnit(org.eclipse.jdt.core.dom.CompilationUnit ast, final TextEditGroup group) {
+		ast.accept(new ASTVisitor() {
 			public boolean visit(org.eclipse.jdt.core.dom.CompilationUnit compilationUnit) {
 				List types = compilationUnit.types();
 				for (Iterator iter = types.iterator(); iter.hasNext();) {
@@ -182,52 +241,45 @@ public class SortElementsOperation extends JavaModelOperation {
 				return true;
 			}
 		});
-		final AST localAst = domUnit.getAST();
-		final ASTRewrite rewriter = ASTRewrite.create(localAst);
-		RangeMarker[] markers = null;
 		
-		final boolean needPositionsMapping = this.positions != null;
-		if (needPositionsMapping) {
-			markers = new RangeMarker[this.positions.length];
-			for (int i= 0; i < this.positions.length; i++) {
-				markers[i]= new RangeMarker(this.positions[i], 0);
+		final ASTRewrite rewriter= ASTRewrite.create(ast.getAST()); 
+		final boolean[] hasChanges= new boolean[] {false}; 
+		
+		ast.accept(new ASTVisitor() {
+		
+			private void sortElements(List elements, ListRewrite listRewrite) {
+				if (elements.size() == 0)
+					return;
+				
+				final List myCopy = new ArrayList();
+				myCopy.addAll(elements);
+				Collections.sort(myCopy, SortElementsOperation.this.comparator);
+				
+				for (int i = 0; i < elements.size(); i++) {
+					ASTNode oldNode= (ASTNode) elements.get(i);
+					ASTNode newNode= (ASTNode) myCopy.get(i);
+					if (oldNode != newNode) {
+						listRewrite.replace(oldNode, rewriter.createMoveTarget(newNode), group);
+						hasChanges[0]= true;
+					}
+				}
 			}
-		}
-		String generatedSource = new String(source);
-		Document document = new Document(generatedSource);
-		domUnit.accept(new ASTVisitor() {
+
 			public boolean visit(org.eclipse.jdt.core.dom.CompilationUnit compilationUnit) {
 				if (checkMalformedNodes(compilationUnit)) {
 					return true; // abort sorting of current element
 				}
-				ListRewrite listRewrite = rewriter.getListRewrite(compilationUnit, org.eclipse.jdt.core.dom.CompilationUnit.TYPES_PROPERTY);
-				List types = compilationUnit.types();
-				final int length = types.size();
-				if (length > 1) {
-					final List myCopy = new ArrayList();
-					myCopy.addAll(types);
-					Collections.sort(myCopy, SortElementsOperation.this.comparator);
-					for (int i = 0; i < length; i++) {
-						listRewrite.replace((ASTNode) types.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
-					}
-				}
+				
+				sortElements(compilationUnit.types(), rewriter.getListRewrite(compilationUnit, org.eclipse.jdt.core.dom.CompilationUnit.TYPES_PROPERTY));
 				return true;
 			}
+
 			public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration) {
 				if (checkMalformedNodes(annotationTypeDeclaration)) {
 					return true; // abort sorting of current element
 				}
-				ListRewrite listRewrite = rewriter.getListRewrite(annotationTypeDeclaration, AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-				List bodyDeclarations = annotationTypeDeclaration.bodyDeclarations();
-				final int length = bodyDeclarations.size();
-				if (length > 1) {
-					final List myCopy = new ArrayList();
-					myCopy.addAll(bodyDeclarations);
-					Collections.sort(myCopy, SortElementsOperation.this.comparator);
-					for (int i = 0; i < length; i++) {
-						listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
-					}
-				}
+				
+				sortElements(annotationTypeDeclaration.bodyDeclarations(), rewriter.getListRewrite(annotationTypeDeclaration, AnnotationTypeDeclaration.BODY_DECLARATIONS_PROPERTY));
 				return true;
 			}
 
@@ -235,17 +287,8 @@ public class SortElementsOperation extends JavaModelOperation {
 				if (checkMalformedNodes(anonymousClassDeclaration)) {
 					return true; // abort sorting of current element
 				}
-				ListRewrite listRewrite = rewriter.getListRewrite(anonymousClassDeclaration, AnonymousClassDeclaration.BODY_DECLARATIONS_PROPERTY);
-				List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
-				final int length = bodyDeclarations.size();
-				if (length > 1) {
-					final List myCopy = new ArrayList();
-					myCopy.addAll(bodyDeclarations);
-					Collections.sort(myCopy, SortElementsOperation.this.comparator);
-					for (int i = 0; i < length; i++) {
-						listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
-					}
-				}
+				
+				sortElements(anonymousClassDeclaration.bodyDeclarations(), rewriter.getListRewrite(anonymousClassDeclaration, AnonymousClassDeclaration.BODY_DECLARATIONS_PROPERTY));	
 				return true;
 			}
 			
@@ -253,17 +296,8 @@ public class SortElementsOperation extends JavaModelOperation {
 				if (checkMalformedNodes(typeDeclaration)) {
 					return true; // abort sorting of current element
 				}
-				ListRewrite listRewrite = rewriter.getListRewrite(typeDeclaration, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
-				List bodyDeclarations = typeDeclaration.bodyDeclarations();
-				final int length = bodyDeclarations.size();
-				if (length > 1) {
-					final List myCopy = new ArrayList();
-					myCopy.addAll(bodyDeclarations);
-					Collections.sort(myCopy, SortElementsOperation.this.comparator);
-					for (int i = 0; i < length; i++) {
-						listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
-					}
-				}
+				
+				sortElements(typeDeclaration.bodyDeclarations(), rewriter.getListRewrite(typeDeclaration, TypeDeclaration.BODY_DECLARATIONS_PROPERTY));
 				return true;
 			}
 
@@ -271,49 +305,17 @@ public class SortElementsOperation extends JavaModelOperation {
 				if (checkMalformedNodes(enumDeclaration)) {
 					return true; // abort sorting of current element
 				}
-				ListRewrite listRewrite = rewriter.getListRewrite(enumDeclaration, EnumDeclaration.BODY_DECLARATIONS_PROPERTY);
-				List bodyDeclarations = enumDeclaration.bodyDeclarations();
-				int length = bodyDeclarations.size();
-				if (length > 1) {
-					final List myCopy = new ArrayList();
-					myCopy.addAll(bodyDeclarations);
-					Collections.sort(myCopy, SortElementsOperation.this.comparator);
-					for (int i = 0; i < length; i++) {
-						listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
-					}
-				}
-				listRewrite = rewriter.getListRewrite(enumDeclaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
-				List enumConstants = enumDeclaration.enumConstants();
-				length = enumConstants.size();
-				if (length > 1) {
-					final List myCopy = new ArrayList();
-					myCopy.addAll(enumConstants);
-					Collections.sort(myCopy, SortElementsOperation.this.comparator);
-					for (int i = 0; i < length; i++) {
-						listRewrite.replace((ASTNode) enumConstants.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
-					}
-				}
+				
+				sortElements(enumDeclaration.bodyDeclarations(), rewriter.getListRewrite(enumDeclaration, EnumDeclaration.BODY_DECLARATIONS_PROPERTY));
+				sortElements(enumDeclaration.enumConstants(), rewriter.getListRewrite(enumDeclaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY));
 				return true;
 			}
-		});			
-		TextEdit edits = rewriter.rewriteAST(document, null);
-		if (needPositionsMapping) {
-			for (int i = 0, max = markers.length; i < max; i++) {
-				insert(edits, markers[i]);
-			}
-		}
-		try {
-			edits.apply(document, TextEdit.UPDATE_REGIONS);
-			generatedSource = document.get();
-			if (needPositionsMapping) {
-				for (int i= 0, max = markers.length; i < max; i++) {
-					this.positions[i]= markers[i].getOffset();
-				}
-			}
-		} catch (BadLocationException e) {
-			// ignore
-		}
-		return generatedSource;
+		});
+		
+		if (!hasChanges[0])
+			return null;
+		
+		return rewriter;
 	}
 
 	/**
