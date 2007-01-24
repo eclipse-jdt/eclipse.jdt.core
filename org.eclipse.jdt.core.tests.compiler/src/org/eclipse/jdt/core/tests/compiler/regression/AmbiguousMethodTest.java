@@ -1457,7 +1457,7 @@ public void test031() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
-public void _test032() {
+public void test032() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1476,7 +1476,7 @@ public void _test032() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
 // variant that shows that the use of a substitution is needed during the bounds
 // check
-public void _test032a() {
+public void test032a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1491,6 +1491,63 @@ public void _test032a() {
 			"public abstract class X implements J {\n" + 
 			"}\n" + 
 			"abstract class XX extends Y<XX> implements Cloneable {}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// variant
+public void test032b() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> { }" +			
+			"interface I {\n" + 
+			"  <T extends Exception & Cloneable> A<T> foo(Number n);\n" +
+			"}\n" +
+			"interface J extends I {\n" +
+			"  A<XX> foo(Number n);\n" +
+			"}\n" + 
+			"public abstract class X implements J {\n" + 
+			"}\n" + 
+			"abstract class XX extends Exception implements Cloneable {}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// variant
+public void test032c() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> { }" +			
+			"interface I {\n" + 
+			"  <T extends Exception & Cloneable> A<T> foo(Number n);\n" +
+			"}\n" +
+			"interface J extends I {\n" +
+			"  <S extends XX>  A<S> foo(Number n);\n" +
+			"}\n" + 
+			"public abstract class X implements J {\n" + 
+			"}\n" + 
+			"abstract class XX extends Exception implements Cloneable {}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// variant
+public void test032d() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> { }" +			
+			"interface I {\n" + 
+			"  A<XX> foo(Number n);\n" +
+			"}\n" +
+			"interface J extends I {\n" +
+			"  <T extends Exception & Cloneable> A<T> foo(Number n);\n" +
+			"}\n" + 
+			"public abstract class X implements J {\n" + 
+			"}\n" + 
+			"abstract class XX extends Exception implements Cloneable {}"
 		},
 		"");
 }
@@ -1545,7 +1602,7 @@ public void test034() {
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	public abstract class X implements J, K {\n" + 
 		"	                      ^\n" + 
-		"The return type is incompatible with I.foo(Number), K.foo(Number), J.foo(Number)\n" + 
+		"The return type is incompatible with K.foo(Number), J.foo(Number)\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
