@@ -12233,6 +12233,35 @@ public void testCompletionVariableName34() throws JavaModelException {
 			"vUnknown[VARIABLE_DECLARATION]{vUnknown, null, I, vUnknown, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_NAME_FIRST_PREFIX + R_NAME_LESS_NEW_CHARACTERS + R_CASE + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=166570
+public void testCompletionVariableName35() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void bar() {\n"+
+            "		Test2 zzz\n"+
+            "		int zzzzz = 0;\n"+
+            "	}\n"+
+            "}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+            "/Completion/src/test/Test2.java",
+            "package test;\n"+
+            "public class Test2 {\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "Test2 zzz";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"zzzTest2[VARIABLE_DECLARATION]{zzzTest2, null, Ltest.Test2;, zzzTest2, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
 public void testCompletionVariableName4() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionVariableName4.java",
