@@ -26,6 +26,8 @@
 	<!--   build.result.folder - folder to contain the build results           -->
 	<!-- ===================================================================== -->
 	<target name="post.build.jars">
+		<property name="buildLabel" value="global" />
+		<property name="postingDirectory" value="${basedir}/ecj" />
 		<property name="dest" value="${postingDirectory}/${buildLabel}" />
 		<ant antfile="${basedir}/scripts/export-ecj.xml" target="export">
 			<property name="dest" value="${dest}" />
