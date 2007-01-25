@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 IBM Corporation and others.
+ * Copyright (c) 2006, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,6 +74,21 @@ public Object clone() throws CloneNotSupportedException {
 	result.values = new char[length][];
 	System.arraycopy(this.values, 0, result.values, 0, length);
 	return result;
+}
+
+public char[] get(char[] object) {
+	int length = this.values.length;
+	int index = (CharOperation.hashCode(object) & 0x7FFFFFFF) % length;
+	char[] current;
+	while ((current = this.values[index]) != null) {
+		if (CharOperation.equals(current, object)) return current;
+		if (++index == length) index = 0;
+	}
+	this.values[index] = object;
+
+	// assumes the threshold is never equal to the size of the table
+	if (++this.elementSize > this.threshold) rehash();
+	return object;
 }
 
 public boolean includes(char[] object) {

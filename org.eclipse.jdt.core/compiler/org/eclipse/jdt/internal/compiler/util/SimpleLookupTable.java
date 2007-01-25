@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,6 +72,17 @@ public Object get(Object key) {
 		if (++index == length) index = 0;
 	}
 	return null;
+}
+
+public Object getKey(Object key) {
+	int length = keyTable.length;
+	int index = (key.hashCode() & 0x7FFFFFFF) % length;
+	Object currentKey;
+	while ((currentKey = keyTable[index]) != null) {
+		if (currentKey.equals(key)) return currentKey;
+		if (++index == length) index = 0;
+	}
+	return key;
 }
 
 public Object keyForValue(Object valueToMatch) {

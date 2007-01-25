@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -85,7 +85,7 @@ public Index[] getIndexes(IProgressMonitor progressMonitor) {
 	for (int i = 0; i < length; i++) {
 		if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 		// may trigger some index recreation work
-		String indexLocation = indexLocations[i].toOSString();
+		IPath indexLocation = indexLocations[i];
 		Index index = indexManager.getIndex(indexLocation);
 		if (index == null) {
 			// only need containerPath if the index must be built

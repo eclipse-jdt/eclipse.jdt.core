@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -205,10 +205,9 @@ public abstract class SearchParticipant {
 			containerPath = documentPath.removeLastSegments(documentPath.segmentCount()-1);
 		}
 		IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
-		String osIndexLocation = indexLocation.toOSString();
 		// TODO (frederic) should not have to create index manually, should expose API that recreates index instead
-		manager.ensureIndexExists(osIndexLocation, containerPath);
-		manager.scheduleDocumentIndexing(document, containerPath, osIndexLocation, this);
+		manager.ensureIndexExists(indexLocation, containerPath);
+		manager.scheduleDocumentIndexing(document, containerPath, indexLocation, this);
 	}
 
 	/**
