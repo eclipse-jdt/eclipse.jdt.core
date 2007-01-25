@@ -593,7 +593,7 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		}
 		int largeArraySize = 256;
 		for (int i = 0; i < size; i++) {
-			char[] word = Util.readUTF(stream);
+			char[] word = stream.readUTF().toCharArray();
 			int arrayOffset = stream.readInt();
 			// if arrayOffset is:
 			//		<= 0 then the array size == 1 with the value -> -arrayOffset
@@ -618,7 +618,7 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		this.categoryTables.put(categoryName, categoryTable);
 		// cache the table as long as its not too big
 		// in practise, some tables can be greater than 500K when the contain more than 10K elements
-		this.cachedCategoryName = categoryTable.elementSize < 10000 ? categoryName : null;
+		this.cachedCategoryName = categoryTable.elementSize < 20000 ? categoryName : null;
 	} finally {
 		stream.close();
 	}
@@ -733,7 +733,7 @@ private void readHeaderInfo(RandomAccessFile file) throws IOException {
 	int size = file.readInt();
 	this.categoryOffsets = new HashtableOfIntValues(size);
 	for (int i = 0; i < size; i++)
-		this.categoryOffsets.put(Util.readUTF(file), file.readInt()); // cache offset to category table
+		this.categoryOffsets.put(file.readUTF().toCharArray(), file.readInt()); // cache offset to category table
 	this.categoryTables = new HashtableOfObject(3);
 }
 synchronized void startQuery() {
