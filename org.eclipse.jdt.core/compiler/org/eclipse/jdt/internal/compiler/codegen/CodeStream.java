@@ -339,7 +339,7 @@ public void anewarray(TypeBinding typeBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_anewarray;
-	writeUnsignedShort(constantPool.literalIndexForType(typeBinding.constantPoolName()));
+	writeUnsignedShort(constantPool.literalIndexForType(typeBinding));
 }
 public void areturn() {
 	if (DEBUG) System.out.println(position + "\t\tareturn"); //$NON-NLS-1$
@@ -615,7 +615,7 @@ public void checkcast(TypeBinding typeBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_checkcast;
-	writeUnsignedShort(constantPool.literalIndexForType(typeBinding.constantPoolName()));
+	writeUnsignedShort(constantPool.literalIndexForType(typeBinding));
 }
 public void d2f() {
 	if (DEBUG) System.out.println(position + "\t\td2f"); //$NON-NLS-1$
@@ -1903,6 +1903,16 @@ private void generateFieldAccess(byte opcode, int returnTypeSize, char[] declari
 	bCodeStream[classFileOffset++] = opcode;
 	writeUnsignedShort(constantPool.literalIndexForField(declaringClass, name, signature));
 }
+private void generateFieldAccess(byte opcode, int returnTypeSize, ReferenceBinding binding, char[] name, TypeBinding type) {
+	if (binding.isNestedType()) {
+		this.classFile.recordInnerClasses(binding);
+	}
+	TypeBinding leafComponentType = type.leafComponentType();
+	if (leafComponentType.isNestedType()) {
+		this.classFile.recordInnerClasses(leafComponentType);
+	}
+	this.generateFieldAccess(opcode, returnTypeSize, binding.constantPoolName(), name, type.signature());
+}
 /**
  * Generates the sequence of instructions which will perform the conversion of the expression
  * on the stack into a different type (e.g. long l = someInt; --> i2l must be inserted).
@@ -2835,9 +2845,9 @@ public void getfield(FieldBinding fieldBinding) {
 	generateFieldAccess(
 			Opcodes.OPC_getfield,
 			returnTypeSize,
-			fieldBinding.declaringClass.constantPoolName(),
+			fieldBinding.declaringClass,
 			fieldBinding.name,
-			fieldBinding.type.signature());
+			fieldBinding.type);
 }
 protected int getPosition() {
 	return this.position;
@@ -2851,9 +2861,9 @@ public void getstatic(FieldBinding fieldBinding) {
 	generateFieldAccess(
 			Opcodes.OPC_getstatic,
 			returnTypeSize,
-			fieldBinding.declaringClass.constantPoolName(),
+			fieldBinding.declaringClass,
 			fieldBinding.name,
-			fieldBinding.type.signature());
+			fieldBinding.type);
 }
 public void getTYPE(int baseTypeID) {
 	countLabels = 0;
@@ -3712,7 +3722,7 @@ public void instance_of(TypeBinding typeBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_instanceof;
-	writeUnsignedShort(constantPool.literalIndexForType(typeBinding.constantPoolName()));
+	writeUnsignedShort(constantPool.literalIndexForType(typeBinding));
 }
 protected void invoke(int opcode, int argsSize, int returnTypeSize, char[] declaringClass, char[] selector, char[] signature) {
 	countLabels = 0;
@@ -3837,9 +3847,9 @@ public void invokeinterface(MethodBinding methodBinding) {
 	bCodeStream[classFileOffset++] = Opcodes.OPC_invokeinterface;
 	writeUnsignedShort(
 		constantPool.literalIndexForMethod(
-			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.constantPoolDeclaringClass(),
 			methodBinding.selector,
-			methodBinding.signature(),
+			methodBinding.signature(classFile),
 			true));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == TypeIds.T_double) || (id == TypeIds.T_long))
@@ -4135,9 +4145,9 @@ public void invokespecial(MethodBinding methodBinding) {
 	bCodeStream[classFileOffset++] = Opcodes.OPC_invokespecial;
 	writeUnsignedShort(
 		constantPool.literalIndexForMethod(
-			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.constantPoolDeclaringClass(),
 			methodBinding.selector,
-			methodBinding.signature(),
+			methodBinding.signature(classFile),
 			false));
 	if (methodBinding.isConstructor()) {
 		final ReferenceBinding declaringClass = methodBinding.declaringClass;
@@ -4198,9 +4208,9 @@ public void invokestatic(MethodBinding methodBinding) {
 	bCodeStream[classFileOffset++] = Opcodes.OPC_invokestatic;
 	writeUnsignedShort(
 		constantPool.literalIndexForMethod(
-			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.constantPoolDeclaringClass(),
 			methodBinding.selector,
-			methodBinding.signature(),
+			methodBinding.signature(classFile),
 			false));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == TypeIds.T_double) || (id == TypeIds.T_long))
@@ -4472,9 +4482,9 @@ public void invokevirtual(MethodBinding methodBinding) {
 	bCodeStream[classFileOffset++] = Opcodes.OPC_invokevirtual;
 	writeUnsignedShort(
 		constantPool.literalIndexForMethod(
-			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.constantPoolDeclaringClass(),
 			methodBinding.selector,
-			methodBinding.signature(),
+			methodBinding.signature(classFile),
 			false));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == TypeIds.T_double) || (id == TypeIds.T_long))
@@ -4949,7 +4959,7 @@ public void ldc(String constant) {
 }
 public void ldc(TypeBinding typeBinding) {
 	countLabels = 0;
-	int index = constantPool.literalIndexForType(typeBinding.constantPoolName());
+	int index = constantPool.literalIndexForType(typeBinding);
 	stackDepth++;
 	if (stackDepth > stackMax)
 		stackMax = stackDepth;
@@ -5464,7 +5474,7 @@ public void multianewarray(TypeBinding typeBinding, int dimensions) {
 	}
 	position += 2;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_multianewarray;
-	writeUnsignedShort(constantPool.literalIndexForType(typeBinding.constantPoolName()));
+	writeUnsignedShort(constantPool.literalIndexForType(typeBinding));
 	bCodeStream[classFileOffset++] = (byte) dimensions;
 }
 // We didn't call it new, because there is a conflit with the new keyword
@@ -5479,7 +5489,7 @@ public void new_(TypeBinding typeBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = Opcodes.OPC_new;
-	writeUnsignedShort(constantPool.literalIndexForType(typeBinding.constantPoolName()));
+	writeUnsignedShort(constantPool.literalIndexForType(typeBinding));
 }
 public void newarray(int array_Type) {
 	if (DEBUG) System.out.println(position + "\t\tnewarray:"+array_Type); //$NON-NLS-1$
@@ -5702,9 +5712,9 @@ public void putfield(FieldBinding fieldBinding) {
 	generateFieldAccess(
 			Opcodes.OPC_putfield,
 			returnTypeSize,
-			fieldBinding.declaringClass.constantPoolName(),
+			fieldBinding.declaringClass,
 			fieldBinding.name,
-			fieldBinding.type.signature());
+			fieldBinding.type);
 }
 public void putstatic(FieldBinding fieldBinding) {
 	if (DEBUG) System.out.println(position + "\t\tputstatic:"+fieldBinding); //$NON-NLS-1$
@@ -5715,9 +5725,9 @@ public void putstatic(FieldBinding fieldBinding) {
 	generateFieldAccess(
 			Opcodes.OPC_putstatic,
 			returnTypeSize,
-			fieldBinding.declaringClass.constantPoolName(),
+			fieldBinding.declaringClass,
 			fieldBinding.name,
-			fieldBinding.type.signature());
+			fieldBinding.type);
 }
 public void record(LocalVariableBinding local) {
 	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP)) == 0)

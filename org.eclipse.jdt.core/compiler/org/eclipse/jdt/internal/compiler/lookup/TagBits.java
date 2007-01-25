@@ -31,6 +31,7 @@ public interface TagBits {
 	// for the type cycle hierarchy check used by ClassScope
 	long BeginHierarchyCheck = ASTNode.Bit9;  // type
 	long EndHierarchyCheck = ASTNode.Bit10; // type
+	long ContainsNestedTypesInSignature = ASTNode.Bit10; // method
 	long HasParameterAnnotations = ASTNode.Bit11; // method
 	
 	// test bit to see if default abstract methods were computed

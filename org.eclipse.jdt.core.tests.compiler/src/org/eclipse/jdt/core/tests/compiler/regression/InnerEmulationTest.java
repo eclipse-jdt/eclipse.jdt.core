@@ -24,8 +24,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class InnerEmulationTest extends AbstractRegressionTest {
 static {
 //		TESTS_NAMES = new String[] { "Bug58069" };
-//		TESTS_NUMBERS = new int[] { 130 };
-//		TESTS_RANGE = new int[] { 76, -1 };
+//		TESTS_NUMBERS = new int[] { 144 };
+//		TESTS_RANGE = new int[] { 144, -1 };
 }
 public InnerEmulationTest(String name) {
 	super(name);
@@ -5007,8 +5007,7 @@ public void test125() {
 				"\n" + 
 				"  Inner classes:\n" + 
 				"    [inner class info: #1 X$1Local, outer class info: #0\n" + 
-				"     inner name: #39 Local, accessflags: 0 default]\n" + 
-				"  Enclosing Method: #41  #43 X.foo(Ljava/lang/String;)V\n";
+				"     inner name: #44 Local, accessflags: 0 default]\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + (options.complianceLevel >= ClassFileConstants.JDK1_5 ? "X$1Local.class" : "X$1$Local.class"));
@@ -5678,6 +5677,203 @@ public void test139() {
 		"	                ^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+public void test140() {
+	this.runConformTest(new String[] {
+		"p/A.java",
+		"package p;\n" + 
+		"public class A {\n" + 
+		"	public static interface I {\n" + 
+		"		void foo();\n" + 
+		"	}\n" + 
+		"}",
+		"p1/X.java",
+		"package p1;\n" + 
+		"import p.A;\n" + 
+		"public class X implements A.I {\n" + 
+		"        public void foo() { /* dummy */ }\n" + 
+		"}"
+	});
+	String expectedOutput =
+		"  Inner classes:\n" + 
+		"    [inner class info: #5 p/A$I, outer class info: #20 p/A\n" + 
+		"     inner name: #22 I, accessflags: 1545 public abstract static]\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+public void test141() {
+	this.runConformTest(new String[] {
+		"p/A.java",
+		"package p;\n" + 
+		"public class A {\n" + 
+		"	public static class B {\n" + 
+		"		void foo() { /* dummy */ }\n" + 
+		"	}\n" + 
+		"}",
+		"p1/X.java",
+		"package p1;\n" + 
+		"import p.A;\n" + 
+		"public class X extends A.B {\n" + 
+		"}"
+	});
+	String expectedOutput =
+		"  Inner classes:\n" + 
+		"    [inner class info: #3 p/A$B, outer class info: #17 p/A\n" + 
+		"     inner name: #19 B, accessflags: 9 public static]\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+public void test142() {
+	this.runConformTest(new String[] {
+		"p/A.java",
+		"package p;\n" + 
+		"public class A {\n" + 
+		"	public class B {\n" + 
+		"		void foo() { /* dummy */ }\n" + 
+		"	}\n" + 
+		"}",
+		"p1/X.java",
+		"package p1;\n" + 
+		"import p.A;\n" + 
+		"public class X {\n" +
+		"	Object foo() {\n" +
+		"		return new A().new B();\n" +
+		"	}\n" +
+		"}"
+	});
+	String expectedOutput =
+		"  Inner classes:\n" + 
+		"    [inner class info: #16 p/A$B, outer class info: #18 p/A\n" + 
+		"     inner name: #31 B, accessflags: 1 public]\n";
+	if (new CompilerOptions(this.getCompilerOptions()).targetJDK == ClassFileConstants.JDK1_1) {
+		expectedOutput =
+			"  Inner classes:\n" + 
+			"    [inner class info: #16 p/A$B, outer class info: #18 p/A\n" + 
+			"     inner name: #27 B, accessflags: 1 public]\n";
+	}
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+public void test143() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"class A {\n" + 
+		"	public class B {\n" + 
+		"		void foo() { /* dummy */ }\n" + 
+		"	}\n" + 
+		"}\n" +
+		"public class X {\n" +
+		"	Object foo() {\n" +
+		"		return A.B.class;\n" +
+		"	}\n" +
+		"}"
+	});
+	if (new CompilerOptions(this.getCompilerOptions()).targetJDK >= ClassFileConstants.JDK1_5) {
+		String expectedOutput =
+			"  Inner classes:\n" + 
+			"    [inner class info: #16 A$B, outer class info: #21 A\n" + 
+			"     inner name: #23 B, accessflags: 1 public]\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+public void test144() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"class A {\n" + 
+		"	public static class B {\n" + 
+		"		public static int CONST = 0;\n" + 
+		"	}\n" + 
+		"}\n" +
+		"public class X {\n" +
+		"	int foo() {\n" +
+		"		return A.B.CONST;\n" +
+		"	}\n" +
+		"}"
+	});
+	String expectedOutput =
+		"  Inner classes:\n" + 
+		"    [inner class info: #17 A$B, outer class info: #25 A\n" + 
+		"     inner name: #27 B, accessflags: 9 public static]\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+public void test145() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"class A {\n" + 
+		"	public static class B {\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"public class X {\n" + 
+		"	A.B field;\n" +
+		"}"
+	});
+	String expectedOutput =
+		"  Inner classes:\n" + 
+		"    [inner class info: #19 A$B, outer class info: #21 A\n" + 
+		"     inner name: #23 B, accessflags: 9 public static]\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+public void test146() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"class A {\n" + 
+		"	public static class B {\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"public class X {\n" + 
+		"	int foo(A.B o) {\n" +
+		"		return 0;\n" +
+		"	}\n" +
+		"}"
+	});
+	String expectedOutput =
+		"  Inner classes:\n" + 
+		"    [inner class info: #21 A$B, outer class info: #23 A\n" + 
+		"     inner name: #25 B, accessflags: 9 public static]\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+public void test147() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"class A {\n" + 
+		"	public static class B {\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"public class X {\n" + 
+		"	A.B foo() {\n" +
+		"		return null;\n" +
+		"	}\n" +
+		"}"
+	});
+	String expectedOutput =
+		"  Inner classes:\n" + 
+		"    [inner class info: #19 A$B, outer class info: #21 A\n" + 
+		"     inner name: #23 B, accessflags: 9 public static]\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
+public void test148() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"class A {\n" + 
+		"	public static class B extends Exception {\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"public class X {\n" + 
+		"	void foo() throws A.B{\n" +
+		"	}\n" +
+		"}"
+	});
+	String expectedOutput =
+		"  Inner classes:\n" + 
+		"    [inner class info: #16 A$B, outer class info: #21 A\n" + 
+		"     inner name: #23 B, accessflags: 9 public static]\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public static Class testClass() {
 	return InnerEmulationTest.class;

@@ -3050,17 +3050,17 @@ public class AnnotationTest extends AbstractComparableTest {
 		if (options.targetJDK == ClassFileConstants.JDK1_5) {
 			expectedOutput = 
 				"  Inner classes:\n" + 
+				"    [inner class info: #66 X$I, outer class info: #1 X\n" + 
+				"     inner name: #68 I, accessflags: 1545 public abstract static],\n" + 
 				"    [inner class info: #27 X$MyAnon, outer class info: #1 X\n" + 
-				"     inner name: #66 MyAnon, accessflags: 9737 public abstract static],\n" + 
-				"    [inner class info: #67 X$I, outer class info: #1 X\n" + 
-				"     inner name: #69 I, accessflags: 1545 public abstract static]\n"; 
+				"     inner name: #69 MyAnon, accessflags: 9737 public abstract static]\n"; 
 		} else if (options.targetJDK == ClassFileConstants.JDK1_6) {
 			expectedOutput = 
 				"  Inner classes:\n" + 
+				"    [inner class info: #70 X$I, outer class info: #1 X\n" + 
+				"     inner name: #72 I, accessflags: 1545 public abstract static],\n" + 
 				"    [inner class info: #27 X$MyAnon, outer class info: #1 X\n" + 
-				"     inner name: #70 MyAnon, accessflags: 9737 public abstract static],\n" + 
-				"    [inner class info: #71 X$I, outer class info: #1 X\n" + 
-				"     inner name: #73 I, accessflags: 1545 public abstract static]\n";			
+				"     inner name: #73 MyAnon, accessflags: 9737 public abstract static]\n";			
 		} else {
 			return;
 		}

@@ -81,7 +81,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			assertTrue("IOException", false);
 		}
 		
-		String expectedOutput = "  Enclosing Method: #23  #25 X.foo()Ljava/lang/Object;\n";
+		String expectedOutput = "  Enclosing Method: #22  #24 X.foo()Ljava/lang/Object;\n";
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -133,7 +133,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			assertTrue("IOException", false);
 		}
 		
-		String expectedOutput = " Enclosing Method: #25  #29 X$1MyLocal$A$Member.foo()Ljava/lang/Object;\n";
+		String expectedOutput = "  Enclosing Method: #22  #24 X$1MyLocal$A$Member.foo()Ljava/lang/Object;\n";
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -192,7 +192,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		String expectedOutput =
 			"  Inner classes:\n" + 
 			"    [inner class info: #1 X$1LocalClass, outer class info: #0\n" + 
-			"     inner name: #23 LocalClass, accessflags: 0 default]";
+			"     inner name: #28 LocalClass, accessflags: 0 default]\n";
 		
 		// check inner classes info
 		int index = actualOutput.indexOf(expectedOutput);
@@ -204,7 +204,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		}
 		
 		expectedOutput =
-			"  Enclosing Method: #25  #27 X.test()V";
+			"  Enclosing Method: #23  #25 X.test()V\n";
 			
 		// check enclosing method
 		index = actualOutput.indexOf(expectedOutput);

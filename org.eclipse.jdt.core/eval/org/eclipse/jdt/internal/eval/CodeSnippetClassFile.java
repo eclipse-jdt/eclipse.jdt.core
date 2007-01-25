@@ -88,7 +88,7 @@ public CodeSnippetClassFile(
 	// now we continue to generate the bytes inside the contents array
 	this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
 	this.contents[this.contentsOffset++] = (byte) accessFlags;
-	int classNameIndex = this.constantPool.literalIndexForType(aType.constantPoolName());
+	int classNameIndex = this.constantPool.literalIndexForType(aType);
 	this.contents[this.contentsOffset++] = (byte) (classNameIndex >> 8);
 	this.contents[this.contentsOffset++] = (byte) classNameIndex;
 	int superclassNameIndex;
@@ -96,7 +96,7 @@ public CodeSnippetClassFile(
 		superclassNameIndex = this.constantPool.literalIndexForType(ConstantPool.JavaLangObjectConstantPoolName);
 	} else {
 		superclassNameIndex =
-			(aType.superclass == null ? 0 : this.constantPool.literalIndexForType(aType.superclass.constantPoolName()));
+			(aType.superclass == null ? 0 : this.constantPool.literalIndexForType(aType.superclass));
 	}
 	this.contents[this.contentsOffset++] = (byte) (superclassNameIndex >> 8);
 	this.contents[this.contentsOffset++] = (byte) superclassNameIndex;
@@ -106,13 +106,12 @@ public CodeSnippetClassFile(
 	this.contents[this.contentsOffset++] = (byte) interfacesCount;
 	if (superInterfacesBinding != null) {
 		for (int i = 0; i < interfacesCount; i++) {
-			int interfaceIndex = this.constantPool.literalIndexForType(superInterfacesBinding[i].constantPoolName());
+			int interfaceIndex = this.constantPool.literalIndexForType(superInterfacesBinding[i]);
 			this.contents[this.contentsOffset++] = (byte) (interfaceIndex >> 8);
 			this.contents[this.contentsOffset++] = (byte) interfaceIndex;
 		}
 	}
 	this.produceAttributes = this.referenceBinding.scope.compilerOptions().produceDebugAttributes;
-	this.innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 	this.creatingProblemType = creatingProblemType;
 	if (this.targetJDK >= ClassFileConstants.JDK1_6) {
 		this.codeStream = new StackMapFrameCodeStream(this);
@@ -141,8 +140,9 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 	ClassFile classFile = new CodeSnippetClassFile(typeBinding, null, true);
 
 	// inner attributes
-	if (typeBinding.isMemberType())
-		classFile.recordEnclosingTypeAttributes(typeBinding);
+	if (typeBinding.isNestedType()) {
+		classFile.recordInnerClasses(typeBinding);
+	}
 
 	// add its fields
 	FieldBinding[] fields = typeBinding.fields();
@@ -195,7 +195,6 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 		for (int i = 0, max = typeDeclaration.memberTypes.length; i < max; i++) {
 			TypeDeclaration memberType = typeDeclaration.memberTypes[i];
 			if (memberType.binding != null) {
-				classFile.recordNestedMemberAttribute(memberType.binding);
 				ClassFile.createProblemType(memberType, unitResult);
 			}
 		}

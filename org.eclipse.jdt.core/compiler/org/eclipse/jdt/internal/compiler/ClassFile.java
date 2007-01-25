@@ -15,7 +15,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -106,10 +109,9 @@ public class ClassFile
 	public byte[] header;
 	// that collection contains all the remaining bytes of the .class file
 	public int headerOffset;
-	public ReferenceBinding[] innerClassesBindings;
+	public Set innerClassesBindings;
 	public int methodCount;
 	public int methodCountOffset;
-	public int numberOfInnerClasses;
 	// pool managment
 	public boolean isShared = false;
 	// used to generate private access methods
@@ -256,9 +258,10 @@ public class ClassFile
 		// TODO (olivier) handle cases where a field cannot be generated (name too long)
 		// TODO (olivier) handle too many methods
 		// inner attributes
-		if (typeBinding.isMemberType())
-			classFile.recordEnclosingTypeAttributes(typeBinding);
-	
+		if (typeBinding.isNestedType()) {
+			classFile.recordInnerClasses(typeBinding);
+		}
+
 		// add its fields
 		FieldBinding[] fields = typeBinding.fields();
 		if ((fields != null) && (fields != Binding.NO_FIELDS)) {
@@ -312,7 +315,6 @@ public class ClassFile
 			for (int i = 0, max = typeDeclaration.memberTypes.length; i < max; i++) {
 				TypeDeclaration memberType = typeDeclaration.memberTypes[i];
 				if (memberType.binding != null) {
-					classFile.recordNestedMemberAttribute(memberType.binding);
 					ClassFile.createProblemType(memberType, unitResult);
 				}
 			}
@@ -496,65 +498,6 @@ public class ClassFile
 			contents[contentsOffset++] = 0;
 			attributeNumber++;
 		}
-		// Inner class attribute
-		if (numberOfInnerClasses != 0) {
-			// Generate the inner class attribute
-			int exSize = 8 * numberOfInnerClasses + 8;
-			if (exSize + contentsOffset >= this.contents.length) {
-				resizeContents(exSize);
-			}
-			// Now we now the size of the attribute and the number of entries
-			// attribute name
-			int attributeNameIndex =
-				constantPool.literalIndex(AttributeNamesConstants.InnerClassName);
-			contents[contentsOffset++] = (byte) (attributeNameIndex >> 8);
-			contents[contentsOffset++] = (byte) attributeNameIndex;
-			int value = (numberOfInnerClasses << 3) + 2;
-			contents[contentsOffset++] = (byte) (value >> 24);
-			contents[contentsOffset++] = (byte) (value >> 16);
-			contents[contentsOffset++] = (byte) (value >> 8);
-			contents[contentsOffset++] = (byte) value;
-			contents[contentsOffset++] = (byte) (numberOfInnerClasses >> 8);
-			contents[contentsOffset++] = (byte) numberOfInnerClasses;
-			for (int i = 0; i < numberOfInnerClasses; i++) {
-				ReferenceBinding innerClass = innerClassesBindings[i];
-				int accessFlags = innerClass.getAccessFlags();
-				int innerClassIndex = constantPool.literalIndexForType(innerClass.constantPoolName());
-				// inner class index
-				contents[contentsOffset++] = (byte) (innerClassIndex >> 8);
-				contents[contentsOffset++] = (byte) innerClassIndex;
-				// outer class index: anonymous and local have no outer class index
-				if (innerClass.isMemberType()) {
-					// member or member of local
-					int outerClassIndex = constantPool.literalIndexForType(innerClass.enclosingType().constantPoolName());
-					contents[contentsOffset++] = (byte) (outerClassIndex >> 8);
-					contents[contentsOffset++] = (byte) outerClassIndex;
-				} else {
-					// equals to 0 if the innerClass is not a member type
-					contents[contentsOffset++] = 0;
-					contents[contentsOffset++] = 0;
-				}
-				// name index
-				if (!innerClass.isAnonymousType()) {
-					int nameIndex = constantPool.literalIndex(innerClass.sourceName());
-					contents[contentsOffset++] = (byte) (nameIndex >> 8);
-					contents[contentsOffset++] = (byte) nameIndex;
-				} else {
-					// equals to 0 if the innerClass is an anonymous type
-					contents[contentsOffset++] = 0;
-					contents[contentsOffset++] = 0;
-				}
-				// access flag
-				if (innerClass.isAnonymousType()) {
-					accessFlags &= ~ClassFileConstants.AccFinal;
-				} else if (innerClass.isMemberType() && innerClass.isInterface()) {
-					accessFlags |= ClassFileConstants.AccStatic; // implicitely static
-				}
-				contents[contentsOffset++] = (byte) (accessFlags >> 8);
-				contents[contentsOffset++] = (byte) accessFlags;
-			}
-			attributeNumber++;
-		}
 		// add signature attribute
 		char[] genericSignature = referenceBinding.genericSignature();
 		if (genericSignature != null) {
@@ -603,7 +546,7 @@ public class ClassFile
 			if (this.referenceBinding instanceof LocalTypeBinding) {
 				MethodBinding methodBinding = ((LocalTypeBinding) this.referenceBinding).enclosingMethod;
 				if (methodBinding != null) {
-					int enclosingMethodIndex = constantPool.literalIndexForNameAndType(methodBinding.selector, methodBinding.signature());
+					int enclosingMethodIndex = constantPool.literalIndexForNameAndType(methodBinding.selector, methodBinding.signature(this));
 					methodIndexByte1 = (byte) (enclosingMethodIndex >> 8);
 					methodIndexByte2 = (byte) enclosingMethodIndex;
 				}
@@ -636,6 +579,75 @@ public class ClassFile
 			contents[contentsOffset++] = 0;
 			contents[contentsOffset++] = 0;
 			contents[contentsOffset++] = 0;
+			attributeNumber++;
+		}
+		// Inner class attribute
+		int numberOfInnerClasses = this.innerClassesBindings == null ? 0 : this.innerClassesBindings.size();
+		if (numberOfInnerClasses != 0) {
+			ReferenceBinding[] innerClasses = new ReferenceBinding[numberOfInnerClasses];
+			this.innerClassesBindings.toArray(innerClasses);
+			Arrays.sort(innerClasses, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					TypeBinding binding1 = (TypeBinding) o1;
+					TypeBinding binding2 = (TypeBinding) o2;
+					return CharOperation.compareTo(binding1.constantPoolName(), binding2.constantPoolName());
+				}
+			});
+			// Generate the inner class attribute
+			int exSize = 8 * numberOfInnerClasses + 8;
+			if (exSize + contentsOffset >= this.contents.length) {
+				resizeContents(exSize);
+			}
+			// Now we now the size of the attribute and the number of entries
+			// attribute name
+			int attributeNameIndex =
+				constantPool.literalIndex(AttributeNamesConstants.InnerClassName);
+			contents[contentsOffset++] = (byte) (attributeNameIndex >> 8);
+			contents[contentsOffset++] = (byte) attributeNameIndex;
+			int value = (numberOfInnerClasses << 3) + 2;
+			contents[contentsOffset++] = (byte) (value >> 24);
+			contents[contentsOffset++] = (byte) (value >> 16);
+			contents[contentsOffset++] = (byte) (value >> 8);
+			contents[contentsOffset++] = (byte) value;
+			contents[contentsOffset++] = (byte) (numberOfInnerClasses >> 8);
+			contents[contentsOffset++] = (byte) numberOfInnerClasses;
+			for (int i = 0; i < numberOfInnerClasses; i++) {
+				ReferenceBinding innerClass = innerClasses[i];
+				int accessFlags = innerClass.getAccessFlags();
+				int innerClassIndex = constantPool.literalIndexForType(innerClass.constantPoolName());
+				// inner class index
+				contents[contentsOffset++] = (byte) (innerClassIndex >> 8);
+				contents[contentsOffset++] = (byte) innerClassIndex;
+				// outer class index: anonymous and local have no outer class index
+				if (innerClass.isMemberType()) {
+					// member or member of local
+					int outerClassIndex = constantPool.literalIndexForType(innerClass.enclosingType().constantPoolName());
+					contents[contentsOffset++] = (byte) (outerClassIndex >> 8);
+					contents[contentsOffset++] = (byte) outerClassIndex;
+				} else {
+					// equals to 0 if the innerClass is not a member type
+					contents[contentsOffset++] = 0;
+					contents[contentsOffset++] = 0;
+				}
+				// name index
+				if (!innerClass.isAnonymousType()) {
+					int nameIndex = constantPool.literalIndex(innerClass.sourceName());
+					contents[contentsOffset++] = (byte) (nameIndex >> 8);
+					contents[contentsOffset++] = (byte) nameIndex;
+				} else {
+					// equals to 0 if the innerClass is an anonymous type
+					contents[contentsOffset++] = 0;
+					contents[contentsOffset++] = 0;
+				}
+				// access flag
+				if (innerClass.isAnonymousType()) {
+					accessFlags &= ~ClassFileConstants.AccFinal;
+				} else if (innerClass.isMemberType() && innerClass.isInterface()) {
+					accessFlags |= ClassFileConstants.AccStatic; // implicitely static
+				}
+				contents[contentsOffset++] = (byte) (accessFlags >> 8);
+				contents[contentsOffset++] = (byte) accessFlags;
+			}
 			attributeNumber++;
 		}
 		// update the number of attributes
@@ -840,7 +852,7 @@ public class ClassFile
 		contents[contentsOffset++] = (byte) (nameIndex >> 8);
 		contents[contentsOffset++] = (byte) nameIndex;
 		// Then the descriptorIndex
-		int descriptorIndex = constantPool.literalIndex(fieldBinding.type.signature());
+		int descriptorIndex = constantPool.literalIndex(fieldBinding.type);
 		contents[contentsOffset++] = (byte) (descriptorIndex >> 8);
 		contents[contentsOffset++] = (byte) descriptorIndex;
 		int fieldAttributeOffset = contentsOffset;
@@ -896,31 +908,6 @@ public class ClassFile
 			}
 		}
 	}
-
-	/**
-	 * INTERNAL USE-ONLY
-	 * This methods stores the bindings for each inner class. They will be used to know which entries
-	 * have to be generated for the inner classes attributes.
-	 * @param refBinding org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding 
-	 */
-	private void addInnerClasses(ReferenceBinding refBinding) {
-		// check first if that reference binding is there
-		for (int i = 0; i < numberOfInnerClasses; i++) {
-			if (innerClassesBindings[i] == refBinding)
-				return;
-		}
-		int length = innerClassesBindings.length;
-		if (numberOfInnerClasses == length) {
-			System.arraycopy(
-				innerClassesBindings,
-				0,
-				innerClassesBindings = new ReferenceBinding[length * 2],
-				0,
-				length);
-		}
-		innerClassesBindings[numberOfInnerClasses++] = refBinding;
-	}
-
 	private void addMissingAbstractProblemMethod(MethodDeclaration methodDeclaration, MethodBinding methodBinding, CategorizedProblem problem, CompilationResult compilationResult) {
 		// always clear the strictfp/native/abstract bit for a problem method
 		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
@@ -1532,7 +1519,7 @@ public class ClassFile
 							/* represents ClassNotFoundException, see class literal access*/
 							nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
 						} else {
-							nameIndex = constantPool.literalIndexForType(exceptionLabel.exceptionType.constantPoolName());
+							nameIndex = constantPool.literalIndexForType(exceptionLabel.exceptionType);
 						}
 						this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 						this.contents[localContentsOffset++] = (byte) nameIndex;
@@ -2212,7 +2199,7 @@ public class ClassFile
 							/* represents denote ClassNotFoundException, see class literal access*/
 							nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
 						} else {
-							nameIndex = constantPool.literalIndexForType(exceptionLabel.exceptionType.constantPoolName());
+							nameIndex = constantPool.literalIndexForType(exceptionLabel.exceptionType);
 						}
 						this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 						this.contents[localContentsOffset++] = (byte) nameIndex;
@@ -4407,7 +4394,7 @@ public class ClassFile
 									nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangNoSuchFieldErrorConstantPoolName);
 									break;
 								default:
-									nameIndex = constantPool.literalIndexForType(exceptionLabel.exceptionType.constantPoolName());
+									nameIndex = constantPool.literalIndexForType(exceptionLabel.exceptionType);
 							}
 							this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 							this.contents[localContentsOffset++] = (byte) nameIndex;
@@ -5330,7 +5317,7 @@ public class ClassFile
 			contents[contentsOffset++] = (byte) (length >> 8);
 			contents[contentsOffset++] = (byte) length;
 			for (int i = 0; i < length; i++) {
-				int exceptionIndex = constantPool.literalIndexForType(thrownsExceptions[i].constantPoolName());
+				int exceptionIndex = constantPool.literalIndexForType(thrownsExceptions[i]);
 				contents[contentsOffset++] = (byte) (exceptionIndex >> 8);
 				contents[contentsOffset++] = (byte) exceptionIndex;
 			}
@@ -5457,7 +5444,7 @@ public class ClassFile
 		int nameIndex = constantPool.literalIndex(methodBinding.selector);
 		contents[contentsOffset++] = (byte) (nameIndex >> 8);
 		contents[contentsOffset++] = (byte) nameIndex;
-		int descriptorIndex = constantPool.literalIndex(methodBinding.signature());
+		int descriptorIndex = constantPool.literalIndex(methodBinding.signature(this));
 		contents[contentsOffset++] = (byte) (descriptorIndex >> 8);
 		contents[contentsOffset++] = (byte) descriptorIndex;
 	}
@@ -5832,7 +5819,7 @@ public class ClassFile
 		// now we continue to generate the bytes inside the contents array
 		contents[contentsOffset++] = (byte) (accessFlags >> 8);
 		contents[contentsOffset++] = (byte) accessFlags;
-		int classNameIndex = constantPool.literalIndexForType(aType.constantPoolName());
+		int classNameIndex = constantPool.literalIndexForType(aType);
 		contents[contentsOffset++] = (byte) (classNameIndex >> 8);
 		contents[contentsOffset++] = (byte) classNameIndex;
 		int superclassNameIndex;
@@ -5840,7 +5827,7 @@ public class ClassFile
 			superclassNameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangObjectConstantPoolName);
 		} else {
 			superclassNameIndex =
-				(aType.superclass == null ? 0 : constantPool.literalIndexForType(aType.superclass.constantPoolName()));
+				(aType.superclass == null ? 0 : constantPool.literalIndexForType(aType.superclass));
 		}
 		contents[contentsOffset++] = (byte) (superclassNameIndex >> 8);
 		contents[contentsOffset++] = (byte) superclassNameIndex;
@@ -5849,11 +5836,10 @@ public class ClassFile
 		contents[contentsOffset++] = (byte) (interfacesCount >> 8);
 		contents[contentsOffset++] = (byte) interfacesCount;
 		for (int i = 0; i < interfacesCount; i++) {
-			int interfaceIndex = constantPool.literalIndexForType(superInterfacesBinding[i].constantPoolName());
+			int interfaceIndex = constantPool.literalIndexForType(superInterfacesBinding[i]);
 			contents[contentsOffset++] = (byte) (interfaceIndex >> 8);
 			contents[contentsOffset++] = (byte) interfaceIndex;
 		}
-		innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 		this.creatingProblemType = createProblemType;
 
 		// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
@@ -5904,78 +5890,20 @@ public class ClassFile
 		return current;
 	}
 
-	/**
-	 * INTERNAL USE-ONLY
-	 * This is used to store a new inner class. It checks that the binding @binding doesn't already exist inside the
-	 * collection of inner classes. Add all the necessary classes in the right order to fit to the specifications.
-	 *
-	 * @param binding org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding
-	 */
-	public void recordEnclosingTypeAttributes(ReferenceBinding binding) {
-		// add all the enclosing types
-		ReferenceBinding enclosingType = referenceBinding.enclosingType();
-		int depth = 0;
-		while (enclosingType != null) {
-			depth++;
-			enclosingType = enclosingType.enclosingType();
+	public void recordInnerClasses(TypeBinding binding) {
+		if (this.innerClassesBindings == null) {
+			this.innerClassesBindings = new HashSet(INNER_CLASSES_SIZE);
 		}
-		enclosingType = referenceBinding;
-		ReferenceBinding enclosingTypes[];
-		if (depth >= 2) {
-			enclosingTypes = new ReferenceBinding[depth];
-			for (int i = depth - 1; i >= 0; i--) {
-				enclosingTypes[i] = enclosingType;
-				enclosingType = enclosingType.enclosingType();
-			}
-			for (int i = 0; i < depth; i++) {
-				addInnerClasses(enclosingTypes[i]);
-			}
-		} else {
-			addInnerClasses(referenceBinding);
+		ReferenceBinding innerClass = (ReferenceBinding) binding;
+		this.innerClassesBindings.add(innerClass.erasure());
+		ReferenceBinding enclosingType = innerClass.enclosingType();
+		while (enclosingType != null
+				&& enclosingType.isNestedType()) {
+			this.innerClassesBindings.add(enclosingType.erasure());
+			enclosingType = enclosingType.enclosingType();
 		}
 	}
 
-	/**
-	 * INTERNAL USE-ONLY
-	 * This is used to store a new inner class. It checks that the binding @binding doesn't already exist inside the
-	 * collection of inner classes. Add all the necessary classes in the right order to fit to the specifications.
-	 *
-	 * @param binding org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding
-	 */
-	public void recordNestedLocalAttribute(ReferenceBinding binding) {
-		// add all the enclosing types
-		ReferenceBinding enclosingType = referenceBinding.enclosingType();
-		int depth = 0;
-		while (enclosingType != null) {
-			depth++;
-			enclosingType = enclosingType.enclosingType();
-		}
-		enclosingType = referenceBinding;
-		ReferenceBinding enclosingTypes[];
-		if (depth >= 2) {
-			enclosingTypes = new ReferenceBinding[depth];
-			for (int i = depth - 1; i >= 0; i--) {
-				enclosingTypes[i] = enclosingType;
-				enclosingType = enclosingType.enclosingType();
-			}
-			for (int i = 0; i < depth; i++)
-				addInnerClasses(enclosingTypes[i]);
-		} else {
-			addInnerClasses(binding);
-		}
-	}
-
-	/**
-	 * INTERNAL USE-ONLY
-	 * This is used to store a new inner class. It checks that the binding @binding doesn't already exist inside the
-	 * collection of inner classes. Add all the necessary classes in the right order to fit to the specifications.
-	 *
-	 * @param binding org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding
-	 */
-	public void recordNestedMemberAttribute(ReferenceBinding binding) {
-		addInnerClasses(binding);
-	}
-	
 	public void reset(SourceTypeBinding typeBinding) {
 		// the code stream is reinitialized for each method
 		final CompilerOptions options = typeBinding.scope.compilerOptions();
@@ -5995,7 +5923,9 @@ public class ClassFile
 		this.headerOffset = 0;
 		this.methodCount = 0;
 		this.methodCountOffset = 0;
-		this.numberOfInnerClasses = 0;
+		if (this.innerClassesBindings != null) {
+			this.innerClassesBindings.clear();
+		}
 	}
 
 	/**

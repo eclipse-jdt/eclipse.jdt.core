@@ -85,6 +85,29 @@ public void test006() {
 		 assertEquals("Wrong value at " + i, result[i], expectedValue[i]);
 	 }
 }
+// test compareTo(char[], char[])
+public void test007() {
+	char[] array = { 'a' , 'a', 'a', 'a', 'a', 'b', 'c', 'a' };
+	char[] array2 = { 'a', 'a' };
+	assertTrue(CharOperation.compareTo(array, array2) > 0);
+
+	 array2 = new char[] { 'a', 'a' };
+	 array = new char[] { 'a' , 'a', 'a', 'a', 'a', 'b', 'c', 'a' };
+	 assertTrue(CharOperation.compareTo(array2, array) < 0);
+
+	array = new char[] { 'a' , 'a', 'a', 'a', 'a', 'b', 'c', 'a' };
+	array2 = new char[] { 'a' , 'a', 'a', 'a', 'a', 'b', 'c', 'a' };
+	assertTrue(CharOperation.compareTo(array, array2) == 0);
+	assertTrue(CharOperation.compareTo(array2, array) == 0);
+
+	array = new char[] { 'a' , 'b', 'c' };
+	array2 = new char[] { 'a' , 'b', 'c', 'a', 'a'};
+	assertTrue(CharOperation.compareTo(array, array2) < 0);
+
+	array = new char[] { 'a' , 'b', 'c' };
+	array2 = new char[] { 'a' , 'b', 'd'};
+	assertTrue(CharOperation.compareTo(array, array2) < 0);
+}
 public static Class testClass() {
 	return CharOperationTest.class;
 }

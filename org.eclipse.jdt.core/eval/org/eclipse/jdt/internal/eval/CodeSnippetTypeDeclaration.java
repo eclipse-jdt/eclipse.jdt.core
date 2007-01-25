@@ -39,21 +39,18 @@ public void generateCode(ClassFile enclosingClassFile) {
 		ClassFile classFile = new CodeSnippetClassFile(this.binding, enclosingClassFile, false);
 		// generate all fiels
 		classFile.addFieldInfos();
-
-		// record the inner type inside its own .class file to be able
-		// to generate inner classes attributes
-		if (this.binding.isMemberType())
-			classFile.recordEnclosingTypeAttributes(this.binding);
-		if (this.binding.isLocalType()) {
-			enclosingClassFile.recordNestedLocalAttribute(this.binding);
-			classFile.recordNestedLocalAttribute(this.binding);
+		if (this.binding.isMemberType()) {
+			classFile.recordInnerClasses(this.binding);
+		} else if (this.binding.isLocalType()) {
+			enclosingClassFile.recordInnerClasses(this.binding);
+			classFile.recordInnerClasses(this.binding);
 		}
+
 		if (this.memberTypes != null) {
 			for (int i = 0, max = this.memberTypes.length; i < max; i++) {
-				// record the inner type inside its own .class file to be able
-				// to generate inner classes attributes
-				classFile.recordNestedMemberAttribute(this.memberTypes[i].binding);
-				this.memberTypes[i].generateCode(this.scope, classFile);
+				TypeDeclaration memberType = this.memberTypes[i];
+				classFile.recordInnerClasses(memberType.binding);
+				memberType.generateCode(this.scope, classFile);
 			}
 		}
 		// generate all methods

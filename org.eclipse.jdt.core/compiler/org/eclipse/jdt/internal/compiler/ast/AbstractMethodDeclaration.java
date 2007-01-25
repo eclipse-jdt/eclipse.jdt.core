@@ -73,7 +73,7 @@ public abstract class AbstractMethodDeclaration
 
 	public abstract void analyseCode(ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo info);
 
-		/**
+	/**
 	 * Bind and add argument's binding into the scope of the method
 	 */
 	public void bindArguments() {
