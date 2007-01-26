@@ -2473,6 +2473,33 @@ public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBindi
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void inheritedMethodsHaveIncompatibleReturnTypes(ASTNode location, MethodBinding[] inheritedMethods, int length) {
+	StringBuffer methodSignatures = new StringBuffer();
+	StringBuffer shortSignatures = new StringBuffer();
+	for (int i = length; --i >= 0;) {
+		methodSignatures
+			.append(inheritedMethods[i].declaringClass.readableName())
+			.append('.')
+			.append(inheritedMethods[i].readableName());
+		shortSignatures
+			.append(inheritedMethods[i].declaringClass.shortReadableName())
+			.append('.')
+			.append(inheritedMethods[i].shortReadableName());
+		if (i != 0){
+			methodSignatures.append(", "); //$NON-NLS-1$
+			shortSignatures.append(", "); //$NON-NLS-1$
+		}
+	}
+
+	this.handle(
+		// Return type is incompatible with %1
+		// 9.4.2 - The return type from the method is incompatible with the declaration.
+		IProblem.IncompatibleReturnType,
+		new String[] {methodSignatures.toString()},
+		new String[] {shortSignatures.toString()},
+		location.sourceStart,
+		location.sourceEnd);
+}
 public void inheritedMethodsHaveIncompatibleReturnTypes(SourceTypeBinding type, MethodBinding[] inheritedMethods, int length) {
 	StringBuffer methodSignatures = new StringBuffer();
 	StringBuffer shortSignatures = new StringBuffer();

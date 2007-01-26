@@ -2023,7 +2023,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\r\n" + 
 			"	public class X<T extends I&J> {}\r\n" + 
-			"	             ^\n" + 
+			"	               ^\n" + 
 			"The return type is incompatible with J.foo(), I.foo()\n" + 
 			"----------\n"
 			// types J and I are incompatible; both define foo(), but with unrelated return types
@@ -2041,7 +2041,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\r\n" + 
 			"	class A { public Object foo() { return null; } }public class X<T extends A&I> {}\r\n" + 
-			"	                                                             ^\n" + 
+			"	                                                               ^\n" + 
 			"The return type is incompatible with I.foo(), A.foo()\n" + 
 			"----------\n"
 			// foo() in A cannot implement foo() in I; attempting to use incompatible return type

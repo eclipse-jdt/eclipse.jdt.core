@@ -1875,4 +1875,112 @@ public void test046() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
+// **
+public void test047() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends I & J> {\n" + 
+			"  void foo(T t) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface I {\n" + 
+			"  public int method();\n" + 
+			"}\n" + 
+			"interface J {\n" + 
+			"  public boolean method();\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends I & J> {\n" + 
+		"	               ^\n" + 
+		"The return type is incompatible with J.method(), I.method()\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
+// Variant: javac complains as well if we attempt to use method, but noone
+// complains upon bar or CONSTANT.
+public void test048() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends I & J> {\n" + 
+			"  void foo(T t) {\n" + 
+			"    t.method();\n" + 
+			"    t.bar();\n" + 
+			"    if (t.CONSTANT > 0);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface I {\n" + 
+			"  public int method();\n" + 
+			"  void bar();\n" + 
+			"}\n" + 
+			"interface J {\n" + 
+			"  public boolean method();\n" + 
+			"  static final int CONSTANT = 0;\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T extends I & J> {\n" + 
+		"	               ^\n" + 
+		"The return type is incompatible with J.method(), I.method()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	t.method();\n" + 
+		"	  ^^^^^^\n" + 
+		"The method method() is ambiguous for the type T\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	if (t.CONSTANT > 0);\n" + 
+		"	      ^^^^^^^^\n" + 
+		"The static field J.CONSTANT should be accessed in a static way\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
+// can't implement both interfaces though
+public void test049() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  public int method();\n" + 
+			"}\n" + 
+			"interface J {\n" + 
+			"  public boolean method();\n" + 
+			"}\n" + 
+			"class X implements I, J {\n" + 
+			"  public int method() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	public int method() {\n" + 
+		"	       ^^^\n" + 
+		"The return type is incompatible with J.method()\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
+// variant: secure the legal case
+public void test050() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends I & J> {\n" + 
+			"  void foo(T t) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface I {\n" + 
+			"  public int method();\n" + 
+			"}\n" + 
+			"interface J {\n" + 
+			"  public int method();\n" + 
+			"}\n"
+		},
+		"");
+}
 }

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
@@ -447,7 +448,7 @@ void checkMethods() {
 		}
 	}
 }
-void checkTypeVariableMethods() {
+void checkTypeVariableMethods(TypeParameter typeParameter) {
 	char[][] methodSelectors = this.inheritedMethods.keyTable;
 	nextSelector : for (int s = methodSelectors.length; --s >= 0;) {
 		if (methodSelectors[s] == null) continue nextSelector;
@@ -477,7 +478,7 @@ void checkTypeVariableMethods() {
 				int count = index + 1;
 				while (--count > 0 && areReturnTypesEqual(first, matchingInherited[count])){/*empty*/}
 				if (count > 0) {  // All inherited methods do NOT have the same vmSignature
-					problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, matchingInherited, index + 1);
+					problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(typeParameter, matchingInherited, index + 1);
 					continue nextSelector;
 				}
 			}
@@ -774,7 +775,7 @@ void verify(SourceTypeBinding someType) {
 				: itsInterfaces[j];
 		}
 		computeInheritedMethods(superclass, superInterfaces);
-		checkTypeVariableMethods();
+		checkTypeVariableMethods(someType.scope.referenceContext.typeParameters[i]);
 	}
 }
 }
