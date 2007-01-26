@@ -700,7 +700,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		for (int i = 0; i < files.length; i++) {
 			File sourceChild = files[i];
 			String name =  sourceChild.getName();
-			if (name.equals("CVS")) continue;
+			if (name.equals("CVS") || name.equals(".svn")) continue;
 			File targetChild = new File(target, name);
 			if (sourceChild.isDirectory()) {
 				copyDirectory(sourceChild, targetChild);
