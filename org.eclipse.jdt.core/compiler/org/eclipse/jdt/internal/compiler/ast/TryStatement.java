@@ -49,7 +49,7 @@ public class TryStatement extends SubRoutineStatement {
 	private BranchLabel[] reusableJSRSequenceStartLabels;
 	private int[] reusableJSRStateIndexes;
 	private int reusableJSRTargetsCount = 0;
-	
+
 	private final static int NO_FINALLY = 0;										// no finally block
 	private final static int FINALLY_SUBROUTINE = 1; 					// finally is generated as a subroutine (using jsr/ret bytecodes)
 	private final static int FINALLY_DOES_NOT_COMPLETE = 2;		// non returning finally is optimized with only one instance of finally block
@@ -59,6 +59,7 @@ public class TryStatement extends SubRoutineStatement {
 	int mergedInitStateIndex = -1;
 	int preTryInitStateIndex = -1;
 	int naturalExitMergeInitStateIndex = -1;
+	int[] catchExitInitStateIndexes;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -109,6 +110,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (this.catchArguments != null) {
 			int catchCount;
 			this.catchExits = new boolean[catchCount = this.catchBlocks.length];
+			this.catchExitInitStateIndexes = new int[catchCount];
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
 				FlowInfo catchInfo;
@@ -122,8 +124,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 								addPotentialInitializationsFrom(tryInfo).
 								addPotentialInitializationsFrom(
 									handlingContext.initsOnReturn));
-				}
-				else {
+				} else {
 					catchInfo =
 						flowInfo.unconditionalCopy().
 							addPotentialInitializationsFrom(
@@ -157,6 +158,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 						currentScope,
 						flowContext,
 						catchInfo);
+				this.catchExitInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(catchInfo);
 				this.catchExits[i] = 
 					(catchInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
 				tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
@@ -219,6 +221,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (this.catchArguments != null) {
 			int catchCount;
 			this.catchExits = new boolean[catchCount = this.catchBlocks.length];
+			this.catchExitInitStateIndexes = new int[catchCount];
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
 				FlowInfo catchInfo;
@@ -232,20 +235,19 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 								addPotentialInitializationsFrom(tryInfo).
 								addPotentialInitializationsFrom(
 									handlingContext.initsOnReturn));
-				}
-				else {
-				catchInfo =
-					flowInfo.unconditionalCopy()
-						.addPotentialInitializationsFrom(
-							handlingContext.initsOnException(
-								this.caughtExceptionTypes[i]))
-						.addPotentialInitializationsFrom(
-							tryInfo.nullInfoLessUnconditionalCopy())
-							// remove null info to protect point of 
-							// exception null info 
-						.addPotentialInitializationsFrom(
-							handlingContext.initsOnReturn.
-								nullInfoLessUnconditionalCopy());
+				}else {
+					catchInfo =
+						flowInfo.unconditionalCopy()
+							.addPotentialInitializationsFrom(
+								handlingContext.initsOnException(
+									this.caughtExceptionTypes[i]))
+									.addPotentialInitializationsFrom(
+								tryInfo.nullInfoLessUnconditionalCopy())
+								// remove null info to protect point of 
+								// exception null info 
+							.addPotentialInitializationsFrom(
+									handlingContext.initsOnReturn.
+									nullInfoLessUnconditionalCopy());
 				}
 
 				// catch var is always set
@@ -267,6 +269,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 						currentScope,
 						insideSubContext,
 						catchInfo);
+				this.catchExitInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(catchInfo);
 				this.catchExits[i] =
 					(catchInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
 				tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
@@ -349,6 +352,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if ((this.bits & ASTNode.IsReachable) == 0) {
 		return;
 	}
+	boolean isStackMapFrameCodeStream = codeStream instanceof StackMapFrameCodeStream;
 	// in case the labels needs to be reinitialized
 	// when the code generation is restarted in wide mode
 	this.anyExceptionLabel = null;
@@ -360,7 +364,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	int finallyMode = finallyMode();
 	
 	boolean requiresNaturalExit = false;
-	boolean requiresCatchesExit = false;
 	// preparing exception labels
 	int maxCatches = this.catchArguments == null ? 0 : this.catchArguments.length;
 	ExceptionLabel[] exceptionLabels;
@@ -427,11 +430,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		thrown) into their own catch variables, the one specified in the source
 		that must denote the handled exception.
 		*/
+		this.exitAnyExceptionHandler();
 		if (this.catchArguments != null) {
-			catchesExitLabel = new BranchLabel(codeStream);
 			postCatchesFinallyLabel = new BranchLabel(codeStream);
 			
 			for (int i = 0; i < maxCatches; i++) {
+				enterAnyExceptionHandler(codeStream);
 				// May loose some local variable initializations : affecting the local variable attributes
 				if (this.preTryInitStateIndex != -1) {
 					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
@@ -453,11 +457,24 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				// Keep track of the pcs at diverging point for computing the local attribute
 				// since not passing the catchScope, the block generation will exitUserScope(catchScope)
 				this.catchBlocks[i].generateCode(this.scope, codeStream);
+				this.exitAnyExceptionHandler();
 				if (!this.catchExits[i]) {
 					switch(finallyMode) {
 						case FINALLY_INLINE :
-							requiresCatchesExit = true;
-							codeStream.goto_(catchesExitLabel);
+							// inlined finally here can see all merged variables
+							if (isStackMapFrameCodeStream) {
+								((StackMapFrameCodeStream) codeStream).pushStateIndex(this.naturalExitMergeInitStateIndex);
+							}							
+							if (this.catchExitInitStateIndexes[i] != -1) {
+								codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.catchExitInitStateIndexes[i]);
+								codeStream.addDefinitelyAssignedVariables(currentScope, this.catchExitInitStateIndexes[i]);
+							}
+							// entire sequence for finally is associated to finally block
+							this.finallyBlock.generateCode(this.scope, codeStream);
+							codeStream.goto_(postCatchesFinallyLabel);
+							if (isStackMapFrameCodeStream) {
+								((StackMapFrameCodeStream) codeStream).popStateIndex();
+							}
 							break;
 						case FINALLY_SUBROUTINE :
 							requiresNaturalExit = true;
@@ -476,7 +493,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				}
 			}
 		}
-		this.exitAnyExceptionHandler();
 		// extra handler for trailing natural exit (will be fixed up later on when natural exit is generated below)
 		ExceptionLabel naturalExitExceptionHandler = requiresNaturalExit && (finallyMode == FINALLY_SUBROUTINE) 
 					? new ExceptionLabel(codeStream, null) 
@@ -557,7 +573,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 						break;
 					case FINALLY_INLINE :
 						// inlined finally here can see all merged variables
-						boolean isStackMapFrameCodeStream = codeStream instanceof StackMapFrameCodeStream;
 						if (isStackMapFrameCodeStream) {
 							((StackMapFrameCodeStream) codeStream).pushStateIndex(this.naturalExitMergeInitStateIndex);
 						}
@@ -568,7 +583,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 						naturalExitLabel.place();
 						// entire sequence for finally is associated to finally block
 						this.finallyBlock.generateCode(this.scope, codeStream);
-						if (postCatchesFinallyLabel != null && requiresCatchesExit) {
+						if (postCatchesFinallyLabel != null) {
 							position = codeStream.position;
 							// entire sequence for finally is associated to finally block
 							codeStream.goto_(postCatchesFinallyLabel);
@@ -587,20 +602,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 						break;
 				}
 			}
-			if (requiresCatchesExit) {
-				switch(finallyMode) {
-					case FINALLY_INLINE :
-						// inlined finally here can see all merged variables
-						if (this.preTryInitStateIndex != -1) {
-							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
-							codeStream.addDefinitelyAssignedVariables(currentScope, this.preTryInitStateIndex);
-						}
-						catchesExitLabel.place();
-						// entire sequence for finally is associated to finally block
-						this.finallyBlock.generateCode(this.scope, codeStream);
-						postCatchesFinallyLabel.place();
-						break;
-				}
+			if (postCatchesFinallyLabel != null) {
+				postCatchesFinallyLabel.place();
 			}
 		} else {
 			// no subroutine, simply position end label (natural exit == end)

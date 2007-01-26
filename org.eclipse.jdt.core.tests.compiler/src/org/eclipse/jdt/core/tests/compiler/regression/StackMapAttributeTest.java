@@ -263,39 +263,38 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"    30  dstore 8\n" + 
 				"    32  iload 5 [j]\n" + 
 				"    34  invokestatic X.bar(int) : void [16]\n" + 
-				"    37  goto 56\n" + 
+				"    37  goto 58\n" + 
 				"    40  astore 5 [e]\n" + 
 				"    42  ldc2_w <Double 2.0> [20]\n" + 
 				"    45  dstore_3 [i]\n" + 
-				"    46  goto 61\n" + 
-				"    49  astore 10\n" + 
-				"    51  dconst_1\n" + 
-				"    52  dstore_3 [i]\n" + 
-				"    53  aload 10\n" + 
-				"    55  athrow\n" + 
-				"    56  dconst_1\n" + 
-				"    57  dstore_3 [i]\n" + 
-				"    58  goto 63\n" + 
+				"    46  dconst_1\n" + 
+				"    47  dstore_3 [i]\n" + 
+				"    48  goto 60\n" + 
+				"    51  astore 10\n" + 
+				"    53  dconst_1\n" + 
+				"    54  dstore_3 [i]\n" + 
+				"    55  aload 10\n" + 
+				"    57  athrow\n" + 
+				"    58  dconst_1\n" + 
+				"    59  dstore_3 [i]\n" + 
+				"    60  dload_3 [i]\n" + 
 				"    61  dconst_1\n" + 
-				"    62  dstore_3 [i]\n" + 
-				"    63  dload_3 [i]\n" + 
-				"    64  dconst_1\n" + 
-				"    65  dadd\n" + 
-				"    66  d2l\n" + 
-				"    67  lstore 5 [j]\n" + 
-				"    69  lload 5 [j]\n" + 
-				"    71  l2i\n" + 
-				"    72  istore 7 [k]\n" + 
-				"    74  iload 7 [k]\n" + 
-				"    76  i2l\n" + 
-				"    77  lload 5 [j]\n" + 
-				"    79  ladd\n" + 
-				"    80  l2i\n" + 
-				"    81  istore 7 [k]\n" + 
-				"    83  return\n" + 
+				"    62  dadd\n" + 
+				"    63  d2l\n" + 
+				"    64  lstore 5 [j]\n" + 
+				"    66  lload 5 [j]\n" + 
+				"    68  l2i\n" + 
+				"    69  istore 7 [k]\n" + 
+				"    71  iload 7 [k]\n" + 
+				"    73  i2l\n" + 
+				"    74  lload 5 [j]\n" + 
+				"    76  ladd\n" + 
+				"    77  l2i\n" + 
+				"    78  istore 7 [k]\n" + 
+				"    80  return\n" + 
 				"      Exception Table:\n" + 
 				"        [pc: 0, pc: 37] -> 40 when : java.lang.NullPointerException\n" + 
-				"        [pc: 0, pc: 49] -> 49 when : any\n" + 
+				"        [pc: 0, pc: 46] -> 51 when : any\n" + 
 				"      Line numbers:\n" + 
 				"        [pc: 0, line: 5]\n" + 
 				"        [pc: 2, line: 6]\n" + 
@@ -308,36 +307,33 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 32, line: 15]\n" + 
 				"        [pc: 40, line: 16]\n" + 
 				"        [pc: 42, line: 17]\n" + 
-				"        [pc: 49, line: 18]\n" + 
-				"        [pc: 51, line: 19]\n" + 
-				"        [pc: 53, line: 20]\n" + 
-				"        [pc: 56, line: 19]\n" + 
-				"        [pc: 58, line: 20]\n" + 
-				"        [pc: 61, line: 19]\n" + 
-				"        [pc: 63, line: 21]\n" + 
-				"        [pc: 69, line: 22]\n" + 
-				"        [pc: 74, line: 23]\n" + 
-				"        [pc: 83, line: 24]\n" + 
+				"        [pc: 46, line: 19]\n" + 
+				"        [pc: 51, line: 18]\n" + 
+				"        [pc: 53, line: 19]\n" + 
+				"        [pc: 55, line: 20]\n" + 
+				"        [pc: 58, line: 19]\n" + 
+				"        [pc: 60, line: 21]\n" + 
+				"        [pc: 66, line: 22]\n" + 
+				"        [pc: 71, line: 23]\n" + 
+				"        [pc: 80, line: 24]\n" + 
 				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 84] local: d index: 0 type: double\n" + 
-				"        [pc: 0, pc: 84] local: b index: 2 type: boolean\n" + 
+				"        [pc: 0, pc: 81] local: d index: 0 type: double\n" + 
+				"        [pc: 0, pc: 81] local: b index: 2 type: boolean\n" + 
 				"        [pc: 2, pc: 40] local: i index: 3 type: double\n" + 
-				"        [pc: 46, pc: 49] local: i index: 3 type: double\n" + 
-				"        [pc: 53, pc: 61] local: i index: 3 type: double\n" + 
-				"        [pc: 63, pc: 84] local: i index: 3 type: double\n" + 
+				"        [pc: 46, pc: 51] local: i index: 3 type: double\n" + 
+				"        [pc: 55, pc: 81] local: i index: 3 type: double\n" + 
 				"        [pc: 12, pc: 40] local: j index: 5 type: int\n" + 
 				"        [pc: 19, pc: 32] local: d1 index: 6 type: double\n" + 
 				"        [pc: 42, pc: 46] local: e index: 5 type: java.lang.NullPointerException\n" + 
-				"        [pc: 69, pc: 84] local: j index: 5 type: long\n" + 
-				"        [pc: 74, pc: 84] local: k index: 7 type: int\n" + 
-				"      Stack map table: number of frames 7\n" + 
+				"        [pc: 66, pc: 81] local: j index: 5 type: long\n" + 
+				"        [pc: 71, pc: 81] local: k index: 7 type: int\n" + 
+				"      Stack map table: number of frames 6\n" + 
 				"        [pc: 26, append: {double, int, double}]\n" + 
 				"        [pc: 32, chop 1 local(s)]\n" + 
 				"        [pc: 40, full, stack: {java.lang.NullPointerException}, locals: {double, int}]\n" + 
-				"        [pc: 49, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" + 
-				"        [pc: 56, append: {double}]\n" + 
-				"        [pc: 61, chop 1 local(s)]\n" + 
-				"        [pc: 63, append: {double}]\n";
+				"        [pc: 51, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" + 
+				"        [pc: 58, append: {double}]\n" + 
+				"        [pc: 60, same]\n";
 			
 			int index = actualOutput.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
@@ -408,28 +404,27 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"    16  istore_2 [j]\n" + 
 				"    17  iload_2 [j]\n" + 
 				"    18  invokestatic X.bar(int) : void [30]\n" + 
-				"    21  goto 43\n" + 
+				"    21  goto 51\n" + 
 				"    24  astore_2 [e]\n" + 
 				"    25  aload_2 [e]\n" + 
 				"    26  invokevirtual java.lang.NullPointerException.printStackTrace() : void [34]\n" + 
-				"    29  goto 54\n" + 
-				"    32  astore_3\n" + 
-				"    33  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-				"    36  ldc <String \"FINALLY\"> [22]\n" + 
-				"    38  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
-				"    41  aload_3\n" + 
-				"    42  athrow\n" + 
-				"    43  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-				"    46  ldc <String \"FINALLY\"> [22]\n" + 
-				"    48  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
-				"    51  goto 62\n" + 
-				"    54  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-				"    57  ldc <String \"FINALLY\"> [22]\n" + 
-				"    59  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
-				"    62  return\n" + 
+				"    29  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+				"    32  ldc <String \"FINALLY\"> [22]\n" + 
+				"    34  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+				"    37  goto 59\n" + 
+				"    40  astore_3\n" + 
+				"    41  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+				"    44  ldc <String \"FINALLY\"> [22]\n" + 
+				"    46  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+				"    49  aload_3\n" + 
+				"    50  athrow\n" + 
+				"    51  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+				"    54  ldc <String \"FINALLY\"> [22]\n" + 
+				"    56  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+				"    59  return\n" + 
 				"      Exception Table:\n" + 
 				"        [pc: 2, pc: 21] -> 24 when : java.lang.NullPointerException\n" + 
-				"        [pc: 2, pc: 32] -> 32 when : any\n" + 
+				"        [pc: 2, pc: 29] -> 40 when : any\n" + 
 				"      Line numbers:\n" + 
 				"        [pc: 0, line: 3]\n" + 
 				"        [pc: 2, line: 5]\n" + 
@@ -438,24 +433,22 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 17, line: 8]\n" + 
 				"        [pc: 24, line: 9]\n" + 
 				"        [pc: 25, line: 10]\n" + 
-				"        [pc: 32, line: 11]\n" + 
-				"        [pc: 33, line: 12]\n" + 
-				"        [pc: 41, line: 13]\n" + 
-				"        [pc: 43, line: 12]\n" + 
-				"        [pc: 51, line: 13]\n" + 
-				"        [pc: 54, line: 12]\n" + 
-				"        [pc: 62, line: 14]\n" + 
+				"        [pc: 29, line: 12]\n" + 
+				"        [pc: 40, line: 11]\n" + 
+				"        [pc: 41, line: 12]\n" + 
+				"        [pc: 49, line: 13]\n" + 
+				"        [pc: 51, line: 12]\n" + 
+				"        [pc: 59, line: 14]\n" + 
 				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 63] local: b index: 0 type: boolean\n" + 
-				"        [pc: 2, pc: 63] local: i index: 1 type: int\n" + 
+				"        [pc: 0, pc: 60] local: b index: 0 type: boolean\n" + 
+				"        [pc: 2, pc: 60] local: i index: 1 type: int\n" + 
 				"        [pc: 17, pc: 24] local: j index: 2 type: int\n" + 
 				"        [pc: 25, pc: 29] local: e index: 2 type: java.lang.NullPointerException\n" + 
-				"      Stack map table: number of frames 5\n" + 
+				"      Stack map table: number of frames 4\n" + 
 				"        [pc: 24, full, stack: {java.lang.NullPointerException}, locals: {int, int}]\n" + 
-				"        [pc: 32, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" + 
-				"        [pc: 43, same]\n" + 
-				"        [pc: 54, same]\n" + 
-				"        [pc: 62, same]\n";
+				"        [pc: 40, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" + 
+				"        [pc: 51, same]\n" + 
+				"        [pc: 59, same]\n";
 			
 			int index = actualOutput.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
@@ -2453,6 +2446,155 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"	public static void main(String[] args) {\r\n" + 
 				"		System.out.println(\"SUCCESS\");\n" + 
 				"	}\r\n" + 
+				"}"
+		},
+		"SUCCESS");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171472
+	public void test029() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public Object foo() {\n" + 
+				"		Object status;\n" + 
+				"		try {\n" + 
+				"			status= bar();\n" + 
+				"		} catch (RuntimeException x) {\n" + 
+				"			status= foo2(x);\n" + 
+				"		} finally {\n" + 
+				"			System.out.println();\n" + 
+				"		}\n" + 
+				"		return status;\n" + 
+				"	}\n" +
+				"	public Object bar() {\n" + 
+				"		return null;\n" + 
+				"	}\n" +
+				"	public Object foo2(Exception e) {\n" + 
+				"		return null;\n" + 
+				"	}\n" +
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}"
+		},
+		"SUCCESS");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171472
+	public void test030() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Collections;\n" + 
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	private static final String COMPUTE_COMPLETION_PROPOSALS= \"computeCompletionProposals()\"; //$NON-NLS-1$\n" + 
+				"	private Object fLastError;\n" + 
+				"	private boolean fIsReportingDelay;\n" + 
+				"	private CompletionProposalComputerRegistry fRegistry;\n" + 
+				"	public List computeCompletionProposals(ContentAssistInvocationContext context, IProgressMonitor monitor) {\n" + 
+				"		if (!isEnabled())\n" + 
+				"			return Collections.EMPTY_LIST;\n" + 
+				"\n" + 
+				"		IStatus status;\n" + 
+				"		try {\n" + 
+				"			IJavaCompletionProposalComputer computer= getComputer();\n" + 
+				"			if (computer == null) // not active yet\n" + 
+				"				return Collections.EMPTY_LIST;\n" + 
+				"			\n" + 
+				"			try {\n" + 
+				"				PerformanceStats stats= startMeter(context, computer);\n" + 
+				"				List proposals= computer.computeCompletionProposals(context, monitor);\n" + 
+				"				stopMeter(stats, COMPUTE_COMPLETION_PROPOSALS);\n" + 
+				"				\n" + 
+				"				if (proposals != null) {\n" + 
+				"					fLastError= computer.getErrorMessage();\n" + 
+				"					return proposals;\n" + 
+				"				}\n" + 
+				"			} finally {\n" + 
+				"				fIsReportingDelay= true;\n" + 
+				"			}\n" + 
+				"			status= createAPIViolationStatus(COMPUTE_COMPLETION_PROPOSALS);\n" + 
+				"		} catch (InvalidRegistryObjectException x) {\n" + 
+				"			status= createExceptionStatus(x);\n" + 
+				"		} catch (CoreException x) {\n" + 
+				"			status= createExceptionStatus(x);\n" + 
+				"		} catch (RuntimeException x) {\n" + 
+				"			status= createExceptionStatus(x);\n" + 
+				"		} finally {\n" + 
+				"			monitor.done();\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		fRegistry.informUser(this, status);\n" + 
+				"\n" + 
+				"		return Collections.EMPTY_LIST;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private IStatus createExceptionStatus(Exception x) {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private IStatus createAPIViolationStatus(String computeCompletionProposals) {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private void stopMeter(PerformanceStats stats, String computeCompletionProposals) {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private PerformanceStats startMeter(ContentAssistInvocationContext context, IJavaCompletionProposalComputer computer) {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private IJavaCompletionProposalComputer getComputer() throws CoreException, InvalidRegistryObjectException {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private boolean isEnabled() {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}",
+				"IProgressMonitor.java",
+				"interface IProgressMonitor {\n" + 
+				"	void done();\n" + 
+				"}",
+				"ContentAssistInvocationContext.java",
+				"class ContentAssistInvocationContext {\n" + 
+				"}",
+				"IStatus.java",
+				"interface IStatus {}",
+				"IJavaCompletionProposalComputer.java",
+				"import java.util.List;\n" +
+				"interface IJavaCompletionProposalComputer {\n" + 
+				"	List computeCompletionProposals(ContentAssistInvocationContext context, IProgressMonitor monitor);\n" + 
+				"	Object getErrorMessage();\n" + 
+				"}",
+				"PerformanceStats.java",
+				"class PerformanceStats {}",
+				"CompletionProposalComputerRegistry.java",
+				"class CompletionProposalComputerRegistry {\n" + 
+				"	public void informUser(X x, IStatus status) {\n" + 
+				"	}\n" + 
+				"}",
+				"InvalidRegistryObjectException.java",
+				"class InvalidRegistryObjectException extends Exception {\n" +
+				"	private static final long serialVersionUID = 8943194846421947853L;\n" + 
+				"}",
+				"CoreException.java",
+				"class CoreException extends Exception {\n" + 
+				"	private static final long serialVersionUID = 3996792687633449517L;\n" + 
 				"}"
 		},
 		"SUCCESS");
