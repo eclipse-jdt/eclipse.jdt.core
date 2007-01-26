@@ -15361,11 +15361,7 @@ public void test0500(){
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 21] local: this index: 0 type: X<E>\n" + 
-			"\n" + 
-			"  Inner classes:\n" + 
-			"    [inner class info: #28 X$1, outer class info: #0\n" + 
-			"     inner name: #0, accessflags: 0 default]\n";
+			"        [pc: 0, pc: 21] local: this index: 0 type: X<E>\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");
