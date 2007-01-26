@@ -14,6 +14,7 @@ import java.util.Hashtable;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -1029,5 +1030,314 @@ public void test080() throws JavaModelException {
 	} finally {
 		JavaCore.setOptions(oldOptions);
 	}
+}
+/**
+ * @category Tests for filtered completion
+ */
+public void test100() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla ZBasi bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"ZBasi",
+			1,
+			new int[]{});
+	assertResults(
+			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICUNR+"}\n" + 
+			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICUNRIT+"}"
+	);
+}
+public void test101() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla ZBasi bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"ZBasi",
+			1,
+			new int[]{CompletionProposal.JAVADOC_TYPE_REF});
+	assertResults(
+			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICUNR+"}"
+	);
+}
+public void test102() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla ZBasi bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"ZBasi",
+			1,
+			new int[]{CompletionProposal.TYPE_REF});
+	assertResults(
+			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICUNRIT+"}"
+	);
+}
+public void test103() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla ZBasicTestTypes#fo bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {\n" + 
+		"  public void foo() {}\n" + 
+		"}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"ZBasicTestTypes#fo",
+			1,
+			new int[]{});
+	assertResults(
+			"foo[JAVADOC_METHOD_REF]{{@link ZBasicTestTypes#foo()}, Ljavadoc.types.ZBasicTestTypes;, ()V, foo, null, "+this.positions+R_DICNRNSIT+"}"
+	);
+}
+public void test104() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla ZBasicTestTypes#fo bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {\n" + 
+		"  public void foo() {}\n" + 
+		"}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"ZBasicTestTypes#fo",
+			1,
+			new int[]{CompletionProposal.JAVADOC_METHOD_REF});
+	assertResults(
+			""
+	);
+}
+public void test105() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla ZBasicTestTypes#fo bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {\n" + 
+		"  public void foo() {}\n" + 
+		"}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"ZBasicTestTypes#fo",
+			1,
+			new int[]{CompletionProposal.METHOD_REF});
+	assertResults(
+			"foo[JAVADOC_METHOD_REF]{{@link ZBasicTestTypes#foo()}, Ljavadoc.types.ZBasicTestTypes;, ()V, foo, null, "+this.positions+R_DICNRNSIT+"}"
+	);
+}
+public void test106() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla ZBasicTestTypes#fo bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {\n" + 
+		"  public int foo;\n" + 
+		"}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"ZBasicTestTypes#fo",
+			1,
+			new int[]{});
+	assertResults(
+			"foo[JAVADOC_FIELD_REF]{{@link ZBasicTestTypes#foo}, Ljavadoc.types.ZBasicTestTypes;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
+	);
+}
+public void test107() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla ZBasicTestTypes#fo bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {\n" + 
+		"  public int foo;\n" + 
+		"}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"ZBasicTestTypes#fo",
+			1,
+			new int[]{CompletionProposal.JAVADOC_FIELD_REF});
+	assertResults(
+			""
+	);
+}
+public void test108() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla ZBasicTestTypes#fo bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {\n" + 
+		"  public int foo;\n" + 
+		"}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"ZBasicTestTypes#fo",
+			1,
+			new int[]{CompletionProposal.FIELD_REF});
+	assertResults(
+			"foo[JAVADOC_FIELD_REF]{{@link ZBasicTestTypes#foo}, Ljavadoc.types.ZBasicTestTypes;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
+	);
+}
+public void test109() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla javadoc.types.ZBasi bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"javadoc.types.ZBasi",
+			1,
+			new int[]{});
+	assertResults(
+			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICNR+"}\n" + 
+			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICNRIT+"}"
+	);
+}
+public void test110() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla javadoc.types.ZBasi bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"javadoc.types.ZBasi",
+			1,
+			new int[]{CompletionProposal.JAVADOC_TYPE_REF});
+	assertResults(
+			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+public void test111() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla javadoc.types.ZBasi bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"javadoc.types.ZBasi",
+			1,
+			new int[]{CompletionProposal.TYPE_REF});
+	assertResults(
+			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICNRIT+"}"
+	);
+}
+public void test112() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla javadoc.types.ZBasicTestTypes.Inn bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {\n" + 
+		"  public class Inner {}\n" + 
+		"}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"javadoc.types.ZBasicTestTypes.Inn",
+			1,
+			new int[]{});
+	assertResults(
+			"ZBasicTestTypes.Inner[TYPE_REF]{Inner, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DICNR+"}\n" + 
+			"ZBasicTestTypes.Inner[JAVADOC_TYPE_REF]{{@link Inner}, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DICNRIT+"}"
+	);
+}
+public void test113() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla javadoc.types.ZBasicTestTypes.Inn bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {\n" + 
+		"  public class Inner {}\n" + 
+		"}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"javadoc.types.ZBasicTestTypes.Inn",
+			1,
+			new int[]{CompletionProposal.JAVADOC_TYPE_REF});
+	assertResults(
+			"ZBasicTestTypes.Inner[TYPE_REF]{Inner, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DICNR+"}"
+	);
+}
+public void test114() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	bla javadoc.types.ZBasicTestTypes.Inn bla\n" + 
+		" */\n" + 
+		"public class ZBasicTestTypes {\n" + 
+		"  public class Inner {}\n" + 
+		"}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/ZBasicTestTypes.java",
+			source,
+			true,
+			"javadoc.types.ZBasicTestTypes.Inn",
+			1,
+			new int[]{CompletionProposal.TYPE_REF});
+	assertResults(
+			"ZBasicTestTypes.Inner[JAVADOC_TYPE_REF]{{@link Inner}, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DICNRIT+"}"
+	);
 }
 }

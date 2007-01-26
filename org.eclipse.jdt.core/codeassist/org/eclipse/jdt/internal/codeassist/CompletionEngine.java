@@ -1510,7 +1510,8 @@ public final class CompletionEngine
 
 				// get the source positions of the completion identifier
 				if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
-					if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
+					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
+							!this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
 						int rangeStart = typeRef.completeInText() ? typeRef.sourceStart : (int) (completionPosition >>> 32);
 						setSourceRange(rangeStart, (int) completionPosition);
 						findMemberTypes(this.completionToken,
@@ -4260,9 +4261,7 @@ public final class CompletionEngine
 			}
 				
 			this.noProposal = false;
-			if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-				createTypeProposal(memberType, memberType.qualifiedSourceName(), IAccessRule.K_ACCESSIBLE, completionName, relevance);
-			}
+			createTypeProposal(memberType, memberType.qualifiedSourceName(), IAccessRule.K_ACCESSIBLE, completionName, relevance);
 		}
 	}
 
@@ -6321,7 +6320,9 @@ public final class CompletionEngine
 			skip = true;
 		}
 		
-		boolean proposeType = !this.requestor.isIgnored(CompletionProposal.TYPE_REF);
+		boolean proposeType =
+			!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
+			!this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF);
 		
 		boolean proposeAllMemberTypes = !this.assistNodeIsConstructor;
 		
@@ -6398,7 +6399,7 @@ public final class CompletionEngine
 					relevance += computeRelevanceForException(sourceType.sourceName);
 				}
 				this.noProposal = false;
-				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+				if(proposeType) {
 					char[] typeName = sourceType.sourceName();
 					createTypeProposal(sourceType, typeName, IAccessRule.K_ACCESSIBLE, typeName, relevance);
 				}
@@ -6563,7 +6564,9 @@ public final class CompletionEngine
 		PackageBinding packageBinding,
 		Scope scope) {
 
-		boolean proposeType = !this.requestor.isIgnored(CompletionProposal.TYPE_REF);
+		boolean proposeType =
+			!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
+			!this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF);
 		
 		char[] qualifiedName =
 			CharOperation.concatWith(packageBinding.compoundName, token, '.');
@@ -6642,7 +6645,7 @@ public final class CompletionEngine
 					relevance += computeRelevanceForException(sourceType.sourceName);
 				}
 				this.noProposal = false;
-				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+				if(proposeType) {
 					char[] typeName = sourceType.sourceName();
 					createTypeProposal(sourceType, typeName, IAccessRule.K_ACCESSIBLE, typeName, relevance);
 				}

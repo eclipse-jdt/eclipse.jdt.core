@@ -281,14 +281,21 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	}
 
 	protected void completeInJavadoc(String path, String source, boolean showPositions, String completeBehind, int occurencePosition) throws JavaModelException {
-		completeInJavadoc(new String[] { path, source }, showPositions, completeBehind, occurencePosition);
+		completeInJavadoc(new String[] { path, source }, showPositions, completeBehind, occurencePosition, null);
 	}
 
+	protected void completeInJavadoc(String path, String source, boolean showPositions, String completeBehind, int occurencePosition, int[] ignoreList) throws JavaModelException {
+		completeInJavadoc(new String[] { path, source }, showPositions, completeBehind, occurencePosition, ignoreList);
+	}
 	protected void completeInJavadoc(String[] sources, boolean showPositions, String completeBehind) throws JavaModelException {
-		completeInJavadoc(sources, showPositions, completeBehind, 1);
+		completeInJavadoc(sources, showPositions, completeBehind, 1, null);
+	}
+	
+	protected void completeInJavadoc(String[] sources, boolean showPositions, String completeBehind, int occurencePosition) throws JavaModelException {
+		completeInJavadoc(sources, showPositions, completeBehind, occurencePosition, null);
 	}
 
-	protected void completeInJavadoc(String[] sources, boolean showPositions, String completeBehind, int occurencePosition) throws JavaModelException {
+	protected void completeInJavadoc(String[] sources, boolean showPositions, String completeBehind, int occurencePosition, int[] ignoreList) throws JavaModelException {
 		assertNotNull("We should have sources!!!", sources);
 		assertTrue("Invalid number of sources!!!",  sources.length%2==0);
 
@@ -305,6 +312,11 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 		
 		// Complete
 		this.requestor = new CompletionTestsRequestor2(true, false, showPositions);
+		if (ignoreList != null) {
+			for (int i = 0; i < ignoreList.length; i++) {
+				this.requestor.setIgnored(ignoreList[i], true);
+			}
+		}
 		String source = this.workingCopies[0].getSource();
 		this.replacedText = completeBehind;
 		this.completionStart = -1;

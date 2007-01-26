@@ -446,7 +446,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	/**
 	 * Completion is a link reference to a method in a javadoc text.
 	 * This kind of completion might occur in a context like
-	 * <code>"	* blabla Runtime.get^ blabla"</code> and complete it to
+	 * <code>"	* blabla Runtime#get^ blabla"</code> and complete it to
 	 * <code>"	* blabla {&#64;link Runtime#getRuntime() }"</code>.
 	 * <p>
 	 * The following additional context information is available
