@@ -983,13 +983,14 @@ public class Scribe {
 			previousStart = nextCharacterStart;
 		}
 		if (start != currentTokenStartPosition) {
+			// this means that the line comment doesn't end the file
 			addReplaceEdit(start, currentTokenEndPosition - 1, lineSeparator);
+			this.line++; 
+			this.column = 1;
+			this.lastNumberOfNewLines = 1;
 		}
-		line++; 
-		column = 1;
-		needSpace = false;
+		this.needSpace = false;
 		this.pendingSpace = false;
-		lastNumberOfNewLines = 1;
 		// realign to the proper value
 		if (this.currentAlignment != null) {
 			if (this.memberAlignment != null) {

@@ -54,7 +54,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 642 };
+//		TESTS_NUMBERS = new int[] { 649 };
+//		TESTS_RANGE = new int[] { 643, -1 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -9112,5 +9113,63 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test642", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171634
+	public void test643() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, JavaCore.INSERT);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test643", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171634
+	public void test644() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, JavaCore.INSERT);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test644", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171634
+	public void test645() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, JavaCore.INSERT);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test645", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171634
+	public void test646() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, JavaCore.DO_NOT_INSERT);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test646", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171634
+	public void test647() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, JavaCore.DO_NOT_INSERT);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test647", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171634
+	public void test648() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "0");
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test648", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171634
+	public void test649() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AT_END_OF_FILE_IF_MISSING, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, "0");
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test649", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
