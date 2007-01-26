@@ -5875,6 +5875,73 @@ public void test148() {
 		"     inner name: #23 B, accessflags: 9 public static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171749
+public void test149() {
+	this.runConformTest(new String[] {
+		"X.java",
+		"public final class X implements A.Foo1 {\n" + 
+		"        public void foo() {}\n" + 
+		"        public A.Foo2 foo2() {   return null; }\n" + 
+		"        public void foo3( A.Foo3 foo ) {}\n" + 
+		"        public void foo4() { A.Foo4 foo = null; }\n" + 
+		"        public void foo5() {\n" + 
+		"                new A.Foo5() {\n" + 
+		"                        public void foo() {}\n" + 
+		"                }.foo();\n" + 
+		"        }\n" + 
+		"        public static class Foo6 implements A.Foo6 {\n" + 
+		"                public void foo() {}\n" + 
+		"        }\n" + 
+		"        public void foo7() { Bar2.foo7().foo(); }\n" + 
+		"}",
+		"A.java",
+		"class A {\n" + 
+		"        public static interface Foo1 { void foo(); }\n" + 
+		"        public static interface Foo2 { void foo(); }\n" + 
+		"        public static interface Foo3 { void foo(); }\n" + 
+		"        public static interface Foo4 { void foo(); }\n" + 
+		"        public static interface Foo5 { void foo(); }\n" + 
+		"        public static interface Foo6 { void foo(); }\n" + 
+		"        public static interface Foo7 { void foo(); }\n" + 
+		"}",
+		"Bar2.java",
+		"class Bar2 {\n" + 
+		"        public static A.Foo7 foo7() { return null; }\n" + 
+		"}"
+	});
+	String expectedOutput =
+		"  Inner classes:\n" + 
+		"    [inner class info: #5 A$Foo1, outer class info: #44 A\n" + 
+		"     inner name: #46 Foo1, accessflags: 1545 public abstract static],\n" + 
+		"    [inner class info: #47 A$Foo2, outer class info: #44 A\n" + 
+		"     inner name: #49 Foo2, accessflags: 1545 public abstract static],\n" + 
+		"    [inner class info: #50 A$Foo3, outer class info: #44 A\n" + 
+		"     inner name: #52 Foo3, accessflags: 1545 public abstract static],\n" + 
+		"    [inner class info: #39 A$Foo7, outer class info: #44 A\n" + 
+		"     inner name: #53 Foo7, accessflags: 1545 public abstract static],\n" + 
+		"    [inner class info: #25 X$1, outer class info: #0\n" + 
+		"     inner name: #0, accessflags: 0 default],\n" + 
+		"    [inner class info: #54 X$Foo6, outer class info: #1 X\n" + 
+		"     inner name: #56 Foo6, accessflags: 9 public static]\n";
+//	TODO enable if 171749 is fixed
+//	if (new CompilerOptions(this.getCompilerOptions()).targetJDK >= ClassFileConstants.JDK1_6) {
+//		expectedOutput =
+//			"  Inner classes:\n" + 
+//			"    [inner class info: #5 A$Foo1, outer class info: #44 A\n" + 
+//			"     inner name: #46 Foo1, accessflags: 1545 public abstract static],\n" + 
+//			"    [inner class info: #47 A$Foo2, outer class info: #44 A\n" + 
+//			"     inner name: #49 Foo2, accessflags: 1545 public abstract static],\n" + 
+//			"    [inner class info: #50 A$Foo3, outer class info: #44 A\n" + 
+//			"     inner name: #52 Foo3, accessflags: 1545 public abstract static],\n" + 
+//			"    [inner class info: #39 A$Foo7, outer class info: #44 A\n" + 
+//			"     inner name: #53 Foo7, accessflags: 1545 public abstract static],\n" + 
+//			"    [inner class info: #25 X$1, outer class info: #0\n" + 
+//			"     inner name: #0, accessflags: 16 final],\n" + 
+//			"    [inner class info: #54 X$Foo6, outer class info: #1 X\n" + 
+//			"     inner name: #56 Foo6, accessflags: 9 public static]\n";
+//	}
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
 public static Class testClass() {
 	return InnerEmulationTest.class;
 }
