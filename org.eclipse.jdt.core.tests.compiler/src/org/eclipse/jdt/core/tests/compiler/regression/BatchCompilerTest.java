@@ -34,7 +34,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 59 };
-//	TESTS_RANGE = new int[] { 1, -1 };
+//	TESTS_RANGE = new int[] { 107, -1 };
 }
 public BatchCompilerTest(String name) {
 	super(name);
@@ -4667,7 +4667,276 @@ public void test106_per_source_output_directory(){
 			"[-d dir1" + File.pathSeparator + "dir2]\n",
 		true);
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+// source 1.3 compliance 1.3
+public void test107(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+     + " -1.3 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
+     "", 
+     "",
+     true);
+	String expectedOutput = "// Compiled from X.java (version 1.1 : 45.3, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.4 source 1.3
+public void test108(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.4 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.2 : 46.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.4 source 1.4
+public void test109(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.4 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.5 source 1.3
+public void test110(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.5 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.5 source 1.4
+public void test111(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.5 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.5 source 1.5
+public void test112(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.5 -source 1.5 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.5 : 49.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.6 source 1.3
+public void test113(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.6 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.6 source 1.4
+public void test114(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.6 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.6 source 1.5
+public void test115(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.6 -source 1.5 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.6 source 1.6
+public void test116(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.6 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.7 source 1.3
+public void test117(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.7 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.7 source 1.4
+public void test118(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.7 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.7 source 1.5
+public void test119(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.7 -source 1.5 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.7 source 1.6
+public void test120(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.7 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
+//compliance 1.7 source 1.7
+public void test121(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.7 -source 1.7 -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"",
+		true);
+	String expectedOutput = "// Compiled from X.java (version 1.7 : 51.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
