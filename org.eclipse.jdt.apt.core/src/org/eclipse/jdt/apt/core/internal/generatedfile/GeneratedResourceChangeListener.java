@@ -118,7 +118,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		
 		for(IProject proj : projs ){
 			final IJavaProject javaProj = JavaCore.create(proj);
-			if(AptConfig.isEnabled(javaProj)){
+			if(javaProj.getProject().isOpen() && AptConfig.isEnabled(javaProj)){
 				final GeneratedSourceFolderManager gsfm = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager();
 				gsfm.ensureFolderExists();
 			}	
