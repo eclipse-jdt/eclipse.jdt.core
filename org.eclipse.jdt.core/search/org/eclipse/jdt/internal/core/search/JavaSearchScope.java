@@ -556,10 +556,11 @@ public void processDelta(IJavaElementDelta delta) {
 }
 
 /**
- * Returns the project path corresponding to a given resource path.
+ * Returns the package fragment root corresponding to a given resource path.
  * 
- * @param resourcePathString path of the resource
- * @return the project path of the resource
+ * @param resourcePathString path of expected package fragment root.
+ * @return the {@link IPackageFragmentRoot package fragment root} which path
+ * 	match the given one or <code>null</code> if none was found.
  */
 public IPackageFragmentRoot packageFragmentRoot(String resourcePathString) {
 	int index = -1;

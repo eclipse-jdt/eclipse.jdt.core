@@ -108,7 +108,7 @@ public abstract IType getType();
 
 /**
  * Name of the type container using '.' character
- * as separator (e.g. enclosing type names + '.' + simple name).
+ * as separator (e.g. package name + '.' + enclosing type names).
  * 
  * @see #getType()
  * @see IMember#getDeclaringType()
@@ -127,7 +127,7 @@ public String getTypeContainerName() {
 
 /**
  * Returns the matched type qualified name using '.' character
- * as separator (e.g. enclosing type names + '.' simple name).
+ * as separator (e.g. enclosing type names + '.' + simple name).
  * 
  * @see #getType()
  * @see IType#getTypeQualifiedName(char)

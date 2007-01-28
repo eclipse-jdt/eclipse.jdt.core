@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -22,7 +23,9 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 
 /**
@@ -51,6 +54,7 @@ import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 public class TypeNameMatchRequestorWrapper implements IRestrictedAccessTypeRequestor {
 	TypeNameMatchRequestor requestor;
 	private IJavaSearchScope scope; // scope is needed to retrieve project path for external resource
+	private HandleFactory handleFactory; // in case of IJavaSearchScope defined by clients, use an HandleFactory instead
 
 	/**
 	 * Cache package fragment root information to optimize speed performance.
@@ -66,6 +70,9 @@ public class TypeNameMatchRequestorWrapper implements IRestrictedAccessTypeReque
 public TypeNameMatchRequestorWrapper(TypeNameMatchRequestor requestor, IJavaSearchScope scope) {
 	this.requestor = requestor;
 	this.scope = scope;
+	if (!(scope instanceof JavaSearchScope)) {
+		this.handleFactory = new HandleFactory();
+	}
 }
 
 /* (non-Javadoc)
@@ -73,10 +80,32 @@ public TypeNameMatchRequestorWrapper(TypeNameMatchRequestor requestor, IJavaSear
  */
 public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
 	try {
-		int separatorIndex= path.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
-		IType type = separatorIndex == -1
-			? createTypeFromPath(path, new String(simpleTypeName), enclosingTypeNames)
-			: createTypeFromJar(path, separatorIndex);
+		IType type = null;
+		if (this.handleFactory != null) {
+			Openable openable = this.handleFactory.createOpenable(path, this.scope);
+			if (openable == null) return;
+			switch (openable.getElementType()) {
+				case IJavaElement.COMPILATION_UNIT:
+					ICompilationUnit cu = (ICompilationUnit) openable;
+					if (enclosingTypeNames != null && enclosingTypeNames.length > 0) {
+						type = cu.getType(new String(enclosingTypeNames[0]));
+						for (int j=1, l=enclosingTypeNames.length; j<l; j++) {
+							type = type.getType(new String(enclosingTypeNames[j]));
+						}
+					} else {
+						type = cu.getType(new String(simpleTypeName));
+					}
+					break;
+				case IJavaElement.CLASS_FILE:
+					type = ((IClassFile)openable).getType();
+					break;
+			}
+		} else {
+			int separatorIndex= path.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
+			type = separatorIndex == -1
+				? createTypeFromPath(path, new String(simpleTypeName), enclosingTypeNames)
+				: createTypeFromJar(path, separatorIndex);
+		}
 		if (type != null) {
 			this.requestor.acceptTypeNameMatch(new JavaSearchTypeNameMatch(type, modifiers));
 		}
@@ -91,7 +120,7 @@ private IType createTypeFromJar(String resourcePath, int separatorIndex) throws 
 			|| this.lastPkgFragmentRootPath.length() > resourcePath.length()
 			|| !resourcePath.startsWith(this.lastPkgFragmentRootPath)) {
 		String jarPath= resourcePath.substring(0, separatorIndex);
-		IPackageFragmentRoot root= ((JavaSearchScope)scope).packageFragmentRoot(resourcePath);
+		IPackageFragmentRoot root= ((JavaSearchScope)this.scope).packageFragmentRoot(resourcePath);
 		if (root == null) return null;
 		this.lastPkgFragmentRootPath= jarPath;
 		this.lastPkgFragmentRoot= root;
@@ -123,7 +152,7 @@ private IType createTypeFromPath(String resourcePath, String simpleTypeName, cha
 		|| !(resourcePath.startsWith(this.lastPkgFragmentRootPath) 
 			&& (rootPathLength = this.lastPkgFragmentRootPath.length()) > 0
 			&& resourcePath.charAt(rootPathLength) == '/')) {
-		IPackageFragmentRoot root= ((JavaSearchScope)scope).packageFragmentRoot(resourcePath);
+		IPackageFragmentRoot root = ((JavaSearchScope)this.scope).packageFragmentRoot(resourcePath);
 		if (root == null) return null;
 		this.lastPkgFragmentRoot = root;
 		this.lastPkgFragmentRootPath = this.lastPkgFragmentRoot.getPath().toString();
