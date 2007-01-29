@@ -780,7 +780,7 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
  */
 public final char[] signature(ClassFile classFile) {
 	if (signature != null) {
-		if ((this.tagBits & TagBits.ContainsNestedTypesInSignature) != 0) { 
+		if ((this.tagBits & TagBits.ContainsNestedTypesInSignature) != 0) {
 			// we need to record inner classes references
 			boolean isConstructor = isConstructor();
 			TypeBinding[] targetParameters = this.parameters;
@@ -792,12 +792,10 @@ public final char[] signature(ClassFile classFile) {
 					for (int i = 0, count = syntheticArgumentTypes.length; i < count; i++) {
 						ReferenceBinding syntheticArgumentType = syntheticArgumentTypes[i];
 						if (syntheticArgumentType.isNestedType()) {
-							this.tagBits |= TagBits.ContainsNestedTypesInSignature;
 							classFile.recordInnerClasses(syntheticArgumentType);
 						}
 					}
 				}
-				
 				if (this instanceof SyntheticMethodBinding) {
 					targetParameters = ((SyntheticMethodBinding)this).targetMethod.parameters;
 				}
@@ -808,7 +806,6 @@ public final char[] signature(ClassFile classFile) {
 					TypeBinding targetParameter = targetParameters[i];
 					TypeBinding leafTargetParameterType = targetParameter.leafComponentType();
 					if (leafTargetParameterType.isNestedType()) {
-						this.tagBits |= TagBits.ContainsNestedTypesInSignature;
 						classFile.recordInnerClasses(leafTargetParameterType);
 					}
 				}
@@ -819,7 +816,6 @@ public final char[] signature(ClassFile classFile) {
 					TypeBinding parameter = parameters[i];
 					TypeBinding leafParameterType = parameter.leafComponentType();
 					if (leafParameterType.isNestedType()) {
-						this.tagBits |= TagBits.ContainsNestedTypesInSignature;
 						classFile.recordInnerClasses(leafParameterType);
 					}
 				}
@@ -827,7 +823,6 @@ public final char[] signature(ClassFile classFile) {
 			if (this.returnType != null) {
 				TypeBinding ret = this.returnType.leafComponentType();
 				if (ret.isNestedType()) {
-					this.tagBits |= TagBits.ContainsNestedTypesInSignature;
 					classFile.recordInnerClasses(ret);
 				}
 			}
