@@ -1724,6 +1724,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		boolean insideTypeAnnotation = false;
 		MethodBinding foundMethod = null;
 		MethodBinding foundProblem = null;
+		boolean foundProblemVisible = false;
 		Scope scope = this;
 		int depth = 0;
 		// in 1.4 mode (inherited visible shadows enclosing)
@@ -1768,8 +1769,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 										// OR in 1.4 mode (inherited visible shadows enclosing)
 										// OR the receiverType implemented a method with the correct name
 										// return the methodBinding if it is not declared in a superclass of the scope's binding (that is, inherited)
-										if (foundProblem != null && foundProblem.problemId() != ProblemReasons.NotVisible)
+										if (foundProblemVisible) {
 											return foundProblem;
+										}
 										if (depth > 0) {
 											invocationSite.setDepth(depth);
 											invocationSite.setActualReceiverType(receiverType);
@@ -1790,8 +1792,16 @@ public abstract class Scope implements TypeConstants, TypeIds {
 								} else { // methodBinding is a problem method
 									if (methodBinding.problemId() != ProblemReasons.NotVisible && methodBinding.problemId() != ProblemReasons.NotFound)
 										return methodBinding; // return the error now
-									if (foundProblem == null || (foundProblem.problemId() == ProblemReasons.NotVisible && methodBinding.problemId() == ProblemReasons.NotFound))
+									if (foundProblem == null) {
 										foundProblem = methodBinding; // hold onto the first not visible/found error and keep the second not found if first is not visible
+									} 
+									if (! foundProblemVisible && methodBinding.problemId() == ProblemReasons.NotFound) {
+										MethodBinding closestMatch = ((ProblemMethodBinding) methodBinding).closestMatch;
+										if (closestMatch != null && closestMatch.canBeSeenBy(receiverType, invocationSite, this)) {
+											foundProblem = methodBinding; // hold onto the first not visible/found error and keep the second not found if first is not visible
+											foundProblemVisible = true;
+										}
+									}
 								}
 							} else { // found a valid method so check to see if this is a hiding case
 								if (methodBinding.problemId() == ProblemReasons.Ambiguous
@@ -1827,10 +1837,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			if (foundProblem != null) {
 				if (foundProblem.declaringClass != null && foundProblem.declaringClass.id == TypeIds.T_JavaLangObject)
 					return foundProblem; // static imports lose to methods from Object
-				if (foundProblem.problemId() == ProblemReasons.NotFound) {
-					MethodBinding closestMatch = ((ProblemMethodBinding) foundProblem).closestMatch;
-					if (closestMatch != null && closestMatch.canBeSeenBy(invocationSite, this))
-						return foundProblem; // visible method selectors take precedence
+				if (foundProblem.problemId() == ProblemReasons.NotFound && foundProblemVisible) {
+					return foundProblem; // visible method selectors take precedence
 				}
 			}
 
