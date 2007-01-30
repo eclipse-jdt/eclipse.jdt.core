@@ -36398,4 +36398,28 @@ public void test1100() {
 		"Type safety: The method foo(X) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=172189
+public void _test1101() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public final class X<A, B> {\n" + 
+			"    public A a;\n" + 
+			"    public B b;\n" + 
+			"    public X(A pa, B pb) {\n" + 
+			"        a = pa;\n" + 
+			"        b = pb;\n" + 
+			"    }\n" + 
+			"    public static <A, B> X<A, B> create(A pa, B pb) {\n" + 
+			"        return new X<A, B>(pa, pb);\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        List<X<String, Object>> list = new ArrayList<X<String,Object>>();\n" + 
+			"        list.add(X.<?, Object>create(\"\", \"\"));\n" + 
+			"    }\n" + 
+			"}"
+		}, 
+		"NEED TO BE DETERMINED");
+}
 }
