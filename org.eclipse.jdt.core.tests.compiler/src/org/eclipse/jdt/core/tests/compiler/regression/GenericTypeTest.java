@@ -33,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1095, 1096 };
+//		TESTS_NUMBERS = new int[] { 1101 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -36419,7 +36419,12 @@ public void _test1101() {
 			"        list.add(X.<?, Object>create(\"\", \"\"));\n" + 
 			"    }\n" + 
 			"}"
-		}, 
-		"NEED TO BE DETERMINED");
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	list.add(X.<?, Object>create(\"\", \"\"));\n" + 
+		"	            ^\n" + 
+		"Wildcard is not allowed at this location\n" + 
+		"----------\n");
 }
 }
