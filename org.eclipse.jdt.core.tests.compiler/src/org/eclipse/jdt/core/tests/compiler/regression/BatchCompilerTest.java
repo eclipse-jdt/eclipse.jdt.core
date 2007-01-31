@@ -854,7 +854,7 @@ public void test010(){
         true);
 }
 // command line - unusual classpath (ends with ';', still OK)
-public void test011(){
+public void test011_unusual_classpath(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1372,6 +1372,7 @@ public void test012b(){
 		}
 		assertTrue("unexpected log contents", compareOK);
 	}
+// command line - several path separators within the classpath
 public void test016(){
 		this.runConformTest(
 			new String[] {
@@ -4936,6 +4937,122 @@ public void test121(){
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.7 : 51.0, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+// command line - unusual classpath (ends with ';;;', still OK)
+public void test122_unusual_classpath(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[+**/OK2;~**/Warn;-KO]"
+        + "\"" + File.pathSeparator + File.pathSeparator + File.pathSeparator
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "",
+        "",
+        true);
+}
+// command line - unusual classpath (rules with multiple path separators KO)
+public void test123_unusual_classpath(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X extends Zork {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[+OK2" + 
+        	File.pathSeparator + File.pathSeparator + File.pathSeparator + 
+        	"~Warn" + File.pathSeparator + "-KO]\""
+        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
+        + " -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + "\"", 
+        "", 
+        "incorrect classpath: ---OUTPUT_DIR_PLACEHOLDER---[+OK2" + 
+        	File.pathSeparator + File.pathSeparator + File.pathSeparator + 
+        	"~Warn" + File.pathSeparator + "-KO]\n" + 
+        "----------\n" + 
+        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+        "	public class X extends Zork {\n" + 
+        "	                       ^^^^\n" + 
+        "Zork cannot be resolved to a type\n" + 
+        "----------\n" + 
+        "1 problem (1 error)",
+        true);
+}
+// command line - unusual classpath (rules with embedded -d OK)
+public void test124_unusual_classpath(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X extends Zork {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator +  
+        	"-d ~Warn" + File.pathSeparator + "-KO]\""
+        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
+        + " -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + "\"", 
+        "", 
+        "----------\n" + 
+        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+        "	public class X extends Zork {\n" + 
+        "	                       ^^^^\n" + 
+        "Zork cannot be resolved to a type\n" + 
+        "----------\n" + 
+        "1 problem (1 error)",
+        true);
+}
+// command line - unusual classpath (rules starting with -d KO)
+public void test125_unusual_classpath(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[-d +OK2" + File.pathSeparator +  
+        	"~Warn" + File.pathSeparator + "-KO]\""
+        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
+        + " -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + "\"", 
+        "", 
+        "incorrect destination path entry: ---OUTPUT_DIR_PLACEHOLDER---[-d +OK2" + 
+        	File.pathSeparator + "~Warn" + File.pathSeparator + "-KO]\n",
+        true);
+}
+// command line - unusual classpath (rules starting with -d KO)
+public void test126_unusual_classpath(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + "[-d +OK2" + File.pathSeparator +  
+        	"~Warn" + File.pathSeparator + "-KO][-d dummy]\""
+        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
+        + " -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + "\"", 
+        "", 
+        "incorrect destination path entry: ---OUTPUT_DIR_PLACEHOLDER---[-d +OK2" + 
+        	File.pathSeparator + "~Warn" + File.pathSeparator + "-KO][-d dummy]\n",
+        true);
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;
