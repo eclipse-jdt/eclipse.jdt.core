@@ -37,6 +37,7 @@ import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.QualifiedName;
@@ -786,7 +787,8 @@ public class JavaProject
 			default:
 				IPath path = status.getPath();
 				if (path != null) arguments = new String[] { path.toString() };
-				if (JavaCore.ERROR.equals(getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true))) {
+				if (JavaCore.ERROR.equals(getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true)) &&
+					status.getSeverity() != IStatus.WARNING) {
 					severity = IMarker.SEVERITY_ERROR;
 				} else {
 					severity = IMarker.SEVERITY_WARNING;

@@ -1198,6 +1198,46 @@ public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException 
 }
 
 /**
+ * @bug 172207: [model] Marker for deprecated classpath variable should always have WARNING severity
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=172207"
+ */
+public void testVariableInitializerBug172207() throws CoreException {
+	try {
+		// Create initializer
+		String varName = "TEST_DEPRECATED_READ_ONLY";
+		String path = "/P1/lib.jar";
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] { varName, path }));
+		assertEquals("JavaCore classpath value should have been initialized", JavaCore.getClasspathVariable(varName).toString(), path);
+
+		// verify that Classpath Variable is read-only
+		assertEquals("JavaCore classpath variable should be deprecated", "A deprecated and read-only initializer", JavaCore.getClasspathVariableDeprecationMessage(varName));
+		assertTrue("JavaCore classpath variable should be read-only", JavaCore.isClasspathVariableReadOnly(varName));
+
+		// Create project
+		IJavaProject project = createJavaProject("P1");
+		createFile("/P1/lib.jar", "");
+		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
+		IClasspathEntry[] entries = project.getRawClasspath();
+		int length = entries.length;
+		System.arraycopy(entries, 0, entries = new IClasspathEntry[length+1], 0, length);
+		entries[length] = variable;
+		project.setRawClasspath(entries, null);
+
+		// verify markers
+		waitForAutoBuild();
+		IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+		sortMarkers(markers);
+		assertMarkers("Unexpected marker(s)",
+			"Classpath variable 'TEST_DEPRECATED_READ_ONLY' in project P1 is deprecated: 'A deprecated and read-only initializer'",
+			markers);
+		assertEquals("Marker on deprecated variable should be a WARNING", IMarker.SEVERITY_WARNING, markers[0].getAttribute(IMarker.SEVERITY, -1));
+	} finally {
+		VariablesInitializer.reset();
+		deleteProject("P1");
+	}
+}
+
+/**
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=61872"
  */
 public void testUserLibraryInitializer1() throws CoreException {
