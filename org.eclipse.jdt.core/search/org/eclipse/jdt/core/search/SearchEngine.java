@@ -708,10 +708,6 @@ public class SearchEngine {
 	 * @param packageName the full name of the package of the searched types, or a prefix for this
 	 *						package, or a wild-carded string for this package.
 	 *						May be <code>null</code>, then any package name is accepted.
-	 * @param typeName the dot-separated qualified name of the searched type (the qualification include
-	 *					the enclosing types if the searched type is a member type), or a prefix
-	 *					for this type, or a wild-carded string for this type.
-	 *					May be <code>null</code>, then any type name is accepted.
 	 * @param packageMatchRule one of
 	 * <ul>
 	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
@@ -724,6 +720,10 @@ public class SearchEngine {
 	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
 	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
 	 *   or {@link SearchPattern#R_PREFIX_MATCH} if a prefix non case sensitive match is requested.
+	 * @param typeName the dot-separated qualified name of the searched type (the qualification include
+	 *					the enclosing types if the searched type is a member type), or a prefix
+	 *					for this type, or a wild-carded string for this type.
+	 *					May be <code>null</code>, then any type name is accepted.
 	 * @param typeMatchRule one of
 	 * <ul>
 	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
