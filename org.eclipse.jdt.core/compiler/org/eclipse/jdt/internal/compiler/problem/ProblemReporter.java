@@ -3471,6 +3471,14 @@ public void invalidUsageOfVarargs(Argument argument) {
 		argument.type.sourceStart,
 		argument.sourceEnd);
 }
+public void illegalUsageOfWildcard(TypeReference wildcard) {
+	this.handle(
+		IProblem.InvalidUsageOfWildcard,
+		NoArgument, 
+		NoArgument, 
+		wildcard.sourceStart,
+		wildcard.sourceEnd);
+}
 public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location) {
 	this.referenceContext = compUnitDecl;
 	String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName)};

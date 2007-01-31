@@ -1038,6 +1038,8 @@ void setSourceStart(int sourceStart);
 	int TypeHidingTypeParameterFromType = TypeRelated + 576;
 	/** @since 3.3 */
 	int TypeHidingTypeParameterFromMethod = TypeRelated + 577;
+    /** @since 3.3 */
+    int InvalidUsageOfWildcard = Syntax + Internal + 578;
 	
 	/**
 	 * Foreach
