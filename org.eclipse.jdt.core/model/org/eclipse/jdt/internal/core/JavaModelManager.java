@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
+import org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -117,6 +118,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private WeakHashSet stringSymbols = new WeakHashSet(5);
 	private WeakHashSetOfCharArray charArraySymbols = new WeakHashSetOfCharArray(5);
+	
+	/*
+	 * Extension used to construct Java 6 annotation processor managers
+	 */
+	private IConfigurationElement annotationProcessorManagerFactory = null;
 
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
@@ -145,6 +151,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Name of the extension point for contributing a compilation participant
 	 */
 	public static final String COMPILATION_PARTICIPANT_EXTPOINT_ID = "compilationParticipant" ; //$NON-NLS-1$
+	
+	/**
+	 * Name of the extension point for contributing the Java 6 annotation processor manager
+	 */
+	public static final String ANNOTATION_PROCESSOR_MANAGER_EXTPOINT_ID = "annotationProcessorManager" ;  //$NON-NLS-1$
 	
 	/**
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
@@ -1266,6 +1277,55 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			JavaModelManager.PERF_CONTAINER_INITIALIZER = PerformanceStats.isEnabled(CONTAINER_INITIALIZER_PERF);
 			ReconcileWorkingCopyOperation.PERF = PerformanceStats.isEnabled(RECONCILE_PERF);
 		}
+	}
+	
+	/*
+	 * Return a new Java 6 annotation processor manager.  The manager will need to
+	 * be configured before it can be used.  Returns null if a manager cannot be
+	 * created, ie if the current VM does not support Java 6 annotation processing.
+	 */
+	public AbstractAnnotationProcessorManager createAnnotationProcessorManager() {
+		synchronized(this) {
+			if (this.annotationProcessorManagerFactory == null) {
+				IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, ANNOTATION_PROCESSOR_MANAGER_EXTPOINT_ID);
+				if (extension == null)
+					return null;
+				IExtension[] extensions = extension.getExtensions();
+				for(int i = 0; i < extensions.length; i++) {
+					if (i > 0) {
+						Util.log(null, "An annotation processor manager is already registered: ignoring " + extensions[i].getUniqueIdentifier()); //$NON-NLS-1$
+						break;
+					}
+					IConfigurationElement[] configElements = extensions[i].getConfigurationElements();
+					for(int j = 0; j < configElements.length; j++) {
+						final IConfigurationElement configElement = configElements[j];
+						if ("annotationProcessorManager".equals(configElement.getName())) { //$NON-NLS-1$
+							this.annotationProcessorManagerFactory = configElement;
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		if (this.annotationProcessorManagerFactory == null) {
+			return null;
+		}
+		final AbstractAnnotationProcessorManager[] apm = new AbstractAnnotationProcessorManager[1];
+		apm[0] = null;
+		final IConfigurationElement factory = this.annotationProcessorManagerFactory;
+		SafeRunner.run(new ISafeRunnable() {
+			public void handleException(Throwable exception) {
+				Util.log(exception, "Exception occurred while loading annotation processor manager"); //$NON-NLS-1$
+			}
+			public void run() throws Exception {
+				Object executableExtension = factory.createExecutableExtension("class"); //$NON-NLS-1$ 
+				if (executableExtension instanceof AbstractAnnotationProcessorManager) {
+					apm[0] = (AbstractAnnotationProcessorManager) executableExtension;
+				}
+			}
+		});
+		return apm[0];
 	}
 	
 	/*

@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -435,6 +436,16 @@ protected IContainer createFolder(IPath packagePath, IContainer outputFolder) th
 	return folder;
 }
 
+protected void initializeAnnotationProcessorManager(Compiler newCompiler) {
+	AbstractAnnotationProcessorManager annotationManager = JavaModelManager.getJavaModelManager().createAnnotationProcessorManager();
+	if (annotationManager != null) {
+		annotationManager.configureFromPlatform(newCompiler, javaBuilder.javaProject);
+		annotationManager.setErr(new PrintWriter(System.err));
+		annotationManager.setOut(new PrintWriter(System.out));
+	}
+	newCompiler.annotationProcessorManager = annotationManager;
+}
+
 protected RuntimeException internalException(CoreException t) {
 	ImageBuilderInternalException imageBuilderException = new ImageBuilderInternalException(t);
 	if (inCompiler)
@@ -482,10 +493,16 @@ protected Compiler newCompiler() {
 		this,
 		ProblemFactory.getProblemFactory(Locale.getDefault()));
 	CompilerOptions options = newCompiler.options;
-
+	
 	// enable the compiler reference info support
 	options.produceReferenceInfo = true;
 
+	if (options.complianceLevel >= ClassFileConstants.JDK1_6
+			&& options.processAnnotations) {
+		// support for Java 6 annotation processors
+		initializeAnnotationProcessorManager(newCompiler);
+	}
+	
 	return newCompiler;
 }
 
