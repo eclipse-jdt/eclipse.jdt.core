@@ -48,6 +48,14 @@
 	schema="schema/compilationParticipant.exsd"/>
 
 <!-- =================================================================================== -->
+<!-- Extension Point: Java 6 Annotation Processor Manager                                -->
+<!-- =================================================================================== -->
+
+<extension-point name="%annotationProcessorManagerName" 
+	id="annotationProcessorManager"
+	schema="schema/annotationProcessorManager.exsd"/>
+
+<!-- =================================================================================== -->
 <!-- Extension: Java Nature                                                              -->
 <!-- =================================================================================== -->
 
