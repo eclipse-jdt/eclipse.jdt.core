@@ -352,10 +352,7 @@ public final class CompilationUnitSorter {
 	 * <p>
 	 * The <code>compare</code> method of the given comparator is passed pairs
 	 * of body declarations (subclasses of <code>BodyDeclaration</code>)
-	 * representing body declarations at the same level. The nodes are from an
-	 * AST of the specified level ({@link org.eclipse.jdt.core.dom.ASTParser#newParser(int)}.
-	 * Clients will generally use AST.JLS3 since that will cover all
-	 * constructs found in Java 1.0, 1.1, 1.2, 1.3, 1.4, and 1.5 source code.
+	 * representing body declarations at the same level. 
 	 * The comparator is called on body declarations of nested classes,
 	 * including anonymous and local classes, but always at the same level.
 	 * Clients need to provide a comparator implementation (there is no standard
@@ -413,10 +410,7 @@ public final class CompilationUnitSorter {
 	 * <td width="50%"><code>modifiers, name, arguments<br>
 	 *        RELATIVE_ORDER property</code></td>
 	 * </tr>
-	 * </table> Clients should not rely on the AST nodes being properly parented
-	 * or on having source range information. (Future releases may provide
-	 * options for requesting additional information like source positions, full
-	 * ASTs, non-recursive sorting, etc.)
+	 * </table>
 	 * </p>
 	 * 
 	 * @param unit
@@ -438,14 +432,7 @@ public final class CompilationUnitSorter {
 	 *                if the compilation unit could not be sorted. Reasons
 	 *                include:
 	 *                <ul>
-	 *                <li> The given compilation unit does not exist
-	 *                (ELEMENT_DOES_NOT_EXIST)</li>
-	 *                <li> The given compilation unit is not a working copy
-	 *                (INVALID_ELEMENT_TYPES)</li>
-	 *                <li> A <code>CoreException</code> occurred while
-	 *                accessing the underlying resource</li>
-	 *                <li>The given compilation unit doesn't come from an ICompilationUnit and this ICompilationUnit is
-	 *                not a working copy (NO_ELEMENTS_TO_PROCESS)</li>
+	 *                <li> The given unit was not created from a ICompilationUnit (INVALID_ELEMENT_TYPES)</li>
 	 *                </ul>
 	 * @exception IllegalArgumentException
 	 *                if the given compilation unit is null or if the given

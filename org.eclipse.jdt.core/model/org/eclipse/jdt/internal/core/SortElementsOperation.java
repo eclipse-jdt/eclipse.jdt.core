@@ -120,10 +120,12 @@ public class SortElementsOperation extends JavaModelOperation {
 	 * @return the edit or null if no sorting is required
 	 */
 	public TextEdit calculateEdit(org.eclipse.jdt.core.dom.CompilationUnit unit, TextEditGroup group) throws JavaModelException {
-		IJavaModelStatus status= this.verify();
-		if (!status.isOK()) {
-			throw new JavaModelException(status);
-		}
+		if (this.elementsToProcess.length != 1)
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS));
+		
+		if (!(this.elementsToProcess[0] instanceof ICompilationUnit))
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, this.elementsToProcess[0]));
+		
 		try {
 			beginTask(Messages.operation_sortelements, getMainAmountOfWork());
 			
