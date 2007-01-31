@@ -36399,7 +36399,7 @@ public void test1100() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=172189
-public void _test1101() {
+public void test1101() {
 	this.runNegativeTest(new String[] {
 			"X.java",
 			"import java.util.*;\n" + 
