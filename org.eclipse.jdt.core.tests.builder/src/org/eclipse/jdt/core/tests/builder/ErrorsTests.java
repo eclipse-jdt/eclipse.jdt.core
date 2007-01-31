@@ -113,7 +113,7 @@ public void test0100() throws JavaModelException {
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
 	expectingSpecificProblemFor(classTest1, new Problem("p1", "Test2 cannot be resolved to a type", classTest1, 39, 44, 40));
-	assertEquals(JavaBuilder.GENERATED_BY, prob1[0].getGeneratedBy());
+	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
@@ -130,7 +130,7 @@ public void test0101() throws JavaModelException {
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
 	expectingSpecificProblemFor(classTest1, new Problem("p1", "Syntax error on token \"extends\", Type expected after this token", classTest1, 31, 38, 20));
-	assertEquals(JavaBuilder.GENERATED_BY, prob1[0].getGeneratedBy());
+	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
@@ -153,7 +153,7 @@ public void test0102() throws JavaModelException {
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
 	expectingSpecificProblemFor(classTest1, new Problem("p1", "The field Test1.i is not visible", classTest1, 109, 110, 50));
-	assertEquals(JavaBuilder.GENERATED_BY, prob1[0].getGeneratedBy());
+	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
@@ -172,7 +172,7 @@ public void test0103() throws JavaModelException {
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
 	expectingSpecificProblemFor(classTest1, new Problem("p1", "TODO : marker only", classTest1, 38, 55, -1));
-	assertEquals(JavaBuilder.GENERATED_BY, prob1[0].getGeneratedBy());
+	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
@@ -189,6 +189,6 @@ public void test0104() throws JavaModelException {
 	Problem[] prob1 = env.getProblemsFor(classTest1);
 	expectingSpecificProblemFor(classTest1, 
 		new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, 0, 1, 10));
-	assertEquals(JavaBuilder.GENERATED_BY, prob1[0].getGeneratedBy());
+	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 }

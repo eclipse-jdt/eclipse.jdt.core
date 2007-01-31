@@ -806,7 +806,7 @@ public class JavaProject
 					IJavaModelMarker.ID,
 					IJavaModelMarker.ARGUMENTS ,
 					IJavaModelMarker.CATEGORY_ID,
-					IMarker.GENERATED_BY,
+					IMarker.SOURCE_ID,
 				},
 				new Object[] {
 					status.getMessage(),
@@ -817,7 +817,7 @@ public class JavaProject
 					new Integer(status.getCode()),
 					Util.getProblemArgumentsForMarker(arguments) ,
 					new Integer(CategorizedProblem.CAT_BUILDPATH),
-					JavaBuilder.GENERATED_BY,
+					JavaBuilder.SOURCE_ID,
 				}
 			);
 		} catch (CoreException e) {

@@ -72,7 +72,7 @@ public final static String[] JAVA_TASK_MARKER_ATTRIBUTE_NAMES = {
 	IMarker.CHAR_END, 
 	IMarker.LINE_NUMBER, 
 	IMarker.USER_EDITABLE,
-	IMarker.GENERATED_BY,
+	IMarker.SOURCE_ID,
 };
 public final static Integer S_ERROR = new Integer(IMarker.SEVERITY_ERROR);
 public final static Integer S_WARNING = new Integer(IMarker.SEVERITY_WARNING);
@@ -372,8 +372,8 @@ protected void createProblemFor(IResource resource, IMember javaElement, String 
 		int start = range == null ? 0 : range.getOffset();
 		int end = range == null ? 1 : start + range.getLength();
 		marker.setAttributes(
-			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.CHAR_START, IMarker.CHAR_END, IMarker.GENERATED_BY},
-			new Object[] {message, new Integer(severity), new Integer(start), new Integer(end), JavaBuilder.GENERATED_BY});
+			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.CHAR_START, IMarker.CHAR_END, IMarker.SOURCE_ID},
+			new Object[] {message, new Integer(severity), new Integer(start), new Integer(end), JavaBuilder.SOURCE_ID});
 	} catch (CoreException e) {
 		throw internalException(e);
 	}
@@ -628,7 +628,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 			marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_incompleteClassPath, missingClassfileName)); 
 			marker.setAttribute(IMarker.SEVERITY, isInvalidClasspathError ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING);
 			marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-			marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
+			marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 			// even if we're not keeping more markers, still fall through rest of the problem reporting, so that offending
 			// IsClassPathCorrect problem gets recorded since it may help locate the offending reference
 		}
@@ -655,7 +655,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 			);
 			// GENERATED_BY attribute for JDT problems
 			if (!managedProblem) {
-				marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
+				marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 			}
 			// optional extra attributes
 			String[] extraAttributeNames = problem.getExtraMarkerAttributeNames();
@@ -693,7 +693,7 @@ protected void storeTasksFor(SourceFile sourceFile, CategorizedProblem[] tasks) 
 					new Integer(task.getSourceEnd() + 1),
 					new Integer(task.getSourceLineNumber()),
 					Boolean.FALSE,
-					JavaBuilder.GENERATED_BY
+					JavaBuilder.SOURCE_ID
 				});
 			String[] extraAttributeNames = task.getExtraMarkerAttributeNames();
 			int extraLength = extraAttributeNames == null ? 0 : extraAttributeNames.length;

@@ -35,7 +35,7 @@ State lastState;
 BuildNotifier notifier;
 char[][] extraResourceFileFilters;
 String[] extraResourceFolderFilters;
-public static final String GENERATED_BY = "JDT"; //$NON-NLS-1$
+public static final String SOURCE_ID = "JDT"; //$NON-NLS-1$
 
 public static boolean DEBUG = false;
 
@@ -204,14 +204,14 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage())); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-		marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
+		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 	} catch (ImageBuilderInternalException e) {
 		Util.log(e.getThrowable(), "JavaBuilder handling ImageBuilderInternalException while building: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage())); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-		marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
+		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 	} catch (MissingSourceFileException e) {
 		// do not log this exception since its thrown to handle aborted compiles because of missing source files
 		if (DEBUG)
@@ -220,7 +220,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_missingSourceFile, e.missingSourceFile)); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
+		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 	} finally {
 		if (!ok)
 			// If the build failed, clear the previously built state, forcing a full build next time.
@@ -282,7 +282,7 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage())); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
+		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 	} finally {
 		notifier.done();
 		cleanup();
@@ -611,7 +611,7 @@ private boolean isWorthBuilding() throws CoreException {
 		marker.setAttribute(IMarker.MESSAGE, Messages.build_abortDueToClasspathProblems); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-		marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
+		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 		return false;
 	}
 
@@ -650,7 +650,7 @@ private boolean isWorthBuilding() throws CoreException {
 					: Messages.bind(Messages.build_prereqProjectMustBeRebuilt, p.getName())); 
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-			marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
+			marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 			return false;
 		}
 	}

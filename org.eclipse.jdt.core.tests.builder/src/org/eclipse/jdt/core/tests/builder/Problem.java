@@ -19,7 +19,7 @@ public class Problem implements Comparable {
 	private String message;
 	private IPath resourcePath;
 	private int start = -1, end = -1, categoryId = -1;
-	private String generatedBy;
+	private String sourceId;
 	
 	public Problem(String location, String message, IPath resourcePath, int start, int end, int categoryId){
 		this.location = location;
@@ -42,21 +42,21 @@ public class Problem implements Comparable {
 		this.start = marker.getAttribute(IMarker.CHAR_START, -1);
 		this.end = marker.getAttribute(IMarker.CHAR_END, -1);
 		this.categoryId = marker.getAttribute(IJavaModelMarker.CATEGORY_ID, -1);
-		this.generatedBy = marker.getAttribute(IMarker.GENERATED_BY, "missing");
+		this.sourceId = marker.getAttribute(IMarker.SOURCE_ID, "missing");
 	}
 	public int getCategoryId() {
 		return categoryId;
 	}
 	
 /**
- * Return the IMarker.GENERATED_BY attribute of the underlying marker if any.
+ * Return the IMarker.SOURCE_ID attribute of the underlying marker if any.
  * Value null denotes a problem created from explicit structural attributes
  * (instead of using a source marker). Value "missing" denotes that the marker
- * used to initialize the problem had no IMarker.GENERATED_BY attribute. 
- * @return the IMarker.GENERATED_BY attribute of the underlying marker if any
+ * used to initialize the problem had no IMarker.SOURCE_ID attribute. 
+ * @return the IMarker.SOURCE_ID attribute of the underlying marker if any
  */
-public String getGeneratedBy() {
-	return this.generatedBy;
+public String getSourceId() {
+	return this.sourceId;
 }
 	/**
 	 * Gets the location.

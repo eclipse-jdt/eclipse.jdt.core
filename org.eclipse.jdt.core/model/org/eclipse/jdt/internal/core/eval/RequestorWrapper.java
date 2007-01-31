@@ -61,7 +61,7 @@ public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int
 		//marker.setAttribute(IMarker.LOCATION, "#" + problem.getSourceLineNumber());
 		marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
 		marker.setAttribute(IMarker.SEVERITY, (problem.isWarning() ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR));
-		marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.GENERATED_BY);
+		marker.setAttribute(IMarker.GENERATED_BY, JavaBuilder.SOURCE_ID);
 		this.requestor.acceptProblem(marker, new String(fragmentSource), fragmentKind);
 	} catch (CoreException e) {
 		e.printStackTrace();
