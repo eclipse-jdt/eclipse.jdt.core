@@ -56,6 +56,8 @@ public interface ITypeBinding extends IBinding {
 	 * plus the dimension of the receiver. Otherwise the resulting dimension is the given
 	 * dimension.</p>
 	 * 
+	 * <p>NOTE: This API is experimental and might be removed or moved to another class for 3.3</p>
+	 *
 	 * @param dimension the given dimension
 	 * @return an array type binding
 	 * @throws IllegalArgumentException:<ul>
