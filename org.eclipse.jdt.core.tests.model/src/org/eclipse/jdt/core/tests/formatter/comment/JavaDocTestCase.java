@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
 public class JavaDocTestCase extends CommentTestCase {
 	
 	static {
-//		TESTS_NAMES = new String[] { "testNoExtraNewlineWithPre1" } ;
+//		TESTS_NAMES = new String[] { "test109605" } ;
 	}
 
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
@@ -517,4 +517,29 @@ public class JavaDocTestCase extends CommentTestCase {
 		assertEquals(expected, result);
 	}
 	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=109605
+	public void test109605() {
+		String input = "/**" + DELIMITER +
+				"			 * <pre>" + DELIMITER +
+				"			 * " + DELIMITER +
+				"			 * </pre>" + DELIMITER +
+				"			 * " + DELIMITER +
+				"			 * " + DELIMITER +
+				"			 * @author Darren Pearce" + DELIMITER +
+				"			 * @version 22-Sep-2005" + DELIMITER +
+				"			 * " + DELIMITER +
+				"			 */";
+		
+		String expected = "/**" + DELIMITER +
+				" * <pre>" + DELIMITER + 
+				" * </pre>" + DELIMITER + 
+				" * " +  DELIMITER +
+				" * " + DELIMITER + 
+				" * @author Darren Pearce" + DELIMITER +
+				" * @version 22-Sep-2005" + DELIMITER +
+				" * " + DELIMITER + 
+				" */";
+		String result=testFormat(input);
+		assertEquals(expected, result);
+	}
 }
