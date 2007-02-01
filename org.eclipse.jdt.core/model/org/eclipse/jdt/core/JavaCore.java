@@ -2938,6 +2938,7 @@ public final class JavaCore extends Plugin {
 			if (monitor != null) monitor.beginTask(Messages.javamodel_initialization, 100);
 			// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
 			SearchEngine engine = new SearchEngine();
+			JavaModelManager.getJavaModelManager().deltaState.initializeRoots(); // initialize all containers and variables
 			IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
 			try {
 				engine.searchAllTypeNames(
