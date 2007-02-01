@@ -23,7 +23,7 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 	public static final int SOURCE = 1;
 	public static final int BINARY = 2;
 	
-	protected AccessRuleSet accessRuleSet;
+	public AccessRuleSet accessRuleSet;
 
 	public String destinationPath;
 		// destination path for compilation units that are reached through this
