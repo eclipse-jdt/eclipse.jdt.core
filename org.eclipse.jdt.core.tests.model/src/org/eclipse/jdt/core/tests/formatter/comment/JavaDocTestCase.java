@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter.comment;
 
+import java.util.Map;
+
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
@@ -22,7 +24,7 @@ import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
 public class JavaDocTestCase extends CommentTestCase {
 	
 	static {
-//		TESTS_NAMES = new String[] { "test109605" } ;
+//		TESTS_NAMES = new String[] { "test60453" } ;
 	}
 
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
@@ -540,6 +542,26 @@ public class JavaDocTestCase extends CommentTestCase {
 				" * " + DELIMITER + 
 				" */";
 		String result=testFormat(input);
+		assertEquals(expected, result);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=60453
+	public void test60453() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "80");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, DefaultCodeFormatterConstants.FALSE);
+
+		String input = "/** Creates a new instance of DynamicEventChannel  sdf sdfs dsdf dsfsd fd fsd fsdf sdf dsfsd (on the same line)" + DELIMITER + 
+				"* @pre obj != null" + DELIMITER + 
+				"*/";
+		
+		String expected = "/**" + DELIMITER +
+				" * Creates a new instance of DynamicEventChannel sdf sdfs dsdf dsfsd fd fsd fsdf" + DELIMITER +
+				" * sdf dsfsd (on the same line)" + DELIMITER +
+				" * " + DELIMITER +
+				" * @pre obj != null" + DELIMITER +
+				" */";
+		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}
 }

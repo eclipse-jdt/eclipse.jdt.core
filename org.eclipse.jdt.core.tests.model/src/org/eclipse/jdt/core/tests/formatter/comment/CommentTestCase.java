@@ -77,11 +77,18 @@ public abstract class CommentTestCase extends SuiteOfTestCases {
 		return testFormat(text, 0, text.length());
 	}
 
+	protected final String testFormat(String text, Map options) {
+		return testFormat(text, 0, text.length(), getCommentKind(), options);
+	}
 	protected String testFormat(String text, int offset, int length) {
 		return testFormat(text, offset, length, getCommentKind());
 	}
 
 	protected String testFormat(String text, int offset, int length, int kind) {
+		return testFormat(text, offset, length, kind, getUserOptions());
+	}
+
+	protected String testFormat(String text, int offset, int length, int kind, Map options) {
 		assertNotNull(text);
 		assertTrue(offset >= 0);
 		assertTrue(offset < text.length());
@@ -90,9 +97,8 @@ public abstract class CommentTestCase extends SuiteOfTestCases {
 
 		assertTrue(kind == CodeFormatter.K_JAVA_DOC || kind == CodeFormatter.K_MULTI_LINE_COMMENT || kind == CodeFormatter.K_SINGLE_LINE_COMMENT);
 
-		return CommentFormatterUtil.format(kind, text, offset, length, CommentFormatterUtil.createOptions(getUserOptions()));
+		return CommentFormatterUtil.format(kind, text, offset, length, CommentFormatterUtil.createOptions(options));
 	}
-	
 	protected String testFormat(String text, int offset, int length, int kind, int indentationLevel) {
 		assertNotNull(text);
 		assertTrue(offset >= 0);
