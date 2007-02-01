@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,12 +18,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 import junit.framework.Test;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 
 public class BatchCompilerTest extends AbstractRegressionTest {
@@ -273,6 +276,62 @@ private String getLibraryClasses() {
 					errOutputString);
 		}
 	}
+private void runClasspathTest(String classpathInput, String[] expectedClasspathEntries,
+		String expectedError) {
+	File outputDirectory = new File(OUTPUT_DIR);
+	if (!outputDirectory.isDirectory()) {
+		outputDirectory.mkdirs();
+	}
+	ArrayList paths = new ArrayList(Main.DEFAULT_SIZE_CLASSPATH);
+	try {
+		(new Main(new PrintWriter(System.out), new PrintWriter(System.err), true)).
+			processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, classpathInput, null /* customEncoding */, false /* isSourceOnly */, true /* rejectDestinationPathOnJars*/);
+	} catch (InvalidInputException e) {
+		// e.printStackTrace();
+		if (expectedError == null) {
+			fail("unexpected invalid input exception: " + e.getMessage());
+		} else if (! expectedError.equals(e.getMessage())) {
+			System.out.println("\"" + e.getMessage() + "\"");
+			assertEquals(expectedError, e.getMessage());
+		}
+		return;
+	}
+	if (expectedError == null) {
+		int l = paths.size();
+		assertEquals("unexpected classpaths entries number: ", 
+				expectedClasspathEntries == null ? 0 : expectedClasspathEntries.length / 3, l);
+		for (int i = 0, j = 0; i < l ; i++) {
+			ClasspathLocation result = (ClasspathLocation) paths.get(i);
+			String expected = expectedClasspathEntries[j++];
+			String actual = result.toString();
+			if (! actual.equals("ClasspathDirectory " + expected + File.separator) && 
+					! actual.equals("Classpath for jar file " + expected)) {
+				assertEquals("dir/jar " + expected, actual);
+			}
+			expected = expectedClasspathEntries[j++];
+			if (result.accessRuleSet == null) {
+				assertNull("actual access rule is null instead of <" + expected +">", expected);
+			} else if (! result.accessRuleSet.toString(false).
+					startsWith("AccessRuleSet " + expected)) {
+				System.out.println("\"" + result.accessRuleSet.toString(false) + "\"");
+				fail("inappropriate rules (expected " + expected + 
+					", got " + result.accessRuleSet.toString(false));
+			}
+			expected = expectedClasspathEntries[j++];
+			if (expected == null) {
+				assertNull(result.destinationPath);
+			} else if (expected == Main.NONE && 
+					result.destinationPath != Main.NONE) {
+				fail("expected 'none' output directory");
+			} else if (! expected.equals(result.destinationPath)) {
+				System.out.println("\"" + result.destinationPath + "\"");
+				assertEquals(expected, result.destinationPath);
+			}
+		}
+	} else {
+		fail("missing error: " + expectedError);
+	}
+}
 	
 /**
  * Check that no line of message extends beyond width columns. Tabs count for
@@ -854,7 +913,7 @@ public void test010(){
         true);
 }
 // command line - unusual classpath (ends with ';', still OK)
-public void test011_unusual_classpath(){
+public void test011_classpath(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4939,120 +4998,167 @@ public void test121(){
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // command line - unusual classpath (ends with ';;;', still OK)
-public void test122_unusual_classpath(){
-	this.runConformTest(
+public void test122_classpath(){
+	runClasspathTest(
+		OUTPUT_DIR + "[+**/OK2]" + File.pathSeparator + File.pathSeparator + 
+				File.pathSeparator, 
 		new String[] {
-			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
-			"}",
+			OUTPUT_DIR,	"{pattern=**/OK2 (ACCESSIBLE)}", null,
 		},
-        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[+**/OK2;~**/Warn;-KO]"
-        + "\"" + File.pathSeparator + File.pathSeparator + File.pathSeparator
-        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "",
-        "",
-        true);
+		null);
 }
-// command line - unusual classpath (rules with multiple path separators KO)
-public void test123_unusual_classpath(){
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"/** */\n" + 
-			"public class X extends Zork {\n" + 
-			"}",
-		},
-        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[+OK2" + 
-        	File.pathSeparator + File.pathSeparator + File.pathSeparator + 
-        	"~Warn" + File.pathSeparator + "-KO]\""
-        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
-        + " -proceedOnError -referenceInfo"
-        + " -d \"" + OUTPUT_DIR + "\"", 
-        "", 
-        "incorrect classpath: ---OUTPUT_DIR_PLACEHOLDER---[+OK2" + 
-        	File.pathSeparator + File.pathSeparator + File.pathSeparator + 
-        	"~Warn" + File.pathSeparator + "-KO]\n" + 
-        "----------\n" + 
-        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
-        "	public class X extends Zork {\n" + 
-        "	                       ^^^^\n" + 
-        "Zork cannot be resolved to a type\n" + 
-        "----------\n" + 
-        "1 problem (1 error)",
-        true);
+// command line - unusual classpath (rules with multiple path separators KO, but
+// without any error message though)
+public void test123_classpath(){
+	String cp = OUTPUT_DIR + "[+OK2" + File.pathSeparator + File.pathSeparator + 
+			File.pathSeparator + "~Warn" + File.pathSeparator + "-KO]";
+	runClasspathTest(
+		cp, 
+		null,
+		null);
 }
 // command line - unusual classpath (rules with embedded -d OK)
-public void test124_unusual_classpath(){
-	this.runNegativeTest(
+public void test124_classpath (){
+	runClasspathTest(
+		OUTPUT_DIR + "[+OK2" + File.pathSeparator +	"-d ~Warn" + 
+				File.pathSeparator + "-KO]", 
 		new String[] {
-			"X.java",
-			"/** */\n" + 
-			"public class X extends Zork {\n" + 
-			"}",
+			OUTPUT_DIR, 
+				"{pattern=OK2 (ACCESSIBLE), pattern=d ~Warn (NON ACCESSIBLE), pattern=KO (NON ACCESSIBLE)}",
+				null,
 		},
-        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator +  
-        	"-d ~Warn" + File.pathSeparator + "-KO]\""
-        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
-        + " -proceedOnError -referenceInfo"
-        + " -d \"" + OUTPUT_DIR + "\"", 
-        "", 
-        "----------\n" + 
-        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
-        "	public class X extends Zork {\n" + 
-        "	                       ^^^^\n" + 
-        "Zork cannot be resolved to a type\n" + 
-        "----------\n" + 
-        "1 problem (1 error)",
-        true);
+		null);
 }
 // command line - unusual classpath (rules starting with -d KO)
-public void test125_unusual_classpath(){
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
-			"}",
-		},
-        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[-d +OK2" + File.pathSeparator +  
-        	"~Warn" + File.pathSeparator + "-KO]\""
-        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
-        + " -proceedOnError -referenceInfo"
-        + " -d \"" + OUTPUT_DIR + "\"", 
-        "", 
-        "incorrect destination path entry: ---OUTPUT_DIR_PLACEHOLDER---[-d +OK2" + 
-        	File.pathSeparator + "~Warn" + File.pathSeparator + "-KO]\n",
-        true);
+public void test125_classpath() {
+	String cp = OUTPUT_DIR + "[-d +OK2" + File.pathSeparator + "~Warn" + 
+			File.pathSeparator + "-KO]";
+	runClasspathTest(
+		cp, 
+		null,
+		"incorrect destination path entry: " + cp);
 }
 // command line - unusual classpath (rules starting with -d KO)
-public void test126_unusual_classpath(){
-	this.runNegativeTest(
+public void test126_classpath() {
+	String cp = OUTPUT_DIR + "[-d +OK2" + File.pathSeparator + "~Warn" + 
+			File.pathSeparator + "-KO][-d dummy]";
+	runClasspathTest(
+		cp, 
+		null,
+		"incorrect destination path entry: " + cp);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+public void _test127_classpath() {
+	runClasspathTest(
+		OUTPUT_DIR + File.separator + "[squarebracket].jar", 
 		new String[] {
-			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
-			"}",
+			"[squarebracket].jar", null, null,
 		},
-        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-        + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[-d +OK2" + File.pathSeparator +  
-        	"~Warn" + File.pathSeparator + "-KO][-d dummy]\""
-        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
-        + " -proceedOnError -referenceInfo"
-        + " -d \"" + OUTPUT_DIR + "\"", 
-        "", 
-        "incorrect destination path entry: ---OUTPUT_DIR_PLACEHOLDER---[-d +OK2" + 
-        	File.pathSeparator + "~Warn" + File.pathSeparator + "-KO][-d dummy]\n",
-        true);
+		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+public void _test128_classpath() {
+	runClasspathTest(
+		OUTPUT_DIR + File.separator + "[square][bracket].jar", 
+		new String[] {
+			"[square][bracket].jar", null, null,
+		},
+		null);
+}
+// command line - classpath order
+public void test129_classpath() {
+	runClasspathTest(
+		"file.jar[+A]" + File.pathSeparator + OUTPUT_DIR, 
+		new String[] {
+			"file.jar",	"{pattern=A (ACCESSIBLE)}", null,
+			OUTPUT_DIR, null, null,
+		},
+		null);
+}
+// command line - output directories
+// see also test072
+public void test130_classpath() {
+	String cp = OUTPUT_DIR + "[-d dir][~**/internal/*]";
+	runClasspathTest(
+		cp, 
+		null,
+		"access rules cannot follow destination path entries: " + cp);
+}
+// command line - output directories
+public void test131_classpath() {
+	String cp = OUTPUT_DIR + "[~**/internal/*][-d dir]";
+	runClasspathTest(
+		cp, 
+		new String[] {
+			OUTPUT_DIR,	"{pattern=**/internal/* (DISCOURAGED)}", "dir",
+		},
+		null);
+}
+// command line - brackets in classpath
+// unbalanced brackets fail (without any message though)
+public void test132_classpath() {
+	String cp = OUTPUT_DIR + "[~**/internal/*[-d dir]";
+	runClasspathTest(
+		cp, 
+		null,
+		null);
+}
+// command line - brackets in classpath
+// unbalanced brackets fail (without any message though)
+public void test133_classpath() {
+	String cp = OUTPUT_DIR + "[~**/internal/*]-d dir]";
+	runClasspathTest(
+		cp, 
+		null,
+		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+public void _test134_classpath() {
+	runClasspathTest(
+		OUTPUT_DIR + File.separator + "[squarebracket].jar[~**/internal/*][-d dir]", 
+		new String[] {
+			"[squarebracket].jar", "{pattern=**/internal/* (DISCOURAGED)}", "dir",
+		},
+		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+public void _test135_classpath() {
+	runClasspathTest(
+		OUTPUT_DIR + File.separator + "[square][bracket].jar[~**/internal/*][-d dir]", 
+		new String[] {
+			"[square][bracket].jar", "{pattern=**/internal/* (DISCOURAGED)}", "dir",
+		},
+		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+public void _test136_classpath() {
+	String target = OUTPUT_DIR + File.separator + "[a]";
+	(new File(target)).mkdirs();
+	runClasspathTest(
+		target + File.separator, 
+		new String[] {
+			target, null, null,
+		},
+		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+public void _test137_classpath() {
+	String target = OUTPUT_DIR + File.separator + "[a]";
+	(new File(target)).mkdirs();
+	runClasspathTest(
+		target + File.separator + "[~**/internal/*][-d dir]", 
+		new String[] {
+			target, "{pattern=**/internal/* (DISCOURAGED)}", "dir",
+		},
+		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
+// too many brackets series KO (no error though)
+public void test138_classpath() {
+	runClasspathTest(
+		OUTPUT_DIR + File.separator + "[a][~**/internal/*][-d dir]", 
+		null,
+		null);
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;
