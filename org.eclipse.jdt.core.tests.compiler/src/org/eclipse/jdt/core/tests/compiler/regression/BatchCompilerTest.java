@@ -285,7 +285,7 @@ private void runClasspathTest(String classpathInput, String[] expectedClasspathE
 	ArrayList paths = new ArrayList(Main.DEFAULT_SIZE_CLASSPATH);
 	try {
 		(new Main(new PrintWriter(System.out), new PrintWriter(System.err), true)).
-			processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, classpathInput, null /* customEncoding */, false /* isSourceOnly */, true /* rejectDestinationPathOnJars*/);
+			processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, classpathInput, null /* customEncoding */, true /* isSourceOnly */, false /* rejectDestinationPathOnJars*/);
 	} catch (InvalidInputException e) {
 		// e.printStackTrace();
 		if (expectedError == null) {
@@ -5048,20 +5048,22 @@ public void test126_classpath() {
 		"incorrect destination path entry: " + cp);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
-public void _test127_classpath() {
+public void test127_classpath() {
+	String jarFile = OUTPUT_DIR + File.separator + "[squarebracket].jar"; 
 	runClasspathTest(
-		OUTPUT_DIR + File.separator + "[squarebracket].jar", 
+		jarFile, 
 		new String[] {
-			"[squarebracket].jar", null, null,
+			jarFile, null, null,
 		},
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
-public void _test128_classpath() {
+public void test128_classpath() {
+	String jarFile = OUTPUT_DIR + File.separator + "[square][bracket].jar";
 	runClasspathTest(
-		OUTPUT_DIR + File.separator + "[square][bracket].jar", 
+		jarFile, 
 		new String[] {
-			"[square][bracket].jar", null, null,
+			jarFile, null, null,
 		},
 		null);
 }
@@ -5113,25 +5115,27 @@ public void test133_classpath() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
-public void _test134_classpath() {
+public void test134_classpath() {
+	String jarFile = OUTPUT_DIR + File.separator + "[squarebracket].jar";
 	runClasspathTest(
-		OUTPUT_DIR + File.separator + "[squarebracket].jar[~**/internal/*][-d dir]", 
+		jarFile + "[~**/internal/*][-d " + OUTPUT_DIR + "]", 
 		new String[] {
-			"[squarebracket].jar", "{pattern=**/internal/* (DISCOURAGED)}", "dir",
+			jarFile, "{pattern=**/internal/* (DISCOURAGED)}", OUTPUT_DIR,
 		},
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
-public void _test135_classpath() {
+public void test135_classpath() {
+	String jarFile = OUTPUT_DIR + File.separator + "[square][bracket].jar";
 	runClasspathTest(
-		OUTPUT_DIR + File.separator + "[square][bracket].jar[~**/internal/*][-d dir]", 
+		jarFile + "[~**/internal/*][-d dir]", 
 		new String[] {
-			"[square][bracket].jar", "{pattern=**/internal/* (DISCOURAGED)}", "dir",
+			jarFile, "{pattern=**/internal/* (DISCOURAGED)}", "dir",
 		},
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
-public void _test136_classpath() {
+public void test136_classpath() {
 	String target = OUTPUT_DIR + File.separator + "[a]";
 	(new File(target)).mkdirs();
 	runClasspathTest(
@@ -5142,7 +5146,7 @@ public void _test136_classpath() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
-public void _test137_classpath() {
+public void test137_classpath() {
 	String target = OUTPUT_DIR + File.separator + "[a]";
 	(new File(target)).mkdirs();
 	runClasspathTest(

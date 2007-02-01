@@ -3076,6 +3076,10 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 	ArrayList currentRuleSpecs = new ArrayList(defaultSize);
 	StringTokenizer tokenizer = new StringTokenizer(currentPath,
 			File.pathSeparator + "[]", true); //$NON-NLS-1$
+	ArrayList tokens = new ArrayList();
+	while (tokenizer.hasMoreTokens()) {
+		tokens.add(tokenizer.nextToken());
+	}
 	// state machine
 	final int start = 0; 
 	final int readyToClose = 1;
@@ -3094,17 +3098,24 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 	// 'path[-d bin'
 	final int readyToCloseEndingWithDestinationPath = 8;
 	// 'path[-d bin]' 'path[rule][-d bin]'
-	final int destinatonPathStart = 9;
+	final int destinationPathStart = 9;
 	// 'path[rule]['
+	final int bracketOpened = 10;
+	// '.*[.*'
+	final int bracketClosed = 11;
+	// '.*([.*])+'
+	
 	final int error = 99;
 	int state = start;
 	String token = null;
-	while (tokenizer.hasMoreTokens() && state != error) {
-		token = tokenizer.nextToken();
+	int cursor = 0, tokensNb = tokens.size(), bracket = -1;
+	while (cursor < tokensNb && state != error) {
+		token = (String) tokens.get(cursor++);
 		if (token.equals(File.pathSeparator)) {
 			switch (state) {
 			case start:
 			case readyToCloseOrOtherEntry:
+			case bracketOpened:
 				break;
 			case readyToClose:
 			case readyToCloseEndingWithRules:
@@ -3122,20 +3133,27 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 				throw new InvalidInputException(
 					this.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$ 
 						currentPath));
+			case bracketClosed:
+				cursor = bracket + 1;
+				state = rulesStart;
+				break;
 			default:
 				state = error;
 			}
 		} else if (token.equals("[")) { //$NON-NLS-1$
 			switch (state) {
 			case readyToClose:
-				state = rulesStart;
+				bracket = cursor - 1;
+			case bracketClosed:
+				state = bracketOpened;
 				break;
 			case readyToCloseEndingWithRules:
-				state = destinatonPathStart;
+				state = destinationPathStart;
 				break;
 			case readyToCloseEndingWithDestinationPath:
 				state = rulesStart;
 				break;
+			case bracketOpened:
 			default:
 				state = error;
 			}
@@ -3147,6 +3165,10 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 			case destinationPathReadyToClose:
 				state = readyToCloseEndingWithDestinationPath;
 				break;
+			case bracketOpened:
+				state = bracketClosed;
+				break;
+			case bracketClosed:
 			default:
 				state = error;
 			}
@@ -3178,7 +3200,7 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 				state = rulesReadyToClose;
 				currentRuleSpecs.add(token);
 				break;
-			case destinatonPathStart:
+			case destinationPathStart:
 				if (!token.startsWith("-d ")) { //$NON-NLS-1$
 					state = error;
 				} else {
@@ -3186,9 +3208,21 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 					state = destinationPathReadyToClose;
 				}
 				break;
+			case bracketClosed:
+				for (int i = bracket; i < cursor ; i++) {
+					currentClasspathName += (String) tokens.get(i);
+				}
+				state = readyToClose;
+				break;
+			case bracketOpened:
+				break;
 			default:
 				state = error;
 			}
+		}
+		if (state == bracketClosed && cursor == tokensNb) {
+			cursor = bracket + 1;
+			state = rulesStart;
 		}
 	}
 	switch(state) {
@@ -3201,6 +3235,8 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 				customEncoding, currentDestinationPath, isSourceOnly,
 				rejectDestinationPathOnJars);
 			break;
+		case bracketOpened:
+		case bracketClosed:
 		default :
 			// we go on anyway
 			if (currentPath.length() != 0) {
