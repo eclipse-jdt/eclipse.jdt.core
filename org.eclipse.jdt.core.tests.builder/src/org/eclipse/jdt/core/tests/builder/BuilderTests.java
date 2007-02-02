@@ -35,6 +35,13 @@ public class BuilderTests extends TestCase {
 		super(name);
 	}
 
+protected void cleanBuild() {
+	debugRequestor.clearResult();
+	debugRequestor.activate();
+	env.cleanBuild();
+	debugRequestor.deactivate();
+}
+
 	/** Execute the given class. Expecting output and error must be specified.
 	 */
 	protected void executeClass(
@@ -322,7 +329,7 @@ public class BuilderTests extends TestCase {
 				Problem pb = rootProblems[j];
 				if (pb != null) {
 					System.out.print("got pb:		new Problem(\"" + pb.getLocation() + "\", \"" + pb.getMessage() + "\", \"" + pb.getResourcePath() + "\"");
-					System.out.print(", " + pb.getStart() + ", " + pb.getEnd() +  ", " + pb.getCategoryId());
+					System.out.print(", " + pb.getStart() + ", " + pb.getEnd() +  ", " + pb.getCategoryId()+  ", " + pb.getSeverity());
 					System.out.println(")");
 				}
 			}

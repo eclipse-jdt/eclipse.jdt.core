@@ -20,14 +20,19 @@ public class Problem implements Comparable {
 	private IPath resourcePath;
 	private int start = -1, end = -1, categoryId = -1;
 	private String sourceId;
+	private int severity = IMarker.SEVERITY_ERROR;
 	
-	public Problem(String location, String message, IPath resourcePath, int start, int end, int categoryId){
+	public Problem(String location, String message, IPath resourcePath, int start, int end, int categoryId) {
+		this(location, message, resourcePath, start, end, categoryId, IMarker.SEVERITY_ERROR);
+	}
+	public Problem(String location, String message, IPath resourcePath, int start, int end, int categoryId, int severity) {
 		this.location = location;
 		this.message = message;
 		this.resourcePath = resourcePath;
 		this.start = start;
 		this.end = end;
 		this.categoryId = categoryId;
+		this.severity = severity;
 //		if ((start > 0 || end > 0) && categoryId <= 0) {
 //			System.out.print("is categoryId properly set ? new Problem(\"" + location + "\", \"" + message + "\", \"" + resourcePath + "\"");
 //			System.out.print(", " + start + ", " + end +  ", " + categoryId);
@@ -43,6 +48,7 @@ public class Problem implements Comparable {
 		this.end = marker.getAttribute(IMarker.CHAR_END, -1);
 		this.categoryId = marker.getAttribute(IJavaModelMarker.CATEGORY_ID, -1);
 		this.sourceId = marker.getAttribute(IMarker.SOURCE_ID, "missing");
+		this.severity = marker.getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 	}
 	public int getCategoryId() {
 		return categoryId;
@@ -80,6 +86,10 @@ public String getSourceId() {
 		return resourcePath;
 	}
 	
+public int getSeverity() {
+	return this.severity;
+}
+
 	public int getStart() {
 		return this.start;
 	}
@@ -99,6 +109,7 @@ public String getSourceId() {
 			+ ">" 
 			+ (" range : <" + this.start + "," + this.end + ">")
 			+ (" category : <" + this.categoryId + ">")
+			+ (" severity : <" + this.severity + ">")
 			+ "]";
 	}
 	

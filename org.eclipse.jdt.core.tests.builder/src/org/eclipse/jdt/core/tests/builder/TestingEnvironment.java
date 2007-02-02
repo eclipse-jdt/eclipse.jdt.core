@@ -240,6 +240,11 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		addEntry(projectPath, JavaCore.newLibraryEntry(new Path(jar), null, null, isExported));
 	}
 	
+public void addLibrary(IPath projectPath, IPath libraryPath, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath) 
+		throws JavaModelException {
+	addEntry(projectPath, 		
+		JavaCore.newLibraryEntry(libraryPath, sourceAttachmentPath,	sourceAttachmentRootPath));
+}
 	private void addEntry(IPath projectPath, IClasspathEntry entryPath) throws JavaModelException {
 		IClasspathEntry[] classpath = getClasspath(projectPath);
 		IClasspathEntry[] newClaspath = new IClasspathEntry[classpath.length + 1];
@@ -297,6 +302,15 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	private void checkAssertion(String message, boolean b) {
 		Assert.isTrue(b, message);
 	}
+
+public void cleanBuild() {
+	checkAssertion("a workspace must be open", fIsOpen); //$NON-NLS-1$
+	try {
+		getWorkspace().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+	} catch (CoreException e) {
+		handle(e);
+	}
+}
 	
 	/** Closes the testing environment and frees up any
 	 * resources.  Once the testing environment is closed,

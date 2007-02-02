@@ -12,12 +12,14 @@ package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.*;
 
 import java.io.File;
@@ -462,6 +464,52 @@ public class BuildpathTests extends BuilderTests {
 		});
 	}
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
+public void _testMissingLibrary3() throws JavaModelException {
+	IPath projectPath = env.addProject("Project");
+	IJavaProject project = env.getJavaProject(projectPath);
+	fullBuild();
+	expectingNoProblems();
+	project.setOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, CompilerOptions.WARNING);
+	env.addLibrary(projectPath, projectPath.append("/lib/dummy.jar"), null, null);
+	// triggers a build
+	expectingSpecificProblemFor(
+		projectPath,
+		new Problem("Build path", "Project Project is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH,
+				IMarker.SEVERITY_WARNING));
+	project.setOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, CompilerOptions.ERROR);
+	cleanBuild();
+	expectingSpecificProblemFor(
+		projectPath,
+		new Problem("", "The project cannot be built until build path errors are resolved", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH));
+	expectingSpecificProblemFor(
+		projectPath,
+		new Problem("Build path", "Project Project is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH));
+	project.setOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, CompilerOptions.WARNING);
+}
+	
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
+public void _testMissingLibrary4() throws JavaModelException {
+	IPath projectPath = env.addProject("Project");
+	IJavaProject project = env.getJavaProject(projectPath);
+	fullBuild();
+	expectingNoProblems();
+	env.addLibrary(projectPath, projectPath.append("/lib/dummy.jar"), null, null);
+	// triggers a build
+	expectingSpecificProblemFor(
+		projectPath,
+		new Problem("", "The project cannot be built until build path errors are resolved", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH));
+	expectingSpecificProblemFor(
+		projectPath,
+		new Problem("Build path", "Project Project is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH));
+	project.setOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, CompilerOptions.WARNING);
+	cleanBuild();
+	expectingSpecificProblemFor(
+		projectPath,
+		new Problem("Build path", "Project Project is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH,
+				IMarker.SEVERITY_WARNING));
+}
+	
 	public void testMissingProject() throws JavaModelException {
 		IPath project1Path = env.addProject("MP1"); //$NON-NLS-1$
 		env.addExternalJars(project1Path, Util.getJavaClassLibs());
