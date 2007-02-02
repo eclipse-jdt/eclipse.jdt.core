@@ -49,7 +49,6 @@ public boolean acceptClassFiles(ClassFile[] classFiles, char[] codeSnippetClassN
 }
 /**
  * @see ICodeSnippetRequestor
- * @deprecated
  */
 public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int fragmentKind) {
 	try {
