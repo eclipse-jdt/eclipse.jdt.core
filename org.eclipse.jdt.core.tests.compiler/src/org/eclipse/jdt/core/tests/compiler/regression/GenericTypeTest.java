@@ -36430,15 +36430,15 @@ public void test1101() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=172672
 public void _test1102() {
 	this.runNegativeTest(new String[] {
-			"C.java",
-			"class T {\r\n" + 
-			"}\r\n" + 
-			"class N<Z> {\r\n" + 
-			"}\r\n" + 
-			"public class C<X> extends N<N<? super C<C<X>>>> {\r\n" + 
-			"	N<? super C<T>> cast(C<T> c) {\r\n" + 
-			"		return c;\r\n" + 
-			"	}\r\n" + 
+			"X.java",
+			"class A {\n" + 
+			"}\n" + 
+			"class B<U> {\n" + 
+			"}\n" + 
+			"public class X<E> extends B<B<? super X<X<E>>>> {\n" + 
+			"	B<? super X<A>> cast(X<A> x) {\n" + 
+			"		return x;\n" + 
+			"	}\n" + 
 			"}"
 		},
 		"----------\n" + 
