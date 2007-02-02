@@ -177,6 +177,18 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
 	}
 
+	/**
+	 * Returns the resulting text edit after formatting the given comment.
+	 * 
+	 * @param kind the given kind
+	 * @param source the given source
+	 * @param indentationLevel the given indentation level
+	 * @param lineSeparator the given line separator
+	 * @param offset the given offset
+	 * @param length the given length
+	 * @return the resulting text edit
+	 * @deprecated
+	 */
 	private TextEdit formatComment(int kind, String source, int indentationLevel, String lineSeparator, int offset, int length) {
 		Object oldOption = this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT);
 		boolean isFormattingComments = false;
