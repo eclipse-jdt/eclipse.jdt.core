@@ -36427,22 +36427,4 @@ public void test1101() {
 		"Wildcard is not allowed at this location\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=172672
-public void _test1102() {
-	this.runNegativeTest(new String[] {
-			"X.java",
-			"class A {\n" + 
-			"}\n" + 
-			"class B<U> {\n" + 
-			"}\n" + 
-			"public class X<E> extends B<B<? super X<X<E>>>> {\n" + 
-			"	B<? super X<A>> cast(X<A> x) {\n" + 
-			"		return x;\n" + 
-			"	}\n" + 
-			"}"
-		},
-		"----------\n" + 
-		"TO BE DETERMINED\n" +
-		"----------\n");
-}
 }
