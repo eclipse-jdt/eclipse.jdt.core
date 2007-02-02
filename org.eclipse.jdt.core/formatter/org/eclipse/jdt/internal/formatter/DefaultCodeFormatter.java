@@ -178,16 +178,21 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatComment(int kind, String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		Object oldOption = this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT);
 		boolean isFormattingComments = false;
-		switch (kind) {
-			case CodeFormatter.K_SINGLE_LINE_COMMENT:
-				isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT));
-				break;
-			case CodeFormatter.K_MULTI_LINE_COMMENT:
-				isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT));
-				break;
-			case CodeFormatter.K_JAVA_DOC:
-				isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT));
+		if (oldOption == null) {
+			switch (kind) {
+				case CodeFormatter.K_SINGLE_LINE_COMMENT:
+					isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT));
+					break;
+				case CodeFormatter.K_MULTI_LINE_COMMENT:
+					isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT));
+					break;
+				case CodeFormatter.K_JAVA_DOC:
+					isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT));
+			}
+		} else {
+			isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(oldOption);
 		}
 		if (isFormattingComments) {
 			if (lineSeparator != null) {
