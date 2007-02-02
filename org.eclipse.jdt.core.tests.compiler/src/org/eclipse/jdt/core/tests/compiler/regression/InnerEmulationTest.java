@@ -5923,23 +5923,6 @@ public void test149() {
 		"     inner name: #0, accessflags: 0 default],\n" + 
 		"    [inner class info: #54 X$Foo6, outer class info: #1 X\n" + 
 		"     inner name: #56 Foo6, accessflags: 9 public static]\n";
-//	TODO enable if 171749 is fixed
-//	if (new CompilerOptions(this.getCompilerOptions()).targetJDK >= ClassFileConstants.JDK1_6) {
-//		expectedOutput =
-//			"  Inner classes:\n" + 
-//			"    [inner class info: #5 A$Foo1, outer class info: #44 A\n" + 
-//			"     inner name: #46 Foo1, accessflags: 1545 public abstract static],\n" + 
-//			"    [inner class info: #47 A$Foo2, outer class info: #44 A\n" + 
-//			"     inner name: #49 Foo2, accessflags: 1545 public abstract static],\n" + 
-//			"    [inner class info: #50 A$Foo3, outer class info: #44 A\n" + 
-//			"     inner name: #52 Foo3, accessflags: 1545 public abstract static],\n" + 
-//			"    [inner class info: #39 A$Foo7, outer class info: #44 A\n" + 
-//			"     inner name: #53 Foo7, accessflags: 1545 public abstract static],\n" + 
-//			"    [inner class info: #25 X$1, outer class info: #0\n" + 
-//			"     inner name: #0, accessflags: 16 final],\n" + 
-//			"    [inner class info: #54 X$Foo6, outer class info: #1 X\n" + 
-//			"     inner name: #56 Foo6, accessflags: 9 public static]\n";
-//	}
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public static Class testClass() {
