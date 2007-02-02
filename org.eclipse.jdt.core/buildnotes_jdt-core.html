@@ -54,6 +54,20 @@ Eclipse SDK 3.3M5 - ??? February 2007
 <ul>
 <li>New extension point has been added to register an annotation processor manager inside the Java Builder.
 See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=172369">172369</a> for details.</li>
+<li>In order to fix bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49412">49412</a>, the following constants have been deprecated:
+<ul>
+<li>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES</li>
+<li>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT</li>
+</ul>
+They have been replaced by these constants respectively:
+<ul>
+<li>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT<br>
+org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT</li>
+<li>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT<br>
+org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT<br>
+org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT</li>
+</ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>

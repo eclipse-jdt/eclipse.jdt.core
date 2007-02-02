@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter.comment;
 
+import java.util.Map;
+
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
@@ -18,7 +20,9 @@ import junit.framework.Test;
 import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
 
 public class MultiLineTestCase extends CommentTestCase {
-
+	static {
+//		TESTS_NAMES = new String[] { "test75460" } ;
+	}
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
 
 	protected static final String POSTFIX= MultiCommentLine.MULTI_COMMENT_END_PREFIX;
@@ -97,7 +101,7 @@ public class MultiLineTestCase extends CommentTestCase {
 	}
 	
 	public void testNoFormat1() {
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT, DefaultCodeFormatterConstants.FALSE);
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT, DefaultCodeFormatterConstants.FALSE);
 		String content= PREFIX + DELIMITER + INFIX + "test" + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX;
 		assertEquals(content, testFormat(content));
 	}
@@ -115,5 +119,37 @@ public class MultiLineTestCase extends CommentTestCase {
 				"	 * Member comment\n" + 
 				"	 */";
 		assertEquals("Different output", expectedOutput, result);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75460
+	public void _test75460() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "200");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE, DefaultCodeFormatterConstants.TRUE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT, DefaultCodeFormatterConstants.FALSE);
+
+		String input = "/*" + DELIMITER +
+				"<pre>"+ DELIMITER +
+				"            Object[] objects = new Object[3];" + DELIMITER +
+				"            objects[0] = new String(\"Hallo Welt !!!\");" + DELIMITER +
+				"            objects[1] = new String(\"Test !!!\");" + DELIMITER +
+				"            objects[2] = new Integer(\"1980\");" + DELIMITER +
+				"            ObjectFile.write(pathname, objects);" + DELIMITER +
+				"            Object[] objs = ObjectFile.read(pathname);" + DELIMITER +
+				"            for(int i = 0; i < objs.length; i++)" + DELIMITER +
+				"            {" + DELIMITER +
+				"              System.out.println(objs[i].toString());" + DELIMITER +
+				"            }" + DELIMITER +
+				"</pre>"+ DELIMITER +
+				"*/";
+		
+		String expected = "/**" + DELIMITER +
+				" * Creates a new instance of DynamicEventChannel sdf sdfs dsdf dsfsd fd fsd fsdf" + DELIMITER +
+				" * sdf dsfsd (on the same line)" + DELIMITER +
+				" * " + DELIMITER +
+				" * @pre obj != null" + DELIMITER +
+				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
 	}
 }
