@@ -52,6 +52,7 @@ public class MultiCommentRegion extends CommentRegion implements IJavaDocTagCons
 		fIndentDescriptions= this.preferences.comment_indent_parameter_description;
 		fSeparateRoots= this.preferences.comment_insert_empty_line_before_root_tags;
 		fParameterNewLine= this.preferences.comment_insert_new_line_for_parameter;
+		fClear = this.preferences.comment_clear_blank_lines_in_block_comment;
 	}
 
 	/*

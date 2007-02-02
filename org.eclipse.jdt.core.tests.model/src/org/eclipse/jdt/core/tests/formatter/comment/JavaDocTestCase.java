@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
 public class JavaDocTestCase extends CommentTestCase {
 	
 	static {
-//		TESTS_NAMES = new String[] { "test60453" } ;
+//		TESTS_NAMES = new String[] { "test75460" } ;
 	}
 
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
@@ -269,7 +269,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 */
 	public void testMultiLineCommentBlankLineBeforeJavadoctags1() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.DO_NOT_INSERT); //$NON-NLS-1$
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, "false"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "false"); //$NON-NLS-1$
 		String input= PREFIX + DELIMITER + INFIX + "Description" + DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		String expected= input;
 		String result= testFormat(input);
@@ -283,7 +283,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 */
 	public void testMultiLineCommentBlankLineBeforeJavadoctags2() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.INSERT); //$NON-NLS-1$
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, "true"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "true"); //$NON-NLS-1$
 		String prefix= PREFIX + DELIMITER + INFIX + "Description"; //$NON-NLS-1$
 		String postfix= DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$
 		String input= prefix + postfix;
@@ -299,7 +299,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 */
 	public void testMultiLineCommentBlankLineBeforeJavadoctags3() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.INSERT); //$NON-NLS-1$
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, "true"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "true"); //$NON-NLS-1$
 		String input= PREFIX + DELIMITER + INFIX + "Description" + DELIMITER + INFIX + DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		String expected= input;
 		String result= testFormat(input);
@@ -313,7 +313,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 */
 	public void testMultiLineCommentBlankLineBeforeJavadoctags4() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.DO_NOT_INSERT); //$NON-NLS-1$
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, "true"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "true"); //$NON-NLS-1$
 		String prefix= PREFIX + DELIMITER + INFIX + "Description"; //$NON-NLS-1$
 		String postfix= DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$
 		String input= prefix + DELIMITER + INFIX + postfix;
@@ -327,7 +327,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68577
 	 */
 	public void testLineBreaksBetweenEmptyJavaDocTags1() {
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, "false"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "false"); //$NON-NLS-1$
 		String input= PREFIX + DELIMITER + INFIX + "@custom1" + DELIMITER + INFIX + DELIMITER + INFIX + "@custom2" + DELIMITER + POSTFIX;  //$NON-NLS-1$//$NON-NLS-2$
 		String expected= input;
 		String result= testFormat(input);
@@ -339,7 +339,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68577
 	 */
 	public void testLineBreaksBetweenEmptyJavaDocTags2() {
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, "false"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "false"); //$NON-NLS-1$
 		String input= PREFIX + DELIMITER + INFIX + "@custom1" + DELIMITER + INFIX + "@custom2" + DELIMITER + POSTFIX;  //$NON-NLS-1$//$NON-NLS-2$
 		String expected= input;
 		String result= testFormat(input);
@@ -352,7 +352,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	}
 	
 	public void testNoFormat1() {
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT, "false");
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT, "false");
 		String content= PREFIX + DELIMITER + INFIX + "test" + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX;
 		assertEquals(content, testFormat(content));
 	}
@@ -549,7 +549,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	public void test60453() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "80");
-		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, DefaultCodeFormatterConstants.FALSE);
 
 		String input = "/** Creates a new instance of DynamicEventChannel  sdf sdfs dsdf dsfsd fd fsd fsdf sdf dsfsd (on the same line)" + DELIMITER + 
 				"* @pre obj != null" + DELIMITER + 
@@ -560,6 +560,46 @@ public class JavaDocTestCase extends CommentTestCase {
 				" * sdf dsfsd (on the same line)" + DELIMITER +
 				" * " + DELIMITER +
 				" * @pre obj != null" + DELIMITER +
+				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+	
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75460
+	public void test75460() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "200");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE, DefaultCodeFormatterConstants.TRUE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, DefaultCodeFormatterConstants.FALSE);
+
+		String input = "/**" + DELIMITER +
+				"<pre>"+ DELIMITER +
+				"            Object[] objects = new Object[3];" + DELIMITER +
+				"            objects[0] = new String(\"Hallo Welt !!!\");" + DELIMITER +
+				"            objects[1] = new String(\"Test !!!\");" + DELIMITER +
+				"            objects[2] = new Integer(\"1980\");" + DELIMITER +
+				"            ObjectFile.write(pathname, objects);" + DELIMITER +
+				"            Object[] objs = ObjectFile.read(pathname);" + DELIMITER +
+				"            for(int i = 0; i < objs.length; i++)" + DELIMITER +
+				"            {" + DELIMITER +
+				"              System.out.println(objs[i].toString());" + DELIMITER +
+				"            }" + DELIMITER +
+				"</pre>"+ DELIMITER +
+				"*/";
+		
+		String expected = "/**" + DELIMITER +
+				" * <pre>" + DELIMITER +
+				" * Object[] objects = new Object[3];" + DELIMITER +
+				" * objects[0] = new String(&quot;Hallo Welt !!!&quot;);" + DELIMITER +
+				" * objects[1] = new String(&quot;Test !!!&quot;);" + DELIMITER +
+				" * objects[2] = new Integer(&quot;1980&quot;);" + DELIMITER +
+				" * ObjectFile.write(pathname, objects);" + DELIMITER +
+				" * Object[] objs = ObjectFile.read(pathname);" + DELIMITER +
+				" * for (int i = 0; i &lt; objs.length; i++) {" + DELIMITER +
+				" * 	System.out.println(objs[i].toString());" + DELIMITER +
+				" * }" + DELIMITER +
+				" * </pre>" + DELIMITER +
 				" */";
 		String result=testFormat(input, options);
 		assertEquals(expected, result);

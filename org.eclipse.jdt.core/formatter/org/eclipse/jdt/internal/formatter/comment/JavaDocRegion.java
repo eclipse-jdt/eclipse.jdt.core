@@ -56,8 +56,9 @@ public class JavaDocRegion extends MultiCommentRegion implements IJavaDocTagCons
 	public JavaDocRegion(final IDocument document, final Position position, final CodeFormatterVisitor formatter) {
 		super(document, position, formatter);
 
-		fFormatSource= this.preferences.comment_format_source;
-		fFormatHtml= this.preferences.comment_format_html;
+		fFormatSource = this.preferences.comment_format_source;
+		fFormatHtml = this.preferences.comment_format_html;
+		fClear = this.preferences.comment_clear_blank_lines_in_javadoc_comment;
 	}
 
 	/*

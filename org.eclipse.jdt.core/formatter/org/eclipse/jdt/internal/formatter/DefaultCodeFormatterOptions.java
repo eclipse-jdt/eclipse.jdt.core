@@ -96,8 +96,11 @@ public class DefaultCodeFormatterOptions {
 	public int blank_lines_between_type_declarations;
 	public int blank_lines_at_beginning_of_method_body;
 	
-	public boolean comment_clear_blank_lines;
-	public boolean comment_format;
+	public boolean comment_clear_blank_lines_in_javadoc_comment;
+	public boolean comment_clear_blank_lines_in_block_comment;
+	public boolean comment_format_javadoc_comment;
+	public boolean comment_format_line_comment;
+	public boolean comment_format_block_comment;
 	public boolean comment_format_header;
 	public boolean comment_format_html;
 	public boolean comment_format_source;
@@ -353,8 +356,11 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_METHOD_DECLARATION, this.brace_position_for_method_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION, this.brace_position_for_type_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH, this.brace_position_for_switch);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, this.comment_clear_blank_lines ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT, this.comment_format ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT, this.comment_clear_blank_lines_in_javadoc_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, this.comment_clear_blank_lines_in_block_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT, this.comment_format_javadoc_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, this.comment_format_line_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT, this.comment_format_block_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HEADER, this.comment_format_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HTML, this.comment_format_html ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE, this.comment_format_source ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -1015,14 +1021,26 @@ public class DefaultCodeFormatterOptions {
 				this.blank_lines_at_beginning_of_method_body = 0;
 			}
 		}
-		final Object commentClearBlankLinesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES);
-		if (commentClearBlankLinesOption != null) {
-			this.comment_clear_blank_lines = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesOption);
+		final Object commentClearBlankLinesInJavadocCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT);
+		if (commentClearBlankLinesInJavadocCommentOption != null) {
+			this.comment_clear_blank_lines_in_javadoc_comment = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesInJavadocCommentOption);
 		}
-		final Object commentFormatOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT);
-		if (commentFormatOption != null) {
-			this.comment_format = DefaultCodeFormatterConstants.TRUE.equals(commentFormatOption);
+		final Object commentClearBlankLinesInBlockCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT);
+		if (commentClearBlankLinesInBlockCommentOption != null) {
+			this.comment_clear_blank_lines_in_block_comment = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesInBlockCommentOption);
 		}
+		final Object commentFormatJavadocCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT);
+		if (commentFormatJavadocCommentOption != null) {
+			this.comment_format_javadoc_comment = DefaultCodeFormatterConstants.TRUE.equals(commentFormatJavadocCommentOption);
+		}
+		final Object commentFormatBlockCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT);
+		if (commentFormatBlockCommentOption != null) {
+			this.comment_format_block_comment = DefaultCodeFormatterConstants.TRUE.equals(commentFormatBlockCommentOption);
+		}
+		final Object commentFormatLineCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT);
+		if (commentFormatLineCommentOption != null) {
+			this.comment_format_line_comment = DefaultCodeFormatterConstants.TRUE.equals(commentFormatLineCommentOption);
+		}		
 		final Object commentFormatHeaderOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HEADER);
 		if (commentFormatHeaderOption != null) {
 			this.comment_format_header = DefaultCodeFormatterConstants.TRUE.equals(commentFormatHeaderOption);
@@ -1894,8 +1912,11 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
-		this.comment_clear_blank_lines = false;
-		this.comment_format = true;
+		this.comment_clear_blank_lines_in_block_comment = false;
+		this.comment_clear_blank_lines_in_javadoc_comment = false;
+		this.comment_format_block_comment = true;
+		this.comment_format_javadoc_comment = true;
+		this.comment_format_line_comment = true;
 		this.comment_format_header = false;
 		this.comment_format_html = true;
 		this.comment_format_source = true;
@@ -2150,8 +2171,11 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
-		this.comment_clear_blank_lines = false;
-		this.comment_format = true;
+		this.comment_clear_blank_lines_in_block_comment = false;
+		this.comment_clear_blank_lines_in_javadoc_comment = false;
+		this.comment_format_block_comment = true;
+		this.comment_format_javadoc_comment = true;
+		this.comment_format_line_comment = true;
 		this.comment_format_header = false;
 		this.comment_format_html = true;
 		this.comment_format_source = true;

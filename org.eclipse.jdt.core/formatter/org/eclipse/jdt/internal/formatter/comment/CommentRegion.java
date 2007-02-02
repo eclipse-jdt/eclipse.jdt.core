@@ -48,7 +48,7 @@ public class CommentRegion extends Position implements IHtmlTagDelimiters, IBord
 	private int fBorders= 0;
 
 	/** Should all blank lines be cleared during formatting? */
-	private final boolean fClear;
+	protected boolean fClear;
 
 	/** The line delimiter used in this comment region */
 	private final String fDelimiter;
@@ -87,8 +87,6 @@ public class CommentRegion extends Position implements IHtmlTagDelimiters, IBord
 		this.preferences = formatter.preferences;
 		fDelimiter = this.preferences.line_separator;
 		fDocument= document;
-		
-		fClear= this.preferences.comment_clear_blank_lines;
 		
 		fTabSize= DefaultCodeFormatterOptions.SPACE == this.preferences.tab_char ? this.preferences.indentation_size : this.preferences.tab_size;
 

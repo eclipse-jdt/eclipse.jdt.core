@@ -572,9 +572,36 @@ public class DefaultCodeFormatterConstants {
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @since 3.1
+	 * @deprecated Use {@link #FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT} and {@link #FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT}
 	 */	
 	public final static String FORMATTER_COMMENT_CLEAR_BLANK_LINES = "org.eclipse.jdt.core.formatter.comment.clear_blank_lines"; //$NON-NLS-1$
 	
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether blank lines are cleared inside javadoc comments
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.clear_blank_lines_in_javadoc_comment"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.3
+	 */	
+	public final static String FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT = "org.eclipse.jdt.core.formatter.comment.clear_blank_lines_in_javadoc_comment"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether blank lines are cleared inside block comments
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.clear_blank_lines_in_block_comment"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.3
+	 */	
+	public final static String FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT = "org.eclipse.jdt.core.formatter.comment.clear_blank_lines_in_block_comment"; //$NON-NLS-1$
+
 	/**
 	 * <pre>
 	 * FORMATTER / Option to control whether comments are formatted
@@ -585,8 +612,49 @@ public class DefaultCodeFormatterConstants {
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @since 3.1
+	 * @deprecated Use multiple settings for each kind of comments. See {@link #FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT},
+	 * {@link #FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT} and {@link #FORMATTER_COMMENT_FORMAT_LINE_COMMENT}.
 	 */	
 	public final static String FORMATTER_COMMENT_FORMAT = "org.eclipse.jdt.core.formatter.comment.format_comments"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether single line comments are formatted
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.format_line_comments"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.3
+	 */	
+	public final static String FORMATTER_COMMENT_FORMAT_LINE_COMMENT = "org.eclipse.jdt.core.formatter.comment.format_line_comments"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether multiple comments are formatted
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.format_block_comments"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.3
+	 */	
+	public final static String FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT = "org.eclipse.jdt.core.formatter.comment.format_block_comments"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether javadoc comments are formatted
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.format_javadoc_comments"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.3
+	 */	
+	public final static String FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT = "org.eclipse.jdt.core.formatter.comment.format_javadoc_comments"; //$NON-NLS-1$
 
 	/**
 	 * <pre>
