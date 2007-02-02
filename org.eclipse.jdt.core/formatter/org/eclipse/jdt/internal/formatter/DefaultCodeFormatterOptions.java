@@ -1021,13 +1021,20 @@ public class DefaultCodeFormatterOptions {
 				this.blank_lines_at_beginning_of_method_body = 0;
 			}
 		}
-		final Object commentClearBlankLinesInJavadocCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT);
-		if (commentClearBlankLinesInJavadocCommentOption != null) {
-			this.comment_clear_blank_lines_in_javadoc_comment = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesInJavadocCommentOption);
-		}
-		final Object commentClearBlankLinesInBlockCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT);
-		if (commentClearBlankLinesInBlockCommentOption != null) {
-			this.comment_clear_blank_lines_in_block_comment = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesInBlockCommentOption);
+		// backward compatibility code
+		final Object commentClearBlankLinesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES);
+		if (commentClearBlankLinesOption != null) {
+			this.comment_clear_blank_lines_in_javadoc_comment = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesOption);
+			this.comment_clear_blank_lines_in_block_comment = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesOption);
+		} else {
+			final Object commentClearBlankLinesInJavadocCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT);
+			if (commentClearBlankLinesInJavadocCommentOption != null) {
+				this.comment_clear_blank_lines_in_javadoc_comment = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesInJavadocCommentOption);
+			}
+			final Object commentClearBlankLinesInBlockCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT);
+			if (commentClearBlankLinesInBlockCommentOption != null) {
+				this.comment_clear_blank_lines_in_block_comment = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesInBlockCommentOption);
+			}
 		}
 		final Object commentFormatJavadocCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT);
 		if (commentFormatJavadocCommentOption != null) {

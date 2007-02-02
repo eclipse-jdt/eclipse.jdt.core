@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
 
 public class MultiLineTestCase extends CommentTestCase {
 	static {
-//		TESTS_NAMES = new String[] { "test75460" } ;
+//		TESTS_NAMES = new String[] { "test49412_3" } ;
 	}
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
 
@@ -143,6 +143,74 @@ public class MultiLineTestCase extends CommentTestCase {
 				"*/";
 		
 		String expected = input;
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=49412
+	// check backward compatibility
+	/**
+	 * @deprecated
+	 */
+	public void test49412() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "200");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT, DefaultCodeFormatterConstants.TRUE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, DefaultCodeFormatterConstants.TRUE);
+
+		String input = "/*" + DELIMITER + DELIMITER +
+				" test block comment with a blank line" + DELIMITER +
+				"*/";
+		
+		String expected= "/*" + DELIMITER +
+		" * test block comment with a blank line" + DELIMITER +
+		" */";
+
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=49412
+	// check backward compatibility
+	/**
+	 * @deprecated
+	 */
+	public void test49412_2() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "200");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT, DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, DefaultCodeFormatterConstants.TRUE);
+
+		String input = "/*" + DELIMITER + DELIMITER +
+				" test block comment with a blank line" + DELIMITER +
+				"*/";
+		
+		String expected= input;
+
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=49412
+	// check backward compatibility
+	/**
+	 * @deprecated
+	 */
+	public void test49412_3() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "200");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT, DefaultCodeFormatterConstants.TRUE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, DefaultCodeFormatterConstants.FALSE);
+
+		String input = "/*" + DELIMITER + DELIMITER +
+				" test block comment with a blank line" + DELIMITER +
+				"*/";
+		
+		String expected= "/*" + DELIMITER +
+		" * "+ DELIMITER +
+		" * test block comment with a blank line" + DELIMITER +
+		" */";
+
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}

@@ -269,7 +269,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 */
 	public void testMultiLineCommentBlankLineBeforeJavadoctags1() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.DO_NOT_INSERT); //$NON-NLS-1$
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "false"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, DefaultCodeFormatterConstants.FALSE); //$NON-NLS-1$
 		String input= PREFIX + DELIMITER + INFIX + "Description" + DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		String expected= input;
 		String result= testFormat(input);
@@ -283,7 +283,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 */
 	public void testMultiLineCommentBlankLineBeforeJavadoctags2() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.INSERT); //$NON-NLS-1$
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "true"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, DefaultCodeFormatterConstants.TRUE); //$NON-NLS-1$
 		String prefix= PREFIX + DELIMITER + INFIX + "Description"; //$NON-NLS-1$
 		String postfix= DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$
 		String input= prefix + postfix;
@@ -299,7 +299,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 */
 	public void testMultiLineCommentBlankLineBeforeJavadoctags3() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.INSERT); //$NON-NLS-1$
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "true"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, DefaultCodeFormatterConstants.TRUE); //$NON-NLS-1$
 		String input= PREFIX + DELIMITER + INFIX + "Description" + DELIMITER + INFIX + DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		String expected= input;
 		String result= testFormat(input);
@@ -313,7 +313,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 */
 	public void testMultiLineCommentBlankLineBeforeJavadoctags4() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.DO_NOT_INSERT); //$NON-NLS-1$
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "true"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT,DefaultCodeFormatterConstants.TRUE); //$NON-NLS-1$
 		String prefix= PREFIX + DELIMITER + INFIX + "Description"; //$NON-NLS-1$
 		String postfix= DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$
 		String input= prefix + DELIMITER + INFIX + postfix;
@@ -323,11 +323,75 @@ public class JavaDocTestCase extends CommentTestCase {
 	}
 	
 	/**
+	 * Prefs > Java > Code Formatter > Comments: Preview incorrect
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=55204
+	 * Do not insert blank line before Javadoc tags
+	 * @deprecated
+	 */
+	public void testMultiLineCommentBlankLineBeforeJavadoctags5() {
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.DO_NOT_INSERT); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, DefaultCodeFormatterConstants.FALSE); //$NON-NLS-1$
+		String input= PREFIX + DELIMITER + INFIX + "Description" + DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String expected= input;
+		String result= testFormat(input);
+		assertEquals(expected, result);
+	}
+	
+	/**
+	 * Prefs > Java > Code Formatter > Comments: Preview incorrect
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=55204
+	 * Do insert blank line before Javadoc tags
+	 * @deprecated
+	 */
+	public void testMultiLineCommentBlankLineBeforeJavadoctags6() {
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.INSERT); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, DefaultCodeFormatterConstants.TRUE); //$NON-NLS-1$
+		String prefix= PREFIX + DELIMITER + INFIX + "Description"; //$NON-NLS-1$
+		String postfix= DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$
+		String input= prefix + postfix;
+		String expected= prefix + DELIMITER + INFIX + postfix;
+		String result= testFormat(input);
+		assertEquals(expected, result);
+	}
+	
+	/**
+	 * Prefs > Java > Code Formatter > Comments: Preview incorrect
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=55204
+	 * Do not remove blank line before Javadoc tags
+	 * @deprecated
+	 */
+	public void testMultiLineCommentBlankLineBeforeJavadoctags7() {
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.INSERT); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, DefaultCodeFormatterConstants.TRUE); //$NON-NLS-1$
+		String input= PREFIX + DELIMITER + INFIX + "Description" + DELIMITER + INFIX + DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String expected= input;
+		String result= testFormat(input);
+		assertEquals(expected, result);
+	}
+	
+	/**
+	 * Prefs > Java > Code Formatter > Comments: Preview incorrect
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=55204
+	 * Do remove blank line before Javadoc tags
+	 * @deprecated
+	 */
+	public void testMultiLineCommentBlankLineBeforeJavadoctags8() {
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, JavaCore.DO_NOT_INSERT); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES,DefaultCodeFormatterConstants.TRUE); //$NON-NLS-1$
+		String prefix= PREFIX + DELIMITER + INFIX + "Description"; //$NON-NLS-1$
+		String postfix= DELIMITER + INFIX + "@param test" + DELIMITER + POSTFIX; //$NON-NLS-1$
+		String input= prefix + DELIMITER + INFIX + postfix;
+		String expected= prefix + postfix;
+		String result= testFormat(input);
+		assertEquals(expected, result);
+	}
+
+	/**
 	 * [formatting] javadoc formatter removes blank lines between empty javadoc tags (xdoclet fails)
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68577
 	 */
 	public void testLineBreaksBetweenEmptyJavaDocTags1() {
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "false"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, DefaultCodeFormatterConstants.FALSE); //$NON-NLS-1$
 		String input= PREFIX + DELIMITER + INFIX + "@custom1" + DELIMITER + INFIX + DELIMITER + INFIX + "@custom2" + DELIMITER + POSTFIX;  //$NON-NLS-1$//$NON-NLS-2$
 		String expected= input;
 		String result= testFormat(input);
@@ -339,7 +403,7 @@ public class JavaDocTestCase extends CommentTestCase {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68577
 	 */
 	public void testLineBreaksBetweenEmptyJavaDocTags2() {
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, "false"); //$NON-NLS-1$
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, DefaultCodeFormatterConstants.FALSE); //$NON-NLS-1$
 		String input= PREFIX + DELIMITER + INFIX + "@custom1" + DELIMITER + INFIX + "@custom2" + DELIMITER + POSTFIX;  //$NON-NLS-1$//$NON-NLS-2$
 		String expected= input;
 		String result= testFormat(input);
@@ -350,12 +414,22 @@ public class JavaDocTestCase extends CommentTestCase {
 		String content= PREFIX + DELIMITER + POSTFIX;
 		assertEquals(content, testFormat(content));
 	}
-	
+
 	public void testNoFormat1() {
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT, "false");
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT, DefaultCodeFormatterConstants.FALSE);
 		String content= PREFIX + DELIMITER + INFIX + "test" + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX;
 		assertEquals(content, testFormat(content));
 	}
+
+	/**
+	 * @deprecated
+	 */
+	public void testNoFormat2() {
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT, DefaultCodeFormatterConstants.FALSE);
+		String content= PREFIX + DELIMITER + INFIX + "test" + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX;
+		assertEquals(content, testFormat(content));
+	}
+
 	
 	/**
 	 * [formatting] Javadoc Formatter mishandles spaces in comments
@@ -564,8 +638,30 @@ public class JavaDocTestCase extends CommentTestCase {
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}
-	
-	
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60453
+	 * @deprecated
+	 */
+	public void test60453_2() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "80");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES, DefaultCodeFormatterConstants.FALSE);
+
+		String input = "/** Creates a new instance of DynamicEventChannel  sdf sdfs dsdf dsfsd fd fsd fsdf sdf dsfsd (on the same line)" + DELIMITER + 
+				"* @pre obj != null" + DELIMITER + 
+				"*/";
+		
+		String expected = "/**" + DELIMITER +
+				" * Creates a new instance of DynamicEventChannel sdf sdfs dsdf dsfsd fd fsd fsdf" + DELIMITER +
+				" * sdf dsfsd (on the same line)" + DELIMITER +
+				" * " + DELIMITER +
+				" * @pre obj != null" + DELIMITER +
+				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75460
 	public void test75460() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
