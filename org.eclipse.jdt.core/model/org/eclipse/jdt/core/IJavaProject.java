@@ -869,11 +869,11 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 		throws JavaModelException;
 
 	/**
-	 * Sets the both the classpath of this project and its default output
+	 * Sets both the classpath of this project and its default output
 	 * location at once. The classpath is defined using a list of classpath
 	 * entries. In particular such a classpath may contain classpath variable entries. 
-	 * Classpath variable entries can be resolved individually (see <code>JavaCore#getClasspathVariable</code>),
-	 * or the full classpath can be resolved at once using the helper method <code>getResolvedClasspath</code>.
+	 * Classpath variable entries can be resolved individually ({@link JavaCore#getClasspathVariable(String)}),
+	 * or the full classpath can be resolved at once using the helper method {@link #getResolvedClasspath(boolean)}.
 	 * <p>
 	 * A classpath variable provides an indirection level for better sharing a classpath. As an example, it allows
 	 * a classpath to no longer refer directly to external JARs located in some user specific location. The classpath
@@ -881,7 +881,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * </p><p>
 	 * If it is specified that this operation cannot modify resources, the .classpath file will not be written to disk
 	 * and no error marker will be generated. To synchronize the .classpath with the in-memory classpath,
-	 * one can use <code>setRawClasspath(readRawClasspath(), false, monitor)</code>.
+	 * one can use <code>setRawClasspath(readRawClasspath(), true, monitor)</code>.
 	 * </p><p>
 	 * Setting the classpath to <code>null</code> specifies a default classpath
 	 * (the project root). Setting the classpath to an empty array specifies an
@@ -889,7 +889,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * </p><p>
 	 * If a cycle is detected while setting this classpath (and if resources can be modified), an error marker will be added
 	 * to the project closing the cycle.
-	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
+	 * To avoid this problem, use {@link #hasClasspathCycle(IClasspathEntry[])}
 	 * before setting the classpath.
 	 * <p>
 	 * This operation acquires a lock on the workspace's root.
@@ -902,7 +902,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
-	 * <li> The classpath failed the validation check as defined by <code>JavaConventions#validateClasspath</code>
+	 * <li> The classpath failed the validation check as defined by {@link JavaConventions#validateClasspath(IJavaProject, IClasspathEntry[], IPath)}
 	 * </ul>
 	 * @see IClasspathEntry
 	 * @since 3.2
@@ -911,8 +911,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	
 	/**
 	 * Sets the classpath of this project using a list of classpath entries. In particular such a classpath may contain
-	 * classpath variable entries. Classpath variable entries can be resolved individually (see <code>JavaCore#getClasspathVariable</code>),
-	 * or the full classpath can be resolved at once using the helper method <code>getResolvedClasspath</code>.
+	 * classpath variable entries. Classpath variable entries can be resolved individually ({@link JavaCore#getClasspathVariable(String)}),
+	 * or the full classpath can be resolved at once using the helper method {@link #getResolvedClasspath(boolean)}.
 	 * <p>
 	 * A classpath variable provides an indirection level for better sharing a classpath. As an example, it allows
 	 * a classpath to no longer refer directly to external JARs located in some user specific location. The classpath
@@ -920,7 +920,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * </p><p>
 	 * If it is specified that this operation cannot modify resources, the .classpath file will not be written to disk
 	 * and no error marker will be generated. To synchronize the .classpath with the in-memory classpath,
-	 * one can use <code>setRawClasspath(readRawClasspath(), false, monitor)</code>.
+	 * one can use <code>setRawClasspath(readRawClasspath(), true, monitor)</code>.
 	 * </p><p>
 	 * Setting the classpath to <code>null</code> specifies a default classpath
 	 * (the project root). Setting the classpath to an empty array specifies an
@@ -928,7 +928,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * </p><p>
 	 * If a cycle is detected while setting this classpath (and if resources can be modified), an error marker will be added
 	 * to the project closing the cycle.
-	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
+	 * To avoid this problem, use {@link #hasClasspathCycle(IClasspathEntry[])}
 	 * before setting the classpath.
 	 * <p>
 	 * This operation acquires a lock on the workspace's root.
@@ -940,7 +940,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
-	 * <li> The classpath failed the validation check as defined by <code>JavaConventions#validateClasspath</code>
+	 * <li> The classpath failed the validation check as defined by {@link JavaConventions#validateClasspath(IJavaProject, IClasspathEntry[], IPath)}
 	 * </ul>
 	 * @see IClasspathEntry
 	 * @since 3.2
@@ -949,8 +949,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	
 	/**
 	 * Sets the classpath of this project using a list of classpath entries. In particular such a classpath may contain
-	 * classpath variable entries. Classpath variable entries can be resolved individually (see <code>JavaCore#getClasspathVariable</code>),
-	 * or the full classpath can be resolved at once using the helper method <code>getResolvedClasspath</code>.
+	 * classpath variable entries. Classpath variable entries can be resolved individually ({@link JavaCore#getClasspathVariable(String)}),
+	 * or the full classpath can be resolved at once using the helper method {@link #getResolvedClasspath(boolean)}.
 	 * <p>
 	 * A classpath variable provides an indirection level for better sharing a classpath. As an example, it allows
 	 * a classpath to no longer refer directly to external JARs located in some user specific location. The classpath
@@ -962,7 +962,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <p>
 	 * If a cycle is detected while setting this classpath, an error marker will be added
 	 * to the project closing the cycle.
-	 * To avoid this problem, use <code>hasClasspathCycle(IClasspathEntry[] entries)</code>
+	 * To avoid this problem, use {@link #hasClasspathCycle(IClasspathEntry[])}
 	 * before setting the classpath.
 	 * <p>
 	 * This operation acquires a lock on the workspace's root.
@@ -973,7 +973,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <ul>
 	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li> The classpath is being modified during resource change event notification (CORE_EXCEPTION)
-	 * <li> The classpath failed the validation check as defined by <code>JavaConventions#validateClasspath</code>
+	 * <li> The classpath failed the validation check as defined by {@link JavaConventions#validateClasspath(IJavaProject, IClasspathEntry[], IPath)}
 	 * </ul>
 	 * @see IClasspathEntry
 	 */
@@ -985,9 +985,9 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * location at once. The classpath is defined using a list of classpath
 	 * entries. In particular, such a classpath may contain classpath variable
 	 * entries. Classpath variable entries can be resolved individually (see
-	 * <code>JavaCore#getClasspathVariable</code>), or the full classpath can be
+	 * ({@link JavaCore#getClasspathVariable(String)}), or the full classpath can be
 	 * resolved at once using the helper method
-	 * <code>getResolvedClasspath</code>.
+	 * {@link #getResolvedClasspath(boolean)}.
 	 * <p>
 	 * A classpath variable provides an indirection level for better sharing a
 	 * classpath. As an example, it allows a classpath to no longer refer
@@ -1003,7 +1003,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * <p>
 	 * If a cycle is detected while setting this classpath, an error marker will
 	 * be added to the project closing the cycle. To avoid this problem, use
-	 * <code>hasClasspathCycle(IClasspathEntry[] entries)</code> before setting
+	 * {@link #hasClasspathCycle(IClasspathEntry[])} before setting
 	 * the classpath.
 	 * </p>
 	 * <p>
