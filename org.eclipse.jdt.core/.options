@@ -67,6 +67,3 @@ org.eclipse.jdt.core/perf/containerinitializer=5000
 
 # Reports the time to perform a reconcile operation.
 org.eclipse.jdt.core/perf/reconcile=1000
-
-# Enable new formatter
-org.eclipse.jdt.core/formatter/enable_new=false
