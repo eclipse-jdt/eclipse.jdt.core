@@ -122,14 +122,14 @@ public class MultiLineTestCase extends CommentTestCase {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75460
-	public void _test75460() {
+	public void test75460() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "200");
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT, DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE, DefaultCodeFormatterConstants.TRUE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT, DefaultCodeFormatterConstants.FALSE);
 
 		String input = "/*" + DELIMITER +
-				"<pre>"+ DELIMITER +
 				"            Object[] objects = new Object[3];" + DELIMITER +
 				"            objects[0] = new String(\"Hallo Welt !!!\");" + DELIMITER +
 				"            objects[1] = new String(\"Test !!!\");" + DELIMITER +
@@ -140,15 +140,9 @@ public class MultiLineTestCase extends CommentTestCase {
 				"            {" + DELIMITER +
 				"              System.out.println(objs[i].toString());" + DELIMITER +
 				"            }" + DELIMITER +
-				"</pre>"+ DELIMITER +
 				"*/";
 		
-		String expected = "/**" + DELIMITER +
-				" * Creates a new instance of DynamicEventChannel sdf sdfs dsdf dsfsd fd fsd fsdf" + DELIMITER +
-				" * sdf dsfsd (on the same line)" + DELIMITER +
-				" * " + DELIMITER +
-				" * @pre obj != null" + DELIMITER +
-				" */";
+		String expected = input;
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
 	}
