@@ -21,10 +21,7 @@ public class Problem implements Comparable {
 	private int start = -1, end = -1, categoryId = -1;
 	private String sourceId;
 	private int severity = IMarker.SEVERITY_ERROR;
-	
-	public Problem(String location, String message, IPath resourcePath, int start, int end, int categoryId) {
-		this(location, message, resourcePath, start, end, categoryId, IMarker.SEVERITY_ERROR);
-	}
+
 	public Problem(String location, String message, IPath resourcePath, int start, int end, int categoryId, int severity) {
 		this.location = location;
 		this.message = message;

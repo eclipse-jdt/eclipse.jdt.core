@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
+
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -67,7 +69,7 @@ public class ErrorsTests extends BuilderTests {
 		incrementalBuild(projectPath);
 
 		expectingOnlyProblemsFor(collaboratorPath);
-		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "The type Collaborator must implement the inherited abstract method Indicted.foo()", collaboratorPath, 38, 50, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "The type Collaborator must implement the inherited abstract method Indicted.foo()", collaboratorPath, 38, 50, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/*
@@ -91,7 +93,7 @@ public class ErrorsTests extends BuilderTests {
 			
 		fullBuild(projectPath);
 		expectingOnlyProblemsFor(cuPath);
-		expectingOnlySpecificProblemFor(cuPath, new Problem("X", "Y cannot be resolved to a type", cuPath, 35, 36, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(cuPath, new Problem("X", "Y cannot be resolved to a type", cuPath, 35, 36, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		
 		env.renameCU(root.append("p1"), "X.java", "X.txt"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -112,7 +114,7 @@ public void test0100() throws JavaModelException {
 	);
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
-	expectingSpecificProblemFor(classTest1, new Problem("p1", "Test2 cannot be resolved to a type", classTest1, 39, 44, 40));
+	expectingSpecificProblemFor(classTest1, new Problem("p1", "Test2 cannot be resolved to a type", classTest1, 39, 44, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR));
 	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 
@@ -129,7 +131,7 @@ public void test0101() throws JavaModelException {
 	);
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
-	expectingSpecificProblemFor(classTest1, new Problem("p1", "Syntax error on token \"extends\", Type expected after this token", classTest1, 31, 38, 20));
+	expectingSpecificProblemFor(classTest1, new Problem("p1", "Syntax error on token \"extends\", Type expected after this token", classTest1, 31, 38, CategorizedProblem.CAT_SYNTAX, IMarker.SEVERITY_ERROR));
 	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 
@@ -152,7 +154,7 @@ public void test0102() throws JavaModelException {
 	);
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
-	expectingSpecificProblemFor(classTest1, new Problem("p1", "The field Test1.i is not visible", classTest1, 109, 110, 50));
+	expectingSpecificProblemFor(classTest1, new Problem("p1", "The field Test1.i is not visible", classTest1, 109, 110, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR));
 	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 
@@ -171,7 +173,7 @@ public void test0103() throws JavaModelException {
 	);
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
-	expectingSpecificProblemFor(classTest1, new Problem("p1", "TODO : marker only", classTest1, 38, 55, -1));
+	expectingSpecificProblemFor(classTest1, new Problem("p1", "TODO : marker only", classTest1, 38, 55, -1, IMarker.SEVERITY_ERROR));
 	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 
@@ -188,7 +190,7 @@ public void test0104() throws JavaModelException {
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
 	expectingSpecificProblemFor(classTest1, 
-		new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, 0, 1, 10));
+		new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
 	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 }

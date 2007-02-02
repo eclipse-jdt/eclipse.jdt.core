@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.*;
+
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaModelException;
@@ -62,7 +64,7 @@ public class DependencyTests extends BuilderTests {
 			
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(collaboratorPath);
-		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "The type Collaborator must implement the inherited abstract method Indicted.foo()", collaboratorPath, 38, 50, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "The type Collaborator must implement the inherited abstract method Indicted.foo()", collaboratorPath, 38, 50, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testExactMethodDeleting() throws JavaModelException {
@@ -123,9 +125,9 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, dPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "The method i(int) is undefined for the type C", cPath, 50, 51, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(dPath, new Problem("D", "The method i(int) is undefined for the type D.M", dPath, 69, 70, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "The method i(int) is undefined for the type C", xPath, 57, 58, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The method i(int) is undefined for the type C", cPath, 50, 51, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(dPath, new Problem("D", "The method i(int) is undefined for the type D.M", dPath, 69, 70, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The method i(int) is undefined for the type C", xPath, 57, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
@@ -137,9 +139,9 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, dPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "Default constructor cannot handle exception type Exception thrown by implicit super constructor. Must define an explicit constructor", cPath, 50, 54, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(dPath, new Problem("D", "Default constructor cannot handle exception type Exception thrown by implicit super constructor. Must define an explicit constructor", dPath, 69, 73, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "The method i(long) from the type B is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "Default constructor cannot handle exception type Exception thrown by implicit super constructor. Must define an explicit constructor", cPath, 50, 54, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(dPath, new Problem("D", "Default constructor cannot handle exception type Exception thrown by implicit super constructor. Must define an explicit constructor", dPath, 69, 73, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The method i(long) from the type B is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -211,9 +213,9 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, dPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "The method i() from the type A is not visible", cPath, 50, 51, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(dPath, new Problem("D", "The method i() from the type A is not visible", dPath, 69, 70, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "The method i() from the type A is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The method i() from the type A is not visible", cPath, 50, 51, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(dPath, new Problem("D", "The method i() from the type A is not visible", dPath, 69, 70, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The method i() from the type A is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -224,7 +226,7 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {xPath});
-		expectingSpecificProblemFor(xPath, new Problem("X", "The method i() from the type A is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The method i() from the type A is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -343,8 +345,8 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "i cannot be resolved", cPath, 50, 51, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "c.i cannot be resolved or is not a field", xPath, 55, 58, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "i cannot be resolved", cPath, 50, 51, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "c.i cannot be resolved or is not a field", xPath, 55, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -407,8 +409,8 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "The field A.i is not visible", cPath, 50, 51, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "The field A.i is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The field A.i is not visible", cPath, 50, 51, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The field A.i is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -419,7 +421,7 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {xPath});
-		expectingSpecificProblemFor(xPath, new Problem("X", "The field A.i is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The field A.i is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -473,7 +475,7 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(testPath);
-		expectingSpecificProblemFor(testPath, new Problem("Test", "Type mismatch: cannot convert from CarImpl to Vehicle", testPath, 72, 85, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(testPath, new Problem("Test", "Type mismatch: cannot convert from CarImpl to Vehicle", testPath, 72, 85, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "Car", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -533,8 +535,8 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "M cannot be resolved to a type", cPath, 42, 43, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "p3.C.M cannot be resolved to a type", xPath, 38, 44, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "M cannot be resolved to a type", cPath, 42, 43, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "p3.C.M cannot be resolved to a type", xPath, 38, 44, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -597,8 +599,8 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "The type M is not visible", cPath, 42, 43, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "The type p3.C.M is not visible", xPath, 38, 44, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The type M is not visible", cPath, 42, 43, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The type p3.C.M is not visible", xPath, 38, 44, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -609,7 +611,7 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {xPath});
-		expectingSpecificProblemFor(xPath, new Problem("X", "The type p3.C.M is not visible", xPath, 38, 44, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The type p3.C.M is not visible", xPath, 38, 44, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -680,9 +682,9 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, dPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "The method i(C) is undefined for the type C", cPath, 50, 51, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(dPath, new Problem("D", "The method i(D) is undefined for the type D.M", dPath, 69, 70, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "The method i(C) is undefined for the type C", xPath, 57, 58, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The method i(C) is undefined for the type C", cPath, 50, 51, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(dPath, new Problem("D", "The method i(D) is undefined for the type D.M", dPath, 69, 70, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The method i(C) is undefined for the type C", xPath, 57, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
@@ -772,9 +774,9 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, dPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "The method i(A) from the type A is not visible", cPath, 50, 51, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(dPath, new Problem("D", "The method i(A) from the type A is not visible", dPath, 69, 70, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "The method i(A) from the type A is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The method i(A) from the type A is not visible", cPath, 50, 51, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(dPath, new Problem("D", "The method i(A) from the type A is not visible", dPath, 69, 70, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The method i(A) from the type A is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
@@ -786,7 +788,7 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {xPath});
-		expectingSpecificProblemFor(xPath, new Problem("X", "The method i(B) from the type B is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The method i(B) from the type B is not visible", xPath, 57, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -863,8 +865,8 @@ public class DependencyTests extends BuilderTests {
 
 		fullBuild();
 		expectingOnlyProblemsFor(new IPath[] {project3Path, bPath});
-		expectingSpecificProblemFor(project3Path, new Problem("Project3", "The project was not built since its build path is incomplete. Cannot find the class file for p1.MissingClass. Fix the build path then try building this project", project3Path, -1, -1, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.MissingClass cannot be resolved. It is indirectly referenced from required .class files", bPath, 86, 111, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(project3Path, new Problem("Project3", "The project was not built since its build path is incomplete. Cannot find the class file for p1.MissingClass. Fix the build path then try building this project", project3Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.MissingClass cannot be resolved. It is indirectly referenced from required .class files", bPath, 86, 111, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root2, "p2", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
@@ -913,8 +915,8 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {bPath, cPath});
-		expectingSpecificProblemFor(bPath, new Problem("B", "p1.A cannot be resolved to a type", bPath, 35, 39, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath, 25, 26, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "p1.A cannot be resolved to a type", bPath, 35, 39, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath, 25, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
@@ -961,8 +963,8 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {bPath, cPath});
-		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.A is not visible", bPath, 35, 39, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath, 25, 26, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.A is not visible", bPath, 35, 39, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath, 25, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
@@ -979,8 +981,8 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {bPath, cPath});
-		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.A is not visible", bPath, 35, 39, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath, 25, 26, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.A is not visible", bPath, 35, 39, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The hierarchy of the type C is inconsistent", cPath, 25, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -1030,8 +1032,8 @@ public class DependencyTests extends BuilderTests {
 
 		fullBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {aPath});
-		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foo is not visible", aPath, 43, 68, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foos is not visible", aPath, 93, 119, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foo is not visible", aPath, 43, 68, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foos is not visible", aPath, 93, 119, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "Foo", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
@@ -1040,7 +1042,7 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {aPath});
-		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foos is not visible", aPath, 93, 119, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foos is not visible", aPath, 93, 119, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p2", "Foos", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
@@ -1061,8 +1063,8 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {aPath});
-		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foo is not visible", aPath, 43, 68, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foos is not visible", aPath, 93, 119, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foo is not visible", aPath, 43, 68, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foos is not visible", aPath, 93, 119, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void testTypeVariable() throws JavaModelException {
@@ -1097,7 +1099,7 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {bPath});
-		expectingSpecificProblemFor(bPath, new Problem("B", "The type A is not generic; it cannot be parameterized with arguments <T>", bPath, 38, 42, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "The type A is not generic; it cannot be parameterized with arguments <T>", bPath, 38, 42, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -1106,8 +1108,8 @@ public class DependencyTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {aPath, bPath});
-		expectingSpecificProblemFor(bPath, new Problem("B", "Bound mismatch: The type T is not a valid substitute for the bounded parameter <T extends Comparable> of the type A<T>", bPath, 43, 44, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(aPath, new Problem("A", "Comparable is a raw type. References to generic type Comparable<T> should be parameterized", aPath, 37, 47, CategorizedProblem.CAT_UNCHECKED_RAW)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "Bound mismatch: The type T is not a valid substitute for the bounded parameter <T extends Comparable> of the type A<T>", bPath, 43, 44, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(aPath, new Problem("A", "Comparable is a raw type. References to generic type Comparable<T> should be parameterized", aPath, 37, 47, CategorizedProblem.CAT_UNCHECKED_RAW, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -1162,18 +1164,18 @@ public void test0100() throws JavaModelException {
 	expectingOnlyProblemsFor(new IPath[] {M1Path});
 	expectingSpecificProblemFor(M1Path, 
 		new Problem("", "The type N1.N2.N3 is deprecated", 
-			M1Path, 190, 200, CategorizedProblem.CAT_DEPRECATION));
+			M1Path, 190, 200, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 	expectingSpecificProblemFor(M1Path, 
 		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated", 
-			M1Path, 215, 222, CategorizedProblem.CAT_DEPRECATION));
+			M1Path, 215, 222, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 	M1Path = env.addClass(rootPath, "p", "M1", M1Contents);
 	incrementalBuild(projectPath);
 	expectingOnlyProblemsFor(new IPath[] {M1Path});
 	expectingSpecificProblemFor(M1Path, 
 		new Problem("", "The type N1.N2.N3 is deprecated", 
-			M1Path, 190, 200, CategorizedProblem.CAT_DEPRECATION));
+			M1Path, 190, 200, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 	expectingSpecificProblemFor(M1Path, 
 		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated", 
-			M1Path, 215, 222, CategorizedProblem.CAT_DEPRECATION));
+			M1Path, 215, 222, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 }
 }

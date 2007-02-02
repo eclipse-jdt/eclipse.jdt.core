@@ -85,7 +85,7 @@ public class BasicBuildTests extends BuilderTests {
 			"}"); //$NON-NLS-1$
 
 		fullBuild(projectPath);
-		expectingOnlySpecificProblemFor(pathToA, new Problem("A", "todo nothing", pathToA, 14, 26, -1)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingOnlySpecificProblemFor(pathToA, new Problem("A", "todo nothing", pathToA, 14, 26, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		JavaCore.setOptions(options);
 	}

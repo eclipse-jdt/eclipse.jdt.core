@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.Test;
+
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaModelException;
@@ -56,7 +58,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(new IPath[]{ pathToD });
-		expectingSpecificProblemsFor(pathToD, new Problem[] {new Problem("", "The type CC is already defined", pathToD, 37, 39, -1)});
+		expectingSpecificProblemsFor(pathToD, new Problem[] {new Problem("", "The type CC is already defined", pathToD, 37, 39, -1, IMarker.SEVERITY_ERROR)});
 	}
 
 	public void testDefaultPackage() throws JavaModelException {
@@ -123,7 +125,7 @@ public class IncrementalTests extends BuilderTests {
 			
 
 		incrementalBuild();
-		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.Throwable (typically some required class file is referencing a type outside the classpath)", object, 1, 2, 3)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.Throwable (typically some required class file is referencing a type outside the classpath)", object, 1, 2, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		//----------------------------
 		//           Step 3
@@ -136,8 +138,8 @@ public class IncrementalTests extends BuilderTests {
 			
 
 		incrementalBuild();
-		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", object, 1, 2, 3)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(throwable, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", throwable, 1, 2, 3)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(object, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", object, 1, 2, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(throwable, new Problem("java.lang", "This compilation unit indirectly references the missing type java.lang.RuntimeException (typically some required class file is referencing a type outside the classpath)", throwable, 1, 2, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/*
@@ -182,9 +184,9 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(new IPath[]{ pathToA, pathToB, pathToC });
-		expectingSpecificProblemFor(pathToA, new Problem("_A", "The public type _A must be defined in its own file", pathToA, 25, 27, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(pathToB, new Problem("B", "A cannot be resolved to a type", pathToB, 35, 36, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(pathToC, new Problem("C", "The hierarchy of the type C is inconsistent", pathToC, 25, 26, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(pathToA, new Problem("_A", "The public type _A must be defined in its own file", pathToA, 25, 27, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(pathToB, new Problem("B", "A cannot be resolved to a type", pathToB, 35, 36, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(pathToC, new Problem("C", "The hierarchy of the type C is inconsistent", pathToC, 25, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		/* Touch both A and C, removing A main type */
 		pathToA = env.addClass(root, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
@@ -251,7 +253,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(new IPath[]{ pathToAB });
-		expectingSpecificProblemFor(pathToAB, new Problem("AB", "AZ cannot be resolved to a type", pathToAB, 36, 38, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(pathToAB, new Problem("AB", "AZ cannot be resolved to a type", pathToAB, 36, 38, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;	\n"+ //$NON-NLS-1$
@@ -318,7 +320,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(new IPath[]{ pathToBB });
-		expectingSpecificProblemFor(pathToBB, new Problem("BB.foo()", "ZA cannot be resolved to a type", pathToBB, 104, 106, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(pathToBB, new Problem("BB.foo()", "ZA cannot be resolved to a type", pathToBB, 104, 106, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;	\n"+ //$NON-NLS-1$
@@ -412,7 +414,7 @@ public class IncrementalTests extends BuilderTests {
 		expectingOnlySpecificProblemsFor(
 			root, 
 			new Problem[]{ 
-				new Problem("", "The import p.ZA is never used", new Path("/Project/src/p/AB.java"), 35, 39, CategorizedProblem.CAT_UNNECESSARY_CODE), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				new Problem("", "The import p.ZA is never used", new Path("/Project/src/p/AB.java"), 35, 39, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			});
 
 		/* Move M from AA to ZZ */
@@ -430,7 +432,7 @@ public class IncrementalTests extends BuilderTests {
 		expectingOnlySpecificProblemsFor(
 			root, 
 			new Problem[]{ 
-				new Problem("", "The import p.AZ is never used", new Path("/Project/src/p/AB.java"), 19, 23, CategorizedProblem.CAT_UNNECESSARY_CODE), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				new Problem("", "The import p.AZ is never used", new Path("/Project/src/p/AB.java"), 19, 23, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			});
 
 		/* Move M from ZZ to AA */
@@ -448,7 +450,7 @@ public class IncrementalTests extends BuilderTests {
 		expectingOnlySpecificProblemsFor(
 			root, 
 			new Problem[]{ 
-				new Problem("", "The import p.ZA is never used", new Path("/Project/src/p/AB.java"), 35, 39, CategorizedProblem.CAT_UNNECESSARY_CODE), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				new Problem("", "The import p.ZA is never used", new Path("/Project/src/p/AB.java"), 35, 39, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			});
 	}
 
@@ -551,7 +553,7 @@ public class IncrementalTests extends BuilderTests {
 			expectingOnlySpecificProblemsFor(
 				root, 
 				new Problem[]{
-					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
 				});
 	
 			env.addClass(root, "p", "X", //$NON-NLS-1$ //$NON-NLS-2$
@@ -563,7 +565,7 @@ public class IncrementalTests extends BuilderTests {
 			expectingOnlySpecificProblemsFor(
 				root, 
 				new Problem[]{
-					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
 				});
 
 			env.addClass(root, "p", "Y", //$NON-NLS-1$ //$NON-NLS-2$
@@ -575,7 +577,7 @@ public class IncrementalTests extends BuilderTests {
 			expectingOnlySpecificProblemsFor(
 				root, 
 				new Problem[]{
-					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
+					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$				
 				});
 
 		} catch(StackOverflowError e){
@@ -698,7 +700,7 @@ public class IncrementalTests extends BuilderTests {
 				"public class Y extends Zork {}"); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
-		expectingSpecificProblemFor(yPath, new Problem("Y", "Zork cannot be resolved to a type", yPath, 34, 38, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(yPath, new Problem("Y", "Zork cannot be resolved to a type", yPath, 34, 38, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		IPath xPath = env.addClass(projectPath, "", "X", //$NON-NLS-1$ //$NON-NLS-2$
 				"public class X {\n" +
@@ -708,7 +710,7 @@ public class IncrementalTests extends BuilderTests {
 				"}"); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
-		expectingSpecificProblemFor(yPath, new Problem("Y", "Zork cannot be resolved to a type", yPath, 34, 38, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(yPath, new Problem("Y", "Zork cannot be resolved to a type", yPath, 34, 38, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingNoProblemsFor(xPath);
 	}
 

@@ -55,7 +55,7 @@ public class BuildpathTests extends BuilderTests {
 		);
 
 		fullBuild();
-		expectingSpecificProblemFor(classTest1, new Problem("src", "Zork1 cannot be resolved to a type", classTest1,39, 44, CategorizedProblem.CAT_TYPE)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(classTest1, new Problem("src", "Zork1 cannot be resolved to a type", classTest1,39, 44, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		//----------------------------
 		//           Step 2
@@ -109,14 +109,14 @@ public class BuildpathTests extends BuilderTests {
 		expectingOnlyProblemsFor(new IPath[] {project2Path, project3Path});
 		expectingOnlySpecificProblemsFor(project2Path,
 			new Problem[] {
-				new Problem("", "The project cannot be built until build path errors are resolved", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("Build path", "Project CP2 is missing required Java project: 'CP1'", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("", "The project cannot be built until build path errors are resolved", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Project CP2 is missing required Java project: 'CP1'", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 		expectingOnlySpecificProblemsFor(project3Path,
 			new Problem[] {
-				new Problem("", "The project cannot be built until build path errors are resolved", project3Path, -1, -1, CategorizedProblem.CAT_BUILDPATH), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("Build path", "Project CP3 is missing required library: '/CP1/temp.jar'", project3Path, -1, -1, CategorizedProblem.CAT_BUILDPATH) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("", "The project cannot be built until build path errors are resolved", project3Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Project CP3 is missing required library: '/CP1/temp.jar'", project3Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
@@ -135,10 +135,10 @@ public class BuildpathTests extends BuilderTests {
 		incrementalBuild();
 		expectingOnlyProblemsFor(new IPath[] {project2Path, project3Path});
 		expectingOnlySpecificProblemFor(project2Path,
-			new Problem("Build path", "Project CP2 is missing required Java project: 'CP1'", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH) //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("Build path", "Project CP2 is missing required Java project: 'CP1'", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 		expectingOnlySpecificProblemFor(project3Path,
-			new Problem("Build path", "Project CP3 is missing required library: '/CP1/temp.jar'", project3Path, -1, -1, CategorizedProblem.CAT_BUILDPATH) //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("Build path", "Project CP3 is missing required library: '/CP1/temp.jar'", project3Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 
 		env.openProject(project1Path);
@@ -169,7 +169,7 @@ public class BuildpathTests extends BuilderTests {
 		);
 
 		incrementalBuild();
-		expectingOnlySpecificProblemFor(subTest, new Problem("", "p.Test cannot be resolved to a type", subTest, 29, 35, 40)); //$NON-NLS-1$ //$NON-NLS-2$)
+		expectingOnlySpecificProblemFor(subTest, new Problem("", "p.Test cannot be resolved to a type", subTest, 29, 35, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$)
 
 		env.addClass(project1Path, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;" + //$NON-NLS-1$
@@ -216,7 +216,7 @@ public class BuildpathTests extends BuilderTests {
 		);
 
 		incrementalBuild();
-		expectingOnlySpecificProblemFor(subTest, new Problem("", "p.Test cannot be resolved to a type", subTest, 40, 46, 40)); //$NON-NLS-1$ //$NON-NLS-2$)
+		expectingOnlySpecificProblemFor(subTest, new Problem("", "p.Test cannot be resolved to a type", subTest, 40, 46, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$)
 
 		env.addClass(src, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p;" + //$NON-NLS-1$
@@ -323,7 +323,7 @@ public class BuildpathTests extends BuilderTests {
 		env.removeRequiredProject(project2Path, project1Path);
 
 		incrementalBuild();
-		expectingOnlySpecificProblemFor(sub, new Problem("", "Test cannot be resolved to a type", sub, 29, 33, 40)); //$NON-NLS-1$ //$NON-NLS-2$)
+		expectingOnlySpecificProblemFor(sub, new Problem("", "Test cannot be resolved to a type", sub, 29, 33, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$)
 
 		env.addRequiredProject(project2Path, project1Path);
 
@@ -398,8 +398,8 @@ public class BuildpathTests extends BuilderTests {
 		expectingOnlyProblemsFor(new IPath[] {projectPath, classTest1});
 		expectingOnlySpecificProblemsFor(projectPath,
 			new Problem[] {
-				new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try building this project", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, 0, 1, CategorizedProblem.CAT_BUILDPATH) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try building this project", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
@@ -436,18 +436,18 @@ public class BuildpathTests extends BuilderTests {
 		fullBuild();
 		expectingSpecificProblemFor(
 			projectPath,
-			new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try building this project", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try building this project", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		Problem[] prob1 = env.getProblemsFor(classTest1);
 		Problem[] prob2 = env.getProblemsFor(classTest2);
 		Problem[] prob3 = env.getProblemsFor(classTest3);
 		assertEquals("too many problems", prob1.length + prob2.length + prob3.length,1); //$NON-NLS-1$
 		if(prob1.length == 1) {
-			expectingSpecificProblemFor(classTest1, new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, -1, -1, -1)); //$NON-NLS-1$ //$NON-NLS-2$
+			expectingSpecificProblemFor(classTest1, new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, -1, -1, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (prob2.length == 1) {
-			expectingSpecificProblemFor(classTest2, new Problem("p2", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest2, -1, -1, -1)); //$NON-NLS-1$ //$NON-NLS-2$
+			expectingSpecificProblemFor(classTest2, new Problem("p2", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest2, -1, -1, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			expectingSpecificProblemFor(classTest3, new Problem("p2", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest3, 0, 1, CategorizedProblem.CAT_BUILDPATH)); //$NON-NLS-1$ //$NON-NLS-2$
+			expectingSpecificProblemFor(classTest3, new Problem("p2", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest3, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		//----------------------------
@@ -481,10 +481,10 @@ public void _testMissingLibrary3() throws JavaModelException {
 	cleanBuild();
 	expectingSpecificProblemFor(
 		projectPath,
-		new Problem("", "The project cannot be built until build path errors are resolved", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH));
+		new Problem("", "The project cannot be built until build path errors are resolved", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
 	expectingSpecificProblemFor(
 		projectPath,
-		new Problem("Build path", "Project Project is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH));
+		new Problem("Build path", "Project Project is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
 	project.setOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, CompilerOptions.WARNING);
 }
 	
@@ -498,10 +498,10 @@ public void _testMissingLibrary4() throws JavaModelException {
 	// triggers a build
 	expectingSpecificProblemFor(
 		projectPath,
-		new Problem("", "The project cannot be built until build path errors are resolved", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH));
+		new Problem("", "The project cannot be built until build path errors are resolved", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
 	expectingSpecificProblemFor(
 		projectPath,
-		new Problem("Build path", "Project Project is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH));
+		new Problem("Build path", "Project Project is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
 	project.setOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, CompilerOptions.WARNING);
 	cleanBuild();
 	expectingSpecificProblemFor(
@@ -530,8 +530,8 @@ public void _testMissingLibrary4() throws JavaModelException {
 		expectingOnlyProblemsFor(project2Path);
 		expectingOnlySpecificProblemsFor(project2Path,
 			new Problem[] {
-				new Problem("", "The project cannot be built until build path errors are resolved", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH), //$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("Build path", "Project MP2 is missing required Java project: 'MP1'", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH) //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("", "The project cannot be built until build path errors are resolved", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("Build path", "Project MP2 is missing required Java project: 'MP1'", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		);
 
@@ -552,7 +552,7 @@ public void _testMissingLibrary4() throws JavaModelException {
 		incrementalBuild();
 		expectingOnlyProblemsFor(project2Path);
 		expectingOnlySpecificProblemFor(project2Path,
-			new Problem("Build path", "Project MP2 is missing required Java project: 'MP1'", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH) //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("Build path", "Project MP2 is missing required Java project: 'MP1'", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$
 		);
 
 		project1Path = env.addProject("MP1"); //$NON-NLS-1$
