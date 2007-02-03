@@ -98,13 +98,13 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	 */
 	public synchronized void addElementChangedListener(IElementChangedListener listener, int eventMask) {
 		for (int i = 0; i < this.elementChangedListenerCount; i++){
-			if (this.elementChangedListeners[i].equals(listener)){
+			if (this.elementChangedListeners[i] == listener){
 				
 				// only clone the masks, since we could be in the middle of notifications and one listener decide to change
 				// any event mask of another listeners (yet not notified).
 				int cloneLength = this.elementChangedListenerMasks.length;
 				System.arraycopy(this.elementChangedListenerMasks, 0, this.elementChangedListenerMasks = new int[cloneLength], 0, cloneLength);
-				this.elementChangedListenerMasks[i] = eventMask; // could be different
+				this.elementChangedListenerMasks[i] |= eventMask; // could be different
 				return;
 			}
 		}
@@ -119,9 +119,9 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		this.elementChangedListenerCount++;
 	}
 
-	public void addPreResourceChangedListener(IResourceChangeListener listener, int eventMask) {
+	public synchronized void addPreResourceChangedListener(IResourceChangeListener listener, int eventMask) {
 		for (int i = 0; i < this.preResourceChangeListenerCount; i++){
-			if (this.preResourceChangeListeners[i].equals(listener)) {
+			if (this.preResourceChangeListeners[i] == listener) {
 				this.preResourceChangeEventMasks[i] |= eventMask;
 				return;
 			}
@@ -295,7 +295,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		
 		for (int i = 0; i < this.elementChangedListenerCount; i++){
 			
-			if (this.elementChangedListeners[i].equals(listener)){
+			if (this.elementChangedListeners[i] == listener){
 				
 				// need to clone defensively since we might be in the middle of listener notifications (#fire)
 				int length = this.elementChangedListeners.length;
@@ -321,11 +321,11 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		}
 	}
 
-	public void removePreResourceChangedListener(IResourceChangeListener listener) {
+	public synchronized void removePreResourceChangedListener(IResourceChangeListener listener) {
 		
 		for (int i = 0; i < this.preResourceChangeListenerCount; i++){
 			
-			if (this.preResourceChangeListeners[i].equals(listener)){
+			if (this.preResourceChangeListeners[i] == listener){
 				
 				// need to clone defensively since we might be in the middle of listener notifications (#fire)
 				int length = this.preResourceChangeListeners.length;
