@@ -2599,4 +2599,44 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		},
 		"SUCCESS");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=168665
+	public void test031() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	String s;\n" +
+				"	X() {\n" + 
+				"		this.s = \"\";\n" + 
+				"	}\n" + 
+				"	X(String s, double d, double d2, double i) {\n" + 
+				"		this.s = s;\n" + 
+				"	}\n" + 
+				"	public static final int CONST = 1;\n" + 
+				"	public int foo() {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	public double value(double d1) {\n" + 
+				"		return d1;\n" + 
+				"	}\n" + 
+				"	public void bar(int start) {\n" + 
+				"		final int len = foo();\n" + 
+				"		X x = new X(\"SUCCESS\", start, 1, CONST) {\n" + 
+				"			@Override\n" + 
+				"			public double value(double newValue) {\n" + 
+				"				return len;\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		System.out.println(x);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().bar(1);\n" + 
+				"	}\n" +
+				"	public String toString() {\n" + 
+				"		return this.s;\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"SUCCESS");
+	}
 }
