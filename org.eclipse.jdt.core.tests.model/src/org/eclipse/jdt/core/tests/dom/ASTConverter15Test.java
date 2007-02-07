@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 234 };
+//		TESTS_NUMBERS = new int[] { 235, 236 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -7516,5 +7516,65 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		Expression expression = fragment.getInitializer();
 		checkSourceRange(expression, "super.<T> m()", contents);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=172633
+	 */
+	public void test0235() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0235/X.java", true/*resolve*/);
+		String contents =
+			"package test0235;\n" +
+			"public class X implements I {\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedProblems = "The hierarchy of the type X is inconsistent\n" + 
+		"The type test0235.Zork cannot be resolved. It is indirectly referenced from required .class files";
+		assertProblemsSize(unit, 2, expectedProblems);
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		ITypeBinding[] interfaces = typeBinding.getInterfaces();
+		assertNotNull("No interfaces", interfaces);
+		assertEquals("Wrong size", 1, interfaces.length);
+		assertNotNull("Should not be null", interfaces[0]);
+		ITypeBinding typeBinding2 = interfaces[0];
+		interfaces = typeBinding2.getInterfaces();
+		assertNotNull("No interfaces", interfaces);
+		assertEquals("Wrong size", 0, interfaces.length);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=172633
+	 */
+	public void test0236() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X implements Runnable, Zork {\n" + 
+			"	public void run() {}\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedProblems = "Zork cannot be resolved to a type";
+		assertProblemsSize(unit, 1, expectedProblems);
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		ITypeBinding[] interfaces = typeBinding.getInterfaces();
+		assertNotNull("No interfaces", interfaces);
+		assertEquals("Wrong size", 1, interfaces.length);
+		assertNotNull("Should not be null", interfaces[0]);
 	}
 }

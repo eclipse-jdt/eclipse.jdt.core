@@ -160,7 +160,11 @@ class MethodBinding implements IMethodBinding {
 			for (int i = 0; i < length; i++) {
 				final TypeBinding parameterBinding = parameters[i];
 				if (parameterBinding != null) {
-					this.parameterTypes[i] = this.resolver.getTypeBinding(parameterBinding);
+					ITypeBinding typeBinding = this.resolver.getTypeBinding(parameterBinding);
+					if (typeBinding == null) {
+						return this.parameterTypes = NO_TYPE_BINDINGS;
+					}
+					this.parameterTypes[i] = typeBinding;
 				} else {
 					// log error
 					StringBuffer message = new StringBuffer("Report method binding where a parameter is null:\n");  //$NON-NLS-1$
@@ -204,7 +208,11 @@ class MethodBinding implements IMethodBinding {
 		} else {
 			this.exceptionTypes = new ITypeBinding[length];
 			for (int i = 0; i < length; i++) {
-				this.exceptionTypes[i] = this.resolver.getTypeBinding(exceptions[i]);
+				ITypeBinding typeBinding = this.resolver.getTypeBinding(exceptions[i]);
+				if (typeBinding == null) {
+					return this.exceptionTypes = NO_TYPE_BINDINGS;
+				}
+				this.exceptionTypes[i] = typeBinding;
 			}
 		}
 		return this.exceptionTypes;
@@ -361,7 +369,11 @@ class MethodBinding implements IMethodBinding {
 			if (typeVariableBindingsLength != 0) {
 				this.typeParameters = new ITypeBinding[typeVariableBindingsLength];
 				for (int i = 0; i < typeVariableBindingsLength; i++) {
-					typeParameters[i] = this.resolver.getTypeBinding(typeVariableBindings[i]);
+					ITypeBinding typeBinding = this.resolver.getTypeBinding(typeVariableBindings[i]);
+					if (typeBinding == null) {
+						return this.typeParameters = NO_TYPE_BINDINGS;
+					}
+					typeParameters[i] = typeBinding;
 				}
 			} else {
 				this.typeParameters = NO_TYPE_BINDINGS;
@@ -401,7 +413,11 @@ class MethodBinding implements IMethodBinding {
 				if (typeArgumentsLength != 0) {
 					this.typeArguments = new ITypeBinding[typeArgumentsLength];
 					for (int i = 0; i < typeArgumentsLength; i++) {
-						this.typeArguments[i] = this.resolver.getTypeBinding(typeArgumentsBindings[i]);
+						ITypeBinding typeBinding = this.resolver.getTypeBinding(typeArgumentsBindings[i]);
+						if (typeBinding == null) {
+							return this.typeArguments = NO_TYPE_BINDINGS;
+						}
+						this.typeArguments[i] = typeBinding;
 					}
 				} else {
 					this.typeArguments = NO_TYPE_BINDINGS;

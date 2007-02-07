@@ -255,7 +255,11 @@ class TypeBinding implements ITypeBinding {
 				int length = members.length;
 				ITypeBinding[] newMembers = new ITypeBinding[length];
 				for (int i = 0; i < length; i++) {
-					newMembers[i] = this.resolver.getTypeBinding(members[i]);
+					ITypeBinding typeBinding = this.resolver.getTypeBinding(members[i]);
+					if (typeBinding == null) {
+						return NO_TYPE_BINDINGS;
+					}
+					newMembers[i] = typeBinding;
 				}
 				return newMembers;
 			}
@@ -406,7 +410,11 @@ class TypeBinding implements ITypeBinding {
 		} else {
 			ITypeBinding[] newInterfaces = new ITypeBinding[length];
 			for (int i = 0; i < length; i++) {
-				newInterfaces[i] = this.resolver.getTypeBinding(interfaces[i]);
+				ITypeBinding typeBinding = this.resolver.getTypeBinding(interfaces[i]);
+				if (typeBinding == null) {
+					return NO_TYPE_BINDINGS;
+				}
+				newInterfaces[i] = typeBinding;
 			}
 			return newInterfaces;
 		}
@@ -484,7 +492,9 @@ class TypeBinding implements ITypeBinding {
 				IMethod declaringMethod = (IMethod) declaringTypeBinding.getJavaElement();
 				return (JavaElement) declaringMethod.getTypeParameter(typeVariableName);
 			} else {
-				declaringTypeBinding = this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement);
+				ITypeBinding typeBinding2 = this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement);
+				if (typeBinding == null) return null;
+				declaringTypeBinding = typeBinding2;
 				IType declaringType = (IType) declaringTypeBinding.getJavaElement();
 				return (JavaElement) declaringType.getTypeParameter(typeVariableName);
 			}
@@ -841,7 +851,11 @@ class TypeBinding implements ITypeBinding {
 				int argumentsLength = arguments.length;
 				ITypeBinding[] typeArguments = new ITypeBinding[argumentsLength];
 				for (int i = 0; i < argumentsLength; i++) {
-					typeArguments[i] = this.resolver.getTypeBinding(arguments[i]);
+					ITypeBinding typeBinding = this.resolver.getTypeBinding(arguments[i]);
+					if (typeBinding == null) {
+						return NO_TYPE_BINDINGS;
+					}
+					typeArguments[i] = typeBinding;
 				}
 				return typeArguments;
 			}
@@ -877,11 +891,19 @@ class TypeBinding implements ITypeBinding {
 				ITypeBinding[] typeBounds = new ITypeBinding[boundsLength];
 				int boundsIndex = 0;
 				if (firstClassOrArrayBound != null) {
-					typeBounds[boundsIndex++] = this.resolver.getTypeBinding(firstClassOrArrayBound);
+					ITypeBinding typeBinding = this.resolver.getTypeBinding(firstClassOrArrayBound);
+					if (typeBinding == null) {
+						return NO_TYPE_BINDINGS;
+					}
+					typeBounds[boundsIndex++] = typeBinding;
 				}
 				if (superinterfaces != null) {
 					for (int i = 0; i < superinterfacesLength; i++, boundsIndex++) {
-						typeBounds[boundsIndex] = this.resolver.getTypeBinding(superinterfaces[i]);
+						ITypeBinding typeBinding = this.resolver.getTypeBinding(superinterfaces[i]);
+						if (typeBinding == null) {
+							return NO_TYPE_BINDINGS;
+						}
+						typeBounds[boundsIndex] = typeBinding;
 					}
 				}
 				return typeBounds;
@@ -905,7 +927,11 @@ class TypeBinding implements ITypeBinding {
 			if (typeVariableBindingsLength != 0) {
 				ITypeBinding[] typeParameters = new ITypeBinding[typeVariableBindingsLength];
 				for (int i = 0; i < typeVariableBindingsLength; i++) {
-					typeParameters[i] = this.resolver.getTypeBinding(typeVariableBindings[i]);
+					ITypeBinding typeBinding = this.resolver.getTypeBinding(typeVariableBindings[i]);
+					if (typeBinding == null) {
+						return NO_TYPE_BINDINGS;
+					}
+					typeParameters[i] = typeBinding;
 				}
 				return typeParameters;
 			}
