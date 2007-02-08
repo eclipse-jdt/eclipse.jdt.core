@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -108,8 +108,13 @@ class MethodBinding implements IMethodBinding {
 		if (annotations == null || (length = annotations.length) == 0)
 			return AnnotationBinding.NoAnnotations;
 		IAnnotationBinding[] domInstances = new AnnotationBinding[length];
-		for (int i = 0; i < length; i++)
-			domInstances[i] = this.resolver.getAnnotationInstance(annotations[i]);
+		for (int i = 0; i < length; i++) {
+			IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(annotations[i]);
+			if (annotationInstance == null) {
+				return AnnotationBinding.NoAnnotations;
+			}
+			domInstances[i] = annotationInstance;
+		}
 		return domInstances; 
 	}
 
@@ -129,8 +134,13 @@ class MethodBinding implements IMethodBinding {
 		if (annotations == null || (length = annotations.length) == 0)
 			return AnnotationBinding.NoAnnotations;
 		IAnnotationBinding[] domInstances =new AnnotationBinding[length];
-		for (int i = 0; i < length; i++)
-			domInstances[i] = this.resolver.getAnnotationInstance(annotations[i]);
+		for (int i = 0; i < length; i++) {
+			IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(annotations[i]);
+			if (annotationInstance == null) {
+				return AnnotationBinding.NoAnnotations;
+			}
+			domInstances[i] = annotationInstance;
+		}
 		return domInstances; 
 	}
 
@@ -148,7 +158,11 @@ class MethodBinding implements IMethodBinding {
 		} else {
 			this.parameterTypes = new ITypeBinding[length];
 			for (int i = 0; i < length; i++) {
-				this.parameterTypes[i] = this.resolver.getTypeBinding(parameters[i]);
+				ITypeBinding typeBinding = this.resolver.getTypeBinding(parameters[i]);
+				if (typeBinding == null) {
+					return this.parameterTypes = NO_TYPE_BINDINGS;
+				}
+				this.parameterTypes[i] = typeBinding;
 			}
 		}
 		return this.parameterTypes;
@@ -184,7 +198,11 @@ class MethodBinding implements IMethodBinding {
 		} else {
 			this.exceptionTypes = new ITypeBinding[length];
 			for (int i = 0; i < length; i++) {
-				this.exceptionTypes[i] = this.resolver.getTypeBinding(exceptions[i]);
+				ITypeBinding typeBinding = this.resolver.getTypeBinding(exceptions[i]);
+				if (typeBinding == null) {
+					return this.exceptionTypes = NO_TYPE_BINDINGS;
+				}
+				this.exceptionTypes[i] = typeBinding;
 			}
 		}
 		return this.exceptionTypes;
@@ -341,7 +359,11 @@ class MethodBinding implements IMethodBinding {
 			if (typeVariableBindingsLength != 0) {
 				this.typeParameters = new ITypeBinding[typeVariableBindingsLength];
 				for (int i = 0; i < typeVariableBindingsLength; i++) {
-					typeParameters[i] = this.resolver.getTypeBinding(typeVariableBindings[i]);
+					ITypeBinding typeBinding = this.resolver.getTypeBinding(typeVariableBindings[i]);
+					if (typeBinding == null) {
+						return this.typeParameters = NO_TYPE_BINDINGS;
+					}
+					typeParameters[i] = typeBinding;
 				}
 			} else {
 				this.typeParameters = NO_TYPE_BINDINGS;
@@ -381,7 +403,11 @@ class MethodBinding implements IMethodBinding {
 				if (typeArgumentsLength != 0) {
 					this.typeArguments = new ITypeBinding[typeArgumentsLength];
 					for (int i = 0; i < typeArgumentsLength; i++) {
-						this.typeArguments[i] = this.resolver.getTypeBinding(typeArgumentsBindings[i]);
+						ITypeBinding typeBinding = this.resolver.getTypeBinding(typeArgumentsBindings[i]);
+						if (typeBinding == null) {
+							return this.typeArguments = NO_TYPE_BINDINGS;
+						}
+						this.typeArguments[i] = typeBinding;
 					}
 				} else {
 					this.typeArguments = NO_TYPE_BINDINGS;

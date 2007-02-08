@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,8 +48,13 @@ class VariableBinding implements IVariableBinding {
 		int length = internalAnnotations == null ? 0 : internalAnnotations.length;
 		IAnnotationBinding[] domInstances =
 			length == 0 ? AnnotationBinding.NoAnnotations : new AnnotationBinding[length];
-		for (int i = 0; i < length; i++)
-			domInstances[i] = this.resolver.getAnnotationInstance(internalAnnotations[i]);
+		for (int i = 0; i < length; i++) {
+			IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotations[i]);
+			if (annotationInstance == null) {
+				return AnnotationBinding.NoAnnotations;
+			}
+			domInstances[i] = annotationInstance;
+		}
 		return domInstances;                                                                  
 	}
 
