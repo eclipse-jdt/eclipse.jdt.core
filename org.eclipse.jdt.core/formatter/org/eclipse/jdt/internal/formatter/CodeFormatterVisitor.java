@@ -5204,7 +5204,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		 * Print the operator
 		 */
 		int operator;
-		switch((unaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
+		int operatorValue = (unaryExpression.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT;
+		switch(operatorValue) {
 			case OperatorIds.PLUS:
 				operator = TerminalTokens.TokenNamePLUS;
 				break;
@@ -5222,7 +5223,29 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (this.preferences.insert_space_after_unary_operator) {
 			this.scribe.space();
 		}
-		unaryExpression.expression.traverse(this, scope);
+		Expression expression = unaryExpression.expression;
+
+		if (expression instanceof PrefixExpression) {
+			PrefixExpression prefixExpression = (PrefixExpression) expression;
+			final int numberOfParensForExpression = (prefixExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+			if (numberOfParensForExpression == 0) {
+				switch(operatorValue) {
+					case OperatorIds.PLUS:
+						if (prefixExpression.operator == OperatorIds.PLUS) {
+							this.scribe.space();
+						}						
+						break;
+					case OperatorIds.MINUS:
+						if (prefixExpression.operator == OperatorIds.MINUS) {
+							this.scribe.space();
+						}						
+						break;
+				}
+			}
+			expression.traverse(this, scope);
+		} else {
+			expression.traverse(this, scope);
+		}
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(unaryExpression, numberOfParens);
