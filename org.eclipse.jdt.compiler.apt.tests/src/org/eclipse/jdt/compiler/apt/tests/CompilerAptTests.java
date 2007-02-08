@@ -62,6 +62,17 @@ public class CompilerAptTests extends TestCase {
 			"public class TestEchoArgs {\n" +
 			"}\n" ;
 	
+	private static final String _twoAnnotationsSource = 
+		"package p;\n" +
+		"import anno.EchoArgs;\n" + 
+		"import anno.GenClass;\n" + 
+		"import gen.XGen;\n" +
+		"@GenClass(clazz=\"gen.XGen\", method=\"foo\")\n" +
+		"@EchoArgs\n" +
+		"public class X {\n" +
+		"\tXGen _xgen;\n" +
+		"}\n" ;
+	
 	// locations to generate files
 	protected static final String _tmpFolder = System.getProperty("java.io.tmpdir") + "eclipse-temp";
 	
@@ -76,6 +87,7 @@ public class CompilerAptTests extends TestCase {
 		"-XprintProcessorInfo",
 		"-XprintRounds"
 	};
+
 
 	protected JavaCompiler _eclipseCompiler;
 	
@@ -179,6 +191,25 @@ public class CompilerAptTests extends TestCase {
 		// Eclipse compiler
 		JavaCompiler compiler = _eclipseCompiler;
 		internalTestGenerateClass(compiler);
+	}
+	
+	public void testTwoAnnotations() {
+		File inputFile = writeSourceFile(_tmpSrcFolderName, "X.java", _twoAnnotationsSource);
+		
+		List<String> options = new ArrayList<String>();
+		// See corresponding list in ArgsTestProc processor.
+		// Processor will throw IllegalStateException if it detects a mismatch.
+		options.add("-Afoo=bar");
+		options.add("-Anovalue");
+		compileOneClass(_eclipseCompiler, inputFile, options);
+		
+		// check that the src and class files were generated
+ 		File genSrcFile = new File(_tmpGenFolderName + File.separator + "gen" + File.separator + "XGen.java");
+ 		assertTrue("generated src file does not exist", genSrcFile.exists());
+ 		File classFile = new File(_tmpBinFolderName + File.separator + "p" + File.separator + "X.class");
+ 		assertTrue("ordinary src file was not compiled", classFile.exists());
+ 		File genClassFile = new File(_tmpBinFolderName + File.separator + "gen" + File.separator + "XGen.class");
+ 		assertTrue("generated src file was not compiled", genClassFile.exists());
 	}
 	
 	/*
