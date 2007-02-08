@@ -1461,7 +1461,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"5. ERROR in X.java (at line 6)\n" + 
 			"	X(Exception exc) { super(exc);}\n" + 
-			"	                   ^^^^^^^^^^\n" + 
+			"	                   ^^^^^^^^^^^\n" + 
 			"The constructor Object(Exception) is undefined\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 8)\n" + 
@@ -1630,7 +1630,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"12. ERROR in Test.java (at line 19)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
-			"	           ^^^^^^^^^^^\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
 			"The constructor Object(null) is undefined\n" + 
 			"----------\n" + 
 			"13. ERROR in Test.java (at line 20)\n" + 
@@ -1719,7 +1719,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"10. ERROR in Test.java (at line 19)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
-			"	           ^^^^^^^^^^^\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
 			"The constructor Object(null) is undefined\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 20)\n" + 
@@ -1805,7 +1805,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"10. ERROR in Test.java (at line 16)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
-			"	           ^^^^^^^^^^^\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
 			"The constructor Object(null) is undefined\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 17)\n" + 
@@ -1912,7 +1912,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"10. ERROR in Test.java (at line 16)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
-			"	           ^^^^^^^^^^^\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
 			"The constructor Object(null) is undefined\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 17)\n" + 
@@ -2019,7 +2019,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"10. ERROR in Test.java (at line 16)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
-			"	           ^^^^^^^^^^^\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
 			"The constructor Object(null) is undefined\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 17)\n" + 
@@ -2125,7 +2125,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"10. ERROR in Test.java (at line 15)\r\n" + 
 			"	Sub (E e) {super(null);}\r\n" + 
-			"	           ^^^^^^^^^^^\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
 			"The constructor Object(null) is undefined\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 16)\r\n" + 
@@ -2233,7 +2233,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"10. ERROR in Test.java (at line 17)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
-			"	           ^^^^^^^^^^^\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
 			"The constructor Object(null) is undefined\n" + 
 			"----------\n" + 
 			"11. ERROR in Test.java (at line 18)\n" + 
@@ -2331,7 +2331,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"----------\n" + 
 			"9. ERROR in Test.java (at line 18)\n" + 
 			"	Sub (E e) {super(null);}\n" + 
-			"	           ^^^^^^^^^^^\n" + 
+			"	           ^^^^^^^^^^^^\n" + 
 			"The constructor Object(null) is undefined\n" + 
 			"----------\n" + 
 			"10. ERROR in Test.java (at line 19)\n" + 

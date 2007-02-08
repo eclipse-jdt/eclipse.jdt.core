@@ -26,10 +26,10 @@ public class DoStatement extends Statement {
 	// for local variables table attributes
 	int mergedInitStateIndex = -1;
 
-public DoStatement(Expression condition, Statement action, int s, int e) {
+public DoStatement(Expression condition, Statement action, int sourceStart, int sourceEnd) {
 
-	this.sourceStart = s;
-	this.sourceEnd = e;
+	this.sourceStart = sourceStart;
+	this.sourceEnd = sourceEnd;
 	this.condition = condition;
 	this.action = action;
 	// remember useful empty statement

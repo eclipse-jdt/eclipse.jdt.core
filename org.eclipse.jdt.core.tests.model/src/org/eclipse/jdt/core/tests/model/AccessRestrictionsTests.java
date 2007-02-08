@@ -331,7 +331,7 @@ public void test003() throws CoreException {
 			"----------\n" + 
 			"2. ERROR in /P2/src/p/Y.java (at line 5)\n" + 
 			"	super(0);\n" + 
-			"	^^^^^^^^\n" + 
+			"	^^^^^^^^^\n" + 
 			"Access restriction: The constructor X1.C1(int) is not accessible due to restriction on required project P1\n" + 
 			"----------\n" + 
 			"3. ERROR in /P2/src/p/Y.java (at line 6)\n" + 
@@ -998,7 +998,7 @@ public void test010() throws CoreException {
 			"----------\n" + 
 			"2. ERROR in /P2/src/p/Y.java (at line 5)\n" + 
 			"	super(0);\n" + 
-			"	^^^^^^^^\n" + 
+			"	^^^^^^^^^\n" + 
 			"Access restriction: The constructor X1.C1(int) is not accessible due to restriction on required project P1\n" + 
 			"----------\n" + 
 			"3. ERROR in /P2/src/p/Y.java (at line 6)\n" + 

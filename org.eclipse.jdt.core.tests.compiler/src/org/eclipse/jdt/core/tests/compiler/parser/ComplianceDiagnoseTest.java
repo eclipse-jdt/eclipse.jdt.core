@@ -2031,7 +2031,7 @@ public void test0044() {
 		"----------\n" + 
 		"6. ERROR in X.java (at line 9)\n" + 
 		"	<String>super(\"SUCCESS\");\n" + 
-		"	        ^^^^^^^^^^^^^^^^\n" + 
+		"	        ^^^^^^^^^^^^^^^^^\n" + 
 		"The constructor X(String) is undefined\n" + 
 		"----------\n";
 	String expected14ProblemLog =

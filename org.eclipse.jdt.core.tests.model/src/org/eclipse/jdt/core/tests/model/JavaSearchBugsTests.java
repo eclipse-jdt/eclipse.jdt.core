@@ -618,7 +618,7 @@ public void testBug77093constructor() throws CoreException {
 	// Search for constructor declarations and references
 	search(method, ALL_OCCURRENCES);
 	assertSearchResults(
-		"src/b77093/X.java b77093.X() [this(new Z[10][])] EXACT_MATCH\n"+
+		"src/b77093/X.java b77093.X() [this(new Z[10][]);] EXACT_MATCH\n"+
 		"src/b77093/X.java b77093.X(Z[][]) [X] EXACT_MATCH"
 	);
 }
@@ -3671,7 +3671,7 @@ public void testBug97087() throws CoreException {
 	search(method, REFERENCES, SearchPattern.R_ERASURE_MATCH);
 	assertSearchResults(
 		"src/b97087/Bug.java b97087.Foo() [Foo] EXACT_MATCH\n" + 
-		"src/b97087/Bug.java b97087.Bar() [super()] ERASURE_MATCH"
+		"src/b97087/Bug.java b97087.Bar() [super();] ERASURE_MATCH"
 	);
 }
 

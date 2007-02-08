@@ -24,10 +24,10 @@ public class ThrowStatement extends Statement {
 	public Expression exception;
 	public TypeBinding exceptionType;
 
-public ThrowStatement(Expression exception, int startPosition) {
+public ThrowStatement(Expression exception, int sourceStart, int sourceEnd) {
 	this.exception = exception;
-	this.sourceStart = startPosition;
-	this.sourceEnd = exception.sourceEnd;
+	this.sourceStart = sourceStart;
+	this.sourceEnd = sourceEnd;
 }
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {

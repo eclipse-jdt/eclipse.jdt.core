@@ -115,7 +115,7 @@ public void test011() {
 		"----------\n" + 
 		"2. ERROR in p1\\X.java (at line 5)\n" + 
 		"	while (false) System.out.println(\"unreachable\");	\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unreachable code\n" + 
 		"----------\n" + 
 		"3. ERROR in p1\\X.java (at line 8)\n" + 
@@ -125,7 +125,7 @@ public void test011() {
 		"----------\n" + 
 		"4. ERROR in p1\\X.java (at line 9)\n" + 
 		"	for (;false;) System.out.println(\"unreachable\");	\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unreachable code\n" + 
 		"----------\n"
 	);
@@ -2163,12 +2163,12 @@ public void test067() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	super(null); //1\n" + 
-		"	^^^^^^^^^^^\n" + 
+		"	^^^^^^^^^^^^\n" + 
 		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 14)\n" + 
 		"	super(new M());//2\n" + 
-		"	^^^^^^^^^^^^^^\n" + 
+		"	^^^^^^^^^^^^^^^\n" + 
 		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 14)\n" + 
@@ -2203,7 +2203,7 @@ public void test068() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	super();	// ko\n" + 
-		"	^^^^^^^\n" + 
+		"	^^^^^^^^\n" + 
 		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 		"----------\n");
 }
@@ -2236,7 +2236,7 @@ public void test069() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	super(new MX4());	// ko\n" + 
-		"	^^^^^^^^^^^^^^^^\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
 		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 

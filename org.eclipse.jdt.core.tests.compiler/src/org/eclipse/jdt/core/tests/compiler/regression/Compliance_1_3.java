@@ -109,12 +109,12 @@ public void test011() {
 		"----------\n" + 
 		"1. ERROR in p1\\X.java (at line 5)\n" + 
 		"	while (false) System.out.println(\"unreachable\");	\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unreachable code\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\X.java (at line 9)\n" + 
 		"	for (;false;) System.out.println(\"unreachable\");	\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unreachable code\n" + 
 		"----------\n"
 	);

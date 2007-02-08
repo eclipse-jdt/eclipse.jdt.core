@@ -147,7 +147,7 @@ public void testConstructorReference03() throws CoreException { // was testConst
 		getJavaSearchScope(), 
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/Z.java p.Z(int) [super(i)]", 
+		"src/p/Z.java p.Z(int) [super(i);]", 
 		this.resultCollector);
 }
 /**
@@ -162,8 +162,8 @@ public void testConstructorReference04() throws CoreException { // was testConst
 		getJavaSearchScope(), 
 		this.resultCollector);
 	assertSearchResults(
-		"src/p/Y.java p.Y(int) [super(i)]\n" +
-		"src/p/Y.java p.Y(boolean) [super(1)]", 
+		"src/p/Y.java p.Y(int) [super(i);]\n" +
+		"src/p/Y.java p.Y(boolean) [super(1);]", 
 		this.resultCollector);
 }
 /**
@@ -226,7 +226,7 @@ public void testConstructorReference08() throws CoreException { // was testConst
 		getJavaSearchScope(), 
 		this.resultCollector);
 	assertSearchResults(
-		"src/c10/X.java c10.B() [new X().super()]", 
+		"src/c10/X.java c10.B() [new X().super();]", 
 		this.resultCollector);
 }
 /*
@@ -260,7 +260,7 @@ public void testConstructorReference10() throws CoreException { // was testConst
 	assertSearchResults(
 		"src/c11/A.java c11.A1 [A1] SYNTHETIC\n" + 
 		"src/c11/A.java c11.A2() [A2] SYNTHETIC\n" + 
-		"src/c11/A.java c11.A3() [super()]",
+		"src/c11/A.java c11.A3() [super();]",
 		this.resultCollector);
 }
 /**

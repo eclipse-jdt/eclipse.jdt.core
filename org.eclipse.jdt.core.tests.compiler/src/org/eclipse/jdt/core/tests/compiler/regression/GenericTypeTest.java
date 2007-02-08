@@ -5880,7 +5880,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	<String,String>super(\"FAILED\");\n" + 
-			"	               ^^^^^^^^^^^^^^^\n" + 
+			"	               ^^^^^^^^^^^^^^^^\n" + 
 			"Incorrect number of type arguments for generic constructor <T>X(T) of type X; it cannot be parameterized with arguments <String, String>\n" + 
 			"----------\n");
 	}			
@@ -5906,7 +5906,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	<String>super(\"FAILED\");\n" + 
-			"	        ^^^^^^^^^^^^^^^\n" + 
+			"	        ^^^^^^^^^^^^^^^^\n" + 
 			"The constructor X(String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
 			"----------\n");
 	}			
@@ -5931,7 +5931,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	<String>super(new X(null));\n" + 
-			"	        ^^^^^^^^^^^^^^^^^^\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^\n" + 
 			"The parameterized constructor <String>X(String) of type X is not applicable for the arguments (X)\n" + 
 			"----------\n");
 	}			

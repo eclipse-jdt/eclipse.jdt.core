@@ -2768,7 +2768,7 @@ public void testUnhandledException() throws JavaModelException {
 		"----------\n" + 
 		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
 		"	throw new Exception();\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unhandled exception type Exception\n" + 
 		"----------\n"
 	);

@@ -1147,7 +1147,6 @@ class ASTConverter {
 			retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
 			breakStatement.setLabel(name);
 		}
-		retrieveSemiColonPosition(breakStatement);
 		return breakStatement;
 	}
 		
@@ -1349,7 +1348,6 @@ class ASTConverter {
 			retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
 			continueStatement.setLabel(name);
 		}
-		retrieveSemiColonPosition(continueStatement);
 		return continueStatement;
 	}
 	
@@ -1360,7 +1358,6 @@ class ASTConverter {
 		final Statement action = convert(statement.action);
 		if (action == null) return null;
 		doStatement.setBody(action);
-		retrieveSemiColonPosition(doStatement);
 		return doStatement;
 	}
 
@@ -1516,7 +1513,6 @@ class ASTConverter {
 			newStatement = constructorInvocation;
 		}
 		newStatement.setSourceRange(sourceStart, statement.sourceEnd - sourceStart + 1);
-		retrieveSemiColonPosition(newStatement);
 		if (this.resolveBindings) {
 			recordNodes(newStatement, statement);
 		}
@@ -2343,7 +2339,6 @@ class ASTConverter {
 		if (statement.expression != null) {
 			returnStatement.setExpression(convert(statement.expression));
 		}
-		retrieveSemiColonPosition(returnStatement);
 		return returnStatement;
 	}
 	
@@ -2477,11 +2472,13 @@ class ASTConverter {
 			return convert((org.eclipse.jdt.internal.compiler.ast.WhileStatement) statement);
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
-			final Expression expr = convert((org.eclipse.jdt.internal.compiler.ast.Expression) statement);
+			org.eclipse.jdt.internal.compiler.ast.Expression statement2 = (org.eclipse.jdt.internal.compiler.ast.Expression) statement;
+			final Expression expr = convert(statement2);
 			final ExpressionStatement stmt = new ExpressionStatement(this.ast);
 			stmt.setExpression(expr);
-			stmt.setSourceRange(expr.getStartPosition(), expr.getLength());
-			retrieveSemiColonPosition(stmt);
+			int sourceStart = expr.getStartPosition();
+			int sourceEnd = statement2.statementEnd;
+			stmt.setSourceRange(sourceStart, sourceEnd - sourceStart + 1);
 			return stmt;
 		}
 		return createFakeEmptyStatement(statement);
@@ -2554,7 +2551,6 @@ class ASTConverter {
 		final ThrowStatement throwStatement = new ThrowStatement(this.ast);
 		throwStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);	
 		throwStatement.setExpression(convert(statement.exception));
-		retrieveSemiColonPosition(throwStatement);
 		return throwStatement;
 	}
 		
@@ -4254,31 +4250,7 @@ class ASTConverter {
 		}
 		return -1;
 	}
-	
-	/*
-	 * This method is used to set the right end position for expression
-	 * statement. The actual AST nodes don't include the trailing semicolon.
-	 * This method fixes the length of the corresponding node.
-	 */
-	protected void retrieveSemiColonPosition(ASTNode node) {
-		int start = node.getStartPosition();
-		int length = node.getLength();
-		int end = start + length;
-		this.scanner.resetTo(end, this.compilationUnitSourceLength);
-		try {
-			int token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				switch(token) {
-					case TerminalTokens.TokenNameSEMICOLON:
-						node.setSourceRange(start, this.scanner.currentPosition - start);
-						return;
-				}
-			}
-		} catch(InvalidInputException e) {
-			// ignore
-		}
-	}
-	
+
 	/**
 	 * This method is used to retrieve the start position of the block.
 	 * @return int the dimension found, -1 if none

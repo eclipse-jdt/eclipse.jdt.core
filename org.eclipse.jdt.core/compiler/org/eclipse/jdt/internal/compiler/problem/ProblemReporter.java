@@ -6086,12 +6086,22 @@ public void unreachableCatchBlock(ReferenceBinding exceptionType, ASTNode locati
 		location.sourceEnd);
 }
 public void unreachableCode(Statement statement) {
+	int sourceStart = statement.sourceStart;
+	int sourceEnd = statement.sourceEnd;
+	if (statement instanceof LocalDeclaration) {
+		LocalDeclaration declaration = (LocalDeclaration) statement;
+		sourceStart = declaration.declarationSourceStart;
+		sourceEnd = declaration.declarationSourceEnd;
+	} else if (statement instanceof Expression) {
+		int statemendEnd = ((Expression) statement).statementEnd;
+		if (statemendEnd != -1) sourceEnd = statemendEnd;
+	}
 	this.handle(
 		IProblem.CodeCannotBeReached,
 		NoArgument,
 		NoArgument,
-		statement.sourceStart,
-		statement.sourceEnd);
+		sourceStart,
+		sourceEnd);
 }
 public void unresolvableReference(NameReference nameRef, Binding binding) {
 /* also need to check that the searchedType is the receiver type

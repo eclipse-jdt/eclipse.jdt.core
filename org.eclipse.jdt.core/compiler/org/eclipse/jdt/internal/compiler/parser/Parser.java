@@ -3411,7 +3411,7 @@ protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 			break;
 	}
 	pushOnAstStack(ecc);
-	ecc.sourceEnd = this.endPosition;
+	ecc.sourceEnd = this.endStatementPosition;
 }
 protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, int recFlag) {
 
@@ -3452,7 +3452,7 @@ protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, i
 	}
 	
 	pushOnAstStack(ecc);
-	ecc.sourceEnd = this.endPosition;
+	ecc.sourceEnd = this.endStatementPosition;
 }
 protected void consumeExpressionStatement() {
 	// ExpressionStatement ::= StatementExpression ';'
@@ -6662,7 +6662,7 @@ protected void consumeStatementBreak() {
 	// BreakStatement ::= 'break' ';'
 	// break pushs a position on this.intStack in case there is no label
 
-	pushOnAstStack(new BreakStatement(null, this.intStack[this.intPtr--], this.endPosition));
+	pushOnAstStack(new BreakStatement(null, this.intStack[this.intPtr--], this.endStatementPosition));
 	
 	if (this.pendingRecoveredType != null) {
 		// Used only in statements recovery.
@@ -6685,7 +6685,7 @@ protected void consumeStatementBreakWithLabel() {
 		new BreakStatement(
 			this.identifierStack[this.identifierPtr--],
 			this.intStack[this.intPtr--],
-			this.endPosition)); 
+			this.endStatementPosition)); 
 	this.identifierLengthPtr--;
 }
 protected void consumeStatementCatch() {
@@ -6708,7 +6708,7 @@ protected void consumeStatementContinue() {
 		new ContinueStatement(
 			null,
 			this.intStack[this.intPtr--],
-			this.endPosition));
+			this.endStatementPosition));
 }
 protected void consumeStatementContinueWithLabel() {
 	// ContinueStatement ::= 'continue' Identifier ';'
@@ -6718,7 +6718,7 @@ protected void consumeStatementContinueWithLabel() {
 		new ContinueStatement(
 			this.identifierStack[this.identifierPtr--], 
 			this.intStack[this.intPtr--], 
-			this.endPosition)); 
+			this.endStatementPosition)); 
 	this.identifierLengthPtr--;
 }
 protected void consumeStatementDo() {
@@ -6734,7 +6734,7 @@ protected void consumeStatementDo() {
 			this.expressionStack[this.expressionPtr--], 
 			statement, 
 			this.intStack[this.intPtr--], 
-			this.endPosition); 
+			this.endStatementPosition); 
 }
 protected void consumeStatementExpressionList() {
 	// StatementExpressionList ::= StatementExpressionList ',' StatementExpression
@@ -6858,10 +6858,10 @@ protected void consumeStatementReturn() {
 			new ReturnStatement(
 				this.expressionStack[this.expressionPtr--], 
 				this.intStack[this.intPtr--], 
-				this.endPosition)
+				this.endStatementPosition)
 		);
 	} else {
-		pushOnAstStack(new ReturnStatement(null, this.intStack[this.intPtr--], this.endPosition));
+		pushOnAstStack(new ReturnStatement(null, this.intStack[this.intPtr--], this.endStatementPosition));
 	}
 }
 protected void consumeStatementSwitch() {
@@ -6920,7 +6920,7 @@ protected void consumeStatementSynchronized() {
 protected void consumeStatementThrow() {
 	// ThrowStatement ::= 'throw' Expression ';'
 	this.expressionLengthPtr--;
-	pushOnAstStack(new ThrowStatement(this.expressionStack[this.expressionPtr--], this.intStack[this.intPtr--]));
+	pushOnAstStack(new ThrowStatement(this.expressionStack[this.expressionPtr--], this.intStack[this.intPtr--], this.endStatementPosition));
 }
 protected void consumeStatementTry(boolean withFinally) {
 	//TryStatement ::= 'try'  Block Catches

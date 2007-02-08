@@ -1405,7 +1405,7 @@ public void test047() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	super();\n" + 
-		"	^^^^^^^\n" + 
+		"	^^^^^^^^\n" + 
 		"Cannot invoke super constructor from enum constructor X()\n" + 
 		"----------\n"
 	);
@@ -1759,7 +1759,7 @@ public void test060() {
 		"----------\n" + 
 		"3. ERROR in com\\flarion\\test\\b\\MyClass.java (at line 15)\n" + 
 		"	throw new Exception();\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unhandled exception type Exception\n" + 
 		"----------\n");
 }
