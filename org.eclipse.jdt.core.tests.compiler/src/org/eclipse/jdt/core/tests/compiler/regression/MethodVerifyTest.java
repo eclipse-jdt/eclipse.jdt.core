@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class MethodVerifyTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 113, 114, 115 };
+//		TESTS_NUMBERS = new int[] { 121 };
 //		TESTS_RANGE = new int[] { 113, -1};
 	}
 
@@ -7347,6 +7347,38 @@ public void test120() {
 		"	      ^\n" + 
 		"Duplicate methods named e with the parameters (S) and (T) are defined by the type X.M<String,String>\n" + 
 		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=173477
+public void test121() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Root {\n" + 
+			"	public Root someMethod();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Intermediary extends Root {\n" + 
+			"	public Leaf someMethod();\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Leaf implements Intermediary {\n" + 
+			"	public Leaf someMethod() {\n" + 
+			"		System.out.print(\"SUCCESS\");\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Leaf leafReference = new Leaf();\n" + 
+			"		leafReference.someMethod();\n" + 
+			"		Root rootReference = leafReference;\n" + 
+			"		rootReference.someMethod(); /* throws error */\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"SUCCESSSUCCESS"
 	);
 }
 }
