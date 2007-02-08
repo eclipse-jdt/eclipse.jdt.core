@@ -22,10 +22,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
-import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -40,39 +37,50 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
  */
 public class AnnotationDiscoveryVisitor extends ASTVisitor {
 
-	Binding currentBinding;
-	boolean storeAnnotations;
-
 	/**
 	 * Collects a many-to-many map of annotation types to
 	 * the elements they appear on.
 	 */
 	ManyToMany<TypeElement, Element> _annoToElement;
 
+	boolean storeAnnotations;
+
 	public AnnotationDiscoveryVisitor() {
 		this._annoToElement = new ManyToMany<TypeElement, Element>();
 	}
 
+	@Override
+	public void endVisit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope) {
+		scope.compilerOptions().storeAnnotations = this.storeAnnotations;
+	}
+
+	@Override
 	public boolean visit(Argument argument, BlockScope scope) {
-		this.currentBinding = argument.binding;
 		Annotation[] annotations = argument.annotations;
 		if (annotations != null) {
-			int annotationsLength = annotations.length;
-			for (int i = 0; i < annotationsLength; i++) {
-				annotations[i].traverse(this, scope);
-			}
+			this.resolveAnnotations(
+					scope,
+					annotations,
+					argument.binding);
 		}
 		return false;
 	}
 
+	@Override
+	public boolean visit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope) {
+		this.storeAnnotations = scope.compilerOptions().storeAnnotations;
+		scope.compilerOptions().storeAnnotations = true;
+		return true;
+	}
+
+	@Override
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
-		this.currentBinding = constructorDeclaration.binding;
 		Annotation[] annotations = constructorDeclaration.annotations;
 		if (annotations != null) {
-			int annotationsLength = annotations.length;
-			for (int i = 0; i < annotationsLength; i++) {
-				annotations[i].traverse(this, constructorDeclaration.scope);
-			}
+			this.resolveAnnotations(
+					constructorDeclaration.scope,
+					annotations,
+					constructorDeclaration.binding);
 		}
 		Argument[] arguments = constructorDeclaration.arguments;
 		if (arguments != null) {
@@ -84,35 +92,25 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		return false;
 	}
 
+	@Override
 	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
-		this.currentBinding = fieldDeclaration.binding;
 		Annotation[] annotations = fieldDeclaration.annotations;
 		if (annotations != null) {
-			int annotationsLength = annotations.length;
-			for (int i = 0; i < annotationsLength; i++) {
-				annotations[i].traverse(this, scope);
-			}
+			this.resolveAnnotations(scope, annotations, fieldDeclaration.binding);
 		}
 		return false;
 	}
 
-	public void endVisit(MarkerAnnotation annotation, BlockScope scope) {
-		ASTNode.resolveAnnotations(scope, new Annotation[] { annotation }, this.currentBinding);
-		AnnotationBinding binding = annotation.getCompilerAnnotation();
-		TypeElement anno = (TypeElement)ElementFactory.newElement(binding.getAnnotationType()); 
-		Element element = ElementFactory.newElement(this.currentBinding);
-		_annoToElement.put(anno, element);
-	}
-
+	@Override
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
-		this.currentBinding = methodDeclaration.binding;
 		Annotation[] annotations = methodDeclaration.annotations;
 		if (annotations != null) {
-			int annotationsLength = annotations.length;
-			for (int i = 0; i < annotationsLength; i++) {
-				annotations[i].traverse(this, methodDeclaration.scope);
-			}
+			this.resolveAnnotations(
+					methodDeclaration.scope,
+					annotations,
+					methodDeclaration.binding);
 		}
+
 		Argument[] arguments = methodDeclaration.arguments;
 		if (arguments != null) {
 			int argumentLength = arguments.length;
@@ -123,54 +121,41 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		return false;
 	}
 
-	public void endVisit(NormalAnnotation annotation, BlockScope scope) {
-		ASTNode.resolveAnnotations(scope, new Annotation[] { annotation }, this.currentBinding);
-		AnnotationBinding binding = annotation.getCompilerAnnotation();
-		TypeElement anno = (TypeElement)ElementFactory.newElement(binding.getAnnotationType()); 
-		Element element = ElementFactory.newElement(this.currentBinding);
-		_annoToElement.put(anno, element);
-	}
-
-	public void endVisit(SingleMemberAnnotation annotation, BlockScope scope) {
-		ASTNode.resolveAnnotations(scope, new Annotation[] { annotation }, this.currentBinding);
-		AnnotationBinding binding = annotation.getCompilerAnnotation();
-		TypeElement anno = (TypeElement)ElementFactory.newElement(binding.getAnnotationType()); 
-		Element element = ElementFactory.newElement(this.currentBinding);
-		_annoToElement.put(anno, element);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration,
-	 *      org.eclipse.jdt.internal.compiler.lookup.ClassScope)
-	 */
+	@Override
 	public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
-		this.currentBinding = memberTypeDeclaration.binding;
+		Annotation[] annotations = memberTypeDeclaration.annotations;
+		if (annotations != null) {
+			this.resolveAnnotations(
+					memberTypeDeclaration.staticInitializerScope,
+					annotations,
+					memberTypeDeclaration.binding);
+		}
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration,
-	 *      org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope)
-	 */
+	@Override
 	public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
-		this.currentBinding = typeDeclaration.binding;
+		Annotation[] annotations = typeDeclaration.annotations;
+		if (annotations != null) {
+			this.resolveAnnotations(
+					typeDeclaration.staticInitializerScope,
+					annotations,
+					typeDeclaration.binding);
+		}
 		return true;
 	}
 
-	@Override
-	public void endVisit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope) {
-		scope.compilerOptions().storeAnnotations = this.storeAnnotations;
+	private void resolveAnnotations(
+			BlockScope scope,
+			Annotation[] annotations,
+			Binding currentBinding) {
+		ASTNode.resolveAnnotations(scope, annotations, currentBinding);
+		
+		for (Annotation annotation : annotations) {
+			AnnotationBinding binding = annotation.getCompilerAnnotation();
+			TypeElement anno = (TypeElement)ElementFactory.newElement(binding.getAnnotationType()); 
+			Element element = ElementFactory.newElement(currentBinding);
+			_annoToElement.put(anno, element);
+		}
 	}
-
-	@Override
-	public boolean visit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope) {
-		this.storeAnnotations = scope.compilerOptions().storeAnnotations;
-		scope.compilerOptions().storeAnnotations = true;
-		return true;
-	}
-
 }
