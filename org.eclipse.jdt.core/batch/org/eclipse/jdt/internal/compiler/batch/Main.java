@@ -851,6 +851,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.parameters.put(Logger.PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
 			this.parameters.put(Logger.PROBLEM_SOURCE_START, new Integer(problem.getSourceStart()));
 			this.parameters.put(Logger.PROBLEM_SOURCE_END, new Integer(problem.getSourceEnd()));
+			String problemOptionKey = getProblemOptionKey(problem.getID());
+			if (problemOptionKey != null) {
+				this.parameters.put(Logger.PROBLEM_OPTION_KEY, problemOptionKey);
+			}			
 			this.printTag(Logger.TASK, this.parameters, true, false);
 			this.parameters.put(Logger.VALUE, problem.getMessage());
 			this.printTag(Logger.PROBLEM_MESSAGE, this.parameters, true, true);
