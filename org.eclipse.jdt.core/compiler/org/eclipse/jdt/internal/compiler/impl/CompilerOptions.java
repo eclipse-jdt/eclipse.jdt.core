@@ -195,6 +195,9 @@ public class CompilerOptions {
 	public static final long FallthroughCase = ASTNode.Bit49L;
 	public static final long OverridingMethodWithoutSuperInvocation = ASTNode.Bit50L;
 	
+	// Map: String optionKey --> Long irritant>
+	private static Map OptionToIrritants;
+	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
 		
@@ -421,6 +424,140 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_GenerateClassFiles, this.generateClassFiles ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_Process_Annotations, this.processAnnotations ? ENABLED : DISABLED); 
 		return optionsMap;		
+	}
+	
+	/**
+	 * Return the most specific option key controlling this irritant. Note that in some case, some irritant is controlled by 
+	 * other master options (e.g. javadoc, deprecation, etc.).
+	 * This information is intended for grouping purpose (several problems governed by a rule)
+	 */
+	public static String optionKeyFromIrritant(long irritant) {
+		// keep in sync with warningTokens and warningTokenToIrritant
+		int irritantInt = (int) irritant;
+		if (irritantInt == irritant) {
+			switch (irritantInt) {
+				case (int) MethodWithConstructorName :
+					return OPTION_ReportMethodWithConstructorName;
+				case (int) OverriddenPackageDefaultMethod  :
+					return OPTION_ReportOverridingPackageDefaultMethod;
+				case (int) UsingDeprecatedAPI :
+				case (int) (InvalidJavadoc | UsingDeprecatedAPI) :
+					return OPTION_ReportDeprecation;
+				case (int) MaskedCatchBlock  :
+					return OPTION_ReportHiddenCatchBlock;
+				case (int) UnusedLocalVariable :
+					return OPTION_ReportUnusedLocal;
+				case (int) UnusedArgument :
+					return OPTION_ReportUnusedParameter;
+				case (int) NoImplicitStringConversion :
+					return OPTION_ReportNoImplicitStringConversion;
+				case (int) AccessEmulation :
+					return OPTION_ReportSyntheticAccessEmulation;
+				case (int) NonExternalizedString :
+					return OPTION_ReportNonExternalizedStringLiteral;
+				case (int) AssertUsedAsAnIdentifier :
+					return OPTION_ReportAssertIdentifier;
+				case (int) UnusedImport :
+					return OPTION_ReportUnusedImport;
+				case (int) NonStaticAccessToStatic :
+					return OPTION_ReportNonStaticAccessToStatic;
+				case (int) Task :
+					return OPTION_TaskTags;
+				case (int) NoEffectAssignment :
+					return OPTION_ReportNoEffectAssignment;
+				case (int) IncompatibleNonInheritedInterfaceMethod :
+					return OPTION_ReportIncompatibleNonInheritedInterfaceMethod;
+				case (int) UnusedPrivateMember :
+					return OPTION_ReportUnusedPrivateMember;
+				case (int) LocalVariableHiding :
+					return OPTION_ReportLocalVariableHiding;
+				case (int) FieldHiding :
+					return OPTION_ReportFieldHiding;
+				case (int) AccidentalBooleanAssign :
+					return OPTION_ReportPossibleAccidentalBooleanAssignment;
+				case (int) EmptyStatement :
+					return OPTION_ReportEmptyStatement;
+				case (int) MissingJavadocComments  :
+					return OPTION_ReportMissingJavadocComments;
+				case (int) MissingJavadocTags :
+					return OPTION_ReportMissingJavadocTags;
+				case (int) UnqualifiedFieldAccess :
+					return OPTION_ReportUnqualifiedFieldAccess;
+				case (int) UnusedDeclaredThrownException :
+					return OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding;
+				case (int) FinallyBlockNotCompleting :
+					return OPTION_ReportFinallyBlockNotCompletingNormally;
+				case (int) InvalidJavadoc :
+					return OPTION_ReportInvalidJavadoc;
+				case (int) UnnecessaryTypeCheck :
+					return OPTION_ReportUnnecessaryTypeCheck;
+				case (int) UndocumentedEmptyBlock :
+					return OPTION_ReportUndocumentedEmptyBlock;
+				case (int) IndirectStaticAccess :
+					return OPTION_ReportIndirectStaticAccess;
+				case (int) UnnecessaryElse  :
+					return OPTION_ReportUnnecessaryElse;
+				case (int) UncheckedTypeOperation :
+					return OPTION_ReportUncheckedTypeOperation;
+				case (int) FinalParameterBound :
+					return OPTION_ReportFinalParameterBound;
+			}
+		} else {
+			irritantInt = (int)(irritant >>> 32);
+			switch (irritantInt) {
+				case (int)(MissingSerialVersion >>> 32) :
+					return OPTION_ReportMissingSerialVersion ;
+				case (int)(EnumUsedAsAnIdentifier >>> 32) :
+					return OPTION_ReportEnumIdentifier;
+				case (int)(ForbiddenReference >>> 32) :
+					return OPTION_ReportForbiddenReference;
+				case (int)(VarargsArgumentNeedCast >>> 32) :
+					return OPTION_ReportVarargsArgumentNeedCast;
+				case (int)(NullReference >>> 32) :
+					return OPTION_ReportNullReference;
+				case (int)(AutoBoxing >>> 32) :
+					return OPTION_ReportAutoboxing;
+				case (int)(AnnotationSuperInterface >>> 32) :
+					return OPTION_ReportAnnotationSuperInterface;
+				case (int)(TypeHiding >>> 32) :
+					return OPTION_ReportTypeParameterHiding;
+				case (int)(MissingOverrideAnnotation >>> 32) :
+					return OPTION_ReportMissingOverrideAnnotation;
+				case (int)(IncompleteEnumSwitch >>> 32) :
+					return OPTION_ReportIncompleteEnumSwitch;
+				case (int)(MissingDeprecatedAnnotation >>> 32) :
+					return OPTION_ReportMissingDeprecatedAnnotation;
+				case (int)(DiscouragedReference >>> 32) :
+					return OPTION_ReportDiscouragedReference;
+				case (int)(UnhandledWarningToken >>> 32) :
+					return OPTION_ReportUnhandledWarningToken;
+				case (int)(RawTypeReference >>> 32) :
+					return OPTION_ReportRawTypeReference;
+				case (int)(UnusedLabel >>> 32) :
+					return OPTION_ReportUnusedLabel;
+				case (int)(ParameterAssignment>>> 32) :
+					return OPTION_ReportParameterAssignment;
+				case (int)(FallthroughCase >>> 32) :
+					return OPTION_ReportFallthroughCase;
+				case (int)(OverridingMethodWithoutSuperInvocation >>> 32) :
+					return OPTION_ReportOverridingMethodWithoutSuperInvocation;
+			}
+		}
+		return null;
+	}
+	
+	public static long optionKeyToIrritant(String optionName) {
+		if (OptionToIrritants == null) {
+			long irritant = 0;
+			for (int i = 0; i < 64; i++) {
+				irritant <<= 1;
+				String optionKey = optionKeyFromIrritant(irritant);
+				if (optionKey == null) continue;
+				OptionToIrritants.put(optionKey, new Long(irritant));
+			}
+		}
+		Long irritant = (Long)OptionToIrritants.get(optionName);
+		return irritant == null ? 0 : irritant.longValue();
 	}
 	
 	public int getSeverity(long irritant) {
