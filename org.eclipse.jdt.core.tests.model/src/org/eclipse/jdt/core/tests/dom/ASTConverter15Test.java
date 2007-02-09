@@ -41,19 +41,19 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST.JLS3);
 	}
-	
+
 	public ASTConverter15Test(String name) {
 		super(name);
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 235, 236 };
+//		TESTS_NUMBERS = new int[] { 238 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverter15Test.class);
 	}
-	
+
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (this.workingCopy != null) {
@@ -61,7 +61,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy = null;
 		}
 	}
-		
+
 	public void test0001() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0001", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -7576,5 +7576,89 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No interfaces", interfaces);
 		assertEquals("Wrong size", 1, interfaces.length);
 		assertNotNull("Should not be null", interfaces[0]);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=173338
+	 */
+	public void test0237() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0237/X.java", true/*resolve*/);
+		String contents =
+			"package test0237;\n" +
+			"public class X {\n" + 
+			"	Zork foo() {}\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedProblems = "Zork cannot be resolved to a type";
+		assertProblemsSize(unit, 1, expectedProblems);
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		IMethodBinding[] methodBindings = typeBinding.getDeclaredMethods();
+		assertNotNull("No method bindings", methodBindings);
+		assertEquals("wrong size", 1, methodBindings.length);
+		assertFalse("Method is not the method foo", "foo".equals(methodBindings[0].getName()));
+		assertNotNull("No return type", methodBindings[0].getReturnType());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=173338
+	 */
+	public void test0238() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0238/X.java", true/*resolve*/);
+		String contents =
+			"package test0238;\n" +
+			"public class X extends A {\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		typeBinding = typeBinding.getSuperclass();
+		IMethodBinding[] methodBindings = typeBinding.getDeclaredMethods();
+		assertNotNull("No method bindings", methodBindings);
+		assertEquals("wrong size", 0, methodBindings.length);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=173338
+	 */
+	public void test0239() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0239/X.java", true/*resolve*/);
+		String contents =
+			"package test0239;\n" +
+			"public class X extends A {\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		typeBinding = typeBinding.getSuperclass();
+		IVariableBinding[] variableBindings = typeBinding.getDeclaredFields();
+		assertNotNull("No variable bindings", variableBindings);
+		assertEquals("wrong size", 0, variableBindings.length);
 	}
 }
