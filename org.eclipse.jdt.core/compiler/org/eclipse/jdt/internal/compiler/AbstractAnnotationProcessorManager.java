@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     BEA - Patch for bug 172743
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 

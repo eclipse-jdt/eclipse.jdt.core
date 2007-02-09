@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -34,7 +35,7 @@ import java.util.*;
  * Provides the building and compilation mechanism
  * in common with the batch and incremental builders.
  */
-public abstract class AbstractImageBuilder implements ICompilerRequestor {
+public abstract class AbstractImageBuilder implements ICompilerRequestor, ICompilationUnitLocator {
 
 protected JavaBuilder javaBuilder;
 protected State newState;
@@ -436,10 +437,19 @@ protected IContainer createFolder(IPath packagePath, IContainer outputFolder) th
 	return folder;
 }
 
+
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.core.builder.ICompilationUnitLocator#fromIFile(org.eclipse.core.resources.IFile)
+ */
+public ICompilationUnit fromIFile(IFile file) {
+	return findSourceFile(file);
+}
+
 protected void initializeAnnotationProcessorManager(Compiler newCompiler) {
 	AbstractAnnotationProcessorManager annotationManager = JavaModelManager.getJavaModelManager().createAnnotationProcessorManager();
 	if (annotationManager != null) {
-		annotationManager.configureFromPlatform(newCompiler, javaBuilder.javaProject);
+		annotationManager.configureFromPlatform(newCompiler, this, javaBuilder.javaProject);
 		annotationManager.setErr(new PrintWriter(System.err));
 		annotationManager.setOut(new PrintWriter(System.out));
 	}
