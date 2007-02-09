@@ -3142,6 +3142,8 @@ public void processPathEntries(final int defaultSize, final ArrayList paths,
 			}
 		} else if (token.equals("[")) { //$NON-NLS-1$
 			switch (state) {
+			case start:
+				currentClasspathName = ""; //$NON-NLS-1$
 			case readyToClose:
 				bracket = cursor - 1;
 			case bracketClosed:

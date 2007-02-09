@@ -5164,6 +5164,28 @@ public void test138_classpath() {
 		null,
 		null);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=173416
+// start with a bracket
+public void test139_classpath() {
+    String cp = "[a].jar";
+    runClasspathTest(
+        cp, 
+        new String [] {
+            cp, null, null,
+        },
+        null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=173416
+// start with a bracket
+public void test140_classpath() {
+    String cp = "[a].jar";
+    runClasspathTest(
+        cp + "[~**/internal/*][-d dir]", 
+        new String [] {
+            cp, "{pattern=**/internal/* (DISCOURAGED)}", "dir",
+        },
+        null);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
