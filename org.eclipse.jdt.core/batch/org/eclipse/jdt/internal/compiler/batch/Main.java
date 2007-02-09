@@ -64,6 +64,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.GenericXMLWriter;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfInt;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -90,7 +91,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String ERROR = "ERROR"; //$NON-NLS-1$
 		private static final String ERROR_TAG = "error"; //$NON-NLS-1$
 		private static final String EXCEPTION = "exception"; //$NON-NLS-1$
-		private static final HashMap FIELD_TABLE = new HashMap();
+		private static final HashtableOfInt FIELD_TABLE = new HashtableOfInt();
 		private static final String KEY = "key"; //$NON-NLS-1$
 		private static final String MESSAGE = "message"; //$NON-NLS-1$
 		private static final String NUMBER_OF_CLASSFILES = "number_of_classfiles"; //$NON-NLS-1$
@@ -139,7 +140,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				Field[] fields = c.getFields();
 				for (int i = 0, max = fields.length; i < max; i++) {
 					Field field = fields[i];
-					Logger.FIELD_TABLE.put(field.get(null), field.getName());
+					if (field.getType().equals(Integer.TYPE)) {
+						Integer value = (Integer) field.get(null);
+						Logger.FIELD_TABLE.put(value.intValue() & IProblem.IgnoreCategoriesMask, field.getName());
+					}
 				}
 			} catch (SecurityException e) {
 				e.printStackTrace();
@@ -276,7 +280,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 		private String getFieldName(int id) {
-			return (String) Logger.FIELD_TABLE.get(new Integer(id));
+			return (String) Logger.FIELD_TABLE.get(id & IProblem.IgnoreCategoriesMask);
 		}
 
 		// find out an option name controlling a given problemID
