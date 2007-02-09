@@ -523,6 +523,10 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		assertEquals("Number of installed variables", expectedNumber, installRequestor.count);
 	}
 	
+	public boolean isJRockitVM() {
+		final String vmName = System.getProperty("java.vm.name");
+		return vmName != null && vmName.indexOf("JRockit") != -1;
+	}
 	/**
 	 * Returns a new problem with the given id, severity, source positions and line number.
 	 */

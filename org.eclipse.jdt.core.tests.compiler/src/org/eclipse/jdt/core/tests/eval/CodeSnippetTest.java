@@ -384,8 +384,9 @@ public void testInnerClassNamed() {
  * Tests code snippet that include a package declaration.
  */
 public void testPackage() {
+	if (isJRockitVM()) return;
 	// TBD: Test access to package private member
-	// TBD: Test access to package class and members in anoother package than a java.* package
+	// TBD: Test access to package class and members in another package than a java.* package
 	try {
 		// declare that the code snippet is run in java.util.zip and access a package private class
 		context.setPackageName("java.util.zip".toCharArray());

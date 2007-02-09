@@ -55,6 +55,9 @@ public static LocalVMLauncher getLauncher() {
 	if ("J9".equals(vmName)) {
 		return new J9VMLauncher();
 	}
+	if (vmName != null && vmName.indexOf("JRockit") != -1) {
+		return new JRockitVMLauncher();
+	}
 	final String osName = System.getProperty("os.name");
 	if (osName.startsWith("Mac")) {
 		return new MacVMLauncher();

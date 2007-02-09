@@ -38,6 +38,7 @@ public static Test suite() {
  * Test a scenario where the change of the package declaration causes a problem in a code snippet.
  */
 public void testChangePackage() {
+	if (isJRockitVM()) return;
 	try {
 		// define the package
 		context.setPackageName("java.util.zip".toCharArray());
