@@ -71,6 +71,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class Main implements ProblemSeverities, SuffixConstants {
 
 	public static class Logger {
+		private static final String CATEGORY_ID = "categoryID"; //$NON-NLS-1$
 		private static final String CLASS = "class"; //$NON-NLS-1$
 		private static final String CLASS_FILE = "classfile"; //$NON-NLS-1$
 		private static final String CLASSPATH = "classpath"; //$NON-NLS-1$
@@ -91,6 +92,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String EXCEPTION = "exception"; //$NON-NLS-1$
 		private static final HashMap FIELD_TABLE = new HashMap();
 		private static final String KEY = "key"; //$NON-NLS-1$
+		private static final String LABEL = "label"; //$NON-NLS-1$
 		private static final String MESSAGE = "message"; //$NON-NLS-1$
 		private static final String NUMBER_OF_CLASSFILES = "number_of_classfiles"; //$NON-NLS-1$
 		private static final String NUMBER_OF_ERRORS = "errors"; //$NON-NLS-1$
@@ -108,6 +110,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String PROBLEM_ARGUMENTS = "arguments"; //$NON-NLS-1$
 		private static final String PROBLEM_ID = "id"; //$NON-NLS-1$
 		private static final String PROBLEM_LINE = "line"; //$NON-NLS-1$
+		private static final String PROBLEM_OPTION_KEY = "optionKey"; //$NON-NLS-1$
 		private static final String PROBLEM_MESSAGE = "message"; //$NON-NLS-1$
 		private static final String PROBLEM_SEVERITY = "severity"; //$NON-NLS-1$
 		private static final String PROBLEM_SOURCE_END = "charEnd"; //$NON-NLS-1$
@@ -273,8 +276,20 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 		
+		private String getCategoryID(String optionKey) {
+			return null;
+		}
+
 		private String getFieldName(int id) {
 			return (String) Logger.FIELD_TABLE.get(new Integer(id));
+		}
+
+		private String getLabel(String optionKey) {
+			return null;
+		}
+		
+		private String getProblemOptionKey(int problemId) {
+			return null;
 		}
 
 		public void logAverage(long[] times, long lineCount) {
@@ -518,8 +533,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				});
 				for (int i = 0, max = entries.length; i < max; i++) {
 					Map.Entry entry = (Map.Entry) entries[i];
-					this.parameters.put(Logger.KEY, entry.getKey());
+					String key = (String) entry.getKey();
+					this.parameters.put(Logger.KEY, key);
 					this.parameters.put(Logger.VALUE, entry.getValue());
+					String label = getLabel(key);
+					if (label != null) {
+						this.parameters.put(Logger.LABEL, label);
+					}
+					String categoryID = getCategoryID(key);
+					if (categoryID != null) {
+						this.parameters.put(Logger.CATEGORY_ID, categoryID);
+					}
 					this.printTag(Logger.OPTION, this.parameters, true, true);
 				}
 				this.endTag(Logger.OPTIONS);
@@ -801,11 +825,16 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private void logXmlProblem(CategorizedProblem problem, char[] unitSource) {
 			final int sourceStart = problem.getSourceStart();
 			final int sourceEnd = problem.getSourceEnd();
-			this.parameters.put(Logger.PROBLEM_ID, getFieldName(problem.getID()));
+			final int id = problem.getID();
+			this.parameters.put(Logger.PROBLEM_ID, getFieldName(id));
 			this.parameters.put(Logger.PROBLEM_SEVERITY, problem.isError() ? Logger.ERROR : Logger.WARNING);
 			this.parameters.put(Logger.PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
 			this.parameters.put(Logger.PROBLEM_SOURCE_START, new Integer(sourceStart));
 			this.parameters.put(Logger.PROBLEM_SOURCE_END, new Integer(sourceEnd));
+			String problemOptionKey = getProblemOptionKey(id);
+			if (problemOptionKey != null) {
+				this.parameters.put(Logger.PROBLEM_OPTION_KEY, problemOptionKey);
+			}
 			this.printTag(Logger.PROBLEM_TAG, this.parameters, true, false);
 			this.parameters.put(Logger.VALUE, problem.getMessage());
 			this.printTag(Logger.PROBLEM_MESSAGE, this.parameters, true, true);

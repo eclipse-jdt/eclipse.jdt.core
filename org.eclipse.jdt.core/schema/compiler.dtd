@@ -26,6 +26,8 @@
 <!ATTLIST argument value CDATA #REQUIRED>
 <!ATTLIST option key   CDATA #REQUIRED
 				 value CDATA #REQUIRED
+				 label CDATA #IMPLIED
+				 categoryID CDATA #IMPLIED
 >
 <!ATTLIST classpath path CDATA #REQUIRED
                     id   CDATA #REQUIRED
@@ -43,6 +45,7 @@
 				  severity  CDATA #REQUIRED
 				  line      CDATA #REQUIRED
 				  id        CDATA #REQUIRED
+				  optionKey CDATA #IMPLIED
 >
 <!ATTLIST message value CDATA #REQUIRED>
 <!ATTLIST source_context value       CDATA #REQUIRED
