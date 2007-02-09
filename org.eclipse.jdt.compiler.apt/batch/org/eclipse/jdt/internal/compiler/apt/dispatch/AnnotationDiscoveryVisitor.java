@@ -153,9 +153,11 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		
 		for (Annotation annotation : annotations) {
 			AnnotationBinding binding = annotation.getCompilerAnnotation();
-			TypeElement anno = (TypeElement)ElementFactory.newElement(binding.getAnnotationType()); 
-			Element element = ElementFactory.newElement(currentBinding);
-			_annoToElement.put(anno, element);
+			if (binding != null) { // binding should be resolved, but in case it's not, ignore it
+				TypeElement anno = (TypeElement)ElementFactory.newElement(binding.getAnnotationType()); 
+				Element element = ElementFactory.newElement(currentBinding);
+				_annoToElement.put(anno, element);
+			}
 		}
 	}
 }
