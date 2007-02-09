@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.IJavaProject;
 
 /**
  * A compilation participant is notified of events occuring during the compilation process.
- * The compilation process not only involves generating .class files (i.e. building), it also involve
+ * The compilation process not only involves generating .class files (i.e. building), it also involves
  * cleaning the output directory, reconciling a working copy, etc.
  * So the notified events are the result of a build action, a clean action, a reconcile operation 
  * (for a working copy), etc.
