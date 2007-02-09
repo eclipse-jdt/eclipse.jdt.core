@@ -13,7 +13,8 @@
    <element name="extension">
       <complexType>
          <sequence>
-            <element ref="factories"/>
+            <element ref="factories" minOccurs="0" maxOccurs="1"/>
+            <element ref="java6processors" minOccurs="0" maxOccurs="1"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -78,6 +79,38 @@ present this value defaults to true.
                </documentation>
                <appInfo>
                   <meta.attribute deprecated="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="java6processors">
+      <complexType>
+         <sequence>
+            <element ref="java6processor" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="enableDefault" type="boolean">
+            <annotation>
+               <documentation>
+                  true if this processor should be enabled by default.  This value
+may be overridden via the annotation processing configuration settings.  If not
+present this value defaults to true.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="java6processor">
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Qualified name of a class that implements javax.annotation.processing.Processor and has a no-argument constructor.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="javax.annotation.processing.Processor"/>
                </appInfo>
             </annotation>
          </attribute>

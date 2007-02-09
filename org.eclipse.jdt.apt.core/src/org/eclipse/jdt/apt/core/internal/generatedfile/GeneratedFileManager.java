@@ -314,13 +314,12 @@ public class GeneratedFileManager
 	}
 
 	/**
-	 * Add a non-Java-source entry to the build-time dependency maps. Java source files
-	 * are added to the maps when they are generated, as by
-	 * {@link #generateFileDuringBuild(IFile, String, String, IProgressMonitor)}, but
-	 * files of other types must be added explicitly by the code that creates the file.
+	 * Add a non-Java-source entry to the build-time dependency maps. Java source files are added to
+	 * the maps when they are generated, as by {@link #generateFileDuringBuild}, but files of other
+	 * types must be added explicitly by the code that creates the file.
 	 * <p>
-	 * This method must only be called during build, not reconcile.  It is not possible
-	 * to add non-Java-source files during reconcile.
+	 * This method must only be called during build, not reconcile. It is not possible to add
+	 * non-Java-source files during reconcile.
 	 */
 	public void addGeneratedFileDependency(IFile parentFile, IFile generatedFile)
 	{
@@ -452,8 +451,9 @@ public class GeneratedFileManager
 	 * file-system locks, and assumes that the calling method has at some point acquired a
 	 * workspace-level resource lock.
 	 * 
-	 * @param parentFile
-	 *            the parent of the type being generated
+	 * @param parentFiles
+	 *            the parent or parents of the type being generated.  May be empty, and/or
+	 *            may contain null entries, but must not itself be null.
 	 * @param typeName
 	 *            the dot-separated java type name of the type being generated
 	 * @param contents
@@ -463,7 +463,7 @@ public class GeneratedFileManager
 	 * @return - the newly created IFile along with whether it was modified
 	 * @throws CoreException
 	 */
-	public FileGenerationResult generateFileDuringBuild(IFile parentFile, String typeName, String contents,
+	public FileGenerationResult generateFileDuringBuild(List<IFile> parentFiles, String typeName, String contents,
 			IProgressMonitor progressMonitor) throws CoreException
 	{
 		if (_skipTypeGeneration)
@@ -519,8 +519,10 @@ public class GeneratedFileManager
 
 			// during a batch build, parentFile will be null.
 			// Only keep track of ownership in iterative builds
-			if (parentFile != null) {
-				addBuiltFileToMaps(parentFile, file);
+			for (IFile parentFile : parentFiles) {
+				if (parentFile != null) {
+					addBuiltFileToMaps(parentFile, file);
+				}
 			}
 
 			// Mark the file as derived. Note that certain user actions may have

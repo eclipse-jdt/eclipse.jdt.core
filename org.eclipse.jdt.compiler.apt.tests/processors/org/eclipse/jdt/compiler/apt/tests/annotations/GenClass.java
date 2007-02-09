@@ -9,7 +9,7 @@
  *    wharley@bea.com - initial API and implementation
  *    
  *******************************************************************************/
-package anno;
+package org.eclipse.jdt.compiler.apt.tests.annotations;
 
 /**
  * Processing this annotation will produce a class whose name is the value of

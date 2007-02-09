@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2005, 2007 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.lang.annotation.Annotation;
@@ -21,7 +31,9 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
  * Element represents any defined Java language element - a package, 
  * a method, a class or interface.  Contrast with DeclaredType.
  */
-public class ElementImpl implements javax.lang.model.element.Element {
+public class ElementImpl 
+	implements javax.lang.model.element.Element, IElementInfo
+{
 	
 	protected final Binding _binding;
 	
@@ -106,6 +118,12 @@ public class ElementImpl implements javax.lang.model.element.Element {
 	@Override
 	public String toString() {
 		return _binding.toString();
+	}
+
+	@Override
+	public String getFileName() {
+		// Subclasses should override and return something of value
+		return null;
 	}
 
 }

@@ -13,8 +13,8 @@
 package org.eclipse.jdt.apt.core.internal;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 
@@ -37,9 +37,9 @@ public class PluginFactoryContainer extends FactoryContainer
 		this.enableDefault = enableDefault;
 	}
 	
-	public void addFactoryName( String n ) {
+	public void addFactoryName( String factoryName, String serviceName ) {
 		try {
-			getFactoryNames().add( n ); 
+			getFactoryNames().put( factoryName, serviceName ); 
 		}
 		catch (IOException ioe) {
 			AptPlugin.log(ioe, "IOException reading a plugin"); //$NON-NLS-1$
@@ -52,8 +52,9 @@ public class PluginFactoryContainer extends FactoryContainer
 		return true;
 	}
 
-	protected List<String> loadFactoryNames() { 
-		return new ArrayList<String>();
+	protected Map<String, String> loadFactoryNames() {
+		// The list is populated when factory plugins are loaded.
+		return new LinkedHashMap<String, String>();
 	}
 	
 	public String getId() {

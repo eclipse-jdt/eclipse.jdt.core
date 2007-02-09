@@ -19,7 +19,11 @@ import org.eclipse.core.runtime.IPath;
 /**
  * A minimal API for manipulating the annotation processor factory path.
  * The factory path is an ordered list of containers, each of which has
- * certain attributes, e.g., isEnabled, runInBatchMode.
+ * certain attributes, e.g., isEnabled, runInBatchMode.  Containers on
+ * the path do not necessarily contain implementations of any particular
+ * service; in particular, a path may have both Java 5 and Java 6 annotation
+ * processors, as well as entries that contain supporting classes or
+ * resources.
  * <p>
  * Clients should not implement this interface.
  */

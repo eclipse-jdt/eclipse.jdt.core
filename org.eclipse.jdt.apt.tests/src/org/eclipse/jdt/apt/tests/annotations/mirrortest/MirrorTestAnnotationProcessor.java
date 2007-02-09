@@ -87,8 +87,8 @@ public class MirrorTestAnnotationProcessor extends BaseProcessor {
 	private void testPackageImpl() {
 		PackageDeclaration pkg = _env.getPackage("org.eclipse.jdt.apt.tests.annotations.mirrortest");
 		ProcessorTestStatus.assertEquals("Package name", "org.eclipse.jdt.apt.tests.annotations.mirrortest", pkg.getQualifiedName());
-		// Not sure if this is the best way to test -- can we count on the number of classes 
-		// remaining the same in java.util?
+		// We used to test by counting the number of elements returned by the various calls,
+		// but that is not stable between different JDKs.
 		
 		pkg = _env.getPackage("java");
 		ProcessorTestStatus.assertEquals("Package name", "java", pkg.getQualifiedName());
@@ -98,13 +98,15 @@ public class MirrorTestAnnotationProcessor extends BaseProcessor {
 		ProcessorTestStatus.assertEquals("Package name", "java.util", pkg.getQualifiedName());
 		
 		Collection<ClassDeclaration> classes = pkg.getClasses();
-		ProcessorTestStatus.assertEquals("Number of classes in java.util", 79, classes.size());
+		TypeDeclaration stringDecl = _env.getTypeDeclaration("java.util.Collections");
+		ProcessorTestStatus.assertTrue("java.util contains String", classes.contains(stringDecl));
 		
 		Collection<EnumDeclaration> enums = pkg.getEnums();
 		ProcessorTestStatus.assertEquals("Number of enums in java.util", 0, enums.size());
 		
+		TypeDeclaration dequeDecl = _env.getTypeDeclaration("java.util.Deque");
 		Collection<InterfaceDeclaration> interfaces = pkg.getInterfaces();
-		ProcessorTestStatus.assertEquals("Number of interfaces in java.util", 15, interfaces.size());
+		ProcessorTestStatus.assertTrue("java.util contains Deque", interfaces.contains(dequeDecl));
 	}
 	
 	private void testDeclarationsUtil(TypeDeclaration typeDecl) {

@@ -14,11 +14,9 @@ package org.eclipse.jdt.apt.core.internal.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,17 +26,13 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.ExtJarFactoryContainer;
-import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
+import org.eclipse.jdt.apt.core.internal.FactoryPluginManager;
 import org.eclipse.jdt.apt.core.internal.VarJarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.WkspJarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
@@ -49,8 +43,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 /**
  * Utility class for dealing with the factory path
@@ -69,29 +61,6 @@ public final class FactoryPathUtil {
 	// four spaces for indent
 	private static final String INDENT = "    "; //$NON-NLS-1$
 
-	/** 
-	 * Map of factory names -> factories.  A single plugin factory container may 
-	 * contain multiple annotation processor factories, each with a unique name.
-	 * To support lazy initialization, this should only be accessed by calling
-	 * @see #getPluginFactoryMap() . 
-	 */
-	private static final HashMap<String, AnnotationProcessorFactory> PLUGIN_FACTORY_MAP = new HashMap<String, AnnotationProcessorFactory>();
-	
-	/** 
-	 * Map of plugin names -> plugin factory containers, sorted by plugin name.
-	 * A plugin that contains annotation processor factories (and extends the
-	 * corresponding extension point) is a "plugin factory container".  
-	 * To support lazy initialization, this should only be accessed by calling
-	 * @see #getPluginFactoryContainerMap() . 
-	 */
-	private static final TreeMap<String, PluginFactoryContainer> PLUGIN_CONTAINER_MAP = new TreeMap<String, PluginFactoryContainer>();
-	
-	/** 
-	 * true if PLUGIN_FACTORY_MAP and PLUGIN_CONTAINER_MAP have been initialized,
-	 * by calling @see #loadPluginFactories() .
-	 */
-	private static boolean mapsInitialized = false;
-	
 	// Private c-tor to prevent construction
 	private FactoryPathUtil() {}
 	
@@ -243,81 +212,82 @@ public final class FactoryPathUtil {
 
 	public static Map<FactoryContainer, FactoryPath.Attributes> decodeFactoryPath(final String xmlFactoryPath) 
 	throws CoreException
-{
-	Map<FactoryContainer, FactoryPath.Attributes> result = new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>();
-	StringReader reader = new StringReader(xmlFactoryPath);
-	Element fpElement = null;
-	
-	try {
-		DocumentBuilder parser = 
-			DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		fpElement = parser.parse(new InputSource(reader)).getDocumentElement();
-		
-	}
-	catch (IOException e) {
-		throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_ioException, e));
-	}
-	catch (SAXException e) {
-		throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_couldNotParse, e));
-	}
-	catch (ParserConfigurationException e) {
-		throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_parserConfigError, e));
-	}
-	finally {
-		reader.close();
-	}
-	
-	if (!fpElement.getNodeName().equalsIgnoreCase(FACTORYPATH_TAG)) {
-		IOException e = new IOException("Incorrect file format. File must begin with " + FACTORYPATH_TAG); //$NON-NLS-1$
-		throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_ioException, e));
-	}
-	NodeList nodes = fpElement.getElementsByTagName(FACTORYPATH_ENTRY_TAG);
-	for (int i=0; i < nodes.getLength(); i++) {
-		Node node = nodes.item(i);
-		if (node.getNodeType() == Node.ELEMENT_NODE) {
-			Element element = (Element)node;
-			String kindString = element.getAttribute(KIND);
-			// deprecated container type "JAR" is now "EXTJAR"
-			if ("JAR".equals(kindString)) { //$NON-NLS-1$
-				kindString = "EXTJAR"; //$NON-NLS-1$
-			}
-			String idString = element.getAttribute(ID);
-			String enabledString = element.getAttribute(ENABLED);
-			String runInAptModeString = element.getAttribute(RUN_IN_BATCH_MODE); 
-			FactoryType kind = FactoryType.valueOf(kindString);
-			FactoryContainer container = null;
-			switch (kind) {
-			
-			case WKSPJAR :
-				container = newWkspJarFactoryContainer(new Path(idString));
-				break;
-				
-			case EXTJAR :
-				container = newExtJarFactoryContainer(new File(idString));
-				break;
-				
-			case VARJAR :
-				container = newVarJarFactoryContainer(new Path(idString));
-				break;
-			
-			case PLUGIN :
-				container = getPluginFactoryContainer(idString);
-				break;
-				
-			default :
-				throw new IllegalStateException("Unrecognized kind: " + kind + ". Original string: " + kindString); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			
-			if (null != container) {
-				FactoryPath.Attributes a = new FactoryPath.Attributes( 
-						Boolean.parseBoolean(enabledString), Boolean.parseBoolean(runInAptModeString));
-				result.put(container, a);
+	{
+		Map<FactoryContainer, FactoryPath.Attributes> result = new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>();
+		StringReader reader = new StringReader(xmlFactoryPath);
+		Element fpElement = null;
+
+		try {
+			DocumentBuilder parser = 
+				DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			fpElement = parser.parse(new InputSource(reader)).getDocumentElement();
+
+		}
+		catch (IOException e) {
+			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_ioException, e));
+		}
+		catch (SAXException e) {
+			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_couldNotParse, e));
+		}
+		catch (ParserConfigurationException e) {
+			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_parserConfigError, e));
+		}
+		finally {
+			reader.close();
+		}
+
+		if (!fpElement.getNodeName().equalsIgnoreCase(FACTORYPATH_TAG)) {
+			IOException e = new IOException("Incorrect file format. File must begin with " + FACTORYPATH_TAG); //$NON-NLS-1$
+			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_ioException, e));
+		}
+		NodeList nodes = fpElement.getElementsByTagName(FACTORYPATH_ENTRY_TAG);
+		for (int i=0; i < nodes.getLength(); i++) {
+			Node node = nodes.item(i);
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				Element element = (Element)node;
+				String kindString = element.getAttribute(KIND);
+				// deprecated container type "JAR" is now "EXTJAR"
+				if ("JAR".equals(kindString)) { //$NON-NLS-1$
+					kindString = "EXTJAR"; //$NON-NLS-1$
+				}
+				String idString = element.getAttribute(ID);
+				String enabledString = element.getAttribute(ENABLED);
+				String runInAptModeString = element.getAttribute(RUN_IN_BATCH_MODE); 
+				FactoryType kind = FactoryType.valueOf(kindString);
+				FactoryContainer container = null;
+				switch (kind) {
+
+				case WKSPJAR :
+					container = newWkspJarFactoryContainer(new Path(idString));
+					break;
+
+				case EXTJAR :
+					container = newExtJarFactoryContainer(new File(idString));
+					break;
+
+				case VARJAR :
+					container = newVarJarFactoryContainer(new Path(idString));
+					break;
+
+				case PLUGIN :
+					container = FactoryPluginManager.getPluginFactoryContainer(idString);
+					break;
+
+				default :
+					throw new IllegalStateException("Unrecognized kind: " + kind + ". Original string: " + kindString); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+
+				if (null != container) {
+					FactoryPath.Attributes a = new FactoryPath.Attributes( 
+							Boolean.parseBoolean(enabledString), Boolean.parseBoolean(runInAptModeString));
+					result.put(container, a);
+				}
 			}
 		}
+
+		return result;
 	}
 	
-	return result;
-}
 	/**
 	 * Get a file designator for the workspace-level factory path settings file.
 	 * Typically this is [workspace]/.metadata/plugins/org.eclipse.jdt.apt.core/.factorypath
@@ -356,37 +326,6 @@ public final class FactoryPathUtil {
 	}
 
 	/**
-	 * Get a factory path corresponding to the default values: if jproj is
-	 * non-null, return the current workspace factory path (workspace prefs
-	 * are the default for a project); if jproj is null, return the default 
-	 * list of plugin factories (which is the "factory default").
-	 */
-	public static IFactoryPath getDefaultFactoryPath(IJavaProject jproj) {
-		FactoryPath fp = new FactoryPath();
-		if (jproj != null) {
-			fp.setContainers(calculatePath(null));
-		}
-		else {
-			fp.setContainers(getAllPluginFactoryContainers());
-		}
-		return fp;
-	}
-
-	public static FactoryPath getFactoryPath(IJavaProject jproj) {
-		Map<FactoryContainer, FactoryPath.Attributes> map = calculatePath(jproj);
-		FactoryPath fp = new FactoryPath();
-		fp.setContainers(map);
-		return fp;
-	}
-
-	public static void setFactoryPath(IJavaProject jproj, FactoryPath path) 
-			throws CoreException {
-		Map<FactoryContainer, FactoryPath.Attributes> map = (path != null) ?
-				path.getAllContainers() : null;
-		saveFactoryPathFile(jproj, map);
-	}
-	
-	/**
 	 * Calculates the active factory path for the specified project.  This
 	 * depends on the stored information in the .factorypath file, as well as
 	 * on the set of plugins that were found at load time of this Eclipse instance.
@@ -400,7 +339,7 @@ public final class FactoryPathUtil {
 		boolean foundPerProjFile = false;
 		if (jproj != null) {
 			try {
-				map = readFactoryPathFile(jproj);
+				map = FactoryPathUtil.readFactoryPathFile(jproj);
 				foundPerProjFile = (map != null);
 			}
 			catch (CoreException ce) {
@@ -410,7 +349,7 @@ public final class FactoryPathUtil {
 		// Workspace if no project data was found
 		if (map == null) {
 			try {
-				map = readFactoryPathFile(null);
+				map = FactoryPathUtil.readFactoryPathFile(null);
 			}
 			catch (CoreException ce) {
 				AptPlugin.log(ce, "Could not get factory containers for project: " + jproj); //$NON-NLS-1$
@@ -443,7 +382,7 @@ public final class FactoryPathUtil {
 			Map<FactoryContainer, FactoryPath.Attributes> path, boolean disableNewPlugins) {
 		
 		// Get the alphabetically-ordered list of all plugins we found at startup.
-		Map<FactoryContainer, FactoryPath.Attributes> pluginContainers = getAllPluginFactoryContainers();
+		Map<FactoryContainer, FactoryPath.Attributes> pluginContainers = FactoryPluginManager.getAllPluginFactoryContainers();
 		
 		// Remove from the path any plugins which we did not find at startup
 		for (Iterator<FactoryContainer> i = path.keySet().iterator(); i.hasNext(); ) {
@@ -470,121 +409,35 @@ public final class FactoryPathUtil {
 	}
 
 	/**
-	 * Returns an ordered list of all the plugin factory containers that have 
-	 * been registered as plugins.  Note that this may include plugins that have 
-	 * been disabled by the user's configuration.  The 'enabled' attribute in the
-	 * returned map reflects the 'enableDefault' attribute in the plugin
-	 * manifest, rather than the user configuration.  
-	 * Ordering is alphabetic by plugin id.
+	 * Get a factory path corresponding to the default values: if jproj is
+	 * non-null, return the current workspace factory path (workspace prefs
+	 * are the default for a project); if jproj is null, return the default 
+	 * list of plugin factories (which is the "factory default").
 	 */
-	private static synchronized Map<FactoryContainer, FactoryPath.Attributes> getAllPluginFactoryContainers()
-	{
-		Map<FactoryContainer, FactoryPath.Attributes> map = 
-			new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>(getPluginContainerMap().size());
-		for (PluginFactoryContainer pfc : getPluginContainerMap().values()) {
-			FactoryPath.Attributes a = new FactoryPath.Attributes(pfc.getEnableDefault(), false);
-			map.put(pfc, a);
+	public static IFactoryPath getDefaultFactoryPath(IJavaProject jproj) {
+		FactoryPath fp = new FactoryPath();
+		if (jproj != null) {
+			fp.setContainers(calculatePath(null));
 		}
-		return map;
-	}
-	
-	public static synchronized AnnotationProcessorFactory getFactoryFromPlugin( String factoryName )
-	{
-		AnnotationProcessorFactory apf = getPluginFactoryMap().get( factoryName );
-		if ( apf == null ) 
-		{
-			String s = "could not find AnnotationProcessorFactory " +  //$NON-NLS-1$
-				factoryName + " from available factories defined by plugins"; //$NON-NLS-1$
-			AptPlugin.log(new Status(IStatus.WARNING, AptPlugin.PLUGIN_ID, AptPlugin.STATUS_NOTOOLSJAR, s, null));
+		else {
+			fp.setContainers(FactoryPluginManager.getAllPluginFactoryContainers());
 		}
-		return apf;
+		return fp;
 	}
 
-    /**
-     * Return the factory container corresponding to the specified plugin id.
-     * All plugin factories are loaded at startup time.
-     * @param pluginId the id of a plugin that extends annotationProcessorFactory.
-     * @return a PluginFactoryContainer, or null if the plugin id does not 
-     * identify an annotation processor plugin.
-     */
-	public static synchronized FactoryContainer getPluginFactoryContainer(String pluginId) {
-		return getPluginContainerMap().get(pluginId);
-	}
-	
-	/**
-	 * Get the alphabetically sorted map of plugin names to plugin factory containers.
-	 * Load plugins if the map has not yet been initialized.
-	 */
-	private static TreeMap<String, PluginFactoryContainer> getPluginContainerMap() {
-		loadPluginFactories();
-		return PLUGIN_CONTAINER_MAP;
-	}
-	
-	/**
-	 * Get the map of plugin factory names to plugin factories.
-	 * Load plugins if the map has not yet been initialized.
-	 */
-	private static HashMap<String, AnnotationProcessorFactory> getPluginFactoryMap() {
-		loadPluginFactories();
-		return PLUGIN_FACTORY_MAP;
+	public static FactoryPath getFactoryPath(IJavaProject jproj) {
+		Map<FactoryContainer, FactoryPath.Attributes> map = calculatePath(jproj);
+		FactoryPath fp = new FactoryPath();
+		fp.setContainers(map);
+		return fp;
 	}
 
-	/**
-	 * Discover and instantiate annotation processor factories by searching for plugins
-	 * which contribute to org.eclipse.jdt.apt.core.annotationProcessorFactory.
-	 * The first time this method is called, it will load all the plugin factories.
-	 * Subsequent calls will be ignored.
-	 */
-	private static synchronized void loadPluginFactories() {
-		if (mapsInitialized) {
-			return;
-		}
-		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(
-				AptPlugin.PLUGIN_ID, // name of plugin that exposes this extension point
-				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
-
-		// Iterate over all declared extensions of this extension point.  
-		// A single plugin may extend the extension point more than once, although it's not recommended.
-		for (IExtension extension : extensionPoint.getExtensions())
-		{
-			// Iterate over the children of the extension to find one named "factories".
-			for(IConfigurationElement factories : extension.getConfigurationElements())
-			{
-				if (!"factories".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement 
-					continue;
-				}
-				
-				// Get enableDefault.  If the attribute is missing, default to true.
-				String enableDefaultStr = factories.getAttribute("enableDefault"); //$NON-NLS-1$
-				boolean enableDefault = true;
-				if ("false".equals(enableDefaultStr)) { //$NON-NLS-1$
-					enableDefault = false;
-				}
-				
-				// Create and cache a PluginFactoryContainer for this plugin.
-				String pluginId = extension.getNamespaceIdentifier();
-				PluginFactoryContainer pfc = new PluginFactoryContainer(pluginId, enableDefault);
-				PLUGIN_CONTAINER_MAP.put(pluginId, pfc);
-				
-				// Iterate over the children of the "factories" element to find all the ones named "factory".
-				for (IConfigurationElement factory : factories.getChildren()) {
-					if (!"factory".equals(factory.getName())) { //$NON-NLS-1$
-						continue;
-					}
-					try {
-						Object execExt = factory.createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
-						if (execExt instanceof AnnotationProcessorFactory){
-							String factoryName = execExt.getClass().getName();
-							PLUGIN_FACTORY_MAP.put( factoryName, (AnnotationProcessorFactory)execExt );
-							pfc.addFactoryName(factoryName);
-						}
-					} catch(CoreException e) {
-						AptPlugin.log(e, "Unable to load annotation factory from plug-in"); //$NON-NLS-1$
-					}
-				}
-			}
-		}
-		mapsInitialized = true;
+	public static void setFactoryPath(IJavaProject jproj, FactoryPath path) 
+			throws CoreException {
+		Map<FactoryContainer, FactoryPath.Attributes> map = (path != null) ?
+				path.getAllContainers() : null;
+		saveFactoryPathFile(jproj, map);
 	}
+	
 
 }

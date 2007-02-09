@@ -12,6 +12,7 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import java.io.IOException;
+import java.util.Map.Entry;
 
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
@@ -100,8 +101,10 @@ public class AdvancedFactoryPathOptionsDialog extends Dialog {
         _contentsField.getList().setLayoutData(data);
         _contentsField.getList().setFont(parent.getFont());
         try {
-	        for (String name : _fc.getFactoryNames()) {
+	        for (Entry<String, String> entry : _fc.getFactoryNames().entrySet()) {
+	        	String name = entry.getKey();
 	        	_contentsField.add(name);
+	        	//TODO: display the processor type (i.e., entry.getValue())
 	        }
         }
         catch (IOException e) {

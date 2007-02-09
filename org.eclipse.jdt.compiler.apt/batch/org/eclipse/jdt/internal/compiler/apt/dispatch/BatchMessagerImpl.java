@@ -37,8 +37,7 @@ public class BatchMessagerImpl implements Messager {
 	 */
 	@Override
 	public void printMessage(Kind kind, CharSequence msg) {
-		// TODO Auto-generated method stub
-		System.err.println("APT says: " + kind + " " + msg);
+		printMessage(kind, msg, null, null, null);
 	}
 
 	/* (non-Javadoc)
@@ -46,9 +45,7 @@ public class BatchMessagerImpl implements Messager {
 	 */
 	@Override
 	public void printMessage(Kind kind, CharSequence msg, Element e) {
-		// TODO Auto-generated method stub
-		System.err.println("APT says: " + kind + " " + msg + " on element " + e);
-
+		printMessage(kind, msg, e, null, null);
 	}
 
 	/* (non-Javadoc)
@@ -57,9 +54,7 @@ public class BatchMessagerImpl implements Messager {
 	@Override
 	public void printMessage(Kind kind, CharSequence msg, Element e,
 			AnnotationMirror a) {
-		// TODO Auto-generated method stub
-		System.err.println("APT says: " + kind + " " + msg + " on element " + e + 
-				" at annotation " + a);
+		printMessage(kind, msg, e, a, null);
 
 	}
 
@@ -70,8 +65,30 @@ public class BatchMessagerImpl implements Messager {
 	public void printMessage(Kind kind, CharSequence msg, Element e,
 			AnnotationMirror a, AnnotationValue v) {
 		// TODO Auto-generated method stub
-		System.err.println("APT says: " + kind + " " + msg + " on element " + e + 
-				" at annotation " + a + " on value " + v);
+		StringBuilder sb = new StringBuilder();
+		final String space = " "; //$NON-NLS-1$
+		sb.append("APT says:"); //$NON-NLS-1$
+		if (kind != null) {
+			sb.append(space);
+			sb.append(kind);
+		}
+		if (msg != null) {
+			sb.append(space);
+			sb.append(msg);
+		}
+		if (e != null) {
+			sb.append(" on element "); //$NON-NLS-1$
+			sb.append(e);
+		}
+		if (a != null) {
+			sb.append(" at annotation "); //$NON-NLS-1$
+			sb.append(a);
+		}
+		if (v != null) {
+			sb.append(" on value "); //$NON-NLS-1$
+			sb.append(v);
+		}
+		System.err.println(sb.toString());
 
 	}
 

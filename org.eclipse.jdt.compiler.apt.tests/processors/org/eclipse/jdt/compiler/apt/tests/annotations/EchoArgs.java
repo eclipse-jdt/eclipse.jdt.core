@@ -10,7 +10,7 @@
  *    
  *******************************************************************************/
 
-package anno;
+package org.eclipse.jdt.compiler.apt.tests.annotations;
 
 /**
  * @see proc.dispatch.ArgsTestProc

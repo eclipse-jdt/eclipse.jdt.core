@@ -129,7 +129,7 @@ public class ElementsImpl implements Elements {
 		LookupEnvironment le = _env.getLookupEnvironment();
 		//TODO: do this the right way - this is a hack to test if it works
 		String qname = name.toString();
-		String parts[] = qname.split("\\.");
+		String parts[] = qname.split("\\."); //$NON-NLS-1$
 		char[][] compoundName = new char[parts.length][];
 		int i = 0;
 		for (String part : parts) {

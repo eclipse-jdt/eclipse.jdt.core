@@ -47,7 +47,7 @@ public class CompilerAptTests extends TestCase {
 	// class that generates another class, using processor for @Echo
 	protected static final String _echoSource = 
 			"package p;\n" +
-			"import anno.GenClass;\n" + 
+			"import org.eclipse.jdt.compiler.apt.tests.annotations.GenClass;\n" + 
 			"import gen.XGen;\n" +
 			"@GenClass(clazz=\"gen.XGen\", method=\"foo\")\n" +
 			"public class X {\n" +
@@ -57,15 +57,15 @@ public class CompilerAptTests extends TestCase {
 	// class that causes processor args to be echoed to stdout, using processor for @EchoArgs
 	protected static final String _echoArgsSource = 
 			"package p;\n" +
-			"import anno.EchoArgs;\n" + 
+			"import org.eclipse.jdt.compiler.apt.tests.annotations.EchoArgs;\n" + 
 			"@EchoArgs\n" +
 			"public class TestEchoArgs {\n" +
 			"}\n" ;
 	
 	private static final String _twoAnnotationsSource = 
 		"package p;\n" +
-		"import anno.EchoArgs;\n" + 
-		"import anno.GenClass;\n" + 
+		"import org.eclipse.jdt.compiler.apt.tests.annotations.EchoArgs;\n" + 
+		"import org.eclipse.jdt.compiler.apt.tests.annotations.GenClass;\n" + 
 		"import gen.XGen;\n" +
 		"@GenClass(clazz=\"gen.XGen\", method=\"foo\")\n" +
 		"@EchoArgs\n" +

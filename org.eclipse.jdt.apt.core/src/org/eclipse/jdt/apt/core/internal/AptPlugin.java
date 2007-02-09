@@ -59,15 +59,32 @@ public class AptPlugin extends Plugin {
 	
 	private static AptPlugin thePlugin = null; // singleton object
 	
+	/**
+	 * The javax.annotation.processing.Processor class, which is only available on Java 6 and higher.
+	 */
+	private static Class<?> _java6ProcessorClass;
+	
 	// Entries are added lazily in getAptProject(), and removed upon
 	// project deletion in deleteAptProject().
 	private static final Map<IJavaProject,AptProject> PROJECT_MAP = 
 		new HashMap<IJavaProject,AptProject>();
+
+	// Qualified names of services for which these containers may provide implementations
+	public static final String JAVA5_FACTORY_NAME = "com.sun.mirror.apt.AnnotationProcessorFactory"; //$NON-NLS-1$
+	public static final String JAVA6_FACTORY_NAME = "javax.annotation.processing.Processor"; //$NON-NLS-1$
 	
 	public void start(BundleContext context) throws Exception {
 		thePlugin = this;
 		super.start(context);
 		initDebugTracing();
+		// Do we have access to 
+		
+		try {
+			_java6ProcessorClass = Class.forName(JAVA6_FACTORY_NAME);
+		} catch (Throwable e) {
+			// ignore
+		}
+
 		AptConfig.initialize();
 		// DO NOT load extensions from the start() method. This can cause cycles in class loading
 		// Not to mention it is bad form to load stuff early.
@@ -200,6 +217,25 @@ public class AptPlugin extends Plugin {
 		synchronized (PROJECT_MAP) {
 			PROJECT_MAP.remove(javaProject);
 		}
+	}
+
+	/**
+	 * True if we are running on a platform that supports Java 6 annotation processing,
+	 * that is, if we are running on Java 6 or higher and the org.eclipse.jdt.compiler.apt
+	 * plug-in is also present.
+	 */
+	public static boolean canRunJava6Processors() {
+		if (_java6ProcessorClass == null)
+			return false;
+		return Platform.getBundle("org.eclipse.jdt.compiler.apt") != null; //$NON-NLS-1$
+	}
+	
+	/**
+	 * The javax.annotation.processing.Processor class.  This is only available on the
+	 * Java 6 or higher platform, so it is loaded via reflection in {@link #start}.
+	 */
+	public static Class<?> getJava6ProcessorClass() {
+		return _java6ProcessorClass;
 	}
 	
 }

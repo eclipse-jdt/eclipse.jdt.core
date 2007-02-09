@@ -1,2 +1,2 @@
-proc.genclass.GenClassProc
-proc.dispatch.ArgsTestProc
+org.eclipse.jdt.compiler.apt.tests.processors.proc.genclass.GenClassProc
+org.eclipse.jdt.compiler.apt.tests.processors.proc.dispatch.ArgsTestProc

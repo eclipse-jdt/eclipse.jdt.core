@@ -13,10 +13,12 @@
 package org.eclipse.jdt.apt.core.internal.util;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
 /**
- * An entity that contains annotation processor factories.
+ * An entry on the processor factory path.  Typically a jar, plug-in,
+ * etc. that contains annotation processors.  It may contain Java 5
+ * processors, Java 6 processors, both or neither. 
  */
 public abstract class FactoryContainer
 {
@@ -59,11 +61,20 @@ public abstract class FactoryContainer
 	 */
 	public abstract boolean exists();
 	
-	protected abstract List<String> loadFactoryNames() throws IOException;
+	/**
+	 * Subclasses must return a map of implementation name to service
+	 * name, for all the processor services this container provides.
+	 * @throws IOException
+	 */
+	protected abstract Map<String, String> loadFactoryNames() throws IOException;
 	
-	protected List<String> _factoryNames;
+	/**
+	 * Map of implementation name to service name.  For instance,
+	 * "org.xyz.FooProcessor" -> "javax.annotation.processing.Processor".
+	 */
+	protected Map<String, String> _factoryNames;
 	
-	public List<String> getFactoryNames() throws IOException
+	public Map<String, String> getFactoryNames() throws IOException
 	{ 
 		if ( _factoryNames == null )
 			_factoryNames = loadFactoryNames();

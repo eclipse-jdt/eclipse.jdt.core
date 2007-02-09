@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2005, 2007 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.util.List;
@@ -10,12 +20,13 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 public class ExecutableElementImpl extends ElementImpl implements
 		ExecutableElement {
 	
 	private Name _name = null;
-
+	
 	@Override
 	public Name getSimpleName() {
 		MethodBinding binding = (MethodBinding)_binding;
@@ -37,6 +48,18 @@ public class ExecutableElementImpl extends ElementImpl implements
 	public AnnotationValue getDefaultValue() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getFileName()
+	 */
+	@Override
+	public String getFileName() {
+		ReferenceBinding dc = ((MethodBinding)_binding).declaringClass;
+		char[] name = dc.getFileName();
+		if (name == null)
+			return null;
+		return new String(name);
 	}
 
 	public List<? extends VariableElement> getParameters() {

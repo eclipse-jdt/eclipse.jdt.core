@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2005, 2007 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.util.List;
@@ -23,6 +33,17 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	private TypeElementImpl(ReferenceBinding binding) {
 		super(binding);
 		// TODO Auto-generated constructor stub
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getFileName()
+	 */
+	@Override
+	public String getFileName() {
+		char[] name = ((ReferenceBinding)_binding).getFileName();
+		if (name == null)
+			return null;
+		return new String(name);
 	}
 	
 	protected ReferenceBinding getReferenceBinding() {

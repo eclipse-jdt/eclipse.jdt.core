@@ -16,8 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -49,7 +49,7 @@ public abstract class JarFactoryContainer extends FactoryContainer
 	}
 
 	@Override
-	protected List<String> loadFactoryNames() throws IOException { 
+	protected Map<String, String> loadFactoryNames() throws IOException { 
 		return getServiceClassnamesFromJar( getJarFile() );
 	}
 	
@@ -67,14 +67,15 @@ public abstract class JarFactoryContainer extends FactoryContainer
      * @param jar the jar file.
      * @return a list, possibly empty, of fully qualified classnames to be instantiated.
      */
-    protected static List<String> getServiceClassnamesFromJar(File jar) throws IOException
+    protected static Map<String, String> getServiceClassnamesFromJar(File jar) throws IOException
     {
-        List<String> classNames = new ArrayList<String>();
+        Map<String, String> classNames = new LinkedHashMap<String, String>();
         JarFile jarFile = null;
         try {
             jarFile = new JarFile(jar);
 
-            for (String providerName : AUTOLOAD_SERVICES) {
+            for (String serviceName : AUTOLOAD_SERVICES) {
+            	String providerName = "META-INF/services/" + serviceName; //$NON-NLS-1$
             	// Get the service provider def file out of the jar.
                 JarEntry provider = jarFile.getJarEntry(providerName);
                 if (provider == null) {
@@ -82,7 +83,7 @@ public abstract class JarFactoryContainer extends FactoryContainer
                 }
                 // Extract classnames from the service provider def file.
                 InputStream is = jarFile.getInputStream(provider);
-                readServiceProvider(is, classNames);
+                readServiceProvider(is, serviceName, classNames);
             }
         }
         finally {
@@ -97,7 +98,7 @@ public abstract class JarFactoryContainer extends FactoryContainer
      * definition file, e.g., one of the files named in AUTOLOAD_SERVICES.
      * @param classNames a list to which the classes named in is will be added.
      */
-    protected static void readServiceProvider(InputStream is, List<String> classNames) throws IOException {
+    protected static void readServiceProvider(InputStream is, String serviceName, Map<String, String> classNames) throws IOException {
     	BufferedReader rd = null;
     	try {
 	        rd = new BufferedReader(new InputStreamReader(is, "UTF-8")); //$NON-NLS-1$
@@ -110,7 +111,7 @@ public abstract class JarFactoryContainer extends FactoryContainer
 	            // add the first non-whitespace token to the list
 	            final String[] tokens = line.split("\\s", 2); //$NON-NLS-1$
 	            if (tokens[0].length() > 0) {
-	                classNames.add(tokens[0]);
+	                classNames.put(tokens[0], serviceName);
 	            }
 	        }
 	        rd.close();
@@ -120,9 +121,10 @@ public abstract class JarFactoryContainer extends FactoryContainer
     	}
     }
 	
-    /** List of jar file entries that specify autoloadable service providers */
+    /** List of jar file entries within META-INF/services that specify autoloadable service providers */
     private static final String[] AUTOLOAD_SERVICES = {
-        "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory" //$NON-NLS-1$
+        AptPlugin.JAVA5_FACTORY_NAME,
+        AptPlugin.JAVA6_FACTORY_NAME
     };
 	
 }

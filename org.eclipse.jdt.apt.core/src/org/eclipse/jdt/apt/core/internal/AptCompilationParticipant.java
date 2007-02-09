@@ -150,7 +150,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 				_processedFiles.add(file.getFile());
 		
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories =
-				AnnotationProcessorFactoryLoader.getLoader().getFactoriesAndAttributesForProject(javaProject);
+				AnnotationProcessorFactoryLoader.getLoader().getJava5FactoriesAndAttributesForProject(javaProject);
 			
 			AptProject aptProject = AptPlugin.getAptProject(javaProject);			
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories = 
@@ -181,7 +181,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 			AptProject aptProject = AptPlugin.getAptProject(javaProject);
 			
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = 
-				AnnotationProcessorFactoryLoader.getLoader().getFactoriesAndAttributesForProject( javaProject );
+				AnnotationProcessorFactoryLoader.getLoader().getJava5FactoriesAndAttributesForProject( javaProject );
 			APTDispatchRunnable.runAPTDuringReconcile(context, aptProject, factories);
 		}
 		catch ( Throwable t )

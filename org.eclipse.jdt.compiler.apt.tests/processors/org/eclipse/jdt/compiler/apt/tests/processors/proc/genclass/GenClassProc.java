@@ -9,7 +9,7 @@
  *    wharley@bea.com - initial API and implementation
  *    
  *******************************************************************************/
-package proc.genclass;
+package org.eclipse.jdt.compiler.apt.tests.processors.proc.genclass;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,7 +34,7 @@ import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
-@SupportedAnnotationTypes("anno.GenClass")
+@SupportedAnnotationTypes("org.eclipse.jdt.compiler.apt.tests.annotations.GenClass")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class GenClassProc extends AbstractProcessor {
 
@@ -49,7 +49,7 @@ public class GenClassProc extends AbstractProcessor {
 		_filer = processingEnv.getFiler();
 		_messager = processingEnv.getMessager();
 		_elementUtil = processingEnv.getElementUtils();
-		_annoDecl = _elementUtil.getTypeElement("anno.GenClass");
+		_annoDecl = _elementUtil.getTypeElement("org.eclipse.jdt.compiler.apt.tests.annotations.GenClass");
 		
 		//System.out.println("Processor options are: ");
 		//for (Map.Entry<String, String> option : processingEnv.getOptions().entrySet()) {
@@ -106,7 +106,7 @@ public class GenClassProc extends AbstractProcessor {
 			}
 			
 			if (null != clazz && null != method)
-				createSourceFile(clazz, method);
+				createSourceFile(d, clazz, method);
 		}
 		return true;
 	}
@@ -114,11 +114,12 @@ public class GenClassProc extends AbstractProcessor {
 	/**
 	 * Create a source file named 'name', with contents
 	 * that reflect 'method' and 'name'.
+	 * @param parent the parent element
 	 * @param clazz a fully qualified classname
 	 * @param method the name of a method that will be
 	 * added to the class
 	 */
-	private void createSourceFile(String clazz, String method) {
+	private void createSourceFile(Element parent, String clazz, String method) {
 		int lastDot = clazz.lastIndexOf('.');
 		if (lastDot <= 0 || clazz.length() == lastDot)
 			return;
@@ -127,7 +128,7 @@ public class GenClassProc extends AbstractProcessor {
 		Writer w = null;
 		PrintWriter pw = null;
 		try {
-			JavaFileObject jfo = _filer.createSourceFile(clazz);
+			JavaFileObject jfo = _filer.createSourceFile(clazz, parent);
 			w = jfo.openWriter();
 			pw = new PrintWriter(w);
 			pw.println("package " + pkg + ";");

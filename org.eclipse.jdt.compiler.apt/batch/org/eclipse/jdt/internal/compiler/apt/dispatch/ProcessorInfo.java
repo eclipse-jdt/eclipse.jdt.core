@@ -63,9 +63,9 @@ public class ProcessorInfo {
 			Iterator<String> iName = supportedAnnotationTypes.iterator();
 			while (true) {
 				String name = iName.next();
-				supportsStar |= "*".equals(name); 
-				String escapedName1 = name.replace(".", "\\.");
-				String escapedName2 = escapedName1.replace("*", ".*");
+				supportsStar |= "*".equals(name);  //$NON-NLS-1$
+				String escapedName1 = name.replace(".", "\\."); //$NON-NLS-1$ //$NON-NLS-2$
+				String escapedName2 = escapedName1.replace("*", ".*"); //$NON-NLS-1$ //$NON-NLS-2$
 				regex.append(escapedName2);
 				if (!iName.hasNext()) {
 					break;

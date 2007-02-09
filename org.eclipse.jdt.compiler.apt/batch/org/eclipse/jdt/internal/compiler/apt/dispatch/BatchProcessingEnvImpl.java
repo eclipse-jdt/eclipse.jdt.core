@@ -81,18 +81,18 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 	private Map<String, String> parseProcessorOptions(String[] args) {
 		Map<String, String> options = new LinkedHashMap<String, String>();
 		for (String arg : args) {
-			if (!arg.startsWith("-A")) {
+			if (!arg.startsWith("-A")) { //$NON-NLS-1$
 				continue;
 			}
 			int equals = arg.indexOf('=');
 			if (equals == 2) {
 				// option begins "-A=" - not valid
-				Exception e = new IllegalArgumentException("-A option must have a key before the equals sign");
+				Exception e = new IllegalArgumentException("-A option must have a key before the equals sign"); //$NON-NLS-1$
 				throw new AbortCompilation(null, e);
 			}
 			if (equals == arg.length() - 1) {
 				// option ends with "=" - not valid
-				Exception e = new IllegalArgumentException("-A option must not end with an equals sign");
+				Exception e = new IllegalArgumentException("-A option must not end with an equals sign"); //$NON-NLS-1$
 				throw new AbortCompilation(null, e);
 			}
 			

@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.FactoryPluginManager;
 import org.eclipse.jdt.apt.core.util.IFactoryPath;
 
 /**
@@ -147,7 +148,7 @@ public class FactoryPath implements IFactoryPath {
 	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#enablePlugin(java.lang.String)
 	 */
 	public void enablePlugin(String pluginId) throws CoreException {
-		FactoryContainer fc = FactoryPathUtil.getPluginFactoryContainer(pluginId);
+		FactoryContainer fc = FactoryPluginManager.getPluginFactoryContainer(pluginId);
 		Attributes a = _path.get(fc);
 		if (a == null) {
 			Status status = AptPlugin.createWarningStatus(new IllegalArgumentException(), 
@@ -162,7 +163,7 @@ public class FactoryPath implements IFactoryPath {
 	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#disablePlugin(java.lang.String)
 	 */
 	public void disablePlugin(String pluginId) {
-		FactoryContainer fc = FactoryPathUtil.getPluginFactoryContainer(pluginId);
+		FactoryContainer fc = FactoryPluginManager.getPluginFactoryContainer(pluginId);
 		Attributes a = _path.get(fc);
 		if (a != null) {
 			a.setEnabled(false);

@@ -13,6 +13,7 @@ package org.eclipse.jdt.apt.core.internal.env;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collections;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.env.Phase;
@@ -60,7 +61,7 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	        }
 	        else if ( phase == Phase.BUILD)	{
 		        result = gfm.generateFileDuringBuild( 
-						_env.getFile(),  _typeName, contents, null /* progress monitor */ );
+						Collections.singletonList(_env.getFile()),  _typeName, contents, null /* progress monitor */ );
 	        }
 	        if (result != null) {
 	        	_env.addGeneratedSourceFile(result.getFile(), result.isModified());

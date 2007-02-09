@@ -36,7 +36,7 @@ public final class AptUtil {
 			final IJavaProject jproj) {
 		
 		AnnotationProcessorFactoryLoader loader = AnnotationProcessorFactoryLoader.getLoader();
-		List<AnnotationProcessorFactory> factories = loader.getFactoriesForProject( jproj );
+		List<AnnotationProcessorFactory> factories = loader.getJava5FactoriesForProject( jproj );
 		
 		for (AnnotationProcessorFactory factory : factories) {
 			Collection<String> supportedAnnos = factory.supportedAnnotationTypes();

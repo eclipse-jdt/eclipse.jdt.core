@@ -10,8 +10,9 @@
  *    
  *******************************************************************************/
 
-package proc.dispatch;
+package org.eclipse.jdt.compiler.apt.tests.processors.proc.dispatch;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ import javax.lang.model.element.TypeElement;
 /**
  * A processor that echoes its command-line arguments to standard out.
  */
-@SupportedAnnotationTypes("anno.EchoArgs")
+@SupportedAnnotationTypes("org.eclipse.jdt.compiler.apt.tests.annotations.EchoArgs")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class ArgsTestProc extends AbstractProcessor {
 	
@@ -43,7 +44,8 @@ public class ArgsTestProc extends AbstractProcessor {
 		if (roundEnv.processingOver())
 			return true;
 		
-		Map<String, String> options = processingEnv.getOptions();
+		Map<String, String> options = new HashMap<String, String>(processingEnv.getOptions());
+		options.remove("phase");
 		if (_expected.length/2 != options.size()) {
 			throw new IllegalStateException(
 					"Bad processor arguments: expected " + _expected.length/2 +

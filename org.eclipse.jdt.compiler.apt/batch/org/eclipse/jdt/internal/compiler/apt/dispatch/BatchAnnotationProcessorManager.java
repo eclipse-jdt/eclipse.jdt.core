@@ -1,13 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2006 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    wharley@bea.com - initial API and implementation
- *    
+ *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
@@ -61,7 +60,7 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 	public void configure(Main batchCompiler, String[] commandLineArguments) {
 		if (null != _processingEnv) {
 			throw new IllegalStateException(
-					"Calling configure() more than once on an AnnotationProcessorManager is not supported");
+					"Calling configure() more than once on an AnnotationProcessorManager is not supported"); //$NON-NLS-1$
 		}
 		BatchProcessingEnvImpl processingEnv = new BatchProcessingEnvImpl(this, batchCompiler, commandLineArguments);
 		_processingEnv = processingEnv;
@@ -82,10 +81,10 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 		List<String> result = null;
 		for (int i = 0; i < commandLineArguments.length; ++i) {
 			String option = commandLineArguments[i];
-			if ("-processor".equals(option)) {
+			if ("-processor".equals(option)) { //$NON-NLS-1$
 				result = new ArrayList<String>();
 				String procs = commandLineArguments[++i];
-				for (String proc : procs.split(",")) {
+				for (String proc : procs.split(",")) { //$NON-NLS-1$
 					result.add(proc);
 				}
 				break;
@@ -159,7 +158,7 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 	@Override
 	public void setProcessors(Object[] processors) {
 		if (!_isFirstRound) {
-			throw new IllegalStateException("setProcessors() cannot be called after processing has begun");
+			throw new IllegalStateException("setProcessors() cannot be called after processing has begun"); //$NON-NLS-1$
 		}
 		// Cast all the processors here, rather than failing later.
 		// But don't call init() until the processor is actually needed.

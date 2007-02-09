@@ -24,6 +24,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.FactoryPluginManager;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
@@ -53,7 +54,7 @@ public class PreferencesTests extends APTTestBase {
 		FactoryPath.Attributes jarFPA1 = new FactoryPath.Attributes(true, false);
 		FactoryContainer jarFactory2 = FactoryPathUtil.newExtJarFactoryContainer(new File(JAR_PATH_2)); //$NON-NLS-1$
 		FactoryPath.Attributes jarFPA2 = new FactoryPath.Attributes(true, true);
-		FactoryContainer pluginFactory = FactoryPathUtil.getPluginFactoryContainer("org.eclipse.jdt.apt.tests"); //$NON-NLS-1$
+		FactoryContainer pluginFactory = FactoryPluginManager.getPluginFactoryContainer("org.eclipse.jdt.apt.tests"); //$NON-NLS-1$
 		FactoryPath.Attributes pluginFPA = new FactoryPath.Attributes(false, false);
 		factories.put(jarFactory1, jarFPA1);
 		factories.put(jarFactory2, jarFPA2);

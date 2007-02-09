@@ -168,7 +168,7 @@ public class HookedJavaFileObject extends
 		}
 		@Override
 		public String toString() {
-			return "ForwardingOutputStream wrapping " + _os.toString();
+			return "ForwardingOutputStream wrapping " + _os.toString(); //$NON-NLS-1$
 		}
 	}
 	
