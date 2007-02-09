@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 238 };
+//		TESTS_NUMBERS = new int[] { 242, 243 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -7660,5 +7660,57 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IVariableBinding[] variableBindings = typeBinding.getDeclaredFields();
 		assertNotNull("No variable bindings", variableBindings);
 		assertEquals("wrong size", 0, variableBindings.length);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=107001
+	 */
+	public void _test0240() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X<T> {}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		ITypeBinding[] typeParameters = typeBinding.getTypeParameters();
+		assertEquals("Wrong size", 1, typeParameters.length);
+		ITypeBinding typeParameter = typeParameters[0];
+		assertTrue("Not a type variable", typeParameter.isTypeVariable());
+		assertEquals("Wrong binary name", "X$T", typeParameter.getBinaryName());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=107001
+	 */
+	public void _test0241() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X<T> {}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		ITypeBinding[] typeParameters = typeBinding.getTypeParameters();
+		assertEquals("Wrong size", 1, typeParameters.length);
+		ITypeBinding typeParameter = typeParameters[0];
+		assertTrue("Not a type variable", typeParameter.isTypeVariable());
+		assertEquals("Wrong binary name", "X$T", typeParameter.getBinaryName());
 	}
 }
