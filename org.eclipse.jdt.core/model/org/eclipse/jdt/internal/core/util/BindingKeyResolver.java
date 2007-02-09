@@ -472,7 +472,11 @@ public class BindingKeyResolver extends BindingKeyParser {
 		TypeBinding[] arguments = new TypeBinding[size];
 		for (int i = 0; i < size; i++) {
 			BindingKeyResolver resolver = (BindingKeyResolver) this.types.get(i);
-			arguments[i] = (TypeBinding) resolver.compilerBinding;
+			TypeBinding compilerBinding2 = (TypeBinding) resolver.compilerBinding;
+			if (compilerBinding2 == null) {
+				throw new IllegalArgumentException();
+			}
+			arguments[i] = compilerBinding2;
 		}
 		this.types = new ArrayList();
 		return arguments;

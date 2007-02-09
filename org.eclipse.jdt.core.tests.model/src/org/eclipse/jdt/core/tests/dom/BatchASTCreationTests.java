@@ -1998,7 +1998,7 @@ public void test080() throws CoreException, IOException {
 		deleteProject(projectName);
 	}
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152060
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=115529
 public void test081() throws CoreException, IOException {
 	final String projectName = "P081";
 	try {
@@ -2027,7 +2027,7 @@ public void test081() throws CoreException, IOException {
 		deleteProject(projectName);
 	}
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152060
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=115529
 public void test082() throws CoreException, IOException {
 	final String projectName = "P082";
 	try {

@@ -530,71 +530,75 @@ public class BindingKeyParser {
 	}
 
 	public void parse(boolean pauseAfterFullyQualifiedName) {
-		if (!this.parsingPaused) {
-			// fully qualified name
-			parseFullyQualifiedName();
-			if (pauseAfterFullyQualifiedName) {
-				this.parsingPaused = true;
+		try {
+			if (!this.parsingPaused) {
+				// fully qualified name
+				parseFullyQualifiedName();
+				if (pauseAfterFullyQualifiedName) {
+					this.parsingPaused = true;
+					return;
+				}
+			}
+			if (!hasTypeName()) {
+				consumeKey();
 				return;
 			}
-		}
-		if (!hasTypeName()) {
-			consumeKey();
-			return;
-		}
-		consumeTopLevelType();
-		parseSecondaryType();
-		parseInnerType();
-		
-		if (this.scanner.isAtParametersStart()) {
-			this.scanner.skipParametersStart();
-			if (this.scanner.isAtTypeParameterStart())	{		
-				// generic type
-				parseGenericType();
-			 	// skip ";>"
-			 	this.scanner.skipParametersEnd();
-				// local type in generic type
-				parseInnerType();
-			} else if (this.scanner.isAtTypeArgumentStart())
-				// parameterized type
-				parseParameterizedType(null/*top level type or member type with raw enclosing type*/, false/*no raw*/);
-			else if (this.scanner.isAtRawTypeEnd())
-				// raw type
-				parseRawType();
-		} else {
-			// non-generic type
-			consumeNonGenericType();
-		}
-		
-		consumeType();
-		this.scanner.skipTypeEnd();
-		
-		if (this.scanner.isAtFieldOrMethodStart()) {
-			switch (this.scanner.nextToken()) {
- 				case Scanner.FIELD:
- 					parseField();
- 					return;
- 				case Scanner.METHOD:
- 					parseMethod();
- 					if (this.scanner.isAtLocalVariableStart()) {
- 						parseLocalVariable();
- 					} else if (this.scanner.isAtTypeVariableStart()) {
-						parseTypeVariable();
-					}
-			 		break;
- 				default:
- 					malformedKey();
- 					return;
+			consumeTopLevelType();
+			parseSecondaryType();
+			parseInnerType();
+			
+			if (this.scanner.isAtParametersStart()) {
+				this.scanner.skipParametersStart();
+				if (this.scanner.isAtTypeParameterStart())	{		
+					// generic type
+					parseGenericType();
+				 	// skip ";>"
+				 	this.scanner.skipParametersEnd();
+					// local type in generic type
+					parseInnerType();
+				} else if (this.scanner.isAtTypeArgumentStart())
+					// parameterized type
+					parseParameterizedType(null/*top level type or member type with raw enclosing type*/, false/*no raw*/);
+				else if (this.scanner.isAtRawTypeEnd())
+					// raw type
+					parseRawType();
+			} else {
+				// non-generic type
+				consumeNonGenericType();
 			}
-		} else if (this.scanner.isAtTypeVariableStart()) {
-			parseTypeVariable();
-		} else if (this.scanner.isAtWildcardStart()) {
-			parseWildcard();
-		} else if (this.scanner.isAtTypeWithCaptureStart()) {
-			parseTypeWithCapture();
+			
+			consumeType();
+			this.scanner.skipTypeEnd();
+			
+			if (this.scanner.isAtFieldOrMethodStart()) {
+				switch (this.scanner.nextToken()) {
+					case Scanner.FIELD:
+						parseField();
+						return;
+					case Scanner.METHOD:
+						parseMethod();
+						if (this.scanner.isAtLocalVariableStart()) {
+							parseLocalVariable();
+						} else if (this.scanner.isAtTypeVariableStart()) {
+							parseTypeVariable();
+						}
+				 		break;
+					default:
+						malformedKey();
+						return;
+				}
+			} else if (this.scanner.isAtTypeVariableStart()) {
+				parseTypeVariable();
+			} else if (this.scanner.isAtWildcardStart()) {
+				parseWildcard();
+			} else if (this.scanner.isAtTypeWithCaptureStart()) {
+				parseTypeWithCapture();
+			}
+			
+			consumeKey();
+		} catch (IllegalArgumentException e) {
+			// the given key was illegal
 		}
-		
-		consumeKey();
 	}
 	
 	private void parseFullyQualifiedName() {
