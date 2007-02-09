@@ -64,7 +64,7 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 	 * @see org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager#configureFromPlatform(org.eclipse.jdt.internal.compiler.Compiler, java.lang.Object)
 	 */
 	@Override
-	public void configureFromPlatform(Compiler compiler, Object javaProject) {
+	public void configureFromPlatform(Compiler compiler, Object compilationUnitLocator, Object javaProject) {
 		// Implemented by IdeAnnotationProcessorManager.
 		throw new UnsupportedOperationException();
 	}
