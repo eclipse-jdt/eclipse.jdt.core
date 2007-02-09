@@ -179,10 +179,10 @@ class VariableBinding implements IVariableBinding {
 	 * @see IVariableBinding#getType()
 	 */
 	public ITypeBinding getType() {
-		if (type == null) {
-			type = this.resolver.getTypeBinding(this.binding.type);
+		if (this.type == null) {
+			this.type = this.resolver.getTypeBinding(this.binding.type);
 		}
-		return type;
+		return this.type;
 	}
 
 	private JavaElement getUnresolvedJavaElement() {

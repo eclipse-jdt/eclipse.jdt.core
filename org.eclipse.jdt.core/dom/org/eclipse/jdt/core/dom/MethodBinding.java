@@ -52,6 +52,8 @@ class MethodBinding implements IMethodBinding {
 	private String key;
 	private ITypeBinding[] typeParameters;
 	private ITypeBinding[] typeArguments;
+	private IAnnotationBinding[] annotations;
+	private IAnnotationBinding[] parameterAnnotations;
 	
 	MethodBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding) {
 		this.resolver = resolver;
@@ -102,20 +104,24 @@ class MethodBinding implements IMethodBinding {
 		return name;
 	}
 
-	public IAnnotationBinding[] getAnnotations() { 
-		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annotations = this.binding.getAnnotations();
-		int length;
-		if (annotations == null || (length = annotations.length) == 0)
-			return AnnotationBinding.NoAnnotations;
+	public IAnnotationBinding[] getAnnotations() {
+		if (this.annotations != null) {
+			return this.annotations;
+		}
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annots = this.binding.getAnnotations();
+		int length = annots == null ? 0 : annots.length;
+		if (length == 0) {
+			return this.annotations = AnnotationBinding.NoAnnotations;
+		}
 		IAnnotationBinding[] domInstances = new AnnotationBinding[length];
 		for (int i = 0; i < length; i++) {
-			final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(annotations[i]);
+			final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(annots[i]);
 			if (annotationInstance == null) {
-				return AnnotationBinding.NoAnnotations;
+				return this.annotations = AnnotationBinding.NoAnnotations;
 			}
 			domInstances[i] = annotationInstance;
 		}
-		return domInstances; 
+		return this.annotations = domInstances; 
 	}
 
 	/**
@@ -129,19 +135,23 @@ class MethodBinding implements IMethodBinding {
 	}
 
 	public IAnnotationBinding[] getParameterAnnotations(int index) {
-		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annotations = this.binding.getParameterAnnotations(index);
-		int length;
-		if (annotations == null || (length = annotations.length) == 0)
-			return AnnotationBinding.NoAnnotations;
+		if (this.parameterAnnotations != null) {
+			return this.parameterAnnotations;
+		}
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annots = this.binding.getParameterAnnotations(index);
+		int length = annots == null ? 0 : annots.length;
+		if (length == 0) {
+			return this.parameterAnnotations = AnnotationBinding.NoAnnotations;
+		}
 		IAnnotationBinding[] domInstances =new AnnotationBinding[length];
 		for (int i = 0; i < length; i++) {
-			final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(annotations[i]);
+			final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(annots[i]);
 			if (annotationInstance == null) {
-				return AnnotationBinding.NoAnnotations;
+				return this.parameterAnnotations = AnnotationBinding.NoAnnotations;
 			}
 			domInstances[i] = annotationInstance;
 		}
-		return domInstances; 
+		return this.parameterAnnotations = domInstances; 
 	}
 
 	/**
@@ -152,11 +162,11 @@ class MethodBinding implements IMethodBinding {
 			return parameterTypes;
 		}
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] parameters = this.binding.parameters;
-		int length = parameters.length;
+		int length = parameters == null ? 0 : parameters.length;
 		if (length == 0) {
-			this.parameterTypes = NO_TYPE_BINDINGS;
+			return this.parameterTypes = NO_TYPE_BINDINGS;
 		} else {
-			this.parameterTypes = new ITypeBinding[length];
+			ITypeBinding[] paramTypes = new ITypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				final TypeBinding parameterBinding = parameters[i];
 				if (parameterBinding != null) {
@@ -164,7 +174,7 @@ class MethodBinding implements IMethodBinding {
 					if (typeBinding == null) {
 						return this.parameterTypes = NO_TYPE_BINDINGS;
 					}
-					this.parameterTypes[i] = typeBinding;
+					paramTypes[i] = typeBinding;
 				} else {
 					// log error
 					StringBuffer message = new StringBuffer("Report method binding where a parameter is null:\n");  //$NON-NLS-1$
@@ -174,8 +184,8 @@ class MethodBinding implements IMethodBinding {
 					return this.parameterTypes = NO_TYPE_BINDINGS;
 				}
 			}
+			return this.parameterTypes = paramTypes;
 		}
-		return this.parameterTypes;
 	}
 
 	/**
@@ -202,20 +212,19 @@ class MethodBinding implements IMethodBinding {
 			return exceptionTypes;
 		}
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] exceptions = this.binding.thrownExceptions;
-		int length = exceptions.length;
+		int length = exceptions == null ? 0 : exceptions.length;
 		if (length == 0) {
-			this.exceptionTypes = NO_TYPE_BINDINGS;
-		} else {
-			this.exceptionTypes = new ITypeBinding[length];
-			for (int i = 0; i < length; i++) {
-				ITypeBinding typeBinding = this.resolver.getTypeBinding(exceptions[i]);
-				if (typeBinding == null) {
-					return this.exceptionTypes = NO_TYPE_BINDINGS;
-				}
-				this.exceptionTypes[i] = typeBinding;
-			}
+			return this.exceptionTypes = NO_TYPE_BINDINGS;
 		}
-		return this.exceptionTypes;
+		ITypeBinding[] exTypes = new ITypeBinding[length];
+		for (int i = 0; i < length; i++) {
+			ITypeBinding typeBinding = this.resolver.getTypeBinding(exceptions[i]);
+			if (typeBinding == null) {
+				return this.exceptionTypes = NO_TYPE_BINDINGS;
+			}
+			exTypes[i] = typeBinding;
+		}
+		return this.exceptionTypes = exTypes;
 	}
 	
 	public IJavaElement getJavaElement() {
@@ -364,24 +373,19 @@ class MethodBinding implements IMethodBinding {
 			return this.typeParameters;
 		}
 		TypeVariableBinding[] typeVariableBindings = this.binding.typeVariables();
-		if (typeVariableBindings != null) {
-			int typeVariableBindingsLength = typeVariableBindings.length;
-			if (typeVariableBindingsLength != 0) {
-				this.typeParameters = new ITypeBinding[typeVariableBindingsLength];
-				for (int i = 0; i < typeVariableBindingsLength; i++) {
-					ITypeBinding typeBinding = this.resolver.getTypeBinding(typeVariableBindings[i]);
-					if (typeBinding == null) {
-						return this.typeParameters = NO_TYPE_BINDINGS;
-					}
-					typeParameters[i] = typeBinding;
-				}
-			} else {
-				this.typeParameters = NO_TYPE_BINDINGS;
-			}
-		} else {
-			this.typeParameters = NO_TYPE_BINDINGS;
+		int typeVariableBindingsLength = typeVariableBindings == null ? 0 : typeVariableBindings.length;
+		if (typeVariableBindingsLength == 0) {
+			return this.typeParameters = NO_TYPE_BINDINGS;
 		}
-		return this.typeParameters;
+		ITypeBinding[] tParameters = new ITypeBinding[typeVariableBindingsLength];
+		for (int i = 0; i < typeVariableBindingsLength; i++) {
+			ITypeBinding typeBinding = this.resolver.getTypeBinding(typeVariableBindings[i]);
+			if (typeBinding == null) {
+				return this.typeParameters = NO_TYPE_BINDINGS;
+			}
+			tParameters[i] = typeBinding;
+		}
+		return this.typeParameters = tParameters;
 	}
 
 	/**
@@ -408,27 +412,20 @@ class MethodBinding implements IMethodBinding {
 		if (this.binding instanceof ParameterizedGenericMethodBinding) {
 			ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) this.binding;
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] typeArgumentsBindings = genericMethodBinding.typeArguments;
-			if (typeArgumentsBindings != null) {
-				int typeArgumentsLength = typeArgumentsBindings.length;
-				if (typeArgumentsLength != 0) {
-					this.typeArguments = new ITypeBinding[typeArgumentsLength];
-					for (int i = 0; i < typeArgumentsLength; i++) {
-						ITypeBinding typeBinding = this.resolver.getTypeBinding(typeArgumentsBindings[i]);
-						if (typeBinding == null) {
-							return this.typeArguments = NO_TYPE_BINDINGS;
-						}
-						this.typeArguments[i] = typeBinding;
+			int typeArgumentsLength = typeArgumentsBindings == null ? 0 : typeArgumentsBindings.length;
+			if (typeArgumentsLength != 0) {
+				ITypeBinding[] tArguments = new ITypeBinding[typeArgumentsLength];
+				for (int i = 0; i < typeArgumentsLength; i++) {
+					ITypeBinding typeBinding = this.resolver.getTypeBinding(typeArgumentsBindings[i]);
+					if (typeBinding == null) {
+						return this.typeArguments = NO_TYPE_BINDINGS;
 					}
-				} else {
-					this.typeArguments = NO_TYPE_BINDINGS;
+					tArguments[i] = typeBinding;
 				}
-			} else {
-				this.typeArguments = NO_TYPE_BINDINGS;
+				return this.typeArguments = tArguments;
 			}
-		} else {
-			this.typeArguments = NO_TYPE_BINDINGS;
 		}
-		return this.typeArguments;
+		return this.typeArguments = NO_TYPE_BINDINGS;
 	}
 
 	/**
