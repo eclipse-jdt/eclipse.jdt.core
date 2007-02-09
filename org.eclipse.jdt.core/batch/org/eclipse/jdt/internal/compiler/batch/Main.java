@@ -72,7 +72,6 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class Main implements ProblemSeverities, SuffixConstants {
 
 	public static class Logger {
-		private static final String CATEGORY_ID = "categoryID"; //$NON-NLS-1$
 		private static final String CLASS = "class"; //$NON-NLS-1$
 		private static final String CLASS_FILE = "classfile"; //$NON-NLS-1$
 		private static final String CLASSPATH = "classpath"; //$NON-NLS-1$
@@ -108,6 +107,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String PROBLEM_ARGUMENT = "argument"; //$NON-NLS-1$
 		private static final String PROBLEM_ARGUMENT_VALUE = "value"; //$NON-NLS-1$
 		private static final String PROBLEM_ARGUMENTS = "arguments"; //$NON-NLS-1$
+		private static final String PROBLEM_CATEGORY_ID = "categoryID"; //$NON-NLS-1$
 		private static final String PROBLEM_ID = "id"; //$NON-NLS-1$
 		private static final String PROBLEM_LINE = "line"; //$NON-NLS-1$
 		private static final String PROBLEM_OPTION_KEY = "optionKey"; //$NON-NLS-1$
@@ -812,8 +812,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			final int sourceEnd = problem.getSourceEnd();
 			final int id = problem.getID();
 			this.parameters.put(Logger.PROBLEM_ID, getFieldName(id));
-			int severity = problem.isError() ? ProblemSeverities.Error : ProblemSeverities.Warning;
-			this.parameters.put(Logger.PROBLEM_SEVERITY, severity == ProblemSeverities.Error ? Logger.ERROR : Logger.WARNING);
+			boolean isError = problem.isError();
+			int severity = isError ? ProblemSeverities.Error : ProblemSeverities.Warning;
+			this.parameters.put(Logger.PROBLEM_SEVERITY, isError ? Logger.ERROR : Logger.WARNING);
 			this.parameters.put(Logger.PROBLEM_LINE, new Integer(problem.getSourceLineNumber()));
 			this.parameters.put(Logger.PROBLEM_SOURCE_START, new Integer(sourceStart));
 			this.parameters.put(Logger.PROBLEM_SOURCE_END, new Integer(sourceEnd));
@@ -822,7 +823,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.parameters.put(Logger.PROBLEM_OPTION_KEY, problemOptionKey);
 			}
 			int categoryID = ProblemReporter.getProblemCategory(severity, id);
-			this.parameters.put(Logger.CATEGORY_ID, new Integer(categoryID));
+			this.parameters.put(Logger.PROBLEM_CATEGORY_ID, new Integer(categoryID));
 			this.printTag(Logger.PROBLEM_TAG, this.parameters, true, false);
 			this.parameters.put(Logger.VALUE, problem.getMessage());
 			this.printTag(Logger.PROBLEM_MESSAGE, this.parameters, true, true);
@@ -854,7 +855,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			String problemOptionKey = getProblemOptionKey(problem.getID());
 			if (problemOptionKey != null) {
 				this.parameters.put(Logger.PROBLEM_OPTION_KEY, problemOptionKey);
-			}			
+			}
 			this.printTag(Logger.TASK, this.parameters, true, false);
 			this.parameters.put(Logger.VALUE, problem.getMessage());
 			this.printTag(Logger.PROBLEM_MESSAGE, this.parameters, true, true);

@@ -26,8 +26,6 @@
 <!ATTLIST argument value CDATA #REQUIRED>
 <!ATTLIST option key   CDATA #REQUIRED
 				 value CDATA #REQUIRED
-				 label CDATA #IMPLIED
-				 categoryID CDATA #IMPLIED
 >
 <!ATTLIST classpath path CDATA #REQUIRED
                     id   CDATA #REQUIRED
@@ -40,21 +38,23 @@
 				   warnings CDATA #REQUIRED
 >
 <!ATTLIST tasks tasks CDATA #REQUIRED>
-<!ATTLIST problem charEnd   CDATA #REQUIRED
-				  charStart CDATA #REQUIRED
-				  severity  CDATA #REQUIRED
-				  line      CDATA #REQUIRED
-				  id        CDATA #REQUIRED
-				  optionKey CDATA #IMPLIED
+<!ATTLIST problem charEnd    CDATA #REQUIRED
+				  charStart  CDATA #REQUIRED
+				  severity   CDATA #REQUIRED
+				  line       CDATA #REQUIRED
+				  id         CDATA #REQUIRED
+				  optionKey  CDATA #IMPLIED
+				  categoryID CDATA #IMPLIED
 >
 <!ATTLIST message value CDATA #REQUIRED>
 <!ATTLIST source_context value       CDATA #REQUIRED
                          sourceStart CDATA #REQUIRED
                          sourceEnd   CDATA #REQUIRED
 >
-<!ATTLIST task charEnd   CDATA #REQUIRED
-			  charStart CDATA #REQUIRED
-			  line      CDATA #REQUIRED
+<!ATTLIST task charEnd    CDATA #REQUIRED
+			   charStart  CDATA #REQUIRED
+			   line       CDATA #REQUIRED
+			   optionKey  CDATA #IMPLIED
 >
 <!ATTLIST classfile path CDATA #REQUIRED>
 <!ATTLIST error message CDATA #REQUIRED>
