@@ -184,55 +184,55 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 
 				DiagnosticListener<? super JavaFileObject> diagnosticListener = EclipseCompiler.this.diagnosticListener;
 				if (diagnosticListener != null) {
-    				diagnosticListener.report(new Diagnostic<JavaFileObject>() {
-    					public String getCode() {
-    						return Integer.toString(problemId);
-    					}
-    					public long getColumnNumber() {
-    						return columnNumber;
-    					}
-    					public long getEndPosition() {
-    						return endPosition;
-    					}
-    					public Kind getKind() {
-    						if ((severity & ProblemSeverities.Error) != 0) {
-    							return Diagnostic.Kind.ERROR;
-    						}
-    						if ((severity & ProblemSeverities.Optional) != 0) {
-    							return Diagnostic.Kind.WARNING;
-    						}
-    						if ((severity & ProblemSeverities.Warning) != 0) {
-    							return Diagnostic.Kind.MANDATORY_WARNING;
-    						}
-    						return Diagnostic.Kind.OTHER;
-    					}
-    					public long getLineNumber() {
-                        	return lineNumber;
-                        }
-                        public String getMessage(Locale locale) {
-                        	setLocale(locale);
-                        	return getLocalizedMessage(problemId, problemArguments);
-                        }
-                        public long getPosition() {
-                        	return startPosition;
-                        }
-                        public JavaFileObject getSource() {
-    						try {
-    							if (EclipseCompiler.this.fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
-        							return EclipseCompiler.this.fileManager.getJavaFileForInput(
-        									StandardLocation.SOURCE_PATH,
-        									new String(originatingFileName),
-        									JavaFileObject.Kind.SOURCE);
-    							}
-    						} catch (IOException e) {
-    							// ignore
-    						}
-    						return null;
-                        }
-                        public long getStartPosition() {
-    						return startPosition;
-    					}
-    				});
+					diagnosticListener.report(new Diagnostic<JavaFileObject>() {
+						public String getCode() {
+							return Integer.toString(problemId);
+						}
+						public long getColumnNumber() {
+							return columnNumber;
+						}
+						public long getEndPosition() {
+							return endPosition;
+						}
+						public Kind getKind() {
+							if ((severity & ProblemSeverities.Error) != 0) {
+								return Diagnostic.Kind.ERROR;
+							}
+							if ((severity & ProblemSeverities.Optional) != 0) {
+								return Diagnostic.Kind.WARNING;
+							}
+							if ((severity & ProblemSeverities.Warning) != 0) {
+								return Diagnostic.Kind.MANDATORY_WARNING;
+							}
+							return Diagnostic.Kind.OTHER;
+						}
+						public long getLineNumber() {
+							return lineNumber;
+						}
+						public String getMessage(Locale locale) {
+							setLocale(locale);
+							return getLocalizedMessage(problemId, problemArguments);
+						}
+						public long getPosition() {
+							return startPosition;
+						}
+						public JavaFileObject getSource() {
+							try {
+								if (EclipseCompiler.this.fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
+									return EclipseCompiler.this.fileManager.getJavaFileForInput(
+											StandardLocation.SOURCE_PATH,
+											new String(originatingFileName),
+											JavaFileObject.Kind.SOURCE);
+								}
+							} catch (IOException e) {
+								// ignore
+							}
+							return null;
+						}
+						public long getStartPosition() {
+							return startPosition;
+						}
+					});
 				}
 				return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
 			}
@@ -295,17 +295,17 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		ArrayList<String> allOptions = new ArrayList<String>();
 		if (options != null) {
     		for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
-    			this.fileManager.handleOption(iterator.next(), iterator);
-    		}
-    		for (String option : options) {
-    			allOptions.add(option);
-    		}
+				this.fileManager.handleOption(iterator.next(), iterator);
+			}
+			for (String option : options) {
+				allOptions.add(option);
+			}
 		}
 
 		if (compilationUnits != null) {
-    		for (JavaFileObject javaFileObject : compilationUnits) {
-    			allOptions.add(new File(javaFileObject.toUri()).getAbsolutePath());
-    		}
+			for (JavaFileObject javaFileObject : compilationUnits) {
+				allOptions.add(new File(javaFileObject.toUri()).getAbsolutePath());
+			}
 		}
 
 		final String[] optionsToProcess = new String[allOptions.size()];
@@ -327,47 +327,47 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 
 		return new CompilationTask() {
 			private boolean hasRun = false;
-    		public Boolean call() {
-    			// set up compiler with passed options
-    			if (this.hasRun) {
-    				throw new IllegalStateException("This task has already been run"); //$NON-NLS-1$
-    			}
-    			Boolean value = EclipseCompiler.this.call() ? Boolean.TRUE : Boolean.FALSE;
-    			this.hasRun = true;
+			public Boolean call() {
+				// set up compiler with passed options
+				if (this.hasRun) {
+					throw new IllegalStateException("This task has already been run"); //$NON-NLS-1$
+				}
+				Boolean value = EclipseCompiler.this.call() ? Boolean.TRUE : Boolean.FALSE;
+				this.hasRun = true;
 				return value;
-    		}
-    		public void setLocale(Locale locale) {
-    			EclipseCompiler.this.setLocale(locale);
-    		}
-    		public void setProcessors(Iterable<? extends Processor> processors) {
-    			ArrayList<Processor> temp = new ArrayList<Processor>();
-    			for (Processor processor : processors) {
-    				temp.add(processor);
-    			}
-    			Processor[] processors2 = new Processor[temp.size()];
-    			temp.toArray(processors2);
-    			EclipseCompiler.this.processors = processors2;
+			}
+			public void setLocale(Locale locale) {
+				EclipseCompiler.this.setLocale(locale);
+			}
+			public void setProcessors(Iterable<? extends Processor> processors) {
+				ArrayList<Processor> temp = new ArrayList<Processor>();
+				for (Processor processor : processors) {
+					temp.add(processor);
+				}
+				Processor[] processors2 = new Processor[temp.size()];
+				temp.toArray(processors2);
+				EclipseCompiler.this.processors = processors2;
     		}
 		};
 	}
 
-    @Override
+	@Override
 	@SuppressWarnings("unchecked")
-    protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions) {
-    	super.initialize(outWriter, errWriter, systemExit, customDefaultOptions);
+	protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions) {
+		super.initialize(outWriter, errWriter, systemExit, customDefaultOptions);
 		this.javaFileObjectMap = new HashMap<CompilationUnit, JavaFileObject>();
-    }
+	}
 
-    @Override
-    protected void initializeAnnotationProcessorManager() {
-    	super.initializeAnnotationProcessorManager();
-    	if (this.batchCompiler.annotationProcessorManager != null &&
-    			this.processors != null) {
-    		this.batchCompiler.annotationProcessorManager.setProcessors(this.processors);
-    	} else if (this.processors != null) {
-    		throw new UnsupportedOperationException("Cannot handle annotation processing"); //$NON-NLS-1$
-    	}
-    }
+	@Override
+	protected void initializeAnnotationProcessorManager() {
+		super.initializeAnnotationProcessorManager();
+		if (this.batchCompiler.annotationProcessorManager != null &&
+				this.processors != null) {
+			this.batchCompiler.annotationProcessorManager.setProcessors(this.processors);
+		} else if (this.processors != null) {
+			throw new UnsupportedOperationException("Cannot handle annotation processing"); //$NON-NLS-1$
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -417,22 +417,24 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 							JavaFileObject.Kind.CLASS,
 							this.javaFileObjectMap.get(unitResult.compilationUnit));
 
-    				if (generateClasspathStructure) {
-    					if (currentDestinationPath != null) {
-    						int index = CharOperation.lastIndexOf(File.separatorChar, relativeName);
-    						File currentFolder = new File(currentDestinationPath, relativeStringName.substring(0, index));
-    						currentFolder.mkdirs();
-    					} else {
-        					// create the subfolfers is necessary
-    						// need a way to retrieve the folders to create
-        					String path = javaFileForOutput.toUri().getPath();
-        					int index = path.lastIndexOf('/');
-        					if (index != -1) {
-        						File file = new File(path.substring(0, index));
-        						file.mkdirs();
-        					}
-    					}
-    				}
+					if (generateClasspathStructure) {
+						if (currentDestinationPath != null) {
+							int index = CharOperation.lastIndexOf(File.separatorChar, relativeName);
+							if (index != -1) {
+								File currentFolder = new File(currentDestinationPath, relativeStringName.substring(0, index));
+								currentFolder.mkdirs();
+							}
+						} else {
+							// create the subfolfers is necessary
+							// need a way to retrieve the folders to create
+							String path = javaFileForOutput.toUri().getPath();
+							int index = path.lastIndexOf('/');
+							if (index != -1) {
+								File file = new File(path.substring(0, index));
+								file.mkdirs();
+							}
+						}
+					}
 
 					OutputStream openOutputStream = javaFileForOutput.openOutputStream();
 					BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(openOutputStream);
@@ -498,16 +500,16 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		if (location != null) {
 			for (File file : location) {
 				fileSystemClasspaths.add(FileSystem.getClasspath(
-    				file.getAbsolutePath(),
-    				null,
-    				null));
+					file.getAbsolutePath(),
+					null,
+					null));
 			}
 		}
 		if (javaFileManager != null) {
-    		if ((javaFileManager.flags & EclipseFileManager.HAS_EXT_DIRS) == 0
-    				&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
-    			fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleExtdirs(null));
-    		}
+			if ((javaFileManager.flags & EclipseFileManager.HAS_EXT_DIRS) == 0
+					&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
+				fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleExtdirs(null));
+			}
 		}
 		if (standardJavaFileManager != null) {
 			location = standardJavaFileManager.getLocation(StandardLocation.SOURCE_PATH);
@@ -517,9 +519,9 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		if (location != null) {
 			for (File file : location) {
 				fileSystemClasspaths.add(FileSystem.getClasspath(
-    				file.getAbsolutePath(),
-    				null,
-    				null));
+					file.getAbsolutePath(),
+					null,
+					null));
 			}
 		}
 		if (standardJavaFileManager != null) {
@@ -530,9 +532,9 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		if (location != null) {
 			for (File file : location) {
 				fileSystemClasspaths.add(FileSystem.getClasspath(
-    				file.getAbsolutePath(),
-    				null,
-    				null));
+					file.getAbsolutePath(),
+					null,
+					null));
 			}
 		}
 		if (this.checkedClasspaths == null) {
@@ -541,11 +543,11 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		}
 		final int size = fileSystemClasspaths.size();
 		if (size != 0) {
-    		this.checkedClasspaths = new FileSystem.Classpath[size];
-    		int i = 0;
-    		for (FileSystem.Classpath classpath : fileSystemClasspaths) {
-    			this.checkedClasspaths[i++] = classpath;
-    		}
+			this.checkedClasspaths = new FileSystem.Classpath[size];
+			int i = 0;
+			for (FileSystem.Classpath classpath : fileSystemClasspaths) {
+				this.checkedClasspaths[i++] = classpath;
+			}
 		}
 	}
 }
