@@ -354,7 +354,6 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
             break;
         case ASTNode.SINGLE_VARIABLE_DECLARATION:
         	// Need to create the declaration with the ast node, not the binding
-            binding = null;
             break;
         case ASTNode.PACKAGE_DECLARATION:
             binding = ((org.eclipse.jdt.core.dom.PackageDeclaration)node).resolveBinding();

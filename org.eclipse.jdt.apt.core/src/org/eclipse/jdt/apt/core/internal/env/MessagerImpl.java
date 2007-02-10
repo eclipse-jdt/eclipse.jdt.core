@@ -220,8 +220,6 @@ public class MessagerImpl implements Messager, EclipseMessager
     		if( !resource.exists() )
     			resource = null;
     	}
-    	else
-    		resource = null;
     	 
     	int offset = -1;
     	if( resource != null ){

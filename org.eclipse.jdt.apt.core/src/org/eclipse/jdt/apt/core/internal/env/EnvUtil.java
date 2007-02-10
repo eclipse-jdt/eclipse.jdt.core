@@ -28,8 +28,8 @@ import org.eclipse.jdt.core.dom.SimpleName;
     	// we do it once just before we post the marker so we only have to walk the ast 
     	// once.
     	int count = 0;
+    	int[] classNameRange = null;
     	for(IProblem problem : problems ){
-    		int[] classNameRange = null;
 			if( problem.getSourceStart() < 0 ){
 				if( classNameRange == null )
 					classNameRange = getClassNameRange(astUnit);

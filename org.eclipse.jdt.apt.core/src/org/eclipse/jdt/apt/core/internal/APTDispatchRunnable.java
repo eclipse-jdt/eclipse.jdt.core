@@ -601,8 +601,8 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			// notify the processor listeners
 			final Set<AnnotationProcessorListener> listeners = processorEnv
 					.getProcessorListeners();
+			EclipseRoundCompleteEvent event = null;
 			for (AnnotationProcessorListener listener : listeners) {
-				EclipseRoundCompleteEvent event = null;
 				if (listener instanceof RoundCompleteListener) {
 					if (event == null)
 						event = new EclipseRoundCompleteEvent(processorEnv);

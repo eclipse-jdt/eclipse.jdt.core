@@ -242,9 +242,9 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     		final AbstractTypeDeclaration typeDecl, 
     		final List<MethodDeclaration> results){
     	final List bodyDecls = typeDecl.bodyDeclarations();
+    	IFile file = null; 
     	for( int i=0, len=bodyDecls.size(); i<len; i++ ){
     		final BodyDeclaration bodyDecl = (BodyDeclaration)bodyDecls.get(i);
-    		IFile file = null; 
     		switch(bodyDecl.getNodeType()){
     		case ASTNode.METHOD_DECLARATION:
     			final org.eclipse.jdt.core.dom.MethodDeclaration methodDecl = 

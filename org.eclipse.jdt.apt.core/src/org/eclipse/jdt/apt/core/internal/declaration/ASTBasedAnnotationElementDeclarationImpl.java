@@ -98,7 +98,7 @@ public class ASTBasedAnnotationElementDeclarationImpl
         }
         else{
         	final TypeMirror type = Factory.createTypeMirror(typeBinding, _env);
-            if(retType == null )
+            if(type == null )
                 return Factory.createErrorClassType(retType.toString());
             return type;
         }

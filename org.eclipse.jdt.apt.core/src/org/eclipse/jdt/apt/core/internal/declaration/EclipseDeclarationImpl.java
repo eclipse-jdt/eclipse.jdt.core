@@ -66,9 +66,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
         String annoTypeName = annotationClass.getName();
 		if( annoTypeName == null ) return null;
         annoTypeName = annoTypeName.replace('$', '.');
-		final int len = annoInstances == null ? 0 : annoInstances.length;
-        if( len == 0 ) return null;
-        for( IAnnotationBinding annoInstance :  annoInstances){
+		for( IAnnotationBinding annoInstance :  annoInstances){
         	if (annoInstance == null)
         		continue;
             final ITypeBinding binding = annoInstance.getAnnotationType();            
@@ -88,9 +86,9 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 
     Collection<AnnotationMirror> _getAnnotationMirrors(IAnnotationBinding[] annoInstances)
     {
-		final int len = annoInstances == null ? 0 : annoInstances.length;
-        if( len == 0 ) return Collections.emptyList();
-        final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(len);
+        if( annoInstances == null || annoInstances.length == 0 ) 
+        	return Collections.emptyList();
+        final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(annoInstances.length);
         for(IAnnotationBinding annoInstance : annoInstances){
         	if (annoInstance != null) {
 	            final AnnotationMirrorImpl annoMirror =
