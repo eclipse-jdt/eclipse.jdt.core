@@ -104,9 +104,9 @@ public class MirrorTestAnnotationProcessor extends BaseProcessor {
 		Collection<EnumDeclaration> enums = pkg.getEnums();
 		ProcessorTestStatus.assertEquals("Number of enums in java.util", 0, enums.size());
 		
-		TypeDeclaration dequeDecl = _env.getTypeDeclaration("java.util.Deque");
+		TypeDeclaration iteratorDecl = _env.getTypeDeclaration("java.util.Iterator");
 		Collection<InterfaceDeclaration> interfaces = pkg.getInterfaces();
-		ProcessorTestStatus.assertTrue("java.util contains Deque", interfaces.contains(dequeDecl));
+		ProcessorTestStatus.assertTrue("java.util contains Iterator", interfaces.contains(iteratorDecl));
 	}
 	
 	private void testDeclarationsUtil(TypeDeclaration typeDecl) {
