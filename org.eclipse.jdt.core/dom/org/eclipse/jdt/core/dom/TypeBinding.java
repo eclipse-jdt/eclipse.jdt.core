@@ -121,7 +121,34 @@ class TypeBinding implements ITypeBinding {
 	 * @since 3.0
 	 */
 	public String getBinaryName() {
-		char[] constantPoolName = this.binding.constantPoolName();
+		if (this.binding.isTypeVariable()) {
+			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+			org.eclipse.jdt.internal.compiler.lookup.Binding declaring = typeVariableBinding.declaringElement;
+			StringBuffer binaryName = new StringBuffer();
+			switch(declaring.kind()) {
+				case org.eclipse.jdt.internal.compiler.lookup.Binding.METHOD :
+					MethodBinding methodBinding = (MethodBinding) declaring;
+					char[] constantPoolName = methodBinding.declaringClass.constantPoolName();
+					if (constantPoolName == null) return null;
+					binaryName
+						.append(CharOperation.replaceOnCopy(constantPoolName, '/', '.'))
+						.append('$')
+						.append(methodBinding.signature())
+						.append('$')
+						.append(typeVariableBinding.sourceName);
+					break;
+				default :
+					org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaring;
+					constantPoolName = typeBinding.constantPoolName();
+					if (constantPoolName == null) return null;
+					binaryName
+						.append(CharOperation.replaceOnCopy(constantPoolName, '/', '.'))
+						.append('$')
+						.append(typeVariableBinding.sourceName);
+			}
+			return String.valueOf(binaryName);
+		}
+ 		char[] constantPoolName = this.binding.constantPoolName();
 		if (constantPoolName == null) return null;
 		char[] dotSeparated = CharOperation.replaceOnCopy(constantPoolName, '/', '.');
 		return new String(dotSeparated);

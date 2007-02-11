@@ -71,7 +71,7 @@ public interface ITypeBinding extends IBinding {
 	/**
 	 * Returns the binary name of this type binding.
 	 * The binary name of a class is defined in the Java Language 
-	 * Specification 2nd edition, section 13.1.
+	 * Specification 3rd edition, section 13.1.
 	 * <p>
 	 * Note that in some cases, the binary name may be unavailable.
 	 * This may happen, for example, for a local type declared in 
