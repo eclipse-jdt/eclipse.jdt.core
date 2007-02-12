@@ -1114,6 +1114,48 @@ public void testCatchClauseExceptionRef13() throws JavaModelException {
 			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+public void testCatchClauseExceptionRef14() throws JavaModelException {
+	
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"	public void throwing() throws IZZException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IZZAException e) {\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}" +
+		"class IZZAException extends Exception {\n" + 
+		"}" +
+		"class IZZException extends Exception {\n" + 
+		"}\n");
+	
+	IJavaProject project = this.workingCopies[0].getJavaProject();
+	String visibilityCheck = project.getOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, true);
+	
+	try {
+		project.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "(IZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		project.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, visibilityCheck);
+	}
+}
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65737
  */

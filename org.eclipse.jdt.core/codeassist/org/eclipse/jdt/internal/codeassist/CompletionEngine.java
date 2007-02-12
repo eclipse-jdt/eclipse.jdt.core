@@ -2318,9 +2318,13 @@ public final class CompletionEngine
 			return;
 		
 		if (this.options.checkVisibility) {
-			if (invocationType != null && !exceptionType.canBeSeenBy(receiverType, invocationType)) {
-				return;
-			} else if(invocationType == null && !exceptionType.canBeSeenBy(this.unitScope.fPackage)) {
+			if (invocationType != null) {
+				if (receiverType != null) {
+					if (!exceptionType.canBeSeenBy(receiverType, invocationType)) return;
+				} else {
+					if (!exceptionType.canBeSeenBy(exceptionType, invocationType)) return;
+				}
+			} else if(!exceptionType.canBeSeenBy(this.unitScope.fPackage)) {
 				return;
 			}
 		}
@@ -6347,10 +6351,10 @@ public final class CompletionEngine
 			int typeLength = token.length;
 			SourceTypeBinding[] types = this.unitScope.topLevelTypes;
 
-			for (int i = 0, length = types.length; i < length; i++) {
+			next : for (int i = 0, length = types.length; i < length; i++) {
 				SourceTypeBinding sourceType = types[i]; 
 				
-				if(isForbidden(sourceType)) continue;
+				if(isForbidden(sourceType)) continue next;
 				
 				if(proposeAllMemberTypes &&
 					sourceType != outerInvocationType) {
@@ -6365,22 +6369,28 @@ public final class CompletionEngine
 							typesFound);
 				}
 				
-				if (sourceType.sourceName == CompletionParser.FAKE_TYPE_NAME) continue;
-				if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) continue;
+				if (sourceType.sourceName == CompletionParser.FAKE_TYPE_NAME) continue next;
+				if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) continue next;
 
-				if (typeLength > sourceType.sourceName.length) continue;
+				if (typeLength > sourceType.sourceName.length) continue next;
 				
 				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false)
 						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, sourceType.sourceName))) continue;
 	
+				for (int j = typesFound.size; --j >= 0;) {
+					ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
+	
+					if (sourceType == otherType) continue next;
+				}
+				
 				this.knownTypes.put(CharOperation.concat(sourceType.qualifiedPackageName(), sourceType.sourceName(), '.'), this);
 				
 				if(this.assistNodeIsClass) {
-					if(!sourceType.isClass()) continue;
+					if(!sourceType.isClass()) continue next;
 				} else if(this.assistNodeIsInterface) {
-					if(!sourceType.isInterface() && !sourceType.isAnnotationType()) continue;
+					if(!sourceType.isInterface() && !sourceType.isAnnotationType()) continue next;
 				} else if (this.assistNodeIsAnnotation) {
-					if(!sourceType.isAnnotationType()) continue;
+					if(!sourceType.isAnnotationType()) continue next;
 				}
 				
 				int relevance = computeBaseRelevance();
