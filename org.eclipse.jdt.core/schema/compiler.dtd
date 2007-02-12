@@ -43,6 +43,7 @@
 				  severity   CDATA #REQUIRED
 				  line       CDATA #REQUIRED
 				  id         CDATA #REQUIRED
+				  problemID  CDATA #IMPLIED
 				  optionKey  CDATA #IMPLIED
 				  categoryID CDATA #IMPLIED
 >
