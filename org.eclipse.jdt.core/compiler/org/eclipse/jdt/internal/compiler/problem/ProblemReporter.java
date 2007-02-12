@@ -4737,7 +4737,6 @@ private int nodeSourceStart(Binding field, ASTNode node) {
 		ParameterizedQualifiedTypeReference reference = (ParameterizedQualifiedTypeReference) node;
 		return (int) (reference.sourcePositions[0]>>>32);
 	}
-
 	return node.sourceStart;
 }
 public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, ASTNode location) {
@@ -5495,6 +5494,66 @@ private int retrieveClosingAngleBracketPosition(int start) {
 	}
 	return end;
 }
+private int retrieveEndingPositionAfterOpeningParenthesis(int sourceStart, int sourceEnd, int numberOfParen) {
+	if (this.referenceContext == null) return sourceEnd;
+	CompilationResult compilationResult = this.referenceContext.compilationResult();
+	if (compilationResult == null) return sourceEnd;
+	ICompilationUnit compilationUnit = compilationResult.getCompilationUnit();
+	if (compilationUnit == null) return sourceEnd;
+	char[] contents = compilationUnit.getContents();
+	if (contents.length == 0) return sourceEnd;
+	if (this.positionScanner == null) {
+		this.positionScanner = new Scanner(false, false, false, this.options.sourceLevel, this.options.complianceLevel, null, null, false);
+	}
+	this.positionScanner.setSource(contents);
+	this.positionScanner.resetTo(sourceStart, sourceEnd);
+	try {
+		int token;
+		int previousSourceEnd = sourceEnd;
+		while ((token = this.positionScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			switch(token) {
+				case TerminalTokens.TokenNameRPAREN:
+					return previousSourceEnd;
+				default :
+					previousSourceEnd = this.positionScanner.currentPosition - 1;
+			}
+		}
+	} catch(InvalidInputException e) {
+		// ignore
+	}
+	return sourceEnd;
+}
+private int retrieveStartingPositionAfterOpeningParenthesis(int sourceStart, int sourceEnd, int numberOfParen) {
+	if (this.referenceContext == null) return sourceStart;
+	CompilationResult compilationResult = this.referenceContext.compilationResult();
+	if (compilationResult == null) return sourceStart;
+	ICompilationUnit compilationUnit = compilationResult.getCompilationUnit();
+	if (compilationUnit == null) return sourceStart;
+	char[] contents = compilationUnit.getContents();
+	if (contents.length == 0) return sourceStart;
+	if (this.positionScanner == null) {
+		this.positionScanner = new Scanner(false, false, false, this.options.sourceLevel, this.options.complianceLevel, null, null, false);
+	}
+	this.positionScanner.setSource(contents);
+	this.positionScanner.resetTo(sourceStart, sourceEnd);
+	int count = 0;
+	try {
+		int token;
+		while ((token = this.positionScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			switch(token) {
+				case TerminalTokens.TokenNameLPAREN:
+					count++;
+					if (count == numberOfParen) {
+						this.positionScanner.getNextToken();
+						return this.positionScanner.startPosition;
+					}
+			}
+		}
+	} catch(InvalidInputException e) {
+		// ignore
+	}
+	return sourceStart;
+}
 public void returnTypeCannotBeVoidArray(MethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.CannotAllocateVoidArray,
@@ -6066,12 +6125,27 @@ public void unnecessaryNLSTags(int sourceStart, int sourceEnd) {
 		sourceEnd);
 }
 public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) {
+	int sourceStart = reference.sourceStart;
+	int sourceEnd = reference.sourceEnd;
+	if (reference instanceof SingleNameReference) {
+		int numberOfParens = (reference.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+		if (numberOfParens != 0) {
+			sourceStart = retrieveStartingPositionAfterOpeningParenthesis(sourceStart, sourceEnd, numberOfParens);
+			sourceEnd = retrieveEndingPositionAfterOpeningParenthesis(sourceStart, sourceEnd, numberOfParens);
+		} else {
+			sourceStart = nodeSourceStart(field, reference);
+			sourceEnd = nodeSourceEnd(field, reference);
+		}
+	} else {
+		sourceStart = nodeSourceStart(field, reference);
+		sourceEnd = nodeSourceEnd(field, reference);
+	}
 	this.handle(
 		IProblem.UnqualifiedFieldAccess,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-		nodeSourceStart(field, reference),
-		nodeSourceEnd(field, reference));
+		sourceStart,
+		sourceEnd);
 }
 public void unreachableCatchBlock(ReferenceBinding exceptionType, ASTNode location) {
 	this.handle(
