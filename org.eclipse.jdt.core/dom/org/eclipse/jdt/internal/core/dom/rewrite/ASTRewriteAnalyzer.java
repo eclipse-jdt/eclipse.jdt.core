@@ -221,7 +221,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	
 	final private String getIndentOfLine(int pos) {
 		int line= getLineInformation().getLineOfOffset(pos);
-		if (pos >= 0) {
+		if (line >= 0) {
 			char[] cont= getContent();
 			int lineStart= getLineInformation().getLineOffset(line);
 		    int i= lineStart;
