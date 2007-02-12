@@ -194,9 +194,10 @@ public String toString() {
 }
 
 public String debugPathString() {
-	if (this.lastModified == 0)
+	long time = lastModified();
+	if (time == 0)
 		return this.zipFilename;
-	return this.zipFilename + '(' + (new Date(this.lastModified)) + " : " + this.lastModified + ')'; //$NON-NLS-1$
+	return this.zipFilename + '(' + (new Date(time)) + " : " + time + ')'; //$NON-NLS-1$
 }
 
 }
