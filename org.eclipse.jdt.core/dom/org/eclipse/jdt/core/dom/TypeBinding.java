@@ -564,7 +564,12 @@ class TypeBinding implements ITypeBinding {
 		} else {
 			if (fileName == null) return null; // case of a WilCardBinding that doesn't have a corresponding Java element
 			// member or top level type
-			ITypeBinding declaringTypeBinding = getDeclaringClass();
+			ITypeBinding declaringTypeBinding = null;
+			if (this.isArray()) {
+				declaringTypeBinding = this.getComponentType().getDeclaringClass();
+			} else {
+				declaringTypeBinding = this.getDeclaringClass();
+			}
 			if (declaringTypeBinding == null) {
 				// top level type
 				if (Util.isClassFileName(fileName)) {

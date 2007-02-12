@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 240, 241, 242 };
+//		TESTS_NUMBERS = new int[] { 244, 245 };
 //		TESTS_RANGE = new int[] { 240, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -7717,6 +7717,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong binary name", "X$()V$T", typeParameter.getBinaryName());
 	}
 
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=107001
+	 */
 	public void test0242() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
@@ -7742,6 +7745,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong binary name", "X$()V$T", typeParameter.getBinaryName());
 	}
 
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=107001
+	 */
 	public void test0243() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
 		String contents =
@@ -7766,5 +7772,67 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeParameter = typeParameters[0];
 		assertTrue("Not a type variable", typeParameter.isTypeVariable());
 		assertEquals("Wrong binary name", "p.X$(Ljava/lang/Integer;)V$T", typeParameter.getBinaryName());
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=173849
+	public void test0244() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", true/*resolve*/);
+		String contents =
+			"package xy;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	protected class Inner {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	Inner[] i;\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 1);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		IJavaElement element = typeBinding.getJavaElement();
+		assertNotNull("No element", element);
+		assertTrue("Doesn't exist", element.exists());
+		assertEquals("Wrong handle identifier", "=Converter15/src<xy{X.java[X[Inner", element.getHandleIdentifier());
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=173849
+	public void test0245() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", true/*resolve*/);
+		String contents =
+			"package xy;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	protected class Inner {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	Inner i;\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 1);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		Type type = fieldDeclaration.getType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		IJavaElement element = typeBinding.getJavaElement();
+		assertNotNull("No element", element);
+		assertTrue("Doesn't exist", element.exists());
+		assertEquals("Wrong handle identifier", "=Converter15/src<xy{X.java[X[Inner", element.getHandleIdentifier());
 	}
 }
