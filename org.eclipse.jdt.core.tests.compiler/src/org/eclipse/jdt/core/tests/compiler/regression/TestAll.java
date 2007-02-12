@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,6 +63,7 @@ public static Test suite() {
 	standardTests.add(ForStatementTest.class);
 	standardTests.add(FieldAccessTest.class);
 	standardTests.add(SerialVersionUIDTests.class);
+	standardTests.add(LineNumberAttributeTest.class);
 	
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {

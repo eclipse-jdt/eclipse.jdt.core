@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -190,6 +190,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	if (valueRequired || (!isThisReceiver && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)) {
 		receiver.generateCode(currentScope, codeStream, !isStatic);
+		pc = codeStream.position;
 		if (this.codegenBinding.declaringClass == null) { // array length
 			codeStream.arraylength();
 			if (valueRequired) {
@@ -252,7 +253,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			}
 		}						
 	}
-	codeStream.recordPositionsFrom(pc, this.sourceStart);
+	codeStream.recordPositionsFrom(pc, this.sourceEnd);
 }
 
 public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {

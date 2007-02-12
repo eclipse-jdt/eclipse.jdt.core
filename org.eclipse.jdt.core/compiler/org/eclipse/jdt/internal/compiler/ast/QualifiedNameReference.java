@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -403,6 +403,7 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 													&& (this.indexOfFirstFieldBinding == 1 || lastFieldBinding.declaringClass == currentScope.enclosingReceiverType())
 													&& this.otherBindings == null; // could be dup: next.next.next
 					if (valueRequired  || (!isFirst && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)) {
+						int lastFieldPc = codeStream.position;
 						if (lastFieldBinding.declaringClass == null) { // array length
 							codeStream.arraylength();
 							if (valueRequired) {
@@ -441,6 +442,9 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 								}							
 							}
 						}
+						
+						int fieldPosition = (int) (this.sourcePositions[this.sourcePositions.length - 1] >>> 32);
+						codeStream.recordPositionsFrom(lastFieldPc, fieldPosition);
 					} else {
 						if (!isStatic){
 							codeStream.invokeObjectGetClass(); // perform null check
@@ -620,8 +624,11 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 						
 		// all intermediate field accesses are read accesses
 		// only the last field binding is a write access
+		int positionsLength = this.sourcePositions.length;
 		if (this.otherCodegenBindings != null) {
+			int pc = codeStream.position;
 			for (int i = 0; i < otherBindingsCount; i++) {
+				pc = codeStream.position;
 				FieldBinding nextField = this.otherCodegenBindings[i];
 				TypeBinding nextGenericCast = this.otherGenericCasts == null ? null : this.otherGenericCasts[i];
 				if (lastFieldBinding != null) {
@@ -670,6 +677,10 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 								codeStream.invokeObjectGetClass(); // perform null check
 								codeStream.pop();
 							}						
+						}
+						if ((positionsLength - otherBindingsCount + i - 1) >= 0) {
+							int fieldPosition = (int) (this.sourcePositions[positionsLength - otherBindingsCount + i - 1] >>>32);
+							codeStream.recordPositionsFrom(pc, fieldPosition);
 						}
 					}
 				}

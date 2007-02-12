@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2006 IBM Corporation and others.
+ * Copyright (c) 2003, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ public class TryStatementTest extends AbstractRegressionTest {
 	
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 41, 43, 44, 45, 46 };
+//	TESTS_NUMBERS = new int[] { 54 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public TryStatementTest(String name) {
@@ -4998,7 +4998,8 @@ public void test054() {
 			"        [pc: 28, line: 21]\n" + 
 			"        [pc: 34, line: 22]\n" + 
 			"        [pc: 35, line: 26]\n" + 
-			"        [pc: 38, line: 28]\n" + 
+			"        [pc: 38, line: 27]\n" + 
+			"        [pc: 39, line: 28]\n" + 
 			"        [pc: 43, line: 18]\n" + 
 			"        [pc: 46, line: 30]\n" + 
 			"      Local variable table:\n" + 
@@ -5030,7 +5031,8 @@ public void test054() {
 			"        [pc: 28, line: 21]\n" + 
 			"        [pc: 34, line: 22]\n" + 
 			"        [pc: 35, line: 26]\n" + 
-			"        [pc: 38, line: 28]\n" + 
+			"        [pc: 38, line: 27]\n" + 
+			"        [pc: 39, line: 28]\n" + 
 			"        [pc: 43, line: 18]\n" + 
 			"        [pc: 46, line: 30]\n" + 
 			"      Local variable table:\n" + 
