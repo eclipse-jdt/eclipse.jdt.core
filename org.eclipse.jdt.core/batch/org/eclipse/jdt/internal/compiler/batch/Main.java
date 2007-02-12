@@ -109,7 +109,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String PROBLEM_ARGUMENT_VALUE = "value"; //$NON-NLS-1$
 		private static final String PROBLEM_ARGUMENTS = "arguments"; //$NON-NLS-1$
 		private static final String PROBLEM_CATEGORY_ID = "categoryID"; //$NON-NLS-1$
-		private static final String PROBLEM_ID = "id"; //$NON-NLS-1$
+		private static final String ID = "id"; //$NON-NLS-1$
+		private static final String PROBLEM_ID = "problemID"; //$NON-NLS-1$
 		private static final String PROBLEM_LINE = "line"; //$NON-NLS-1$
 		private static final String PROBLEM_OPTION_KEY = "optionKey"; //$NON-NLS-1$
 		private static final String PROBLEM_MESSAGE = "message"; //$NON-NLS-1$
@@ -815,7 +816,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			final int sourceStart = problem.getSourceStart();
 			final int sourceEnd = problem.getSourceEnd();
 			final int id = problem.getID();
-			this.parameters.put(Logger.PROBLEM_ID, getFieldName(id));
+			this.parameters.put(Logger.ID, getFieldName(id)); // ID as field name
+			this.parameters.put(Logger.PROBLEM_ID, new Integer(id)); // ID as numeric value
 			boolean isError = problem.isError();
 			int severity = isError ? ProblemSeverities.Error : ProblemSeverities.Warning;
 			this.parameters.put(Logger.PROBLEM_SEVERITY, isError ? Logger.ERROR : Logger.WARNING);
@@ -1125,7 +1127,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public Compiler batchCompiler;
 	/* Bundle containing messages */
 	public ResourceBundle bundle;
-		protected FileSystem.Classpath[] checkedClasspaths;
+	protected FileSystem.Classpath[] checkedClasspaths;
 	public Locale compilerLocale;
 	public CompilerOptions compilerOptions; // read-only
 	public String destinationPath;
