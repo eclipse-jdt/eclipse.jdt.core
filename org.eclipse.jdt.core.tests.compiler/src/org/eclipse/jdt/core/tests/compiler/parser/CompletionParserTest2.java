@@ -7213,8 +7213,6 @@ public void test0128(){
 		"  }\n" +
 		"  void foo() {\n" +
 		"    new Object() {\n" +
-		"      () {\n" +
-		"      }\n" +
 		"      void bar() {\n" +
 		"        a[<CompleteOnName:zzz>];\n" +
 		"      }\n" +
@@ -7488,8 +7486,6 @@ public void test0132(){
 		"      {\n" + 
 		"        <CompleteOnName:>;\n" + 
 		"      }\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"    };\n" + 
 		"  }\n" + 
 		"}\n";
@@ -7596,9 +7592,6 @@ public void test0134(){
 	String expectedUnitDisplayString =
 		"public class X {\n" + 
 		"  Object o = new Object() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"      {\n" + 
 		"        Exception e;\n" + 
@@ -7780,8 +7773,6 @@ public void test0137(){
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      void bar() {\n" + 
 		"        <CompleteOnMessageSend:super.zzz()>;\n" + 
 		"      }\n" + 
@@ -7856,14 +7847,10 @@ public void test0138(){
 		"  }\n" + 
 		"  public void foo() {\n" + 
 		"    new Y() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      public void bar() {\n" + 
 		"        new Z() {\n" + 
 		"          <CompleteOnFieldName:void to>;\n" + 
 		"          {\n" + 
-		"          }\n" + 
-		"          () {\n" + 
 		"          }\n" + 
 		"        };\n" + 
 		"      }\n" + 
@@ -7941,9 +7928,6 @@ public void test0140(){
 	String expectedUnitDisplayString =
 		"public class X {\n" + 
 		"  private Object var = new Object() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    public void foo(Object e) {\n" + 
 		"      <CompleteOnName:e.>;\n" + 
 		"    }\n" + 
@@ -8056,8 +8040,6 @@ public void test0142(){
 		"  }\n" + 
 		"  public void foo() {\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      public void toto() {\n" + 
 		"        <CompleteOnKeyword:instanceof>;\n" + 
 		"      }\n" + 
@@ -8447,8 +8429,6 @@ public void test0149(){
 		"  }\n" + 
 		"  public void foo() {\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      void bar() {\n" + 
 		"        (titi & <CompleteOnName:ZZ>);\n" + 
 		"      }\n" + 
@@ -8613,9 +8593,6 @@ public void test0152(){
 	String expectedUnitDisplayString =
 		"public class X {\n" + 
 		"  Object var = new Object() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void bar() {\n" + 
 		"    }\n" + 
 		"    void foo() {\n" + 

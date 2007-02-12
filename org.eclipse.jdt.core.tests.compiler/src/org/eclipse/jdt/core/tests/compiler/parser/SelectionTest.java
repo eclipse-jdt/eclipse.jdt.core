@@ -743,9 +743,6 @@ public void test18() {
 	
 	String expectedCompletionNodeToString = 
 		"<SelectOnAllocationExpression:new Object() {\n" +
-		"  () {\n" +
-		"    super();\n" +
-		"  }\n" + 
 		"}>";
 	String completionIdentifier = "Object";
 	String expectedUnitDisplayString =
@@ -754,9 +751,6 @@ public void test18() {
 		"  }\n" + 
 		"  int foo() {\n" + 
 		"    <SelectOnAllocationExpression:new Object() {\n" +
-		"      () {\n" +
-		"        super();\n" +
-		"      }\n" + 
 		"    }>;\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1118,8 +1112,6 @@ public void test26() {
 		"  }\n" + 
 		"  Object foo() {\n" + 
 		"    new X() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      Object bar() {\n" + 
 		"        <SelectOnQualifiedSuper:G.super>;\n" + 
 		"      }\n" + 
@@ -2137,18 +2129,12 @@ public void test49() {
 	String selection = "X";
 	
 	String expectedCompletionNodeToString = "<SelectOnAllocationExpression:new X() {\n" +
-											"  () {\n" +
-											"    super();\n" +
-											"  }\n" + 
 											"}>";
 	
 	String completionIdentifier = "X";
 	String expectedUnitDisplayString =
 		"public class X {\n"+
 		"  X x = <SelectOnAllocationExpression:new X() {\n" +
-		"    () {\n" +
-		"      super();\n" +
-		"    }\n" + 
 		"  }>;\n"+
 		"  public X() {\n"+
 		"  }\n"+
@@ -2198,8 +2184,6 @@ public void test50() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      void bar() {\n" + 
 		"        <SelectOnMessageSend:bar2()>;\n" + 
 		"      }\n" + 
@@ -2257,12 +2241,8 @@ public void test51() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      void foo0() {\n" + 
 		"        new Object() {\n" + 
-		"          () {\n" + 
-		"          }\n" + 
 		"          void bar() {\n" + 
 		"            <SelectOnMessageSend:bar2()>;\n" + 
 		"          }\n" + 
@@ -2323,12 +2303,8 @@ public void test52() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      void foo0() {\n" + 
 		"        new Object() {\n" + 
-		"          () {\n" + 
-		"          }\n" + 
 		"          void bar() {\n" + 
 		"            <SelectOnMessageSend:bar2()>;\n" + 
 		"          }\n" + 

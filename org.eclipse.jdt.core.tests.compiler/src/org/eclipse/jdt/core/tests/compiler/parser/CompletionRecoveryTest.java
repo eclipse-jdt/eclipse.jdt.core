@@ -375,9 +375,6 @@ public void test08() {
 		"public class VA {\n" + 
 		"  Object o1 = new Object() {\n" + 
 		"    <CompleteOnType:V>;\n" + 
-		"    () {\n" + 
-		"      super();\n" +
-		"    }\n" + 
 		"    void foo2() {\n" + 
 		"    }\n" + 
 		"  };\n" + 

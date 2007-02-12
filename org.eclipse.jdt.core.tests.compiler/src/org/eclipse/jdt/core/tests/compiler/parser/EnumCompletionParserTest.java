@@ -525,9 +525,6 @@ public void test0008(){
 	String expectedUnitDisplayString =
 		"public enum Test {\n" + 
 		"  A() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"      <CompleteOnName:zzz>;\n" + 
 		"    }\n" + 
@@ -570,9 +567,6 @@ public void test0009(){
 		"public enum Test {\n" + 
 		"  B(),\n" + 
 		"  A() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"      <CompleteOnName:zzz>;\n" + 
 		"    }\n" + 
@@ -616,9 +610,6 @@ public void test0010(){
 		"public enum Test {\n" + 
 		"  B(),\n" + 
 		"  A() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"      <CompleteOnName:zzz>;\n" + 
 		"    }\n" + 
@@ -663,16 +654,10 @@ public void test0011(){
 	String expectedUnitDisplayString =
 		"public enum Test {\n" + 
 		"  B() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"    }\n" + 
 		"  },\n" + 
 		"  A() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"      <CompleteOnName:zzz>;\n" + 
 		"    }\n" + 
@@ -718,16 +703,10 @@ public void test0012(){
 	String expectedUnitDisplayString =
 		"public enum Test {\n" + 
 		"  B() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"    }\n" + 
 		"  },\n" + 
 		"  A() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"      <CompleteOnName:zzz>;\n" + 
 		"    }\n" + 
@@ -774,16 +753,10 @@ public void test0013(){
 	String expectedUnitDisplayString =
 		"public enum Test {\n" + 
 		"  B() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"    }\n" + 
 		"  },\n" + 
 		"  A() {\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"      <CompleteOnName:zzz>;\n" + 
 		"    }\n" + 
@@ -823,9 +796,6 @@ public void test0014(){
 		"public enum Enum1 {\n" + 
 		"  A() {\n" + 
 		"    <CompleteOnType:tos>;\n" + 
-		"    () {\n" + 
-		"      super();\n" + 
-		"    }\n" + 
 		"  },\n" + 
 		"  public Enum1() {\n" + 
 		"  }\n" + 

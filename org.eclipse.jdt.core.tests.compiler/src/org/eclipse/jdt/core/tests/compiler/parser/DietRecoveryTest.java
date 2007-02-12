@@ -2020,9 +2020,6 @@ public void test25() {
 		"    System.out.println();\n" + 
 		"    new X() {\n" + 
 		"      public int h;\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void baz() {\n" + 
 		"      }\n" + 
 		"      void bar() {\n" + 
@@ -6094,9 +6091,6 @@ public void test100() {
 		"    Shell shell = new Shell((((SWT.MENU | SWT.RESIZE) | SWT.TITLE) | SWT.H_SCROLL));\n" + 
 		"    StyledText text = new StyledText(shell, SWT.WRAP);\n" + 
 		"    shell.addListener(SWT.Resize, new Listener() {\n" + 
-		"  () {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
 		"  public void handleEvent(Event e) {\n" + 
 		"    text.setBounds(shell.getClientArea());\n" + 
 		"  }\n" + 
@@ -6107,9 +6101,6 @@ public void test100() {
 		"  }\n" + 
 		"});\n" + 
 		"    text.addLineStyleListener(new LineStyleListener() {\n" + 
-		"  () {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
 		"  public void lineGetStyle(LineStyleEvent event) {\n" + 
 		"  }\n" + 
 		"});\n" + 

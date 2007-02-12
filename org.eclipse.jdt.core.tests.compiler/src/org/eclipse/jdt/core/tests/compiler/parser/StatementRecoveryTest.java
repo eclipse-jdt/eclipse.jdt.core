@@ -1861,9 +1861,6 @@ public void test0022() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void foo() {\n" + 
 		"      }\n" + 
 		"    };\n" + 
@@ -1934,9 +1931,6 @@ public void test0023() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void bar() {\n" + 
 		"      }\n" + 
 		"    };\n" + 
@@ -2012,18 +2006,12 @@ public void test0024() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void bar() {\n" + 
 		"      }\n" + 
 		"    };\n" + 
 		"    System.out.println();\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void bar() {\n" + 
 		"      }\n" + 
 		"    };\n" + 
@@ -2096,9 +2084,6 @@ public void test0025() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void foo() {\n" + 
 		"        System.out.println();\n" + 
 		"      }\n" + 
@@ -2172,9 +2157,6 @@ public void test0026() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void foo() {\n" + 
 		"        System.out.println();\n" + 
 		"      }\n" + 
@@ -2255,9 +2237,6 @@ public void test0027() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void foo() {\n" + 
 		"        System.out.println();\n" + 
 		"      }\n" + 
@@ -2265,9 +2244,6 @@ public void test0027() {
 		"    System.out.println();\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void foo() {\n" + 
 		"        System.out.println();\n" + 
 		"      }\n" + 
@@ -2345,9 +2321,6 @@ public void test0028() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void foo() {\n" + 
 		"        System.out.println();\n" + 
 		"        if (true)\n" + 
@@ -2430,9 +2403,6 @@ public void test0029() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void foo() {\n" + 
 		"        System.out.println();\n" + 
 		"        if (true)\n" + 
@@ -2520,9 +2490,6 @@ public void test0030() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void foo() {\n" + 
 		"        System.out.println();\n" + 
 		"        if (true)\n" + 
@@ -2617,9 +2584,6 @@ public void test0031() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void foo() {\n" + 
 		"        System.out.println();\n" + 
 		"        if (true)\n" + 
@@ -2714,9 +2678,6 @@ public void test0032() {
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    bar(new Object() {\n" + 
-		"  () {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
 		"  void foo() {\n" + 
 		"    System.out.println();\n" + 
 		"    if (true)\n" + 
@@ -2870,9 +2831,6 @@ public void test0034() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"        super();\n" + 
-		"      }\n" + 
 		"      void foo() {\n" + 
 		"        System.out.println();\n" + 
 		"      }\n" + 

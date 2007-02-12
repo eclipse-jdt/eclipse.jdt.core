@@ -5451,4 +5451,35 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 		});
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=173853
+	 */
+	public void test0607() throws CoreException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy(
+				"/Converter/src/X.java", 
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    #\n" +
+				"    /*start*/new Object() {\n" +
+				"    }/*end*/;\n" +
+				"  }\n" +
+				"}",
+				true/*resolve*/);
+			ASTNode string = buildAST(null, workingCopy, true, true);
+			assertEquals("Unexpected node type", ASTNode.CLASS_INSTANCE_CREATION, string.getNodeType());
+			ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) string;
+			ITypeBinding resolveTypeBinding = classInstanceCreation.resolveTypeBinding();
+			assertNotNull("Binding is null", resolveTypeBinding);
+			IMethodBinding[] declaredMethods = resolveTypeBinding.getDeclaredMethods();
+			assertNotNull("Should have one method", declaredMethods);
+			assertEquals("Should have one method", 1, declaredMethods.length);
+			assertTrue("The method should be a default constructor", declaredMethods[0].isDefaultConstructor());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }

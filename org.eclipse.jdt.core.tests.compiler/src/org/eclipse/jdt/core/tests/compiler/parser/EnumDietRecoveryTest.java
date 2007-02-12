@@ -313,9 +313,6 @@ public void test0003() {
 		"public enum X {\n" + 
 		"  A(10),\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
 		"  },\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
@@ -328,9 +325,6 @@ public void test0003() {
 		"public enum X {\n" + 
 		"  A(10),\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
 		"  },\n" +  
 		"  public X() {\n" + 
 		"    super();\n" + 
@@ -369,9 +363,6 @@ public void test0004() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 
@@ -385,9 +376,6 @@ public void test0004() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" +  
@@ -429,9 +417,6 @@ public void test0005() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 
@@ -445,9 +430,6 @@ public void test0005() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 
@@ -489,16 +471,10 @@ public void test0006() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" +
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 
 		"  public X() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
 		"  },\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
@@ -510,16 +486,10 @@ public void test0006() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 
 		"  public X() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
 		"  },\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
@@ -559,16 +529,10 @@ public void test0007() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 
 		"  X() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
 		"  },\n" + 
 		"  public X() {\n" + 
 		"  }\n" + 
@@ -580,16 +544,10 @@ public void test0007() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 
 		"  X() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
 		"  },\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
@@ -681,9 +639,6 @@ public void test0009() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 
@@ -697,9 +652,6 @@ public void test0009() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 
@@ -741,9 +693,6 @@ public void test0010() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
         "    void bar() {\n" + 
@@ -759,9 +708,7 @@ public void test0010() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
+
         "    void foo() {\n" + 
         "    }\n" + 
         "    void bar() {\n" + 
@@ -805,9 +752,6 @@ public void test0011() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
         "    X() {\n" + 
@@ -823,9 +767,6 @@ public void test0011() {
 		"package a;\n" + 
 		"public enum X {\n" + 
 		"  B() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
         "    X() {\n" + 
@@ -1001,9 +942,6 @@ public void test0014() {
 		"  }\n" + 
 		"  enum Z {\n" + 
 		"    B() {\n" + 
-        "      () {\n" + 
-        "        super();\n" + 
-        "      }\n" + 
         "      void foo() {\n" + 
         "      }\n" + 
 		"    },\n" + 
@@ -1031,9 +969,6 @@ public void test0014() {
 		"  }\n" + 
 		"  enum Z {\n" + 
 		"    B() {\n" + 
-        "      () {\n" + 
-        "        super();\n" + 
-        "      }\n" + 
         "      void foo() {\n" + 
         "      }\n" + 
 		"    },\n" + 
@@ -1088,9 +1023,6 @@ public void test0015() {
 	String expectedDietUnitToString = 
 		"public enum Enum1 {\n" + 
 		"  BLEU() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 
@@ -1106,9 +1038,6 @@ public void test0015() {
 	String expectedDietPlusBodyUnitToString = 
 		"public enum Enum1 {\n" + 
 		"  BLEU() {\n" + 
-        "    () {\n" + 
-        "      super();\n" + 
-        "    }\n" + 
         "    void foo() {\n" + 
         "    }\n" + 
 		"  },\n" + 

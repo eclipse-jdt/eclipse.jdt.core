@@ -399,6 +399,8 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 			argumentsLength == 0 ? Binding.NO_PARAMETERS : argumentTypes, //arguments bindings
 			inheritedConstructorBinding.thrownExceptions, //exceptions
 			sourceType); //declaringClass
+	
+	constructor.binding.modifiers |= ExtraCompilerModifiers.AccIsDefaultConstructor;
 			
 	constructor.scope = new MethodScope(this.scope, constructor, true);
 	constructor.bindArguments();

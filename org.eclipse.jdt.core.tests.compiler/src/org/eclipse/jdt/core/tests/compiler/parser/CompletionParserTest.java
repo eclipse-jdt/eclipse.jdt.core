@@ -1131,8 +1131,6 @@ public void testDA_1() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new TestCase(\"error\") {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      protected void runTest() {\n" + 
 		"        Vector v11111;\n" + 
 		"        <CompleteOnName:v>;\n" + 
@@ -1174,8 +1172,6 @@ public void testDA_2() {
 		"  void foo() {\n" + 
 		"    new TestCase(\"error\") {\n" + 
 		"      <CompleteOnType:v>;\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      runTest() {\n" + 
 		"      }\n" + 
 		"    };\n" + 
@@ -1223,8 +1219,6 @@ public void testDA_3() {
 		"      <CompleteOnFieldName:void r>;\n" + 
 		"      {\n" + 
 		"      }\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"    };\n" + 
 		"  }\n" + 
 		"}\n";
@@ -1264,8 +1258,6 @@ public void testDA_4() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new TestCase(\"error\") {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      protected void runTest() {\n" + 
 		"        <CompleteOnName:V>;\n" + 
 		"      }\n" + 
@@ -1308,8 +1300,6 @@ public void testDA_5() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new TestCase(\"error\") {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      protected void runTest() {\n" + 
 		"        Vector v11111;\n" + 
 		"        <CompleteOnName:v>;\n" + 
@@ -2119,8 +2109,6 @@ public void testGC_1FSHLHV_2() {
 		"  public static void main(String[] args) {\n" + 
 		"    Object l;\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      public void handleEvent(String[] event) {\n" + 
 		"        String s;\n" + 
 		"        <CompleteOnName:s.>;\n" + 
@@ -2175,8 +2163,6 @@ public void testGC_1FSHLHV_3() {
 		"  public static void main(String[] args) {\n" + 
 		"    Object l;\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      public void handleEvent(String[] event) {\n" + 
 		"        String s;\n" + 
 		"        {\n" + 
@@ -2233,8 +2219,6 @@ public void testGC_1FSHLHV_4() {
 		"  public static void main(String[] args) {\n" + 
 		"    Object l;\n" + 
 		"    new Object() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      public void handleEvent(String[] event) {\n" + 
 		"        String s;\n" + 
 		"        {\n" + 
@@ -6257,8 +6241,6 @@ public void testVB_1() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new java.io.File(\"error\") {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      protected void runTest() {\n" + 
 		"        Vector v11111;\n" + 
 		"        <CompleteOnName:v>;\n" + 

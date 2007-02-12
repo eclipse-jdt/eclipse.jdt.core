@@ -2007,9 +2007,6 @@ public void test55() {
 	String expectedUnitDisplayString = 
 		"class X {\n" + 
 		"  Object o = new Object() {\n" + 
-		"    () {\n" + 
-		"      super();\n" +
-		"    }\n" + 
 		"    void foo() {\n" + 
 		"      String x;\n" + 
 		"      <CompleteOnName:x.index>;\n" + 

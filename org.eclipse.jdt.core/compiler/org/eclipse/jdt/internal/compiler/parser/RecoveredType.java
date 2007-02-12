@@ -421,7 +421,10 @@ public TypeDeclaration updatedTypeDeclaration(){
 		typeDeclaration.methods = methodDeclarations;
 	} else {
 		int kind = TypeDeclaration.kind(typeDeclaration.modifiers);
-		if (!hasConstructor && kind != TypeDeclaration.INTERFACE_DECL && kind != TypeDeclaration.ANNOTATION_TYPE_DECL) {// if was already reduced, then constructor
+		if (!hasConstructor &&
+				kind != TypeDeclaration.INTERFACE_DECL &&
+				kind != TypeDeclaration.ANNOTATION_TYPE_DECL &&
+				typeDeclaration.allocation == null) {// if was already reduced, then constructor
 			boolean insideFieldInitializer = false;
 			RecoveredElement parentElement = this.parent; 
 			while (parentElement != null){

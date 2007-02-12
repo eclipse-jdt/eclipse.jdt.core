@@ -47,8 +47,6 @@ public void test1FTZCIG() {
 		"  void foo() {\n" +
 		"    new X() {\n" +
 		"      <CompleteOnType:p>;\n" +
-		"      () {\n" + 
-		"      }\n" + 
 		"      void bar() {\n" +
 		"      }\n" +
 		"    };\n" +

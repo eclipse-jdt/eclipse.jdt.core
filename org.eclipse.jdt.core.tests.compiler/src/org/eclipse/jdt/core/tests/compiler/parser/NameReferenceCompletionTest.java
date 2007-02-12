@@ -206,8 +206,6 @@ public void test1FVT66Q_1() {
 		"    final int codeAssistTarget;\n" + 
 		"    Thread t;\n" + 
 		"    new Thread() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      public void run() {\n" + 
 		"        <CompleteOnName:codeAss>;\n" + 
 		"      }\n" + 
@@ -290,8 +288,6 @@ public void test1G8DE30() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new Runnable() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      public void run() {\n" + 
 		"        <CompleteOnName:>;\n" + 
 		"      }\n" + 
@@ -530,9 +526,6 @@ public void testInnerClassFieldInitializer() {
 		// expectedUnitDisplayString:
 		"class Bar {\n" +
 		"  Object o = new Object() {\n" +
-		"    () {\n" + 
-		"      super();\n" +
-		"    }\n" + 
 		"    void foo() {\n" +
 		"      <CompleteOnName:xyz>;\n" +
 		"    }\n" +
@@ -607,8 +600,6 @@ public void testMethodInvocationAnonymousInnerClass() {
 		"  }\n" + 
 		"  void foo() {\n" + 
 		"    new X() {\n" + 
-		"      () {\n" + 
-		"      }\n" + 
 		"      void fuzz() {\n" + 
 		"        <CompleteOnName:x.>;\n" + 
 		"      }\n" + 

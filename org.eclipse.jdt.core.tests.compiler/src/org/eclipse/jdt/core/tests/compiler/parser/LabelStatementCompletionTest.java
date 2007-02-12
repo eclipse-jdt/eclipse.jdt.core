@@ -313,8 +313,6 @@ public void testInLabeledInnerClass() {
 		"    {\n" +
 		"      Object o;\n" +
 		"      new Object() {\n" +
-		"        () {\n" +
-		"        }\n" +
 		"        void fred() {\n" +
 		"          {\n" +
 		"            <CompleteOnName:X>;\n" +
@@ -368,8 +366,6 @@ public void testInLabeledInnerClassWithErrorBefore() {
 		"    {\n" + 
 		"      Object o;\n" + 
 		"      new Object() {\n" + 
-		"        () {\n" + 
-		"        }\n" + 
 		"        void fred() {\n" + 
 		"          {\n" + 
 		"            <CompleteOnName:X>;\n" + 
