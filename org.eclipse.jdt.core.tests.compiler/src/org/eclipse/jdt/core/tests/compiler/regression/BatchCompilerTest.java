@@ -1294,7 +1294,7 @@ public void test012b(){
 			"	<sources>\n" + 
 			"		<source output=\"---OUTPUT_DIR_PLACEHOLDER---\" path=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\">\n" + 
 			"			<problems errors=\"1\" problems=\"1\" warnings=\"0\">\n" + 
-			"				<problem categoryID=\"40\" charEnd=\"28\" charStart=\"25\" id=\"UndefinedType\" line=\"3\" severity=\"ERROR\">\n" + 
+			"				<problem categoryID=\"40\" charEnd=\"28\" charStart=\"25\" id=\"UndefinedType\" line=\"3\" problemID=\"16777218\" severity=\"ERROR\">\n" + 
 			"					<message value=\"Zork cannot be resolved to a type\"/>\n" + 
 			"					<source_context sourceEnd=\"3\" sourceStart=\"0\" value=\"Zork z;\"/>\n" + 
 			"					<arguments>\n" + 
