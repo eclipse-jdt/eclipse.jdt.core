@@ -566,7 +566,7 @@ class TypeBinding implements ITypeBinding {
 			// member or top level type
 			ITypeBinding declaringTypeBinding = null;
 			if (this.isArray()) {
-				declaringTypeBinding = this.getComponentType().getDeclaringClass();
+				declaringTypeBinding = this.getElementType().getDeclaringClass();
 			} else {
 				declaringTypeBinding = this.getDeclaringClass();
 			}
