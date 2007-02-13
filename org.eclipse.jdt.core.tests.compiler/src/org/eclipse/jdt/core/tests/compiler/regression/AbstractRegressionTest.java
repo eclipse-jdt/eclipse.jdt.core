@@ -123,14 +123,14 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected void checkClassFile(String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
 		this.checkClassFile("", className, source, expectedOutput, mode);
 	}
-	protected void checkClassFile(String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+	protected void checkClassFile(String directoryName, String className, String disassembledClassName, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
 		compileAndDeploy(source, directoryName, className);
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
 			if (!directory.exists()) {
 				assertTrue(".class file not generated properly in " + directory, false);
 			}
-			File f = new File(directory, className + ".class");
+			File f = new File(directory, disassembledClassName + ".class");
 			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 			String result = disassembler.disassemble(classFileBytes, "\n", mode);
@@ -156,6 +156,10 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		} finally {
 			removeTempClass(className);
 		}
+	}
+
+	protected void checkClassFile(String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+		this.checkClassFile(directoryName, className, className, source, expectedOutput, mode);
 	}
 
 	protected void checkDisassembledClassFile(String fileName, String className, String expectedOutput) {

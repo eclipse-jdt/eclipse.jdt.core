@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.util.ClassFormatException;
 public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 76 };
+//		TESTS_NUMBERS = new int[] { 77 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -2772,5 +2772,17 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Exception Table:\n" + 
 			"        [pc: 0, pc: 8] -> 11 when : Exception\n";
 		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=34373
+	public void test077() throws ClassFormatException, IOException {
+		String source =
+			"package p;\n" +
+			"public class X {\n" +
+			"	private static class A {}\n" +
+			"}";
+		String expectedOutput =
+			"private static class p.X$A {\n";
+		checkClassFile("p", "X", "X$A", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 }

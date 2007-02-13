@@ -700,7 +700,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			// incomplete initialization. We cannot go further.
 			return org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING;
 		}
-		CharOperation.replace(className, '/', '.');
+		className= CharOperation.replaceOnCopy(className, '/', '.');
 		final int classNameLength = className.length;
 		final int accessFlags = classFileReader.getAccessFlags();
 		final boolean isEnum = (accessFlags & IModifierConstants.ACC_ENUM) != 0;
