@@ -1156,6 +1156,49 @@ public void testCatchClauseExceptionRef14() throws JavaModelException {
 		project.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, visibilityCheck);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=173907
+public void testCatchClauseExceptionRef15() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"	public void throwing() throws IZZException, IZZAException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         try {\n" +
+		"            throwing();\n" +
+		"         } finally {}\n" +
+		"      }\n" +
+		"      catch (IZZAException e) {\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/IZZAException.java",
+			"package test;"+
+			"public class IZZAException extends Exception {\n" + 
+			"}\n");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/test/IZZException.java",
+			"package test;"+
+			"public class IZZException extends Exception {\n" + 
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=65737
  */
