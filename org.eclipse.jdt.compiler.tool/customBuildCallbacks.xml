@@ -28,12 +28,12 @@
 	<target name="post.build.jars">
 		<property name="dest" value="${postingDirectory}/${buildLabel}" />
 		<mkdir dir="${dest}/checksum" />
-    	<checksum file="${dest}/ecj.jar" property="md5" /> 
+		<checksum file="${dest}/ecj.jar" property="md5" /> 
 		<echo message="${md5} ecj.jar" file="${dest}/checksum/ecj.jar.md5" /> 
-    	<checksum file="${dest}/ecjsrc.zip" property="md5" /> 
+		<checksum file="${dest}/ecjsrc.zip" property="md5" /> 
 		<echo message="${md5} ecjsrc.zip" file="${dest}/checksum/ecjsrc.zip.md5" /> 
 	</target>
-	
+
 	<!-- ===================================================================== -->
 	<!-- Steps to do before the target build.sources                           -->
 	<!-- Available parameters :                                                -->
@@ -89,16 +89,16 @@
 			<fileset dir="${unjarDestBin}">
 				<include name="**/*"/>
 				<include name="*/*"/>
-	        </fileset>
+			</fileset>
 			<fileset dir="${target.folder}">
 				<include name="**/*"/>
-	        </fileset>
+			</fileset>
 			<fileset dir="${basedir}">
-			  <include name="META-INF/services/**" />
-	        </fileset>
+				<include name="META-INF/services/**" />
+			</fileset>
 		</zip>
 		<delete dir="${unjarDestBin}" failonerror="false"/>
-		
+
 		<echo message="UPDATE ecjsrc.zip" />
 		<property name="unjarDestSrc" value="${basedir}/tempsrc"/>
 		<mkdir dir="${unjarDestSrc}"/>
@@ -106,15 +106,15 @@
 			src="${postingDirectory}/${buildLabel}/ecjsrc.zip"
 			dest="${unjarDestSrc}"/>
 		<zip destfile="${postingDirectory}/${buildLabel}/ecjsrc.zip">
-		    <zipfileset dir="src" />
-		    <zipfileset dir="${unjarDestSrc}" />
-		    <zipfileset dir="${basedir}">
-			  <include name="META-INF/services/**" />
-			</zipfileset>			
+			<zipfileset dir="src" />
+			<zipfileset dir="${unjarDestSrc}" />
+			<zipfileset dir="${basedir}">
+				<include name="META-INF/services/**" />
+			</zipfileset>
 		</zip>
 		<delete dir="${unjarDestSrc}" failonerror="false"/>
 	</target>
-	
+
 	<!-- ===================================================================== -->
 	<!-- Steps to do after the compilation target <name>                       -->
 	<!-- Substitute "name" with the name of the compilation target, eg @dot    -->
@@ -128,7 +128,7 @@
 
 	<target name="post.@dot">
 	</target>
-	
+
 	<!-- ===================================================================== -->
 	<!-- Steps to do before the target gather.bin.parts                         -->
 	<!-- Available parameters :                                                -->
@@ -137,7 +137,7 @@
 	<!-- ===================================================================== -->
 	<target name="pre.gather.bin.parts">
 	</target>
-		
+
 	<!-- ===================================================================== -->
 	<!-- Steps to do after the target gather.bin.parts                         -->
 	<!-- Available parameters :                                                -->
@@ -168,7 +168,7 @@
 	<!-- Available parameters :                                                -->
 	<!--   destination.temp.folder - destination folder                        -->
 	<!-- ===================================================================== -->
-	<target name="pre.gather.logs">        
+	<target name="pre.gather.logs">
 	</target>
 
 	<!-- ===================================================================== -->
@@ -176,7 +176,7 @@
 	<!-- Available parameters :                                                -->
 	<!--   destination.temp.folder - destination folder                        -->
 	<!-- ===================================================================== -->
-	<target name="post.gather.logs">       
+	<target name="post.gather.logs">
 	</target>
 
 	<!-- ===================================================================== -->
@@ -184,7 +184,7 @@
 	<!-- Available parameters :                                                -->
 	<!--   destination.temp.folder - destination folder                        -->
 	<!-- ===================================================================== -->
-	<target name="pre.clean">              
+	<target name="pre.clean">
 	</target>
 
 	<!-- ===================================================================== -->
@@ -194,6 +194,6 @@
 	<!--   build.result.folder - results of the compilation                    -->
 	<!--   temp.folder - temporary folder                                      -->
 	<!-- ===================================================================== -->
-	<target name="post.clean">             
+	<target name="post.clean">
 	</target>
 </project>
