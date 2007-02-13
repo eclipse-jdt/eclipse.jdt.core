@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.util.ClassFormatException;
 public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-		TESTS_NUMBERS = new int[] { 76 };
+//		TESTS_NUMBERS = new int[] { 76 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
