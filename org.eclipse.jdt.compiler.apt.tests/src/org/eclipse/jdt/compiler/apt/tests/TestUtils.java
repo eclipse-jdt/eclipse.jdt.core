@@ -53,12 +53,11 @@ public class TestUtils {
 	 * @param targetName the name of the file to be created, e.g. "ExampleClass.java".
 	 * @return a File corresponding to the created file.
 	 */
-	public static File copyResource(String srcName, String targetFolderName, String targetName) {
+	public static File copyResource(String srcName, File targetFolder, String targetName) {
 		InputStream source = TestUtils.class.getClassLoader().getResourceAsStream(srcName);
 		Assert.assertNotNull("Couldn't read from plugin: " + srcName, source);
-		File targetFolder = new File(targetFolderName);
 		targetFolder.mkdirs();
-		Assert.assertTrue("couldn't mkdirs " + targetFolderName, targetFolder.exists());
+		Assert.assertTrue("couldn't mkdirs " + targetFolder.toString(), targetFolder.exists());
 		File targetFile = new File(targetFolder, targetName);
 		
 		FileOutputStream target = null;

@@ -114,7 +114,8 @@ public class BatchDispatchTests extends TestCase {
 	 * Verify that if a type has two annotations, both processors are run.
 	 */
 	public void testTwoAnnotations() {
-		File inputFile = TestUtils.copyResource("targets/dispatch/TwoAnnotations.java.txt", BatchTestUtils.getSrcFolderName(), "TwoAnnotations.java");
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
+		File inputFile = TestUtils.copyResource("targets/dispatch/TwoAnnotations.java.txt", targetFolder, "TwoAnnotations.java");
 		
 		List<String> options = new ArrayList<String>();
 		// See corresponding list in CheckArgsProc processor.
@@ -136,7 +137,8 @@ public class BatchDispatchTests extends TestCase {
 	
 	// Called with system compiler and Eclipse compiler
 	private void internalTestGenerateClass(JavaCompiler compiler) {
-		File inputFile = TestUtils.copyResource("targets/dispatch/HasGenClass.java.txt", BatchTestUtils.getSrcFolderName(), "HasGenClass.java");
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
+		File inputFile = TestUtils.copyResource("targets/dispatch/HasGenClass.java.txt", targetFolder, "HasGenClass.java");
 		
 		List<String> options = new ArrayList<String>();
 		BatchTestUtils.compileOneClass(compiler, inputFile, options);
@@ -150,12 +152,12 @@ public class BatchDispatchTests extends TestCase {
  		
  		File genClassFile = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "gen", "HgcGen.class");
  		assertTrue("generated src file was not compiled", genClassFile.exists());
-		
 	}
 	
 	// Called with system compiler and Eclipse compiler
 	private void internalTestProcessorArguments(JavaCompiler compiler) {
-		File inputFile = TestUtils.copyResource("targets/dispatch/HasCheckArgs.java.txt", BatchTestUtils.getSrcFolderName(), "HasCheckArgs.java");
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
+		File inputFile = TestUtils.copyResource("targets/dispatch/HasCheckArgs.java.txt", targetFolder, "HasCheckArgs.java");
 		
 		List<String> options = new ArrayList<String>();
 		// See corresponding list in CheckArgsProc processor.
