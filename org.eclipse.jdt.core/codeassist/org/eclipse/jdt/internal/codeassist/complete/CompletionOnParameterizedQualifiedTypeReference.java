@@ -72,6 +72,10 @@ public class CompletionOnParameterizedQualifiedTypeReference extends Parameteriz
 		return this.kind == K_EXCEPTION;
 	}
 	
+	public boolean isSuperType(){
+		return this.kind == K_CLASS || this.kind == K_INTERFACE;
+	}
+	
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 		super.resolveType(scope, checkBounds);
 		throw new CompletionNodeFound(this, this.resolvedType, scope);

@@ -3946,7 +3946,6 @@ public void testCompletionInsideExtends10() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"CompletionInsideExtends10.CompletionInsideExtends10Inner.CompletionInsideExtends10InnerInner[TYPE_REF]{test.CompletionInsideExtends10.CompletionInsideExtends10Inner.CompletionInsideExtends10InnerInner, test, Ltest.CompletionInsideExtends10$CompletionInsideExtends10Inner$CompletionInsideExtends10InnerInner;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_NON_RESTRICTED) + "}\n" +
 			"CompletionInsideExtends10[TYPE_REF]{CompletionInsideExtends10, test, Ltest.CompletionInsideExtends10;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"CompletionInsideExtends10TopLevel[TYPE_REF]{CompletionInsideExtends10TopLevel, test, Ltest.CompletionInsideExtends10TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());

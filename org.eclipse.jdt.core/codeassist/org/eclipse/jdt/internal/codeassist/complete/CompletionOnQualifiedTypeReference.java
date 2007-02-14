@@ -73,6 +73,10 @@ public boolean isInterface(){
 public boolean isException(){
 	return this.kind == K_EXCEPTION;
 }
+
+public boolean isSuperType(){
+	return this.kind == K_CLASS || this.kind == K_INTERFACE;
+}
 public StringBuffer printExpression(int indent, StringBuffer output) {
 	switch (this.kind) {
 		case K_CLASS :

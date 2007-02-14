@@ -246,6 +246,7 @@ public final class CompletionEngine
 	boolean assistNodeIsInterface;
 	boolean assistNodeIsAnnotation;
 	boolean assistNodeIsConstructor;
+	boolean assistNodeIsSuperType;
 	int  assistNodeInJavadoc = 0;
 	boolean assistNodeCanBeSingleMemberAnnotation = false;
 	
@@ -921,7 +922,8 @@ public final class CompletionEngine
 			this.assistNodeIsException = singleRef.isException();
 			this.assistNodeIsInterface = singleRef.isInterface();
 			this.assistNodeIsConstructor = singleRef.isConstructorType;
-
+			this.assistNodeIsSuperType = singleRef.isSuperType();
+			
 			// can be the start of a qualified type name
 			if (qualifiedBinding == null) {
 				if (this.completionToken.length == 0 &&
@@ -1115,6 +1117,7 @@ public final class CompletionEngine
 			this.assistNodeIsClass = ref.isClass();
 			this.assistNodeIsException = ref.isException();
 			this.assistNodeIsInterface = ref.isInterface();
+			this.assistNodeIsSuperType = ref.isSuperType();
 			
 			this.completionToken = ref.completionIdentifier;
 			long completionPosition = ref.sourcePositions[ref.tokens.length];
@@ -1354,6 +1357,7 @@ public final class CompletionEngine
 				this.assistNodeIsClass = ref.isClass();
 				this.assistNodeIsException = ref.isException();
 				this.assistNodeIsInterface = ref.isInterface();
+				this.assistNodeIsSuperType = ref.isSuperType();
 				
 				this.completionToken = ref.completionIdentifier;
 				long completionPosition = ref.sourcePositions[ref.tokens.length];
@@ -4307,9 +4311,10 @@ public final class CompletionEngine
 		if (typeName == null)
 			return;
 
-		if (currentType.superInterfaces() == null)
-			return; // we're trying to find a supertype
-
+		if (this.assistNodeIsSuperType && !this.insideQualifiedReference) return; // we're trying to find a supertype
+			
+		if (currentType.superInterfaces() == null) return;
+		
 		if (this.insideQualifiedReference
 			|| typeName.length == 0) { // do not search up the hierarchy
 
@@ -4463,9 +4468,10 @@ public final class CompletionEngine
 		if (typeName == null || typeName.length == 0)
 			return;
 
-		if (currentType.superInterfaces() == null)
-			return; // we're trying to find a supertype
+		if (this.assistNodeIsSuperType && !this.insideQualifiedReference) return; // we're trying to find a supertype
 		
+		if (currentType.superInterfaces() == null) return;
+		 
 		findMemberTypes(
 				typeName,
 				currentType.memberTypes(),
