@@ -483,4 +483,27 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			deleteProject("P");
 		}
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=149154
+	public void test022() throws JavaModelException {
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1/p2"); //$NON-NLS-1$
+		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+		IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
+		assertNotNull(classFile);
+		IType type = classFile.getType();
+		IMethod method = type.getMethod("access$1", new String[] {"Lp1.p2.X;", "I"}); //$NON-NLS-1$
+		assertTrue(method.exists());
+		String javadoc = null;
+		try {
+			javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+		} catch(JavaModelException e) {
+			assertTrue("Should not happen", false);
+		}
+		assertNull("Should not have a javadoc", javadoc); //$NON-NLS-1$
+		String[] paramNames = method.getParameterNames();
+		assertNotNull(paramNames);
+		assertEquals("Wrong size", 2, paramNames.length); //$NON-NLS-1$
+		assertEquals("Wrong name", "arg0", paramNames[0]); //$NON-NLS-1$
+		assertEquals("Wrong name", "arg1", paramNames[1]); //$NON-NLS-1$
+	}
 }

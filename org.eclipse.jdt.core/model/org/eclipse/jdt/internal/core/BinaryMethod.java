@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -167,6 +168,11 @@ public String[] getParameterNames() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	final int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
 	if (paramCount != 0) {
+		// don't try to look for javadoc for synthetic methods
+		int modifiers = this.getFlags();
+		if ((modifiers & ClassFileConstants.AccSynthetic) != 0) {
+			return this.parameterNames = getRawParameterNames(paramCount);
+		}
  		String javadocContents = null;
  		IType declaringType = this.getDeclaringType();
 		PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
