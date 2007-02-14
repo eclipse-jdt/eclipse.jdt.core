@@ -6,10 +6,10 @@
       <java6processors
             enableDefault="true">
          <java6processor
-               class="org.eclipse.jdt.compiler.apt.tests.processors.proc.dispatch.ArgsTestProc">
+               class="org.eclipse.jdt.compiler.apt.tests.processors.checkargs.CheckArgsProc">
          </java6processor>
          <java6processor
-               class="org.eclipse.jdt.compiler.apt.tests.processors.proc.genclass.GenClassProc">
+               class="org.eclipse.jdt.compiler.apt.tests.processors.genclass.GenClassProc">
          </java6processor>
       </java6processors>
    </extension>

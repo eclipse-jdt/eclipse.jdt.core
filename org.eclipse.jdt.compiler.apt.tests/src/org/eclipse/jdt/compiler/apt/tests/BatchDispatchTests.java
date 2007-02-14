@@ -11,9 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.compiler.apt.tests;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -37,43 +35,21 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
-public class CompilerAptTests extends TestCase {
+/**
+ * Test the ability to execute annotation processors in batch mode, including 
+ * tests of file generation, processor environment, etc.
+ * <p>
+ * This suite is not meant to exhaustively test typesystem functionality.
+ * @since 3.3
+ */
+public class BatchDispatchTests extends TestCase {
 	
 	private static boolean _verbose = false; 
 	
 	// relative to plugin directory
 	protected static final String _processorJarName = "export\\apttestprocessors.jar";
 	
-	// class that generates another class, using processor for @Echo
-	protected static final String _echoSource = 
-			"package p;\n" +
-			"import org.eclipse.jdt.compiler.apt.tests.annotations.GenClass;\n" + 
-			"import gen.XGen;\n" +
-			"@GenClass(clazz=\"gen.XGen\", method=\"foo\")\n" +
-			"public class X {\n" +
-			"\tXGen _xgen;\n" +
-			"}\n" ;
-	
-	// class that causes processor args to be echoed to stdout, using processor for @EchoArgs
-	protected static final String _echoArgsSource = 
-			"package p;\n" +
-			"import org.eclipse.jdt.compiler.apt.tests.annotations.EchoArgs;\n" + 
-			"@EchoArgs\n" +
-			"public class TestEchoArgs {\n" +
-			"}\n" ;
-	
-	private static final String _twoAnnotationsSource = 
-		"package p;\n" +
-		"import org.eclipse.jdt.compiler.apt.tests.annotations.EchoArgs;\n" + 
-		"import org.eclipse.jdt.compiler.apt.tests.annotations.GenClass;\n" + 
-		"import gen.XGen;\n" +
-		"@GenClass(clazz=\"gen.XGen\", method=\"foo\")\n" +
-		"@EchoArgs\n" +
-		"public class X {\n" +
-		"\tXGen _xgen;\n" +
-		"}\n" ;
-	
-	// locations to generate files
+	// locations to copy and generate files
 	protected static final String _tmpFolder = System.getProperty("java.io.tmpdir") + "eclipse-temp";
 	
 	private static final String[] ONE_ARG_OPTIONS = {
@@ -100,11 +76,11 @@ public class CompilerAptTests extends TestCase {
 	
 	public static TestSuite suite() {
 		TestSuite suite = new TestSuite();
-		suite.addTestSuite(CompilerAptTests.class);
+		suite.addTestSuite(BatchDispatchTests.class);
 		return suite;
 	}
 
-	public CompilerAptTests(String name) {
+	public BatchDispatchTests(String name) {
 		super(name);
 	}
 	
@@ -193,22 +169,27 @@ public class CompilerAptTests extends TestCase {
 		internalTestGenerateClass(compiler);
 	}
 	
+	/**
+	 * Verify that if a type has two annotations, both processors are run.
+	 */
 	public void testTwoAnnotations() {
-		File inputFile = writeSourceFile(_tmpSrcFolderName, "X.java", _twoAnnotationsSource);
+		File inputFile = TestUtils.copyResource("targets/dispatch/TwoAnnotations.java.txt", _tmpSrcFolderName, "TwoAnnotations.java");
 		
 		List<String> options = new ArrayList<String>();
-		// See corresponding list in ArgsTestProc processor.
+		// See corresponding list in CheckArgsProc processor.
 		// Processor will throw IllegalStateException if it detects a mismatch.
 		options.add("-Afoo=bar");
 		options.add("-Anovalue");
 		compileOneClass(_eclipseCompiler, inputFile, options);
 		
 		// check that the src and class files were generated
- 		File genSrcFile = new File(_tmpGenFolderName + File.separator + "gen" + File.separator + "XGen.java");
+ 		File genSrcFile = TestUtils.concatPath(_tmpGenFolderName, "gen", "TwoAnnotationsGen.java");
  		assertTrue("generated src file does not exist", genSrcFile.exists());
- 		File classFile = new File(_tmpBinFolderName + File.separator + "p" + File.separator + "X.class");
+ 		
+ 		File classFile = TestUtils.concatPath(_tmpBinFolderName, "targets", "dispatch", "TwoAnnotations.class");
  		assertTrue("ordinary src file was not compiled", classFile.exists());
- 		File genClassFile = new File(_tmpBinFolderName + File.separator + "gen" + File.separator + "XGen.class");
+ 		
+ 		File genClassFile = TestUtils.concatPath(_tmpBinFolderName, "gen", "TwoAnnotationsGen.class");
  		assertTrue("generated src file was not compiled", genClassFile.exists());
 	}
 	
@@ -220,26 +201,28 @@ public class CompilerAptTests extends TestCase {
 	}
 	
 	private void internalTestGenerateClass(JavaCompiler compiler) {
-		File inputFile = writeSourceFile(_tmpSrcFolderName, "X.java", _echoSource);
+		File inputFile = TestUtils.copyResource("targets/dispatch/HasGenClass.java.txt", _tmpSrcFolderName, "HasGenClass.java");
 		
 		List<String> options = new ArrayList<String>();
 		compileOneClass(compiler, inputFile, options);
 		
 		// check that the src and class files were generated
- 		File genSrcFile = new File(_tmpGenFolderName + File.separator + "gen" + File.separator + "XGen.java");
+ 		File genSrcFile = TestUtils.concatPath(_tmpGenFolderName, "gen", "HgcGen.java");
  		assertTrue("generated src file does not exist", genSrcFile.exists());
- 		File classFile = new File(_tmpBinFolderName + File.separator + "p" + File.separator + "X.class");
+ 		
+ 		File classFile = TestUtils.concatPath(_tmpBinFolderName, "targets", "dispatch", "HasGenClass.class");
  		assertTrue("ordinary src file was not compiled", classFile.exists());
- 		File genClassFile = new File(_tmpBinFolderName + File.separator + "gen" + File.separator + "XGen.class");
+ 		
+ 		File genClassFile = TestUtils.concatPath(_tmpBinFolderName, "gen", "HgcGen.class");
  		assertTrue("generated src file was not compiled", genClassFile.exists());
 		
 	}
 	
 	private void internalTestProcessorArguments(JavaCompiler compiler) {
-		File inputFile = writeSourceFile(_tmpSrcFolderName, "TestEchoArgs.java", _echoArgsSource);
+		File inputFile = TestUtils.copyResource("targets/dispatch/HasCheckArgs.java.txt", _tmpSrcFolderName, "HasCheckArgs.java");
 		
 		List<String> options = new ArrayList<String>();
-		// See corresponding list in ArgsTestProc processor.
+		// See corresponding list in CheckArgsProc processor.
 		// Processor will throw IllegalStateException if it detects a mismatch.
 		options.add("-Afoo=bar");
 		options.add("-Anovalue");
@@ -336,6 +319,8 @@ public class CompilerAptTests extends TestCase {
 		options.add(_tmpGenFolderName);
 		options.add("-cp");
 		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarName);
+		options.add("-processorpath");
+		options.add(_processorJarName);
 		options.add("-XprintRounds");
 		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
 		Boolean result = task.call();
@@ -346,29 +331,4 @@ public class CompilerAptTests extends TestCase {
 		}
 	}
 
-	/**
-	 * Write a Java source file with the specified name and content.
-	 */
-	private File writeSourceFile(String tmpFolder, String name, String content) {
-		File inputFile = new File(tmpFolder, name);
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(inputFile));
-			writer.write(content);
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {
-			// ignore
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
-		}
-		return inputFile;
-	}
-	
 }

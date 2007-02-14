@@ -22,7 +22,7 @@ public class AllTests extends TestCase {
 	// run all tests
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
-		suite.addTestSuite(CompilerAptTests.class);
+		suite.addTestSuite(BatchDispatchTests.class);
 		return suite;
 	}
 }

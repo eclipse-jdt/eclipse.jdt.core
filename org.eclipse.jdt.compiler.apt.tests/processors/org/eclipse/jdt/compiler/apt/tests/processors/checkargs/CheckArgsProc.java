@@ -10,7 +10,7 @@
  *    
  *******************************************************************************/
 
-package org.eclipse.jdt.compiler.apt.tests.processors.proc.dispatch;
+package org.eclipse.jdt.compiler.apt.tests.processors.checkargs;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,9 +26,9 @@ import javax.lang.model.element.TypeElement;
 /**
  * A processor that echoes its command-line arguments to standard out.
  */
-@SupportedAnnotationTypes("org.eclipse.jdt.compiler.apt.tests.annotations.EchoArgs")
+@SupportedAnnotationTypes("org.eclipse.jdt.compiler.apt.tests.annotations.CheckArgs")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-public class ArgsTestProc extends AbstractProcessor {
+public class CheckArgsProc extends AbstractProcessor {
 	
 	private final static String[] _expected =
 	{

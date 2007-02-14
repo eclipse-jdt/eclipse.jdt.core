@@ -9,7 +9,7 @@
  *    wharley@bea.com - initial API and implementation
  *    
  *******************************************************************************/
-package org.eclipse.jdt.compiler.apt.tests.processors.proc.genclass;
+package org.eclipse.jdt.compiler.apt.tests.processors.genclass;
 
 import java.io.IOException;
 import java.io.PrintWriter;

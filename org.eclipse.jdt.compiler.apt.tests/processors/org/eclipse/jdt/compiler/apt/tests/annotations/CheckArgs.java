@@ -13,8 +13,8 @@
 package org.eclipse.jdt.compiler.apt.tests.annotations;
 
 /**
- * @see proc.dispatch.ArgsTestProc
+ * @see org.eclipse.jdt.compiler.apt.tests.processors.checkargs.CheckArgsProc
  */
-public @interface EchoArgs {
+public @interface CheckArgs {
 
 }
