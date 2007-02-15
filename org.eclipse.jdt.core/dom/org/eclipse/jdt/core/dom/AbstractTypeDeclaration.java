@@ -95,7 +95,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	 * @return the property descriptor
 	 */
 	static final ChildPropertyDescriptor internalNamePropertyFactory(Class nodeClass) {
-		return new ChildPropertyDescriptor(nodeClass, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+		return new ChildPropertyDescriptor(nodeClass, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 	}
 	
 	/**

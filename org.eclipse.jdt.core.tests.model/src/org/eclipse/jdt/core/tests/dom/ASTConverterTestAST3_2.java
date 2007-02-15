@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
@@ -54,6 +55,7 @@ import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
@@ -114,7 +116,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 664, -1 };
-//		TESTS_NUMBERS =  new int[] { 664 };
+//		TESTS_NUMBERS =  new int[] { 668 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8698,5 +8700,86 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=149567
+	 */
+	public void test0666() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	protected String foo() {\n" + 
+				"		List c = new ArrayList();\n" + 
+				"		c.add(null);\n" + 
+				"		return c;\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedError = "List cannot be resolved to a type";
+			assertProblemsSize(unit, 1, expectedError);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+			List fragments = statement.fragments();
+			assertEquals("No fragments", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNull("No binding", variableBinding);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=149567
+	 */
+	public void test0667() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	List foo() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedError = "List cannot be resolved to a type";
+			assertProblemsSize(unit, 1, expectedError);
+			node = getASTNode(unit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration declaration = (MethodDeclaration) node;
+			IMethodBinding binding = declaration.resolveBinding();
+			assertNull("Got a binding", binding);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=174298
+	 */
+	public void test0668() throws JavaModelException {
+		assertEquals("Wrong name property", "org.eclipse.jdt.core.dom.SimpleName", AnnotationTypeDeclaration.NAME_PROPERTY.getChildType().getName());
+		assertEquals("Wrong name property", "org.eclipse.jdt.core.dom.SimpleName", EnumDeclaration.NAME_PROPERTY.getChildType().getName());
+		assertEquals("Wrong name property", "org.eclipse.jdt.core.dom.SimpleName", TypeDeclaration.NAME_PROPERTY.getChildType().getName());
 	}
 }

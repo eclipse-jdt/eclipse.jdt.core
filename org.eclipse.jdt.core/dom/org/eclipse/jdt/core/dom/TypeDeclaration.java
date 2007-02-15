@@ -99,8 +99,8 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * The "name" structural property of this node type.
 	 * @since 3.0
 	 */
-	public static final ChildPropertyDescriptor NAME_PROPERTY = 
-		new ChildPropertyDescriptor(TypeDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor NAME_PROPERTY =
+		internalNamePropertyFactory(TypeDeclaration.class);
 
 	/**
 	 * The "superclass" structural property of this node type (JLS2 API only).
