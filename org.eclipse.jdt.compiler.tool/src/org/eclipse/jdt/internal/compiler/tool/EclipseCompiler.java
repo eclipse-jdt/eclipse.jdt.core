@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -266,6 +267,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	 *      javax.tools.JavaFileManager, javax.tools.DiagnosticListener,
 	 *      java.lang.Iterable, java.lang.Iterable, java.lang.Iterable)
 	 */
+	@SuppressWarnings("unchecked")
 	public CompilationTask getTask(Writer out,
 			JavaFileManager fileManager,
 			DiagnosticListener<? super JavaFileObject> diagnosticListener,
@@ -290,11 +292,14 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 			this.fileManager = this.getStandardFileManager(diagnosticListener, null, null);
 		}
 
-		this.initialize(writerOut, writerErr, false);
+		initialize(writerOut, writerErr, false);
+		this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+		this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+		this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 
 		ArrayList<String> allOptions = new ArrayList<String>();
 		if (options != null) {
-    		for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
+			for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
 				this.fileManager.handleOption(iterator.next(), iterator);
 			}
 			for (String option : options) {
@@ -347,7 +352,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 				Processor[] processors2 = new Processor[temp.size()];
 				temp.toArray(processors2);
 				EclipseCompiler.this.processors = processors2;
-    		}
+			}
 		};
 	}
 

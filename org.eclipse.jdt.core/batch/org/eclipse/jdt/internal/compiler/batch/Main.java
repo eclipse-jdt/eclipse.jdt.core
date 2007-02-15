@@ -1140,8 +1140,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		// == Main.NONE: absorbent element, do not output class files;
 		// else: use as the path of the directory into which class files must
 		//       be written.
-	protected boolean didSpecifySource;
-	protected boolean didSpecifyTarget;
+	private boolean didSpecifySource;
+	private boolean didSpecifyTarget;
 
 	public String[] encodings;
 
