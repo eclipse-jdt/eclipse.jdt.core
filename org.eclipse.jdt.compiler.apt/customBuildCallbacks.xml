@@ -91,6 +91,8 @@
 			dest="${unjarDestBin}"/>
 		<zip destfile="${postingDirectory}/${buildLabel}/ecj.jar">
 			<fileset dir="${unjarDestBin}">
+				<exclude name="**/ide/**"/>
+				<exclude name="**/ide/*"/>
 				<include name="**/*"/>
 				<include name="*/*"/>
 			</fileset>
@@ -111,7 +113,10 @@
 			dest="${unjarDestSrc}"/>
 		<zip destfile="${postingDirectory}/${buildLabel}/ecjsrc.zip">
 			<zipfileset dir="src" />
-			<zipfileset dir="${unjarDestSrc}" />
+			<zipfileset dir="${unjarDestSrc}">
+				<exclude name="**/ide/**"/>
+				<exclude name="**/ide/*"/>
+			</zipfileset>
 			<zipfileset dir="${basedir}">
 				<include name="META-INF/services/**" />
 			</zipfileset>

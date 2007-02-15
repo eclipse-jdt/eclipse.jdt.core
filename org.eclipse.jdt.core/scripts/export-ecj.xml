@@ -74,7 +74,7 @@
 			<zipfileset dir="scripts">
 				<include name="about.html" />
 				<include name="META-INF/**" />
-				<include name="build.xml" />
+				<!-- include name="build.xml" / -->
 			</zipfileset>
 		</zip>
 	</target>
