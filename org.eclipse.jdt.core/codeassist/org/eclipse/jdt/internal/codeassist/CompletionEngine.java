@@ -6343,6 +6343,8 @@ public final class CompletionEngine
 				findTypeParameters(token, scope);
 			}
 		}
+		
+		boolean isEmptyPrefix = token.length == 0;
 
 		if (!skip && proposeType && this.unitScope != null) {
 			ReferenceBinding outerInvocationType = scope.enclosingSourceType();
@@ -6397,6 +6399,10 @@ public final class CompletionEngine
 					if(!sourceType.isInterface() && !sourceType.isAnnotationType()) continue next;
 				} else if (this.assistNodeIsAnnotation) {
 					if(!sourceType.isAnnotationType()) continue next;
+				} else if (isEmptyPrefix && this.assistNodeIsException) {
+					if (sourceType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
+						continue next;
+					}
 				}
 				
 				int relevance = computeBaseRelevance();
@@ -6426,7 +6432,6 @@ public final class CompletionEngine
 			this.findTypesFromStaticImports(token, scope, proposeAllMemberTypes, typesFound);
 		}
 		
-		boolean isEmptyPrefix = token.length == 0;
 		if (isEmptyPrefix && !this.assistNodeIsAnnotation) {
 			if(proposeType && this.expectedTypesPtr > -1) {
 				next : for (int i = 0; i <= this.expectedTypesPtr; i++) {

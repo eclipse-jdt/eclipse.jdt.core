@@ -854,7 +854,6 @@ public void testCatchClauseExceptionRef08() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test[TYPE_REF]{Test, test, Ltest.Test;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
 			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -9692,7 +9691,6 @@ public void testCompletionMemberType2() throws JavaModelException {
 			requestor.getResults());
 	} else {
 		assertResults(
-			"CompletionMemberType2[TYPE_REF]{CompletionMemberType2, test, Ltest.CompletionMemberType2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
 			"CompletionMemberType2.MemberException[TYPE_REF]{MemberException, test, Ltest.CompletionMemberType2$MemberException;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	}
