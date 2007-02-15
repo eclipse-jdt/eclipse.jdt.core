@@ -125,7 +125,20 @@ public class ThrownExceptionFinder extends ASTVisitor {
 		for (int i = 0; i < length; i++) {
 			TypeBinding exception = catchArguments[i].type.resolvedType;
 			if (exception != null && exception.isValidBinding()) {
-				this.thrownExceptions.remove(exception);
+				this.removeCaughtException((ReferenceBinding)exception);
+				
+			}
+		}
+	}
+
+	private void removeCaughtException(ReferenceBinding caughtException) {
+		Object[] exceptions = this.thrownExceptions.values;
+		for (int i = 0; i < exceptions.length; i++) {
+			ReferenceBinding exception = (ReferenceBinding)exceptions[i];
+			if (exception != null) {
+				if (exception == caughtException || caughtException.isSuperclassOf(exception)) {
+					this.thrownExceptions.remove(exception);
+				}
 			}
 		}
 	}

@@ -2293,11 +2293,6 @@ public final class CompletionEngine
 			ObjectVector typesFound,
 			boolean searchSuperClasses) {
 		
-		if (isForbidden(exceptionType)) {
-			this.knownTypes.put(CharOperation.concat(exceptionType.qualifiedPackageName(), exceptionType.qualifiedSourceName(), '.'), this);
-			return;
-		}
-		
 		if (searchSuperClasses) {
 			ReferenceBinding javaLangThrowable = scope.getJavaLangThrowable();
 			if (exceptionType != javaLangThrowable) {
