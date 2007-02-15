@@ -36,6 +36,9 @@ import javax.tools.JavaFileObject.Kind;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 public class CompilerToolTests extends TestCase {
@@ -366,6 +369,16 @@ public class CompilerToolTests extends TestCase {
  			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
  	 		assertTrue("Compilation failed ", false);
  		}
+ 		ClassFileReader reader = null;
+ 		try {
+			reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
+		} catch (ClassFormatException e) {
+			assertTrue("Should not happen", false);
+		} catch (IOException e) {
+			assertTrue("Should not happen", false);
+		}
+		assertNotNull("No reader", reader);
+ 		assertEquals("Wrong value", ClassFileConstants.JDK1_6, reader.getVersion());
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 	}
