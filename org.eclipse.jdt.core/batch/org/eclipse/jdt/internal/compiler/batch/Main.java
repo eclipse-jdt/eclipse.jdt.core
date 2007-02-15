@@ -1140,8 +1140,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		// == Main.NONE: absorbent element, do not output class files;
 		// else: use as the path of the directory into which class files must
 		//       be written.
-	private boolean didSpecifySource;
-	private boolean didSpecifyTarget;
+	protected boolean didSpecifySource;
+	protected boolean didSpecifyTarget;
 
 	public String[] encodings;
 
@@ -2567,7 +2567,7 @@ public void configure(String[] argv) throws InvalidInputException {
 				if (this.didSpecifySource) {
 					throw new InvalidInputException(
 						this.bind("configure.duplicateSource", currentArg));//$NON-NLS-1$
-				}				
+				}
 				this.didSpecifySource = true;
 				if (currentArg.equals("1.3")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);

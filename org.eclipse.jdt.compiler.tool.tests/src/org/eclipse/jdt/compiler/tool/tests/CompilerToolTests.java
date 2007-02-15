@@ -137,7 +137,7 @@ public class CompilerToolTests extends TestCase {
 			if (javaCompiler instanceof EclipseCompiler) {
 				Compiler = javaCompiler;
 			}
-	     }
+		}
 		assertEquals("Only one compiler available", 1, compilerCounter);
 	}
 
