@@ -268,7 +268,10 @@ public IDOMType createType(char[] sourceCode) {
 		return null;
 	}
 	if (fNode != null) fNode.normalize(this);
-	return (IDOMType)fNode;
+	if (fNode instanceof IDOMType) {
+		return (IDOMType) fNode;
+	}
+	return null;
 }
 /**
  * Creates a new DOMMethod and inizializes.
