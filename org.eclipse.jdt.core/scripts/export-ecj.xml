@@ -17,26 +17,26 @@
 		<echo message="Extract .class file and properties for the batch compiler" />
 		<copy todir="${ecj-temp-folder}">
 			<fileset dir="scripts">
-			  <include name="META-INF/**" />
-			  <include name="about.html" />
-	        </fileset>
-	        <fileset dir="${target.folder}">
-	        	<include name="org/eclipse/jdt/internal/compiler/**"/>
-	        	<include name="org/eclipse/jdt/core/compiler/**"/>
-	        	<exclude name="**/package.htm*"/>
-	        	<exclude name="org/eclipse/jdt/core/compiler/CompilationParticipant*.class"/>
-	        	<exclude name="org/eclipse/jdt/core/compiler/BuildContext.class"/>
-	        	<exclude name="org/eclipse/jdt/core/compiler/IScanner.class"/>
-	        	<exclude name="org/eclipse/jdt/core/compiler/ITerminalSymbols*.class"/>
-	        	<exclude name="org/eclipse/jdt/core/compiler/ReconcileContext*.class"/>
-	        	<exclude name="org/eclipse/jdt/internal/compiler/DocumentElementParser*.class"/>
-	        	<exclude name="org/eclipse/jdt/internal/compiler/IDocumentElementRequestor.class"/>
-	        	<exclude name="org/eclipse/jdt/internal/compiler/ISourceElementRequestor*.class"/>
-	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceElementParser*.class"/>
-	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceElementRequestorAdapter*.class"/>
-	        	<exclude name="org/eclipse/jdt/internal/compiler/SourceJavadocParser*.class"/>
-	        	<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
-        	</fileset>
+				<include name="META-INF/**" />
+				<include name="about.html" />
+			</fileset>
+			<fileset dir="${target.folder}">
+				<include name="org/eclipse/jdt/internal/compiler/**"/>
+				<include name="org/eclipse/jdt/core/compiler/**"/>
+				<exclude name="**/package.htm*"/>
+				<exclude name="org/eclipse/jdt/core/compiler/CompilationParticipant*.class"/>
+				<exclude name="org/eclipse/jdt/core/compiler/BuildContext.class"/>
+				<exclude name="org/eclipse/jdt/core/compiler/IScanner.class"/>
+				<exclude name="org/eclipse/jdt/core/compiler/ITerminalSymbols*.class"/>
+				<exclude name="org/eclipse/jdt/core/compiler/ReconcileContext*.class"/>
+				<exclude name="org/eclipse/jdt/internal/compiler/DocumentElementParser*.class"/>
+				<exclude name="org/eclipse/jdt/internal/compiler/IDocumentElementRequestor.class"/>
+				<exclude name="org/eclipse/jdt/internal/compiler/ISourceElementRequestor*.class"/>
+				<exclude name="org/eclipse/jdt/internal/compiler/SourceElementParser*.class"/>
+				<exclude name="org/eclipse/jdt/internal/compiler/SourceElementRequestorAdapter*.class"/>
+				<exclude name="org/eclipse/jdt/internal/compiler/SourceJavadocParser*.class"/>
+				<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
+			</fileset>
 		</copy>		
 	</target>
 
@@ -45,9 +45,9 @@
 		<echo message="Extract .class file and properties for the ant adapter" />
 		<mkdir dir="${ecj-temp-folder}"/>
 		<copy todir="${ecj-temp-folder}">
-	        <fileset dir="${target.folder}">
-	        	<exclude name="org/eclipse/jdt/core/CheckDebugAttributes*.*"/>
-        	</fileset>
+			<fileset dir="${target.folder}">
+				<exclude name="org/eclipse/jdt/core/CheckDebugAttributes*.*"/>
+			</fileset>
 		</copy>
 	</target>
 
@@ -57,21 +57,26 @@
 		<zip zipfile="${dest}/ecj.jar">
 			<fileset dir="${ecj-temp-folder}">
 				<include name="**/*"/>
-				<include name="about.html"/>
-	        </fileset>
+			</fileset>
+			<fileset dir="scripts">
+				<include name="META-INF/**" />
+				<include name="about.html" />
+			</fileset>
 		</zip>
 		<echo message="UPDATE ecjsrc.zip" />
 		<delete file="${dest}/ecjsrc.zip" failonerror="false"/>
 		<zip zipfile="${dest}/ecjsrc.zip">
-		    <zipfileset dir="batch" />
-		    <zipfileset dir="compiler" />
-		    <zipfileset dir="antadapter">
-	        	<exclude name="org/eclipse/jdt/core/CheckDebugAttributes.java"/>
-		    </zipfileset>
+			<zipfileset dir="batch" />
+			<zipfileset dir="compiler" />
+			<zipfileset dir="antadapter">
+				<exclude name="org/eclipse/jdt/core/CheckDebugAttributes.java"/>
+			</zipfileset>
 			<zipfileset dir="scripts">
-			  <include name="about.html" />
-			</zipfileset>			
-  		</zip>
+				<include name="about.html" />
+				<include name="META-INF/**" />
+				<include name="build.xml" />
+			</zipfileset>
+		</zip>
 	</target>
 	
 	<target name="export_src_bin">
@@ -83,7 +88,7 @@
 			<fileset dir="batch" />
 			<fileset dir="compiler" />
 			<fileset dir="antadapter">
-	        	<exclude name="org/eclipse/jdt/core/CheckDebugAttributes.java"/>
+				<exclude name="org/eclipse/jdt/core/CheckDebugAttributes.java"/>
 			</fileset>
 		</copy>
 
@@ -91,7 +96,7 @@
 			<fileset dir="${ecj-temp-folder}">
 				<include name="**/*"/>
 				<include name="about.html"/>
-	        </fileset>
+			</fileset>
 			<fileset dir="${ecj-temp-src-folder}"/>
 		</zip>
 		
