@@ -3292,6 +3292,16 @@ public void invalidParenthesizedExpression(ASTNode reference) {
 		reference.sourceEnd);
 }
 public void invalidType(ASTNode location, TypeBinding type) {
+	if (type instanceof ReferenceBinding) {
+		if (isRecoveredName(((ReferenceBinding)type).compoundName)) return;
+	}
+	else if (type instanceof ArrayBinding) {
+		TypeBinding leafType = ((ArrayBinding)type).leafComponentType;
+		if (leafType instanceof ReferenceBinding) {
+			if (isRecoveredName(((ReferenceBinding)leafType).compoundName)) return;
+		}
+	}
+	
 	int id = IProblem.UndefinedType; // default
 	switch (type.problemId()) {
 		case ProblemReasons.NotFound :

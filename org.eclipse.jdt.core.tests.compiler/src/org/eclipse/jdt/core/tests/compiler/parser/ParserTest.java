@@ -707,4 +707,46 @@ public void test026() {
 		options // custom options
 	);
 }
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=173992
+ */
+public void test027() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.EOFException;\n" +
+			"import java.io.FileNotFoundException;\n" +
+			"import java.io.IOException;\n" +
+			"import org.xml.sax.SAXException;\n" +
+			"public class X {\n" +
+        		"public void doSomething() throws FileNotFoundException, EOFException, SAXException{\n" +
+        		"\n" +
+        		"}\n" +
+			"public void doSomethingElse() {\n" +
+        		"try {\n" +
+                	"	doSomething();\n" +
+        		"}\n" +
+       			" catch ( SAXException exception) {\n" +
+			"\n" +
+      			"}  \n" +             
+        		"catch ( FileNotFoundException exception ) {\n" +
+			"\n" +
+        		"}    \n" +           
+       			"catch (\n" + 
+                	"	// working before the slashes\n" +
+        		") {\n" +
+			"\n" +
+        		"} \n" +              
+        		"} \n" + 
+        	"}\n"
+        	},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 19)\n" +
+		"	catch (\n" +
+		"	      ^\n" +
+		"Syntax error on token \"(\", FormalParameter expected after this token\n" +
+		"----------\n"
+	);
+}
 }

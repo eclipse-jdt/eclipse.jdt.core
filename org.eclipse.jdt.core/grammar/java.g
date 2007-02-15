@@ -654,6 +654,7 @@ FormalParameter ::= Modifiersopt Type '...' VariableDeclaratorId
 /.$putCase consumeFormalParameter(true); $break ./
 /:$readableName FormalParameter:/
 /:$compliance 1.5:/
+/:$recovery_template Identifier Identifier:/
 
 ClassTypeList -> ClassTypeElt
 ClassTypeList ::= ClassTypeList ',' ClassTypeElt

@@ -3545,4 +3545,108 @@ public void test0043() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=173992
+public void test0044() {
+
+	String s = 
+		"import java.io.EOFException;\n" +
+		"import java.io.FileNotFoundException;\n" +
+		"import java.io.IOException;\n" +
+		"import org.xml.sax.SAXException;\n" +
+		"public class X {\n" +
+    		"public void doSomething() throws FileNotFoundException, EOFException, SAXException{\n" +
+    		"\n" +
+    		"}\n" +
+		"public void doSomethingElse() {\n" +
+    		"try {\n" +
+            	"	doSomething();\n" +
+    		"}\n" +
+   			" catch ( SAXException exception) {\n" +
+		"\n" +
+  			"}  \n" +             
+    		"catch ( FileNotFoundException exception ) {\n" +
+		"\n" +
+    		"}    \n" +           
+   			"catch (\n" + 
+            	"	// working before the slashes\n" +
+    		") {\n" +
+		"\n" +
+    		"} \n" +              
+    		"} \n" + 
+    	"}\n";
+
+	String expectedDietUnitToString = 
+		"import java.io.EOFException;\n" + 
+		"import java.io.FileNotFoundException;\n" + 
+		"import java.io.IOException;\n" + 
+		"import org.xml.sax.SAXException;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void doSomething() throws FileNotFoundException, EOFException, SAXException {\n" + 
+		"  }\n" + 
+		"  public void doSomethingElse() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedDietPlusBodyUnitToString = 
+		"import java.io.EOFException;\n" + 
+		"import java.io.FileNotFoundException;\n" + 
+		"import java.io.IOException;\n" + 
+		"import org.xml.sax.SAXException;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void doSomething() throws FileNotFoundException, EOFException, SAXException {\n" + 
+		"  }\n" + 
+		"  public void doSomethingElse() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString = 
+		"import java.io.EOFException;\n" + 
+		"import java.io.FileNotFoundException;\n" + 
+		"import java.io.IOException;\n" + 
+		"import org.xml.sax.SAXException;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void doSomething() throws FileNotFoundException, EOFException, SAXException {\n" + 
+		"  }\n" + 
+		"  public void doSomethingElse() {\n" + 
+		"    try \n" + 
+		"      {\n" + 
+		"        doSomething();\n" + 
+		"      }\n" + 
+		"    catch (SAXException exception)       {\n" + 
+		"      }\n" + 
+		"    catch (FileNotFoundException exception)       {\n" + 
+		"      }\n" + 
+		"    catch ($missing$ $missing$)       {\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString =
+		expectedDietUnitToString;
+	
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+	
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
 }
