@@ -17,11 +17,14 @@
 			<compilerarg line="-Xlint:none"/>
 		</javac>
 
-		<javac srcdir="${basedir}" destdir="${output}"
+		<javac destdir="${output}"
 				debuglevel="lines,source"
 				source="1.6"
 				target="1.6"
 				includes="org/eclipse/jdt/internal/compiler/tool/*">
+			<src path="${basedir}"/>
+			<include name="org/eclipse/jdt/internal/compiler/tool/*"/>
+			<include name="**/apt/**"/>
 			<compilerarg line="-Xlint:none"/>
 		</javac>
 
