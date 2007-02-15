@@ -65,9 +65,6 @@ public class BatchTestUtils {
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
 		
-		if (compiler == _eclipseCompiler) {
-			options.add("-6.0"); // not the default for Eclipse compiler
-		}
 		options.add("-d");
 		options.add(_tmpBinFolderName);
 		options.add("-s");
