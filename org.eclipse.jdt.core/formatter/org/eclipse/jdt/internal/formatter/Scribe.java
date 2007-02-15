@@ -174,6 +174,27 @@ public class Scribe {
 						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(previousOffset, previousLength, previousReplacement + replacement);
 					}
 				}
+			} else if ((offset + length == previousOffset) && (previousLength + length == replacementLength + previousReplacementLength)) {
+				// check if both edits corresponds to the orignal source code
+				boolean canBeRemoved = true;
+				String totalReplacement = replacement + previousReplacement;
+				loop: for (int i = 0; i < previousLength + length; i++) {
+					if (scanner.source[i + offset] != totalReplacement.charAt(i)) {
+						this.edits[this.editsIndex - 1] = new OptimizedReplaceEdit(offset, previousLength + length, totalReplacement);
+						canBeRemoved = false;
+						break loop;
+					}
+				}
+				if (canBeRemoved) {
+					if (this.currentAlignment != null) {
+						final Location location = this.currentAlignment.location;
+						if (location.editsIndex == this.editsIndex) {
+							location.editsIndex--;
+							location.textEdit = previous;
+						}
+					}
+					this.editsIndex--;
+				}
 			} else {
 				this.edits[this.editsIndex++] = new OptimizedReplaceEdit(offset, length, replacement);
 			}

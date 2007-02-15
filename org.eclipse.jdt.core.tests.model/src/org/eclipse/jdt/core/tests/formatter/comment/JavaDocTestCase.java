@@ -15,16 +15,18 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 import org.eclipse.jdt.internal.formatter.comment.JavaDocLine;
 import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
+import org.eclipse.text.edits.TextEdit;
 
 public class JavaDocTestCase extends CommentTestCase {
 	
 	static {
-//		TESTS_NAMES = new String[] { "test75460" } ;
+//		TESTS_NAMES = new String[] { "test152850" } ;
 	}
 
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
@@ -699,5 +701,19 @@ public class JavaDocTestCase extends CommentTestCase {
 				" */";
 		String result=testFormat(input, options);
 		assertEquals(expected, result);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=152850
+	public void test152850() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input = "/**\n" + 
+				" * Any text\n" + 
+				" * \n" + 
+				" * @param b\n" + 
+				" */";
+		TextEdit edit = ToolFactory.createCodeFormatter(CommentFormatterUtil.createOptions(options)).format(getCommentKind(), input, 0, input.length(), 0, "\n");
+		assertNotNull(edit);
+		assertEquals("No edit", 0, edit.getChildrenSize());
 	}
 }
