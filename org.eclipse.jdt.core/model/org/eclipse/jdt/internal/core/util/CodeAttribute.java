@@ -91,7 +91,6 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 			}
 			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
 		}
-		
 	}
 	/**
 	 * @see ICodeAttribute#getAttributes()
