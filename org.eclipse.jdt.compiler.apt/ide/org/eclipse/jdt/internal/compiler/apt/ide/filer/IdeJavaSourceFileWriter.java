@@ -17,7 +17,6 @@ import java.io.StringWriter;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.generatedfile.FileGenerationResult;
@@ -40,7 +39,7 @@ public class IdeJavaSourceFileWriter extends StringWriter {
 		_env = env;
 		_parentFiles = parentFiles;
 		_name = name;
-		IFolder genSrcDir = _env.getAptProject().getGeneratedSourceFolderManager().getFolder();
+		_env.getAptProject().getGeneratedSourceFolderManager().getFolder();
 	}
 
 	/**
