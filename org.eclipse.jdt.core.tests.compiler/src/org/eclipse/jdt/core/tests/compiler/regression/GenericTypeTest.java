@@ -33,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1101 };
+//		TESTS_NUMBERS = new int[] { 1102, 1103, 1104 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -36424,6 +36424,73 @@ public void test1101() {
 		"1. ERROR in X.java (at line 15)\n" + 
 		"	list.add(X.<?, Object>create(\"\", \"\"));\n" + 
 		"	            ^\n" + 
+		"Wildcard is not allowed at this location\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174434
+public void test1102() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<T> X(T t) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	class A {\n" + 
+			"		<T> A(T t) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new<?> X(null);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	new<?> X(null);\n" + 
+		"	    ^\n" + 
+		"Wildcard is not allowed at this location\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174434
+public void test1103() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<T> X(T t) {\n" + 
+			"	}\n" + 
+			"	X(int i) {\n" +
+			"		<?>this(null);\n" +
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	<?>this(null);\n" + 
+		"	 ^\n" + 
+		"Wildcard is not allowed at this location\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174434
+public void test1104() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<T> X(T t) { }\n" + 
+			"	\n" + 
+			"	class A {\n" + 
+			"		<T> A(T t) { }\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X(null).new <?> A(null);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	new X(null).new <?> A(null);\n" + 
+		"	                 ^\n" + 
 		"Wildcard is not allowed at this location\n" + 
 		"----------\n");
 }

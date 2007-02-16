@@ -272,8 +272,14 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			int length = this.typeArguments.length;
 			this.genericTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
-				TypeBinding argType = this.typeArguments[i].resolveType(scope, true /* check bounds*/);
-				if (argType == null) return null; // error already reported
+				TypeReference typeReference = this.typeArguments[i];				
+				TypeBinding argType = typeReference.resolveType(scope, true /* check bounds*/);
+				if (argType == null) {
+					if (typeReference instanceof Wildcard) {
+						scope.problemReporter().illegalUsageOfWildcard(typeReference);
+					}
+					return null; // error already reported
+				}
 				this.genericTypeArguments[i] = argType;
 			}
 		}

@@ -252,8 +252,12 @@ public TypeBinding resolveType(BlockScope scope) {
 		boolean argHasError = false; // typeChecks all arguments
 		this.genericTypeArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
-			if ((this.genericTypeArguments[i] = this.typeArguments[i].resolveType(scope, true /* check bounds*/)) == null) {
+			TypeReference typeReference = this.typeArguments[i];
+			if ((this.genericTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/)) == null) {
 				argHasError = true;
+			}
+			if (argHasError && typeReference instanceof Wildcard) {
+				scope.problemReporter().illegalUsageOfWildcard(typeReference);
 			}
 		}
 		if (argHasError) {
