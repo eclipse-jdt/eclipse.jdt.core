@@ -78,7 +78,16 @@ public interface IClassFile extends ITypeRoot {
  * @since 3.2
  */
 ICompilationUnit becomeWorkingCopy(IProblemRequestor problemRequestor, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
-
+/**
+ * Returns the bytes contained in this class file.
+ *
+ * @return the bytes contained in this class file
+ *
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource
+ * @since 3.3
+ */
+byte[] getBytes() throws JavaModelException;
 /**
  * Returns the type contained in this class file.
  *

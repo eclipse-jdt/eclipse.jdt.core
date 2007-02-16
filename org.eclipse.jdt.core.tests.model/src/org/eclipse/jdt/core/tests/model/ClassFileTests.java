@@ -933,4 +933,20 @@ public void testWorkingCopy11() throws CoreException {
 		"lib.jar workingcopy.Y",
 		requestor);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=150244
+ */
+public void testGetBytes() throws CoreException {
+	IPackageFragment pkg = this.jarRoot.getPackageFragment("workingcopy");
+	IClassFile clazz = pkg.getClassFile("X.class");
+	byte[] bytes = clazz.getBytes();
+	assertNotNull("No bytes", bytes);
+	int length = bytes.length;
+	assertTrue("wrong size", length > 5);
+	// sanity check: first four bytes are 0xCAFEBABE
+	assertEquals("Wrong value", 0xCA, bytes[0] & 0xFF);
+	assertEquals("Wrong value", 0xFE, bytes[1] & 0xFF);
+	assertEquals("Wrong value", 0xBA, bytes[2] & 0xFF);
+	assertEquals("Wrong value", 0xBE, bytes[3] & 0xFF);
+}
 }

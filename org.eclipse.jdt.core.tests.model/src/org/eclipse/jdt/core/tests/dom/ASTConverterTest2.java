@@ -3550,6 +3550,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0522() throws JavaModelException {
 		IClassFile classFile = getClassFile("Converter" , "bins", "test0522", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		assertNotNull("No bytes", classFile.getBytes());
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		IType type = classFile.getType();

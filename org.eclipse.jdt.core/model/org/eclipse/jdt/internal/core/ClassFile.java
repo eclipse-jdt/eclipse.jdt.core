@@ -298,6 +298,36 @@ public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
 		}
 	}
 }
+
+public byte[] getBytes() throws JavaModelException {
+	JavaElement pkg = (JavaElement) getParent();
+	if (pkg instanceof JarPackageFragment) {
+		JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
+		ZipFile zip = null;
+		try {
+			zip = root.getJar();
+			String entryName = Util.concatWith(((PackageFragment) pkg).names, getElementName(), '/');
+			ZipEntry ze = zip.getEntry(entryName);
+			if (ze != null) {
+				return org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
+			}
+			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
+		} catch (IOException ioe) {
+			throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);
+		} catch (CoreException e) {
+			if (e instanceof JavaModelException) {
+				throw (JavaModelException)e;
+			} else {
+				throw new JavaModelException(e);
+			}
+		} finally {
+			JavaModelManager.getJavaModelManager().closeZipFile(zip);
+		}
+	} else {
+		IFile file = (IFile) getResource();
+		return Util.getResourceContentsAsByteArray(file);
+	}
+}
 private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg) throws CoreException, IOException, ClassFormatException {
 	JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
 	ZipFile zip = null;
