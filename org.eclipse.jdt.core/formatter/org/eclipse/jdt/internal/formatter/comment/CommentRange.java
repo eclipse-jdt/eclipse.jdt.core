@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jface.text.Position;
 
 /**
@@ -56,13 +57,14 @@ public class CommentRange extends Position implements ICommentAttributes, IHtmlT
 	 * @return <code>true</code> iff this comment range contains a closing
 	 *         html tag, <code>false</code> otherwise
 	 */
-	protected final boolean isClosingTag(final String token, final String tag) {
+	protected final boolean isClosingTag(final char[] token, final char[] tag) {
 
-		boolean result= token.startsWith(HTML_CLOSE_PREFIX) && token.charAt(token.length() - 1) == HTML_TAG_POSTFIX;
+		boolean result= (CharOperation.indexOf(HTML_CLOSE_PREFIX, token, false) == 0)
+				&& token[token.length - 1] == HTML_TAG_POSTFIX;
 		if (result) {
 
 			setAttribute(COMMENT_CLOSE);
-			result= token.substring(HTML_CLOSE_PREFIX.length(), token.length() - 1).equals(tag);
+			result= CharOperation.equals(tag, token, HTML_CLOSE_PREFIX.length, token.length - 1, false);
 		}
 		return result;
 	}
@@ -75,13 +77,16 @@ public class CommentRange extends Position implements ICommentAttributes, IHtmlT
 	 * @return <code>true</code> iff this comment range contains an
 	 *         opening html tag, <code>false</code> otherwise
 	 */
-	protected final boolean isOpeningTag(final String token, final String tag) {
+	protected final boolean isOpeningTag(final char[] token, final char[] tag) {
 
-		boolean result= token.length() > 0 && token.charAt(0) == HTML_TAG_PREFIX && !token.startsWith(HTML_CLOSE_PREFIX) && token.charAt(token.length() - 1) == HTML_TAG_POSTFIX;
+		boolean result= token.length > 0
+				&& token[0] == HTML_TAG_PREFIX
+				&& (CharOperation.indexOf(HTML_CLOSE_PREFIX, token, false) != 0)
+				&& token[token.length - 1] == HTML_TAG_POSTFIX;
 		if (result) {
 
 			setAttribute(COMMENT_OPEN);
-			result= token.startsWith(tag, 1);
+			result= CharOperation.indexOf(tag, token, false) == 1;
 		}
 		return result;
 	}
@@ -97,11 +102,10 @@ public class CommentRange extends Position implements ICommentAttributes, IHtmlT
 	 * @param close <code>true</code> iff closing tags should be marked,
 	 *                <code>false</code> otherwise
 	 */
-	protected final void markHtmlTag(final String[] tags, final String token, final int attribute, final boolean open, final boolean close) {
+	protected final void markHtmlTag(final char[][] tags, final char[] token, final int attribute, final boolean open, final boolean close) {
+		if (token[0] == HTML_TAG_PREFIX && token[token.length - 1] == HTML_TAG_POSTFIX) {
 
-		if (token.charAt(0) == HTML_TAG_PREFIX && token.charAt(token.length() - 1) == HTML_TAG_POSTFIX) {
-
-			String tag= null;
+			char[] tag= null;
 			boolean isOpen= false;
 			boolean isClose= false;
 
@@ -129,15 +133,15 @@ public class CommentRange extends Position implements ICommentAttributes, IHtmlT
 	 * @param token the token belonging to the comment range
 	 * @param attribute attribute to set if a tag is present
 	 */
-	protected final void markPrefixTag(final String[] tags, final char prefix, final String token, final int attribute) {
+	protected final void markPrefixTag(final char[][] tags, final char prefix, final char[] token, final int attribute) {
 
-		if (token.charAt(0) == prefix) {
+		if (token[0] == prefix) {
 
-			String tag= null;
+			char[] tag= null;
 			for (int index= 0; index < tags.length; index++) {
 
 				tag= tags[index];
-				if (token.equals(tag)) {
+				if (CharOperation.equals(token, tag)) {
 
 					setAttribute(attribute);
 					break;
@@ -158,7 +162,7 @@ public class CommentRange extends Position implements ICommentAttributes, IHtmlT
 	 *                should be marked too, <code>false</code> otherwise
 	 * @return the new nesting level of the HTML range
 	 */
-	protected final int markTagRange(final String token, final String tag, int level, final int key, final boolean html) {
+	protected final int markTagRange(final char[] token, final char[] tag, int level, final int key, final boolean html) {
 
 		if (isOpeningTag(token, tag)) {
 			if (level++ > 0)

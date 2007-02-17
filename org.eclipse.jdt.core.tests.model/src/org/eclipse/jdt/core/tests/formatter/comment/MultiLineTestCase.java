@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
 
 public class MultiLineTestCase extends CommentTestCase {
 	static {
-//		TESTS_NAMES = new String[] { "test49412_3" } ;
+//		TESTS_NAMES = new String[] { "test170580" } ;
 	}
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
 
@@ -210,6 +210,24 @@ public class MultiLineTestCase extends CommentTestCase {
 		" * "+ DELIMITER +
 		" * test block comment with a blank line" + DELIMITER +
 		" */";
+
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170580
+	public void _test170580() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+
+		String input = "/*\n" + 
+				"<pre>\n" + 
+				"&lt;test&gt;\n" + 
+				"</pre>\n" + 
+				"         */";
+
+		String expected= "/*\n" + 
+				" * <pre>&lt;test&gt;</pre>\n" + 
+				" */";
 
 		String result=testFormat(input, options);
 		assertEquals(expected, result);

@@ -26,7 +26,7 @@ import org.eclipse.text.edits.TextEdit;
 public class JavaDocTestCase extends CommentTestCase {
 	
 	static {
-//		TESTS_NAMES = new String[] { "test152850" } ;
+//		TESTS_NAMES = new String[] { "testMultiLineCommentCodeSnippet6" } ;
 	}
 
 	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
@@ -142,7 +142,94 @@ public class JavaDocTestCase extends CommentTestCase {
 		
 		assertEquals(expected, result);
 	}
-	
+
+	public void testMultiLineCommentCodeSnippet4() {
+		String input= "/**\n" + 
+				" * <pre>\n" + 
+				" * public Object[] getChildren(Object parentElement) {\n" + 
+				" *     if (parentElement instanceof MovingBox) {\n" + 
+				" *         MovingBox box = (MovingBox) parentElement;\n" + 
+				" *         return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" + 
+				" *                 .getGames().toArray());\n" + 
+				" *     }\n" + 
+				" *     return EMPTY_ARRAY;\n" + 
+				" * }\n" + 
+				" * </pre>\n" + 
+				" */";
+		String expected= "/**\n" + 
+				" * <pre>\n" + 
+				" * public Object[] getChildren(Object parentElement) {\n" + 
+				" * 	if (parentElement instanceof MovingBox) {\n" + 
+				" * 		MovingBox box = (MovingBox) parentElement;\n" + 
+				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" + 
+				" * 				.getGames().toArray());\n" + 
+				" * 	}\n" + 
+				" * 	return EMPTY_ARRAY;\n" + 
+				" * }\n" + 
+				" * </pre>\n" + 
+				" */";
+		String result= testFormat(input);
+		assertEquals(expected, result);
+	}
+
+	public void testMultiLineCommentCodeSnippet5() {
+		String input= "/**\n" + 
+				" * <Pre>\n" + 
+				" * public Object[] getChildren(Object parentElement) {\n" + 
+				" *     if (parentElement instanceof MovingBox) {\n" + 
+				" *         MovingBox box = (MovingBox) parentElement;\n" + 
+				" *         return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" + 
+				" *                 .getGames().toArray());\n" + 
+				" *     }\n" + 
+				" *     return EMPTY_ARRAY;\n" + 
+				" * }\n" + 
+				" * </Pre>\n" + 
+				" */";
+		String expected= "/**\n" + 
+				" * <Pre>\n" + 
+				" * public Object[] getChildren(Object parentElement) {\n" + 
+				" * 	if (parentElement instanceof MovingBox) {\n" + 
+				" * 		MovingBox box = (MovingBox) parentElement;\n" + 
+				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" + 
+				" * 				.getGames().toArray());\n" + 
+				" * 	}\n" + 
+				" * 	return EMPTY_ARRAY;\n" + 
+				" * }\n" + 
+				" * </Pre>\n" + 
+				" */";
+		String result= testFormat(input);
+		assertEquals(expected, result);
+	}
+
+	public void testMultiLineCommentCodeSnippet6() {
+		String input= "/**\n" + 
+				" * <PRE>\n" + 
+				" * public Object[] getChildren(Object parentElement) {\n" + 
+				" *     if (parentElement instanceof MovingBox) {\n" + 
+				" *         MovingBox box = (MovingBox) parentElement;\n" + 
+				" *         return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" + 
+				" *                 .getGames().toArray());\n" + 
+				" *     }\n" + 
+				" *     return EMPTY_ARRAY;\n" + 
+				" * }\n" + 
+				" * </PRE>\n" + 
+				" */";
+		String expected= "/**\n" + 
+				" * <PRE>\n" + 
+				" * public Object[] getChildren(Object parentElement) {\n" + 
+				" * 	if (parentElement instanceof MovingBox) {\n" + 
+				" * 		MovingBox box = (MovingBox) parentElement;\n" + 
+				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" + 
+				" * 				.getGames().toArray());\n" + 
+				" * 	}\n" + 
+				" * 	return EMPTY_ARRAY;\n" + 
+				" * }\n" + 
+				" * </PRE>\n" + 
+				" */";
+		String result= testFormat(input);
+		assertEquals(expected, result);
+	}
+
 	public void testMultiLineCommentCodeSnippetHtmlEntities1() {
 		String prefix= PREFIX + DELIMITER + INFIX + "<pre>" + DELIMITER + INFIX; //$NON-NLS-1$
 		String postfix= DELIMITER + INFIX + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$

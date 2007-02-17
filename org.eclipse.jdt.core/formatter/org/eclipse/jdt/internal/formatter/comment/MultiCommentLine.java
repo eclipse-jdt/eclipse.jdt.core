@@ -43,22 +43,22 @@ public class MultiCommentLine extends CommentLine implements ICommentAttributes,
 	static {
 		fgTagLookup= new HashSet();
 		for (int i= 0; i < JAVADOC_BREAK_TAGS.length; i++) {
-			fgTagLookup.add(JAVADOC_BREAK_TAGS[i]);
+			fgTagLookup.add(new String(JAVADOC_BREAK_TAGS[i]));
 		}
 		for (int i= 0; i < JAVADOC_SINGLE_BREAK_TAG.length; i++) {
-			fgTagLookup.add(JAVADOC_SINGLE_BREAK_TAG[i]);
+			fgTagLookup.add(new String(JAVADOC_SINGLE_BREAK_TAG[i]));
 		}
 		for (int i= 0; i < JAVADOC_CODE_TAGS.length; i++) {
-			fgTagLookup.add(JAVADOC_CODE_TAGS[i]);
+			fgTagLookup.add(new String(JAVADOC_CODE_TAGS[i]));
 		}
 		for (int i= 0; i < JAVADOC_IMMUTABLE_TAGS.length; i++) {
-			fgTagLookup.add(JAVADOC_IMMUTABLE_TAGS[i]);
+			fgTagLookup.add(new String(JAVADOC_IMMUTABLE_TAGS[i]));
 		}
 		for (int i= 0; i < JAVADOC_NEWLINE_TAGS.length; i++) {
-			fgTagLookup.add(JAVADOC_NEWLINE_TAGS[i]);
+			fgTagLookup.add(new String(JAVADOC_NEWLINE_TAGS[i]));
 		}
 		for (int i= 0; i < JAVADOC_SEPARATOR_TAGS.length; i++) {
-			fgTagLookup.add(JAVADOC_SEPARATOR_TAGS[i]);
+			fgTagLookup.add(new String(JAVADOC_SEPARATOR_TAGS[i]));
 		}
 	}
 
@@ -302,12 +302,15 @@ public class MultiCommentLine extends CommentLine implements ICommentAttributes,
 					} else {
 						// no tag - do the usual thing from the original offset
 						index= tag;
-						while (index < length && !ScannerHelper.isWhitespace(content.charAt(index)) && content.charAt(index) != HTML_TAG_PREFIX && !content.startsWith(LINK_TAG_PREFIX, index))
+						while (index < length
+								&& !ScannerHelper.isWhitespace(content.charAt(index))
+								&& content.charAt(index) != HTML_TAG_PREFIX 
+								&& !content.startsWith(LINK_TAG_PREFIX_STRING, index))
 							index++;
 					}
 
 
-				} else if (content.startsWith(LINK_TAG_PREFIX, index)) {
+				} else if (content.startsWith(LINK_TAG_PREFIX_STRING, index)) {
 
 					while (index < length && content.charAt(index) != LINK_TAG_POSTFIX)
 						index++;
@@ -319,7 +322,10 @@ public class MultiCommentLine extends CommentLine implements ICommentAttributes,
 
 				} else {
 
-					while (index < length && !ScannerHelper.isWhitespace(content.charAt(index)) && content.charAt(index) != HTML_TAG_PREFIX && !content.startsWith(LINK_TAG_PREFIX, index))
+					while (index < length
+							&& !ScannerHelper.isWhitespace(content.charAt(index))
+							&& content.charAt(index) != HTML_TAG_PREFIX
+							&& !content.startsWith(LINK_TAG_PREFIX_STRING, index))
 						index++;
 				}
 			}

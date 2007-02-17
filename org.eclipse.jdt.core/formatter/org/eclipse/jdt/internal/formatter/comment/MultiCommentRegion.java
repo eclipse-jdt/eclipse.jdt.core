@@ -190,7 +190,7 @@ public class MultiCommentRegion extends CommentRegion implements IJavaDocTagCons
 	 * @param range the comment range to mark
 	 * @param token token associated with the comment range
 	 */
-	protected void markHtmlTag(final CommentRange range, final String token) {
+	protected void markHtmlTag(final CommentRange range, final char[] token) {
 		// Do nothing
 	}
 
@@ -200,7 +200,7 @@ public class MultiCommentRegion extends CommentRegion implements IJavaDocTagCons
 	 * @param range the comment range to mark
 	 * @param token token associated with the comment range
 	 */
-	protected void markJavadocTag(final CommentRange range, final String token) {
+	protected void markJavadocTag(final CommentRange range, final char[] token) {
 		range.markPrefixTag(COMMENT_ROOT_TAGS, COMMENT_TAG_PREFIX, token, COMMENT_ROOT);
 	}
 
@@ -212,7 +212,7 @@ public class MultiCommentRegion extends CommentRegion implements IJavaDocTagCons
 		int count= 0;
 		boolean paragraph= false;
 
-		String token= null;
+		char[] token= null;
 		CommentRange range= null;
 
 		for (final ListIterator iterator= getRanges().listIterator(); iterator.hasNext();) {
@@ -222,7 +222,7 @@ public class MultiCommentRegion extends CommentRegion implements IJavaDocTagCons
 
 			if (count > 0) {
 
-				token= getText(range.getOffset(), count).toLowerCase();
+				token= getText(range.getOffset(), count).toLowerCase().toCharArray();
 
 				markJavadocTag(range, token);
 				if (!paragraph && (range.hasAttribute(COMMENT_ROOT) || range.hasAttribute(COMMENT_PARAMETER))) {

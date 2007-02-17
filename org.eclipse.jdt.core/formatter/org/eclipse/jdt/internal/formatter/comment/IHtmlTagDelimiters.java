@@ -19,7 +19,7 @@ package org.eclipse.jdt.internal.formatter.comment;
 public interface IHtmlTagDelimiters {
 
 	/** Html tag close prefix */
-	public static final String HTML_CLOSE_PREFIX= "</"; //$NON-NLS-1$
+	public static final char[] HTML_CLOSE_PREFIX= "</".toCharArray(); //$NON-NLS-1$
 
 	/** Html tag postfix */
 	public static final char HTML_TAG_POSTFIX= '>';

@@ -19,25 +19,72 @@ package org.eclipse.jdt.internal.formatter.comment;
 public interface IJavaDocTagConstants {
 
 	/** Javadoc break tags */
-	public static final String[] JAVADOC_BREAK_TAGS= new String[] { "dd", "dt", "li", "td", "th", "tr", "h1", "h2", "h3", "h4", "h5", "h6", "q" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$
+	public static final char[][] JAVADOC_BREAK_TAGS = new char[][] {
+		"dd".toCharArray(), //$NON-NLS-1$
+		"dt".toCharArray(), //$NON-NLS-1$
+		"li".toCharArray(), //$NON-NLS-1$
+		"td".toCharArray(), //$NON-NLS-1$
+		"th".toCharArray(), //$NON-NLS-1$
+		"tr".toCharArray(), //$NON-NLS-1$
+		"h1".toCharArray(), //$NON-NLS-1$
+		"h2".toCharArray(), //$NON-NLS-1$
+		"h3".toCharArray(), //$NON-NLS-1$
+		"h4".toCharArray(), //$NON-NLS-1$
+		"h5".toCharArray(), //$NON-NLS-1$
+		"h6".toCharArray(), //$NON-NLS-1$
+		"q".toCharArray() //$NON-NLS-1$
+	};
 
 	/** Javadoc single break tag */
-	public static final String[] JAVADOC_SINGLE_BREAK_TAG= new String[] { "br" }; //$NON-NLS-1$
+	public static final char[][] JAVADOC_SINGLE_BREAK_TAG= new char[][] { "br".toCharArray() }; //$NON-NLS-1$
 
 	/** Javadoc code tags */
-	public static final String[] JAVADOC_CODE_TAGS= new String[] { "pre" }; //$NON-NLS-1$
+	public static final char[][] JAVADOC_CODE_TAGS= new char[][] { "pre".toCharArray() }; //$NON-NLS-1$
 
 	/** Javadoc immutable tags */
-	public static final String[] JAVADOC_IMMUTABLE_TAGS= new String[] { "code", "em", "pre", "q", "tt" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+	public static final char[][] JAVADOC_IMMUTABLE_TAGS= new char[][] {
+			"code".toCharArray(), //$NON-NLS-1$
+			"em".toCharArray(), //$NON-NLS-1$
+			"pre".toCharArray(), //$NON-NLS-1$
+			"q".toCharArray(), //$NON-NLS-1$
+			"tt".toCharArray() //$NON-NLS-1$
+	};
 
 	/** Javadoc new line tags */
-	public static final String[] JAVADOC_NEWLINE_TAGS= new String[] { "dd", "dt", "li", "td", "th", "tr", "h1", "h2", "h3", "h4", "h5", "h6", "q" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$
+	public static final char[][] JAVADOC_NEWLINE_TAGS= new char[][] {
+			"dd".toCharArray(), //$NON-NLS-1$
+			"dt".toCharArray(), //$NON-NLS-1$
+			"li".toCharArray(), //$NON-NLS-1$
+			"td".toCharArray(), //$NON-NLS-1$
+			"th".toCharArray(), //$NON-NLS-1$
+			"tr".toCharArray(), //$NON-NLS-1$
+			"h1".toCharArray(), //$NON-NLS-1$
+			"h2".toCharArray(), //$NON-NLS-1$
+			"h3".toCharArray(), //$NON-NLS-1$
+			"h4".toCharArray(), //$NON-NLS-1$
+			"h5".toCharArray(), //$NON-NLS-1$
+			"h6".toCharArray(), //$NON-NLS-1$
+			"q".toCharArray() //$NON-NLS-1$
+	};
 
 	/** Javadoc parameter tags */
-	public static final String[] JAVADOC_PARAM_TAGS= new String[] { "@exception", "@param", "@serialField", "@throws" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	public static final char[][] JAVADOC_PARAM_TAGS= new char[][] {
+			"@exception".toCharArray(), //$NON-NLS-1$
+			"@param".toCharArray(), //$NON-NLS-1$
+			"@serialField".toCharArray(), //$NON-NLS-1$
+			"@throws".toCharArray() //$NON-NLS-1$
+	};
 
 	/** Javadoc separator tags */
-	public static final String[] JAVADOC_SEPARATOR_TAGS= new String[] { "dl", "hr", "nl", "p", "pre", "ul", "ol" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
+	public static final char[][] JAVADOC_SEPARATOR_TAGS= new char[][] {
+			"dl".toCharArray(), //$NON-NLS-1$
+			"hr".toCharArray(), //$NON-NLS-1$
+			"nl".toCharArray(), //$NON-NLS-1$
+			"p".toCharArray(), //$NON-NLS-1$
+			"pre".toCharArray(), //$NON-NLS-1$
+			"ul".toCharArray(), //$NON-NLS-1$
+			"ol".toCharArray() //$NON-NLS-1$
+	};
 
 	/** Javadoc tag prefix */
 	public static final char JAVADOC_TAG_PREFIX= '@';
@@ -46,10 +93,18 @@ public interface IJavaDocTagConstants {
 	public static final char LINK_TAG_POSTFIX= '}';
 
 	/** Link tag prefix */
-	public static final String LINK_TAG_PREFIX= "{@"; //$NON-NLS-1$
+	public static final String LINK_TAG_PREFIX_STRING = "{@"; //$NON-NLS-1$
 
+	public static final char[] LINK_TAG_PREFIX= LINK_TAG_PREFIX_STRING.toCharArray();
+
+	
 	/** Comment root tags */
-	public static final String[] COMMENT_ROOT_TAGS= new String[] { "@deprecated", "@see", "@since", "@version" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	public static final char[][] COMMENT_ROOT_TAGS= new char[][] {
+			"@deprecated".toCharArray(), //$NON-NLS-1$
+			"@see".toCharArray(), //$NON-NLS-1$
+			"@since".toCharArray(), //$NON-NLS-1$
+			"@version".toCharArray() //$NON-NLS-1$
+	};
 
 	/** Tag prefix of comment tags */
 	public static final char COMMENT_TAG_PREFIX= '@';
