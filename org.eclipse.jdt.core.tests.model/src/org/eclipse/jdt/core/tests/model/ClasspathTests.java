@@ -682,7 +682,7 @@ public void testClasspathValidation01() throws CoreException {
 		
 		assertStatus(
 			"should have detected duplicate entries on the classpath", 
-			"Build path contains duplicate entry: \'src\' for project P",
+			"Build path contains duplicate entry: \'src\' for project 'P'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -801,7 +801,7 @@ public void testClasspathValidation05() throws CoreException {
 		status = JavaConventions.validateClasspathEntry(p[0], newClasspath[1], true);
 		assertStatus(
 			"should have detected external source folder through a container on the classpath", 
-			"Invalid classpath container: \'container/default\' in project P0",
+			"Invalid classpath container: 'container/default' in project 'P0'",
 			status);
 
 	} finally {
@@ -1099,7 +1099,7 @@ public void testClasspathValidation18() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Path \'/S/bin\' must denote location inside project P",
+			"Path \'/S/bin\' must denote location inside project 'P'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1146,7 +1146,7 @@ public void testClasspathValidation20() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Multiple output locations are disabled in project P, cannot associate entry: \'src\' with a specific output",
+			"Multiple output locations are disabled in project 'P', cannot associate entry: \'src\' with a specific output",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1171,7 +1171,7 @@ public void testClasspathValidation21() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Inclusion or exclusion patterns are disabled in project P, cannot selectively include or exclude from entry: \'src\'",
+			"Inclusion or exclusion patterns are disabled in project 'P', cannot selectively include or exclude from entry: \'src\'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1194,7 +1194,7 @@ public void testClasspathValidation22() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Source folder \'src\' in project P cannot output to distinct source folder \'src2\'",
+			"Source folder \'src\' in project 'P' cannot output to distinct source folder \'src2\'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1267,7 +1267,7 @@ public void testClasspathValidation25() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Source folder \'src\' in project P cannot output to library \'lib2\'",
+			"Source folder \'src\' in project 'P' cannot output to library \'lib2\'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1380,7 +1380,7 @@ public void testClasspathValidation28() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Source folder \'src\' in project P should be allowed to output to excluded source subfolder \'src/output\'",
+			"Source folder \'src\' in project 'P' should be allowed to output to excluded source subfolder \'src/output\'",
 			"OK",
 			status);
 	} finally {
@@ -1472,7 +1472,7 @@ public void testClasspathValidation32() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Source folder \'src1\' in project P cannot output to distinct source folder \'src1/src2\'",
+			"Source folder \'src1\' in project 'P' cannot output to distinct source folder \'src1/src2\'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1588,7 +1588,7 @@ public void testClasspathValidation37() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Inclusion or exclusion patterns are disabled in project P, cannot selectively include or exclude from entry: \'src\'",
+			"Inclusion or exclusion patterns are disabled in project 'P', cannot selectively include or exclude from entry: \'src\'",
 			status);
 	} finally {
 		this.deleteProject("P");
@@ -1609,7 +1609,7 @@ public void testClasspathValidation38() throws CoreException {
 		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
 		
 		assertStatus(
-			"Source folder \'src\' in project P should not be allowed to output to included source subfolder \'src/output\'",
+			"Source folder \'src\' in project 'P' should not be allowed to output to included source subfolder \'src/output\'",
 			"Cannot nest output folder \'P/src/output\' inside \'P/src\'",
 			status);
 	} finally {
@@ -1741,14 +1741,14 @@ public void testClasspathDuplicateExtraAttribute() throws CoreException {
 		IClasspathEntry container = JavaCore.newContainerEntry(new Path("JRE_CONTAINER"), ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, container, false);
 		assertStatus(
-			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'JRE_CONTAINER\' for project P1",
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'JRE_CONTAINER\' for project 'P1'",
 			status);
 
 		// Verify library entry validation
 		IClasspathEntry library = JavaCore.newLibraryEntry(new Path(getExternalJCLPathString()), null, null, ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
 		status = JavaConventions.validateClasspathEntry(proj, library, false);
 		assertStatus(
-			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'"+getExternalJCLPath()+"\' for project P1",
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'"+getExternalJCLPath()+"\' for project 'P1'",
 			status);
 
 		// Verify project entry validation
@@ -1756,7 +1756,7 @@ public void testClasspathDuplicateExtraAttribute() throws CoreException {
 		IClasspathEntry projectEntry = JavaCore.newProjectEntry(new Path("/P2"), ClasspathEntry.NO_ACCESS_RULES, false, extraAttributes, false);
 		status = JavaConventions.validateClasspathEntry(proj, projectEntry, false);
 		assertStatus(
-			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'/P2\' for project P1",
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'/P2\' for project 'P1'",
 			status);
 
 		// Verify source entry validation
@@ -1764,14 +1764,14 @@ public void testClasspathDuplicateExtraAttribute() throws CoreException {
 		IClasspathEntry sourceEntry = JavaCore.newSourceEntry(new Path("/P1/src"), new IPath[0], new IPath[0], null, extraAttributes);
 		status = JavaConventions.validateClasspathEntry(proj, sourceEntry, false);
 		assertStatus(
-			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'src\' for project P1",
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'src\' for project 'P1'",
 			status);
 
 		// Verify variable entry validation
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("JCL_LIB"), new Path("JCL_SRC"), null, ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
 		status = JavaConventions.validateClasspathEntry(proj, variable, false);
 		assertStatus(
-			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'"+getExternalJCLPath()+"\' for project P1",
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'"+getExternalJCLPath()+"\' for project 'P1'",
 			status);
 	} finally {
 		this.deleteProject("P1");
@@ -2342,7 +2342,7 @@ public void testInvalidClasspath1() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"XML format error in \'.classpath\' file of project P: Bad format",
+			"XML format error in \'.classpath\' file of project 'P': Bad format",
 			project);
 	} finally {
 		this.deleteProject("P");
@@ -2364,7 +2364,7 @@ public void testInvalidClasspath2() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Illegal entry in \'.classpath\' of project P file: Unknown kind: \'src1\'",
+			"Illegal entry in \'.classpath\' of project 'P' file: Unknown kind: \'src1\'",
 			javaProject);
 			
 		// Verify that error marker is not removed after build
@@ -2374,7 +2374,7 @@ public void testInvalidClasspath2() throws CoreException {
 		waitForAutoBuild();
 		assertMarkers(
 			"Unexpected markers",
-			"Illegal entry in \'.classpath\' of project P file: Unknown kind: \'src1\'",
+			"Illegal entry in \'.classpath\' of project 'P' file: Unknown kind: \'src1\'",
 			javaProject);
 	} finally {
 		this.deleteProject("P");
@@ -2392,7 +2392,7 @@ public void testInvalidExternalClassFolder() throws CoreException {
 		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {externalPath}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Required library cannot denote external folder: \'" + externalPath + "\' for project P",
+			"Required library cannot denote external folder: \'" + externalPath + "\' for project 'P'",
 			proj);
 	} finally {
 		deleteProject("P");
@@ -2407,7 +2407,7 @@ public void testInvalidExternalJar() throws CoreException {
 		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {jarPath}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Project P is missing required library: \'" + jarPath + "\'",
+			"Project 'P' is missing required library: \'" + jarPath + "\'",
 			proj);
 	} finally {
 		deleteProject("P");
@@ -2421,7 +2421,7 @@ public void testInvalidInternalJar1() throws CoreException {
 		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {"/P/nonExisting.jar"}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Project P is missing required library: \'nonExisting.jar\'",
+			"Project 'P' is missing required library: \'nonExisting.jar\'",
 			proj);
 	} finally {
 		deleteProject("P");
@@ -2437,7 +2437,7 @@ public void testInvalidInternalJar2() throws CoreException {
 		IJavaProject proj =  createJavaProject("P2", new String[] {}, new String[] {"/P1/existing.txt"}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Illegal type of archive for required library: \'/P1/existing.txt\' in project P2",
+			"Illegal type of archive for required library: \'/P1/existing.txt\' in project 'P2'",
 			proj);
 	} finally {
 		deleteProject("P1");
@@ -2455,7 +2455,7 @@ public void testInvalidSourceFolder() throws CoreException {
 		IJavaProject proj = createJavaProject("P2", new String[] {}, new String[] {}, new String[] {"/P1/src1/src2"}, "bin");
 		assertMarkers(
 			"Unexpected markers",
-			"Project P2 is missing required source folder: \'/P1/src1/src2\'",
+			"Project 'P2' is missing required source folder: \'/P1/src1/src2\'",
 			proj);
 	} finally {
 		deleteProject("P1");
@@ -2482,7 +2482,7 @@ public void testMissingClasspath() throws CoreException {
 		waitForAutoBuild();
 		assertMarkers(
 			"Unexpected markers",
-			"Unable to read \'.classpath\' file of project P",
+			"Unable to read \'.classpath\' file of project 'P'",
 			javaProject);
 	} finally {
 		this.deleteProject("P");
@@ -2501,7 +2501,7 @@ public void testMissingPrereq1() throws CoreException {
 		javaProject.setRawClasspath(classpath, null);
 		this.assertMarkers(
 			"Unexpected markers",
-			"Project A is missing required Java project: \'B\'",
+			"Project 'A' is missing required Java project: \'B\'",
 			javaProject);
 	} finally {
 		this.deleteProject("A");
@@ -2521,7 +2521,7 @@ public void testMissingPrereq2() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers",
-			"Project A is missing required Java project: \'B\'",
+			"Project 'A' is missing required Java project: \'B\'",
 			javaProject);
 	} finally {
 		this.deleteProject("A");
@@ -2568,18 +2568,18 @@ public void testMissingPrereq4() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers for project A",
-			"A cycle was detected in the build path of project: A",
+			"A cycle was detected in the build path of project 'A'",
 			projectA);
 		this.assertMarkers(
 			"Unexpected markers for project B",
-			"A cycle was detected in the build path of project: B",
+			"A cycle was detected in the build path of project 'B'",
 			projectB);
 		
 		// delete project B	
 		this.deleteProject("B");
 		this.assertMarkers(
 			"Unexpected markers for project A after deleting of project B",
-			"Project A is missing required Java project: \'B\'",
+			"Project 'A' is missing required Java project: \'B\'",
 			projectA);
 			
 		// add project B back
@@ -2592,11 +2592,11 @@ public void testMissingPrereq4() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers for project A after adding project B back",
-			"A cycle was detected in the build path of project: A",
+			"A cycle was detected in the build path of project 'A'",
 			projectA);
 		this.assertMarkers(
 			"Unexpected markers for project B after adding project B back",
-			"A cycle was detected in the build path of project: B",
+			"A cycle was detected in the build path of project 'B'",
 			projectB);
 
 	} finally {
@@ -3324,7 +3324,7 @@ public void testDuplicateEntries() throws CoreException {
 		);
 		assertMarkers(
 			"Unexpected markers",
-			"Build path contains duplicate entry: \'src\' for project P",
+			"Build path contains duplicate entry: \'src\' for project 'P'",
 			project);
 	} finally {
 		this.deleteProject("P");
@@ -3625,8 +3625,8 @@ public void testOutputFolder1() throws CoreException, IOException {
 		
 		assertMarkers(
 			"Unexpected markers",
-			"Project P is missing required source folder: \'src1\'\n" + 
-			"Project P is missing required source folder: \'src2\'",
+			"Project 'P' is missing required source folder: \'src1\'\n" + 
+			"Project 'P' is missing required source folder: \'src2\'",
 			JavaCore.create(project));
 	} finally {
 		deleteProject("P");

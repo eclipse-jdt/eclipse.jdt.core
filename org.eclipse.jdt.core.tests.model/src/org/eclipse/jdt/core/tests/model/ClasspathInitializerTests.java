@@ -805,7 +805,7 @@ public void testContainerInitializer16() throws CoreException {
 		}
 		assertExceptionEquals(
 			"Unexpected expection", 
-			"Project cannot reference itself: P1", 
+			"Project 'P1' cannot reference itself", 
 			exception);
 	} finally {
 		stopDeltas();
@@ -1108,7 +1108,7 @@ public void testVariableInitializerDeprecated() throws CoreException {
 		createFile("/P1/lib.jar", "");
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
-		assertStatus("Classpath variable 'TEST_DEPRECATED' in project P1 is deprecated: 'Test deprecated flag'", status);
+		assertStatus("Classpath variable 'TEST_DEPRECATED' in project 'P1' is deprecated: Test deprecated flag", status);
 		assertFalse("Status should not be OK", status.isOK());
 		assertEquals("Status should have WARNING severity", IStatus.WARNING, status.getSeverity());
 		assertEquals("Status should have deprecated code", IJavaModelStatusConstants.DEPRECATED_VARIABLE, status.getCode());
@@ -1132,7 +1132,7 @@ public void testVariableInitializerUnboundAndDeprecated() throws CoreException {
 		IJavaProject project = createJavaProject("P1");
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
-		assertStatus("Project P1 is missing required library: 'lib.jar'", status);
+		assertStatus("Project 'P1' is missing required library: 'lib.jar'", status);
 		assertFalse("Status should not be OK", status.isOK());
 		assertEquals("Status should have WARNING severity", IStatus.ERROR, status.getSeverity());
 		assertEquals("Status should have deprecated code", IJavaModelStatusConstants.INVALID_CLASSPATH, status.getCode());
@@ -1187,7 +1187,7 @@ public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException 
 		createFile("/P1/lib.jar", "");
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
-		assertStatus("Classpath variable 'TEST_DEPRECATED_READ_ONLY' in project P1 is deprecated: 'A deprecated and read-only initializer'", status);
+		assertStatus("Classpath variable 'TEST_DEPRECATED_READ_ONLY' in project 'P1' is deprecated: A deprecated and read-only initializer", status);
 		assertFalse("Status should not be OK", status.isOK());
 		assertEquals("Status should have WARNING severity", IStatus.WARNING, status.getSeverity());
 		assertEquals("Status should have deprecated code", IJavaModelStatusConstants.DEPRECATED_VARIABLE, status.getCode());
@@ -1228,7 +1228,7 @@ public void testVariableInitializerBug172207() throws CoreException {
 		IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 		sortMarkers(markers);
 		assertMarkers("Unexpected marker(s)",
-			"Classpath variable 'TEST_DEPRECATED_READ_ONLY' in project P1 is deprecated: 'A deprecated and read-only initializer'",
+			"Classpath variable 'TEST_DEPRECATED_READ_ONLY' in project 'P1' is deprecated: A deprecated and read-only initializer",
 			markers);
 		assertEquals("Marker on deprecated variable should be a WARNING", IMarker.SEVERITY_WARNING, markers[0].getAttribute(IMarker.SEVERITY, -1));
 	} finally {

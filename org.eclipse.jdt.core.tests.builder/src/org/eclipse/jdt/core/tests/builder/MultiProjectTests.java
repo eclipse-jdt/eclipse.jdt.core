@@ -359,9 +359,9 @@ public class MultiProjectTests extends BuilderTests {
 			fullBuild();
 			
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$//$NON-NLS-6$//$NON-NLS-7$
-			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project: P3", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			
 			JavaCore.setOptions(options);
 		} finally {
@@ -453,12 +453,12 @@ public class MultiProjectTests extends BuilderTests {
 			fullBuild();
 			
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$//$NON-NLS-7$
-			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
 					new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2, 106, 109, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
-					new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+					new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
-			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project: P3", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			
 			JavaCore.setOptions(options);
 		} finally {
@@ -550,9 +550,9 @@ public class MultiProjectTests extends BuilderTests {
 			fullBuild();
 			
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$//$NON-NLS-7$
-			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project: P3", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			
 			env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p1;\n"+ //$NON-NLS-1$
@@ -566,12 +566,12 @@ public class MultiProjectTests extends BuilderTests {
 			incrementalBuild();
 			
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ 
-			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
 					new Problem("p2", "The method bar(Y, int) in the type X is not applicable for the arguments (Y)", c2, 106, 109, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
-					new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+					new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
-			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project: P3", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 	
 			JavaCore.setOptions(options);
 		} finally {
@@ -652,18 +652,18 @@ public class MultiProjectTests extends BuilderTests {
 			fullBuild();
 			
 			expectingCompilingOrder(new String[]{"p2.Y", "p3.Z", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
-			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
 				new Problem("p2", "The import p1 cannot be resolved", c2, 19, 21, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p2", "X cannot be resolved to a type", c2, 73, 74, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p2", "X cannot be resolved to a type", c2, 87, 88, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p2", "The method foo() is undefined for the type Y", c2, 93, 96, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 			expectingOnlySpecificProblemsFor(p3,new Problem[]{
 				new Problem("p3", "X cannot be resolved to a type", c3, 51, 52, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p3", "The import p1 cannot be resolved", c3, 19, 21, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p3", "A cycle was detected in the build path of project: P3", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 	
 			env.addClass(root1, "p1", "X", //$NON-NLS-1$ //$NON-NLS-2$
@@ -677,9 +677,9 @@ public class MultiProjectTests extends BuilderTests {
 				);
 			incrementalBuild();
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ 
-			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
-			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project: P3", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemFor(p3,new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 	
 			JavaCore.setOptions(options);
 		} finally {
@@ -745,11 +745,11 @@ public class MultiProjectTests extends BuilderTests {
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p1.X", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ 
 			expectingOnlySpecificProblemsFor(p1,new Problem[]{
 				new Problem("p1", "The import p22 cannot be resolved", c1, 32, 35, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
 				new Problem("p2", "The import p11 cannot be resolved", c2, 32, 35, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 			
 			env.addClass(root1, "p11", "XX", //$NON-NLS-1$ //$NON-NLS-2$
@@ -768,11 +768,11 @@ public class MultiProjectTests extends BuilderTests {
 			expectingCompilingOrder(new String[]{"p11.XX", "p22.YY", "p2.Y", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 			expectingOnlySpecificProblemsFor(p1,new Problem[]{
 				new Problem("p1", "The import p22 is never used", c1, 32, 35, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
 				new Problem("p2", "The import p11 is never used", c2, 32, 35, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING),//$NON-NLS-1$ //$NON-NLS-2$
-				new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 			
 			JavaCore.setOptions(options);
@@ -853,13 +853,13 @@ public void testCycle6() throws JavaModelException {
 		fullBuild();
 
 		expectingOnlySpecificProblemsFor(p1,new Problem[]{
-			new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 		});
 		expectingOnlySpecificProblemsFor(p2,new Problem[]{
-			new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 		});
 		expectingOnlySpecificProblemsFor(p3,new Problem[]{
-			new Problem("p3", "A cycle was detected in the build path of project: P3", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 		});
 		
 	} finally {
@@ -939,13 +939,13 @@ public void testCycle7() throws JavaModelException {
 		fullBuild();
 
 		expectingOnlySpecificProblemsFor(p1,new Problem[]{
-			new Problem("p1", "A cycle was detected in the build path of project: P1", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("p1", "A cycle was detected in the build path of project 'P1'", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 		});
 		expectingOnlySpecificProblemsFor(p2,new Problem[]{
-			new Problem("p2", "A cycle was detected in the build path of project: P2", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("p2", "A cycle was detected in the build path of project 'P2'", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 		});
 		expectingOnlySpecificProblemsFor(p3,new Problem[]{
-			new Problem("p3", "A cycle was detected in the build path of project: P3", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("p3", "A cycle was detected in the build path of project 'P3'", p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 		});
 		
 	} finally {
