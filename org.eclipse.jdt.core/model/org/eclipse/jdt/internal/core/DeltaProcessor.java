@@ -2177,10 +2177,17 @@ public class DeltaProcessor {
 						break;
 				}
 				break;
+			case IResource.FOLDER :
+				/* check settings change */
+				IFolder folder = (IFolder) resource;
+				processChildren = folder.getName().equals(JavaProject.DEFAULT_PREFERENCES_DIRNAME);
+				break;
 			case IResource.FILE :
-				/* check classpath file change */
+				/* check classpath or prefs files change */
 				IFile file = (IFile) resource;
-				if (file.getName().equals(JavaProject.CLASSPATH_FILENAME)) {
+				String fileName = file.getName();
+				if (fileName.equals(JavaProject.CLASSPATH_FILENAME) ||
+					fileName.equals(JavaProject.JAVA_CORE_PREFS_FILE)) {
 					JavaProject javaProject = (JavaProject)JavaCore.create(file.getProject());
 					this.state.addClasspathValidation(javaProject);
 					affectedProjects.add(file.getProject().getFullPath());

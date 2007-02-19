@@ -122,12 +122,19 @@ public class JavaProject
 
 	/**
 	 * Name of file containing custom project preferences
-	 * @deprecated WARNING Visibility will be reduce to private before M9
-	 * 	If you use this variable, change your implementation to avoid future compilation error...
 	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=59258">bug 59258</a>
-	 * TODO (frederic) set visibility from public to private
 	 */
-	public static final String PREF_FILENAME = ".jprefs";  //$NON-NLS-1$
+	private static final String PREF_FILENAME = ".jprefs";  //$NON-NLS-1$
+	
+	/**
+	 * Name of directory containing preferences file
+	 */
+	public static final String DEFAULT_PREFERENCES_DIRNAME = ".settings"; //$NON-NLS-1$
+	
+	/**
+	 * Extension for file containing custom project preferences
+	 */
+	public static final String JAVA_CORE_PREFS_FILE = JavaCore.PLUGIN_ID+".prefs"; //$NON-NLS-1$
 	
 	/*
 	 * Value of project's resolved classpath while it is being resolved
