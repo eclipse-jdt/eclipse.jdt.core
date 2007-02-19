@@ -140,6 +140,10 @@ public IPath computeIndexLocation(IPath containerPath) {
 	}
 	return indexLocation;
 }
+public void deleteIndexFiles() {
+	this.savedIndexNamesFile.delete(); // forget saved indexes & delete each index file
+	deleteIndexFiles(null);
+}
 private void deleteIndexFiles(SimpleSet pathsToKeep) {
 	File[] indexesFiles = getSavedIndexesDirectory().listFiles();
 	if (indexesFiles == null) return;
@@ -291,8 +295,7 @@ private SimpleLookupTable getIndexStates() {
 			}
 		}
 	} else {
-		this.savedIndexNamesFile.delete(); // forget saved indexes & delete each index file
-		deleteIndexFiles(null);
+		deleteIndexFiles();
 	}
 	return this.indexStates;
 }

@@ -3394,13 +3394,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * 
 	 * @see #secondaryTypes(IJavaProject, boolean, IProgressMonitor)
 	 */
-	public void secondaryTypeAdding(String path, char[] key) {
+	public void secondaryTypeAdding(String path, char[] typeName, char[] packageName) {
 		if (VERBOSE) {
 			StringBuffer buffer = new StringBuffer("JavaModelManager.addSecondaryType("); //$NON-NLS-1$
 			buffer.append(path);
 			buffer.append(',');
 			buffer.append('[');
-			buffer.append(new String(key));
+			buffer.append(new String(packageName));
+			buffer.append('.');
+			buffer.append(new String(typeName));
 			buffer.append(']');
 			buffer.append(')');
 			Util.verbose(buffer.toString());
@@ -3433,15 +3435,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					}
 					ICompilationUnit unit = JavaModelManager.createCompilationUnitFrom((IFile)resource, null);
 					if (unit != null) {
-						char[][] names = CharOperation.splitOn('/', key);
-						String typeName = new String(names[0]);
-						String packName = new String(names[1]);
-						HashMap packageTypes = (HashMap) allTypes.get(packName);
+						String typeString = new String(typeName);
+						String packageString = new String(packageName);
+						HashMap packageTypes = (HashMap) allTypes.get(packageString);
 						if (packageTypes == null) {
 							packageTypes = new HashMap(3);
-							allTypes.put(packName, packageTypes);
+							allTypes.put(packageString, packageTypes);
 						}
-						packageTypes.put(typeName, unit.getType(typeName));
+						packageTypes.put(typeString, unit.getType(typeString));
 					}
 					if (VERBOSE) {
 						Util.verbose("	- indexing cache:"); //$NON-NLS-1$
