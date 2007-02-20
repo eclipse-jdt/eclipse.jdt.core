@@ -5469,7 +5469,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  }\n" +
 				"}",
 				true/*resolve*/);
-			ASTNode string = buildAST(null, workingCopy, true, true);
+			ASTNode string = buildAST(null, workingCopy, false, true);
 			assertEquals("Unexpected node type", ASTNode.CLASS_INSTANCE_CREATION, string.getNodeType());
 			ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) string;
 			ITypeBinding resolveTypeBinding = classInstanceCreation.resolveTypeBinding();
