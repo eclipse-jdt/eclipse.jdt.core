@@ -33,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1102, 1103, 1104 };
+//		TESTS_NUMBERS = new int[] { 1105 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -36493,5 +36493,27 @@ public void test1104() {
 		"	                 ^\n" + 
 		"Wildcard is not allowed at this location\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174724
+public void test1105() {
+	Map customOptions = this.getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Class foo = Class.<? extends Object>forName(Integer.class.getName());\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Class foo = Class.<? extends Object>forName(Integer.class.getName());\n" + 
+		"	                   ^^^^^^^^^^^^^^^^\n" + 
+		"Wildcard is not allowed at this location\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
 }
 }
