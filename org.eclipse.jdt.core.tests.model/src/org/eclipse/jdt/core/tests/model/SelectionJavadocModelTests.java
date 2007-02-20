@@ -984,4 +984,50 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			elements
 		);
 	}
+
+	/**
+	 * Bug 171802: [javadoc][select] F3 does not work on method which have deprecated type as argument
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=171802"
+	 */
+	public void testBug171802() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/Tests/b171802/Y.java",
+			"package b171802;\n" +
+			"\n" + 
+			"/**\n" +
+			" * @deprecated\n" + 
+			" */\n" +
+			"public class Y {\n" + 
+			"\n" + 
+			"}\n",
+			wcOwner,
+			null/*don't compute problems*/
+		);
+		workingCopies[1] = getWorkingCopy("/Tests/b171802/X.java",
+			"package b171802;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	/**\n" + 
+			"	 * @deprecated Use {@link #bar(char[], Y)}\n" + 
+			"	 * instead\n" + 
+			"	 */\n" + 
+			"	void foo(char[] param1, Y param2) {}\n" + 
+			"\n" +	
+			"	/**\n" + 
+			"	 * @deprecated\n" + 
+			"	 */\n" + 
+			"	void bar(char[] param1, Y param2) {}\n" + 
+			"\n" +	
+			"}\n",
+			wcOwner,
+			null/*don't compute problems*/
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[1], "bar");
+		assertElementsEqual("Invalid selection(s)",
+			"bar(char[], Y) [in X [in [Working copy] X.java [in b171802 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
 }
