@@ -3143,7 +3143,7 @@ public final class JavaCore extends Plugin {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Creates and returns a new access rule with the given file pattern and kind.
 	 * <p>

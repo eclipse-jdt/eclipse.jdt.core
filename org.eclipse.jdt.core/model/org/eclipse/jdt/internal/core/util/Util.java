@@ -1422,7 +1422,7 @@ public class Util {
 			message, 
 			e); 
 		JavaCore.getPlugin().getLog().log(status);
-	}	
+	}
 	
 	public static ClassFileReader newClassFileReader(IResource resource) throws CoreException, ClassFormatException, IOException {
 		InputStream in = null;
