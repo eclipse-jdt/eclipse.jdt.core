@@ -36516,4 +36516,22 @@ public void test1105() {
 		true,
 		customOptions);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=174766
+// **
+public void test1106() {
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public class Y extends Exception {\n" +
+			"     private static final long serialVersionUID = 1L;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public class Y extends Exception {\n" + 
+		"	                       ^^^^^^^^^\n" + 
+		"The generic class X<T>.Y may not subclass java.lang.Throwable\n" + 
+		"----------\n");
+}
 }
