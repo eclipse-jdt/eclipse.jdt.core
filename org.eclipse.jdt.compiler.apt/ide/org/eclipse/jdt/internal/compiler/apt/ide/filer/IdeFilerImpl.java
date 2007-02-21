@@ -33,12 +33,12 @@ import org.eclipse.jdt.internal.compiler.apt.ide.dispatch.IdeProcessingEnvImpl;
  */
 public class IdeFilerImpl implements Filer {
 	
-	private final IdeAnnotationProcessorManager _dispatchManager;
+	//private final IdeAnnotationProcessorManager _dispatchManager;
 	private final IdeProcessingEnvImpl _env;
 
 	public IdeFilerImpl(IdeAnnotationProcessorManager dispatchManager,
 			IdeProcessingEnvImpl env) {
-		_dispatchManager = dispatchManager;
+		//_dispatchManager = dispatchManager;
 		_env = env;
 	}
 

@@ -25,11 +25,11 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  */
 public class BatchMessagerImpl implements Messager {
 	
-	private final ProblemReporter _problemReporter;
+	//private final ProblemReporter _problemReporter;
 
 	public BatchMessagerImpl(ProblemReporter reporter) {
 		//TODO: is a problem reporter what we need??  
-		_problemReporter = reporter;
+		//_problemReporter = reporter;
 	}
 
 	/* (non-Javadoc)

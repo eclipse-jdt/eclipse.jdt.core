@@ -22,6 +22,7 @@ public class NameImpl implements Name {
 	private final String _name;
 	
 	/** nullary constructor is prohibited */
+	@SuppressWarnings("unused")
 	private NameImpl() 
 	{
 		_name = null;
