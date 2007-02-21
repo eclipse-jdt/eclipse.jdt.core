@@ -465,7 +465,8 @@ public class BuildpathTests extends BuilderTests {
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
-public void _testMissingLibrary3() throws JavaModelException {
+public void testMissingLibrary3() throws JavaModelException {
+	this.abortOnFailure = false; // this test is failing on some releng boxes => do not abort on failures
 	IPath projectPath = env.addProject("Project");
 	IJavaProject project = env.getJavaProject(projectPath);
 	fullBuild();
@@ -493,7 +494,8 @@ public void _testMissingLibrary3() throws JavaModelException {
 }
 	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
-public void _testMissingLibrary4() throws JavaModelException {
+public void testMissingLibrary4() throws JavaModelException {
+	this.abortOnFailure = false; // this test is failing on some releng boxes => do not abort on failures
 	IPath projectPath = env.addProject("Project");
 	IJavaProject project = env.getJavaProject(projectPath);
 	fullBuild();

@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.test.performance.PerformanceTestCase;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -174,6 +175,12 @@ public class TestCase extends PerformanceTestCase {
 	 * Flag telling if current test is the first of TestSuite it belongs or not.
 	 */
 	private boolean first;
+	
+	/**
+	 * Flag telling whether test execution must stop on failure or not.
+	 * Default is true;
+	 */
+	protected boolean abortOnFailure = true;
 
 	// static variables for subsets tests
 	public static String TESTS_PREFIX = null; // prefix of test names to perform
@@ -199,35 +206,68 @@ public static void assertStringEquals(String message, String expected, String ac
 		return;
 	if (expected != null && expected.equals(actual))
 		return;
-	final String formatted;
+	final StringBuffer formatted;
 	if (message != null) {
-		formatted = message+"."; //$NON-NLS-1$
+		formatted = new StringBuffer(message).append('.');
 	} else {
-		formatted = ""; //$NON-NLS-1$
+		formatted = new StringBuffer();
 	}
 	if (showLineSeparators) {
 		final String expectedWithLineSeparators = showLineSeparators(expected);
 		final String actualWithLineSeparators = showLineSeparators(actual);
-		throw new ComparisonFailure(
-			    formatted
-					+ "\n----------- Expected ------------\n" //$NON-NLS-1$
-					+ expectedWithLineSeparators
-					+ "\n------------ but was ------------\n" //$NON-NLS-1$
-					+ actualWithLineSeparators
-					+ "\n--------- Difference is ----------\n", //$NON-NLS-1$
+		formatted.append("\n----------- Expected ------------\n"); //$NON-NLS-1$
+		formatted.append(expectedWithLineSeparators);
+		formatted.append("\n------------ but was ------------\n"); //$NON-NLS-1$
+		formatted.append(actualWithLineSeparators);
+		formatted.append("\n--------- Difference is ----------\n"); //$NON-NLS-1$
+		throw new ComparisonFailure(formatted.toString(),
 			    expectedWithLineSeparators, 
 			    actualWithLineSeparators);
 	} else {
-		throw new ComparisonFailure(
-			    formatted
-					+ "\n----------- Expected ------------\n" //$NON-NLS-1$
-					+ expected
-					+ "\n------------ but was ------------\n" //$NON-NLS-1$
-					+ actual
-					+ "\n--------- Difference is ----------\n", //$NON-NLS-1$
-			    expected, 
-			    actual);
+		formatted.append("\n----------- Expected ------------\n"); //$NON-NLS-1$
+		formatted.append(expected);
+		formatted.append("\n------------ but was ------------\n"); //$NON-NLS-1$
+		formatted.append(actual);
+		formatted.append("\n--------- Difference is ----------\n"); //$NON-NLS-1$
+		throw new ComparisonFailure(formatted.toString(),  expected, actual);
 	}
+}
+
+/**
+ * Same method as {@link #assertEquals(String, Object, Object)} if the flag
+ * {@link #abortOnFailure} has been set to <code>true</code>.
+ * Otherwise, the thrown exception {@link AssertionFailedError} is catched
+ * and its message is only displayed in the console hence producing no JUnit failure.
+ */
+protected void assumeEquals(String msg, Object expected, Object actual) {
+	try {
+		assertEquals(msg, expected, actual);
+	} catch (AssertionFailedError afe) {
+		if (abortOnFailure) throw afe;
+		printAssertionFailure(afe);
+	}
+}
+
+/**
+ * Same method as {@link #assertTrue(String, boolean)} if the flag
+ * {@link #abortOnFailure} has been set to <code>true</code>.
+ * Otherwise, the thrown exception {@link AssertionFailedError} is catched
+ * and its message is only displayed in the console hence producing no JUnit failure.
+ */
+protected void assumeTrue(String msg, boolean cond) {
+	try {
+		assertTrue(msg, cond);
+	} catch (AssertionFailedError afe) {
+		if (abortOnFailure) throw afe;
+		printAssertionFailure(afe);
+	}
+}
+
+private void printAssertionFailure(AssertionFailedError afe) {
+	System.out.println("\n!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!");
+	System.out.println("Catched assertion while running test "+getName()+":");
+	System.out.println("	"+afe.getMessage());
+	System.out.println("--------------------------------------------------------------------------------\n");
 }
 
 /**

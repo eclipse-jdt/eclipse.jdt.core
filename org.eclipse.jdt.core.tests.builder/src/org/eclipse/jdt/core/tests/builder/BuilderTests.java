@@ -14,6 +14,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import junit.framework.*;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
@@ -35,12 +36,12 @@ public class BuilderTests extends TestCase {
 		super(name);
 	}
 
-protected void cleanBuild() {
-	debugRequestor.clearResult();
-	debugRequestor.activate();
-	env.cleanBuild();
-	debugRequestor.deactivate();
-}
+	protected void cleanBuild() {
+		debugRequestor.clearResult();
+		debugRequestor.activate();
+		env.cleanBuild();
+		debugRequestor.deactivate();
+	}
 
 	/** Execute the given class. Expecting output and error must be specified.
 	 */
@@ -324,7 +325,11 @@ protected void cleanBuild() {
 					}
 				}
 			}
-			System.out.println("missing expected problem: " + problem);
+			System.out.println("--------------------------------------------------------------------------------");
+			System.out.println("Missing problem while running test "+getName()+":");
+			System.out.println("	- expected : " + problem);
+			System.out.println("	- current: " + problemsToString(rootProblems));
+			/*
 			for (int j = 0; j < rootProblems.length; j++) {
 				Problem pb = rootProblems[j];
 				if (pb != null) {
@@ -333,7 +338,8 @@ protected void cleanBuild() {
 					System.out.println(")");
 				}
 			}
-			assertTrue("missing expected problem: " + problem, false);
+			*/
+			assumeTrue("missing expected problem: " + problem, false);
 		}
 	}
 
@@ -387,9 +393,17 @@ protected void cleanBuild() {
 
 			/* get the leaf problems for this type */
 			Problem[] problems = env.getProblemsFor(path);
-			for (int j = 0; j < problems.length; j++)
-				System.out.println(problems[j].toString());
+			System.out.println(problems);
 		}
+	}
+
+	protected String problemsToString(Problem[] problems) {
+		StringBuffer buffer = new StringBuffer();
+		for (int j = 0; j < problems.length; j++) {
+			buffer.append(problems[j].toString());
+			buffer.append('\n');
+		}
+		return buffer.toString();
 	}
 
 	/** Sets up this test.
