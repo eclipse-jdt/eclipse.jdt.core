@@ -167,4 +167,8 @@ public class BatchDispatchTests extends TestCase {
 		BatchTestUtils.compileOneClass(compiler, inputFile, options);
 	}
 
+	@Override
+	protected void tearDown() throws Exception {
+		BatchTestUtils.tearDown();
+	}
 }

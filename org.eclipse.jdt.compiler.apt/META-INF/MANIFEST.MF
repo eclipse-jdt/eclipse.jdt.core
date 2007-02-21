@@ -1,20 +1,19 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: %pluginName
-Bundle-SymbolicName: org.eclipse.jdt.compiler.apt;singleton:=true
+Bundle-Name: %fragmentName
+Bundle-SymbolicName: org.eclipse.jdt.compiler.apt
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: %providerName
+Fragment-Host: org.eclipse.jdt.core;bundle-version="3.3.0"
+Bundle-Localization: compiler_apt_fragment
 Require-Bundle: org.eclipse.jdt.apt.core,
- org.eclipse.jdt.compiler.tool,
- org.eclipse.jdt.core,
  org.eclipse.core.runtime,
  org.eclipse.core.resources
 Eclipse-LazyStart: true
-Bundle-Activator: org.eclipse.jdt.internal.compiler.apt.ide.Apt6Plugin
 Export-Package: org.eclipse.jdt.internal.compiler.apt.dispatch;x-internal:=true,
- org.eclipse.jdt.internal.compiler.apt.ide;x-internal:=true,
  org.eclipse.jdt.internal.compiler.apt.ide.dispatch;x-internal:=true,
- org.eclipse.jdt.internal.compiler.apt.ide.filer,
+ org.eclipse.jdt.internal.compiler.apt.ide.filer;x-internal:=true,
  org.eclipse.jdt.internal.compiler.apt.model;x-internal:=true,
  org.eclipse.jdt.internal.compiler.apt.util;x-internal:=true
+Import-Package: org.eclipse.jdt.internal.compiler.tool

@@ -13,8 +13,11 @@
 package org.eclipse.jdt.compiler.apt.tests;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,11 @@ import javax.tools.JavaCompiler.CompilationTask;
 
 import junit.framework.Assert;
 
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 /**
@@ -36,7 +44,8 @@ import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
  */
 public class BatchTestUtils {
 	// relative to plugin directory
-	private static final String _processorJarName = "export\\apttestprocessors.jar";
+	private static final String PROCESSOR_JAR_NAME = "apttestprocessors.jar";
+	private static String _processorJarPath;
 	
 	// locations to copy and generate files
 	private static final String _tmpFolder = System.getProperty("java.io.tmpdir") + "eclipse-temp";
@@ -56,8 +65,7 @@ public class BatchTestUtils {
 	 */
 	public static void compileOneClass(JavaCompiler compiler, File inputFile, List<String> options) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-	
-		
+
 		// create new list containing inputfile
 		List<File> files = new ArrayList<File>();
 		files.add(inputFile);
@@ -70,9 +78,9 @@ public class BatchTestUtils {
 		options.add("-s");
 		options.add(_tmpGenFolderName);
 		options.add("-cp");
-		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarName);
+		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarPath);
 		options.add("-processorpath");
-		options.add(_processorJarName);
+		options.add(_processorJarPath);
 		options.add("-XprintRounds");
 		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
 		Boolean result = task.call();
@@ -122,7 +130,13 @@ public class BatchTestUtils {
 		_tmpSrcDir.mkdirs();
 		assert _tmpSrcDir.exists() : "couldn't mkdirs " + _tmpSrcFolderName;
 		
-		File processorJar = new File(_processorJarName);
+		try {
+			_processorJarPath = setupProcessorJar(PROCESSOR_JAR_NAME, _tmpFolder);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Assert.assertNotNull("No processor jar path set", _processorJarPath);
+		File processorJar = new File(_processorJarPath);
 		Assert.assertTrue("Couldn't find processor jar at " + processorJar.getAbsolutePath(), processorJar.exists());
 		
 		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);//, EclipseCompiler.class.getClassLoader());
@@ -132,8 +146,105 @@ public class BatchTestUtils {
 			if (javaCompiler instanceof EclipseCompiler) {
 				_eclipseCompiler = javaCompiler;
 			}
-	     }
+		}
 		Assert.assertEquals("Only one compiler available", 1, compilerCounter);
+	}
+	
+	public static void tearDown() {
+		new File(_processorJarPath).deleteOnExit();
+		BatchTestUtils.deleteTree(new File(_tmpFolder));
+	}
+	/**
+	 * Returns the IWorkspace this test suite is running on.
+	 */
+	public static IWorkspace getWorkspace() {
+		return ResourcesPlugin.getWorkspace();
+	}
+	public static IWorkspaceRoot getWorkspaceRoot() {
+		return getWorkspace().getRoot();
+	}
+	protected static String getPluginDirectoryPath() {
+		try {
+			URL platformURL = Platform.getBundle("org.eclipse.jdt.compiler.apt.tests").getEntry("/");
+			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static byte[] read(java.io.File file) throws java.io.IOException {
+		int fileLength;
+		byte[] fileBytes = new byte[fileLength = (int) file.length()];
+		java.io.FileInputStream stream = null;
+		try {
+			stream = new java.io.FileInputStream(file);
+			int bytesRead = 0;
+			int lastReadSize = 0;
+			while ((lastReadSize != -1) && (bytesRead != fileLength)) {
+				lastReadSize = stream.read(fileBytes, bytesRead, fileLength - bytesRead);
+				bytesRead += lastReadSize;
+			}
+		} finally {
+			if (stream != null) {
+				stream.close();
+			}
+		}
+		return fileBytes;
+	}
+	public static boolean convertToIndependantLineDelimiter(File file) {
+		return file.getName().endsWith(".java");
+	}
+	/**
+	 * Copy file from src (path to the original file) to dest (path to the destination file).
+	 */
+	public static void copy(File src, File dest) throws IOException {
+		// read source bytes
+		byte[] srcBytes = read(src);
+		
+		if (convertToIndependantLineDelimiter(src)) {
+			String contents = new String(srcBytes);
+			contents = TestUtils.convertToIndependantLineDelimiter(contents);
+			srcBytes = contents.getBytes();
+		}
+	
+		// write bytes to dest
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(dest);
+			out.write(srcBytes);
+		} finally {
+			if (out != null) {
+				out.close();
+			}
+		}
+	}
+
+	public static String setupProcessorJar(String processorJar, String tmpDir) throws IOException {
+		String resourceDir = getPluginDirectoryPath();
+		java.io.File destinationDir = new java.io.File(tmpDir);
+		java.io.File libraryFile =
+			new java.io.File(tmpDir, processorJar);
+		if (!destinationDir.exists()) {
+			if (!destinationDir.mkdir()) {
+				//mkdir failed
+				throw new IOException("Could not create the directory " + destinationDir);
+			}
+			//copy the two files to the JCL directory
+			java.io.File libraryResource =
+				new java.io.File(resourceDir, processorJar);
+			copy(libraryResource, libraryFile);
+		} else {
+			//check that the two files, jclMin.jar and jclMinsrc.zip are present
+			//copy either file that is missing or less recent than the one in workspace
+			java.io.File libraryResource =
+				new java.io.File(resourceDir, processorJar);
+			if ((libraryFile.lastModified() < libraryResource.lastModified())
+					|| (libraryFile.length() != libraryResource.length())) {
+				copy(libraryResource, libraryFile);
+			}
+		}
+		return libraryFile.getCanonicalPath();
 	}
 
 	/**
