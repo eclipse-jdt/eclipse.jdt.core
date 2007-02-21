@@ -465,7 +465,7 @@ public class BuildpathTests extends BuilderTests {
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
-public void testMissingLibrary3() throws JavaModelException {
+public void _testMissingLibrary3() throws JavaModelException {
 	IPath projectPath = env.addProject("Project");
 	IJavaProject project = env.getJavaProject(projectPath);
 	fullBuild();
@@ -493,7 +493,7 @@ public void testMissingLibrary3() throws JavaModelException {
 }
 	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
-public void testMissingLibrary4() throws JavaModelException {
+public void _testMissingLibrary4() throws JavaModelException {
 	IPath projectPath = env.addProject("Project");
 	IJavaProject project = env.getJavaProject(projectPath);
 	fullBuild();
