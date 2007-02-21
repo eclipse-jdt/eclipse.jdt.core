@@ -402,7 +402,8 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 					boolean isFirst = lastFieldBinding == this.binding 
 													&& (this.indexOfFirstFieldBinding == 1 || lastFieldBinding.declaringClass == currentScope.enclosingReceiverType())
 													&& this.otherBindings == null; // could be dup: next.next.next
-					if (valueRequired  || (!isFirst && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)) {
+					if (valueRequired  || (!isFirst && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
+							|| ((implicitConversion & TypeIds.UNBOXING) != 0)) {
 						int lastFieldPc = codeStream.position;
 						if (lastFieldBinding.declaringClass == null) { // array length
 							codeStream.arraylength();
@@ -431,6 +432,9 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 								if (requiredGenericCast != null) codeStream.checkcast(requiredGenericCast);
 								codeStream.generateImplicitConversion(implicitConversion);
 							} else {
+								if ((implicitConversion & TypeIds.UNBOXING) != 0) {
+									codeStream.generateImplicitConversion(implicitConversion);
+								}
 								// could occur if !valueRequired but compliance >= 1.4
 								switch (lastFieldBinding.type.id) {
 									case T_long :

@@ -349,7 +349,8 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					if (fieldBinding.isStatic()) {
 						if (!valueRequired) {
 							// if no valueRequired, still need possible side-effects of <clinit> invocation, if field belongs to different class
-							if (((FieldBinding)binding).original().declaringClass == this.actualReceiverType.erasure()) {
+							if (((FieldBinding)binding).original().declaringClass == this.actualReceiverType.erasure()
+									&& ((implicitConversion & TypeIds.UNBOXING) == 0)) {
 								break;
 							}
 						}
@@ -360,9 +361,12 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							codeStream.invokestatic(syntheticAccessors[READ]);
 						}
 						if (valueRequired) {
-							if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
+							if (this.genericCast != null) codeStream.checkcast(this.genericCast);
 							codeStream.generateImplicitConversion(implicitConversion);
 						} else {
+							if ((implicitConversion & TypeIds.UNBOXING) != 0) {
+								codeStream.generateImplicitConversion(implicitConversion);
+							}
 							// could occur if !valueRequired but static field belongs to different class
 							switch (fieldBinding.type.id) {
 								case T_long :
@@ -374,7 +378,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							}
 						}							
 					} else {
-						if (!valueRequired) {
+						if (!valueRequired && ((implicitConversion & TypeIds.UNBOXING) == 0)) {
 							// if no valueRequired, optimize out entire gen
 							break;
 						}
@@ -410,6 +414,23 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							codeStream.load(localBinding);
 						}
 						codeStream.generateImplicitConversion(implicitConversion);
+					} else if ((implicitConversion & TypeIds.UNBOXING) != 0) {
+
+						// outer local?
+						if ((bits & DepthMASK) != 0) {
+							// outer local can be reached either through a synthetic arg or a synthetic field
+							VariableBinding[] path = currentScope.getEmulationPath(localBinding);
+							codeStream.generateOuterAccess(path, this, localBinding, currentScope);
+						} else {
+							// regular local variable read
+							codeStream.load(localBinding);
+						}
+						codeStream.generateImplicitConversion(implicitConversion);
+						if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
+							codeStream.pop2();
+						} else {
+							codeStream.pop();
+						}
 					}
 			}
 		}

@@ -95,6 +95,9 @@ public FlowInfo analyseCode(
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(implicitConversion);
 		} else {
+			if ((implicitConversion & TypeIds.UNBOXING) != 0) {
+				codeStream.generateImplicitConversion(implicitConversion);
+			}
 			if (this.resolvedType == TypeBinding.LONG
 				|| this.resolvedType == TypeBinding.DOUBLE) {
 				codeStream.pop2();

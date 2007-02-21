@@ -188,7 +188,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	}
-	if (valueRequired || (!isThisReceiver && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)) {
+	if (valueRequired || (!isThisReceiver && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
+			|| ((implicitConversion & TypeIds.UNBOXING) != 0)) {
 		receiver.generateCode(currentScope, codeStream, !isStatic);
 		pc = codeStream.position;
 		if (this.codegenBinding.declaringClass == null) { // array length
@@ -210,9 +211,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				codeStream.invokestatic(syntheticAccessors[READ]);
 			}
 			if (valueRequired) {
-				if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
+				if (this.genericCast != null) codeStream.checkcast(this.genericCast);
 				codeStream.generateImplicitConversion(implicitConversion);
 			} else {
+				if ((implicitConversion & TypeIds.UNBOXING) != 0) {
+					codeStream.generateImplicitConversion(implicitConversion);
+				}
 				// could occur if !valueRequired but compliance >= 1.4
 				switch (this.codegenBinding.type.id) {
 					case T_long :

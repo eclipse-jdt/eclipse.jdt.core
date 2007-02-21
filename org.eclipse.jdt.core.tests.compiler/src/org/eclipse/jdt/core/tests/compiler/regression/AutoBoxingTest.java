@@ -3859,4 +3859,114 @@ public void test129() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
+public void test130() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	Boolean[] myBool = new Boolean[1];\n" + 
+			"	void foo() {\n" + 
+			"		if (this.myBool[0]) {}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			new X().foo();\n" + 
+			"			System.out.println(\"FAILURE\");\n" + 
+			"		} catch(NullPointerException e) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
+public void test131() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	Boolean myBool = null;\n" + 
+			"	void foo() {\n" + 
+			"		if (myBool) {}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			new X().foo();\n" + 
+			"			System.out.println(\"FAILURE\");\n" + 
+			"		} catch(NullPointerException e) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
+public void test132() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static Boolean myBool = null;\n" + 
+			"	static void foo() {\n" + 
+			"		if (myBool) {}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			foo();\n" + 
+			"			System.out.println(\"FAILURE\");\n" + 
+			"		} catch(NullPointerException e) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
+public void test133() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	Boolean myBool = null;\n" + 
+			"	void foo() {\n" + 
+			"		if (this.myBool) {}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			new X().foo();\n" + 
+			"			System.out.println(\"FAILURE\");\n" + 
+			"		} catch(NullPointerException e) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174879
+public void test134() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static Boolean MyBool = null;\n" + 
+			"	static void foo() {\n" + 
+			"		if (X.MyBool) {}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			foo();\n" + 
+			"			System.out.println(\"FAILURE\");\n" + 
+			"		} catch(NullPointerException e) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
 }
