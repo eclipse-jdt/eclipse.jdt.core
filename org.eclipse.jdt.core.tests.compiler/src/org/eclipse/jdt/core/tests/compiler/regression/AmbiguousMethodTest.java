@@ -1983,4 +1983,75 @@ public void test050() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
+public void test051() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  void bar(I<?> x) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X extends Y {\n" + 
+			"  void foo() {\n" + 
+			"    bar(new Z());\n" + 
+			"  }\n" + 
+			"  void bar(Z x) {\n" + 
+			"  }\n" + 
+			"  private static final class Z implements I {\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
+// variant
+public void test052() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  void bar(I<?> x) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X extends Y {\n" + 
+			"  void foo() {\n" + 
+			"    bar(new Z());\n" + 
+			"  }\n" + 
+			"  void bar(Z x) {\n" + 
+			"  }\n" + 
+			"  private static final class Z implements I<String> {\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
+// variant
+public void test053() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  void bar(I<?> x) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X extends Y {\n" + 
+			"  void foo() {\n" + 
+			"    bar(new Z(){});\n" + 
+			"  }\n" + 
+			"  void bar(Z x) {\n" + 
+			"  }\n" + 
+			"  private static class Z implements I {\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"");
+}
 }
