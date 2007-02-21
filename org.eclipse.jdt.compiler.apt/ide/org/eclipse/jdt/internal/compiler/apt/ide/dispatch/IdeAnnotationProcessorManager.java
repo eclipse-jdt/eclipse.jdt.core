@@ -28,11 +28,11 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.ProcessorInfo;
-import org.eclipse.jdt.internal.compiler.apt.ide.Apt6Plugin;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.core.CompilationUnitProblemFinder;
 import org.eclipse.jdt.internal.core.builder.ICompilationUnitLocator;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Java 6 annotation processor manager used when compiling within the IDE. 
@@ -89,7 +89,7 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 				ProcessorInfo pi = new ProcessorInfo(p);
 				return pi;
 			} catch (CoreException e) {
-				Apt6Plugin.log(e, "Unable to create instance of annotation processor " + entry.getKey()); //$NON-NLS-1$
+				Util.log(e, "Unable to create instance of annotation processor " + entry.getKey()); //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -97,7 +97,7 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 
 	@Override
 	public void reportProcessorException(Processor p, Exception e) {
-		Apt6Plugin.log(e, "Exception thrown by Java annotation processor " + p); //$NON-NLS-1$
+		Util.log(e, "Exception thrown by Java annotation processor " + p); //$NON-NLS-1$
 	}
 
 	/**

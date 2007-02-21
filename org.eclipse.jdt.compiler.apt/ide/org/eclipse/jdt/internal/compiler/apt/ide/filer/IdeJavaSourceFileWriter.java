@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.generatedfile.FileGenerationResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
-import org.eclipse.jdt.internal.compiler.apt.ide.Apt6Plugin;
 import org.eclipse.jdt.internal.compiler.apt.ide.dispatch.IdeProcessingEnvImpl;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * 
@@ -73,7 +73,7 @@ public class IdeJavaSourceFileWriter extends StringWriter {
 			}
 		}
 		catch (CoreException ce) {
-			Apt6Plugin.log(ce, "Unable to generate type when JavaSourceFilePrintWriter was closed"); //$NON-NLS-1$
+			Util.log(ce, "Unable to generate type when JavaSourceFilePrintWriter was closed"); //$NON-NLS-1$
 		}
 	}
 }
