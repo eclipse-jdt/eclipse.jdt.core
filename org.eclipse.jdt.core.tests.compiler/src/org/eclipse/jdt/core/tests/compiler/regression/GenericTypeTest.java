@@ -1039,6 +1039,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}	
 	
+	// **
 	public void test0042() {
 		this.runNegativeTest(
 			new String[] {
@@ -3626,6 +3627,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// test generic method
+	// **
 	public void test0118a() {
 		this.runConformTest(
 			new String[] {
@@ -5687,6 +5689,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized allocation - non generic target constructor
+	// **
 	public void test0192() {
 		this.runNegativeTest(
 			new String[] {
@@ -5792,6 +5795,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized qualified allocation - non generic target constructor
+	// **
 	public void test0197() {
 		this.runNegativeTest(
 			new String[] {
@@ -5885,6 +5889,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}			
 	// parameterized explicit constructor call - non generic target constructor
+	// **
 	public void test0201() {
 		this.runNegativeTest(
 			new String[] {
@@ -7221,6 +7226,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// generic method of raw type
+	// **
 	public void test0245() {
 		this.runNegativeTest(
 			new String[] {
@@ -10139,6 +10145,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4");
 	}	
 	// checking scenario where generic type and method share the same type parameter name
+	// **
 	public void test0348() {
 		this.runNegativeTest(
 			new String[] {	
@@ -12531,7 +12538,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			""
 		);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293
+	// **
 	public void test0429c() { 
 		this.runNegativeTest(
 			new String[] {
@@ -13324,6 +13332,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
+	// **
 	public void test0448a() {
 		this.runConformTest(
 			new String[] {
@@ -13392,6 +13401,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
+	// **
 	public void test0451() {
 		this.runNegativeTest(
 			new String[] {
@@ -20948,6 +20958,7 @@ public void test0669() {
 		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 (ensure not even a warning)
+// **
 public void test0670() {
 	this.runConformTest(
 		new String[] {
@@ -22877,6 +22888,7 @@ public void test0736() {
 		"Cannot cast from C to D<? extends Exception>\n" + 
 		"----------\n");
 }
+// **
 public void test0737() {
 	this.runConformTest(
 		new String[] {
@@ -23389,6 +23401,7 @@ public void test0755() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999 - variation
+// **
 public void test0756() {
 	this.runConformTest(
 		new String[] {
@@ -23630,6 +23643,7 @@ public void test0764() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98379
+// **
 public void test0765() {
 	this.runConformTest(
 		new String[] {
@@ -24538,6 +24552,7 @@ public void test0790() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104655
+// **
 public void test0791() {
 	this.runConformTest(
 		new String[] {
@@ -24558,6 +24573,7 @@ public void test0791() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104649
+// **
 public void test0792() {
 	this.runConformTest(
 		new String[] {
@@ -25265,6 +25281,7 @@ public void test0812() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372 - variation
+// **
 public void test0813() {
 	this.runConformTest(
 		new String[] {
@@ -29297,6 +29314,7 @@ public void test0924() {
 		},
 		"SUCCESS");
 }
+// **
 public void test0925() {
 	this.runConformTest(
 		new String[] {
@@ -32055,6 +32073,7 @@ public void test1003() {
 		},
 		"");
 }
+// **
 public void test1004() {
 	this.runConformTest(
 		new String[] {
@@ -32071,6 +32090,7 @@ public void test1004() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=145420
+// **
 public void test1005() {
 	this.runConformTest(
 		new String[] {
@@ -32094,6 +32114,43 @@ public void test1005() {
 			"}", // =================
 		},
 		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=145420 - variant
+// **
+public void test1005b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T1,T2> {\n" + 
+			"\n" + 
+			"    private static final Object NULL_REF = new Object();\n" + 
+			"    private Object data;\n" + 
+			"\n" + 
+			"    private static <RT> RT unwrap(Object obj) {\n" + 
+			"        return (RT)(obj == NULL_REF ? null : obj);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public T1 getAsT1() {\n" + 
+			"        return unwrap(data);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public T2 getAsT2() {\n" + 
+			"        return unwrap(data);\n" + 
+			"    }\n" + 
+			"    Zork z;\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	return (RT)(obj == NULL_REF ? null : obj);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to RT\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
 }
 public void test1006() {
 	this.runConformTest(
@@ -32616,6 +32673,7 @@ public void test1018() {
 		},
 		"");
 }
+// **
 public void test1018a() {
 	this.runConformTest(
 		new String[] {
@@ -32867,6 +32925,7 @@ public void test1025() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753
+// **
 public void test1026() {
 	this.runConformTest(
 		new String[] {
@@ -32893,6 +32952,7 @@ public void test1026() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753 - variation
+// **
 public void test1027() {
 	this.runConformTest(
 		new String[] {
@@ -32922,6 +32982,7 @@ public void test1027() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753 - variation
+// **
 public void test1028() {
 	this.runConformTest(
 		new String[] {
@@ -33048,7 +33109,7 @@ public void test1031() {
 		"Type mismatch: cannot convert from Object to Comparable<? super Object>\n" + 
 		"----------\n");
 }
-
+// **
 public void test1032() {
 	this.runConformTest(
 		new String[] {
@@ -33072,6 +33133,42 @@ public void test1032() {
 			"}", // =================
 		},
 		"");
+}
+// **
+public void test1032a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	<T> T test(String name) {\n" + 
+			"\n" + 
+			"		try {\n" + 
+			"			InputStream in = new FileInputStream(name);\n" + 
+			"			return (T) new ObjectInputStream(in).readObject();\n" + 
+			"		} catch (Exception e) {\n" + 
+			"		}\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	<U> U text() {\n" + 
+			"		return test(\"data\");\n" + 
+			"	}\n" + 
+			"	Zork z;\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	return (T) new ObjectInputStream(in).readObject();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from Object to T\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
 }
 public void test1033() {
 	this.runNegativeTest(
@@ -33118,6 +33215,7 @@ public void test1033() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158519
+// **
 public void test1034() {
 	this.runNegativeTest(
 		new String[] {
@@ -34358,6 +34456,7 @@ public void test1059() {
 		"Type mismatch: cannot convert from capture#1-of ? to Number\n" + 
 		"----------\n");
 }
+// **
 public void test1060() {
 	this.runConformTest(
 		new String[] {
@@ -34374,6 +34473,7 @@ public void test1060() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159752
+// **
 public void test1061() {
 	this.runConformTest(
 		new String[] {
@@ -35856,6 +35956,7 @@ public void test1086() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165645 - variation
+// **
 public void test1087() {
 	this.runConformTest(
 		new String[] {
@@ -36285,6 +36386,7 @@ public void test1096() {
 		null/* do not perform statements recovery */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=168232
+// **
 public void test1097() {
 	this.runNegativeTest(new String[] {
 			"X.java",
@@ -36330,6 +36432,7 @@ public void test1098() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+// **
 public void test1099() {
 	this.runConformTest(new String[] {
 			"X.java",
