@@ -22,6 +22,7 @@ import junit.framework.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 
 /**
  */
@@ -58,7 +59,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
     }
 
     protected void setUp() throws Exception {
-		waitUntilIndexesReady();
+		AbstractJavaModelTests.waitUntilIndexesReady();
 		super.setUp();
 	}
 

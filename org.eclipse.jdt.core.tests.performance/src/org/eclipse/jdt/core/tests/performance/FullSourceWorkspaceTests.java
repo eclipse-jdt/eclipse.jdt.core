@@ -21,7 +21,6 @@ import junit.framework.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.tests.builder.TestingEnvironment;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.performance.util.JdtCorePerformanceMeter;
@@ -32,7 +31,6 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
-import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.test.performance.Dimension;
 import org.eclipse.test.performance.Performance;
 
@@ -1254,45 +1252,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			}
 		}
 		return splitted;
-	}
-
-	// Wait for indexing end
-	protected void waitUntilIndexesReady() {
-		/**
-		 * Simple Job which does nothing
-		 */
-		class	 DoNothing implements IJob {
-			/**
-			 * Answer true if the job belongs to a given family (tag)
-			 */
-			public boolean belongsTo(String jobFamily) {
-				return true;
-			}
-			/**
-			 * Asks this job to cancel its execution. The cancellation
-			 * can take an undertermined amount of time.
-			 */
-			public void cancel() {
-				// nothing to cancel
-			}
-			/**
-			 * Ensures that this job is ready to run.
-			 */
-			public void ensureReadyToRun() {
-				// always ready to do nothing
-			}
-			/**
-			 * Execute the current job, answer whether it was successful.
-			 */
-			public boolean execute(IProgressMonitor progress) {
-				// always succeed to do nothing
-				return true;
-			}
-		}
-		
-		// Run simple job which does nothing but wait for indexing end
-		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
 	}
 
 	/*

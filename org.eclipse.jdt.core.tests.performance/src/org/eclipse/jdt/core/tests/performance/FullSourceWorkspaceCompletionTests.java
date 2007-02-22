@@ -15,6 +15,7 @@ import java.text.NumberFormat;
 import junit.framework.*;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 
 /**
  */
@@ -118,7 +119,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 			int warmupCount,
 			int iterationCount) throws JavaModelException {
 		
-		waitUntilIndexesReady();
+		AbstractJavaModelTests.waitUntilIndexesReady();
 		
 		TestCompletionRequestor requestor = new TestCompletionRequestor();
 		if(ignoredKinds != null) {

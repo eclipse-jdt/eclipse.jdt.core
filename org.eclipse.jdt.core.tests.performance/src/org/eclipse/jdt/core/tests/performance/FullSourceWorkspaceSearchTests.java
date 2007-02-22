@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.test.performance.Performance;
 
@@ -43,7 +44,13 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 	static {
 //		org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = true;
-//		TESTS_NAMES = new String[] { "testSearchField" };
+//		TESTS_NAMES = new String[] {
+//			"testIndexing",
+//			"testIndexingOneProject",
+//			"testSearchAllTypeNames",
+//			"testNewSearchAllTypeNames",
+//			"testSearchAllTypeNameMatches",
+//		};
 	}
 	/*
 	 * Specific way to build test suite.
@@ -89,16 +96,35 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			this.count++;
 		}
 	}
+	static int SEARCH_ALL_TYPE_NAMES_COUNT = -1;
 	/**
 	 * Simple type name requestor: only count classes and interfaces.
 	 * @deprecated
 	 */
-	class SearchTypeNameRequestor implements ITypeNameRequestor {
+	class OldSearchTypeNameRequestor implements ITypeNameRequestor {
 		int count = 0;
 		public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
 			this.count++;
 		}
 		public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
+			this.count++;
+		}
+	}
+	/**
+	 * Simple type name requestor: only count classes and interfaces.
+	 */
+	class SearchTypeNameRequestor extends TypeNameRequestor {
+		int count = 0;
+		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
+			this.count++;
+		}
+	}
+	/**
+	 * Simple type name requestor: only count classes and interfaces.
+	 */
+	class SearchTypeNameMatchRequestor extends TypeNameMatchRequestor {
+		int count = 0;
+		public void acceptTypeNameMatch(TypeNameMatch match) {
 			this.count++;
 		}
 	}
@@ -117,7 +143,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			// nothing to cancel
 		}
 		public void ensureReadyToRun() {
-			// always ready to do nothing
 		}
 		/**
 		 * Execute the current job, answer whether it was successful.
@@ -127,8 +152,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 				startMeasuring();
 			} else {
 				stopMeasuring();
-				commitMeasurements();
-				assertPerformance();
 			}
 			return true;
 		}
@@ -167,54 +190,87 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	}
 
 	/**
-	 * Performance tests for search: Indexing.
+	 * Performance tests for search: Indexing entire workspace
 	 * 
-	 * First wait that already started indexing jobs end before perform test.
+	 * First wait that already started indexing jobs ends before performing test and measure.
 	 * Consider this initial indexing jobs as warm-up for this test.
+	 * 
+	 * TODO (frederic) After 3.3, activate several iteration for this test to have more accurate results,
+	 * 	then rename the test as numbers will be different...
 	 */
 	public void testIndexing() throws CoreException {
 		tagAsSummary("Search indexes building", true); // put in fingerprint
-	
+
 		// Wait for indexing end (we use initial indexing as warm-up)
-		waitUntilIndexesReady();
-		
-		// Remove all previous indexing
-		INDEX_MANAGER.removeIndexFamily(new Path(""));
-		INDEX_MANAGER.reset();
-		
-		// Clean memory
-		runGc();
-	
-		// Restart brand new indexing
-		INDEX_MANAGER.request(new Measuring(true/*start measuring*/));
-		for (int i=0, length=ALL_PROJECTS.length; i<length; i++) {
-			INDEX_MANAGER.indexAll(ALL_PROJECTS[i].getProject());
+		AbstractJavaModelTests.waitUntilIndexesReady();
+
+		// Measures
+		int measures = false ? MEASURES_COUNT/2 : 1;
+		for (int i=0; i<measures; i++) {
+
+			// Remove project previous indexing
+			INDEX_MANAGER.removeIndexFamily(new Path(""));
+			INDEX_MANAGER.reset();
+
+			// Clean memory
+			runGc();
+
+			// Restart brand new indexing
+			INDEX_MANAGER.request(new Measuring(true/*start measuring*/));
+			for (int j=0, length=ALL_PROJECTS.length; j<length; j++) {
+				INDEX_MANAGER.indexAll(ALL_PROJECTS[j].getProject());
+			}
+			AbstractJavaModelTests.waitUntilIndexesReady();
+
+			// end measure
+			INDEX_MANAGER.request(new Measuring(false /*end measuring*/));
+			AbstractJavaModelTests.waitUntilIndexesReady();
 		}
-		
-		// Wait for indexing end
-		waitUntilIndexesReady();
-		
+
 		// Commit
-		INDEX_MANAGER.request(new Measuring(false /*end measuring*/));
-		waitUntilIndexesReady();
+		commitMeasurements();
+		assertPerformance();
 	}
 
 	/**
-	 * Performance tests for search: Declarations Types Names.
-	 * 
-	 * First wait that already started indexing jobs end before perform test.
-	 * Perform one search before measure performance for warm-up.
+	 * Performance tests for search: Indexing one project (JDT/Core).
+	 */
+	public void testIndexingOneProject() throws CoreException {
+		tagAsSummary("Search JDT/Core indexes building", true); // put in fingerprint
+
+		// Warm-up
+		INDEX_MANAGER.removeIndexFamily(JDT_CORE_PROJECT.getPath());
+		INDEX_MANAGER.indexAll(JDT_CORE_PROJECT.getProject());
+		AbstractJavaModelTests.waitUntilIndexesReady();
+
+		// Measures
+		int max = MEASURES_COUNT * 10;
+		for (int i=0; i<max; i++) {
+			runGc();
+			INDEX_MANAGER.removeIndexFamily(JDT_CORE_PROJECT.getPath());
+			INDEX_MANAGER.request(new Measuring(true/*start measuring*/));
+			INDEX_MANAGER.indexAll(JDT_CORE_PROJECT.getProject());
+			AbstractJavaModelTests.waitUntilIndexesReady();
+			INDEX_MANAGER.request(new Measuring(false /*end measuring*/));
+			AbstractJavaModelTests.waitUntilIndexesReady();
+		}
+
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+	}
+
+	/**
+	 * Performance tests for search: Search All Types Names using 2.1 API.
 	 * 
 	 * @deprecated As we use deprecated API
-	 * 
-	 * TODO (frederic) Rename after 3.2 as reference has changed
 	 */
 	public void testSearchAllTypeNames() throws CoreException {
-		tagAsGlobalSummary("Search all type names", true); // put in global fingerprint
-		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
+		tagAsGlobalSummary("Old Search all type names", false); // do NOT put in global fingerprint
+		OldSearchTypeNameRequestor requestor = new OldSearchTypeNameRequestor();
 
 		// Wait for indexing end
-		waitUntilIndexesReady();
+		AbstractJavaModelTests.waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
@@ -229,6 +285,11 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			null);
 		NumberFormat intFormat = NumberFormat.getIntegerInstance();
 		System.out.println("	All type names = "+intFormat.format(requestor.count));
+		if (SEARCH_ALL_TYPE_NAMES_COUNT == -1) {
+			SEARCH_ALL_TYPE_NAMES_COUNT = requestor.count;
+		} else {
+			assertEquals("We should find same number of types in the workspace whatever the search method is!", SEARCH_ALL_TYPE_NAMES_COUNT, requestor.count);
+		}
 
 		// Measures
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -256,24 +317,131 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	}
 
 	/**
-	 * Performance tests for search: Occurence Types.
+	 * Performance tests for search: Search All Types Names.
+	 */
+	public void testNewSearchAllTypeNames() throws CoreException {
+		// TODO (frederic) put this test in global summary when be sure of its number.
+		//tagAsGlobalSummary("Search all type names", true); // put in global fingerprint
+		tagAsSummary("Search all type names", false);
+		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
+
+		// Wait for indexing end
+		AbstractJavaModelTests.waitUntilIndexesReady();
+
+		// Warm up
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+			null,
+			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+			IJavaSearchConstants.TYPE,
+			scope, 
+			requestor,
+			WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		NumberFormat intFormat = NumberFormat.getIntegerInstance();
+		System.out.println("	All type names = "+intFormat.format(requestor.count));
+		if (SEARCH_ALL_TYPE_NAMES_COUNT == -1) {
+			SEARCH_ALL_TYPE_NAMES_COUNT = requestor.count;
+		} else {
+			assertEquals("We should find same number of types in the workspace whatever the search method is!", SEARCH_ALL_TYPE_NAMES_COUNT, requestor.count);
+		}
+
+		// Measures
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			cleanCategoryTableCache(true, scope, resultCollector);
+			runGc();
+			startMeasuring();
+			new SearchEngine().searchAllTypeNames(
+				null,
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				null,
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				IJavaSearchConstants.TYPE,
+				scope, 
+				requestor,
+				WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+			stopMeasuring();
+		}
+
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+	}
+
+	/**
+	 * Performance tests for search: Search All Types Names Matches.
 	 * 
-	 * First wait that already started indexing jobs end before perform test.
-	 * Perform one search before measure performance for warm-up.
+	 * This test use a collector which accepts IType.
+	 */
+	public void testSearchAllTypeNameMatches() throws CoreException {
+		tagAsSummary("Search all type name matches", false); // do NOT put in fingerprint
+		SearchTypeNameMatchRequestor requestor = new SearchTypeNameMatchRequestor();
+
+		// Wait for indexing end
+		AbstractJavaModelTests.waitUntilIndexesReady();
+
+		// Warm up
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+			null,
+			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+			IJavaSearchConstants.TYPE,
+			scope, 
+			requestor,
+			WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		NumberFormat intFormat = NumberFormat.getIntegerInstance();
+		System.out.println("	All type names = "+intFormat.format(requestor.count));
+		if (SEARCH_ALL_TYPE_NAMES_COUNT == -1) {
+			SEARCH_ALL_TYPE_NAMES_COUNT = requestor.count;
+		} else {
+			assertEquals("We should find same number of types in the workspace whatever the search method is!", SEARCH_ALL_TYPE_NAMES_COUNT, requestor.count);
+		}
+
+		// Measures
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			cleanCategoryTableCache(true, scope, resultCollector);
+			runGc();
+			startMeasuring();
+			new SearchEngine().searchAllTypeNames(
+				null,
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				null,
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				IJavaSearchConstants.TYPE,
+				scope, 
+				requestor,
+				WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+			stopMeasuring();
+		}
+
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+	}
+
+	/**
+	 * Performance tests for search:  Types occurrences.
 	 * 
 	 * Note that following search have been tested:
 	 *		- "String":				> 65000 macthes (CAUTION: needs -Xmx512M)
 	 *		- "Object":			13497 matches
 	 *		- ""IResource":	5886 macthes
 	 *		- "JavaCore":		2145 matches
-	 *
-	 * TODO (frederic) Rename after 3.2 as reference has changed
 	 */
 	public void testSearchType() throws CoreException {
 		tagAsSummary("Search type occurences", true); // put in fingerprint
 
 		// Wait for indexing end
-		waitUntilIndexesReady();
+		AbstractJavaModelTests.waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -298,18 +466,13 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	}
 
 	/**
-	 * Performance tests for search: Declarations Types Names.
-	 * 
-	 * First wait that already started indexing jobs end before perform test.
-	 * Perform one search before measure performance for warm-up.
-	 * 
-	 * TODO (frederic) Rename after 3.2 as reference has changed
+	 * Performance tests for search: Fields occurrences.
 	 */
 	public void testSearchField() throws CoreException {
 		tagAsSummary("Search field occurences", true); // put in fingerprint
 
 		// Wait for indexing end
-		waitUntilIndexesReady();
+		AbstractJavaModelTests.waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -334,17 +497,15 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	}
 
 	/**
-	 * Performance tests for search: All occurences of a method.
+	 * Performance tests for search: Methods occurrences.
 	 * This search do NOT use binding resolution.
-	 * 
-	 * TODO (frederic) Rename after 3.2 as reference has changed
 	 */
 	public void testSearchMethod() throws CoreException {
 		tagAsSummary("Search method occurences (no resolution)", false); // do NOT put in fingerprint
 		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Test is not enough stable and will be replaced by another one...");
 	
 		// Wait for indexing end
-		waitUntilIndexesReady();
+		AbstractJavaModelTests.waitUntilIndexesReady();
 	
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -372,17 +533,14 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	}
 
 	/**
-	 * Performance tests for search: All occurences of a method.
+	 * Performance tests for search: Methods occurrences.
 	 * This search use binding resolution.
-	 * 
-	 * @since 3.2 M6
-	 * TODO (frederic) Rename after 3.2
 	 */
 	public void testSearchBinaryMethod() throws CoreException {
 		tagAsSummary("Search method occurences", true); // put in fingerprint
 
 		// Wait for indexing end
-		waitUntilIndexesReady();
+		AbstractJavaModelTests.waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -410,18 +568,13 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	}
 
 	/**
-	 * Performance tests for search: Declarations Types Names.
-	 * 
-	 * First wait that already started indexing jobs end before perform test.
-	 * Perform one search before measure performance for warm-up.
-	 * 
-	 * TODO (frederic) Rename after 3.2 as reference has changed
+	 * Performance tests for search: Constructors occruences.
 	 */
 	public void testSearchConstructor() throws CoreException {
 		tagAsSummary("Search constructor occurences", true); // put in fingerprint
 
 		// Wait for indexing end
-		waitUntilIndexesReady();
+		AbstractJavaModelTests.waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -447,15 +600,12 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 	/**
 	 * Performance tests for search: Package Declarations.
-	 * 
-	 * First wait that already started indexing jobs end before perform test.
-	 * Perform one search before measure performance for warm-up.
 	 */
 	public void testSearchPackageDeclarations() throws CoreException {
 		tagAsSummary("Search package declarations", true); // put in fingerprint
 
 		// Wait for indexing end
-		waitUntilIndexesReady();
+		AbstractJavaModelTests.waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);

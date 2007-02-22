@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests.ProblemRequestor;
 import org.eclipse.jdt.internal.core.*;
 
@@ -296,7 +297,7 @@ private NameLookup getNameLookup(JavaProject project) throws JavaModelException 
 public void testPerfNameLookupFindKnownType() throws CoreException {
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
@@ -335,7 +336,7 @@ public void testPerfNameLookupFindKnownType() throws CoreException {
 public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -376,7 +377,7 @@ public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
 public void testPerfNameLookupFindUnknownType() throws CoreException {
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -416,7 +417,7 @@ public void testPerfProjectFindKnownType() throws CoreException {
 	tagAsSummary("Find known type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
@@ -454,7 +455,7 @@ public void testPerfProjectFindKnownMemberType() throws CoreException {
 	tagAsSummary("Find known member type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
@@ -495,7 +496,7 @@ public void testPerfProjectFindKnownSecondaryType() throws CoreException {
 	tagAsSummary("Find known secondary type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -532,7 +533,7 @@ public void testPerfProjectFindUnknownType() throws CoreException {
 	tagAsSummary("Find unknown type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -568,7 +569,7 @@ public void testPerfReconcile() throws CoreException {
 	tagAsGlobalSummary("Reconcile editor change", true); // put in global fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	ICompilationUnit workingCopy = null;
@@ -685,7 +686,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 	tagAsSummary("Reconcile editor change and complete", true); // put in fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	ICompilationUnit workingCopy = null;
