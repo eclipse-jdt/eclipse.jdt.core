@@ -13,7 +13,7 @@
 				debuglevel="lines,source"
 				source="1.3"
 				target="1.2"
-				excludes="org/eclipse/jdt/internal/compiler/tool/*">
+			excludes="org/eclipse/jdt/internal/compiler/tool/*,**/apt/**">
 			<compilerarg line="-Xlint:none"/>
 		</javac>
 
@@ -31,6 +31,7 @@
 		<zip destfile="${basedir}/${jar_file}">
 			<fileset dir="${output}" />
 			<fileset dir="${basedir}">
+				<include name="about.html"/>
 				<include name="**/*.rsc"/>
 				<include name="META-INF/**"/>
 				<include name="**/*.properties"/>
