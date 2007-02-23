@@ -50,7 +50,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 		try {
 			c = Class.forName("org.eclipse.jdt.internal.compiler.tool.EclipseCompiler"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			// ignore
 		}
 		Field field = null;
 		JavaFileManager javaFileManager = null;
