@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class CompilerOptions {
-	
+
 	/**
 	 * Option IDs
 	 */
@@ -110,7 +110,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportOverridingMethodWithoutSuperInvocation =  "org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation"; //$NON-NLS-1$
 	public static final String OPTION_GenerateClassFiles = "org.eclipse.jdt.core.compiler.generateClassFiles"; //$NON-NLS-1$
 	public static final String OPTION_Process_Annotations = "org.eclipse.jdt.core.compiler.processAnnotations"; //$NON-NLS-1$
-	
+
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingAnnotation = "org.eclipse.jdt.core.compiler.problem.missingAnnotation"; //$NON-NLS-1$
@@ -129,8 +129,8 @@ public class CompilerOptions {
 	public static final String VERSION_1_4 = "1.4"; //$NON-NLS-1$
 	public static final String VERSION_JSR14 = "jsr14"; //$NON-NLS-1$
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
-	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$	
-	public static final String VERSION_1_7 = "1.7"; //$NON-NLS-1$	
+	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$
+	public static final String VERSION_1_7 = "1.7"; //$NON-NLS-1$
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$
@@ -140,7 +140,7 @@ public class CompilerOptions {
 	public static final String PROTECTED = "protected";	//$NON-NLS-1$
 	public static final String DEFAULT = "default";	//$NON-NLS-1$
 	public static final String PRIVATE = "private";	//$NON-NLS-1$
-	
+
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
 	 */
@@ -177,7 +177,7 @@ public class CompilerOptions {
 	public static final long UncheckedTypeOperation = ASTNode.Bit31;
 	public static final long FinalParameterBound = ASTNode.Bit32L;
 	public static final long MissingSerialVersion = ASTNode.Bit33L;
-	public static final long EnumUsedAsAnIdentifier = ASTNode.Bit34L;	
+	public static final long EnumUsedAsAnIdentifier = ASTNode.Bit34L;
 	public static final long ForbiddenReference = ASTNode.Bit35L;
 	public static final long VarargsArgumentNeedCast = ASTNode.Bit36L;
 	public static final long NullReference = ASTNode.Bit37L;
@@ -194,17 +194,17 @@ public class CompilerOptions {
 	public static final long ParameterAssignment = ASTNode.Bit48L;
 	public static final long FallthroughCase = ASTNode.Bit49L;
 	public static final long OverridingMethodWithoutSuperInvocation = ASTNode.Bit50L;
-	
+
 	// Map: String optionKey --> Long irritant>
 	private static Map OptionToIrritants;
-	
+
 	// Default severity level for handlers
 	public long errorThreshold = 0;
-		
-	public long warningThreshold = 
-		MethodWithConstructorName 
-		| UsingDeprecatedAPI 
-		| MaskedCatchBlock 
+
+	public long warningThreshold =
+		MethodWithConstructorName
+		| UsingDeprecatedAPI
+		| MaskedCatchBlock
 		| OverriddenPackageDefaultMethod
 		| UnusedImport
 		| NonStaticAccessToStatic
@@ -238,7 +238,7 @@ public class CompilerOptions {
 
 	// source encoding format
 	public String defaultEncoding = null; // will use the platform default encoding
-	
+
 	// print what unit is being processed
 	public boolean verbose = Compiler.DEBUG;
 
@@ -253,7 +253,7 @@ public class CompilerOptions {
 
 	// max problems per compilation unit
 	public int maxProblemsPerUnit = 100; // no more than 100 problems per default
-	
+
 	// tags used to recognize tasks in comments
 	public char[][] taskTags = null;
 	public char[][] taskPriorites = null;
@@ -262,73 +262,75 @@ public class CompilerOptions {
 	// deprecation report
 	public boolean reportDeprecationInsideDeprecatedCode = false;
 	public boolean reportDeprecationWhenOverridingDeprecatedMethod = false;
-	
+
 	// unused parameters report
 	public boolean reportUnusedParameterWhenImplementingAbstract = false;
 	public boolean reportUnusedParameterWhenOverridingConcrete = false;
 
 	// unused declaration of thrown exception
 	public boolean reportUnusedDeclaredThrownExceptionWhenOverriding = false;
-	
+
 	// constructor/setter parameter hiding
 	public boolean reportSpecialParameterHidingField = false;
 
 	// check javadoc comments tags
-	public int reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPublic; 
+	public int reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPublic;
 	public boolean reportInvalidJavadocTags = false;
 	public boolean reportInvalidJavadocTagsDeprecatedRef = false;
 	public boolean reportInvalidJavadocTagsNotVisibleRef = false;
 
 	// check missing javadoc tags
-	public int reportMissingJavadocTagsVisibility = ClassFileConstants.AccPublic; 
+	public int reportMissingJavadocTagsVisibility = ClassFileConstants.AccPublic;
 	public boolean reportMissingJavadocTagsOverriding = false;
 
 	// check missing javadoc comments
-	public int reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic; 
-	public boolean reportMissingJavadocCommentsOverriding = false; 
+	public int reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic;
+	public boolean reportMissingJavadocCommentsOverriding = false;
 
 	// JSR bytecode inlining
 	public boolean inlineJsrBytecode = false;
-	
+
 	// javadoc comment support
 	public boolean docCommentSupport = false;
-	
+
 	// suppress warning annotation
 	public boolean suppressWarnings = true;
-	
+
 	// treat optional error as fatal or just like warning?
 	public boolean treatOptionalErrorAsFatal = true;
-	
-	// parser perform statements recovery 
+
+	// parser perform statements recovery
 	public boolean performMethodsFullRecovery = true;
-	
-	// parser perform statements recovery 
+
+	// parser perform statements recovery
 	public boolean performStatementsRecovery = true;
-	
+
 	// store annotations
 	public boolean storeAnnotations = false;
-	
+
 	// annotation processing
 	public boolean generateClassFiles = true;
-	public boolean processAnnotations = true;
-	
-	/** 
+
+	// TODO (olivier) by default we disable annotation processing equivalent to -proc:none
+	public boolean processAnnotations = false;
+
+	/**
 	 * Initializing the compiler options with defaults
 	 */
 	public CompilerOptions(){
 		// use default options
 	}
 
-	/** 
+	/**
 	 * Initializing the compiler options with external settings
 	 * @param settings
 	 */
 	public CompilerOptions(Map settings){
 
 		if (settings == null) return;
-		set(settings);		
+		set(settings);
 	}
-	
+
 	/**
 	 * @deprecated used to preserve 3.1 and 3.2M4 compatibility of some Compiler constructors
 	 */
@@ -339,41 +341,41 @@ public class CompilerOptions {
 
 	public Map getMap() {
 		Map optionsMap = new HashMap(30);
-		optionsMap.put(OPTION_LocalVariableAttribute, (this.produceDebugAttributes & ClassFileConstants.ATTR_VARS) != 0 ? GENERATE : DO_NOT_GENERATE); 
+		optionsMap.put(OPTION_LocalVariableAttribute, (this.produceDebugAttributes & ClassFileConstants.ATTR_VARS) != 0 ? GENERATE : DO_NOT_GENERATE);
 		optionsMap.put(OPTION_LineNumberAttribute, (this.produceDebugAttributes & ClassFileConstants.ATTR_LINES) != 0 ? GENERATE : DO_NOT_GENERATE);
 		optionsMap.put(OPTION_SourceFileAttribute, (this.produceDebugAttributes & ClassFileConstants.ATTR_SOURCE) != 0 ? GENERATE : DO_NOT_GENERATE);
 		optionsMap.put(OPTION_PreserveUnusedLocal, this.preserveAllLocalVariables ? PRESERVE : OPTIMIZE_OUT);
-		optionsMap.put(OPTION_DocCommentSupport, this.docCommentSupport ? ENABLED : DISABLED); 
-		optionsMap.put(OPTION_ReportMethodWithConstructorName, getSeverityString(MethodWithConstructorName)); 
-		optionsMap.put(OPTION_ReportOverridingPackageDefaultMethod, getSeverityString(OverriddenPackageDefaultMethod)); 
-		optionsMap.put(OPTION_ReportDeprecation, getSeverityString(UsingDeprecatedAPI)); 
-		optionsMap.put(OPTION_ReportDeprecationInDeprecatedCode, this.reportDeprecationInsideDeprecatedCode ? ENABLED : DISABLED); 
-		optionsMap.put(OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, this.reportDeprecationWhenOverridingDeprecatedMethod ? ENABLED : DISABLED); 
-		optionsMap.put(OPTION_ReportHiddenCatchBlock, getSeverityString(MaskedCatchBlock)); 
-		optionsMap.put(OPTION_ReportUnusedLocal, getSeverityString(UnusedLocalVariable)); 
-		optionsMap.put(OPTION_ReportUnusedParameter, getSeverityString(UnusedArgument)); 
-		optionsMap.put(OPTION_ReportUnusedImport, getSeverityString(UnusedImport)); 
-		optionsMap.put(OPTION_ReportSyntheticAccessEmulation, getSeverityString(AccessEmulation)); 
-		optionsMap.put(OPTION_ReportNoEffectAssignment, getSeverityString(NoEffectAssignment)); 
-		optionsMap.put(OPTION_ReportNonExternalizedStringLiteral, getSeverityString(NonExternalizedString)); 
-		optionsMap.put(OPTION_ReportNoImplicitStringConversion, getSeverityString(NoImplicitStringConversion)); 
-		optionsMap.put(OPTION_ReportNonStaticAccessToStatic, getSeverityString(NonStaticAccessToStatic)); 
-		optionsMap.put(OPTION_ReportIndirectStaticAccess, getSeverityString(IndirectStaticAccess)); 
-		optionsMap.put(OPTION_ReportIncompatibleNonInheritedInterfaceMethod, getSeverityString(IncompatibleNonInheritedInterfaceMethod)); 
-		optionsMap.put(OPTION_ReportUnusedPrivateMember, getSeverityString(UnusedPrivateMember)); 
-		optionsMap.put(OPTION_ReportLocalVariableHiding, getSeverityString(LocalVariableHiding)); 
-		optionsMap.put(OPTION_ReportFieldHiding, getSeverityString(FieldHiding)); 
-		optionsMap.put(OPTION_ReportTypeParameterHiding, getSeverityString(TypeHiding)); 
-		optionsMap.put(OPTION_ReportPossibleAccidentalBooleanAssignment, getSeverityString(AccidentalBooleanAssign)); 
-		optionsMap.put(OPTION_ReportEmptyStatement, getSeverityString(EmptyStatement)); 
-		optionsMap.put(OPTION_ReportAssertIdentifier, getSeverityString(AssertUsedAsAnIdentifier)); 
-		optionsMap.put(OPTION_ReportEnumIdentifier, getSeverityString(EnumUsedAsAnIdentifier)); 
-		optionsMap.put(OPTION_ReportUndocumentedEmptyBlock, getSeverityString(UndocumentedEmptyBlock)); 
-		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck)); 
-		optionsMap.put(OPTION_ReportUnnecessaryElse, getSeverityString(UnnecessaryElse)); 
-		optionsMap.put(OPTION_ReportAutoboxing, getSeverityString(AutoBoxing)); 
-		optionsMap.put(OPTION_ReportAnnotationSuperInterface, getSeverityString(AnnotationSuperInterface)); 
-		optionsMap.put(OPTION_ReportIncompleteEnumSwitch, getSeverityString(IncompleteEnumSwitch)); 
+		optionsMap.put(OPTION_DocCommentSupport, this.docCommentSupport ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportMethodWithConstructorName, getSeverityString(MethodWithConstructorName));
+		optionsMap.put(OPTION_ReportOverridingPackageDefaultMethod, getSeverityString(OverriddenPackageDefaultMethod));
+		optionsMap.put(OPTION_ReportDeprecation, getSeverityString(UsingDeprecatedAPI));
+		optionsMap.put(OPTION_ReportDeprecationInDeprecatedCode, this.reportDeprecationInsideDeprecatedCode ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, this.reportDeprecationWhenOverridingDeprecatedMethod ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportHiddenCatchBlock, getSeverityString(MaskedCatchBlock));
+		optionsMap.put(OPTION_ReportUnusedLocal, getSeverityString(UnusedLocalVariable));
+		optionsMap.put(OPTION_ReportUnusedParameter, getSeverityString(UnusedArgument));
+		optionsMap.put(OPTION_ReportUnusedImport, getSeverityString(UnusedImport));
+		optionsMap.put(OPTION_ReportSyntheticAccessEmulation, getSeverityString(AccessEmulation));
+		optionsMap.put(OPTION_ReportNoEffectAssignment, getSeverityString(NoEffectAssignment));
+		optionsMap.put(OPTION_ReportNonExternalizedStringLiteral, getSeverityString(NonExternalizedString));
+		optionsMap.put(OPTION_ReportNoImplicitStringConversion, getSeverityString(NoImplicitStringConversion));
+		optionsMap.put(OPTION_ReportNonStaticAccessToStatic, getSeverityString(NonStaticAccessToStatic));
+		optionsMap.put(OPTION_ReportIndirectStaticAccess, getSeverityString(IndirectStaticAccess));
+		optionsMap.put(OPTION_ReportIncompatibleNonInheritedInterfaceMethod, getSeverityString(IncompatibleNonInheritedInterfaceMethod));
+		optionsMap.put(OPTION_ReportUnusedPrivateMember, getSeverityString(UnusedPrivateMember));
+		optionsMap.put(OPTION_ReportLocalVariableHiding, getSeverityString(LocalVariableHiding));
+		optionsMap.put(OPTION_ReportFieldHiding, getSeverityString(FieldHiding));
+		optionsMap.put(OPTION_ReportTypeParameterHiding, getSeverityString(TypeHiding));
+		optionsMap.put(OPTION_ReportPossibleAccidentalBooleanAssignment, getSeverityString(AccidentalBooleanAssign));
+		optionsMap.put(OPTION_ReportEmptyStatement, getSeverityString(EmptyStatement));
+		optionsMap.put(OPTION_ReportAssertIdentifier, getSeverityString(AssertUsedAsAnIdentifier));
+		optionsMap.put(OPTION_ReportEnumIdentifier, getSeverityString(EnumUsedAsAnIdentifier));
+		optionsMap.put(OPTION_ReportUndocumentedEmptyBlock, getSeverityString(UndocumentedEmptyBlock));
+		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck));
+		optionsMap.put(OPTION_ReportUnnecessaryElse, getSeverityString(UnnecessaryElse));
+		optionsMap.put(OPTION_ReportAutoboxing, getSeverityString(AutoBoxing));
+		optionsMap.put(OPTION_ReportAnnotationSuperInterface, getSeverityString(AnnotationSuperInterface));
+		optionsMap.put(OPTION_ReportIncompleteEnumSwitch, getSeverityString(IncompleteEnumSwitch));
 		optionsMap.put(OPTION_ReportInvalidJavadoc, getSeverityString(InvalidJavadoc));
 		optionsMap.put(OPTION_ReportInvalidJavadocTagsVisibility, getVisibilityString(this.reportInvalidJavadocTagsVisibility));
 		optionsMap.put(OPTION_ReportInvalidJavadocTags, this.reportInvalidJavadocTags ? ENABLED : DISABLED);
@@ -387,7 +389,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportMissingJavadocCommentsOverriding, this.reportMissingJavadocCommentsOverriding ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportFinallyBlockNotCompletingNormally, getSeverityString(FinallyBlockNotCompleting));
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownException, getSeverityString(UnusedDeclaredThrownException));
-		optionsMap.put(OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, this.reportUnusedDeclaredThrownExceptionWhenOverriding ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, this.reportUnusedDeclaredThrownExceptionWhenOverriding ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnqualifiedFieldAccess, getSeverityString(UnqualifiedFieldAccess));
 		optionsMap.put(OPTION_ReportUncheckedTypeOperation, getSeverityString(UncheckedTypeOperation));
 		optionsMap.put(OPTION_ReportRawTypeReference, getSeverityString(RawTypeReference));
@@ -395,39 +397,39 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportMissingSerialVersion, getSeverityString(MissingSerialVersion));
 		optionsMap.put(OPTION_ReportForbiddenReference, getSeverityString(ForbiddenReference));
 		optionsMap.put(OPTION_ReportDiscouragedReference, getSeverityString(DiscouragedReference));
-		optionsMap.put(OPTION_ReportVarargsArgumentNeedCast, getSeverityString(VarargsArgumentNeedCast)); 
+		optionsMap.put(OPTION_ReportVarargsArgumentNeedCast, getSeverityString(VarargsArgumentNeedCast));
 		optionsMap.put(OPTION_ReportMissingOverrideAnnotation, getSeverityString(MissingOverrideAnnotation));
 		optionsMap.put(OPTION_ReportMissingDeprecatedAnnotation, getSeverityString(MissingDeprecatedAnnotation));
 		optionsMap.put(OPTION_ReportIncompleteEnumSwitch, getSeverityString(IncompleteEnumSwitch));
 		optionsMap.put(OPTION_ReportUnusedLabel, getSeverityString(UnusedLabel));
-		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel)); 
-		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel)); 
-		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK)); 
-		optionsMap.put(OPTION_FatalOptionalError, this.treatOptionalErrorAsFatal ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel));
+		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel));
+		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK));
+		optionsMap.put(OPTION_FatalOptionalError, this.treatOptionalErrorAsFatal ? ENABLED : DISABLED);
 		if (this.defaultEncoding != null) {
-			optionsMap.put(OPTION_Encoding, this.defaultEncoding); 
+			optionsMap.put(OPTION_Encoding, this.defaultEncoding);
 		}
 		optionsMap.put(OPTION_TaskTags, this.taskTags == null ? Util.EMPTY_STRING : new String(CharOperation.concatWith(this.taskTags,',')));
 		optionsMap.put(OPTION_TaskPriorities, this.taskPriorites == null ? Util.EMPTY_STRING : new String(CharOperation.concatWith(this.taskPriorites,',')));
 		optionsMap.put(OPTION_TaskCaseSensitive, this.isTaskCaseSensitive ? ENABLED : DISABLED);
-		optionsMap.put(OPTION_ReportUnusedParameterWhenImplementingAbstract, this.reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED); 
-		optionsMap.put(OPTION_ReportUnusedParameterWhenOverridingConcrete, this.reportUnusedParameterWhenOverridingConcrete ? ENABLED : DISABLED); 
-		optionsMap.put(OPTION_ReportSpecialParameterHidingField, this.reportSpecialParameterHidingField ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_ReportUnusedParameterWhenImplementingAbstract, this.reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportUnusedParameterWhenOverridingConcrete, this.reportUnusedParameterWhenOverridingConcrete ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportSpecialParameterHidingField, this.reportSpecialParameterHidingField ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_MaxProblemPerUnit, String.valueOf(this.maxProblemsPerUnit));
-		optionsMap.put(OPTION_InlineJsr, this.inlineJsrBytecode ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_InlineJsr, this.inlineJsrBytecode ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportNullReference, getSeverityString(NullReference));
-		optionsMap.put(OPTION_SuppressWarnings, this.suppressWarnings ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_SuppressWarnings, this.suppressWarnings ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnhandledWarningToken, getSeverityString(UnhandledWarningToken));
 		optionsMap.put(OPTION_ReportParameterAssignment, getSeverityString(ParameterAssignment));
 		optionsMap.put(OPTION_ReportFallthroughCase, getSeverityString(FallthroughCase));
 		optionsMap.put(OPTION_ReportOverridingMethodWithoutSuperInvocation, getSeverityString(OverridingMethodWithoutSuperInvocation));
-		optionsMap.put(OPTION_GenerateClassFiles, this.generateClassFiles ? ENABLED : DISABLED); 
-		optionsMap.put(OPTION_Process_Annotations, this.processAnnotations ? ENABLED : DISABLED); 
-		return optionsMap;		
+		optionsMap.put(OPTION_GenerateClassFiles, this.generateClassFiles ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_Process_Annotations, this.processAnnotations ? ENABLED : DISABLED);
+		return optionsMap;
 	}
-	
+
 	/**
-	 * Return the most specific option key controlling this irritant. Note that in some case, some irritant is controlled by 
+	 * Return the most specific option key controlling this irritant. Note that in some case, some irritant is controlled by
 	 * other master options (e.g. javadoc, deprecation, etc.).
 	 * This information is intended for grouping purpose (several problems governed by a rule)
 	 */
@@ -545,7 +547,7 @@ public class CompilerOptions {
 		}
 		return null;
 	}
-	
+
 	public static long optionKeyToIrritant(String optionName) {
 		if (OptionToIrritants == null) {
 			long irritant = 0;
@@ -559,7 +561,7 @@ public class CompilerOptions {
 		Long irritant = (Long)OptionToIrritants.get(optionName);
 		return irritant == null ? 0 : irritant.longValue();
 	}
-	
+
 	public int getSeverity(long irritant) {
 		if((this.errorThreshold & irritant) != 0) {
 			return this.treatOptionalErrorAsFatal
@@ -578,7 +580,7 @@ public class CompilerOptions {
 			return ERROR;
 		return IGNORE;
 	}
-	
+
 	public String getVisibilityString(int level) {
 		switch (level & ExtraCompilerModifiers.AccVisibilityMASK) {
 			case ClassFileConstants.AccPublic:
@@ -591,7 +593,7 @@ public class CompilerOptions {
 				return DEFAULT;
 		}
 	}
-	
+
 	public void set(Map optionsMap) {
 
 		Object optionValue;
@@ -662,7 +664,7 @@ public class CompilerOptions {
 				this.defaultEncoding = null;
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					try { 
+					try {
 						new InputStreamReader(new ByteArrayInputStream(new byte[0]), stringValue);
 						this.defaultEncoding = stringValue;
 					} catch(UnsupportedEncodingException e){
@@ -700,7 +702,7 @@ public class CompilerOptions {
 					if (val >= 0) this.maxProblemsPerUnit = val;
 				} catch(NumberFormatException e){
 					// ignore ill-formatted limit
-				}				
+				}
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_TaskTags)) != null) {
@@ -745,14 +747,14 @@ public class CompilerOptions {
 			} else if (DISABLED.equals(optionValue)) {
 				this.suppressWarnings = false;
 			}
-		}		
+		}
 		if ((optionValue = optionsMap.get(OPTION_FatalOptionalError)) != null) {
 			if (ENABLED.equals(optionValue)) {
 				this.treatOptionalErrorAsFatal = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.treatOptionalErrorAsFatal = false;
 			}
-		}		
+		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportOverridingPackageDefaultMethod)) != null) updateSeverity(OverriddenPackageDefaultMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeprecation)) != null) updateSeverity(UsingDeprecatedAPI, optionValue);
@@ -782,7 +784,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportUnqualifiedFieldAccess)) != null) updateSeverity(UnqualifiedFieldAccess, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNoEffectAssignment)) != null) updateSeverity(NoEffectAssignment, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUncheckedTypeOperation)) != null) updateSeverity(UncheckedTypeOperation, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportRawTypeReference)) != null) updateSeverity(RawTypeReference, optionValue);		
+		if ((optionValue = optionsMap.get(OPTION_ReportRawTypeReference)) != null) updateSeverity(RawTypeReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportFinalParameterBound)) != null) updateSeverity(FinalParameterBound, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingSerialVersion)) != null) updateSeverity(MissingSerialVersion, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportForbiddenReference)) != null) updateSeverity(ForbiddenReference, optionValue);
@@ -902,7 +904,7 @@ public class CompilerOptions {
 	}
 
 	public String toString() {
-	
+
 		StringBuffer buf = new StringBuffer("CompilerOptions:"); //$NON-NLS-1$
 		buf.append("\n\t- local variables debug attributes: ").append((this.produceDebugAttributes & ClassFileConstants.ATTR_VARS) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		buf.append("\n\t- line number debug attributes: ").append((this.produceDebugAttributes & ClassFileConstants.ATTR_LINES) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -970,8 +972,8 @@ public class CompilerOptions {
 		buf.append("\n\t- null reference: ").append(getSeverityString(NullReference)); //$NON-NLS-1$
 		buf.append("\n\t- autoboxing: ").append(getSeverityString(AutoBoxing)); //$NON-NLS-1$
 		buf.append("\n\t- annotation super interface: ").append(getSeverityString(AnnotationSuperInterface)); //$NON-NLS-1$
-		buf.append("\n\t- missing @Override annotation: ").append(getSeverityString(MissingOverrideAnnotation)); //$NON-NLS-1$		
-		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$		
+		buf.append("\n\t- missing @Override annotation: ").append(getSeverityString(MissingOverrideAnnotation)); //$NON-NLS-1$
+		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$
 		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$
 		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$
@@ -994,7 +996,7 @@ public class CompilerOptions {
 			this.errorThreshold &= ~irritant;
 			this.warningThreshold &= ~irritant;
 		}
-	}				
+	}
 	public static long versionToJdkLevel(Object versionID) {
 		if (versionID instanceof String) {
 			String version = (String) versionID;
@@ -1029,37 +1031,37 @@ public class CompilerOptions {
 	public static String versionFromJdkLevel(long jdkLevel) {
 		switch ((int)(jdkLevel>>16)) {
 			case ClassFileConstants.MAJOR_VERSION_1_1 :
-				if (jdkLevel == ClassFileConstants.JDK1_1) 
+				if (jdkLevel == ClassFileConstants.JDK1_1)
 					return VERSION_1_1;
 				break;
 			case ClassFileConstants.MAJOR_VERSION_1_2 :
-				if (jdkLevel == ClassFileConstants.JDK1_2) 
+				if (jdkLevel == ClassFileConstants.JDK1_2)
 					return VERSION_1_2;
 				break;
 			case ClassFileConstants.MAJOR_VERSION_1_3 :
-				if (jdkLevel == ClassFileConstants.JDK1_3) 
+				if (jdkLevel == ClassFileConstants.JDK1_3)
 					return VERSION_1_3;
 				break;
 			case ClassFileConstants.MAJOR_VERSION_1_4 :
-				if (jdkLevel == ClassFileConstants.JDK1_4) 
+				if (jdkLevel == ClassFileConstants.JDK1_4)
 					return VERSION_1_4;
 				break;
 			case ClassFileConstants.MAJOR_VERSION_1_5 :
-				if (jdkLevel == ClassFileConstants.JDK1_5) 
+				if (jdkLevel == ClassFileConstants.JDK1_5)
 					return VERSION_1_5;
 				break;
 			case ClassFileConstants.MAJOR_VERSION_1_6 :
-				if (jdkLevel == ClassFileConstants.JDK1_6) 
+				if (jdkLevel == ClassFileConstants.JDK1_6)
 					return VERSION_1_6;
 				break;
 			case ClassFileConstants.MAJOR_VERSION_1_7 :
-				if (jdkLevel == ClassFileConstants.JDK1_7) 
+				if (jdkLevel == ClassFileConstants.JDK1_7)
 					return VERSION_1_7;
 				break;
 		}
 		return Util.EMPTY_STRING; // unknown version
 	}
-	
+
 	/**
 	 * Return all warning option names for use as keys in compiler options maps.
 	 * @return all warning option names
@@ -1117,7 +1119,7 @@ public class CompilerOptions {
 		};
 		return result;
 	}
-	
+
 	public static String warningTokenFromIrritant(long irritant) {
 		// keep in sync with warningTokens and warningTokenToIrritant
 		int irritantInt = (int) irritant;
@@ -1177,7 +1179,7 @@ public class CompilerOptions {
 				case (int) (FallthroughCase >>> 32) :
 					return "fallthrough"; //$NON-NLS-1$
 				case (int) (OverridingMethodWithoutSuperInvocation >>> 32) :
-					return "super"; //$NON-NLS-1$				
+					return "super"; //$NON-NLS-1$
 			}
 		}
 		return null;

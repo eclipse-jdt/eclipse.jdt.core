@@ -80,7 +80,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	public EclipseCompiler(PrintWriter out, PrintWriter err, boolean systemExitWhenFinished) {
 		super(out, err, systemExitWhenFinished);
 	}
-	
+
 	public EclipseCompiler() {
 		super(null, null, false);
 	}
@@ -137,7 +137,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 			CompilationUnit compilationUnit = new CompilationUnit(null,
 				name,
 				null) {
-				
+
 				public char[] getContents() {
 					try {
 						return javaFileObject.getCharContent(true).toString().toCharArray();
@@ -145,7 +145,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 						e.printStackTrace();
 						throw new AbortCompilationUnit(null, e, null);
 					}
-				}				
+				}
 			};
 			units.add(compilationUnit);
 			this.javaFileObjectMap.put(compilationUnit, javaFileObject);
@@ -158,10 +158,10 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	 *  Low-level API performing the actual compilation
 	 */
 	public IErrorHandlingPolicy getHandlingPolicy() {
-		// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)	
+		// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)
 		return new IErrorHandlingPolicy() {
 			public boolean proceedOnErrors() {
-				return false; // stop if there are some errors 
+				return false; // stop if there are some errors
 			}
 			public boolean stopOnFirstError() {
 				return false;
@@ -242,7 +242,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.tools.Tool#getSourceVersions()
 	 */
 	public Set<SourceVersion> getSourceVersions() {
@@ -250,7 +250,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	}
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.tools.JavaCompiler#getStandardFileManager(javax.tools.DiagnosticListener,
 	 *      java.util.Locale, java.nio.charset.Charset)
 	 */
@@ -262,7 +262,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	}
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.tools.JavaCompiler#getTask(java.io.Writer,
 	 *      javax.tools.JavaFileManager, javax.tools.DiagnosticListener,
 	 *      java.lang.Iterable, java.lang.Iterable, java.lang.Iterable)
@@ -274,7 +274,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 			Iterable<String> options,
 			Iterable<String> classes,
 			Iterable<? extends JavaFileObject> compilationUnits) {
-		
+
 		PrintWriter writerOut = null;
 		PrintWriter writerErr = null;
 		if (out == null) {
@@ -297,6 +297,14 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 		this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 
+		// TODO FIXME (olivier) REMOVE BEFORE 3.3 once the APT1.6 IS WORKING FINE
+		for (String option : options ) {
+			if ("-processorpath".equals(option) //$NON-NLS-1$
+					|| ("-processor".equals(option))) { //$NON-NLS-1$
+				this.options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+			}
+		}
+
 		ArrayList<String> allOptions = new ArrayList<String>();
 		if (options != null) {
 			for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
@@ -306,7 +314,6 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 				allOptions.add(option);
 			}
 		}
-
 		if (compilationUnits != null) {
 			for (JavaFileObject javaFileObject : compilationUnits) {
 				allOptions.add(new File(javaFileObject.toUri()).getAbsolutePath());
@@ -376,7 +383,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.tools.OptionChecker#isSupportedOption(java.lang.String)
 	 */
 	public int isSupportedOption(String option) {
@@ -463,7 +470,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.tools.Tool#run(java.io.InputStream, java.io.OutputStream,
 	 *      java.io.OutputStream, java.lang.String[])
 	 */
@@ -471,7 +478,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		boolean succeed = new Main(new PrintWriter(new OutputStreamWriter(out)), new PrintWriter(new OutputStreamWriter(err)), true).compile(arguments);
 		return succeed ? 0 : -1;
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void setPaths(ArrayList bootclasspaths,
