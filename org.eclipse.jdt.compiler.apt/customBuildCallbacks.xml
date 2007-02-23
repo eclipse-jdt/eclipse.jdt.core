@@ -30,10 +30,10 @@
 		<property name="postingDirectory" value="${basedir}/ecj" />
 		<property name="dest" value="${postingDirectory}/${buildLabel}" />
 		<mkdir dir="${dest}/checksum" />
-		<checksum file="${dest}/ecj.jar" property="md5" /> 
-		<echo message="${md5} ecj.jar" file="${dest}/checksum/ecj.jar.md5" /> 
-		<checksum file="${dest}/ecjsrc.zip" property="md5" /> 
-		<echo message="${md5} ecjsrc.zip" file="${dest}/checksum/ecjsrc.zip.md5" /> 
+		<checksum file="${dest}/ecj.jar" property="md5" />
+		<echo message="${md5} ecj.jar" file="${dest}/checksum/ecj.jar.md5" />
+		<checksum file="${dest}/ecjsrc.zip" property="md5" />
+		<echo message="${md5} ecjsrc.zip" file="${dest}/checksum/ecjsrc.zip.md5" />
 	</target>
 
 	<!-- ===================================================================== -->
@@ -93,13 +93,14 @@
 			<fileset dir="${unjarDestBin}"/>
 			<fileset dir="${target.folder}">
 				<include name="**/*"/>
+				<include name="eclipse.inf"/>
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="META-INF/services/**" />
 			</fileset>
 		</zip>
 		<delete dir="${unjarDestBin}" failonerror="false"/>
-		
+
 		<echo message="UPDATE ecjsrc.zip" />
 		<property name="unjarDestSrc" value="${basedir}/tempsrc"/>
 		<mkdir dir="${unjarDestSrc}"/>
