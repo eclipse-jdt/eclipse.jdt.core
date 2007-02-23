@@ -36,7 +36,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 /**
  * Helper class to support compilation and results checking for tests running in batch mode.  
@@ -44,7 +43,7 @@ import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
  */
 public class BatchTestUtils {
 	// relative to plugin directory
-	private static final String PROCESSOR_JAR_NAME = "apttestprocessors.jar";
+	private static final String PROCESSOR_JAR_NAME = "lib/apttestprocessors.jar";
 	private static String _processorJarPath;
 	
 	// locations to copy and generate files
@@ -140,14 +139,24 @@ public class BatchTestUtils {
 		Assert.assertTrue("Couldn't find processor jar at " + processorJar.getAbsolutePath(), processorJar.exists());
 		
 		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);//, EclipseCompiler.class.getClassLoader());
+		Class<?> c = null;
+		try {
+			c = Class.forName("org.eclipse.jdt.internal.compiler.tool.EclipseCompiler");
+		} catch (ClassNotFoundException e) {
+			// ignore
+		}
+		if (c == null) {
+			Assert.assertTrue("Eclipse compiler is not available", false);
+		}
 		int compilerCounter = 0;
 		for (JavaCompiler javaCompiler : javaCompilerLoader) {
 			compilerCounter++;
-			if (javaCompiler instanceof EclipseCompiler) {
+			if (c.isInstance(javaCompiler)) {
 				_eclipseCompiler = javaCompiler;
 			}
 		}
 		Assert.assertEquals("Only one compiler available", 1, compilerCounter);
+		Assert.assertNotNull("No Eclipse compiler found", _eclipseCompiler);
 	}
 	
 	public static void tearDown() {
@@ -208,11 +217,16 @@ public class BatchTestUtils {
 			srcBytes = contents.getBytes();
 		}
 	
+		File parent = dest.getParentFile();
+		if (!parent.exists()) {
+			parent.mkdirs();
+		}
 		// write bytes to dest
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(dest);
 			out.write(srcBytes);
+			out.flush();
 		} finally {
 			if (out != null) {
 				out.close();

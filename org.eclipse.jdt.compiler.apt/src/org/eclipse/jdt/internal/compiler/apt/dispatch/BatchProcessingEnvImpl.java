@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,11 +22,10 @@ import java.util.Map;
 
 import javax.tools.JavaFileManager;
 
+import org.eclipse.jdt.internal.compiler.apt.util.EclipseFileManager;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
-import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
-import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
 
 /**
  * The implementation of ProcessingEnvironment that is used when compilation is
@@ -46,8 +46,36 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 		_compilerOwner = batchCompiler;
 		_compiler = batchCompiler.batchCompiler;
 		_dispatchManager = dispatchManager;
-		if (batchCompiler instanceof EclipseCompiler) {
-			_fileManager = ((EclipseCompiler) batchCompiler).fileManager;
+		Class<?> c = null;
+		try {
+			c = Class.forName("org.eclipse.jdt.internal.compiler.tool.EclipseCompiler"); //$NON-NLS-1$
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		Field field = null;
+		JavaFileManager javaFileManager = null;
+		if (c != null) {
+			try {
+				field = c.getField("fileManager"); //$NON-NLS-1$
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				e.printStackTrace();
+			}
+		}
+		if (field != null) {
+			try {
+				javaFileManager = (JavaFileManager) field.get(batchCompiler);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		if (javaFileManager != null) {
+			_fileManager = javaFileManager;
 		} else {
 			String encoding = (String) batchCompiler.options.get(CompilerOptions.OPTION_Encoding);
 			Charset charset = encoding != null ? Charset.forName(encoding) : null;
@@ -56,9 +84,9 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 			for (String argument : commandLineArguments) {
 				options.add(argument);
 			}
-    		for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
-    			manager.handleOption(iterator.next(), iterator);
-    		}
+			for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
+				manager.handleOption(iterator.next(), iterator);
+			}
 			_fileManager = manager;
 		}
 		_processorOptions = Collections.unmodifiableMap(parseProcessorOptions(commandLineArguments));

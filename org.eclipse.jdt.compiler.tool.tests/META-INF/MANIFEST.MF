@@ -6,8 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.eclipse.jdt.compiler.tool;bundle-version="1.0.0",
- org.eclipse.jdt.core;bundle-version="3.2.2",
+Require-Bundle: org.eclipse.jdt.core;bundle-version="3.2.2",
  org.junit
 Bundle-ClassPath: compilertooltests.jar
 Export-Package: org.eclipse.jdt.compiler.tool.tests
+Import-Package: org.eclipse.jdt.internal.compiler.tool
