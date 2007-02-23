@@ -34,7 +34,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 public class CompilationUnitDeclaration
 	extends ASTNode
 	implements ProblemSeverities, ReferenceContext {
-	
+
 	private static final Comparator STRING_LITERAL_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
 			StringLiteral literal1 = (StringLiteral) o1;
@@ -57,15 +57,15 @@ public class CompilationUnitDeclaration
 
 	public LocalTypeBinding[] localTypes;
 	public int localTypeCount = 0;
-	
+
 	public boolean isPropagatingInnerClassEmulation;
 
 	public Javadoc javadoc; // 1.5 addition for package-info.java
-	
+
 	public NLSTag[] nlsTags;
 	private StringLiteral[] stringLiterals;
 	private int stringLiteralsPtr;
-	
+
 	public CompilationUnitDeclaration(
 		ProblemReporter problemReporter,
 		CompilationResult compilationResult,
@@ -131,9 +131,9 @@ public class CompilationUnitDeclaration
 				localType.enclosingCase = null;
 			}
 		}
-		
+
 		compilationResult.recoveryScannerData = null; // recovery is already done
-		
+
 		ClassFile[] classFiles = compilationResult.getClassFiles();
 		for (int i = 0, max = classFiles.length; i < max; i++) {
 			// clear the classFile back pointer to the bindings
@@ -158,7 +158,7 @@ public class CompilationUnitDeclaration
 	}
 
 	public void checkUnusedImports(){
-		
+
 		if (this.scope.imports != null){
 			for (int i = 0, max = this.scope.imports.length; i < max; i++){
 				ImportBinding importBinding = this.scope.imports[i];
@@ -169,7 +169,7 @@ public class CompilationUnitDeclaration
 			}
 		}
 	}
-	
+
 	public CompilationResult compilationResult() {
 		return this.compilationResult;
 	}
@@ -253,7 +253,7 @@ public class CompilationUnitDeclaration
 			&& this.currentPackage != null
 			&& (this.currentPackage.annotations != null || this.javadoc != null);
 	}
-	
+
 	public boolean hasErrors() {
 		return this.ignoreFurtherInvestigation;
 	}
@@ -267,7 +267,7 @@ public class CompilationUnitDeclaration
 		if (imports != null)
 			for (int i = 0; i < imports.length; i++) {
 				printIndent(indent, output).append("import "); //$NON-NLS-1$
-				imports[i].print(0, output).append(";\n"); //$NON-NLS-1$ 
+				imports[i].print(0, output).append(";\n"); //$NON-NLS-1$
 			}
 
 		if (types != null) {
@@ -277,7 +277,7 @@ public class CompilationUnitDeclaration
 		}
 		return output;
 	}
-	
+
 	/*
 	 * Force inner local types to update their innerclass emulation
 	 */
@@ -285,7 +285,7 @@ public class CompilationUnitDeclaration
 
 		isPropagatingInnerClassEmulation = true;
 		for (int i = 0, max = this.localTypeCount; i < max; i++) {
-				
+
 			LocalTypeBinding localType = localTypes[i];
 			// only propagate for reachable local types
 			if ((localType.scope.referenceType().bits & IsReachable) != 0) {
@@ -309,7 +309,7 @@ public class CompilationUnitDeclaration
 					stackLength);
 			}
 		}
-		this.stringLiterals[this.stringLiteralsPtr++] = literal;		
+		this.stringLiterals[this.stringLiteralsPtr++] = literal;
 	}
 
 	/*
@@ -330,7 +330,7 @@ public class CompilationUnitDeclaration
 		int startingTypeIndex = 0;
 		boolean isPackageInfo = isPackageInfo();
 		if (this.types != null && isPackageInfo) {
-            // resolve synthetic type declaration
+			// resolve synthetic type declaration
 			final TypeDeclaration syntheticTypeDeclaration = types[0];
 			// set empty javadoc to avoid missing warning (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=95286)
 			syntheticTypeDeclaration.javadoc = new Javadoc(syntheticTypeDeclaration.declarationSourceStart, syntheticTypeDeclaration.declarationSourceStart);
@@ -342,13 +342,13 @@ public class CompilationUnitDeclaration
 			// resolve javadoc package if any
 			if (this.javadoc != null) {
 				this.javadoc.resolve(syntheticTypeDeclaration.staticInitializerScope);
-    		}
+			}
 			startingTypeIndex = 1;
 		} else {
 			// resolve compilation unit javadoc package if any
 			if (this.javadoc != null) {
 				this.javadoc.resolve(this.scope);
-    		}
+			}
 		}
 		if (this.currentPackage != null && this.currentPackage.annotations != null && !isPackageInfo) {
 			scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
@@ -460,7 +460,7 @@ public class CompilationUnitDeclaration
 						if (tag != null) {
 							scope.problemReporter().unnecessaryNLSTags(tag.start, tag.end);
 						}
-					}						
+					}
 				}
 			}
 		}
