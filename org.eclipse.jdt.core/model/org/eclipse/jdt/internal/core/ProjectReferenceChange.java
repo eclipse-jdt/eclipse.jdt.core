@@ -97,4 +97,7 @@ public class ProjectReferenceChange {
 				throw new JavaModelException(e);
 		}
 	}
+	public String toString() {
+		return "ProjectRefenceChange: " + this.project.getElementName(); //$NON-NLS-1$
+	}
 }

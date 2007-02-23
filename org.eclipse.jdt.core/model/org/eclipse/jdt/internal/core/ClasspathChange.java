@@ -497,4 +497,8 @@ public class ClasspathChange {
 			}
 		}
 	}
+	
+	public String toString() {
+		return "ClasspathChange: " + this.project.getElementName(); //$NON-NLS-1$
+	}
 }

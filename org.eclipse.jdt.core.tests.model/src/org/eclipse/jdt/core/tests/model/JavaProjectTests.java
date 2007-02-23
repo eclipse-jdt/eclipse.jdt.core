@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.model.ClasspathInitializerTests.DefaultContainerInitializer;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.UserLibrary;
@@ -1069,6 +1070,134 @@ public void testProjectImport() throws CoreException {
 		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
+
+/*
+ * Ensures that importing a project correctly update the project references
+ * (regression test for bug 172666 Importing pde.ui and dependencies as binary gives compile error)
+ */
+public void testProjectImport2() throws CoreException {
+	IResourceChangeListener resourceChangeListener = new IResourceChangeListener() {
+		public void resourceChanged(IResourceChangeEvent event) {
+			try {
+				ContainerInitializer.initializer.initialize(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"), getJavaProject("P2"));
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}
+	
+	};
+	try {
+		createJavaProject("P1");
+		createFile("/P1/lib.jar", "");
+		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				createProject("P2");
+				createFile(
+					"/P2/.classpath", 
+					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+					"<classpath>\n" +
+					"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
+					"</classpath>"
+				);
+				ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
+				getWorkspace().checkpoint(false/*don't build*/);
+				editFile(
+					"/P2/.project",
+					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+					"<projectDescription>\n" + 
+					"	<name>P2</name>\n" + 
+					"	<comment></comment>\n" + 
+					"	<projects>\n" + 
+					"	</projects>\n" + 
+					"	<buildSpec>\n" + 
+					"		<buildCommand>\n" + 
+					"			<name>org.eclipse.jdt.core.javabuilder</name>\n" + 
+					"			<arguments>\n" + 
+					"			</arguments>\n" + 
+					"		</buildCommand>\n" + 
+					"	</buildSpec>\n" + 
+					"	<natures>\n" + 
+					"		<nature>org.eclipse.jdt.core.javanature</nature>\n" + 
+					"	</natures>\n" + 
+					"</projectDescription>"
+				);
+				ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
+			}
+		};
+		JavaCore.addPreProcessingResourceChangedListener(resourceChangeListener, IResourceChangeEvent.POST_CHANGE);
+		getWorkspace().run(runnable, null);
+		waitForAutoBuild();
+		IProject[] referencedProjects = getProject("P2").getReferencedProjects();
+		assertResourcesEqual(
+			"Unexpected project references", 
+			"/P1", 
+			referencedProjects);
+	} finally {
+		JavaCore.removePreProcessingResourceChangedListener(resourceChangeListener);
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+
+/*
+ * Ensures that importing a project correctly update the project references
+ * (regression test for bug 172666 Importing pde.ui and dependencies as binary gives compile error)
+ */
+public void testProjectImport3() throws CoreException {
+	IResourceChangeListener resourceChangeListener = new IResourceChangeListener() {
+		public void resourceChanged(IResourceChangeEvent event) {
+			try {
+				ContainerInitializer.initializer.initialize(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"), getJavaProject("P2"));
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}
+	
+	};
+	try {
+		createJavaProject("P1");
+		createFile("/P1/lib.jar", "");
+		createProject("P2");
+		createFile(
+			"/P2/.classpath", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<classpath>\n" +
+			"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
+			"</classpath>"
+		);
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
+		JavaCore.addPreProcessingResourceChangedListener(resourceChangeListener, IResourceChangeEvent.POST_CHANGE);
+		editFile(
+			"/P2/.project",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<projectDescription>\n" + 
+			"	<name>P2</name>\n" + 
+			"	<comment></comment>\n" + 
+			"	<projects>\n" + 
+			"	</projects>\n" + 
+			"	<buildSpec>\n" + 
+			"		<buildCommand>\n" + 
+			"			<name>org.eclipse.jdt.core.javabuilder</name>\n" + 
+			"			<arguments>\n" + 
+			"			</arguments>\n" + 
+			"		</buildCommand>\n" + 
+			"	</buildSpec>\n" + 
+			"	<natures>\n" + 
+			"		<nature>org.eclipse.jdt.core.javanature</nature>\n" + 
+			"	</natures>\n" + 
+			"</projectDescription>"
+		);
+		waitForAutoBuild();
+		IProject[] referencedProjects = getProject("P2").getReferencedProjects();
+		assertResourcesEqual(
+			"Unexpected project references", 
+			"/P1", 
+			referencedProjects);
+	} finally {
+		JavaCore.removePreProcessingResourceChangedListener(resourceChangeListener);
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+
 /**
  * Test that the correct package fragments exist in the project.
  */

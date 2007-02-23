@@ -419,19 +419,9 @@ public class DeltaProcessor {
 						// workaround for bug 15168 circular errors not reported 
 						if (JavaProject.hasJavaNature(project)) {
 							addToParentInfo(javaProject);
-							
-							try {
-								// force to (re)read the .classpath file
-								javaProject.getPerProjectInfo().readAndCacheClasspath(javaProject);
-							} catch (JavaModelException e) {	
-								if (VERBOSE) {
-									e.printStackTrace();
-								}
-							}
-							
+							readRawClasspath(javaProject);
 							// ensure project references are updated (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121569)
-							ClasspathChange change = (ClasspathChange) this.classpathChanges.get(project);
-							this.state.addProjectReferenceChange(javaProject, change == null ? null : change.oldResolvedClasspath);
+							checkProjectReferenceChange(project, javaProject);
 						}
 						
 						this.state.rootsAreStale = true; 
@@ -448,6 +438,9 @@ public class DeltaProcessor {
 								if (project.isOpen()) {
 									if (JavaProject.hasJavaNature(project)) {
 										addToParentInfo(javaProject);
+										readRawClasspath(javaProject);
+										// ensure project references are updated
+										checkProjectReferenceChange(project, javaProject);
 									}
 								} else {
 									try {
@@ -472,6 +465,9 @@ public class DeltaProcessor {
 									// workaround for bug 15168 circular errors not reported 
 									if (isJavaProject) {
 										this.addToParentInfo(javaProject);
+										readRawClasspath(javaProject);
+										// ensure project references are updated (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=172666)
+										checkProjectReferenceChange(project, javaProject);
 									} else {
 										// remove classpath cache so that initializeRoots() will not consider the project has a classpath
 										this.manager.removePerProjectInfo(javaProject);
@@ -553,6 +549,22 @@ public class DeltaProcessor {
 		if (children != null) {
 			for (int i = 0; i < children.length; i++) {
 				checkProjectsBeingAddedOrRemoved(children[i]);
+			}
+		}
+	}
+
+	private void checkProjectReferenceChange(IProject project, JavaProject javaProject) {
+		ClasspathChange change = (ClasspathChange) this.classpathChanges.get(project);
+		this.state.addProjectReferenceChange(javaProject, change == null ? null : change.oldResolvedClasspath);
+	}
+
+	private void readRawClasspath(JavaProject javaProject) {
+		try {
+			// force to (re)read the .classpath file
+			javaProject.getPerProjectInfo().readAndCacheClasspath(javaProject);
+		} catch (JavaModelException e) {	
+			if (VERBOSE) {
+				e.printStackTrace();
 			}
 		}
 	}
