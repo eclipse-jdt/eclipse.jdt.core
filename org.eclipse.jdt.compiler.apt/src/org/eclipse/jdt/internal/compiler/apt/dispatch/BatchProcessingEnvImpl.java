@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2007 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
@@ -38,9 +38,9 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 	protected final BaseAnnotationProcessorManager _dispatchManager;
 	protected final JavaFileManager _fileManager;
 	protected final Main _compilerOwner;
-	
+
 	public BatchProcessingEnvImpl(BaseAnnotationProcessorManager dispatchManager, Main batchCompiler,
-			String[] commandLineArguments) 
+			String[] commandLineArguments)
 	{
 		super();
 		_compilerOwner = batchCompiler;
@@ -58,20 +58,20 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 			try {
 				field = c.getField("fileManager"); //$NON-NLS-1$
 			} catch (SecurityException e) {
-				e.printStackTrace();
+				// ignore
 			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
+				// ignore
 			} catch (NoSuchFieldException e) {
-				e.printStackTrace();
+				// ignore
 			}
 		}
 		if (field != null) {
 			try {
 				javaFileManager = (JavaFileManager) field.get(batchCompiler);
 			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
+				// ignore
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				// ignore
 			}
 		}
 		if (javaFileManager != null) {
@@ -93,13 +93,13 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 		_filer = new BatchFilerImpl(_dispatchManager, this);
 		_messager = new BatchMessagerImpl(_compilerOwner.batchCompiler.problemReporter);
 	}
-	
+
 	/**
 	 * Parse the -A command line arguments so that they can be delivered to
 	 * processors with {@link ProcessingEnvironment#getOptions().  In Sun's Java 6
 	 * version of javac, unlike in the Java 5 apt tool, only the -A options are
 	 * passed to processors, not the other command line options; that behavior
-	 * is repeated here. 
+	 * is repeated here.
 	 * @param args the equivalent of the args array from the main() method.
 	 * @return a map of key to value, or key to null if there is no value for
 	 * a particular key.  The "-A" is stripped from the key, so a command-line
@@ -123,7 +123,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 				Exception e = new IllegalArgumentException("-A option must not end with an equals sign"); //$NON-NLS-1$
 				throw new AbortCompilation(null, e);
 			}
-			
+
 			if (equals == -1) {
 				// no value
 				options.put(arg.substring(2), null);
@@ -144,5 +144,5 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 	public Locale getLocale() {
 		return _compilerOwner.compilerLocale;
 	}
-	
+
 }
