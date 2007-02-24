@@ -82,8 +82,9 @@ public class BatchTestUtils {
 		Boolean result = task.call();
 
 		if (!result.booleanValue()) {
-			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
-	 		Assert.assertTrue("Compilation failed ", false);
+			String errorOutput = stringWriter.getBuffer().toString();
+			System.err.println("Compilation failed: " + errorOutput);
+	 		Assert.assertTrue("Compilation failed : " + errorOutput, false);
 		}
 	}
 
