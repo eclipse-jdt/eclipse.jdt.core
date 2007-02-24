@@ -33,7 +33,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 	public static final String OUTPUT_DIR_PLACEHOLDER = "---OUTPUT_DIR_PLACEHOLDER---";
 	static final String JRE_HOME_DIR = Util.getJREDirectory();
 	private static final Main MAIN = new Main(null, null, false);
-	
+
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 59 };
@@ -64,14 +64,14 @@ private String getLibraryClasses() {
 	return String.valueOf(buffer);
 }
 
-	
+
 	private String getJCEJar() {
 		if (Util.isMacOS()) {
-			return JRE_HOME_DIR + "/../Classes/jce.jar"; 
+			return JRE_HOME_DIR + "/../Classes/jce.jar";
 		}
 		return JRE_HOME_DIR + "/lib/jce.jar";
 	}
-	
+
 	private String getExtDirectory() {
 		return JRE_HOME_DIR + "/lib/ext";
 	}
@@ -79,7 +79,7 @@ private String getLibraryClasses() {
 	/**
 	 * Run a compilation test that is expected to complete successfully and
 	 * compare the outputs to expected ones.
-	 * 
+	 *
 	 * @param testFiles
 	 *            the source files, given as a suite of file name, file content;
 	 *            file names are relative to the output directory
@@ -107,7 +107,7 @@ private String getLibraryClasses() {
 	/**
 	 * Run a compilation test that is expected to fail and compare the outputs
 	 * to expected ones.
-	 * 
+	 *
 	 * @param testFiles
 	 *            the source files, given as a suite of file name, file content;
 	 *            file names are relative to the output directory
@@ -134,7 +134,7 @@ private String getLibraryClasses() {
 
 	/**
 	 * Worker method for runConformTest and runNegativeTest.
-	 * 
+	 *
 	 * @param shouldCompileOK
 	 *            set to true if the compiler should compile the given sources
 	 *            without errors
@@ -182,11 +182,11 @@ private String getLibraryClasses() {
 			throw new RuntimeException(e);
 		}
 		String printerWritersNameRoot = OUTPUT_DIR + File.separator + testName();
-		String outFileName = printerWritersNameRoot + "out.txt", 
+		String outFileName = printerWritersNameRoot + "out.txt",
 			   errFileName = printerWritersNameRoot + "err.txt";
 		Main batchCompiler;
-		PrintWriter out = null; 
-		PrintWriter err = null; 
+		PrintWriter out = null;
+		PrintWriter err = null;
 		boolean compileOK;
 		try {
 			try {
@@ -213,7 +213,7 @@ private String getLibraryClasses() {
 			if (err != null)
 				err.close();
 		}
-		String outOutputString = Util.fileContent(outFileName), 
+		String outOutputString = Util.fileContent(outFileName),
 		       errOutputString = Util.fileContent(errFileName);
 		boolean compareOK = false, outCompareOK = false, errCompareOK = false;
 		if (compileOK == shouldCompileOK) {
@@ -298,13 +298,13 @@ private void runClasspathTest(String classpathInput, String[] expectedClasspathE
 	}
 	if (expectedError == null) {
 		int l = paths.size();
-		assertEquals("unexpected classpaths entries number: ", 
+		assertEquals("unexpected classpaths entries number: ",
 				expectedClasspathEntries == null ? 0 : expectedClasspathEntries.length / 3, l);
 		for (int i = 0, j = 0; i < l ; i++) {
 			ClasspathLocation result = (ClasspathLocation) paths.get(i);
 			String expected = expectedClasspathEntries[j++];
 			String actual = result.toString();
-			if (! actual.equals("ClasspathDirectory " + expected + File.separator) && 
+			if (! actual.equals("ClasspathDirectory " + expected + File.separator) &&
 					! actual.equals("Classpath for jar file " + expected)) {
 				assertEquals("dir/jar " + expected, actual);
 			}
@@ -314,13 +314,13 @@ private void runClasspathTest(String classpathInput, String[] expectedClasspathE
 			} else if (! result.accessRuleSet.toString(false).
 					startsWith("AccessRuleSet " + expected)) {
 				System.out.println("\"" + result.accessRuleSet.toString(false) + "\"");
-				fail("inappropriate rules (expected " + expected + 
+				fail("inappropriate rules (expected " + expected +
 					", got " + result.accessRuleSet.toString(false));
 			}
 			expected = expectedClasspathEntries[j++];
 			if (expected == null) {
 				assertNull(result.destinationPath);
-			} else if (expected == Main.NONE && 
+			} else if (expected == Main.NONE &&
 					result.destinationPath != Main.NONE) {
 				fail("expected 'none' output directory");
 			} else if (! expected.equals(result.destinationPath)) {
@@ -332,7 +332,7 @@ private void runClasspathTest(String classpathInput, String[] expectedClasspathE
 		fail("missing error: " + expectedError);
 	}
 }
-	
+
 /**
  * Check that no line of message extends beyond width columns. Tabs count for
  * 4 characters.
@@ -398,10 +398,10 @@ private void checkWidth(String message, int width) {
 			return result;
 		}
 	}
-	
+
 	/**
 	 * This normalizer replaces the whole classpaths section of a log file with
-	 * a normalized placeholder. 
+	 * a normalized placeholder.
 	 */
 	private static class XMLClasspathsSectionNormalizer extends Normalizer {
 		XMLClasspathsSectionNormalizer() {
@@ -444,7 +444,7 @@ private void checkWidth(String message, int width) {
 		/**
 		 * Make a new normalizer able to suppress a range of lines delimited by
 		 * "\n" sequences from a log file (or another string).
-		 * 
+		 *
 		 * @param nextInChain
 		 *            the next normalizer in the chain of responsibility; pass
 		 *            null if none is needed
@@ -531,7 +531,7 @@ private void checkWidth(String message, int width) {
 							default:
 								state = ERROR;
 							}
-	
+
 						}
 					}
 					else if (currentChar == '\n')
@@ -549,8 +549,8 @@ private void checkWidth(String message, int width) {
 	}
 
 	/**
-	 * Normalizer instance that replaces occurrences of OUTPUT_DIR with 
-	 * OUTPUT_DIR_PLACEHOLDER and changes file separator to / if the 
+	 * Normalizer instance that replaces occurrences of OUTPUT_DIR with
+	 * OUTPUT_DIR_PLACEHOLDER and changes file separator to / if the
 	 * platform file separator is different from /.
 	 */
 	private static Normalizer outputDirNormalizer;
@@ -568,7 +568,7 @@ private void checkWidth(String message, int width) {
 	}
 
 	/**
-	 * Normalizer instance for non XML log files. 
+	 * Normalizer instance for non XML log files.
 	 */
 	private static Normalizer textLogsNormalizer = new StringNormalizer(
 			new XMLClasspathsSectionNormalizer(new LinesRangeNormalizer(null,
@@ -580,7 +580,7 @@ private void checkWidth(String message, int width) {
 	private static Normalizer xmlLogsNormalizer = new StringNormalizer(
 			new XMLClasspathsSectionNormalizer(new LinesRangeNormalizer(null,
 					1, 1)), OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
-	
+
 
 	/**
 	 * Return true if and only if the two strings passed as parameters compare
@@ -588,7 +588,7 @@ private void checkWidth(String message, int width) {
 	 * passed in parameter. This is meant to erase the variations of subparts of
 	 * the compared strings in function of the test machine, the user account,
 	 * etc.
-	 * 
+	 *
 	 * @param keep
 	 *            the first string to compare, gets compared as it is
 	 * @param normalize
@@ -629,16 +629,16 @@ private static boolean equals(String a, String b) {
 			}
 			if (afterEnd >= length) {
 				afterEnd = length - 1;
-				if (afterStart >= length) 
+				if (afterStart >= length)
 					afterStart = length - 1;
 			}
-			System.err.println("a and b differ at rank: " + i 
-					+ "\na: ..." + aBuffer.substring(beforeStart, beforeEnd) 
+			System.err.println("a and b differ at rank: " + i
+					+ "\na: ..." + aBuffer.substring(beforeStart, beforeEnd)
 						+ "<" + aBuffer.charAt(i) + ">"
-						+ aBuffer.substring(afterStart, afterEnd) + "..." 
-					+ "\nb: ..." + bBuffer.substring(beforeStart, beforeEnd) 
+						+ aBuffer.substring(afterStart, afterEnd) + "..."
+					+ "\nb: ..." + bBuffer.substring(beforeStart, beforeEnd)
 						+ "<" + bBuffer.charAt(i) + ">"
-						+ bBuffer.substring(afterStart, afterEnd) + "..."); 
+						+ bBuffer.substring(afterStart, afterEnd) + "...");
 			return false;
 		}
 	return result; // may be false if one of the strings equals the beginning
@@ -646,10 +646,10 @@ private static boolean equals(String a, String b) {
 }
 
 public void test001() {
-	
+
 		String commandLine = "-classpath \"D:/a folder\";d:/jdk1.4/jre/lib/rt.jar -1.4 -preserveAllLocals -g -verbose d:/eclipse/workspaces/development2.0/plugins/Bar/src2/ -d d:/test";
 		String expected = " <-classpath> <D:/a folder;d:/jdk1.4/jre/lib/rt.jar> <-1.4> <-preserveAllLocals> <-g> <-verbose> <d:/eclipse/workspaces/development2.0/plugins/Bar/src2/> <-d> <d:/test>";
-		
+
 		String[] args = Main.tokenize(commandLine);
 		StringBuffer  buffer = new StringBuffer(30);
 		for (int i = 0; i < args.length; i++){
@@ -662,10 +662,10 @@ public void test001() {
 			result);
 }
 public void test002() {
-	
+
 		String commandLine = "-classpath \"a folder\";\"b folder\"";
 		String expected = " <-classpath> <a folder;b folder>";
-		
+
 		String[] args = Main.tokenize(commandLine);
 		StringBuffer  buffer = new StringBuffer(30);
 		for (int i = 0; i < args.length; i++){
@@ -678,10 +678,10 @@ public void test002() {
 			result);
 }
 public void test003() {
-	
+
 		String commandLine = "-classpath \"a folder;b folder\"";
 		String expected = " <-classpath> <a folder;b folder>";
-		
+
 		String[] args = Main.tokenize(commandLine);
 		StringBuffer  buffer = new StringBuffer(30);
 		for (int i = 0; i < args.length; i++){
@@ -694,10 +694,10 @@ public void test003() {
 			result);
 }
 public void test004() {
-	
+
 		String commandLine = "\"d:/tmp A/\"A.java  -classpath \"d:/tmp A\";d:/jars/rt.jar -nowarn -time -g -d d:/tmp";
 		String expected = " <d:/tmp A/A.java> <-classpath> <d:/tmp A;d:/jars/rt.jar> <-nowarn> <-time> <-g> <-d> <d:/tmp>";
-		
+
 		String[] args = Main.tokenize(commandLine);
 		StringBuffer  buffer = new StringBuffer(30);
 		for (int i = 0; i < args.length; i++){
@@ -710,10 +710,10 @@ public void test004() {
 			result);
 }
 public void test005() {
-	
+
 		String commandLine = "\"d:/tmp A/\"A.java  -classpath d:/jars/rt.jar;\"d:/tmp A\";\"toto\" -nowarn -time -g -d d:/tmp";
 		String expected = " <d:/tmp A/A.java> <-classpath> <d:/jars/rt.jar;d:/tmp A;toto> <-nowarn> <-time> <-g> <-d> <d:/tmp>";
-		
+
 		String[] args = Main.tokenize(commandLine);
 		StringBuffer  buffer = new StringBuffer(30);
 		for (int i = 0; i < args.length; i++){
@@ -726,10 +726,10 @@ public void test005() {
 			result);
 }
 public void test006() {
-	
+
 		String commandLine = "\"d:/tmp A/A.java\"  -classpath d:/jars/rt.jar;\"d:/tmp A\";d:/tmpB/ -nowarn -time -g -d d:/tmp";
 		String expected = " <d:/tmp A/A.java> <-classpath> <d:/jars/rt.jar;d:/tmp A;d:/tmpB/> <-nowarn> <-time> <-g> <-d> <d:/tmp>";
-		
+
 		String[] args = Main.tokenize(commandLine);
 		StringBuffer  buffer = new StringBuffer(30);
 		for (int i = 0; i < args.length; i++){
@@ -746,18 +746,18 @@ public void test007(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" + 
-			"\n" + 
-			"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" + 
-			")\n" + 
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		if (false) {\n" + 
-			"			;\n" + 
-			"		} else {\n" + 
-			"		}\n" + 
-			"		// Zork z;\n" + 
-			"	}\n" + 
+			"import java.util.List;\n" +
+			"\n" +
+			"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
+			")\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		if (false) {\n" +
+			"			;\n" +
+			"		} else {\n" +
+			"		}\n" +
+			"		// Zork z;\n" +
+			"	}\n" +
 			"}"
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
@@ -766,17 +766,17 @@ public void test007(){
         + " -cp " + getJCEJar()
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -verbose -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-		"[reading    java/lang/Object.class]\n" + 
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-		"[reading    java/util/List.class]\n" + 
-		"[reading    java/lang/SuppressWarnings.class]\n" + 
-		"[reading    java/lang/String.class]\n" + 
-		"[writing    X.class - #1]\n" + 
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-		"[1 unit compiled]\n" + 
-		"[1 .class file generated]\n", 
-        "", // changed with bug 123522: now the SuppressWarning upon the first type 
+        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+		"[reading    java/lang/Object.class]\n" +
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+		"[reading    java/util/List.class]\n" +
+		"[reading    java/lang/SuppressWarnings.class]\n" +
+		"[reading    java/lang/String.class]\n" +
+		"[writing    X.class - #1]\n" +
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+		"[1 unit compiled]\n" +
+		"[1 .class file generated]\n",
+        "", // changed with bug 123522: now the SuppressWarning upon the first type
         	// influences warnings on unused imports
         true);
 }
@@ -785,18 +785,18 @@ public void test008(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" + 
-			"\n" + 
-			"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" + 
-			")\n" + 
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		if (false) {\n" + 
-			"			;\n" + 
-			"		} else {\n" + 
-			"		}\n" + 
-			"		Zork z;\n" + 
-			"	}\n" + 
+			"import java.util.List;\n" +
+			"\n" +
+			"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
+			")\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		if (false) {\n" +
+			"			;\n" +
+			"		} else {\n" +
+			"		}\n" +
+			"		Zork z;\n" +
+			"	}\n" +
 			"}"
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
@@ -805,14 +805,14 @@ public void test008(){
         + " -cp " + getJCEJar()
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
-        "----------\n" + 
-        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)\n" + 
-        "	Zork z;\n" + 
-        "	^^^^\n" + 
-        "Zork cannot be resolved to a type\n" + 
-        "----------\n" + 
-        "1 problem (1 error)", 
+        "",
+        "----------\n" +
+        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)\n" +
+        "	Zork z;\n" +
+        "	^^^^\n" +
+        "Zork cannot be resolved to a type\n" +
+        "----------\n" +
+        "1 problem (1 error)",
         true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=92398 -- a case that works, another that does not
@@ -821,58 +821,58 @@ public void test009(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
-			"	OK1 ok1;\n" + 
-			"	OK2 ok2;\n" + 
-			"	Warn warn;\n" + 
-			"	KO ko;\n" + 
-	        "	Zork z;\n" + 
+			"/** */\n" +
+			"public class X {\n" +
+			"	OK1 ok1;\n" +
+			"	OK2 ok2;\n" +
+			"	Warn warn;\n" +
+			"	KO ko;\n" +
+	        "	Zork z;\n" +
 			"}",
 			"OK1.java",
-			"/** */\n" + 
-			"public class OK1 {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class OK1 {\n" +
+			"	// empty\n" +
 			"}",
 			"OK2.java",
-			"/** */\n" + 
-			"public class OK2 {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class OK2 {\n" +
+			"	// empty\n" +
 			"}",
 			"Warn.java",
-			"/** */\n" + 
-			"public class Warn {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class Warn {\n" +
+			"	// empty\n" +
 			"}",
 			"KO.java",
-			"/** */\n" + 
-			"public class KO {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class KO {\n" +
+			"	// empty\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "~Warn" 
+        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "~Warn"
         	+ File.pathSeparator + "-KO]\""
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-		"	Warn warn;\n" + 
-		"	^^^^\n" + 
-		"Discouraged access: The type Warn is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
-		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
-		"	KO ko;\n" + 
-		"	^^\n" + 
-		"Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
-		"----------\n" + 
-		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n" + 
+        "",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+		"	Warn warn;\n" +
+		"	^^^^\n" +
+		"Discouraged access: The type Warn is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+		"	KO ko;\n" +
+		"	^^\n" +
+		"Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
+		"----------\n" +
+		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
+		"----------\n" +
 		"3 problems (1 error, 2 warnings)",
         true);
 }
@@ -881,35 +881,35 @@ public void test010(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" + 
-			"\n" + 
-			"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" + 
-			")\n" + 
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		if (false) {\n" + 
-			"			;\n" + 
-			"		} else {\n" + 
-			"		}\n" + 
-			"		// Zork z;\n" + 
-			"	}\n" + 
+			"import java.util.List;\n" +
+			"\n" +
+			"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
+			")\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		if (false) {\n" +
+			"			;\n" +
+			"		} else {\n" +
+			"		}\n" +
+			"		// Zork z;\n" +
+			"	}\n" +
 			"}"
         },
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-		"[reading    java/lang/Object.class]\n" + 
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-		"[reading    java/util/List.class]\n" + 
-		"[reading    java/lang/SuppressWarnings.class]\n" + 
-		"[reading    java/lang/String.class]\n" + 
-		"[writing    X.class - #1]\n" + 
-		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-		"[1 unit compiled]\n" + 
-		"[1 .class file generated]\n", 
-        "", 
+        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+		"[reading    java/lang/Object.class]\n" +
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+		"[reading    java/util/List.class]\n" +
+		"[reading    java/lang/SuppressWarnings.class]\n" +
+		"[reading    java/lang/String.class]\n" +
+		"[writing    X.class - #1]\n" +
+		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+		"[1 unit compiled]\n" +
+		"[1 .class file generated]\n",
+        "",
         true);
 }
 // command line - unusual classpath (ends with ';', still OK)
@@ -917,8 +917,8 @@ public void test011_classpath(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
@@ -935,123 +935,123 @@ public void test011_classpath(){
 // width)
 public void test012(){
 	final String expectedOutput =
-        "{0} {1}\n" + 
-        "{2}\n" + 
-        " \n" + 
-        " Usage: <options> <source files | directories>\n" + 
-        " If directories are specified, then their source contents are compiled.\n" + 
-        " Possible options are listed below. Options enabled by default are prefixed\n" + 
-        " with ''+''.\n" + 
-        " \n" + 
-        " Classpath options:\n" + 
-        "    -cp -classpath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
-        "                       specify location for application classes and sources.\n" + 
-        "                       Each directory or file can specify access rules for\n" + 
-        "                       types between ''['' and '']'' (e.g. [-X] to forbid\n" + 
-        "                       access to type X, [~X] to discourage access to type X,\n" + 
-        "                       [+p/X:-p/*] to forbid access to all types in package p\n" + 
-        "                       but allow access to p/X)\n" + 
-        "    -bootclasspath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
-        "                       specify location for system classes. Each directory or\n" + 
-        "                       file can specify access rules for types between ''[''\n" + 
-        "                       and '']''\n" + 
-        "    -sourcepath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
-        "                       specify location for application sources. Each directory\n" + 
-        "                       or file can specify access rules for types between ''[''\n" + 
-        "                       and '']''. Each directory can further specify a specific\n" + 
+        "{0} {1}\n" +
+        "{2}\n" +
+        " \n" +
+        " Usage: <options> <source files | directories>\n" +
+        " If directories are specified, then their source contents are compiled.\n" +
+        " Possible options are listed below. Options enabled by default are prefixed\n" +
+        " with ''+''.\n" +
+        " \n" +
+        " Classpath options:\n" +
+        "    -cp -classpath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" +
+        "                       specify location for application classes and sources.\n" +
+        "                       Each directory or file can specify access rules for\n" +
+        "                       types between ''['' and '']'' (e.g. [-X] to forbid\n" +
+        "                       access to type X, [~X] to discourage access to type X,\n" +
+        "                       [+p/X:-p/*] to forbid access to all types in package p\n" +
+        "                       but allow access to p/X)\n" +
+        "    -bootclasspath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" +
+        "                       specify location for system classes. Each directory or\n" +
+        "                       file can specify access rules for types between ''[''\n" +
+        "                       and '']''\n" +
+        "    -sourcepath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" +
+        "                       specify location for application sources. Each directory\n" +
+        "                       or file can specify access rules for types between ''[''\n" +
+        "                       and '']''. Each directory can further specify a specific\n" +
         "                       destination directory using a ''-d'' option between ''[''\n" +
         "                       and '']''; this overrides the general ''-d'' option.\n" +
-        "                       .class files created from source files contained in a\n" + 
-        "                       jar file are put in the user.dir folder in case no\n" + 
+        "                       .class files created from source files contained in a\n" +
+        "                       jar file are put in the user.dir folder in case no\n" +
         "                       general ''-d'' option is specified. zip/jar files cannot\n" +
-        "                       override the general ''-d'' option\n" + 
-        "    -extdirs <directories separated by " + File.pathSeparator + ">\n" + 
-        "                       specify location for extension zip/jar files\n" + 
-        "    -endorseddirs <directories separated by " + File.pathSeparator + ">\n" + 
-        "                       specify location for endorsed zip/jar files\n" + 
-        "    -d <dir>           destination directory (if omitted, no directory is\n" + 
-        "                       created); this option can be overridden per source\n" + 
+        "                       override the general ''-d'' option\n" +
+        "    -extdirs <directories separated by " + File.pathSeparator + ">\n" +
+        "                       specify location for extension zip/jar files\n" +
+        "    -endorseddirs <directories separated by " + File.pathSeparator + ">\n" +
+        "                       specify location for endorsed zip/jar files\n" +
+        "    -d <dir>           destination directory (if omitted, no directory is\n" +
+        "                       created); this option can be overridden per source\n" +
 		"                       directory\n" +
-		"    -d none            generate no .class files\n" + 
-        "    -encoding <enc>    specify custom encoding for all sources. Each\n" + 
-        "                       file/directory can override it when suffixed with\n" + 
-        "                       ''[''<enc>'']'' (e.g. X.java[utf8])\n" + 
-        " \n" + 
-        " Compliance options:\n" + 
-        "    -1.3               use 1.3 compliance (-source 1.3 -target 1.1)\n" + 
-        "    -1.4             + use 1.4 compliance (-source 1.3 -target 1.2)\n" + 
-        "    -1.5 -5 -5.0       use 1.5 compliance (-source 1.5 -target 1.5)\n" + 
-        "    -1.6 -6 -6.0       use 1.6 compliance (-source 1.6 -target 1.6)\n" + 
-        "    -1.7 -7 -7.0       use 1.7 compliance (-source 1.7 -target 1.7)\n" + 
-        "    -source <version>  set source level: 1.3 to 1.7 (or 5, 5.0, etc)\n" + 
-        "    -target <version>  set classfile target: 1.1 to 1.7 (or 5, 5.0, etc)\n" + 
-        " \n" + 
-        " Warning options:\n" + 
-        "    -deprecation     + deprecation outside deprecated code (equivalent to\n" + 
-        "                       -warn:+deprecation)\n" + 
-        "    -nowarn -warn:none disable all warnings\n" + 
-        "    -?:warn -help:warn display advanced warning options\n" + 
-        " \n" + 
-        " Debug options:\n" + 
-        "    -g[:lines,vars,source] custom debug info\n" + 
-        "    -g:lines,source  + both lines table and source debug info\n" + 
-        "    -g                 all debug info\n" + 
-        "    -g:none            no debug info\n" + 
-        "    -preserveAllLocals preserve unused local vars for debug purpose\n" + 
-        " \n" + 
-        " Annotation processing options:\n" + 
-        "   These options are meaningful only in a 1.6 environment.\n" + 
-        "    -Akey[=value]        annotation processors options that are made to\n" + 
-        "                         annotation processors. key are identifiers separated\n" + 
-        "                         by ''.''.\n" + 
-        "    -processorpath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
-        "                         specify locations where to find annotation processors\n" + 
-        "                         If this option is not used, the classpath will be\n" + 
-        "                         searched for processors.\n" + 
-        "    -processor <class1[,class2,...]>\n" + 
-        "                         Qualified names of the annotation processors to run.\n" + 
-        "                         This bypasses the default annotation discovery process\n" + 
-        "    -proc:only           run annotation processors, but do not compile\n" + 
-        "    -proc:none           perform compilation but do not run annotation\n" + 
-        "                         processors\n" + 
-        "    -s <dir>             specify a directory where to put the generated source\n" + 
-        "                         files\n" + 
-        "    -XprintProcessorInfo print information about which annotations and which\n" + 
-        "                         elements a processor is asked to process\n" + 
-        "    -XprintRounds        print information about annotation processing rounds.\n" + 
-        " \n" + 
-        " Advanced options:\n" + 
-        "    @<file>            read command line arguments from file\n" + 
-        "    -maxProblems <n>   max number of problems per compilation unit (100 by\n" + 
-        "                       default)\n" + 
-        "    -log <file>        log to a file. If the file extension is ''.xml'', then\n" + 
-        "                       the log will be a xml file.\n" + 
-        "    -proceedOnError    do not stop at first error, dumping class files with\n" + 
-        "                       problem methods\n" + 
-        "    -verbose           enable verbose output\n" + 
-        "    -referenceInfo     compute reference info\n" + 
-        "    -progress          show progress (only in -log mode)\n" + 
-        "    -time              display speed information \n" + 
-        "    -noExit            do not call System.exit(n) at end of compilation (n==0\n" + 
-        "                       if no error)\n" + 
-        "    -repeat <n>        repeat compilation process <n> times for perf analysis\n" + 
-        "    -inlineJSR         inline JSR bytecode (implicit if target >= 1.5)\n" + 
-        "    -enableJavadoc     consider references in javadoc\n" + 
-        "    -Xemacs            used to enable emacs-style output in the console.\n" + 
-        "                       It does not affect the xml log output\n" + 
-        " \n" + 
-        "    -? -help           print this help message\n" + 
-        "    -v -version        print compiler version\n" + 
-        "    -showversion       print compiler version and continue\n" + 
-        " \n" + 
-        " Ignored options:\n" + 
-        "    -J<option>         pass option to virtual machine (ignored)\n" + 
-        "    -X<option>         specify non-standard option (ignored\n" + 
-        "                       except for listed -X options)\n" + 
-        "    -X                 print non-standard options and exit (ignored)\n" + 
-        "    -O                 optimize for execution time (ignored)\n" + 
+		"    -d none            generate no .class files\n" +
+        "    -encoding <enc>    specify custom encoding for all sources. Each\n" +
+        "                       file/directory can override it when suffixed with\n" +
+        "                       ''[''<enc>'']'' (e.g. X.java[utf8])\n" +
+        " \n" +
+        " Compliance options:\n" +
+        "    -1.3               use 1.3 compliance (-source 1.3 -target 1.1)\n" +
+        "    -1.4             + use 1.4 compliance (-source 1.3 -target 1.2)\n" +
+        "    -1.5 -5 -5.0       use 1.5 compliance (-source 1.5 -target 1.5)\n" +
+        "    -1.6 -6 -6.0       use 1.6 compliance (-source 1.6 -target 1.6)\n" +
+        "    -1.7 -7 -7.0       use 1.7 compliance (-source 1.7 -target 1.7)\n" +
+        "    -source <version>  set source level: 1.3 to 1.7 (or 5, 5.0, etc)\n" +
+        "    -target <version>  set classfile target: 1.1 to 1.7 (or 5, 5.0, etc)\n" +
+        " \n" +
+        " Warning options:\n" +
+        "    -deprecation     + deprecation outside deprecated code (equivalent to\n" +
+        "                       -warn:+deprecation)\n" +
+        "    -nowarn -warn:none disable all warnings\n" +
+        "    -?:warn -help:warn display advanced warning options\n" +
+        " \n" +
+        " Debug options:\n" +
+        "    -g[:lines,vars,source] custom debug info\n" +
+        "    -g:lines,source  + both lines table and source debug info\n" +
+        "    -g                 all debug info\n" +
+        "    -g:none            no debug info\n" +
+        "    -preserveAllLocals preserve unused local vars for debug purpose\n" +
+        " \n" +
+        " Annotation processing options:\n" +
+        "   These options are meaningful only in a 1.6 environment.\n" +
+        "    -Akey[=value]        annotation processors options that are made to\n" +
+        "                         annotation processors. key are identifiers separated\n" +
+        "                         by ''.''.\n" +
+        "    -processorpath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" +
+        "                         specify locations where to find annotation processors\n" +
+        "                         If this option is not used, the classpath will be\n" +
+        "                         searched for processors.\n" +
+        "    -processor <class1[,class2,...]>\n" +
+        "                         Qualified names of the annotation processors to run.\n" +
+        "                         This bypasses the default annotation discovery process\n" +
+        "    -proc:only           run annotation processors, but do not compile\n" +
+        "    -proc:none           perform compilation but do not run annotation\n" +
+        "                         processors\n" +
+        "    -s <dir>             specify a directory where to put the generated source\n" +
+        "                         files\n" +
+        "    -XprintProcessorInfo print information about which annotations and which\n" +
+        "                         elements a processor is asked to process\n" +
+        "    -XprintRounds        print information about annotation processing rounds.\n" +
+        " \n" +
+        " Advanced options:\n" +
+        "    @<file>            read command line arguments from file\n" +
+        "    -maxProblems <n>   max number of problems per compilation unit (100 by\n" +
+        "                       default)\n" +
+        "    -log <file>        log to a file. If the file extension is ''.xml'', then\n" +
+        "                       the log will be a xml file.\n" +
+        "    -proceedOnError    do not stop at first error, dumping class files with\n" +
+        "                       problem methods\n" +
+        "    -verbose           enable verbose output\n" +
+        "    -referenceInfo     compute reference info\n" +
+        "    -progress          show progress (only in -log mode)\n" +
+        "    -time              display speed information \n" +
+        "    -noExit            do not call System.exit(n) at end of compilation (n==0\n" +
+        "                       if no error)\n" +
+        "    -repeat <n>        repeat compilation process <n> times for perf analysis\n" +
+        "    -inlineJSR         inline JSR bytecode (implicit if target >= 1.5)\n" +
+        "    -enableJavadoc     consider references in javadoc\n" +
+        "    -Xemacs            used to enable emacs-style output in the console.\n" +
+        "                       It does not affect the xml log output\n" +
+        " \n" +
+        "    -? -help           print this help message\n" +
+        "    -v -version        print compiler version\n" +
+        "    -showversion       print compiler version and continue\n" +
+        " \n" +
+        " Ignored options:\n" +
+        "    -J<option>         pass option to virtual machine (ignored)\n" +
+        "    -X<option>         specify non-standard option (ignored\n" +
+        "                       except for listed -X options)\n" +
+        "    -X                 print non-standard options and exit (ignored)\n" +
+        "    -O                 optimize for execution time (ignored)\n" +
         "\n";
-	String expandedExpectedOutput = 
+	String expandedExpectedOutput =
 		MessageFormat.format(expectedOutput, new String[] {
 				MAIN.bind("compiler.name"),
 				MAIN.bind("compiler.version"),
@@ -1079,79 +1079,79 @@ public void test012(){
 // width)
 public void test012b(){
 	final String expectedOutput =
-        "{0} {1}\n" + 
-        "{2}\n" + 
-        " \n" + 
-        " Warning options:\n" + 
-        "    -deprecation     + deprecation outside deprecated code\n" + 
-        "    -nowarn -warn:none disable all warnings\n" + 
-        "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" + 
-        "    -warn:+<warnings separated by ,>   enable additional warnings\n" + 
-        "    -warn:-<warnings separated by ,>   disable specific warnings\n" + 
-        "      allDeprecation       deprecation including inside deprecated code\n" + 
-        "      allJavadoc           invalid or missing javadoc\n" + 
-        "      assertIdentifier   + ''assert'' used as identifier\n" + 
-        "      boxing               autoboxing conversion\n" + 
-        "      charConcat         + char[] in String concat\n" + 
-        "      conditionAssign      possible accidental boolean assignment\n" + 
-        "      constructorName    + method with constructor name\n" + 
-        "      dep-ann              missing @Deprecated annotation\n" + 
-        "      deprecation        + deprecation outside deprecated code\n" + 
-        "      discouraged        + use of types matching a discouraged access rule\n" + 
-        "      emptyBlock           undocumented empty block\n" + 
-        "      enumSwitch           incomplete enum switch\n" + 
-        "      fallthrough          possible fall-through case\n" + 
-        "      fieldHiding          field hiding another variable\n" + 
-        "      finalBound           type parameter with final bound\n" + 
-        "      finally            + finally block not completing normally\n" + 
-        "      forbidden          + use of types matching a forbidden access rule\n" + 
-        "      hiding               macro for fieldHiding, localHiding, typeHiding and\n" + 
-        "                           maskedCatchBlock\n" + 
-        "      incomplete-switch    same as enumSwitch\n" + 
-        "      indirectStatic       indirect reference to static member\n" + 
-        "      intfAnnotation     + annotation type used as super interface\n" + 
-        "      intfNonInherited   + interface non-inherited method compatibility\n" + 
-        "      javadoc              invalid javadoc\n" + 
-        "      localHiding          local variable hiding another variable\n" + 
-        "      maskedCatchBlock   + hidden catch block\n" + 
-        "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" + 
-        "      noEffectAssign     + assignment without effect\n" + 
-        "      null                 missing or redundant null check\n" + 
-        "      over-ann             missing @Override annotation\n" + 
-        "      paramAssign          assignment to a parameter\n" + 
-        "      pkgDefaultMethod   + attempt to override package-default method\n" + 
-        "      raw                + usage of raw type\n" + 
-        "      semicolon            unnecessary semicolon, empty statement\n" + 
-        "      serial             + missing serialVersionUID\n" + 
-        "      specialParamHiding   constructor or setter parameter hiding another field\n" + 
-        "      static-access        macro for indirectStatic and staticReceiver\n" + 
-        "      staticReceiver     + non-static reference to static member\n" + 
+        "{0} {1}\n" +
+        "{2}\n" +
+        " \n" +
+        " Warning options:\n" +
+        "    -deprecation     + deprecation outside deprecated code\n" +
+        "    -nowarn -warn:none disable all warnings\n" +
+        "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" +
+        "    -warn:+<warnings separated by ,>   enable additional warnings\n" +
+        "    -warn:-<warnings separated by ,>   disable specific warnings\n" +
+        "      allDeprecation       deprecation including inside deprecated code\n" +
+        "      allJavadoc           invalid or missing javadoc\n" +
+        "      assertIdentifier   + ''assert'' used as identifier\n" +
+        "      boxing               autoboxing conversion\n" +
+        "      charConcat         + char[] in String concat\n" +
+        "      conditionAssign      possible accidental boolean assignment\n" +
+        "      constructorName    + method with constructor name\n" +
+        "      dep-ann              missing @Deprecated annotation\n" +
+        "      deprecation        + deprecation outside deprecated code\n" +
+        "      discouraged        + use of types matching a discouraged access rule\n" +
+        "      emptyBlock           undocumented empty block\n" +
+        "      enumSwitch           incomplete enum switch\n" +
+        "      fallthrough          possible fall-through case\n" +
+        "      fieldHiding          field hiding another variable\n" +
+        "      finalBound           type parameter with final bound\n" +
+        "      finally            + finally block not completing normally\n" +
+        "      forbidden          + use of types matching a forbidden access rule\n" +
+        "      hiding               macro for fieldHiding, localHiding, typeHiding and\n" +
+        "                           maskedCatchBlock\n" +
+        "      incomplete-switch    same as enumSwitch\n" +
+        "      indirectStatic       indirect reference to static member\n" +
+        "      intfAnnotation     + annotation type used as super interface\n" +
+        "      intfNonInherited   + interface non-inherited method compatibility\n" +
+        "      javadoc              invalid javadoc\n" +
+        "      localHiding          local variable hiding another variable\n" +
+        "      maskedCatchBlock   + hidden catch block\n" +
+        "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" +
+        "      noEffectAssign     + assignment without effect\n" +
+        "      null                 missing or redundant null check\n" +
+        "      over-ann             missing @Override annotation\n" +
+        "      paramAssign          assignment to a parameter\n" +
+        "      pkgDefaultMethod   + attempt to override package-default method\n" +
+        "      raw                + usage of raw type\n" +
+        "      semicolon            unnecessary semicolon, empty statement\n" +
+        "      serial             + missing serialVersionUID\n" +
+        "      specialParamHiding   constructor or setter parameter hiding another field\n" +
+        "      static-access        macro for indirectStatic and staticReceiver\n" +
+        "      staticReceiver     + non-static reference to static member\n" +
         "      super                overriding a method without making a super invocation\n" +
-        "      suppress           + enable @SuppressWarnings\n" + 
-        "      synthetic-access     same as syntheticAccess\n" + 
-        "      syntheticAccess      synthetic access for innerclass\n" + 
-        "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" + 
-        "      typeHiding         + type parameter hiding another type\n" + 
-        "      unchecked          + unchecked type operation\n" + 
-        "      unnecessaryElse      unnecessary else clause\n" + 
-        "      unqualified-field-access same as unqualifiedField\n" + 
-        "      unqualifiedField     unqualified reference to field\n" + 
-        "      unused               macro for unusedArgument, unusedImport, unusedLabel,\n" + 
-        "                               unusedLocal, unusedPrivate and unusedThrown\n" + 
-        "      unusedArgument       unread method parameter\n" + 
-        "      unusedImport       + unused import declaration\n" + 
-        "      unusedLabel        + unused label\n" + 
-        "      unusedLocal        + unread local variable\n" + 
-        "      unusedPrivate      + unused private member declaration\n" + 
-        "      unusedThrown         unused declared thrown exception\n" + 
-        "      uselessTypeCheck     unnecessary cast/instanceof operation\n" + 
-        "      varargsCast        + varargs argument need explicit cast\n" + 
-        "      warningToken       + unhandled warning token in @SuppressWarnings\n" + 
-        " \n" + 
-        " Advanced options:\n" + 
-        "    -? -help           print the help message\n" + 
+        "      suppress           + enable @SuppressWarnings\n" +
+        "      synthetic-access     same as syntheticAccess\n" +
+        "      syntheticAccess      synthetic access for innerclass\n" +
+        "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" +
+        "      typeHiding         + type parameter hiding another type\n" +
+        "      unchecked          + unchecked type operation\n" +
+        "      unnecessaryElse      unnecessary else clause\n" +
+        "      unqualified-field-access same as unqualifiedField\n" +
+        "      unqualifiedField     unqualified reference to field\n" +
+        "      unused               macro for unusedArgument, unusedImport, unusedLabel,\n" +
+        "                               unusedLocal, unusedPrivate and unusedThrown\n" +
+        "      unusedArgument       unread method parameter\n" +
+        "      unusedImport       + unused import declaration\n" +
+        "      unusedLabel        + unused label\n" +
+        "      unusedLocal        + unread local variable\n" +
+        "      unusedPrivate      + unused private member declaration\n" +
+        "      unusedThrown         unused declared thrown exception\n" +
+        "      uselessTypeCheck     unnecessary cast/instanceof operation\n" +
+        "      varargsCast        + varargs argument need explicit cast\n" +
+        "      warningToken       + unhandled warning token in @SuppressWarnings\n" +
+        " \n" +
+        " Advanced options:\n" +
+        "    -? -help           print the help message\n" +
         "\n";
-	String expandedExpectedOutput = 
+	String expandedExpectedOutput =
 		MessageFormat.format(expectedOutput, new String[] {
 				MAIN.bind("compiler.name"),
 				MAIN.bind("compiler.version"),
@@ -1176,138 +1176,138 @@ public void test012b(){
 	// command line - xml log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
 	public void test013() {
 		String logFileName = OUTPUT_DIR + File.separator + "log.xml";
-		this.runNegativeTest(new String[] { 
+		this.runNegativeTest(new String[] {
 				"X.java",
-				"/** */\n" + 
-				"public class X {\n" + 
-				"	Zork z;\n" + 
+				"/** */\n" +
+				"public class X {\n" +
+				"	Zork z;\n" +
 				"}", },
 				"\"" + OUTPUT_DIR + File.separator + "X.java\""
 				+ " -1.5 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
-				"", 
-				"----------\n" + 
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"1 problem (1 error)", 
+				"",
+				"----------\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
+				"----------\n" +
+				"1 problem (1 error)",
 				true);
 		String logContents = Util.fileContent(logFileName);
-		String expectedLogContents = 
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-			"<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.002 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_002.dtd\">\n" + 
-			"<compiler copyright=\"{2}\" name=\"{1}\" version=\"{3}\">\n" + 
-			"	<command_line>\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\"/>\n" + 
-			"		<argument value=\"-1.5\"/>\n" + 
-			"		<argument value=\"-proceedOnError\"/>\n" + 
-			"		<argument value=\"-log\"/>\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}log.xml\"/>\n" + 
-			"		<argument value=\"-d\"/>\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\"/>\n" + 
-			"	</command_line>\n" + 
-			"	<options>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.debug.lineNumber\" value=\"generate\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.debug.sourceFile\" value=\"generate\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.doc.comment.support\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.generateClassFiles\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.maxProblemPerUnit\" value=\"100\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotationSuperInterface\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.assertIdentifier\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fallthroughCase\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fatalOptionalError\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fieldHiding\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finalParameterBound\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.forbiddenReference\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.indirectStaticAccess\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadoc\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTags\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility\" value=\"public\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.localVariableHiding\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocComments\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility\" value=\"public\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTags\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility\" value=\"public\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSerialVersion\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.typeParameterHiding\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unhandledWarningToken\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryElse\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedImport\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLabel\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLocal\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameter\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.processAnnotations\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.taskTags\" value=\"\"/>\n" + 
-			"	</options>\n" + 
-			"	<classpaths>NORMALIZED SECTION</classpaths>\n" + 
-			"	<sources>\n" + 
-			"		<source output=\"---OUTPUT_DIR_PLACEHOLDER---\" path=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\">\n" + 
-			"			<problems errors=\"1\" problems=\"1\" warnings=\"0\">\n" + 
-			"				<problem categoryID=\"40\" charEnd=\"28\" charStart=\"25\" id=\"UndefinedType\" line=\"3\" problemID=\"16777218\" severity=\"ERROR\">\n" + 
-			"					<message value=\"Zork cannot be resolved to a type\"/>\n" + 
-			"					<source_context sourceEnd=\"3\" sourceStart=\"0\" value=\"Zork z;\"/>\n" + 
-			"					<arguments>\n" + 
-			"						<argument value=\"Zork\"/>\n" + 
-			"					</arguments>\n" + 
-			"				</problem>\n" + 
-			"			</problems>\n" + 
-			"			<classfile path=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.class\"/>\n" + 
-			"		</source>\n" + 
-			"	</sources>\n" + 
-			"	<stats>\n" + 
-			"		<problem_summary errors=\"1\" problems=\"1\" tasks=\"0\" warnings=\"0\"/>\n" + 
-			"	</stats>\n" + 
+		String expectedLogContents =
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.002 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_002.dtd\">\n" +
+			"<compiler copyright=\"{2}\" name=\"{1}\" version=\"{3}\">\n" +
+			"	<command_line>\n" +
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\"/>\n" +
+			"		<argument value=\"-1.5\"/>\n" +
+			"		<argument value=\"-proceedOnError\"/>\n" +
+			"		<argument value=\"-log\"/>\n" +
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}log.xml\"/>\n" +
+			"		<argument value=\"-d\"/>\n" +
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\"/>\n" +
+			"	</command_line>\n" +
+			"	<options>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.debug.lineNumber\" value=\"generate\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.debug.sourceFile\" value=\"generate\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.doc.comment.support\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.generateClassFiles\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.maxProblemPerUnit\" value=\"100\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotationSuperInterface\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.assertIdentifier\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fallthroughCase\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fatalOptionalError\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fieldHiding\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finalParameterBound\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.forbiddenReference\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.indirectStaticAccess\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadoc\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTags\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility\" value=\"public\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.localVariableHiding\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocComments\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility\" value=\"public\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTags\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility\" value=\"public\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSerialVersion\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.typeParameterHiding\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unhandledWarningToken\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryElse\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedImport\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLabel\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLocal\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameter\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.processAnnotations\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.taskTags\" value=\"\"/>\n" +
+			"	</options>\n" +
+			"	<classpaths>NORMALIZED SECTION</classpaths>\n" +
+			"	<sources>\n" +
+			"		<source output=\"---OUTPUT_DIR_PLACEHOLDER---\" path=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\">\n" +
+			"			<problems errors=\"1\" problems=\"1\" warnings=\"0\">\n" +
+			"				<problem categoryID=\"40\" charEnd=\"28\" charStart=\"25\" id=\"UndefinedType\" line=\"3\" problemID=\"16777218\" severity=\"ERROR\">\n" +
+			"					<message value=\"Zork cannot be resolved to a type\"/>\n" +
+			"					<source_context sourceEnd=\"3\" sourceStart=\"0\" value=\"Zork z;\"/>\n" +
+			"					<arguments>\n" +
+			"						<argument value=\"Zork\"/>\n" +
+			"					</arguments>\n" +
+			"				</problem>\n" +
+			"			</problems>\n" +
+			"			<classfile path=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.class\"/>\n" +
+			"		</source>\n" +
+			"	</sources>\n" +
+			"	<stats>\n" +
+			"		<problem_summary errors=\"1\" problems=\"1\" tasks=\"0\" warnings=\"0\"/>\n" +
+			"	</stats>\n" +
 			"</compiler>\n";
 		String normalizedExpectedLogContents =
 				MessageFormat.format(
@@ -1333,7 +1333,7 @@ public void test012b(){
 				  + "\n--------- (cut and paste:) ----------\n"
 					+ Util.displayString(xmlLogsNormalizer.normalized(logContents))
 				  + "\n------------- [END LOG] -------------\n");
-			assertEquals("Unexpected log contents", 
+			assertEquals("Unexpected log contents",
 					normalizedExpectedLogContents, normalizedLogContents);
 		}
 	}
@@ -1341,32 +1341,32 @@ public void test012b(){
 	// command line - txt log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
 	public void test014() {
 		String logFileName = OUTPUT_DIR + File.separator + "log.txt";
-		this.runNegativeTest(new String[] { 
+		this.runNegativeTest(new String[] {
 				"X.java",
-				"/** */\n" + 
-				"public class X {\n" + 
-				"	Zork z;\n" + 
+				"/** */\n" +
+				"public class X {\n" +
+				"	Zork z;\n" +
 				"}", },
-				"\"" + OUTPUT_DIR + File.separator + "X.java\"" 
+				"\"" + OUTPUT_DIR + File.separator + "X.java\""
 				+ " -1.5 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
-				"", 
-				"----------\n" + 
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"1 problem (1 error)", 
+				"",
+				"----------\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
+				"----------\n" +
+				"1 problem (1 error)",
 				false);
 		String logContents = Util.fileContent(logFileName);
-		String expectedLogContents = 
-			"----------\n" + 
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java (at line 3)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n" + 
+		String expectedLogContents =
+			"----------\n" +
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java (at line 3)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
 			"1 problem (1 error)";
 		boolean compareOK = semiNormalizedComparison(expectedLogContents,
 				logContents, textLogsNormalizer);
@@ -1388,32 +1388,32 @@ public void test012b(){
 	// command line - no extension log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
 	public void test015() {
 		String logFileName = OUTPUT_DIR + File.separator + "log";
-		this.runNegativeTest(new String[] { 
+		this.runNegativeTest(new String[] {
 				"X.java",
-				"/** */\n" + 
-				"public class X {\n" + 
-				"	Zork z;\n" + 
+				"/** */\n" +
+				"public class X {\n" +
+				"	Zork z;\n" +
 				"}", },
 				"\"" + OUTPUT_DIR + File.separator + "X.java\""
 				+ " -1.5 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
-				"", 
-				"----------\n" + 
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"1 problem (1 error)", 
+				"",
+				"----------\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
+				"----------\n" +
+				"1 problem (1 error)",
 				false);
 		String logContents = Util.fileContent(logFileName);
-		String expectedLogContents = 
-			"----------\n" + 
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java (at line 3)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n" + 
+		String expectedLogContents =
+			"----------\n" +
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java (at line 3)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
 			"1 problem (1 error)";
 		boolean compareOK = semiNormalizedComparison(expectedLogContents,
 				logContents, textLogsNormalizer);
@@ -1436,14 +1436,14 @@ public void test016(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
-					"	OK1 ok1;\n" + 
+					"/** */\n" +
+					"public class X {\n" +
+					"	OK1 ok1;\n" +
 					"}",
 					"OK1.java",
-					"/** */\n" + 
-					"public class OK1 {\n" + 
-					"	// empty\n" + 
+					"/** */\n" +
+					"public class OK1 {\n" +
+					"	// empty\n" +
 					"}"
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
@@ -1451,16 +1451,16 @@ public void test016(){
 	        + " -cp ." + File.pathSeparator + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-			"[reading    java/lang/Object.class]\n" + 
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]\n" + 
-			"[writing    X.class - #1]\n" + 
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/2]\n" + 
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]\n" + 
-			"[writing    OK1.class - #2]\n" + 
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]\n" + 
-			"[2 units compiled]\n" + 
+			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+			"[reading    java/lang/Object.class]\n" +
+			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]\n" +
+			"[writing    X.class - #1]\n" +
+			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/2]\n" +
+			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]\n" +
+			"[writing    OK1.class - #2]\n" +
+			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/OK1.java - #2/2]\n" +
+			"[2 units compiled]\n" +
 			"[2 .class files generated]\n",
 	        "",
 	        true);
@@ -1469,20 +1469,20 @@ public void test017(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
-					"	OK1 ok1;\n" + 
+					"/** */\n" +
+					"public class X {\n" +
+					"	OK1 ok1;\n" +
 					"}",
 					"OK1.java",
-					"/** */\n" + 
-					"public class OK1 {\n" + 
-					"	// empty\n" + 
+					"/** */\n" +
+					"public class OK1 {\n" +
+					"	// empty\n" +
 					"}"
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
-	        + " -cp dummmy_dir" + File.pathSeparator + "dummy.jar" + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\"" 
-	        + " -proceedOnError -referenceInfo" 
+	        + " -cp dummmy_dir" + File.pathSeparator + "dummy.jar" + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
+	        + " -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "",
 	        "incorrect classpath: dummmy_dir\n",
@@ -1494,20 +1494,20 @@ public void _test017b(){
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"/** */\n" + 
-				"public class X {\n" + 
-				"	OK1 ok1;\n" + 
+				"/** */\n" +
+				"public class X {\n" +
+				"	OK1 ok1;\n" +
 				"}",
 				"OK1.java",
-				"/** */\n" + 
-				"public class OK1 {\n" + 
-				"	// empty\n" + 
+				"/** */\n" +
+				"public class OK1 {\n" +
+				"	// empty\n" +
 				"}"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -cp dummy.jar" + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\"" 
-        + " -verbose -proceedOnError -referenceInfo" 
+        + " -cp dummy.jar" + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
+        + " -verbose -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
         "[2 .class files generated]\n",
         "incorrect classpath: dummmy.jar\n",
@@ -1519,26 +1519,26 @@ public void _test017c(){
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"/** */\n" + 
-				"public class X {\n" + 
-				"	OK1 ok1;\n" + 
+				"/** */\n" +
+				"public class X {\n" +
+				"	OK1 ok1;\n" +
 				"}",
 				"OK1.java",
-				"/** */\n" + 
-				"public class OK1 {\n" + 
-				"	// empty\n" + 
+				"/** */\n" +
+				"public class OK1 {\n" +
+				"	// empty\n" +
 				"}"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\"" 
-        + " -verbose -proceedOnError -referenceInfo" 
+        + " -cp " + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
+        + " -verbose -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
         "[2 .class files generated]\n",
         "incorrect classpath\n",
         true);
 }
-// command line - unusual classpath (empty, but using current directory, still OK provided 
+// command line - unusual classpath (empty, but using current directory, still OK provided
 //	that we execute from the appropriate directory); since there is no notion
 // of current directory for this tests suite, the test is not executed
 // TODO (maxime) enforce working directory
@@ -1546,14 +1546,14 @@ public void _test017c(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
-					"	OK1 ok1;\n" + 
+					"/** */\n" +
+					"public class X {\n" +
+					"	OK1 ok1;\n" +
 					"}",
 					"OK1.java",
-					"/** */\n" + 
-					"public class OK1 {\n" + 
-					"	// empty\n" + 
+					"/** */\n" +
+					"public class OK1 {\n" +
+					"	// empty\n" +
 					"}"
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
@@ -1568,58 +1568,58 @@ public void test019(){
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"/** */\n" + 
-				"public class X {\n" + 
-				"	OK1 ok1;\n" + 
-				"	OK2 ok2;\n" + 
-				"	Warn warn;\n" + 
-				"	KO ko;\n" + 
-		        "	Zork z;\n" + 
+				"/** */\n" +
+				"public class X {\n" +
+				"	OK1 ok1;\n" +
+				"	OK2 ok2;\n" +
+				"	Warn warn;\n" +
+				"	KO ko;\n" +
+		        "	Zork z;\n" +
 				"}",
 				"OK1.java",
-				"/** */\n" + 
-				"public class OK1 {\n" + 
-				"	// empty\n" + 
+				"/** */\n" +
+				"public class OK1 {\n" +
+				"	// empty\n" +
 				"}",
 				"OK2.java",
-				"/** */\n" + 
-				"public class OK2 {\n" + 
-				"	// empty\n" + 
+				"/** */\n" +
+				"public class OK2 {\n" +
+				"	// empty\n" +
 				"}",
 				"Warn.java",
-				"/** */\n" + 
-				"public class Warn {\n" + 
-				"	// empty\n" + 
+				"/** */\n" +
+				"public class Warn {\n" +
+				"	// empty\n" +
 				"}",
 				"KO.java",
-				"/** */\n" + 
-				"public class KO {\n" + 
-				"	// empty\n" + 
+				"/** */\n" +
+				"public class KO {\n" +
+				"	// empty\n" +
 				"}",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-	        + " -1.5 -g -preserveAllLocals" 
+	        + " -1.5 -g -preserveAllLocals"
 	        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "~Warn" + File.pathSeparator + "-KO]\""
-	        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
+	        + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
 	        + " -proceedOnError -referenceInfo"
-	        + " -d \"" + OUTPUT_DIR + "\"", 
-	        "", 
-			"----------\n" + 
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-			"	Warn warn;\n" + 
-			"	^^^^\n" + 
-			"Discouraged access: The type Warn is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
-			"----------\n" + 
-			"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
-			"	KO ko;\n" + 
-			"	^^\n" + 
-			"Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
-			"----------\n" + 
-			"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n" + 
+	        + " -d \"" + OUTPUT_DIR + "\"",
+	        "",
+			"----------\n" +
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+			"	Warn warn;\n" +
+			"	^^^^\n" +
+			"Discouraged access: The type Warn is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
+			"----------\n" +
+			"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+			"	KO ko;\n" +
+			"	^^\n" +
+			"Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
+			"----------\n" +
+			"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
 			"3 problems (1 error, 2 warnings)",
 	        true);
 	}
@@ -1628,20 +1628,20 @@ public void test019(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
+					"/** */\n" +
+					"public class X {\n" +
 					"}",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" -O -Xxxx -O -Jxyz -Xtyu -Jyu",
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-			"[reading    java/lang/Object.class]\n" + 
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-			"[writing    X.class - #1]\n" + 
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" + 
-			"[1 unit compiled]\n" + 
+			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+			"[reading    java/lang/Object.class]\n" +
+			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+			"[writing    X.class - #1]\n" +
+			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+			"[1 unit compiled]\n" +
 			"[1 .class file generated]\n",
 	        "",
 	        true);
@@ -1651,30 +1651,30 @@ public void test019(){
 		this.runConformTest(
 			new String[] {
 					"src1/X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
+					"/** */\n" +
+					"public class X {\n" +
 					"}",
 					"src2/Y.java",
-					"/** */\n" + 
-					"public class Y extends X {\n" + 
+					"/** */\n" +
+					"public class Y extends X {\n" +
 					"}",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
 			  + File.pathSeparator + "\"" + OUTPUT_DIR +  File.separator + "src2\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" ",
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" + 
-			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-			"[reading    java/lang/Object.class]\n" + 
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
-			"[writing    Y.class - #1]\n" + 
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
-			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-			"[writing    X.class - #2]\n" + 
-			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-			"[2 units compiled]\n" + 
+			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
+			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+			"[reading    java/lang/Object.class]\n" +
+			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
+			"[writing    Y.class - #1]\n" +
+			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
+			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+			"[writing    X.class - #2]\n" +
+			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+			"[2 units compiled]\n" +
 			"[2 .class files generated]\n",
 	        "",
 	        true);
@@ -1685,16 +1685,16 @@ public void test019(){
 		this.runNegativeTest(
 			new String[] {
 					"src1/X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
+					"/** */\n" +
+					"public class X {\n" +
 					"}",
 					"src2/Y.java",
-					"/** */\n" + 
-					"public class Y extends X {\n" + 
+					"/** */\n" +
+					"public class Y extends X {\n" +
 					"}",
 			},
-			" -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
-			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2\"" 
+			" -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2\""
 	        + " \"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
@@ -1708,16 +1708,16 @@ public void test019(){
 		this.runNegativeTest(
 			new String[] {
 					"src1/X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
+					"/** */\n" +
+					"public class X {\n" +
 					"}",
 					"src2/Y.java",
-					"/** */\n" + 
-					"public class Y extends X {\n" + 
+					"/** */\n" +
+					"public class Y extends X {\n" +
 					"}",
 			},
-			" -extdirs \"" + OUTPUT_DIR +  File.separator + "src1\"" 
-			+ " -extdirs \"" + OUTPUT_DIR +  File.separator + "src2\"" 
+			" -extdirs \"" + OUTPUT_DIR +  File.separator + "src1\""
+			+ " -extdirs \"" + OUTPUT_DIR +  File.separator + "src2\""
 	        + " \"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
@@ -1731,23 +1731,23 @@ public void test019(){
 		this.runNegativeTest(
 			new String[] {
 					"X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
-					"  my.pkg.Zork dummy;\n" + 
+					"/** */\n" +
+					"public class X {\n" +
+					"  my.pkg.Zork dummy;\n" +
 					"}",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-			+ " -extdirs \"\"" 
+			+ " -extdirs \"\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" ",
 	        "",
-	        "----------\n" + 
-	        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-	        "	my.pkg.Zork dummy;\n" + 
-	        "	^^\n" + 
-	        "my cannot be resolved to a type\n" + 
-	        "----------\n" + 
+	        "----------\n" +
+	        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+	        "	my.pkg.Zork dummy;\n" +
+	        "	^^\n" +
+	        "my cannot be resolved to a type\n" +
+	        "----------\n" +
 	        "1 problem (1 error)",
 	        true);
 	}
@@ -1764,8 +1764,8 @@ public void test019(){
 		try {
 			Util.createJar(new String[] {
 					"my/pkg/Zork.java",
-					"package my.pkg;\n" + 
-					"public class Zork {\n" + 
+					"package my.pkg;\n" +
+					"public class Zork {\n" +
 					"}",
 				},
 				libPath,
@@ -1777,32 +1777,32 @@ public void test019(){
 		this.runConformTest(
 			new String[] {
 					"src1/X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
-					"  my.pkg.Zork dummy;\n" + 
+					"/** */\n" +
+					"public class X {\n" +
+					"  my.pkg.Zork dummy;\n" +
 					"}",
 					"src2/Y.java",
-					"/** */\n" + 
-					"public class Y extends X {\n" + 
+					"/** */\n" +
+					"public class Y extends X {\n" +
 					"}",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-			+ " -extdirs \"" + path + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
-			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
+			+ " -extdirs \"" + path + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" ",
-	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" + 
-	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-	        "[reading    java/lang/Object.class]\n" + 
-	        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
-	        "[writing    Y.class - #1]\n" + 
-	        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
-	        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-	        "[reading    my/pkg/Zork.class]\n" + 
-	        "[writing    X.class - #2]\n" + 
-	        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-	        "[2 units compiled]\n" + 
+	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
+	        "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+	        "[reading    java/lang/Object.class]\n" +
+	        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
+	        "[writing    Y.class - #1]\n" +
+	        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
+	        "[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+	        "[reading    my/pkg/Zork.class]\n" +
+	        "[writing    X.class - #2]\n" +
+	        "[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+	        "[2 units compiled]\n" +
 	        "[2 .class files generated]\n",
 	        "",
 	        true);
@@ -1815,72 +1815,72 @@ public void test019(){
 			this.runConformTest(
 				new String[] {
 						"src1/X.java",
-						"/** */\n" + 
-						"public class X {\n" + 
+						"/** */\n" +
+						"public class X {\n" +
 						"}",
 						"src2/Y.java",
-						"/** */\n" + 
-						"public class Y extends X {\n" + 
+						"/** */\n" +
+						"public class Y extends X {\n" +
 						"}",
 						"src3/X.java",
-						"/** */\n" + 
-						"public class X {\n" + 
-						"  Zork error;\n" + 
+						"/** */\n" +
+						"public class X {\n" +
+						"  Zork error;\n" +
 						"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
-				+ " -classpath \"" + OUTPUT_DIR +  File.separator + "src3\"" 
-				+ " -extdirs \"" + getExtDirectory() + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
-				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
+				+ " -classpath \"" + OUTPUT_DIR +  File.separator + "src3\""
+				+ " -extdirs \"" + getExtDirectory() + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
+				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\""
 		        + " -1.5 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
-				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" + 
-				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-				"[reading    java/lang/Object.class]\n" + 
-				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
-				"[writing    Y.class - #1]\n" + 
-				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" + 
-				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-				"[writing    X.class - #2]\n" + 
-				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" + 
-				"[2 units compiled]\n" + 
+				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/1]\n" +
+				"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+				"[reading    java/lang/Object.class]\n" +
+				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
+				"[writing    Y.class - #1]\n" +
+				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java - #1/2]\n" +
+				"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+				"[writing    X.class - #2]\n" +
+				"[completed  ---OUTPUT_DIR_PLACEHOLDER---/src1/X.java - #2/2]\n" +
+				"[2 units compiled]\n" +
 				"[2 .class files generated]\n",
 				"",
 		        true);
 		}
-		
+
 public void test027(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
-			"	OK1 ok1;\n" + 
-			"	OK2 ok2;\n" + 
-			"	Warn warn;\n" + 
-			"	KO ko;\n" + 
-	        "	Zork z;\n" + 
+			"/** */\n" +
+			"public class X {\n" +
+			"	OK1 ok1;\n" +
+			"	OK2 ok2;\n" +
+			"	Warn warn;\n" +
+			"	KO ko;\n" +
+	        "	Zork z;\n" +
 			"}",
 			"OK1.java",
-			"/** */\n" + 
-			"public class OK1 {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class OK1 {\n" +
+			"	// empty\n" +
 			"}",
 			"OK2.java",
-			"/** */\n" + 
-			"public class OK2 {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class OK2 {\n" +
+			"	// empty\n" +
 			"}",
 			"p1/Warn.java",
-			"/** */\n" + 
-			"public class Warn {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class Warn {\n" +
+			"	// empty\n" +
 			"}",
 			"KO.java",
-			"/** */\n" + 
-			"public class KO {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class KO {\n" +
+			"	// empty\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
@@ -1891,23 +1891,23 @@ public void test027(){
         // TODO (maxime) reintroduce the -verbose option to check the number of files
         //               generated, once able to avoid console echoing
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-        "	Warn warn;\n" + 
-        "	^^^^\n" + 
-		"Discouraged access: The type Warn is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/p1\n" + 
-		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
-		"	KO ko;\n" + 
-		"	^^\n" + 
-		"Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
-        "----------\n" + 
-        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
-        "	Zork z;\n" + 
-        "	^^^^\n" + 
-        "Zork cannot be resolved to a type\n" + 
-        "----------\n" + 
+        "",
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+        "	Warn warn;\n" +
+        "	^^^^\n" +
+		"Discouraged access: The type Warn is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/p1\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+		"	KO ko;\n" +
+		"	^^\n" +
+		"Access restriction: The type KO is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
+        "----------\n" +
+        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+        "	Zork z;\n" +
+        "	^^^^\n" +
+        "Zork cannot be resolved to a type\n" +
+        "----------\n" +
         "3 problems (1 error, 2 warnings)",
         true);
 }
@@ -1915,13 +1915,13 @@ public void test028(){
 			this.runConformTest(
 				new String[] {
 					"src1/X.java",
-					"/** */\n" + 
-					"public class X {\n" + 
+					"/** */\n" +
+					"public class X {\n" +
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src1/X.java\""
 		        + " -1.5 -g -preserveAllLocals"
-		        + " -proceedOnError -referenceInfo" 
+		        + " -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
 		        "",
 		        "",
@@ -1929,8 +1929,8 @@ public void test028(){
 			this.runConformTest(
 				new String[] {
 					"src2/Y.java",
-					"/** */\n" + 
-					"public class Y extends X {\n" + 
+					"/** */\n" +
+					"public class Y extends X {\n" +
 					"}",
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
@@ -1939,7 +1939,7 @@ public void test028(){
 		        + " -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
 		        "",
-		        "incorrect classpath: dummy\n" + 
+		        "incorrect classpath: dummy\n" +
 		        "incorrect classpath: dummy\n",
 		        false);
 		}
@@ -1949,19 +1949,19 @@ public void test030(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public interface X<T extends X<T, K, S>, \n" + 
-			"                   K extends X.K<T, S>, \n" + 
-			"                   S extends X.S> {\n" + 
-			"	public interface K<KT extends X<KT, ?, KS>, \n" + 
-			"	                   KS extends X.S> {\n" + 
-			"	}\n" + 
-			"	public interface S {\n" + 
-			"	}\n" + 
+			"public interface X<T extends X<T, K, S>, \n" +
+			"                   K extends X.K<T, S>, \n" +
+			"                   S extends X.S> {\n" +
+			"	public interface K<KT extends X<KT, ?, KS>, \n" +
+			"	                   KS extends X.S> {\n" +
+			"	}\n" +
+			"	public interface S {\n" +
+			"	}\n" +
 			"}\n",
 			"Y.java",
-			"public class Y<T extends X<T, K, S>, \n" + 
-			"               K extends X.K<T, S>, \n" + 
-			"               S extends X.S> { \n" + 
+			"public class Y<T extends X<T, K, S>, \n" +
+			"               K extends X.K<T, S>, \n" +
+			"               S extends X.S> { \n" +
 			"}\n",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
@@ -1976,19 +1976,19 @@ public void test030(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public interface X<T extends X<T, K, S>, \n" + 
-			"                   K extends X.K<T, S>, \n" + 
-			"                   S extends X.S> {\n" + 
-			"	public interface K<KT extends X<KT, ?, KS>, \n" + 
-			"	                   KS extends X.S> {\n" + 
-			"	}\n" + 
-			"	public interface S {\n" + 
-			"	}\n" + 
+			"public interface X<T extends X<T, K, S>, \n" +
+			"                   K extends X.K<T, S>, \n" +
+			"                   S extends X.S> {\n" +
+			"	public interface K<KT extends X<KT, ?, KS>, \n" +
+			"	                   KS extends X.S> {\n" +
+			"	}\n" +
+			"	public interface S {\n" +
+			"	}\n" +
 			"}\n",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -proceedOnError -referenceInfo" 
+        + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
         "",
         "",
@@ -1996,9 +1996,9 @@ public void test030(){
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"public class Y<T extends X<T, K, S>, \n" + 
-			"               K extends X.K<T, S>, \n" + 
-			"               S extends X.S> { \n" + 
+			"public class Y<T extends X<T, K, S>, \n" +
+			"               K extends X.K<T, S>, \n" +
+			"               S extends X.S> { \n" +
 			"}\n",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
@@ -2017,120 +2017,120 @@ public void test032(){
 	this.runConformTest(
 			new String[] {
 				"p/X.java",
-				"package p;\n" + 
-				"import java.io.Serializable;\n" + 
-				"public interface X<T extends X<T, U, V>, \n" + 
-				"				   U extends X.XX<T, V>, \n" + 
-				"				   V extends X.XY> {\n" + 
-				"	public interface XX<TT extends X<TT, ?, UU>, \n" + 
-				"	                    UU extends X.XY> \n" + 
-				"			extends	Serializable {\n" + 
-				"	}\n" + 
-				"	public interface XY extends Serializable {\n" + 
-				"	}\n" + 
+				"package p;\n" +
+				"import java.io.Serializable;\n" +
+				"public interface X<T extends X<T, U, V>, \n" +
+				"				   U extends X.XX<T, V>, \n" +
+				"				   V extends X.XY> {\n" +
+				"	public interface XX<TT extends X<TT, ?, UU>, \n" +
+				"	                    UU extends X.XY> \n" +
+				"			extends	Serializable {\n" +
+				"	}\n" +
+				"	public interface XY extends Serializable {\n" +
+				"	}\n" +
 				"}\n",
 				"p/Y.java",
-				"package p;\n" + 
-				"import java.util.*;\n" + 
-				"import p.X.*;\n" + 
-				"public class Y<T extends X<T, U, V>, \n" + 
-				"               U extends X.XX<T, V>, \n" + 
-				"               V extends X.XY> {\n" + 
-				"	private final Map<U, V> m1 = new HashMap<U, V>();\n" + 
-				"	private final Map<U, T> m2 = new HashMap<U, T>();\n" + 
-				"	private final Z m3;\n" + 
-				"\n" + 
-				"	public Y(final Z p1) {\n" + 
-				"		this.m3 = p1;\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public void foo1(final U p1, final V p2, final T p3) {\n" + 
-				"		m1.put(p1, p2);\n" + 
-				"		m2.put(p1, p3);\n" + 
-				"		m3.foo2(p1, p2);\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public void foo3(final U p1) {\n" + 
-				"		assert m1.containsKey(p1);\n" + 
-				"		m1.remove(p1);\n" + 
-				"		m2.remove(p1);\n" + 
-				"		m3.foo2(p1, null);\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public Collection<T> foo4() {\n" + 
-				"		return Collections.unmodifiableCollection(m2.values());\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" + 
-				"		p1.putAll(m1);\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" + 
-				"		m1.keySet().retainAll(p1.keySet());\n" + 
-				"		m2.keySet().retainAll(p1.keySet());\n" + 
-				"	}\n" + 
+				"package p;\n" +
+				"import java.util.*;\n" +
+				"import p.X.*;\n" +
+				"public class Y<T extends X<T, U, V>, \n" +
+				"               U extends X.XX<T, V>, \n" +
+				"               V extends X.XY> {\n" +
+				"	private final Map<U, V> m1 = new HashMap<U, V>();\n" +
+				"	private final Map<U, T> m2 = new HashMap<U, T>();\n" +
+				"	private final Z m3;\n" +
+				"\n" +
+				"	public Y(final Z p1) {\n" +
+				"		this.m3 = p1;\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo1(final U p1, final V p2, final T p3) {\n" +
+				"		m1.put(p1, p2);\n" +
+				"		m2.put(p1, p3);\n" +
+				"		m3.foo2(p1, p2);\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo3(final U p1) {\n" +
+				"		assert m1.containsKey(p1);\n" +
+				"		m1.remove(p1);\n" +
+				"		m2.remove(p1);\n" +
+				"		m3.foo2(p1, null);\n" +
+				"	}\n" +
+				"\n" +
+				"	public Collection<T> foo4() {\n" +
+				"		return Collections.unmodifiableCollection(m2.values());\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" +
+				"		p1.putAll(m1);\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" +
+				"		m1.keySet().retainAll(p1.keySet());\n" +
+				"		m2.keySet().retainAll(p1.keySet());\n" +
+				"	}\n" +
 				"}\n",
 				"p/Z.java",
-				"package p;\n" + 
-				"\n" + 
-				"import java.util.*;\n" + 
-				"\n" + 
-				"import p.X.*;\n" + 
-				"\n" + 
-				"public class Z {\n" + 
-				"	private final Map<Class<? extends X>, \n" + 
-				"		              Y<?, ? extends XX<?, ?>, ? extends XY>> \n" + 
-				"		m1 = new HashMap<Class<? extends X>, \n" + 
-				"		                 Y<?, ? extends XX<?, ?>, ? extends XY>>();\n" + 
-				"\n" + 
-				"	private Map<X.XX<?, XY>, \n" + 
-				"	            X.XY> \n" + 
-				"		m2 = new HashMap<X.XX<?, XY>, \n" + 
-				"		                 X.XY>();\n" + 
-				"\n" + 
-				"	public <T extends X<T, U, V>, \n" + 
-				"	        U extends X.XX<T, V>, \n" + 
-				"	        V extends X.XY> \n" + 
-				"	Y<T, U, V> foo1(final Class<T> p1) {\n" + 
-				"		Y l1 = m1.get(p1);\n" + 
-				"		if (l1 == null) {\n" + 
-				"			l1 = new Y<T, U, V>(this);\n" + 
-				"			m1.put(p1, l1);\n" + 
-				"		}\n" + 
-				"		return l1;\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public <TT extends X.XX<?, UU>, \n" + 
-				"	        UU extends X.XY> \n" + 
-				"	void foo2(final TT p1, final UU p2) {\n" + 
-				"		m2.put((XX<?, XY>) p1, p2);\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public Map<XX<?, ?>, XY> foo3() {\n" + 
-				"		final Map<XX<?, ?>, \n" + 
-				"		          XY> l1 = new HashMap<XX<?, ?>, \n" + 
-				"		                               XY>();\n" + 
-				"		for (final Y<?, \n" + 
-				"				     ? extends XX<?, ?>, \n" + 
-				"				     ? extends XY> \n" + 
-				"				i : m1.values()) {\n" + 
-				"			i.foo5(l1);\n" + 
-				"		}\n" + 
-				"		return l1;\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public void foo4(final Object p1, final Map<XX<?, ?>, \n" + 
-				"			                                    XY> p2) {\n" + 
-				"		for (final Y<?, \n" + 
-				"				     ? extends XX<?, ?>, \n" + 
-				"				     ? extends XY> i : m1.values()) {\n" + 
-				"			i.foo6(p2);\n" + 
-				"		}\n" + 
-				"		for (final Map.Entry<XX<?, ?>, \n" + 
-				"				             XY> i : p2.entrySet()) {\n" + 
-				"			final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"package p;\n" +
+				"\n" +
+				"import java.util.*;\n" +
+				"\n" +
+				"import p.X.*;\n" +
+				"\n" +
+				"public class Z {\n" +
+				"	private final Map<Class<? extends X>, \n" +
+				"		              Y<?, ? extends XX<?, ?>, ? extends XY>> \n" +
+				"		m1 = new HashMap<Class<? extends X>, \n" +
+				"		                 Y<?, ? extends XX<?, ?>, ? extends XY>>();\n" +
+				"\n" +
+				"	private Map<X.XX<?, XY>, \n" +
+				"	            X.XY> \n" +
+				"		m2 = new HashMap<X.XX<?, XY>, \n" +
+				"		                 X.XY>();\n" +
+				"\n" +
+				"	public <T extends X<T, U, V>, \n" +
+				"	        U extends X.XX<T, V>, \n" +
+				"	        V extends X.XY> \n" +
+				"	Y<T, U, V> foo1(final Class<T> p1) {\n" +
+				"		Y l1 = m1.get(p1);\n" +
+				"		if (l1 == null) {\n" +
+				"			l1 = new Y<T, U, V>(this);\n" +
+				"			m1.put(p1, l1);\n" +
+				"		}\n" +
+				"		return l1;\n" +
+				"	}\n" +
+				"\n" +
+				"	public <TT extends X.XX<?, UU>, \n" +
+				"	        UU extends X.XY> \n" +
+				"	void foo2(final TT p1, final UU p2) {\n" +
+				"		m2.put((XX<?, XY>) p1, p2);\n" +
+				"	}\n" +
+				"\n" +
+				"	public Map<XX<?, ?>, XY> foo3() {\n" +
+				"		final Map<XX<?, ?>, \n" +
+				"		          XY> l1 = new HashMap<XX<?, ?>, \n" +
+				"		                               XY>();\n" +
+				"		for (final Y<?, \n" +
+				"				     ? extends XX<?, ?>, \n" +
+				"				     ? extends XY> \n" +
+				"				i : m1.values()) {\n" +
+				"			i.foo5(l1);\n" +
+				"		}\n" +
+				"		return l1;\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo4(final Object p1, final Map<XX<?, ?>, \n" +
+				"			                                    XY> p2) {\n" +
+				"		for (final Y<?, \n" +
+				"				     ? extends XX<?, ?>, \n" +
+				"				     ? extends XY> i : m1.values()) {\n" +
+				"			i.foo6(p2);\n" +
+				"		}\n" +
+				"		for (final Map.Entry<XX<?, ?>, \n" +
+				"				             XY> i : p2.entrySet()) {\n" +
+				"			final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
+				"		}\n" +
+				"	}\n" +
 				"}\n"
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
@@ -2141,69 +2141,69 @@ public void test032(){
 	        + " -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "",
-	        "----------\n" + 
-	        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 8)\n" + 
-	        "	private final Map<Class<? extends X>, \n" + 
-	        "	                                  ^\n" + 
-	        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" + 
-	        "----------\n" + 
-	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 10)\n" + 
-	        "	m1 = new HashMap<Class<? extends X>, \n" + 
-	        "	                                 ^\n" + 
-	        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" + 
-	        "----------\n" + 
-	        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 22)\n" + 
-	        "	Y l1 = m1.get(p1);\n" + 
-	        "	^\n" + 
-	        "Y is a raw type. References to generic type Y<T,U,V> should be parameterized\n" + 
-	        "----------\n" + 
-	        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)\n" + 
-	        "	m1.put(p1, l1);\n" + 
-	        "	           ^^\n" + 
-	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
-	        "----------\n" + 
-	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)\n" + 
-	        "	return l1;\n" + 
-	        "	       ^^\n" + 
-	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
-	        "----------\n" + 
-	        "6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" + 
-	        "	m2.put((XX<?, XY>) p1, p2);\n" + 
-	        "	       ^^^^^^^^^^^^^^\n" + 
-	        "Type safety: Unchecked cast from TT to X.XX<?,X.XY>\n" + 
-	        "----------\n" + 
-	        "7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
-	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
-	        "	                ^^\n" + 
-	        "The local variable l1 is never read\n" + 
-	        "----------\n" + 
-	        "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
-	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
-	        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-	        "Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>\n" + 
-	        "----------\n" + 
+	        "----------\n" +
+	        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 8)\n" +
+	        "	private final Map<Class<? extends X>, \n" +
+	        "	                                  ^\n" +
+	        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" +
+	        "----------\n" +
+	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 10)\n" +
+	        "	m1 = new HashMap<Class<? extends X>, \n" +
+	        "	                                 ^\n" +
+	        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" +
+	        "----------\n" +
+	        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 22)\n" +
+	        "	Y l1 = m1.get(p1);\n" +
+	        "	^\n" +
+	        "Y is a raw type. References to generic type Y<T,U,V> should be parameterized\n" +
+	        "----------\n" +
+	        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)\n" +
+	        "	m1.put(p1, l1);\n" +
+	        "	           ^^\n" +
+	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" +
+	        "----------\n" +
+	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)\n" +
+	        "	return l1;\n" +
+	        "	       ^^\n" +
+	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" +
+	        "----------\n" +
+	        "6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" +
+	        "	m2.put((XX<?, XY>) p1, p2);\n" +
+	        "	       ^^^^^^^^^^^^^^\n" +
+	        "Type safety: Unchecked cast from TT to X.XX<?,X.XY>\n" +
+	        "----------\n" +
+	        "7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" +
+	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
+	        "	                ^^\n" +
+	        "The local variable l1 is never read\n" +
+	        "----------\n" +
+	        "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" +
+	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
+	        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" +
+	        "Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>\n" +
+	        "----------\n" +
 	        "8 problems (8 warnings)",
 	        true);
 	// second series shows that a staged build - that simulates the auto build context - is OK as well
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" + 
-			"import java.io.Serializable;\n" + 
-			"public interface X<T extends X<T, U, V>, \n" + 
-			"				   U extends X.XX<T, V>, \n" + 
-			"				   V extends X.XY> {\n" + 
-			"	public interface XX<TT extends X<TT, ?, UU>, \n" + 
-			"	                    UU extends X.XY> \n" + 
-			"			extends	Serializable {\n" + 
-			"	}\n" + 
-			"	public interface XY extends Serializable {\n" + 
-			"	}\n" + 
+			"package p;\n" +
+			"import java.io.Serializable;\n" +
+			"public interface X<T extends X<T, U, V>, \n" +
+			"				   U extends X.XX<T, V>, \n" +
+			"				   V extends X.XY> {\n" +
+			"	public interface XX<TT extends X<TT, ?, UU>, \n" +
+			"	                    UU extends X.XY> \n" +
+			"			extends	Serializable {\n" +
+			"	}\n" +
+			"	public interface XY extends Serializable {\n" +
+			"	}\n" +
 			"}\n",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -proceedOnError -referenceInfo" 
+        + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
         "",
         "",
@@ -2211,107 +2211,107 @@ public void test032(){
 	this.runConformTest(
 		new String[] {
 			"p/Y.java",
-			"package p;\n" + 
-			"import java.util.*;\n" + 
-			"import p.X.*;\n" + 
-			"public class Y<T extends X<T, U, V>, \n" + 
-			"               U extends X.XX<T, V>, \n" + 
-			"               V extends X.XY> {\n" + 
-			"	private final Map<U, V> m1 = new HashMap<U, V>();\n" + 
-			"	private final Map<U, T> m2 = new HashMap<U, T>();\n" + 
-			"	private final Z m3;\n" + 
-			"\n" + 
-			"	public Y(final Z p1) {\n" + 
-			"		this.m3 = p1;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public void foo1(final U p1, final V p2, final T p3) {\n" + 
-			"		m1.put(p1, p2);\n" + 
-			"		m2.put(p1, p3);\n" + 
-			"		m3.foo2(p1, p2);\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public void foo3(final U p1) {\n" + 
-			"		assert m1.containsKey(p1);\n" + 
-			"		m1.remove(p1);\n" + 
-			"		m2.remove(p1);\n" + 
-			"		m3.foo2(p1, null);\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public Collection<T> foo4() {\n" + 
-			"		return Collections.unmodifiableCollection(m2.values());\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" + 
-			"		p1.putAll(m1);\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" + 
-			"		m1.keySet().retainAll(p1.keySet());\n" + 
-			"		m2.keySet().retainAll(p1.keySet());\n" + 
-			"	}\n" + 
+			"package p;\n" +
+			"import java.util.*;\n" +
+			"import p.X.*;\n" +
+			"public class Y<T extends X<T, U, V>, \n" +
+			"               U extends X.XX<T, V>, \n" +
+			"               V extends X.XY> {\n" +
+			"	private final Map<U, V> m1 = new HashMap<U, V>();\n" +
+			"	private final Map<U, T> m2 = new HashMap<U, T>();\n" +
+			"	private final Z m3;\n" +
+			"\n" +
+			"	public Y(final Z p1) {\n" +
+			"		this.m3 = p1;\n" +
+			"	}\n" +
+			"\n" +
+			"	public void foo1(final U p1, final V p2, final T p3) {\n" +
+			"		m1.put(p1, p2);\n" +
+			"		m2.put(p1, p3);\n" +
+			"		m3.foo2(p1, p2);\n" +
+			"	}\n" +
+			"\n" +
+			"	public void foo3(final U p1) {\n" +
+			"		assert m1.containsKey(p1);\n" +
+			"		m1.remove(p1);\n" +
+			"		m2.remove(p1);\n" +
+			"		m3.foo2(p1, null);\n" +
+			"	}\n" +
+			"\n" +
+			"	public Collection<T> foo4() {\n" +
+			"		return Collections.unmodifiableCollection(m2.values());\n" +
+			"	}\n" +
+			"\n" +
+			"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" +
+			"		p1.putAll(m1);\n" +
+			"	}\n" +
+			"\n" +
+			"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" +
+			"		m1.keySet().retainAll(p1.keySet());\n" +
+			"		m2.keySet().retainAll(p1.keySet());\n" +
+			"	}\n" +
 			"}\n",
 			"p/Z.java",
-			"package p;\n" + 
-			"\n" + 
-			"import java.util.*;\n" + 
-			"\n" + 
-			"import p.X.*;\n" + 
-			"\n" + 
-			"public class Z {\n" + 
-			"	private final Map<Class<? extends X>, \n" + 
-			"		              Y<?, ? extends XX<?, ?>, ? extends XY>> \n" + 
-			"		m1 = new HashMap<Class<? extends X>, \n" + 
-			"		                 Y<?, ? extends XX<?, ?>, ? extends XY>>();\n" + 
-			"\n" + 
-			"	private Map<X.XX<?, XY>, \n" + 
-			"	            X.XY> \n" + 
-			"		m2 = new HashMap<X.XX<?, XY>, \n" + 
-			"		                 X.XY>();\n" + 
-			"\n" + 
-			"	public <T extends X<T, U, V>, \n" + 
-			"	        U extends X.XX<T, V>, \n" + 
-			"	        V extends X.XY> \n" + 
-			"	Y<T, U, V> foo1(final Class<T> p1) {\n" + 
-			"		Y l1 = m1.get(p1);\n" + 
-			"		if (l1 == null) {\n" + 
-			"			l1 = new Y<T, U, V>(this);\n" + 
-			"			m1.put(p1, l1);\n" + 
-			"		}\n" + 
-			"		return l1;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public <TT extends X.XX<?, UU>, \n" + 
-			"	        UU extends X.XY> \n" + 
-			"	void foo2(final TT p1, final UU p2) {\n" + 
-			"		m2.put((XX<?, XY>) p1, p2);\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public Map<XX<?, ?>, XY> foo3() {\n" + 
-			"		final Map<XX<?, ?>, \n" + 
-			"		          XY> l1 = new HashMap<XX<?, ?>, \n" + 
-			"		                               XY>();\n" + 
-			"		for (final Y<?, \n" + 
-			"				     ? extends XX<?, ?>, \n" + 
-			"				     ? extends XY> \n" + 
-			"				i : m1.values()) {\n" + 
-			"			i.foo5(l1);\n" + 
-			"		}\n" + 
-			"		return l1;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public void foo4(final Object p1, final Map<XX<?, ?>, \n" + 
-			"			                                    XY> p2) {\n" + 
-			"		for (final Y<?, \n" + 
-			"				     ? extends XX<?, ?>, \n" + 
-			"				     ? extends XY> i : m1.values()) {\n" + 
-			"			i.foo6(p2);\n" + 
-			"		}\n" + 
-			"		for (final Map.Entry<XX<?, ?>, \n" + 
-			"				             XY> i : p2.entrySet()) {\n" + 
-			"			final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"package p;\n" +
+			"\n" +
+			"import java.util.*;\n" +
+			"\n" +
+			"import p.X.*;\n" +
+			"\n" +
+			"public class Z {\n" +
+			"	private final Map<Class<? extends X>, \n" +
+			"		              Y<?, ? extends XX<?, ?>, ? extends XY>> \n" +
+			"		m1 = new HashMap<Class<? extends X>, \n" +
+			"		                 Y<?, ? extends XX<?, ?>, ? extends XY>>();\n" +
+			"\n" +
+			"	private Map<X.XX<?, XY>, \n" +
+			"	            X.XY> \n" +
+			"		m2 = new HashMap<X.XX<?, XY>, \n" +
+			"		                 X.XY>();\n" +
+			"\n" +
+			"	public <T extends X<T, U, V>, \n" +
+			"	        U extends X.XX<T, V>, \n" +
+			"	        V extends X.XY> \n" +
+			"	Y<T, U, V> foo1(final Class<T> p1) {\n" +
+			"		Y l1 = m1.get(p1);\n" +
+			"		if (l1 == null) {\n" +
+			"			l1 = new Y<T, U, V>(this);\n" +
+			"			m1.put(p1, l1);\n" +
+			"		}\n" +
+			"		return l1;\n" +
+			"	}\n" +
+			"\n" +
+			"	public <TT extends X.XX<?, UU>, \n" +
+			"	        UU extends X.XY> \n" +
+			"	void foo2(final TT p1, final UU p2) {\n" +
+			"		m2.put((XX<?, XY>) p1, p2);\n" +
+			"	}\n" +
+			"\n" +
+			"	public Map<XX<?, ?>, XY> foo3() {\n" +
+			"		final Map<XX<?, ?>, \n" +
+			"		          XY> l1 = new HashMap<XX<?, ?>, \n" +
+			"		                               XY>();\n" +
+			"		for (final Y<?, \n" +
+			"				     ? extends XX<?, ?>, \n" +
+			"				     ? extends XY> \n" +
+			"				i : m1.values()) {\n" +
+			"			i.foo5(l1);\n" +
+			"		}\n" +
+			"		return l1;\n" +
+			"	}\n" +
+			"\n" +
+			"	public void foo4(final Object p1, final Map<XX<?, ?>, \n" +
+			"			                                    XY> p2) {\n" +
+			"		for (final Y<?, \n" +
+			"				     ? extends XX<?, ?>, \n" +
+			"				     ? extends XY> i : m1.values()) {\n" +
+			"			i.foo6(p2);\n" +
+			"		}\n" +
+			"		for (final Map.Entry<XX<?, ?>, \n" +
+			"				             XY> i : p2.entrySet()) {\n" +
+			"			final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
+			"		}\n" +
+			"	}\n" +
 			"}\n"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p/Y.java\""
@@ -2321,47 +2321,47 @@ public void test032(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 8)\n" + 
-        "	private final Map<Class<? extends X>, \n" + 
-        "	                                  ^\n" + 
-        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" + 
-        "----------\n" + 
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 10)\n" + 
-        "	m1 = new HashMap<Class<? extends X>, \n" + 
-        "	                                 ^\n" + 
-        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" + 
-        "----------\n" + 
-        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 22)\n" + 
-        "	Y l1 = m1.get(p1);\n" + 
-        "	^\n" + 
-        "Y is a raw type. References to generic type Y<T,U,V> should be parameterized\n" + 
-        "----------\n" + 
-        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)\n" + 
-        "	m1.put(p1, l1);\n" + 
-        "	           ^^\n" + 
-        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
-        "----------\n" + 
-        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)\n" + 
-        "	return l1;\n" + 
-        "	       ^^\n" + 
-        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
-        "----------\n" + 
-        "6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" + 
-        "	m2.put((XX<?, XY>) p1, p2);\n" + 
-        "	       ^^^^^^^^^^^^^^\n" + 
-        "Type safety: Unchecked cast from TT to X.XX<?,X.XY>\n" + 
-        "----------\n" + 
-        "7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
-        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
-        "	                ^^\n" + 
-        "The local variable l1 is never read\n" + 
-        "----------\n" + 
-        "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" + 
-        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
-        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-        "Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>\n" + 
-        "----------\n" + 
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 8)\n" +
+        "	private final Map<Class<? extends X>, \n" +
+        "	                                  ^\n" +
+        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" +
+        "----------\n" +
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 10)\n" +
+        "	m1 = new HashMap<Class<? extends X>, \n" +
+        "	                                 ^\n" +
+        "X is a raw type. References to generic type X<T,U,V> should be parameterized\n" +
+        "----------\n" +
+        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 22)\n" +
+        "	Y l1 = m1.get(p1);\n" +
+        "	^\n" +
+        "Y is a raw type. References to generic type Y<T,U,V> should be parameterized\n" +
+        "----------\n" +
+        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 25)\n" +
+        "	m1.put(p1, l1);\n" +
+        "	           ^^\n" +
+        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" +
+        "----------\n" +
+        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 27)\n" +
+        "	return l1;\n" +
+        "	       ^^\n" +
+        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" +
+        "----------\n" +
+        "6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 33)\n" +
+        "	m2.put((XX<?, XY>) p1, p2);\n" +
+        "	       ^^^^^^^^^^^^^^\n" +
+        "Type safety: Unchecked cast from TT to X.XX<?,X.XY>\n" +
+        "----------\n" +
+        "7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" +
+        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
+        "	                ^^\n" +
+        "The local variable l1 is never read\n" +
+        "----------\n" +
+        "8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/Z.java (at line 58)\n" +
+        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" +
+        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" +
+        "Type safety: Unchecked cast from X.XX<capture#22-of ?,capture#23-of ?> to X.XX<?,X.XY>\n" +
+        "----------\n" +
         "8 problems (8 warnings)",
         false);
 }
@@ -2370,8 +2370,8 @@ public void test033(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
@@ -2379,7 +2379,7 @@ public void test033(){
         + " -cp \"" + OUTPUT_DIR
         + "\"" + File.pathSeparator
         + " -repeat 2 -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "[repetition 1/2]\n" + 
+        "[repetition 1/2]\n" +
         "[repetition 2/2]\n",
         "",
         true);
@@ -2388,8 +2388,8 @@ public void test034(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
@@ -2442,7 +2442,7 @@ public void test035(){
 		if (!Util.delete(f)) {
 			System.out.println("Could not delete Y");
 		}
-		
+
 	} finally {
 		System.setProperty("java.class.path", javaClassspath);
 		System.setProperty("user.dir", javaUserDir);
@@ -2455,14 +2455,14 @@ public void test036(){
 	this.runConformTest(
 		new String[] {
 			"src1/p/X.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class X {\n" + 
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR + "/src1/p/X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -proceedOnError -referenceInfo" 
+        + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "/bin1/\"",
         "",
         "",
@@ -2470,8 +2470,8 @@ public void test036(){
 	this.runConformTest(
 		new String[] {
 			"src2/Y.java",
-			"/** */\n" + 
-			"public class Y extends p.X {\n" + 
+			"/** */\n" +
+			"public class Y extends p.X {\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
@@ -2480,12 +2480,12 @@ public void test036(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 2)\n" + 
-        "	public class Y extends p.X {\n" + 
-        "	                       ^^^\n" + 
-        "Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
-        "----------\n" + 
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 2)\n" +
+        "	public class Y extends p.X {\n" +
+        "	                       ^^^\n" +
+        "Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" +
+        "----------\n" +
         "1 problem (1 warning)",
         false);
 }
@@ -2509,17 +2509,17 @@ public void test037() {
 		+ " -proceedOnError"
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	i =  0; // warning\n" + 
-		"	^\n" + 
-		"The parameter i should not be assigned\n" + 
-		"----------\n" + 
-		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
-		"	j =  0; // error\n" + 
-		"	^\n" + 
-		"The final local variable j cannot be assigned. It must be blank and not using a compound assignment\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		"	i =  0; // warning\n" +
+		"	^\n" +
+		"The parameter i should not be assigned\n" +
+		"----------\n" +
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
+		"	j =  0; // error\n" +
+		"	^\n" +
+		"The final local variable j cannot be assigned. It must be blank and not using a compound assignment\n" +
+		"----------\n" +
 		"2 problems (1 error, 1 warning)",
 		true);
 }
@@ -2538,7 +2538,7 @@ public void test039(){
 		},
         "\"" + OUTPUT_DIR + "/src1/p/X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -proceedOnError -referenceInfo" 
+        + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + "/bin1/\"",
         "",
         "",
@@ -2558,32 +2558,32 @@ public void test039(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" + 
-        "	X x1;\n" + 
-        "	^\n" + 
-        "Discouraged access: The type X<T> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
-        "----------\n" + 
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" + 
-        "	X x1;\n" + 
-        "	^\n" + 
-        "X is a raw type. References to generic type X<T> should be parameterized\n" + 
-        "----------\n" + 
-        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
-        "	X<String> x2 = new X<String>();\n" + 
-        "	^\n" + 
-        "Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
-        "----------\n" + 
-        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
-        "	X<String> x2 = new X<String>();\n" + 
-        "	               ^^^^^^^^^^^^^^^\n" + 
-        "Discouraged access: The constructor X<String>() is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
-        "----------\n" + 
-        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
-        "	X<String> x2 = new X<String>();\n" + 
-        "	                   ^\n" + 
-        "Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" + 
-        "----------\n" + 
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" +
+        "	X x1;\n" +
+        "	^\n" +
+        "Discouraged access: The type X<T> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" +
+        "----------\n" +
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" +
+        "	X x1;\n" +
+        "	^\n" +
+        "X is a raw type. References to generic type X<T> should be parameterized\n" +
+        "----------\n" +
+        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
+        "	X<String> x2 = new X<String>();\n" +
+        "	^\n" +
+        "Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" +
+        "----------\n" +
+        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
+        "	X<String> x2 = new X<String>();\n" +
+        "	               ^^^^^^^^^^^^^^^\n" +
+        "Discouraged access: The constructor X<String>() is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" +
+        "----------\n" +
+        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
+        "	X<String> x2 = new X<String>();\n" +
+        "	                   ^\n" +
+        "Discouraged access: The type X<String> is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/bin1\n" +
+        "----------\n" +
         "5 problems (5 warnings)",
         false);
 }
@@ -2593,31 +2593,31 @@ public void test040(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class X {\n" + 
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 			"p/Z.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class Z {\n" + 
-			"}"			
+			"package p;\n" +
+			"/** */\n" +
+			"public class Z {\n" +
+			"}"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "",
         true);
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" + 
+			"/** */\n" +
 			"public class Y {\n" +
-			"  p.X x;\n" + 
-			"  p.Z z;\n" + 
+			"  p.X x;\n" +
+			"  p.Z z;\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
@@ -2625,13 +2625,13 @@ public void test040(){
         + " -cp \"" + OUTPUT_DIR + "[+p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" + 
-		"	p.Z z;\n" + 
-		"	^^^\n" + 
-		"Access restriction: The type Z is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
-		"----------\n" + 
+        "",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
+		"	p.Z z;\n" +
+		"	^^^\n" +
+		"Access restriction: The type Z is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
+		"----------\n" +
 		"1 problem (1 warning)",
         false);
 }
@@ -2642,31 +2642,31 @@ public void test041(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class X {\n" + 
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 			"p/Z.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class Z {\n" + 
-			"}"			
+			"package p;\n" +
+			"/** */\n" +
+			"public class Z {\n" +
+			"}"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "",
         true);
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" + 
+			"/** */\n" +
 			"public class Y {\n" +
-			"  p.X x;\n" + 
-			"  p.Z z;\n" + 
+			"  p.X x;\n" +
+			"  p.Z z;\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
@@ -2674,13 +2674,13 @@ public void test041(){
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:-discouraged -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" + 
-		"	p.Z z;\n" + 
-		"	^^^\n" + 
-		"Access restriction: The type Z is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 		
-		"----------\n" + 
+        "",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
+		"	p.Z z;\n" +
+		"	^^^\n" +
+		"Access restriction: The type Z is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
+		"----------\n" +
 		"1 problem (1 warning)",
         false);
 }
@@ -2691,31 +2691,31 @@ public void test042(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class X {\n" + 
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 			"p/Z.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class Z {\n" + 
-			"}"			
+			"package p;\n" +
+			"/** */\n" +
+			"public class Z {\n" +
+			"}"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "",
         true);
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" + 
+			"/** */\n" +
 			"public class Y {\n" +
-			"  p.X x;\n" + 
-			"  p.Z z;\n" + 
+			"  p.X x;\n" +
+			"  p.Z z;\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
@@ -2723,13 +2723,13 @@ public void test042(){
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:-forbidden -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" + 
-		"	p.X x;\n" + 
-		"	^^^\n" + 
-		"Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
-		"----------\n" + 
+        "",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" +
+		"	p.X x;\n" +
+		"	^^^\n" +
+		"Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
+		"----------\n" +
 		"1 problem (1 warning)",
         false);
 }
@@ -2740,31 +2740,31 @@ public void test043(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class X {\n" + 
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 			"p/Z.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class Z {\n" + 
-			"}"			
+			"package p;\n" +
+			"/** */\n" +
+			"public class Z {\n" +
+			"}"
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " \"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "Z.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "",
         true);
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" + 
+			"/** */\n" +
 			"public class Y {\n" +
-			"  p.X x;\n" + 
-			"  p.Z z;\n" + 
+			"  p.X x;\n" +
+			"  p.Z z;\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
@@ -2772,7 +2772,7 @@ public void test043(){
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:-discouraged,forbidden -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
 		"",
         false);
 }
@@ -2782,11 +2782,11 @@ public void test044(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  void foo() {\n" + 
-			"    Object o = null;\n" + 
-			"    o.toString();\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object o = null;\n" +
+			"    o.toString();\n" +
+			"  }\n" +
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2794,13 +2794,13 @@ public void test044(){
         + " -cp " + getJCEJar()
         + " -warn:+null"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
-        "	o.toString();\n" + 
-        "	^\n" + 
-        "The variable o can only be null; it was either set to null or checked for null when last used\n" + 
-        "----------\n" + 
+        "",
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
+        "	o.toString();\n" +
+        "	^\n" +
+        "The variable o can only be null; it was either set to null or checked for null when last used\n" +
+        "----------\n" +
         "1 problem (1 warning)",
         true);
 }
@@ -2810,11 +2810,11 @@ public void test045(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  void foo() {\n" + 
-			"    Object o = null;\n" + 
-			"    o.toString();\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object o = null;\n" +
+			"    o.toString();\n" +
+			"  }\n" +
 			"}"},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
@@ -2822,7 +2822,7 @@ public void test045(){
         + " -cp " + getJCEJar()
         + " -warn:-null" // contrast with test036
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "", true);
 }
 
@@ -2832,25 +2832,25 @@ public void test046(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class X {\n" + 
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "",
         true);
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" + 
+			"/** */\n" +
 			"@SuppressWarnings(\"all\")\n" +
 			"public class Y {\n" +
-			"  p.X x;\n" + 
+			"  p.X x;\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
@@ -2858,7 +2858,7 @@ public void test046(){
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
 		"",
         false);
 }
@@ -2869,25 +2869,25 @@ public void test047(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class X {\n" + 
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "",
         true);
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" + 
+			"/** */\n" +
 			"@SuppressWarnings(\"restriction\")\n" +
 			"public class Y {\n" +
-			"  p.X x;\n" + 
+			"  p.X x;\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
@@ -2895,7 +2895,7 @@ public void test047(){
         + " -cp \"" + OUTPUT_DIR + "[~p/X" + File.pathSeparator + "-p/*]\""
         + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
 		"",
         false);
 }
@@ -2906,25 +2906,25 @@ public void test048(){
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" + 
-			"/** */\n" + 
-			"public class X {\n" + 
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "p"  +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "",
         true);
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"/** */\n" + 
+			"/** */\n" +
 			"@SuppressWarnings(\"deprecation\")\n" +
 			"public class Y {\n" +
-			"  p.X x;\n" + 
+			"  p.X x;\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
@@ -2933,13 +2933,13 @@ public void test048(){
         + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" + 
-		"	p.X x;\n" + 
-		"	^^^\n" + 
-		"Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" + 
-		"----------\n" + 
-		"1 problem (1 warning)", 
+        "----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
+		"	p.X x;\n" +
+		"	^^^\n" +
+		"Discouraged access: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---\n" +
+		"----------\n" +
+		"1 problem (1 warning)",
         false);
 }
 
@@ -2950,23 +2950,23 @@ public void test049(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
-			"    public void test(int p) {\n" + 
-			"        switch (p) {\n" + 
-			"        case 0:\n" + 
-			"            System.out.println(0);\n" + 
-			"        case 1:\n" + 
-			"            System.out.println(1); // possible fall-through\n" + 
-			"        }\n" + 
-			"    }\n" + 
+			"/** */\n" +
+			"public class X {\n" +
+			"    public void test(int p) {\n" +
+			"        switch (p) {\n" +
+			"        case 0:\n" +
+			"            System.out.println(0);\n" +
+			"        case 1:\n" +
+			"            System.out.println(1); // possible fall-through\n" +
+			"        }\n" +
+			"    }\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -nowarn"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "",
         true);
 }
@@ -2978,23 +2978,23 @@ public void test050(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
-			"    public void test(int p) {\n" + 
-			"        switch (p) {\n" + 
-			"        case 0:\n" + 
-			"            System.out.println(0);\n" + 
-			"        case 1:\n" + 
-			"            System.out.println(1); // possible fall-through\n" + 
-			"        }\n" + 
-			"    }\n" + 
+			"/** */\n" +
+			"public class X {\n" +
+			"    public void test(int p) {\n" +
+			"        switch (p) {\n" +
+			"        case 0:\n" +
+			"            System.out.println(0);\n" +
+			"        case 1:\n" +
+			"            System.out.println(1); // possible fall-through\n" +
+			"        }\n" +
+			"    }\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -warn:-fallthrough"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "",
         true);
 }
@@ -3006,29 +3006,29 @@ public void test051(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
-			"    public void test(int p) {\n" + 
-			"        switch (p) {\n" + 
-			"        case 0:\n" + 
-			"            System.out.println(0);\n" + 
-			"        case 1:\n" + 
-			"            System.out.println(1); // complain: possible fall-through\n" + 
-			"        }\n" + 
-			"    }\n" + 
+			"/** */\n" +
+			"public class X {\n" +
+			"    public void test(int p) {\n" +
+			"        switch (p) {\n" +
+			"        case 0:\n" +
+			"            System.out.println(0);\n" +
+			"        case 1:\n" +
+			"            System.out.println(1); // complain: possible fall-through\n" +
+			"        }\n" +
+			"    }\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -warn:+fallthrough"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
-		"	case 1:\n" + 
-		"	^^^^^^\n" + 
-		"Switch case may be entered by falling through previous case\n" + 
-		"----------\n" + 
+        "",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+		"	case 1:\n" +
+		"	^^^^^^\n" +
+		"Switch case may be entered by falling through previous case\n" +
+		"----------\n" +
 		"1 problem (1 warning)",
         true);
 }
@@ -3040,7 +3040,7 @@ public void test052(){
 		File barFile = new File(OUTPUT_DIR +  File.separator + "Bar.java");
 		FileOutputStream barOutput = new FileOutputStream(barFile);
 		try {
-			String barContents = 
+			String barContents =
 				"public class Bar	\n" +
 				"{	\n" +
 				"  Bar(int class)	\n" +
@@ -3054,51 +3054,51 @@ public void test052(){
 	} catch(IOException e) {
 		// do nothing, will fail below
 	}
-	
+
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X\n" + 
-			"{\n" + 
-			"  static Object x()\n" + 
-			"  {\n" + 
-			"    return new Bar(5);\n" + 
-			"  }\n" + 
+			"public class X\n" +
+			"{\n" +
+			"  static Object x()\n" +
+			"  {\n" +
+			"    return new Bar(5);\n" +
+			"  }\n" +
 			"}\n",
 		},
      "\"" + OUTPUT_DIR +  File.separator + "X.java\""
      + " -cp \"" + OUTPUT_DIR + File.pathSeparator + "\""
      + " -d \"" + OUTPUT_DIR + "\"",
-     "", 
-     "----------\n" + 
-     "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-     "	return new Bar(5);\n" + 
-     "	       ^^^^^^^^^^\n" + 
-     "The constructor Bar(int) is undefined\n" + 
-     "----------\n" + 
-     "----------\n" + 
-     "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 2)\n" + 
-     "	{	\n" + 
-     "	^\n" + 
-     "Syntax error, insert \"}\" to complete ClassBody\n" + 
-     "----------\n" + 
-     "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 3)\n" + 
-     "	Bar(int class)	\n" + 
-     "	        ^^^^^\n" + 
-     "Syntax error on token \"class\", invalid VariableDeclaratorId\n" + 
-     "----------\n" + 
-     "4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 3)\n" + 
-     "	Bar(int class)	\n" + 
-     "  {	\n" + 
-     "  }	\n" + 
-     "	        ^^^^^^^^^^^^^^^^\n" + 
-     "Syntax error on tokens, delete these tokens\n" + 
-     "----------\n" + 
-     "5. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 6)\n" + 
-     "	}\n" + 
-     "	^\n" + 
-     "Syntax error on token \"}\", delete this token\n" + 
-     "----------\n" + 
+     "",
+     "----------\n" +
+     "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+     "	return new Bar(5);\n" +
+     "	       ^^^^^^^^^^\n" +
+     "The constructor Bar(int) is undefined\n" +
+     "----------\n" +
+     "----------\n" +
+     "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 2)\n" +
+     "	{	\n" +
+     "	^\n" +
+     "Syntax error, insert \"}\" to complete ClassBody\n" +
+     "----------\n" +
+     "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 3)\n" +
+     "	Bar(int class)	\n" +
+     "	        ^^^^^\n" +
+     "Syntax error on token \"class\", invalid VariableDeclaratorId\n" +
+     "----------\n" +
+     "4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 3)\n" +
+     "	Bar(int class)	\n" +
+     "  {	\n" +
+     "  }	\n" +
+     "	        ^^^^^^^^^^^^^^^^\n" +
+     "Syntax error on tokens, delete these tokens\n" +
+     "----------\n" +
+     "5. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Bar.java (at line 6)\n" +
+     "	}\n" +
+     "	^\n" +
+     "Syntax error on token \"}\", delete this token\n" +
+     "----------\n" +
      "5 problems (5 errors)",
      false);
 }
@@ -3112,7 +3112,7 @@ public void test053(){
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + File.separator + "X.java\"",
-		"", 
+		"",
 		"No .class file created for file X.class in ---OUTPUT_DIR_PLACEHOLDER" +
 			"---/X.java because of an IOException: Regular file " +
 			"---OUTPUT_DIR_PLACEHOLDER---/X.java cannot be used " +
@@ -3134,7 +3134,7 @@ public void test054(){
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + "/f/out\"",
-		"", 
+		"",
 		"No .class file created for file X.class in ---OUTPUT_DIR_PLACEHOLDER" +
 			"---/f/out because of an IOException: " +
 			"Could not create output directory ---OUTPUT_DIR_PLACEHOLDER---/f/out\n",
@@ -3147,12 +3147,12 @@ public void test054(){
 // this test only works on appropriate file systems
 public void test055(){
 	if (File.separatorChar == '/') {
-	  	String tentativeOutputDirNameTail = 
+	  	String tentativeOutputDirNameTail =
 	      	File.separator + "out";
 	  	File outputDirectory = new File(OUTPUT_DIR + tentativeOutputDirNameTail);
 	  	outputDirectory.mkdirs();
-	  	outputDirectory.setReadOnly(); 
-	  	// read-only directories do not prevent file creation 
+	  	outputDirectory.setReadOnly();
+	  	// read-only directories do not prevent file creation
 	  	// on under-gifted file systems
 		this.runConformTest(
 			new String[] {
@@ -3163,7 +3163,7 @@ public void test055(){
 	        "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -d \"" + OUTPUT_DIR + "/out\"",
-			"", 
+			"",
 			"No .class file created for file p/X.class in " +
 				"---OUTPUT_DIR_PLACEHOLDER---/out because of " +
 				"an IOException: Could not create subdirectory p into output directory " +
@@ -3176,7 +3176,7 @@ public void test055(){
 // the file system and a true test case would call for instrumented
 // code)
 public void test056(){
-  	String tentativeOutputDirNameTail = 
+  	String tentativeOutputDirNameTail =
       	File.separator + "out";
 	this.runConformTest(
 		new String[] {
@@ -3189,10 +3189,10 @@ public void test056(){
         "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + tentativeOutputDirNameTail + "\"",
-		"", 
+		"",
 		"No .class file created for file p/X.class in " +
-			"---OUTPUT_DIR_PLACEHOLDER---/out" + 
-			" because of an IOException: Regular file ---OUTPUT_DIR_PLACEHOLDER---" + 
+			"---OUTPUT_DIR_PLACEHOLDER---/out" +
+			" because of an IOException: Regular file ---OUTPUT_DIR_PLACEHOLDER---" +
 			"/out/p cannot be used as output directory\n",
 		true);
 }
@@ -3203,33 +3203,33 @@ public void _test057_access_restrictions_separator(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
-			"	OK1 ok1;\n" + 
-			"	OK2 ok2;\n" + 
-			"	KO ko;\n" + 
+			"/** */\n" +
+			"public class X {\n" +
+			"	OK1 ok1;\n" +
+			"	OK2 ok2;\n" +
+			"	KO ko;\n" +
 			"}",
 			"OK1.java",
-			"/** */\n" + 
-			"public class OK1 {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class OK1 {\n" +
+			"	// empty\n" +
 			"}",
 			"OK2.java",
-			"/** */\n" + 
-			"public class OK2 {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class OK2 {\n" +
+			"	// empty\n" +
 			"}",
 			"KO.java",
-			"/** */\n" + 
-			"public class KO {\n" + 
-			"	// empty\n" + 
+			"/** */\n" +
+			"public class KO {\n" +
+			"	// empty\n" +
 			"}",
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[+OK2" + oppositeSeparator + "-KO]" 
+        + " -cp \"" + OUTPUT_DIR + "[+OK2" + oppositeSeparator + "-KO]"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "", 
+        "",
         "ERR: invalid spec",
         true);
 }
@@ -3247,7 +3247,7 @@ public void test058(){
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -d \"" + OUTPUT_DIR + "/out\"",
-		"", 
+		"",
 		"",
 		false /* do not flush output directory */);
 }
@@ -3264,7 +3264,7 @@ public void test060(){
 	    "\"" + OUTPUT_DIR + "\""
 	    + " -1.5 -g -preserveAllLocals"
 	    + " -d \"" + OUTPUT_DIR + "/out\"",
-		"", 
+		"",
 		"",
 		false /* do not flush output directory */);
 }
@@ -3284,13 +3284,13 @@ public void test061(){
 	    "\"" + OUTPUT_DIR + "\""
 	    + " -1.5 -g -preserveAllLocals"
 	    + " -d \"" + OUTPUT_DIR + "/out\"",
-		"", 
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
-		"	foo m;\n" + 
-		"	^^^\n" + 
-		"foo cannot be resolved to a type\n" + 
-		"----------\n" + 
+		"",
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
+		"	foo m;\n" +
+		"	^^^\n" +
+		"foo cannot be resolved to a type\n" +
+		"----------\n" +
 		"1 problem (1 error)",
 		false /* do not flush output directory */);
 }
@@ -3298,17 +3298,17 @@ public void test061(){
 // self-referential jar file
 // variant using a relative path to the jar file in the -cp option
 // this only tests that the fact the jar file references itself in a Class-Path
-// clause does not break anything; the said clause is not needed for the 
+// clause does not break anything; the said clause is not needed for the
 // compilation to succeed, and is merely irrelevant, but other compilers have
 // shown a bug in that area
 // TODO (maxime) improve management of current working directory
 // we have a problem here in that the working directory is set once and for all
-// from above, and we cannot change it afterwards (more on that when jdk7 gets 
-// ready); moreover, the default working directory may not the best choice we 
-// could expect (it is within the workspace, endangering the test project 
-// layout); this would need to be reconsidered from scratch, keeping in mind 
-// that some disk regions are not available for writing when running the releng 
-// tests; the pity is that this is precisely the case that fails with other 
+// from above, and we cannot change it afterwards (more on that when jdk7 gets
+// ready); moreover, the default working directory may not the best choice we
+// could expect (it is within the workspace, endangering the test project
+// layout); this would need to be reconsidered from scratch, keeping in mind
+// that some disk regions are not available for writing when running the releng
+// tests; the pity is that this is precisely the case that fails with other
 // compilers, whereas test063 passes;
 // this problem affects other batch compiler tests as well, since we must be
 // able to simulate command lines that would include relative paths; the
@@ -3327,7 +3327,7 @@ public void _test062(){
 	    "\"" + outputDirName + "\""
 	    + " -1.5 -g -preserveAllLocals"
 	    + " -d \"" + outputDirName + "\"",
-		"", 
+		"",
 		"",
 		true /* flush output directory */);
 	File outputDirectory = new File(outputDirName);
@@ -3357,7 +3357,7 @@ public void _test062(){
 	    + " -1.5 -g -preserveAllLocals"
 	    + " -cp L.jar"
 	    + " -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		false /* do not flush output directory */);
 }
@@ -3376,7 +3376,7 @@ public void test063(){
 	    "\"" + outputDirName + "\""
 	    + " -1.5 -g -preserveAllLocals"
 	    + " -d \"" + outputDirName + "\"",
-		"", 
+		"",
 		"",
 		true /* flush output directory */);
 	File outputDirectory = new File(outputDirName);
@@ -3406,7 +3406,7 @@ public void test063(){
 	    + " -1.5 -g -preserveAllLocals"
 	    + " -cp \"" + jarFileName + "\""
 	    + " -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		false /* do not flush output directory */);
 }
@@ -3424,12 +3424,12 @@ public void _test064_per_sourcepath_directory_default_encoding(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 
+        + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1
         + "[UTF-8]\"",
-		"", 
+		"",
 		"",
 		true);
 }
@@ -3449,18 +3449,18 @@ public void test065_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + " -d \"" + OUTPUT_DIR + File.separator + output1 + "\"",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output1 + 
+	fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "Z.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
 }
@@ -3479,14 +3479,14 @@ public void test066_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\"",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + source1 + 
+	String fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -3502,11 +3502,11 @@ public void test067_per_source_output_directory(){
 			"X.java",
 			"public class X {}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
         + " -1.5"
         + " -d none",
-		"", 
+		"",
 		"",
 		true);
 	String fileName = OUTPUT_DIR + File.separator + "X.class";
@@ -3529,25 +3529,25 @@ public void test068_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "Z.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
 }
@@ -3557,7 +3557,7 @@ public void test068_per_source_output_directory(){
 // new case 2: specifying an output directory for a given source directory only
 // -sourcepath series
 public void test069_per_source_output_directory(){
-	String source1 = "src1", 
+	String source1 = "src1",
 		output1 = "bin1";
 	this.runConformTest(
 		new String[] {
@@ -3568,18 +3568,18 @@ public void test069_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -3601,15 +3601,15 @@ public void test070_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none]",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + source1 + 
+	String fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -3632,19 +3632,19 @@ public void test071_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d none",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -3661,11 +3661,11 @@ public void test072_per_source_output_directory(){
 			"X.java",
 			"public class X {\n" +
 			"}"},
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
-		"", 
+		"",
 		"access rules cannot follow destination path entries: ---OUTPUT_DIR_PLACEHOLDER---[-d dir][~**/internal/*]\n",
 		true);
 }
@@ -3686,18 +3686,18 @@ public void test073_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
-		"", 
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
-		"	X f;\n" + 
-		"	^\n" + 
-		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" + 
-		"----------\n" + 
+		"",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
+		"	X f;\n" +
+		"	^\n" +
+		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" +
+		"----------\n" +
 		"1 problem (1 warning)",
 		true);
 }
@@ -3718,25 +3718,25 @@ public void test074_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "Z.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
 }
@@ -3746,7 +3746,7 @@ public void test074_per_source_output_directory(){
 // new case 2: specifying an output directory for a given source directory only
 // -classpath series
 public void test075_per_source_output_directory(){
-	String source1 = "src1", 
+	String source1 = "src1",
 		output1 = "bin1";
 	this.runConformTest(
 		new String[] {
@@ -3757,18 +3757,18 @@ public void test075_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -cp \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -3790,15 +3790,15 @@ public void test076_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none]",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + source1 + 
+	String fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -3821,19 +3821,19 @@ public void test077_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d none",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -3850,11 +3850,11 @@ public void test078_per_source_output_directory(){
 			"X.java",
 			"public class X {\n" +
 			"}"},
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
         + " -1.5"
         + " -classpath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
-		"", 
+		"",
 		"access rules cannot follow destination path entries: ---OUTPUT_DIR_PLACEHOLDER---[-d dir][~**/internal/*]\n",
 		true);
 }
@@ -3875,18 +3875,18 @@ public void test079_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
-		"", 
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
-		"	X f;\n" + 
-		"	^\n" + 
-		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" + 
-		"----------\n" + 
+		"",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
+		"	X f;\n" +
+		"	^\n" +
+		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" +
+		"----------\n" +
 		"1 problem (1 warning)",
 		true);
 }
@@ -3907,26 +3907,26 @@ public void test080_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" + 
+        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "Z.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
 }
@@ -3936,7 +3936,7 @@ public void test080_per_source_output_directory(){
 // new case 2: specifying an output directory for a given source directory only
 // -bootclasspath series
 public void test081_per_source_output_directory(){
-	String source1 = "src1", 
+	String source1 = "src1",
 		output1 = "bin1";
 	this.runConformTest(
 		new String[] {
@@ -3947,19 +3947,19 @@ public void test081_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" + 
+        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -3981,16 +3981,16 @@ public void test082_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" + 
+        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none]",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + source1 + 
+	String fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -4013,20 +4013,20 @@ public void test083_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" + 
+        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + "\"" +
           OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d none",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + File.separator + "Z.class";
@@ -4043,11 +4043,11 @@ public void test084_per_source_output_directory(){
 			"X.java",
 			"public class X {\n" +
 			"}"},
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
         + " -1.5"
         + " -bootclasspath \"" + OUTPUT_DIR + "\"" + "[-d dir][~**/internal/*]",
-		"", 
+		"",
 		"access rules cannot follow destination path entries: ---OUTPUT_DIR_PLACEHOLDER---[-d dir][~**/internal/*]\n",
 		true);
 }
@@ -4068,19 +4068,19 @@ public void test085_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
-        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator + 
+        + " -bootclasspath " + getLibraryClasses() + File.pathSeparator +
         	"\"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
-		"", 
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
-		"	X f;\n" + 
-		"	^\n" + 
-		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" + 
-		"----------\n" + 
+		"",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
+		"	X f;\n" +
+		"	^\n" +
+		"Access restriction: The type X is not accessible due to restriction on classpath entry ---OUTPUT_DIR_PLACEHOLDER---/src1\n" +
+		"----------\n" +
 		"1 problem (1 warning)",
 		true);
 }
@@ -4100,7 +4100,7 @@ public void test086_per_source_output_directory(){
 			outputDir.mkdirs();
 		}
 		sourceDir.mkdir();
-		Util.createFile(OUTPUT_DIR + File.separator + 
+		Util.createFile(OUTPUT_DIR + File.separator +
 			source1 + File.separator + "X.java",
 			"public class X {}");
 		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
@@ -4114,25 +4114,25 @@ public void test086_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + "X.jar\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
-		"", 
+		"",
 		"",
 		false); // keep jar
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "Z.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
 }
@@ -4149,13 +4149,13 @@ public void test087_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -classpath \"" + OUTPUT_DIR + File.separator + "X.jar\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
-		"", 
+		"",
 		"unexpected destination path entry for file: ---OUTPUT_DIR_PLACEHOLDER---/X.jar\n",
 		true);
 }
@@ -4171,13 +4171,13 @@ public void test088_per_source_output_directory(){
 			"public class Z {\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -bootclasspath \"" + OUTPUT_DIR + File.separator + "X.jar\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
-		"", 
+		"",
 		"unexpected destination path entry for file: ---OUTPUT_DIR_PLACEHOLDER---/X.jar\n",
 		true);
 }
@@ -4187,11 +4187,11 @@ public void test088_per_source_output_directory(){
 // new case 2: specifying an output directory for a given source directory only
 // jar / zip files in sourcepath
 public void test089_per_source_output_directory(){
-	String source1 = "src1", 
+	String source1 = "src1",
 		output1 = "bin1";
 	File outputDir = new File(OUTPUT_DIR),
 		sourceDir = new File(OUTPUT_DIR + File.separator + source1),
-		standardXOutputFile = new File(System.getProperty("user.dir") + 
+		standardXOutputFile = new File(System.getProperty("user.dir") +
 			File.separator + "X.class");
 	try {
 		if (outputDir.exists()) {
@@ -4200,7 +4200,7 @@ public void test089_per_source_output_directory(){
 			outputDir.mkdirs();
 		}
 		sourceDir.mkdir();
-		Util.createFile(OUTPUT_DIR + File.separator + 
+		Util.createFile(OUTPUT_DIR + File.separator +
 			source1 + File.separator + "X.java",
 			"public class X {}");
 		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
@@ -4217,19 +4217,19 @@ public void test089_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + "X.jar\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         ,
-		"", 
+		"",
 		"",
 		false);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	assertFalse("extraneous file: " + standardXOutputFile.getPath(), 
+	assertFalse("extraneous file: " + standardXOutputFile.getPath(),
 		standardXOutputFile.exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
@@ -4243,7 +4243,7 @@ public void test090_per_source_output_directory(){
 	String source1 = "src1";
 	File outputDir = new File(OUTPUT_DIR),
 		sourceDir = new File(OUTPUT_DIR + File.separator + source1),
-		standardXOutputFile = new File(System.getProperty("user.dir") + 
+		standardXOutputFile = new File(System.getProperty("user.dir") +
 			File.separator + "X.class");
 	try {
 		if (outputDir.exists()) {
@@ -4252,7 +4252,7 @@ public void test090_per_source_output_directory(){
 			outputDir.mkdirs();
 		}
 		sourceDir.mkdir();
-		Util.createFile(OUTPUT_DIR + File.separator + 
+		Util.createFile(OUTPUT_DIR + File.separator +
 			source1 + File.separator + "X.java",
 			"public class X {}");
 		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
@@ -4269,18 +4269,18 @@ public void test090_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + "X.jar\""
         + "[-d none]",
-		"", 
+		"",
 		"",
 		false);
-	String fileName = OUTPUT_DIR + File.separator + source1 + 
+	String fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	assertFalse("extraneous file: " + standardXOutputFile.getPath(), 
+	assertFalse("extraneous file: " + standardXOutputFile.getPath(),
 		standardXOutputFile.exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
@@ -4294,7 +4294,7 @@ public void test091_per_source_output_directory(){
 	String source1 = "src1", output1 = "bin1";
 	File outputDir = new File(OUTPUT_DIR),
 		sourceDir = new File(OUTPUT_DIR + File.separator + source1),
-		standardXOutputFile = new File(System.getProperty("user.dir") + 
+		standardXOutputFile = new File(System.getProperty("user.dir") +
 			File.separator + "X.class");
 	try {
 		if (outputDir.exists()) {
@@ -4303,7 +4303,7 @@ public void test091_per_source_output_directory(){
 			outputDir.mkdirs();
 		}
 		sourceDir.mkdir();
-		Util.createFile(OUTPUT_DIR + File.separator + 
+		Util.createFile(OUTPUT_DIR + File.separator +
 			source1 + File.separator + "X.java",
 			"public class X {}");
 		Util.zip(sourceDir,	OUTPUT_DIR + File.separator + "X.jar");
@@ -4320,19 +4320,19 @@ public void test091_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -d none",
-		"", 
+		"",
 		"",
 		false);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "X.class";
@@ -4357,25 +4357,25 @@ public void test092_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -1.5"
         + " -d \"" + OUTPUT_DIR + File.separator + output2 + "\"",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "Z.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
 }
@@ -4385,7 +4385,7 @@ public void test092_per_source_output_directory(){
 // new case 2: specifying an output directory for a given source directory only
 // source directories series
 public void test093_per_source_output_directory(){
-	String source1 = "src1", 
+	String source1 = "src1",
 		output1 = "bin1";
 	this.runConformTest(
 		new String[] {
@@ -4396,18 +4396,18 @@ public void test093_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -1.5",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -4429,15 +4429,15 @@ public void test094_per_source_output_directory(){
 			"  // X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none]"
         + " -1.5",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + source1 + 
+	String fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -4462,13 +4462,13 @@ public void test095_per_source_output_directory(){
         },
         " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d none] "
-        + "\"" + OUTPUT_DIR +  File.separator + 
+        + "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " -1.5",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + source1 + 
+	String fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -4491,19 +4491,19 @@ public void test096_per_source_output_directory(){
 			"  X f;\n" +
 			"}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"Z.java\""
         + " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -1.5"
         + " -d none",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 	fileName = OUTPUT_DIR + File.separator + "Z.class";
@@ -4532,19 +4532,19 @@ public void test097_per_source_output_directory(){
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -1.5"
         + " -d none",
-		"", 
+		"",
 		"",
 		true);
-	String fileName = OUTPUT_DIR + File.separator + output1 + 
+	String fileName = OUTPUT_DIR + File.separator + output1 +
 			File.separator + "X.class";
 	assertTrue("missing file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source1 + 
+	fileName = OUTPUT_DIR + File.separator + source1 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + output2 + 
+	fileName = OUTPUT_DIR + File.separator + output2 +
 			File.separator + "X.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
-	fileName = OUTPUT_DIR + File.separator + source2 + 
+	fileName = OUTPUT_DIR + File.separator + source2 +
 			File.separator + "Z.class";
 	assertFalse("extraneous file: " + fileName, (new File(fileName)).exists());
 }
@@ -4563,7 +4563,7 @@ public void test098_per_source_output_directory(){
         "\"" + OUTPUT_DIR +  File.separator + source1 + "\""
         + "[~**/internal/*]"
         + " -1.5",
-		"", 
+		"",
 		"unsupported encoding format: ~**/internal/*\n",
 		true);
 }
@@ -4572,9 +4572,9 @@ public void test098_per_source_output_directory(){
 // per source directory output directory
 // changing the coding of -d none option
 public void test099_per_source_output_directory() {
-	File none = new File(Main.NONE); 
+	File none = new File(Main.NONE);
 	if (none.exists()) {
-		fail("unexpected file: " + none.getAbsolutePath() + 
+		fail("unexpected file: " + none.getAbsolutePath() +
 				"; please cleanup the test environment");
 		// by design, we do not want to agressively destroy a directory that
 		// could well exist outside of our dedicated output area
@@ -4586,11 +4586,11 @@ public void test099_per_source_output_directory() {
 			"X.java",
 			"public class X {}",
         },
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
         + " -1.5"
         + " -d none",
-		"", 
+		"",
 		"",
 		true);
 	String fileName = Main.NONE + File.separator + "X.class";
@@ -4606,11 +4606,11 @@ public void test100_per_source_output_directory(){
 			"X.java",
 			"public class X {\n" +
 			"}"},
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
         + " -1.5"
         + " -extdirs \"" + OUTPUT_DIR + "\"" + "[-d dir]",
-		"", 
+		"",
 		"unexpected destination path entry in -extdir option\n",
 		true);
 }
@@ -4624,11 +4624,11 @@ public void test101_per_source_output_directory(){
 			"X.java",
 			"public class X {\n" +
 			"}"},
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
         + " -1.5"
         + " -endorseddirs \"" + OUTPUT_DIR + "\"" + "[-d dir]",
-		"", 
+		"",
 		"unexpected destination path entry in -endorseddirs option\n",
 		true);
 }
@@ -4648,7 +4648,7 @@ public void test102_per_source_output_directory(){
         + "[-d \"" + OUTPUT_DIR + File.separator + output1 + "\""
         + " -1.5"
         + " -d none",
-		"", 
+		"",
 		"incorrect destination path entry: [-d ---OUTPUT_DIR_PLACEHOLDER---/bin1\n",
 		true);
 }
@@ -4657,7 +4657,7 @@ public void test102_per_source_output_directory(){
 // per source directory output directory
 // bad syntax
 public void test103_per_source_output_directory(){
-	String source1 = "src1", 
+	String source1 = "src1",
 		output1 = "bin1";
 	this.runNegativeTest(
 		new String[] {
@@ -4667,7 +4667,7 @@ public void test103_per_source_output_directory(){
         " \"" + OUTPUT_DIR + File.separator + source1 + "\""
         + " [-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]"
         + " -1.5",
-		"", 
+		"",
 		"unexpected bracket: [-d\n",
 		true);
 }
@@ -4681,11 +4681,11 @@ public void test104_per_source_output_directory(){
 			"X.java",
 			"public class X {\n" +
 			"}"},
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
         + " -1.5"
         + " -sourcepath \"" + OUTPUT_DIR + "\"" + "[[-d dir]",
-		"", 
+		"",
 		"unexpected bracket: ---OUTPUT_DIR_PLACEHOLDER---[[-d\n",
 		true);
 }
@@ -4699,11 +4699,11 @@ public void test105_per_source_output_directory(){
 			"X.java",
 			"public class X {\n" +
 			"}"},
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
         + " -1.5"
         + " -cp \"" + OUTPUT_DIR + "\"" + "[-d dir]]",
-		"", 
+		"",
 		"unexpected bracket: dir]]\n",
 		true);
 }
@@ -4717,13 +4717,13 @@ public void test106_per_source_output_directory(){
 			"X.java",
 			"public class X {\n" +
 			"}"},
-        "\"" + OUTPUT_DIR +  File.separator + 
+        "\"" + OUTPUT_DIR +  File.separator +
         	"X.java\""
         + " -1.5"
-        + " -cp \"" + OUTPUT_DIR + "\"" + "[-d dir1" + File.pathSeparator + 
+        + " -cp \"" + OUTPUT_DIR + "\"" + "[-d dir1" + File.pathSeparator +
         	"dir2]",
-		"", 
-		"incorrect destination path entry: ---OUTPUT_DIR_PLACEHOLDER---" + 
+		"",
+		"incorrect destination path entry: ---OUTPUT_DIR_PLACEHOLDER---" +
 			"[-d dir1" + File.pathSeparator + "dir2]\n",
 		true);
 }
@@ -4733,13 +4733,13 @@ public void test107(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
      "\"" + OUTPUT_DIR +  File.separator + "X.java\""
      + " -1.3 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
-     "", 
+     "",
      "",
      true);
 	String expectedOutput = "// Compiled from X.java (version 1.1 : 45.3, super bit)";
@@ -4751,13 +4751,13 @@ public void test108(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.4 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.2 : 46.0, super bit)";
@@ -4769,13 +4769,13 @@ public void test109(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.4 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
@@ -4787,13 +4787,13 @@ public void test110(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
@@ -4805,13 +4805,13 @@ public void test111(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
@@ -4823,13 +4823,13 @@ public void test112(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -source 1.5 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.5 : 49.0, super bit)";
@@ -4841,13 +4841,13 @@ public void test113(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.6 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
@@ -4859,13 +4859,13 @@ public void test114(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.6 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
@@ -4877,13 +4877,13 @@ public void test115(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.6 -source 1.5 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
@@ -4895,13 +4895,13 @@ public void test116(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.6 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
@@ -4913,13 +4913,13 @@ public void test117(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
@@ -4931,13 +4931,13 @@ public void test118(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
@@ -4949,13 +4949,13 @@ public void test119(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -source 1.5 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
@@ -4967,13 +4967,13 @@ public void test120(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
@@ -4985,13 +4985,13 @@ public void test121(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"/** */\n" + 
-			"public class X {\n" + 
+			"/** */\n" +
+			"public class X {\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.7 -source 1.7 -d \"" + OUTPUT_DIR + "\"",
-		"", 
+		"",
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.7 : 51.0, super bit)";
@@ -5000,8 +5000,8 @@ public void test121(){
 // command line - unusual classpath (ends with ';;;', still OK)
 public void test122_classpath(){
 	runClasspathTest(
-		OUTPUT_DIR + "[+**/OK2]" + File.pathSeparator + File.pathSeparator + 
-				File.pathSeparator, 
+		OUTPUT_DIR + "[+**/OK2]" + File.pathSeparator + File.pathSeparator +
+				File.pathSeparator,
 		new String[] {
 			OUTPUT_DIR,	"{pattern=**/OK2 (ACCESSIBLE)}", null,
 		},
@@ -5010,20 +5010,20 @@ public void test122_classpath(){
 // command line - unusual classpath (rules with multiple path separators KO, but
 // without any error message though)
 public void test123_classpath(){
-	String cp = OUTPUT_DIR + "[+OK2" + File.pathSeparator + File.pathSeparator + 
+	String cp = OUTPUT_DIR + "[+OK2" + File.pathSeparator + File.pathSeparator +
 			File.pathSeparator + "~Warn" + File.pathSeparator + "-KO]";
 	runClasspathTest(
-		cp, 
+		cp,
 		null,
 		null);
 }
 // command line - unusual classpath (rules with embedded -d OK)
 public void test124_classpath (){
 	runClasspathTest(
-		OUTPUT_DIR + "[+OK2" + File.pathSeparator +	"-d ~Warn" + 
-				File.pathSeparator + "-KO]", 
+		OUTPUT_DIR + "[+OK2" + File.pathSeparator +	"-d ~Warn" +
+				File.pathSeparator + "-KO]",
 		new String[] {
-			OUTPUT_DIR, 
+			OUTPUT_DIR,
 				"{pattern=OK2 (ACCESSIBLE), pattern=d ~Warn (NON ACCESSIBLE), pattern=KO (NON ACCESSIBLE)}",
 				null,
 		},
@@ -5031,27 +5031,27 @@ public void test124_classpath (){
 }
 // command line - unusual classpath (rules starting with -d KO)
 public void test125_classpath() {
-	String cp = OUTPUT_DIR + "[-d +OK2" + File.pathSeparator + "~Warn" + 
+	String cp = OUTPUT_DIR + "[-d +OK2" + File.pathSeparator + "~Warn" +
 			File.pathSeparator + "-KO]";
 	runClasspathTest(
-		cp, 
+		cp,
 		null,
 		"incorrect destination path entry: " + cp);
 }
 // command line - unusual classpath (rules starting with -d KO)
 public void test126_classpath() {
-	String cp = OUTPUT_DIR + "[-d +OK2" + File.pathSeparator + "~Warn" + 
+	String cp = OUTPUT_DIR + "[-d +OK2" + File.pathSeparator + "~Warn" +
 			File.pathSeparator + "-KO][-d dummy]";
 	runClasspathTest(
-		cp, 
+		cp,
 		null,
 		"incorrect destination path entry: " + cp);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=161996
 public void test127_classpath() {
-	String jarFile = OUTPUT_DIR + File.separator + "[squarebracket].jar"; 
+	String jarFile = OUTPUT_DIR + File.separator + "[squarebracket].jar";
 	runClasspathTest(
-		jarFile, 
+		jarFile,
 		new String[] {
 			jarFile, null, null,
 		},
@@ -5061,7 +5061,7 @@ public void test127_classpath() {
 public void test128_classpath() {
 	String jarFile = OUTPUT_DIR + File.separator + "[square][bracket].jar";
 	runClasspathTest(
-		jarFile, 
+		jarFile,
 		new String[] {
 			jarFile, null, null,
 		},
@@ -5070,7 +5070,7 @@ public void test128_classpath() {
 // command line - classpath order
 public void test129_classpath() {
 	runClasspathTest(
-		"file.jar[+A]" + File.pathSeparator + OUTPUT_DIR, 
+		"file.jar[+A]" + File.pathSeparator + OUTPUT_DIR,
 		new String[] {
 			"file.jar",	"{pattern=A (ACCESSIBLE)}", null,
 			OUTPUT_DIR, null, null,
@@ -5082,7 +5082,7 @@ public void test129_classpath() {
 public void test130_classpath() {
 	String cp = OUTPUT_DIR + "[-d dir][~**/internal/*]";
 	runClasspathTest(
-		cp, 
+		cp,
 		null,
 		"access rules cannot follow destination path entries: " + cp);
 }
@@ -5090,7 +5090,7 @@ public void test130_classpath() {
 public void test131_classpath() {
 	String cp = OUTPUT_DIR + "[~**/internal/*][-d dir]";
 	runClasspathTest(
-		cp, 
+		cp,
 		new String[] {
 			OUTPUT_DIR,	"{pattern=**/internal/* (DISCOURAGED)}", "dir",
 		},
@@ -5101,7 +5101,7 @@ public void test131_classpath() {
 public void test132_classpath() {
 	String cp = OUTPUT_DIR + "[~**/internal/*[-d dir]";
 	runClasspathTest(
-		cp, 
+		cp,
 		null,
 		null);
 }
@@ -5110,7 +5110,7 @@ public void test132_classpath() {
 public void test133_classpath() {
 	String cp = OUTPUT_DIR + "[~**/internal/*]-d dir]";
 	runClasspathTest(
-		cp, 
+		cp,
 		null,
 		null);
 }
@@ -5118,7 +5118,7 @@ public void test133_classpath() {
 public void test134_classpath() {
 	String jarFile = OUTPUT_DIR + File.separator + "[squarebracket].jar";
 	runClasspathTest(
-		jarFile + "[~**/internal/*][-d " + OUTPUT_DIR + "]", 
+		jarFile + "[~**/internal/*][-d " + OUTPUT_DIR + "]",
 		new String[] {
 			jarFile, "{pattern=**/internal/* (DISCOURAGED)}", OUTPUT_DIR,
 		},
@@ -5128,7 +5128,7 @@ public void test134_classpath() {
 public void test135_classpath() {
 	String jarFile = OUTPUT_DIR + File.separator + "[square][bracket].jar";
 	runClasspathTest(
-		jarFile + "[~**/internal/*][-d dir]", 
+		jarFile + "[~**/internal/*][-d dir]",
 		new String[] {
 			jarFile, "{pattern=**/internal/* (DISCOURAGED)}", "dir",
 		},
@@ -5139,7 +5139,7 @@ public void test136_classpath() {
 	String target = OUTPUT_DIR + File.separator + "[a]";
 	(new File(target)).mkdirs();
 	runClasspathTest(
-		target + File.separator, 
+		target + File.separator,
 		new String[] {
 			target, null, null,
 		},
@@ -5150,7 +5150,7 @@ public void test137_classpath() {
 	String target = OUTPUT_DIR + File.separator + "[a]";
 	(new File(target)).mkdirs();
 	runClasspathTest(
-		target + File.separator + "[~**/internal/*][-d dir]", 
+		target + File.separator + "[~**/internal/*][-d dir]",
 		new String[] {
 			target, "{pattern=**/internal/* (DISCOURAGED)}", "dir",
 		},
@@ -5160,7 +5160,7 @@ public void test137_classpath() {
 // too many brackets series KO (no error though)
 public void test138_classpath() {
 	runClasspathTest(
-		OUTPUT_DIR + File.separator + "[a][~**/internal/*][-d dir]", 
+		OUTPUT_DIR + File.separator + "[a][~**/internal/*][-d dir]",
 		null,
 		null);
 }
@@ -5169,7 +5169,7 @@ public void test138_classpath() {
 public void test139_classpath() {
     String cp = "[a].jar";
     runClasspathTest(
-        cp, 
+        cp,
         new String [] {
             cp, null, null,
         },
@@ -5180,7 +5180,7 @@ public void test139_classpath() {
 public void test140_classpath() {
     String cp = "[a].jar";
     runClasspathTest(
-        cp + "[~**/internal/*][-d dir]", 
+        cp + "[~**/internal/*][-d dir]",
         new String [] {
             cp, "{pattern=**/internal/* (DISCOURAGED)}", "dir",
         },
