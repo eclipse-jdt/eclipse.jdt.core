@@ -11,7 +11,6 @@
 </sealing>
 </manifest>
 <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
-<folder path="/org.eclipse.jdt.compiler.apt.tests/META-INF/services"/>
 <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors"/>
 </selectedElements>
 </jardesc>
