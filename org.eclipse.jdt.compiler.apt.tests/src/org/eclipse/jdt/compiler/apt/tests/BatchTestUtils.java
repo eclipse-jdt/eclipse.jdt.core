@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests;
@@ -31,35 +31,32 @@ import javax.tools.JavaCompiler.CompilationTask;
 
 import junit.framework.Assert;
 
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 
 /**
- * Helper class to support compilation and results checking for tests running in batch mode.  
+ * Helper class to support compilation and results checking for tests running in batch mode.
  * @since 3.3
  */
 public class BatchTestUtils {
 	// relative to plugin directory
 	private static final String PROCESSOR_JAR_NAME = "lib/apttestprocessors.jar";
 	private static String _processorJarPath;
-	
+
 	// locations to copy and generate files
 	private static final String _tmpFolder = System.getProperty("java.io.tmpdir") + "eclipse-temp";
-	
+
 	private static JavaCompiler _eclipseCompiler;
-	
+
 	private static String _tmpSrcFolderName;
 	private static File _tmpSrcDir;
 	private static String _tmpBinFolderName;
 	private static File _tmpBinDir;
 	private static String _tmpGenFolderName;
 	private static File _tmpGenDir;
-	
+
 	/**
-	 * Create a class that contains an annotation that generates another class, 
+	 * Create a class that contains an annotation that generates another class,
 	 * and compile it.  Verify that generation and compilation succeeded.
 	 */
 	public static void compileOneClass(JavaCompiler compiler, File inputFile, List<String> options) {
@@ -71,7 +68,7 @@ public class BatchTestUtils {
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
-		
+
 		options.add("-d");
 		options.add(_tmpBinFolderName);
 		options.add("-s");
@@ -83,13 +80,13 @@ public class BatchTestUtils {
 		options.add("-XprintRounds");
 		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
 		Boolean result = task.call();
-		
+
 		if (!result.booleanValue()) {
 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
 	 		Assert.assertTrue("Compilation failed ", false);
 		}
 	}
-	
+
 	public static String getBinFolderName() {
 		return _tmpBinFolderName;
 	}
@@ -97,38 +94,38 @@ public class BatchTestUtils {
 	public static JavaCompiler getEclipseCompiler() {
 		return _eclipseCompiler;
 	}
-	
+
 	public static String getGenFolderName() {
 		return _tmpGenFolderName;
 	}
-	
+
 	public static String getSrcFolderName() {
 		return _tmpSrcFolderName;
 	}
-	
+
 	/**
 	 * Load Eclipse compiler and create temporary directories on disk
 	 */
-	public static void init() 
+	public static void init()
 	{
 		_tmpBinFolderName = _tmpFolder + File.separator + "bin";
 		_tmpBinDir = new File(_tmpBinFolderName);
 		BatchTestUtils.deleteTree(_tmpBinDir); // remove existing contents
 		_tmpBinDir.mkdirs();
 		assert _tmpBinDir.exists() : "couldn't mkdirs " + _tmpBinFolderName;
-		
+
 		_tmpGenFolderName = _tmpFolder + File.separator + "gen-src";
 		_tmpGenDir = new File(_tmpGenFolderName);
 		BatchTestUtils.deleteTree(_tmpGenDir); // remove existing contents
 		_tmpGenDir.mkdirs();
 		assert _tmpGenDir.exists() : "couldn't mkdirs " + _tmpGenFolderName;
-		
+
 		_tmpSrcFolderName = _tmpFolder + File.separator + "src";
 		_tmpSrcDir = new File(_tmpSrcFolderName);
 		BatchTestUtils.deleteTree(_tmpSrcDir); // remove existing contents
 		_tmpSrcDir.mkdirs();
 		assert _tmpSrcDir.exists() : "couldn't mkdirs " + _tmpSrcFolderName;
-		
+
 		try {
 			_processorJarPath = setupProcessorJar(PROCESSOR_JAR_NAME, _tmpFolder);
 		} catch (IOException e) {
@@ -137,7 +134,7 @@ public class BatchTestUtils {
 		Assert.assertNotNull("No processor jar path set", _processorJarPath);
 		File processorJar = new File(_processorJarPath);
 		Assert.assertTrue("Couldn't find processor jar at " + processorJar.getAbsolutePath(), processorJar.exists());
-		
+
 		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);//, EclipseCompiler.class.getClassLoader());
 		Class<?> c = null;
 		try {
@@ -158,19 +155,10 @@ public class BatchTestUtils {
 		Assert.assertEquals("Only one compiler available", 1, compilerCounter);
 		Assert.assertNotNull("No Eclipse compiler found", _eclipseCompiler);
 	}
-	
+
 	public static void tearDown() {
 		new File(_processorJarPath).deleteOnExit();
 		BatchTestUtils.deleteTree(new File(_tmpFolder));
-	}
-	/**
-	 * Returns the IWorkspace this test suite is running on.
-	 */
-	public static IWorkspace getWorkspace() {
-		return ResourcesPlugin.getWorkspace();
-	}
-	public static IWorkspaceRoot getWorkspaceRoot() {
-		return getWorkspace().getRoot();
 	}
 	protected static String getPluginDirectoryPath() {
 		try {
@@ -181,7 +169,6 @@ public class BatchTestUtils {
 		}
 		return null;
 	}
-	
 	public static byte[] read(java.io.File file) throws java.io.IOException {
 		int fileLength;
 		byte[] fileBytes = new byte[fileLength = (int) file.length()];
@@ -210,13 +197,13 @@ public class BatchTestUtils {
 	public static void copy(File src, File dest) throws IOException {
 		// read source bytes
 		byte[] srcBytes = read(src);
-		
+
 		if (convertToIndependantLineDelimiter(src)) {
 			String contents = new String(srcBytes);
 			contents = TestUtils.convertToIndependantLineDelimiter(contents);
 			srcBytes = contents.getBytes();
 		}
-	
+
 		File parent = dest.getParentFile();
 		if (!parent.exists()) {
 			parent.mkdirs();
@@ -232,6 +219,48 @@ public class BatchTestUtils {
 				out.close();
 			}
 		}
+	}
+
+	/**
+	 * Copy file from src (path to the original file) to dest (path to the destination file).
+	 */
+	public static File copyResource(File src, File dest) {
+		// read source bytes
+		byte[] srcBytes = null;
+		try {
+			srcBytes = read(src);
+		} catch (IOException e1) {
+			return null;
+		}
+
+		if (convertToIndependantLineDelimiter(src)) {
+			String contents = new String(srcBytes);
+			contents = TestUtils.convertToIndependantLineDelimiter(contents);
+			srcBytes = contents.getBytes();
+		}
+
+		if (!dest.exists()) {
+			dest.mkdirs();
+		}
+		// write bytes to dest
+		FileOutputStream out = null;
+		File result = new File(dest, src.getName());
+		try {
+			out = new FileOutputStream(result);
+			out.write(srcBytes);
+			out.flush();
+		} catch(IOException e) {
+			return null;
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		return result;
 	}
 
 	public static String setupProcessorJar(String processorJar, String tmpDir) throws IOException {
@@ -281,5 +310,11 @@ public class BatchTestUtils {
 		}
 		// At this point f is either a normal file or an empty directory
 		f.delete();
+	}
+
+	public static File copyResource(String resourcePath, File targetFolder) {
+		File resDir = new File(getPluginDirectoryPath(), "resources");
+		File resourceFile = new File(resDir, resourcePath);
+		return copyResource(resourceFile, targetFolder);
 	}
 }
