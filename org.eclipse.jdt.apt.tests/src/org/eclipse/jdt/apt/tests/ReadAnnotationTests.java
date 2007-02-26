@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.readannotation.CodeExample;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -144,6 +145,11 @@ public class ReadAnnotationTests extends BuilderTests
 		IPath projectPath = env.addProject( getUniqueProjectName(), "1.5" ); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$ 
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
+		
+		// This should not be necessary, but see https://bugs.eclipse.org/bugs/show_bug.cgi?id=99638
+		IJavaProject jproj = env.getJavaProject(projectPath);
+		jproj.setOption("org.eclipse.jdt.core.compiler.problem.deprecation", "ignore");
+		
 		fullBuild( projectPath );
 
 		// remove old package fragment root so that names don't collide
