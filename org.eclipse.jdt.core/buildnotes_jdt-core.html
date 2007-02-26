@@ -51,9 +51,43 @@ Eclipse SDK 3.3M6 - ? February 2007
 <br>Project org.eclipse.jdt.core v_739
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_739">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Refined the options that control null-related issues detection. The existing
+<code>nullReference</code> option has been repurposed and split into three 
+options:
+<pre>
+COMPILER / Reporting Null Dereference
+   When enabled, the compiler will issue an error or a warning whenever a
+   variable that is statically known to hold a null value is used to
+   access a field or method.
+    - option id:         "org.eclipse.jdt.core.compiler.problem.nullReference"
+    - possible values:   { "error", "warning", "ignore" }
+    - default:           "ignore"
+COMPILER / Reporting Potential Null Dereference
+   When enabled, the compiler will issue an error or a warning whenever a
+   variable that has formerly been tested against null but is not (no more) 
+   statically known to hold a non-null value is used to access a field or 
+   method.
+    - option id:         "org.eclipse.jdt.core.compiler.problem.potentialNullReference"
+    - possible values:   { "error", "warning", "ignore" }
+    - default:           "ignore"
+COMPILER / Reporting Redundant Null Check
+   When enabled, the compiler will issue an error or a warning whenever a
+   variable that is statically known to hold a null or a non-null value 
+   is tested against null.
+    - option id:         "org.eclipse.jdt.core.compiler.problem.redundantNullCheck"
+    - possible values:   { "error", "warning", "ignore" }
+    - default:           "ignore"
+</pre>
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=170704">170704</a> 
+for details. 
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=172666">172666</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=170704">170704</a>
+[compiler][null][enh] separate "null dereference" and "null reference" compiler options
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=172666">172666</a>
 Importing pde.ui and dependencies as binary gives compile error
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=174971">174971</a>
 [index] Many exceptions from background indexer

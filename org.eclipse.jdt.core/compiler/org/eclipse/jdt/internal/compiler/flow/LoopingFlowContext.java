@@ -136,14 +136,14 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo flowInfo) {
 					}
 					if (flowInfo.isDefinitelyNull(local)) {
 						this.nullReferences[i] = null;
-						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
+						scope.problemReporter().localVariableRedundantCheckOnNull(local, expression);
 						continue;
 					}
 					break;
 				case CAN_ONLY_NULL :
 					if (flowInfo.isDefinitelyNull(local)) {
 						this.nullReferences[i] = null;
-						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
+						scope.problemReporter().localVariableRedundantCheckOnNull(local, expression);
 						continue;
 					}
 					break;
@@ -177,7 +177,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo flowInfo) {
 				case CAN_ONLY_NULL :
 					if (flowInfo.isDefinitelyNull(local)) {
 						this.nullReferences[i] = null;
-						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
+						scope.problemReporter().localVariableRedundantCheckOnNull(local, expression);
 						continue;
 					}
 					break;
@@ -329,7 +329,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				return;
 			}
 			if (flowInfo.isDefinitelyNull(local)) {
-				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+				scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 				return;
 			}
 			if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
@@ -347,7 +347,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				return;
 			}
 			if (flowInfo.isDefinitelyNull(local)) {
-				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+				scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 				return;
 			}
 			recordNullReference(local, reference, checkType);

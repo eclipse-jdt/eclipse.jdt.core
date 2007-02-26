@@ -508,7 +508,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 			}
 		case CAN_ONLY_NULL:
 			if (flowInfo.isDefinitelyNull(local)) {
-				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+				scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 				return;
 			}
 			else if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {

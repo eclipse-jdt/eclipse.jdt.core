@@ -63,6 +63,9 @@
  *                                 COMPILER_PB_NULL_REFERENCE
  *     IBM Corporation - added the following constants:
  *                                 CODEASSIST_DEPRECATION_CHECK
+ *     IBM Corporation - added the following constants:
+ *                                 COMPILER_PB_POTENTIAL_NULL_REFERENCE
+ *                                 COMPILER_PB_REDUNDANT_NULL_CHECK
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -674,6 +677,18 @@ public final class JavaCore extends Plugin {
 	 * @since 3.2
 	 */
 	public static final String COMPILER_PB_NULL_REFERENCE = PLUGIN_ID + ".compiler.problem.nullReference"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.3
+	 */
+	public static final String COMPILER_PB_POTENTIAL_NULL_REFERENCE = PLUGIN_ID + ".compiler.problem.potentialNullReference"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.3
+	 */
+	public static final String COMPILER_PB_REDUNDANT_NULL_CHECK = PLUGIN_ID + ".compiler.problem.redundantNullCheck"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -2138,14 +2153,31 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 
-	 * COMPILER / Reporting Null Reference or Dereference
-	 *    When enabled, the compiler will issue an error or a warning whenever an assumption is made on a variable
-	 *    with respect to holding null/non-null values, but the assumption is not followed in a consistent manner.
-	 *    Situations include:
-	 *         - if variable was assumed to be null and further used to access field or methods
-	 *         - if variable was assumed to be null or non-null and further tested for null cases.
+	 * COMPILER / Reporting Null Dereference
+	 *    When enabled, the compiler will issue an error or a warning whenever a
+	 *    variable that is statically known to hold a null value is used to
+	 *    access a field or method.
 	 *         
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.nullReference"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Reporting Potential Null Dereference
+	 *    When enabled, the compiler will issue an error or a warning whenever a
+	 *    variable that has formerly been tested against null but is not (no more) 
+	 *    statically known to hold a non-null value is used to access a field or 
+	 *    method.
+	 *         
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.potentialNullReference"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
+	 * 
+	 * COMPILER / Reporting Redundant Null Check
+	 *    When enabled, the compiler will issue an error or a warning whenever a
+	 *    variable that is statically known to hold a null or a non-null value 
+	 *    is tested against null.
+	 *         
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.redundantNullCheck"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "ignore"
 	 * 

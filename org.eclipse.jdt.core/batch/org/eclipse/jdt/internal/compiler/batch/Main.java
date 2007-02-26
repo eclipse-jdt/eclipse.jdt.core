@@ -1629,9 +1629,33 @@ protected void handleWarningToken(String token, boolean isEnabling, boolean useE
 			CompilerOptions.OPTION_ReportVarargsArgumentNeedCast,
 			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 	} else if (token.equals("null")) { //$NON-NLS-1$
-		this.options.put(
-			CompilerOptions.OPTION_ReportNullReference,
-			isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+		if (isEnabling) {
+			this.options.put(CompilerOptions.OPTION_ReportNullReference,
+					CompilerOptions.WARNING);
+			this.options.put(CompilerOptions.OPTION_ReportPotentialNullReference,
+					CompilerOptions.WARNING);
+			this.options.put(CompilerOptions.OPTION_ReportRedundantNullCheck,
+					CompilerOptions.WARNING);
+		} else {
+			this.options.put(CompilerOptions.OPTION_ReportNullReference,
+					CompilerOptions.IGNORE);
+			this.options.put(CompilerOptions.OPTION_ReportPotentialNullReference,
+					CompilerOptions.IGNORE);
+			this.options.put(CompilerOptions.OPTION_ReportRedundantNullCheck,
+					CompilerOptions.IGNORE);
+		}
+	} else if (token.equals("nullDereference")) { //$NON-NLS-1$
+		if (isEnabling) {
+			this.options.put(CompilerOptions.OPTION_ReportNullReference,
+					CompilerOptions.WARNING);
+		} else {
+			this.options.put(CompilerOptions.OPTION_ReportNullReference,
+					CompilerOptions.IGNORE);
+			this.options.put(CompilerOptions.OPTION_ReportPotentialNullReference,
+					CompilerOptions.IGNORE);
+			this.options.put(CompilerOptions.OPTION_ReportRedundantNullCheck,
+					CompilerOptions.IGNORE);
+		}
 	} else if (token.equals("boxing")) { //$NON-NLS-1$
 		this.options.put(
 			CompilerOptions.OPTION_ReportAutoboxing,

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -719,11 +719,14 @@ void setSourceStart(int sourceStart);
 	int DuplicateModifierForVariable = MethodRelated + 395;
 	int IllegalModifierForVariable = MethodRelated + 396;
 	/** @since 3.1 */
-	int LocalVariableCannotBeNull = Internal + 397;
+	int LocalVariableCannotBeNull = Internal + 397; // since 3.3: semantics are LocalVariableRedundantCheckOnNonNull
 	/** @since 3.1 */
-	int LocalVariableCanOnlyBeNull = Internal + 398;
+	int LocalVariableCanOnlyBeNull = Internal + 398; // since 3.3: split with LocalVariableRedundantCheckOnNull depending on context
+													 //            this id shares the null dereference errors with LocalVariableMayBeNull
 	/** @since 3.2 */
 	int LocalVariableMayBeNull = Internal + 399;
+	/** @since 3.3 */
+	int LocalVariableRedundantCheckOnNull = Internal + 392;
 
 	// method verifier problems
 	int AbstractMethodMustBeImplemented = MethodRelated + 400;

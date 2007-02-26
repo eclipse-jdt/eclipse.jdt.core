@@ -1116,7 +1116,8 @@ public void test012b(){
         "      maskedCatchBlock   + hidden catch block\n" +
         "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" +
         "      noEffectAssign     + assignment without effect\n" +
-        "      null                 missing or redundant null check\n" +
+        "      null                 potential missing or redundant null check\n" + 
+        "      nullDereference      missing null check\n" + 
         "      over-ann             missing @Override annotation\n" +
         "      paramAssign          assignment to a parameter\n" +
         "      pkgDefaultMethod   + attempt to override package-default method\n" +
@@ -1262,7 +1263,9 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentialNullReference\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullCheck\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" +
@@ -5185,6 +5188,87 @@ public void test140_classpath() {
             cp, "{pattern=**/internal/* (DISCOURAGED)}", "dir",
         },
         null);
+}
+// null ref option
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+public void test141_null_ref_option(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    o.toString();\n" + 
+			"  }\n" + 
+			"}"},
+     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+     + " -1.5 -g -preserveAllLocals"
+     + " -bootclasspath " + getLibraryClasses()
+     + " -cp " + getJCEJar()
+     + " -warn:+nullDereference"
+     + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+     "", 
+     "----------\n" + 
+     "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+     "	o.toString();\n" + 
+     "	^\n" + 
+     "The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+     "----------\n" + 
+     "1 problem (1 warning)",
+     true);
+}
+// null ref option
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+public void test142_null_ref_option(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    if (o == null) {}\n" + 
+			"  }\n" + 
+			"}"},
+  "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+  + " -1.5 -g -preserveAllLocals"
+  + " -bootclasspath " + getLibraryClasses()
+  + " -cp " + getJCEJar()
+  + " -warn:+null"
+  + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+  "", 
+  "----------\n" + 
+  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+  "	if (o == null) {}\n" + 
+  "	    ^\n" + 
+  "The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+  "----------\n" + 
+  "1 problem (1 warning)",
+  true);
+}
+// null ref option
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+public void test143_null_ref_option(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    if (o == null) {}\n" + 
+			"  }\n" + 
+			"}"},
+"\"" + OUTPUT_DIR +  File.separator + "X.java\""
++ " -1.5 -g -preserveAllLocals"
++ " -bootclasspath " + getLibraryClasses()
++ " -cp " + getJCEJar()
++ " -warn:+nullDereference"
++ " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+"", 
+"",
+true);
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;

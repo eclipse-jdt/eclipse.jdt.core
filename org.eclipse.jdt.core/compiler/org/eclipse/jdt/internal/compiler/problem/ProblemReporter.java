@@ -184,10 +184,15 @@ public static long getIrritant(int problemID) {
 		case IProblem.ConstructorVarargsArgumentNeedCast :
 			return CompilerOptions.VarargsArgumentNeedCast;
 
-		case IProblem.LocalVariableCannotBeNull :
-		case IProblem.LocalVariableCanOnlyBeNull :
-		case IProblem.LocalVariableMayBeNull :
+		case IProblem.LocalVariableCanOnlyBeNull:
 			return CompilerOptions.NullReference;
+
+		case IProblem.LocalVariableMayBeNull:
+			return CompilerOptions.PotentialNullReference;
+			
+		case IProblem.LocalVariableCannotBeNull:
+		case IProblem.LocalVariableRedundantCheckOnNull:
+			return CompilerOptions.RedundantNullCheck;
 			
 		case IProblem.BoxingConversion :
 		case IProblem.UnboxingConversion :
@@ -370,6 +375,8 @@ public static int getProblemCategory(int severity, int problemID) {
 				case (int)(CompilerOptions.MissingSerialVersion >>> 32):
 				case (int)(CompilerOptions.VarargsArgumentNeedCast >>> 32):
 				case (int)(CompilerOptions.NullReference >>> 32):
+				case (int)(CompilerOptions.PotentialNullReference >>> 32):				
+				case (int)(CompilerOptions.RedundantNullCheck >>> 32):
 				case (int)(CompilerOptions.IncompleteEnumSwitch >>> 32):
 				case (int)(CompilerOptions.FallthroughCase >>> 32):
 				case (int)(CompilerOptions.OverridingMethodWithoutSuperInvocation >>> 32):
@@ -4442,6 +4449,18 @@ public void localVariableMayBeNull(LocalVariableBinding local, ASTNode location)
 	String[] arguments = new String[] {new String(local.name)};
 	this.handle(
 		IProblem.LocalVariableMayBeNull,
+		arguments,
+		arguments,
+		severity,
+		nodeSourceStart(local, location),
+		nodeSourceEnd(local, location));
+}
+public void localVariableRedundantCheckOnNull(LocalVariableBinding local, ASTNode location) {
+	int severity = computeSeverity(IProblem.LocalVariableRedundantCheckOnNull);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(local.name)  };
+	this.handle(
+		IProblem.LocalVariableRedundantCheckOnNull,
 		arguments,
 		arguments,
 		severity,

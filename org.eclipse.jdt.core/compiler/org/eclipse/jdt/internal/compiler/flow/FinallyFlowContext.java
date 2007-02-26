@@ -99,7 +99,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					}
 				case CAN_ONLY_NULL:
 					if (flowInfo.isDefinitelyNull(local)) {
-						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
+						scope.problemReporter().localVariableRedundantCheckOnNull(local, expression);
 					}
 					break;
 				case MAY_NULL :
@@ -170,7 +170,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						return;
 					}
 					if (flowInfo.canOnlyBeNull(local)) {
-						scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+						scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 						return;
 					}
 					break;
@@ -196,7 +196,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					}
 				case CAN_ONLY_NULL:
 					if (flowInfo.isDefinitelyNull(local)) {
-						scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+						scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 						return;
 					}
 					break;

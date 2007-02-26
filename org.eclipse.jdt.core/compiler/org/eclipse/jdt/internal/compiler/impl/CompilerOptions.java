@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -94,6 +94,8 @@ public class CompilerOptions {
 	public static final String OPTION_TaskCaseSensitive = "org.eclipse.jdt.core.compiler.taskCaseSensitive"; //$NON-NLS-1$
 	public static final String OPTION_InlineJsr = "org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode"; //$NON-NLS-1$
 	public static final String OPTION_ReportNullReference = "org.eclipse.jdt.core.compiler.problem.nullReference"; //$NON-NLS-1$
+	public static final String OPTION_ReportPotentialNullReference = "org.eclipse.jdt.core.compiler.problem.potentialNullReference"; //$NON-NLS-1$
+	public static final String OPTION_ReportRedundantNullCheck = "org.eclipse.jdt.core.compiler.problem.redundantNullCheck"; //$NON-NLS-1$
 	public static final String OPTION_ReportAutoboxing = "org.eclipse.jdt.core.compiler.problem.autoboxing"; //$NON-NLS-1$
 	public static final String OPTION_ReportAnnotationSuperInterface = "org.eclipse.jdt.core.compiler.problem.annotationSuperInterface"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingOverrideAnnotation = "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"; //$NON-NLS-1$
@@ -194,6 +196,8 @@ public class CompilerOptions {
 	public static final long ParameterAssignment = ASTNode.Bit48L;
 	public static final long FallthroughCase = ASTNode.Bit49L;
 	public static final long OverridingMethodWithoutSuperInvocation = ASTNode.Bit50L;
+	public static final long PotentialNullReference = ASTNode.Bit51L;
+	public static final long RedundantNullCheck = ASTNode.Bit52L;
 
 	// Map: String optionKey --> Long irritant>
 	private static Map OptionToIrritants;
@@ -418,6 +422,8 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_MaxProblemPerUnit, String.valueOf(this.maxProblemsPerUnit));
 		optionsMap.put(OPTION_InlineJsr, this.inlineJsrBytecode ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportNullReference, getSeverityString(NullReference));
+		optionsMap.put(OPTION_ReportPotentialNullReference, getSeverityString(PotentialNullReference));
+		optionsMap.put(OPTION_ReportRedundantNullCheck, getSeverityString(RedundantNullCheck));
 		optionsMap.put(OPTION_SuppressWarnings, this.suppressWarnings ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnhandledWarningToken, getSeverityString(UnhandledWarningToken));
 		optionsMap.put(OPTION_ReportParameterAssignment, getSeverityString(ParameterAssignment));
@@ -517,6 +523,10 @@ public class CompilerOptions {
 					return OPTION_ReportVarargsArgumentNeedCast;
 				case (int)(NullReference >>> 32) :
 					return OPTION_ReportNullReference;
+				case (int)(PotentialNullReference >>> 32) :
+					return OPTION_ReportPotentialNullReference;
+				case (int)(RedundantNullCheck >>> 32) :
+					return OPTION_ReportRedundantNullCheck;
 				case (int)(AutoBoxing >>> 32) :
 					return OPTION_ReportAutoboxing;
 				case (int)(AnnotationSuperInterface >>> 32) :
@@ -791,6 +801,8 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportDiscouragedReference)) != null) updateSeverity(DiscouragedReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportVarargsArgumentNeedCast)) != null) updateSeverity(VarargsArgumentNeedCast, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNullReference)) != null) updateSeverity(NullReference, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportPotentialNullReference)) != null) updateSeverity(PotentialNullReference, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportRedundantNullCheck)) != null) updateSeverity(RedundantNullCheck, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAutoboxing)) != null) updateSeverity(AutoBoxing, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAnnotationSuperInterface)) != null) updateSeverity(AnnotationSuperInterface, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingOverrideAnnotation)) != null) updateSeverity(MissingOverrideAnnotation, optionValue);
@@ -970,6 +982,8 @@ public class CompilerOptions {
 		buf.append("\n\t- forbidden reference to type with access restriction: ").append(getSeverityString(ForbiddenReference)); //$NON-NLS-1$
 		buf.append("\n\t- discouraged reference to type with access restriction: ").append(getSeverityString(DiscouragedReference)); //$NON-NLS-1$
 		buf.append("\n\t- null reference: ").append(getSeverityString(NullReference)); //$NON-NLS-1$
+		buf.append("\n\t- potential null reference: ").append(getSeverityString(PotentialNullReference)); //$NON-NLS-1$
+		buf.append("\n\t- redundant null check: ").append(getSeverityString(RedundantNullCheck)); //$NON-NLS-1$
 		buf.append("\n\t- autoboxing: ").append(getSeverityString(AutoBoxing)); //$NON-NLS-1$
 		buf.append("\n\t- annotation super interface: ").append(getSeverityString(AnnotationSuperInterface)); //$NON-NLS-1$
 		buf.append("\n\t- missing @Override annotation: ").append(getSeverityString(MissingOverrideAnnotation)); //$NON-NLS-1$
@@ -1098,6 +1112,8 @@ public class CompilerOptions {
 			OPTION_ReportNonExternalizedStringLiteral,
 			OPTION_ReportNonStaticAccessToStatic,
 			OPTION_ReportNullReference,
+			OPTION_ReportPotentialNullReference,
+			OPTION_ReportRedundantNullCheck,
 			OPTION_ReportOverridingPackageDefaultMethod,
 			OPTION_ReportParameterAssignment,
 			OPTION_ReportPossibleAccidentalBooleanAssignment,
@@ -1175,6 +1191,8 @@ public class CompilerOptions {
 				case (int) (ForbiddenReference >>> 32) :
 					return "restriction"; //$NON-NLS-1$
 				case (int) (NullReference >>> 32) :
+				case (int) (PotentialNullReference >>> 32) :
+				case (int) (RedundantNullCheck >>> 32) :
 					return "null"; //$NON-NLS-1$
 				case (int) (FallthroughCase >>> 32) :
 					return "fallthrough"; //$NON-NLS-1$
@@ -1245,7 +1263,7 @@ public class CompilerOptions {
 				if ("nls".equals(warningToken)) //$NON-NLS-1$
 					return NonExternalizedString;
 				if ("null".equals(warningToken)) //$NON-NLS-1$
-					return NullReference;
+					return NullReference | PotentialNullReference | RedundantNullCheck;
 				break;
 			case 'r' :
 				if ("restriction".equals(warningToken)) //$NON-NLS-1$

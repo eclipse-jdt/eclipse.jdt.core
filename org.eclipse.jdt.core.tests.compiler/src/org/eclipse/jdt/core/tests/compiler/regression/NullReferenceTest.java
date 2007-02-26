@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2006 IBM Corporation and others.
+ * Copyright (c) 2005, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,13 +44,16 @@ public static Class testClass() {
     return NullReferenceTest.class;
 }
 
-// Augment problem detection settings
+// Conditionally augment problem detection settings
+static boolean setNullRelatedOptions = true;
 protected Map getCompilerOptions() {
     Map defaultOptions = super.getCompilerOptions();
-//    defaultOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
-    defaultOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
-	defaultOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-//    defaultOptions.put(CompilerOptions.OPTION_ReportNoEffectAssignment, CompilerOptions.WARNING);
+    if (setNullRelatedOptions) {
+	    defaultOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
+	    defaultOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.ERROR);
+	    defaultOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
+		defaultOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+    }
     return defaultOptions;
 }
   
@@ -7856,7 +7859,324 @@ public void test1036() {
 		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
 		"----------\n");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+// default for null options is Ignore
+public void test1050_options_all_default() {
+	try {
+		setNullRelatedOptions = false;
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				  "public class X {\n" + 
+				  "  void foo(Object p) {\n" + 
+				  "    Object o = null;\n" +
+				  "    if (o != null) {\n" +
+				  "       o = null;\n" +
+				  "    }\n" +
+				  "    if (p == null) {}\n" + // taint p 
+				  "    o.toString();\n" +
+				  "    p.toString();\n" + 
+				  "  }\n" + 
+				  "}\n"});
+	}
+	finally {
+		setNullRelatedOptions = true;
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+// all null options set to Ignore
+public void test1051_options_all_ignore() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.IGNORE);
+    customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				  "public class X {\n" + 
+				  "  void foo(Object p) {\n" + 
+				  "    Object o = null;\n" +
+				  "    if (o != null) {\n" +
+				  "       o = null;\n" +
+				  "    }\n" +
+				  "    if (p == null) {}\n" + // taint p 
+				  "    o.toString();\n" +
+				  "    p.toString();\n" + 
+				  "  }\n" + 
+				  "}\n"},
+			null /* no expected output string */, 
+			null /* no extra class libraries */, 
+			true /* flush output directory */, 
+			null /* no vm arguments */,
+			customOptions,
+			null /* no custom requestor*/,
+		  	false /* do not skip javac for this peculiar test */);	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+// all options set to error
+public void test1052_options_all_error() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			  "public class X {\n" + 
+			  "  void foo(Object p) {\n" + 
+			  "    Object o = null;\n" +
+			  "    if (o != null) {\n" +
+			  "       o = null;\n" +
+			  "    }\n" +
+			  "    if (p == null) {}\n" + // taint p 
+			  "    o.toString();\n" +
+			  "    p.toString();\n" + 
+			  "  }\n" + 
+			  "}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	if (o != null) {\r\n" + 
+		"	    ^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\r\n" + 
+		"	o.toString();\r\n" + 
+		"	^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\r\n" + 
+		"	p.toString();\r\n" + 
+		"	^\n" + 
+		"The variable p may be null\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+// selectively changing error levels
+public void test1053_options_mix() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			  "public class X {\n" + 
+			  "  void foo(Object p) {\n" + 
+			  "    Object o = null;\n" +
+			  "    if (o != null) {\n" +
+			  "       o = null;\n" +
+			  "    }\n" +
+			  "    if (p == null) {}\n" + // taint p 
+			  "    o.toString();\n" +
+			  "    p.toString();\n" + 
+			  "  }\n" + 
+			  "}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\r\n" + 
+		"	o.toString();\r\n" + 
+		"	^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions,
+		false /* do not generate output */,
+		false /* do not show category */, 
+		false /* do not show warning token */, 
+		false  /* do not skip javac for this peculiar test */,
+		false  /* do not perform statements recovery */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+// selectively changing error levels
+public void test1054_options_mix() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			  "public class X {\n" + 
+			  "  void foo(Object p) {\n" + 
+			  "    Object o = null;\n" +
+			  "    if (o != null) {\n" +
+			  "       o = null;\n" +
+			  "    }\n" +
+			  "    if (p == null) {}\n" + // taint p 
+			  "    o.toString();\n" +
+			  "    p.toString();\n" + 
+			  "  }\n" + 
+			  "}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	if (o != null) {\r\n" + 
+		"	    ^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\r\n" + 
+		"	o.toString();\r\n" + 
+		"	^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions,
+		false /* do not generate output */,
+		false /* do not show category */, 
+		false /* do not show warning token */, 
+		false  /* do not skip javac for this peculiar test */,
+		false  /* do not perform statements recovery */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+// selectively changing error levels
+public void test1055_options_mix() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			  "public class X {\n" + 
+			  "  void foo(Object p) {\n" + 
+			  "    Object o = null;\n" +
+			  "    if (o != null) {\n" +
+			  "       o = null;\n" +
+			  "    }\n" +
+			  "    if (p == null) {}\n" + // taint p 
+			  "    o.toString();\n" +
+			  "    p.toString();\n" + 
+			  "  }\n" + 
+			  "}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	if (o != null) {\r\n" + 
+		"	    ^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\r\n" + 
+		"	p.toString();\r\n" + 
+		"	^\n" + 
+		"The variable p may be null\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions,
+		false /* do not generate output */,
+		false /* do not show category */, 
+		false /* do not show warning token */, 
+		false  /* do not skip javac for this peculiar test */,
+		false  /* do not perform statements recovery */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+// selectively changing error levels
+public void test1056_options_mix_with_SuppressWarnings() {
+	if (complianceLevel.compareTo(COMPLIANCE_1_5) >= 0) {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			  "public class X {\n" + 
+			  "@SuppressWarnings(\"null\")\n" + 
+			  "  void foo(Object p) {\n" + 
+			  "    Object o = null;\n" +
+			  "    if (o != null) {\n" +
+			  "       o = null;\n" +
+			  "    }\n" +
+			  "    if (p == null) {}\n" + // taint p 
+			  "    o.toString();\n" +
+			  "    p.toString();\n" + 
+			  "  }\n" + 
+			  "}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\r\n" + 
+		"	o.toString();\r\n" + 
+		"	^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n",
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		customOptions,
+		false /* do not generate output */,
+		false /* do not show category */, 
+		false /* do not show warning token */, 
+		false  /* do not skip javac for this peculiar test */,
+		false  /* do not perform statements recovery */);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+public void test1057_options_instanceof_is_check() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			  "public class X {\n" + 
+			  "  void foo(Object p) {\n" + 
+			  "    Object o = null;\n" +
+			  "    if (p == null) {}\n" + // taint p 
+			  "    if (o instanceof String) {};\n" +
+			  "    if (p instanceof String) {};\n" + 
+			  "  }\n" + 
+			  "}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (o instanceof String) {};\n" + 
+		"	    ^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+public void test1058_options_instanceof_is_check() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			  "public class X {\n" + 
+			  "  void foo(Object p) {\n" + 
+			  "    Object o = null;\n" +
+			  "    if (p == null) {}\n" + // taint p 
+			  "    if (o instanceof String) {};\n" +
+			  "    if (p instanceof String) {};\n" + 
+			  "  }\n" + 
+			  "}\n"},
+		null /* no expected output string */, 
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		null /* no vm arguments */,
+		customOptions,
+		null /* no custom requestor*/,
+	  	false /* do not skip javac for this peculiar test */);	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
+// adding distinct options to control null checks in more detail
+public void test1059_options_cannot_be_null_check() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			  "public class X {\n" + 
+			  "  void foo(Object p) {\n" + 
+			  "    Object o = new Object();\n" +
+			  "    if (o == null) {}\n" + 
+			  "  }\n" + 
+			  "}\n"},
+		null /* no expected output string */, 
+		null /* no extra class libraries */, 
+		true /* flush output directory */, 
+		null /* no vm arguments */,
+		customOptions,
+		null /* no custom requestor*/,
+	  	false /* do not skip javac for this peculiar test */);	
+}
 // encoding validation
 public void test1500() {
 	this.runConformTest(
