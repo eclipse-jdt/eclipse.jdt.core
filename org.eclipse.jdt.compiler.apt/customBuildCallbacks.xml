@@ -93,7 +93,6 @@
 			<fileset dir="${unjarDestBin}"/>
 			<fileset dir="${target.folder}">
 				<include name="**/*"/>
-				<include name="eclipse.inf"/>
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="META-INF/services/**" />
