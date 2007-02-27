@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 
@@ -17,6 +19,8 @@ import org.eclipse.jdt.internal.core.util.LRUCache;
  * An LRU cache of <code>IBuffers</code>.
  */
 public class BufferCache extends OverflowingLRUCache {
+	
+	private ArrayList buffersToClose = new ArrayList();
 /**
  * Constructs a new buffer cache of the given size.
  */
@@ -44,8 +48,16 @@ protected boolean close(LRUCacheEntry entry) {
 	if (!((Openable)buffer.getOwner()).canBufferBeRemovedFromCache(buffer)) {
 		return false;
 	} else {
-		buffer.close();
+		this.buffersToClose.add(buffer);
 		return true;
+	}
+}
+
+void closeBuffers() {
+	ArrayList buffers = this.buffersToClose;
+	this.buffersToClose = new ArrayList();
+	for (int i = 0, length = buffers.size(); i < length; i++) {
+		((IBuffer) buffers.get(i)).close();
 	}
 }
 	/**

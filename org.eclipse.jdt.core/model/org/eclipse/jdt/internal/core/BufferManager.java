@@ -32,7 +32,7 @@ public class BufferManager {
 	 * LRU cache of buffers. The key and value for an entry
 	 * in the table is the identical buffer.
 	 */
-	protected OverflowingLRUCache openBuffers = new BufferCache(60);
+	private BufferCache openBuffers = new BufferCache(60);
 	
 	/**
 	 * @deprecated
@@ -54,7 +54,11 @@ protected void addBuffer(IBuffer buffer) {
 		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
 		System.out.println("Adding buffer for " + owner); //$NON-NLS-1$
 	}
-	this.openBuffers.put(buffer.getOwner(), buffer);
+	synchronized (this.openBuffers) {
+		this.openBuffers.put(buffer.getOwner(), buffer);	
+	}
+	// close buffers that were removed from the cache if space was needed
+	this.openBuffers.closeBuffers();
 	if (VERBOSE) {
 		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
@@ -74,7 +78,9 @@ public IBuffer createBuffer(IOpenable owner) {
  * buffer associated with it.
  */
 public IBuffer getBuffer(IOpenable owner) {
-	return (IBuffer)this.openBuffers.get(owner);
+	synchronized (this.openBuffers) {
+		return (IBuffer)this.openBuffers.get(owner);
+	}
 }
 /**
  * Returns the default buffer manager.
@@ -101,10 +107,14 @@ public org.eclipse.jdt.core.IBufferFactory getDefaultBufferFactory() {
  * @return Enumeration of IBuffer
  */
 public Enumeration getOpenBuffers() {
+	Enumeration result;
 	synchronized (this.openBuffers) {
 		this.openBuffers.shrink();
-		return this.openBuffers.elements();
+		result = this.openBuffers.elements();
 	}
+	// close buffers that were removed from the cache if space was needed
+	this.openBuffers.closeBuffers();
+	return result;
 }
 
 /**
@@ -115,7 +125,11 @@ protected void removeBuffer(IBuffer buffer) {
 		String owner = ((Openable)buffer.getOwner()).toStringWithAncestors();
 		System.out.println("Removing buffer for " + owner); //$NON-NLS-1$
 	}
-	this.openBuffers.remove(buffer.getOwner());
+	synchronized (this.openBuffers) {
+		this.openBuffers.remove(buffer.getOwner());
+	}
+	// close buffers that were removed from the cache (should be only one)
+	this.openBuffers.closeBuffers();	
 	if (VERBOSE) {
 		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
