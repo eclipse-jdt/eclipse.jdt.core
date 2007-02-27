@@ -8,7 +8,7 @@
 </head>
 <body text="#000000" bgcolor="#FFFFFF">
 <table border=0 cellspacing=5 cellpadding=2 width="100%" >
-  <tr> 
+  <tr>
     <td align="left" width="72%" class="title1">
       <font size="+3"><b>jdt core - build notes 3.3 stream</b></font>
     </td>
@@ -18,30 +18,40 @@
   <tr>
   	<td class="title3">
 	  <font size="-1">
-	  Here are the build notes for the Eclipse JDT/Core plug-in project 
-	  <a href="http://www.eclipse.org/jdt/core/index.php"><b>org.eclipse.jdt.core</b></a>, 
-	  describing <a href="http://bugs.eclipse.org/bugs" target=new>bug</a> resolution and substantial changes in the <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core"><b>HEAD</b></a> branch. 
-	  For more information on 3.3 planning, please refer to <a href="http://www.eclipse.org/jdt/core/r3.3/index.php#release-plan">JDT/Core release plan</a>, 
-	  the next <a href="http://www.eclipse.org/jdt/core/r3.3/index.php#milestone-plan">milestone plan</a>, 
+	  Here are the build notes for the Eclipse JDT/Core plug-in project
+	  <a href="http://www.eclipse.org/jdt/core/index.php"><b>org.eclipse.jdt.core</b></a>,
+	  describing <a href="http://bugs.eclipse.org/bugs" target=new>bug</a> resolution and substantial changes in the <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core"><b>HEAD</b></a> branch.
+	  For more information on 3.3 planning, please refer to <a href="http://www.eclipse.org/jdt/core/r3.3/index.php#release-plan">JDT/Core release plan</a>,
+	  the next <a href="http://www.eclipse.org/jdt/core/r3.3/index.php#milestone-plan">milestone plan</a>,
 	  the overall <a href="http://www.eclipse.org/eclipse/development/eclipse_project_plan_3_2.html">official plan</a>,
 	  or the <a href="http://www.eclipse.org/eclipse/platform-releng/buildSchedule.html">build schedule</a>.
 	  <!--
 	  This present document covers all changes since Release 3.0 (also see a summary of <a href="http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/org.eclipse.jdt.core/notes/API_changes.html">API changes</a>).
-	  Older changes which occurred up to Release 3.0 can be found in 
+	  Older changes which occurred up to Release 3.0 can be found in
 	  <a href="http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/org.eclipse.jdt.core/notes/R21_buildnotes_jdt-core.html">build notes R2.1</a>.
 	  -->
 	  This present document covers all changes since Release 3.2 (also see a summary of <a href="http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/org.eclipse.jdt.core/notes/API_changes.html">API changes</a>).
-	  <br>Maintenance of previous releases of JDT/Core is performed in parallel branches: 
+	  <br>Maintenance of previous releases of JDT/Core is performed in parallel branches:
 		  <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=R3_2_maintenance">R3.2.x</a>,
 		  <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=R3_1_maintenance">R3.1.x</a>,
 		  <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=R3_0_maintenance">R3.0.x</a>,
 		  <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=R2_1_maintenance">R2.1.x</a>,
-		  <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=R2_0_1">R2.0.x</a>, 
+		  <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=R2_0_1">R2.0.x</a>,
 		  <a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=ECLIPSE_1_0">R1.0.x</a>.
 	  </font>
 	</td>
   </tr>
 </table>
+<a name="v_740"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.3M6 - 27th February 2007
+<br>Project org.eclipse.jdt.core v_740
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_740">cvs</a>).
+<h2>What's new in this drop</h2>
+
+<h3>Problem Reports Fixed</h3>
 
 <a name="v_739"></a>
 <hr><h1>
@@ -53,7 +63,7 @@ Eclipse SDK 3.3M6 - 27th February 2007
 <h2>What's new in this drop</h2>
 <ul>
 <li>Refined the options that control null-related issues detection. The existing
-<code>nullReference</code> option has been repurposed and split into three 
+<code>nullReference</code> option has been repurposed and split into three
 options:
 <pre>
 COMPILER / Reporting Null Dereference
@@ -65,22 +75,22 @@ COMPILER / Reporting Null Dereference
     - default:           "ignore"
 COMPILER / Reporting Potential Null Dereference
    When enabled, the compiler will issue an error or a warning whenever a
-   variable that has formerly been tested against null but is not (no more) 
-   statically known to hold a non-null value is used to access a field or 
+   variable that has formerly been tested against null but is not (no more)
+   statically known to hold a non-null value is used to access a field or
    method.
     - option id:         "org.eclipse.jdt.core.compiler.problem.potentialNullReference"
     - possible values:   { "error", "warning", "ignore" }
     - default:           "ignore"
 COMPILER / Reporting Redundant Null Check
    When enabled, the compiler will issue an error or a warning whenever a
-   variable that is statically known to hold a null or a non-null value 
+   variable that is statically known to hold a null or a non-null value
    is tested against null.
     - option id:         "org.eclipse.jdt.core.compiler.problem.redundantNullCheck"
     - possible values:   { "error", "warning", "ignore" }
     - default:           "ignore"
 </pre>
-See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=170704">170704</a> 
-for details. 
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=170704">170704</a>
+for details.
 </li>
 </ul>
 
@@ -131,7 +141,7 @@ Eclipse SDK 3.3M6 - 20th February 2007
  */
 byte[] getBytes() throws JavaModelException;
 </pre>
-See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=150244">150244</a> for details. 
+See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=150244">150244</a> for details.
 </li>
 </ul>
 
@@ -291,9 +301,9 @@ Eclipse SDK 3.3M5 - 30th January 2007
  * Compares the two char arrays lexicographically.
  *
  * Returns a negative integer if array1 lexicographically precedes the array2,
- * a positive integer if this array1 lexicographically follows the array2, or 
- * zero if both arrays are equal. 
- * 
+ * a positive integer if this array1 lexicographically follows the array2, or
+ * zero if both arrays are equal.
+ *
  * @param array1 the first array
  * @param array2 the second array
  * @return the returned value of the comparison between array1 and array2
@@ -318,8 +328,8 @@ public static final int compareTo(char[] array1, char[] array2)
 	 * behavior of the code. Secondly, reordering a class's members may affect
 	 * how its instances are serialized. This operation should therefore be used
 	 * with caution and due concern for potential negative side effects.
-	 * 
-	 * 
+	 *
+	 *
 	 * The <code>compare</code> method of the given comparator is passed pairs
 	 * of body declarations (subclasses of <code>BodyDeclaration</code>)
 	 * representing body declarations at the same level. The nodes are from an
@@ -332,12 +342,12 @@ public static final int compareTo(char[] array1, char[] array2)
 	 * comparator). The <code>RELATIVE_ORDER</code> property attached to these
 	 * AST nodes affords the comparator a way to preserve the original relative
 	 * order.
-	 * 
-	 * 
+	 *
+	 *
 	 * The body declarations passed as parameters to the comparator always carry
-	 * at least the following minimal signature information: 
-	 * 
-	 * 
+	 * at least the following minimal signature information:
+	 *
+	 *
 	 * <code>TypeDeclaration</code>
 	 * <code>modifiers, isInterface, name, superclass,
 	 *        superInterfaces, typeParameters
@@ -348,7 +358,7 @@ public static final int compareTo(char[] array1, char[] array2)
 	 *        (VariableDeclarationFragments
 	 *        with name only)
 	 *        RELATIVE_ORDER property</code>
-	 * 
+	 *
 	 * <code>MethodDeclaration</code>
 	 * <code>modifiers, isConstructor, returnType, name,
 	 *        typeParameters, parameters
@@ -375,12 +385,12 @@ public static final int compareTo(char[] array1, char[] array2)
 	 * <code>EnumConstantDeclaration</code>
 	 * <code>modifiers, name, arguments
 	 *        RELATIVE_ORDER property</code>
-	 * 
+	 *
 	 * Clients should not rely on the AST nodes being properly parented
 	 * or on having source range information. (Future releases may provide
 	 * options for requesting additional information like source positions, full
 	 * ASTs, non-recursive sorting, etc.)
-	 * 
+	 *
 	 * @param unit
 	 *            the CompilationUnit to sort
 	 * @param comparator
@@ -394,7 +404,7 @@ public static final int compareTo(char[] array1, char[] array2)
 	 *            the text edit group to use when generating text edits, or <code>null</code>
 	 * @param monitor
 	 *            the progress monitor to notify, or <code>null</code> if none
-	 * @return a TextEdit describing the required edits to do the sort, or <code>null</code> 
+	 * @return a TextEdit describing the required edits to do the sort, or <code>null</code>
 	 *            if sorting is not required
 	 * @exception JavaModelException
 	 *                if the compilation unit could not be sorted. Reasons
@@ -425,7 +435,7 @@ public static final int compareTo(char[] array1, char[] array2)
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=166354">166354</a>
-[1.5][compiler] extraneous error caused by a non visible method of an inherited 
+[1.5][compiler] extraneous error caused by a non visible method of an inherited
 class taking precedence over a visible method of an enclosing class
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=167190">167190</a>
 [search] TypeNameMatchRequestorWrapper causing ClassCastException
@@ -534,7 +544,7 @@ Classpath variable deprecation message and read-only information are accessible 
  * @return A string if the classpath variable is deprecated, <code>null</code> otherwise.
  * @since 3.3
  */
-public static String getClasspathVariableDeprecationMessage(String variableName) 
+public static String getClasspathVariableDeprecationMessage(String variableName)
 
 /**
  * Returns whether a given classpath variable is read-only or not.
@@ -572,7 +582,7 @@ Eclipse SDK 3.3M5 - 16th January 2007
 <h2>What's new in this drop</h2>
 <ul>
 <li>The compiler can now detect unused local types (as opposed to only private types up until now). </li>
-<li>The compiler is now better able to detect unused private constructors, it now tolerates more than the 
+<li>The compiler is now better able to detect unused private constructors, it now tolerates more than the
 private constructor with no parameter as the known pattern for blocking instantiation. Basically, unless a
 non private constructor is defined as well, it will ignore unused private constructors from now on (also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=163443">163443</a>).</li>
 <li>Code Assist can propose import statements:
@@ -605,13 +615,13 @@ public class CompletionProposal {
 	 * &lt;/li&gt;
 	 * &lt;/ul&gt;
 	 * &lt;/p&gt;
-	 * 
+	 *
 	 * @see #getKind()
-	 * 
+	 *
 	 * @since 3.3
 	 */
 	public static final int FIELD_IMPORT;
-	
+
 	/**
 	 * Completion is an import of reference to a static method.
 	 * &lt;p&gt;
@@ -636,13 +646,13 @@ public class CompletionProposal {
 	 * &lt;/li&gt;
 	 * &lt;/ul&gt;
 	 * &lt;/p&gt;
-	 * 
+	 *
 	 * @see #getKind()
-	 * 
+	 *
 	 * @since 3.3
 	 */
 	public static final int METHOD_IMPORT;
-	
+
 	/**
 	 * Completion is an import of reference to a type.
 	 * Only reference to reference types are allowed.
@@ -667,9 +677,9 @@ public class CompletionProposal {
 	 * &lt;/li&gt;
 	 * &lt;/ul&gt;
 	 * &lt;/p&gt;
-	 * 
+	 *
 	 * @see #getKind()
-	 * 
+	 *
 	 * @since 3.3
 	 */
 	public static final int TYPE_IMPORT;
@@ -696,19 +706,19 @@ public class CompletionRequestor {
 	 * Other kind of reference could be used in the future.
 	 * &lt;/p&gt;
 	 * @return favorite imports
-	 * 
+	 *
 	 * @since 3.3
 	 */
 	public String[] getFavoriteReferences() {...}
-	
+
 	/**
 	 * Set the favorite references which will be used to compute some completion proposals.
 	 * A favorite reference is a qualified reference as it can be seen in an import statement.&lt;br&gt;
-	 * 
+	 *
 	 * @param favoriteImports
-	 * 
+	 *
 	 * @see #getFavoriteReferences()
-	 * 
+	 *
 	 * @since 3.3
 	 */
 	public void setFavoriteReferences(String[] favoriteImports) {...}
@@ -835,14 +845,14 @@ Eclipse SDK 3.3M4 - 9th December 2006 - 3.3 MILESTONE 4
   <li>IMarker-s generated by JDT and compiler participants may now have their
       IMarker#GENERATED_BY attribute set according to the following rules:
       <ul>
-        <li>IMarker-s generated by JDT get JavaBuilder#GENERATED_BY, currently 
+        <li>IMarker-s generated by JDT get JavaBuilder#GENERATED_BY, currently
             valued to JDT, as their GENERATED_BY attribute; <em>that value is
             non API and may change in future releases</em>;</li>
-        <li>IMarker-s originating from compiler participants' categorized 
-            problems which do not have the IMarker#GENERATED_BY extra attribute 
+        <li>IMarker-s originating from compiler participants' categorized
+            problems which do not have the IMarker#GENERATED_BY extra attribute
             set do not have their GENERATED_BY attribute set;</li>
-        <li>IMarker-s originating from compiler participants' categorized 
-            problems which have the IMarker#GENERATED_BY set to a given value 
+        <li>IMarker-s originating from compiler participants' categorized
+            problems which have the IMarker#GENERATED_BY set to a given value
             get their GENERATED_BY attribute set to the said value.</li>
       </ul>
       See also bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=158611">158611</a>.
@@ -899,16 +909,16 @@ Eclipse SDK 3.3M4 - 28th November 2006
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_725">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
-<li>Added <code>org.eclipse.jdt.core.JavaCore#VERSION_1_7</code>. It can be used to set the compliance, the source or the 
-target platform values. This has no impact right now beside setting the major version inside .class file to 
+<li>Added <code>org.eclipse.jdt.core.JavaCore#VERSION_1_7</code>. It can be used to set the compliance, the source or the
+target platform values. This has no impact right now beside setting the major version inside .class file to
 <code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants#MAJOR_VERSION_1_7</code>.</li>
 <li>Added new API <code>org.eclipse.jdt.core.JavaCore#setComplianceOptions(String, Map)</code> to set the compiler's
 options relative to a given compiler's compliance.</li>
-<li>Tuned compiler semantics for unchecked cast detection. As a consequence, more warnings should be issued 
-(also see bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106451">106451</a> and 
+<li>Tuned compiler semantics for unchecked cast detection. As a consequence, more warnings should be issued
+(also see bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106451">106451</a> and
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=165143">165143</a>). </li>
 <li>Raw type warnings are now also diagnosed for cast types. </li>
-<li>Improved compiler diagnosis for type hiding to now report: member type hiding type parameters, 
+<li>Improved compiler diagnosis for type hiding to now report: member type hiding type parameters,
 nested types hiding other accessible types in scope (direct enclosing are already reported as errors). </li>
 <li>Compiler is now more resilient with duplicate local type declarations; thus allowing further
 operation to still be carried out accurately (codeselect, completion, search, DOM AST ops)
@@ -919,7 +929,7 @@ operation to still be carried out accurately (codeselect, completion, search, DO
 /**
  * Represents an entire Java type root (either an <code>ICompilationUnit</code>
  * or an <code>IClassFile</code>).
- * 
+ *
  * This interface is not intended to be implemented by clients.
  *
  * @see ICompilationUnit
@@ -1113,7 +1123,7 @@ of deprecated ones which only verify names using the 1.3 default level.
 	 * Returns the thrown exception signatures of the element represented by this binding key.
 	 * If this binding key does not  represent a method or does not throw any exception,
 	 * returns an empty array.
-	 * 
+	 *
 	 * @return the thrown exceptions signatures
 	 * @since 3.3
 	 */
@@ -1222,7 +1232,7 @@ In this example foo is proposed as a possible completion.
 </li>
 <li>The compiler now tolerates that methods implementing a method declared
     in an implemented interface or an extended abstract class bear an @Override
-    annotation (1.6 mode only - see also bug 
+    annotation (1.6 mode only - see also bug
     <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141931">141931</a>).</li>
 </ul>
 
@@ -1274,7 +1284,7 @@ to create an instance of it:
 <pre>
 /**
  * Create a type name match on a given type with specific modifiers.
- * 
+ *
  * @param type The java model handle of the type
  * @param modifiers Modifiers of the type
  * @return A non-null match on the given type.
@@ -1302,9 +1312,9 @@ Only requestor differs from already existing corresponding <code>searchAllTypeNa
  * @since 3.3
  */
 public void searchAllTypeNames(
-	final char[][] qualifications, 
+	final char[][] qualifications,
 	final char[][] typeNames,
-	IJavaSearchScope scope, 
+	IJavaSearchScope scope,
 	final TypeNameMatchRequestor nameMatchRequestor,
 	int waitingPolicy,
 	IProgressMonitor progressMonitor)  throws JavaModelException
@@ -1324,7 +1334,7 @@ public class CompletionProposal {
 	 * Returns the required completion proposals.
 	 * The proposal can be apply only if these required completion proposals are also applied.
 	 * If the required proposal aren't applied the completion could create complations problems.
-	 * 
+	 *
 	 * &lt;p&gt;
 	 * This field is available for the following kinds of
 	 * completion proposals:
@@ -1343,17 +1353,17 @@ public class CompletionProposal {
 	 * &lt;/p&gt;
 	 * &lt;p&gt;
 	 * Other kinds of required proposals will be returned in the future, therefore clients of this
-	 * API must allow with {@link CompletionRequestor#setAllowsRequiredProposals(int, int, boolean)} 
+	 * API must allow with {@link CompletionRequestor#setAllowsRequiredProposals(int, int, boolean)}
 	 * only kinds which are in this list to avoid unexpected results in the future.
 	 * &lt;/p&gt;
 	 * &lt;p&gt;
 	 * A required completion proposal cannot have required completion proposals.
 	 * &lt;/p&gt;
-	 * 
+	 *
 	 * @return the required completion proposals, or &lt;code&gt;null&lt;/code&gt; if none.
-	 * 
+	 *
 	 * @see CompletionRequestor#setAllowsRequiredProposals(int, int,boolean)
-	 * 
+	 *
 	 * @since 3.3
 	 */
 	public CompletionProposal[] getRequiredProposals() {...}
@@ -1370,12 +1380,12 @@ public class CompletionRequestor {
 	/**
 	 * Returns whether a proposal of a given kind with a required proposal
 	 * of the given kind is allowed.
-	 * 
+	 *
 	 * @param proposalKind one of the kind constants declared
 	 * @param requiredProposalKind)one of the kind constants declared
 	 * on &lt;code&gt;CompletionProposal&lt;/code&gt;
 	 * @return &lt;code&gt;true&lt;/code&gt; if a proposal of a given kind with a required proposal
-	 * of the given kind is allowed by this requestor, and &lt;code&gt;false&lt;/code&gt; 
+	 * of the given kind is allowed by this requestor, and &lt;code&gt;false&lt;/code&gt;
 	 * if it isn't of interest.
 	 * &lt;p&gt;
 	 * By default, all kinds of required proposals aren't allowed.
@@ -1383,7 +1393,7 @@ public class CompletionRequestor {
 	 * @see #setAllowsRequiredProposals(int, int, boolean)
 	 * @see CompletionProposal#getKind()
 	 * @see CompletionProposal#getRequiredProposals()
-	 * 
+	 *
 	 * @since 3.3
 	 */
 	public boolean isAllowingRequiredProposals(int proposalKind, int requiredProposalKind) {...}
@@ -1391,21 +1401,21 @@ public class CompletionRequestor {
 	/**
 	 * Sets whether a proposal of a given kind with a required proposal
 	 * of the given kind is allowed.
-	 * 
+	 *
 	 * Currenlty only a subset of kinds support required proposals. To see what combinations
 	 * are supported you must look at {@link CompletionProposal#getRequiredProposals()}
 	 * documentation.
-	 * 
+	 *
 	 * @param proposalKind one of the kind constants declared
 	 * @param requiredProposalKind)one of the kind constants declared
 	 * on &lt;code&gt;CompletionProposal&lt;/code&gt;
 	 * @param allow &lt;code&gt;true&lt;/code&gt; if a proposal of a given kind with a required proposal
-	 * of the given kind is allowed by this requestor, and &lt;code&gt;false&lt;/code&gt; 
+	 * of the given kind is allowed by this requestor, and &lt;code&gt;false&lt;/code&gt;
 	 * if it isn't of interest
 	 * @see #isAllowingRequiredProposals(int, int)
 	 * @see CompletionProposal#getKind()
 	 * @see CompletionProposal#getRequiredProposals()
-	 * 
+	 *
 	 * @since 3.3
 	 */
 	public void setAllowsRequiredProposals(int proposalKind, int requiredProposalKind)boolean allow) {...}
@@ -1427,7 +1437,7 @@ public class X {
 }
 </pre>
 A completion proposal with required proposals will be returned. The main proposal will be the method <code>addElement()</code>
-at <code>addEl</code> location with a required proposal of the type <code>java.util.Vector</code> at 
+at <code>addEl</code> location with a required proposal of the type <code>java.util.Vector</code> at
 <code>Vector</code> location.
 The same kind of completion can be computed with the following examples.
 <pre>
@@ -1519,7 +1529,7 @@ IType findType(String packageName,
  * which is a super type of the searched method declaring type.
  * If <code>true</code>, the method called at run-time may or may not be
  * the search target, depending on the run-time type of the receiver object.
- * 
+ *
  * @return <code>true</code> if the reference is on a message sent from
  * a super-type of the search method declaring class, <code>false </code> otherwise
  */
@@ -1579,7 +1589,7 @@ Only requestor differs from already existing <code>searchAllTypeNames</code> met
 /**
  * Searches for all top-level types and member types in the given scope.
  * The search can be selecting specific types (given a package name using specific match mode
- * and/or a type name using another specific match mode). 
+ * and/or a type name using another specific match mode).
  *
  * Provided {@link TypeNameMatchRequestor} requestor will collect {@link TypeNameMatch}
  * matches found during the search.
@@ -1590,12 +1600,12 @@ Only requestor differs from already existing <code>searchAllTypeNames</code> met
  * @since 3.3
  */
 public void searchAllTypeNames(
-	final char[] packageName, 
-	final int packageMatchRule, 
+	final char[] packageName,
+	final int packageMatchRule,
 	final char[] typeName,
-	final int typeMatchRule, 
-	int searchFor, 
-	IJavaSearchScope scope, 
+	final int typeMatchRule,
+	int searchFor,
+	IJavaSearchScope scope,
 	final TypeNameMatchRequestor nameMatchRequestor,
 	int waitingPolicy,
 	IProgressMonitor progressMonitor)  throws JavaModelException
@@ -1607,7 +1617,7 @@ Note that this match (<code>TypeNameMatch</code>) can resolve type and then prov
 /**
  * Returns the java model type corresponding to fully qualified type name
  * (based on package, enclosing types and simple name).
- * 
+ *
  * @return the java model type
  * @throws JavaModelException happens when type stored information are not valid
  */
@@ -1618,11 +1628,11 @@ public IType resolvedType() throws JavaModelException
 Deprecated existing <code>SearchEngine</code> API helper method:
 <pre>
 	public void searchAllTypeNames(
-		final char[] packageExactName, 
+		final char[] packageExactName,
 		final char[] typeName,
-		final int matchRule, 
-		int searchFor, 
-		IJavaSearchScope scope, 
+		final int matchRule,
+		int searchFor,
+		IJavaSearchScope scope,
 		final TypeNameRequestor nameRequestor,
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException
@@ -1647,7 +1657,7 @@ using a specific project:
  *
  * Creating a Java element has the side effect of creating and opening all of the
  * element's parents if they are not yet open.
- * 
+ *
  * @param file the given file
  * @return the Java element corresponding to the given file, or
  * <code>null</code> if unable to associate the given file
@@ -1754,7 +1764,7 @@ Searching for all references to <code>C.foo()</code> method get 3 matches
 respectively of a superclass and of a subclass...
 </p>
 <p>
-Search view has been modified to filter this kind of matches when user wants to focus only 
+Search view has been modified to filter this kind of matches when user wants to focus only
 on exact references of the searched method.</p>
 </li>
 </ul>
@@ -1792,7 +1802,7 @@ Eclipse SDK 3.3M2 - 12th September 2006
       int foo();
    }
    @|
-   public class AClass {} 
+   public class AClass {}
 </pre>
 'MyAnnot' is proposed if you do code assist at '|' location.
 </li>
@@ -1850,14 +1860,14 @@ Eclipse SDK 3.3M2 - 5th September 2006
 <ul>
 <li>Added to the batch compiler the ability to redefine the destination path
     on a source folder basis. Directories cited as sources, directly or as
-    arguments to the <code>-classpath</code> and other classpath related 
-    options, can bear a <code>[-d dir]</code> specification that directs the 
-    generated class files to <code>dir</code> for source files fetched from the 
-    said directories. 
-    For example, given the source files <code>src/X.java</code> and 
-    <code>Y.java</code>, X depending from Y, the command <code>ecj src[-d bin1] 
-    -d bin2</code> will produce the files <code>bin1/X.class</code> and 
-    <code>bin2/Y.class</code>, while the command <code>ecj src[-d bin] -d 
+    arguments to the <code>-classpath</code> and other classpath related
+    options, can bear a <code>[-d dir]</code> specification that directs the
+    generated class files to <code>dir</code> for source files fetched from the
+    said directories.
+    For example, given the source files <code>src/X.java</code> and
+    <code>Y.java</code>, X depending from Y, the command <code>ecj src[-d bin1]
+    -d bin2</code> will produce the files <code>bin1/X.class</code> and
+    <code>bin2/Y.class</code>, while the command <code>ecj src[-d bin] -d
     none</code> will only produce the file <code>bin/X.class</code>.
 </li>
 <li>Code Assist: Annotation arguments names are proposed even there is no prefix.
@@ -1866,7 +1876,7 @@ Eclipse SDK 3.3M2 - 5th September 2006
       int foo();
    }
    @MyAnnot(|
-   public class AClass {} 
+   public class AClass {}
 </pre>
 'foo' is proposed if you do code assist at '|' location.
 </li>
@@ -1884,7 +1894,7 @@ Missing callback in CodeSnippetToCuMapper#getCompletionRequestor()
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=154170">154170</a>
 Printing warnings breaks in-editor quick fixes
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=146554">146554</a>
-[batch][compiler][options] Allow the batch compiler to output compiled files 
+[batch][compiler][options] Allow the batch compiler to output compiled files
 into multiple output folders
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=155887">155887</a>
 Breakpoint in 'finally' not hit - test suite failing
@@ -1938,7 +1948,7 @@ Eclipse SDK 3.3M1 - 6th August 2006 - 3.3 MILESTONE 1
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_708">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
-<li>New fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=95152">bug 95152</a> required the index version to be incremented. 
+<li>New fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=95152">bug 95152</a> required the index version to be incremented.
      Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
 </li>
 </ul>
@@ -2005,7 +2015,7 @@ Eclipse SDK 3.3M1 - 18th July 2006
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_704">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
-<li>Wildcard captures are now indicating some ID to better address ambiguities in error messages 
+<li>Wildcard captures are now indicating some ID to better address ambiguities in error messages
 <br>e.g. now telling: <code>capture#2-of ? extends Number</code> is not compatible with <code>capture#1-of ? extends Number</code>
 <br>as opposed to: <code>capture-of ? extends Number</code> is not compatible with <code>capture-of ? extends Number</code>
 (also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=149573">149573</a>).</li>
@@ -2087,8 +2097,8 @@ Eclipse SDK 3.3M1 - 27th June 2006
 /**
  * Searches for all top-level types and member types in the given scope.
  * The search can be selecting specific types (given a package name using specific match mode
- * and/or a type name using another specific match mode). 
- * 
+ * and/or a type name using another specific match mode).
+ *
  * @param packageName the full name of the package of the searched types, or a prefix for this
  *                    package, or a wild-carded string for this package.
  * @param typeName the dot-separated qualified name of the searched type (the qualification include
@@ -2102,7 +2112,7 @@ Eclipse SDK 3.3M1 - 27th June 2006
  *        . {@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.
  *        . {@link SearchPattern#R_CAMELCASE_MATCH} if type name are camel case of the names of the searched types.
  *    combined with {@link SearchPattern#R_CASE_SENSITIVE},
- *       e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
+ *       e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested,
  *       or {@link SearchPattern#R_PREFIX_MATCH} if a prefix non case sensitive match is requested.
  * @param typeMatchRule one of
  *        . {@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
@@ -2112,7 +2122,7 @@ Eclipse SDK 3.3M1 - 27th June 2006
  *        . {@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.
  *        . {@link SearchPattern#R_CAMELCASE_MATCH} if type name are camel case of the names of the searched types.
  *     combined with {@link SearchPattern#R_CASE_SENSITIVE},
- *       e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
+ *       e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested,
  *       or {@link SearchPattern#R_PREFIX_MATCH} if a prefix non case sensitive match is requested.
  * @param searchFor determines the nature of the searched elements
  *     . {@link IJavaSearchConstants#CLASS}: only look for classes
@@ -2137,12 +2147,12 @@ Eclipse SDK 3.3M1 - 27th June 2006
  * @since 3.3
  */
 public void searchAllTypeNames(
-	final char[] packageName, 
-	final int packageMatchRule, 
+	final char[] packageName,
+	final int packageMatchRule,
 	final char[] typeName,
-	final int typeMatchRule, 
-	int searchFor, 
-	IJavaSearchScope scope, 
+	final int typeMatchRule,
+	int searchFor,
+	IJavaSearchScope scope,
 	final TypeNameRequestor nameRequestor,
 	int waitingPolicy,
 	IProgressMonitor progressMonitor)  throws JavaModelException
@@ -2151,9 +2161,9 @@ Note that already existing <code>searchAllTypeNames(char [], char[], int, int, I
 that package name is an exact name and does not accept wildcards.
 </li>
 <li>Incremented plug-in version ID to &quot;3.3.0&quot; due to newly added API method (see details above).</li>
-<li>Huge String concatenations - thousands of terms and beyond - are now 
-    handled smoothly by the compiler even when they are not solely comprised of 
-    literals and other constants (cf. bug 
+<li>Huge String concatenations - thousands of terms and beyond - are now
+    handled smoothly by the compiler even when they are not solely comprised of
+    literals and other constants (cf. bug
     <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=102728">102728</a>).
     </li>
 </ul>
@@ -2219,7 +2229,7 @@ Eclipse SDK 3.3M1 - 20th June 2006
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_701">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
-<li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120667">bug 120667</a> required the index version to be incremented. 
+<li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=120667">bug 120667</a> required the index version to be incremented.
      Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
 </li>
 </ul>
@@ -2254,7 +2264,7 @@ Batch builds produce "The type X is already defined" errors
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=146615">146615</a>
 [hierarchy] TypeHierarchyTests is tests order dependent
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=142207">142207</a>
-[batch][options] Source/target level names 5 and 5.0 missing from batch 
+[batch][options] Source/target level names 5 and 5.0 missing from batch
 compiler help message
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76734">76734</a>
 [classpath] Attemp to lock workspace during container initialization
@@ -2269,7 +2279,7 @@ Eclipse SDK 3.3M1 - 13th June 2006
 <h2>What's new in this drop</h2>
 <ul>
 <li>Progressive help message for the batch compiler.<br>
-	The new <tt>-help:warn</tt> option displays details about the various 
+	The new <tt>-help:warn</tt> option displays details about the various
     parameters applicable to the <tt>-warn</tt> option; these details are no
     more part of the general help message, which is thus more compact
     (cf. bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=144248">144248</a>).
@@ -2311,7 +2321,7 @@ JDT Compiler fails while standard javac compiler can proceed
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141512">141512</a>
 [batch] re-format the help message so as to fit into 80 columns
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141522">141522</a>
-[compiler][batch] ClassFile#buildAllDirectoriesInto should protect itself 
+[compiler][batch] ClassFile#buildAllDirectoriesInto should protect itself
 against concurrent directory creation
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=141330">141330</a>
 [1.5][compiler] Suspicious error message for type mismatch
