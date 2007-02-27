@@ -236,7 +236,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Performance tests for search: Indexing one project (JDT/Core).
 	 */
 	public void testIndexingOneProject() throws CoreException {
-		tagAsSummary("Search JDT/Core indexes building", true); // put in fingerprint
+		tagAsSummary("Search JDT/Core indexes building", false); // do NOT put in fingerprint
 
 		// Warm-up
 		INDEX_MANAGER.removeIndexFamily(JDT_CORE_PROJECT.getPath());
@@ -266,7 +266,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * @deprecated As we use deprecated API
 	 */
 	public void testSearchAllTypeNames() throws CoreException {
-		tagAsGlobalSummary("Old Search all type names", false); // do NOT put in global fingerprint
+		tagAsGlobalSummary("Old Search all type names", true); // put in global fingerprint
 		OldSearchTypeNameRequestor requestor = new OldSearchTypeNameRequestor();
 
 		// Wait for indexing end
@@ -322,7 +322,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	public void testNewSearchAllTypeNames() throws CoreException {
 		// TODO (frederic) put this test in global summary when be sure of its number.
 		//tagAsGlobalSummary("Search all type names", true); // put in global fingerprint
-		tagAsSummary("Search all type names", false);
+		tagAsSummary("Search all type names", true);
 		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 
 		// Wait for indexing end
