@@ -266,7 +266,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * @deprecated As we use deprecated API
 	 */
 	public void testSearchAllTypeNames() throws CoreException {
-		tagAsGlobalSummary("Old Search all type names", true); // put in global fingerprint
+		tagAsGlobalSummary("Search all type names", true); // put in global fingerprint
 		OldSearchTypeNameRequestor requestor = new OldSearchTypeNameRequestor();
 
 		// Wait for indexing end
@@ -322,7 +322,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	public void testNewSearchAllTypeNames() throws CoreException {
 		// TODO (frederic) put this test in global summary when be sure of its number.
 		//tagAsGlobalSummary("Search all type names", true); // put in global fingerprint
-		tagAsSummary("Search all type names", true);
+		tagAsSummary("New search all type names", true);
 		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 
 		// Wait for indexing end
