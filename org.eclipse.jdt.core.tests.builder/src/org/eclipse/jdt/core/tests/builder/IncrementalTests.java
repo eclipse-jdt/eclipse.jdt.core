@@ -57,7 +57,10 @@ public class IncrementalTests extends BuilderTests {
 			"class CC {}"); 
 
 		incrementalBuild(projectPath);
-		expectingProblemsFor(new IPath[]{ pathToD });
+		expectingProblemsFor(
+			pathToD,
+			"Problem : The type CC is already defined [ resource : </Project/src/p/D.java> range : <37,39> category : <-1> severity : <2>]"
+		);
 		expectingSpecificProblemsFor(pathToD, new Problem[] {new Problem("", "The type CC is already defined", pathToD, 37, 39, -1, IMarker.SEVERITY_ERROR)});
 	}
 
@@ -183,7 +186,12 @@ public class IncrementalTests extends BuilderTests {
 			"public class C extends B { }"); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
-		expectingProblemsFor(new IPath[]{ pathToA, pathToB, pathToC });
+		expectingProblemsFor(
+			new IPath[]{ pathToA, pathToB, pathToC },
+			"Problem : The public type _A must be defined in its own file [ resource : </Project/src/p/A.java> range : <25,27> category : <40> severity : <2>]\n" + 
+			"Problem : A cannot be resolved to a type [ resource : </Project/src/p/B.java> range : <35,36> category : <40> severity : <2>]\n" + 
+			"Problem : The hierarchy of the type C is inconsistent [ resource : </Project/src/p/C.java> range : <25,26> category : <40> severity : <2>]"
+		);
 		expectingSpecificProblemFor(pathToA, new Problem("_A", "The public type _A must be defined in its own file", pathToA, 25, 27, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(pathToB, new Problem("B", "A cannot be resolved to a type", pathToB, 35, 36, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(pathToC, new Problem("C", "The hierarchy of the type C is inconsistent", pathToC, 25, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -252,7 +260,10 @@ public class IncrementalTests extends BuilderTests {
 			"}"); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
-		expectingProblemsFor(new IPath[]{ pathToAB });
+		expectingProblemsFor(
+			pathToAB,
+			"Problem : AZ cannot be resolved to a type [ resource : </Project/src/p/AB.java> range : <36,38> category : <40> severity : <2>]"
+		);
 		expectingSpecificProblemFor(pathToAB, new Problem("AB", "AZ cannot be resolved to a type", pathToAB, 36, 38, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
@@ -319,7 +330,10 @@ public class IncrementalTests extends BuilderTests {
 			"}"); //$NON-NLS-1$
 
 		incrementalBuild(projectPath);
-		expectingProblemsFor(new IPath[]{ pathToBB });
+		expectingProblemsFor(
+			pathToBB,
+			"Problem : ZA cannot be resolved to a type [ resource : </Project/src/p/BB.java> range : <104,106> category : <40> severity : <2>]"
+		);
 		expectingSpecificProblemFor(pathToBB, new Problem("BB.foo()", "ZA cannot be resolved to a type", pathToBB, 104, 106, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p", "ZZ", //$NON-NLS-1$ //$NON-NLS-2$
@@ -619,7 +633,7 @@ public class IncrementalTests extends BuilderTests {
 			);
 			
 		incrementalBuild();
-		expectingProblemsFor(x);
+		expectingProblemsFor(x, "???");
 		expectingNoPresenceOf(bin.append("X.class")); //$NON-NLS-1$
 	}
 

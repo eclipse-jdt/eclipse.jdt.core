@@ -28,7 +28,6 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	public static ArrayList ALL_CLASSES = null;
 	static final String DOC_COMMENT_SUPPORT = System.getProperty("doc.support");
-	static boolean debug = false;
 
 	// Javadoc execution
 	protected static final String JAVADOC_NAME = 

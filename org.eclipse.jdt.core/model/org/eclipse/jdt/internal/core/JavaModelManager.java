@@ -1126,44 +1126,75 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 * Update the classpath variable cache
 	 */
-	public static class EclipsePreferencesListener implements IEclipsePreferences.IPreferenceChangeListener {
+	public class EclipsePreferencesListener implements IEclipsePreferences.IPreferenceChangeListener {
 		/**
-		 * @see org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener#preferenceChange(org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent)
-		 */
-		public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
-			String propertyName = event.getKey();
-			if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)) {
-				String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
-				JavaModelManager manager = getJavaModelManager();
-				if (manager.variablesWithInitializer.contains(varName)) {
-					// revert preference value as we will not apply it to JavaCore classpath variable
-					String oldValue = (String) event.getOldValue();
-					if (oldValue == null) {
-						// unexpected old value => remove variable from set
-						manager.variablesWithInitializer.remove(varName);
-					} else {
-						manager.getInstancePreferences().put(varName, oldValue);
-					}
-				} else {
-					String newValue = (String)event.getNewValue();
-					IPath newPath;
-					if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
-						newPath = new Path(newValue);
-					} else {
-						newPath = null;
-					}
-					try {
-						SetVariablesOperation operation = new SetVariablesOperation(new String[] {varName}, new IPath[] {newPath}, false/*don't update preferences*/);
-						operation.runOperation(null/*no progress available*/);
-					} catch (JavaModelException e) {
-						Util.log(e, "Could not set classpath variable " + varName + " to " + newPath); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				}
-			}
-			if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
-				recreatePersistedContainer(propertyName, (String)event.getNewValue(), false);
-			}
-		}
+         * @see org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener#preferenceChange(org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent)
+         */
+        public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
+        	String propertyName = event.getKey();
+        	if (propertyName.startsWith(CP_VARIABLE_PREFERENCES_PREFIX)) {
+        		String varName = propertyName.substring(CP_VARIABLE_PREFERENCES_PREFIX.length());
+        		JavaModelManager manager = getJavaModelManager();
+        		if (manager.variablesWithInitializer.contains(varName)) {
+        			// revert preference value as we will not apply it to JavaCore classpath variable
+        			String oldValue = (String) event.getOldValue();
+        			if (oldValue == null) {
+        				// unexpected old value => remove variable from set
+        				manager.variablesWithInitializer.remove(varName);
+        			} else {
+        				manager.getInstancePreferences().put(varName, oldValue);
+        			}
+        		} else {
+        			String newValue = (String)event.getNewValue();
+        			IPath newPath;
+        			if (newValue != null && !(newValue = newValue.trim()).equals(CP_ENTRY_IGNORE)) {
+        				newPath = new Path(newValue);
+        			} else {
+        				newPath = null;
+        			}
+        			try {
+        				SetVariablesOperation operation = new SetVariablesOperation(new String[] {varName}, new IPath[] {newPath}, false/*don't update preferences*/);
+        				operation.runOperation(null/*no progress available*/);
+        			} catch (JavaModelException e) {
+        				Util.log(e, "Could not set classpath variable " + varName + " to " + newPath); //$NON-NLS-1$ //$NON-NLS-2$
+        			}
+        		}
+        	}
+        	else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
+        		recreatePersistedContainer(propertyName, (String)event.getNewValue(), false);
+        	} else {
+        		int length = JavaCore.PLUGIN_ID.length() + 1;
+        		String key = event.getKey();
+        		StringTokenizer tokenizer = new StringTokenizer(key.substring(length));
+        		String token = tokenizer.nextToken();
+        		if (key.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
+        			token.equals("builder") || //$NON-NLS-1$
+        			key.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
+        			key.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
+        			key.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL) ||
+        			token.equals("classpath")) //$NON-NLS-1$
+        		{
+        			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+        			IJavaModel model = manager.getJavaModel();
+        			IJavaProject[] projects;
+        			try {
+        				projects = model.getJavaProjects();
+        				for (int i = 0, pl = projects.length; i < pl; i++) {
+        					JavaProject javaProject = (JavaProject) projects[i];
+	    					manager.deltaState.addClasspathValidation(javaProject);
+	    					try {
+	    						// need to touch the project to force validation by DeltaProcessor
+	                            javaProject.getProject().touch(null);
+                            } catch (CoreException e) {
+	                            // skip
+                            }
+        				}
+        			} catch (JavaModelException e) {
+        				// skip
+        			}
+        		}
+        	}
+        }
 	}
 
 	/**

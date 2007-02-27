@@ -19,10 +19,13 @@ import junit.framework.*;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**
  * Basic tests of the image builder.
@@ -417,4 +420,94 @@ public class BasicBuildTests extends BuilderTests {
 		fullBuild(projectPath);
 		expectingNoProblems();
 	}
+
+	/**
+	 * @bug 75471: [prefs] no re-compile when loading settings
+	 * @test Ensure that changing project preferences is well taking into account while rebuilding project
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75471"
+	 */
+	public void _testUpdateProjectPreferences() throws JavaModelException {
+		
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(root, "util", "MyException", //$NON-NLS-1$ //$NON-NLS-2$
+			"package util;\n" + 
+			"public class MyException extends Exception {\n" + 
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
+		); //$NON-NLS-1$
+
+		IPath cuPath = env.addClass(root, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n" + 
+			"import util.MyException;\n" + 
+			"public class Test {\n" + 
+			"}"
+		);
+
+		fullBuild(projectPath);
+		expectingSpecificProblemFor(
+			projectPath,
+			new Problem("", "The import util.MyException is never used", cuPath, 18, 34, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		IJavaProject project = env.getJavaProject(projectPath);
+		project.setOption(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.IGNORE);
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+	public void _testUpdateWkspPreferences() throws JavaModelException {
+		
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(root, "util", "MyException", //$NON-NLS-1$ //$NON-NLS-2$
+			"package util;\n" + 
+			"public class MyException extends Exception {\n" + 
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
+		); //$NON-NLS-1$
+
+		IPath cuPath = env.addClass(root, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n" + 
+			"import util.MyException;\n" + 
+			"public class Test {\n" + 
+			"}"
+		);
+
+		fullBuild();
+		expectingSpecificProblemFor(
+			projectPath,
+			new Problem("", "The import util.MyException is never used", cuPath, 18, 34, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		// Save preference
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IEclipsePreferences preferences = manager.getInstancePreferences();
+		String unusedImport = preferences.get(JavaCore.COMPILER_PB_UNUSED_IMPORT, null);
+		try {
+			// Modify preference
+			preferences.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.IGNORE);
+			incrementalBuild();
+			expectingNoProblems();
+		}
+		finally {
+			if (unusedImport == null) {
+				preferences.remove(JavaCore.COMPILER_PB_UNUSED_IMPORT);
+			} else {
+				preferences.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, unusedImport);
+			}
+		}
+	}
+	
 }

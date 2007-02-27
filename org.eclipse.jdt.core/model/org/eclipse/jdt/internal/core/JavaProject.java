@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.StringTokenizer;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -1386,44 +1388,58 @@ public class JavaProject
 		return null;
 	}
 
-	/**
-	 * Returns the project custom preference pool.
-	 * Project preferences may include custom encoding.
-	 * @return IEclipsePreferences
-	 */
-	public IEclipsePreferences getEclipsePreferences(){
-		if (!JavaProject.hasJavaNature(this.project)) return null;
-		// Get cached preferences if exist
-		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, true);
-		if (perProjectInfo.preferences != null) return perProjectInfo.preferences;
-		// Init project preferences
-		IScopeContext context = new ProjectScope(getProject());
-		final IEclipsePreferences eclipsePreferences = context.getNode(JavaCore.PLUGIN_ID);
-		updatePreferences(eclipsePreferences);
-		perProjectInfo.preferences = eclipsePreferences;
-
-		// Listen to node removal from parent in order to reset cache (see bug 68993)
-		IEclipsePreferences.INodeChangeListener nodeListener = new IEclipsePreferences.INodeChangeListener() {
-			public void added(IEclipsePreferences.NodeChangeEvent event) {
-				// do nothing
-			}
-			public void removed(IEclipsePreferences.NodeChangeEvent event) {
-				if (event.getChild() == eclipsePreferences) {
-					JavaModelManager.getJavaModelManager().resetProjectPreferences(JavaProject.this);
-				}
-			}
-		};
-		((IEclipsePreferences) eclipsePreferences.parent()).addNodeChangeListener(nodeListener);
-
-		// Listen to preference changes
-		IEclipsePreferences.IPreferenceChangeListener preferenceListener = new IEclipsePreferences.IPreferenceChangeListener() {
-			public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
-				JavaModelManager.getJavaModelManager().resetProjectOptions(JavaProject.this);
-			}
-		};
-		eclipsePreferences.addPreferenceChangeListener(preferenceListener);
-		return eclipsePreferences;
-	}
+		/**
+    	 * Returns the project custom preference pool.
+    	 * Project preferences may include custom encoding.
+    	 * @return IEclipsePreferences
+    	 */
+    	public IEclipsePreferences getEclipsePreferences(){
+    		if (!JavaProject.hasJavaNature(this.project)) return null;
+    		// Get cached preferences if exist
+    		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, true);
+    		if (perProjectInfo.preferences != null) return perProjectInfo.preferences;
+    		// Init project preferences
+    		IScopeContext context = new ProjectScope(getProject());
+    		final IEclipsePreferences eclipsePreferences = context.getNode(JavaCore.PLUGIN_ID);
+    		updatePreferences(eclipsePreferences);
+    		perProjectInfo.preferences = eclipsePreferences;
+    
+    		// Listen to node removal from parent in order to reset cache (see bug 68993)
+    		IEclipsePreferences.INodeChangeListener nodeListener = new IEclipsePreferences.INodeChangeListener() {
+    			public void added(IEclipsePreferences.NodeChangeEvent event) {
+    				// do nothing
+    			}
+    			public void removed(IEclipsePreferences.NodeChangeEvent event) {
+    				if (event.getChild() == eclipsePreferences) {
+    					JavaModelManager.getJavaModelManager().resetProjectPreferences(JavaProject.this);
+    				}
+    			}
+    		};
+    		((IEclipsePreferences) eclipsePreferences.parent()).addNodeChangeListener(nodeListener);
+    
+    		// Listen to preference changes
+    		IEclipsePreferences.IPreferenceChangeListener preferenceListener = new IEclipsePreferences.IPreferenceChangeListener() {
+    			public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
+    				JavaModelManager manager = JavaModelManager.getJavaModelManager();
+    				int length = JavaCore.PLUGIN_ID.length() + 1;
+    				String key = event.getKey();
+    				StringTokenizer tokenizer = new StringTokenizer(key.substring(length));
+    				String token = tokenizer.nextToken();
+    				if (key.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
+    					token.equals("builder") || //$NON-NLS-1$
+    					key.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
+    					key.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
+    					key.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL) ||
+    					token.equals("classpath")) //$NON-NLS-1$
+    				{
+    					manager.deltaState.addClasspathValidation(JavaProject.this);
+    				}
+    				manager.resetProjectOptions(JavaProject.this);
+    			}
+    		};
+    		eclipsePreferences.addPreferenceChangeListener(preferenceListener);
+    		return eclipsePreferences;
+    	}
 		
 	public String getElementName() {
 		return this.project.getName();
@@ -2159,12 +2175,8 @@ public class JavaProject
 
 	/**
 	 * load preferences from a shareable format (VCM-wise)
-	 * @deprecated WARNING, visibility of this method will be decreased soon
-	 * 	to private and won't be usable in the future.
-	 * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=59258">bug 59258</a>
-	 * TODO (frederic) set visibility from public to private
 	 */
-	 public Preferences loadPreferences() {
+	 private Preferences loadPreferences() {
 	 	
 	 	Preferences preferences = new Preferences();
 	 	IPath projectMetaLocation = getPluginWorkingLocation();

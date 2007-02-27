@@ -268,7 +268,10 @@ public class DependencyTests extends BuilderTests {
 
 		// build -> expecting problems
 		fullBuild();
-		expectingProblemsFor(classTest);
+		expectingProblemsFor(
+			classTest,
+			"Problem : The method bar() is undefined for the type Y [ resource : </Project/p/X.java> range : <57,60> category : <50> severity : <2>]"
+		);
 
 		try {
 			Thread.sleep(1000);

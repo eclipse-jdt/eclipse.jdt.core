@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -192,14 +193,15 @@ public class BuilderTests extends TestCase {
 	/** Verifies that the given elements have no problems.
 	 */
 	protected void expectingNoProblemsFor(IPath[] roots) {
-		if (DEBUG)
-			printProblemsFor(roots);
-
-		for (int i = 0; i < roots.length; i++) {
-			Problem[] problems = env.getProblemsFor(roots[i]);
-			if (problems.length != 0)
-				assertTrue("unexpected problem(s) : " + problems[0], false); //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer();
+		Problem[] allProblems = allSortedProblems(roots);
+		if (allProblems != null) {
+			for (int i=0, length=allProblems.length; i<length; i++) {
+				buffer.append(allProblems[i]+"\n");
+			}
 		}
+		String actual = buffer.toString();
+		assumeEquals("Unexpected problem(s)!!!", "", actual); //$NON-NLS-1$
 	}
 
 	/** Verifies that the given element has problems and
@@ -284,21 +286,23 @@ public class BuilderTests extends TestCase {
 
 	/** Verifies that the given element has problems.
 	 */
-	protected void expectingProblemsFor(IPath expected) {
-		expectingProblemsFor(new IPath[] { expected });
+	protected void expectingProblemsFor(IPath root, String expected) {
+		expectingProblemsFor(new IPath[] { root }, expected);
 	}
 
 	/** Verifies that the given elements have problems.
 	 */
-	protected void expectingProblemsFor(IPath[] expected) {
-		if (DEBUG)
-			printProblemsFor(expected);
-
-		for (int i = 0; i < expected.length; i++) {
-			/* get the leaf problems for this type */
-			Problem[] problems = env.getProblemsFor(expected[i]);
-			assertTrue("missing expected problem with " + expected[i].toString(), problems.length > 0); //$NON-NLS-1$
+	protected void expectingProblemsFor(IPath[] roots, String expected) {
+		StringBuffer buffer = new StringBuffer();
+		Problem[] allProblems = allSortedProblems(roots);
+		if (allProblems != null) {
+			for (int i=0, length=allProblems.length; i<length; i++) {
+				if (i>0) buffer.append('\n');
+				buffer.append(allProblems[i]);
+			}
 		}
+		String actual = buffer.toString();
+		assumeEquals("Invalid problem(s)!!!", expected, actual); //$NON-NLS-1$
 	}
 
 	/** Verifies that the given element has a specific problem.
@@ -325,10 +329,6 @@ public class BuilderTests extends TestCase {
 					}
 				}
 			}
-			System.out.println("--------------------------------------------------------------------------------");
-			System.out.println("Missing problem while running test "+getName()+":");
-			System.out.println("	- expected : " + problem);
-			System.out.println("	- current: " + problemsToString(rootProblems));
 			/*
 			for (int j = 0; j < rootProblems.length; j++) {
 				Problem pb = rootProblems[j];
@@ -339,6 +339,10 @@ public class BuilderTests extends TestCase {
 				}
 			}
 			*/
+			System.out.println("--------------------------------------------------------------------------------");
+			System.out.println("Missing problem while running test "+getName()+":");
+			System.out.println("	- expected : " + problem);
+			System.out.println("	- current: " + problemsToString(rootProblems));
 			assumeTrue("missing expected problem: " + problem, false);
 		}
 	}
@@ -427,6 +431,33 @@ public class BuilderTests extends TestCase {
 		env.resetWorkspace();
 		JavaCore.setOptions(JavaCore.getDefaultOptions());
 		super.tearDown();
+	}
+
+	/**
+	 * Concatenate and sort all problems for given root paths.
+	 * 
+	 * @param roots The path to get the problems
+	 * @return All sorted problems of all given path
+	 */
+	Problem[] allSortedProblems(IPath[] roots) {
+		Problem[] allProblems = null;
+		for (int i = 0, max=roots.length; i<max; i++) {
+			Problem[] problems = env.getProblemsFor(roots[i]);
+			int length = problems.length;
+			if (problems.length != 0) {
+				if (allProblems == null) {
+					allProblems = problems;
+				} else {
+					int all = allProblems.length;
+					System.arraycopy(allProblems, 0, allProblems = new Problem[all+length], 0, all);
+					System.arraycopy(problems, 0, allProblems , all, length);
+				}
+			}
+		}
+		if (allProblems != null) {
+			Arrays.sort(allProblems);
+		}
+		return allProblems;
 	}
 
 	public static Test suite() {

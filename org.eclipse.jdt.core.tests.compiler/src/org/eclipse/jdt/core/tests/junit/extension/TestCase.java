@@ -17,7 +17,9 @@ import java.text.DateFormat;
 import java.util.*;
 
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.test.performance.Performance;
 import org.eclipse.test.performance.PerformanceTestCase;
 
 import junit.framework.AssertionFailedError;
@@ -239,11 +241,21 @@ public static void assertStringEquals(String message, String expected, String ac
  * Otherwise, the thrown exception {@link AssertionFailedError} is catched
  * and its message is only displayed in the console hence producing no JUnit failure.
  */
-protected void assumeEquals(String msg, Object expected, Object actual) {
+protected void assumeEquals(String msg, String expected, String actual) {
 	try {
-		assertEquals(msg, expected, actual);
+		assertStringEquals(msg, expected, actual, false);
+	} catch (ComparisonFailure cf) {
+		System.out.println("Failure while running test "+Performance.getDefault().getDefaultScenarioId(this)+"!!!");
+		System.out.println("Actual output is:");
+		System.out.println(Util.displayString(cf.getActual(), 2));
+		System.out.println();
+		if (abortOnFailure) {
+			throw cf;
+		}
 	} catch (AssertionFailedError afe) {
-		if (abortOnFailure) throw afe;
+		if (abortOnFailure) {
+			throw afe;
+		}
 		printAssertionFailure(afe);
 	}
 }
@@ -257,15 +269,26 @@ protected void assumeEquals(String msg, Object expected, Object actual) {
 protected void assumeTrue(String msg, boolean cond) {
 	try {
 		assertTrue(msg, cond);
+	} catch (ComparisonFailure cf) {
+		if (abortOnFailure) {
+			System.out.println("Failure while running test "+Performance.getDefault().getDefaultScenarioId(this)+"!!!");
+			System.out.println("Actual output is:");
+			System.out.println(Util.displayString(cf.getActual(), 2));
+			System.out.println();
+			throw cf;
+		}
+		printAssertionFailure(cf);
 	} catch (AssertionFailedError afe) {
-		if (abortOnFailure) throw afe;
+		if (abortOnFailure) {
+			throw afe;
+		}
 		printAssertionFailure(afe);
 	}
 }
 
 private void printAssertionFailure(AssertionFailedError afe) {
 	System.out.println("\n!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!!---!");
-	System.out.println("Catched assertion while running test "+getName()+":");
+	System.out.println("Catched assertion failure while running test "+getName()+":");
 	System.out.println("	"+afe.getMessage());
 	System.out.println("--------------------------------------------------------------------------------\n");
 }

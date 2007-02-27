@@ -54,7 +54,10 @@ public class Java50Tests extends BuilderTests {
 		);
 
 		incrementalBuild(projectPath);
-		expectingProblemsFor(usePath);
+		expectingProblemsFor(
+			usePath,
+			"Problem : The annotation @Ann is disallowed for this location [ resource : </Project/p/Use.java> range : <11,17> category : <40> severity : <2>]"
+		);
 	}
 	
 	public void testParameterizedType1() throws JavaModelException {
@@ -92,7 +95,10 @@ public class Java50Tests extends BuilderTests {
 		);
 
 		incrementalBuild(projectPath);
-		expectingProblemsFor(usePath);
+		expectingProblemsFor(
+			usePath,
+			"Problem : The method foo(List<Object>) in the type Other is not applicable for the arguments (ArrayList<String>) [ resource : </Project/p/Use.java> range : <104,107> category : <50> severity : <2>]"
+		);
 	}
 	
 	public void testParameterizedType2() throws JavaModelException {
@@ -130,7 +136,10 @@ public class Java50Tests extends BuilderTests {
 		);
 
 		incrementalBuild(projectPath);
-		expectingProblemsFor(usePath);
+		expectingProblemsFor(
+			usePath,
+			"Problem : Unhandled exception type Exception [ resource : </Project/p/Use.java> range : <92,132> category : <40> severity : <2>]"
+		);
 	}
 	
 }
