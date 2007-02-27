@@ -14,7 +14,7 @@
 			class="org.eclipse.jdt.core.tests.model.VariablesInitializer"/>
   <classpathVariableInitializer
         class="org.eclipse.jdt.core.tests.model.VariablesInitializer"
-        deprecated="Test deprecated flag"
+        deprecated="%classpathVariableInitializer.deprecated.0"
         variable="TEST_DEPRECATED">
   </classpathVariableInitializer>
   <classpathVariableInitializer
@@ -24,7 +24,7 @@
   </classpathVariableInitializer>
   <classpathVariableInitializer
         class="org.eclipse.jdt.core.tests.model.VariablesInitializer"
-        deprecated="A deprecated and read-only initializer"
+        deprecated="%classpathVariableInitializer.deprecated.1"
         readOnly="true"
         variable="TEST_DEPRECATED_READ_ONLY">
   </classpathVariableInitializer>
