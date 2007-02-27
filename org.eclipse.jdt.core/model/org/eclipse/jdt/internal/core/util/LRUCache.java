@@ -174,7 +174,6 @@ public class LRUCache implements Cloneable {
 		fEntryTable = new Hashtable();  // Clear it out
 		fEntryQueue = fEntryQueueTail = null;  
 		while (entry != null) {  // send deletion notifications in LRU order
-			privateNotifyDeletionFromCache(entry);
 			entry = entry._fPrevious;
 		}
 	}
@@ -343,14 +342,6 @@ public class LRUCache implements Cloneable {
 		fEntryQueue = entry;
 	}
 	/**
-	 * An entry has been removed from the cache, for example because it has 
-	 * fallen off the bottom of the LRU queue.  
-	 * Subclasses could over-ride this to implement a persistent cache below the LRU cache.
-	 */
-	protected void privateNotifyDeletionFromCache(LRUCacheEntry entry) {
-		// Default is NOP.
-	}
-	/**
 	 * Removes the entry from the entry queue.  
 	 * @param shuffle indicates whether we are just shuffling the queue 
 	 * (in which case, the entry table is not modified).
@@ -365,7 +356,6 @@ public class LRUCache implements Cloneable {
 		if (!shuffle) {
 			fEntryTable.remove(entry._fKey);
 			fCurrentSpace -= entry._fSpace;
-			privateNotifyDeletionFromCache(entry);
 		}
 
 		/* if this was the first entry */

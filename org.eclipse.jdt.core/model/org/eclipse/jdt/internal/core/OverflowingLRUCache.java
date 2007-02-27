@@ -273,7 +273,6 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 		if (external) {
 			fEntryTable.remove(entry._fKey);			
 			fCurrentSpace -= entry._fSpace;
-			privateNotifyDeletionFromCache(entry);
 		} else {
 			if (!close(entry)) return;
 			// buffer close will recursively call #privateRemoveEntry with external==true
@@ -284,7 +283,6 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 				// basic removal
 				fEntryTable.remove(entry._fKey);			
 				fCurrentSpace -= entry._fSpace;
-				privateNotifyDeletionFromCache(entry);
 			}
 		}
 	}
