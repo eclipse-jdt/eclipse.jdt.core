@@ -42,7 +42,7 @@ public class BufferManager {
 	     * @deprecated
 	     */
 		public IBuffer createBuffer(IOpenable owner) {
-			return BufferManager.this.createBuffer(owner);
+			return BufferManager.createBuffer(owner);
 		}
 	};
 
@@ -63,7 +63,7 @@ protected void addBuffer(IBuffer buffer) {
 		System.out.println("-> Buffer cache filling ratio = " + NumberFormat.getInstance().format(this.openBuffers.fillingRatio()) + "%"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 }
-public IBuffer createBuffer(IOpenable owner) {
+public static IBuffer createBuffer(IOpenable owner) {
 	IJavaElement element = (IJavaElement)owner;
 	IResource resource = element.getResource();
 	return 

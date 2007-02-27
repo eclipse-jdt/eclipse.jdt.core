@@ -1046,7 +1046,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	IBuffer buffer = 
 		isWorkingCopy 
 			? this.owner.createBuffer(this) 
-			: bufManager.createBuffer(this);
+			: BufferManager.createBuffer(this);
 	if (buffer == null) return null;
 	
 	// synchronize to ensure that 2 threads are not putting 2 different buffers at the same time

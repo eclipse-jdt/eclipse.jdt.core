@@ -69,7 +69,7 @@ public abstract class WorkingCopyOwner {
 	 */
 	public IBuffer createBuffer(ICompilationUnit workingCopy) {
 
-		return BufferManager.getDefaultBufferManager().createBuffer(workingCopy);
+		return BufferManager.createBuffer(workingCopy);
 	}
 	
 	/**

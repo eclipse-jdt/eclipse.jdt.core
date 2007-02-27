@@ -628,7 +628,7 @@ private IBuffer mapSource(SourceMapper mapper, IBinaryType info) {
 	char[] contents = mapper.findSource(getType(), info);
 	if (contents != null) {
 		// create buffer
-		IBuffer buffer = getBufferManager().createBuffer(this);
+		IBuffer buffer = BufferManager.createBuffer(this);
 		if (buffer == null) return null;
 		BufferManager bufManager = getBufferManager();
 		bufManager.addBuffer(buffer);
