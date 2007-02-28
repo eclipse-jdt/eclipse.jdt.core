@@ -44,7 +44,7 @@ public class BatchTestUtils {
 	private static String _processorJarPath;
 
 	// locations to copy and generate files
-	private static final String _tmpFolder = System.getProperty("java.io.tmpdir") + "eclipse-temp";
+	private static String _tmpFolder;
 
 	private static JavaCompiler _eclipseCompiler;
 
@@ -109,6 +109,12 @@ public class BatchTestUtils {
 	 */
 	public static void init()
 	{
+		_tmpFolder = System.getProperty("java.io.tmpdir");
+		if (_tmpFolder.endsWith(File.separator)) {
+			_tmpFolder += "eclipse-temp";
+		} else {
+			_tmpFolder += (File.separator + "eclipse-temp");
+		}
 		_tmpBinFolderName = _tmpFolder + File.separator + "bin";
 		_tmpBinDir = new File(_tmpBinFolderName);
 		BatchTestUtils.deleteTree(_tmpBinDir); // remove existing contents
