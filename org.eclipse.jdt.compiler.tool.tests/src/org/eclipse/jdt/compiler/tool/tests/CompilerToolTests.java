@@ -201,7 +201,7 @@ public class CompilerToolTests extends TestCase {
 					String className,
 					Kind kind,
 					FileObject sibling) throws IOException {
-				
+
 				System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
 				System.out.println(javaFileForOutput.toUri());
@@ -214,14 +214,14 @@ public class CompilerToolTests extends TestCase {
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
-		
+
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
  		CompilationTask task = systemCompiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
  		assertTrue("Has location CLASS_OUPUT ", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
 		Boolean result = task.call();
-		
+
  		if (!result.booleanValue()) {
  			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
  	 		assertTrue("Compilation failed ", false);
@@ -229,11 +229,11 @@ public class CompilerToolTests extends TestCase {
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 	}
-	
+
 	/*
 	 * Run the system compiler using the Eclipse java file manager
-	 * TODO need to investigate why rt.jar gets removed from the PLATFORM_CLASSPATH location 
-	 */ 
+	 * TODO need to investigate why rt.jar gets removed from the PLATFORM_CLASSPATH location
+	 */
 	public void _testCompilerOneClassWithSystemCompiler2() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
@@ -278,7 +278,7 @@ public class CompilerToolTests extends TestCase {
 					String className,
 					Kind kind,
 					FileObject sibling) throws IOException {
-				
+
 				System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
 				System.out.println(javaFileForOutput.toUri());
@@ -291,14 +291,14 @@ public class CompilerToolTests extends TestCase {
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
-		
+
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
  		CompilationTask task = systemCompiler.getTask(printWriter, manager, null, options, null, units);
 
  		System.out.println("Has location CLASS_OUPUT : " + forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
- 		
+
 		Boolean result = task.call();
  		displayLocation(manager, StandardLocation.CLASS_PATH);
  		displayLocation(manager, StandardLocation.PLATFORM_CLASS_PATH);
@@ -342,7 +342,7 @@ public class CompilerToolTests extends TestCase {
 					String className,
 					Kind kind,
 					FileObject sibling) throws IOException {
-				
+
 				System.out.println("EC: Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
 				System.out.println(javaFileForOutput.toUri());
@@ -355,7 +355,7 @@ public class CompilerToolTests extends TestCase {
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
-		
+
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
@@ -382,7 +382,7 @@ public class CompilerToolTests extends TestCase {
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 	}
-	
+
 	public void testCompilerOneClassWithEclipseCompiler2() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
@@ -414,7 +414,7 @@ public class CompilerToolTests extends TestCase {
 					String className,
 					Kind kind,
 					FileObject sibling) throws IOException {
-				
+
 				System.out.println("EC: Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
 				System.out.println(javaFileForOutput.toUri());
@@ -427,7 +427,7 @@ public class CompilerToolTests extends TestCase {
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
-		
+
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
@@ -441,13 +441,13 @@ public class CompilerToolTests extends TestCase {
  			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
  	 		assertTrue("Compilation failed ", false);
  		}
-		
+
 		stringWriter = new StringWriter();
 		printWriter = new PrintWriter(stringWriter);
 		task = Compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
  		// check the classpath location
  		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
-		result = task.call();		
+		result = task.call();
 		printWriter.flush();
 		printWriter.close();
  		if (!result.booleanValue()) {
@@ -455,9 +455,9 @@ public class CompilerToolTests extends TestCase {
  	 		assertTrue("Compilation failed ", false);
  		}
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());		
+		assertTrue("delete failed", inputFile.delete());
 	}
-	
+
 	public void testCompilerOneClassWithEclipseCompiler3() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
@@ -489,7 +489,7 @@ public class CompilerToolTests extends TestCase {
 					String className,
 					Kind kind,
 					FileObject sibling) throws IOException {
-				
+
 				System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
 				System.out.println(javaFileForOutput.toUri());
@@ -502,7 +502,7 @@ public class CompilerToolTests extends TestCase {
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
-		
+
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
@@ -516,7 +516,7 @@ public class CompilerToolTests extends TestCase {
  			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
  	 		assertTrue("Compilation failed ", false);
  		}
-		
+
 		try {
 			task.call();
 			assertTrue("Should not get there", false);
@@ -525,10 +525,14 @@ public class CompilerToolTests extends TestCase {
 		}
 
 		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());		
+		assertTrue("delete failed", inputFile.delete());
 	}
 
 	public void testCompilerOneClassWithEclipseCompiler4() {
+		// this test should be disabled on linux due to bug http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6419926
+		String osName = System.getProperty("os.name");
+		if (osName == null) return; // if we don't know the OS we return
+		if (osName.indexOf("Windows") == -1) return; // we run it only on Windows system
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
 		BufferedWriter writer = null;
@@ -558,7 +562,7 @@ public class CompilerToolTests extends TestCase {
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);
-		
+
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
