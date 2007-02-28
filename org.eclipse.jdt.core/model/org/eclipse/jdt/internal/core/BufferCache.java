@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.core.util.LRUCache;
  */
 public class BufferCache extends OverflowingLRUCache {
 	
-	private ArrayList buffersToClose = new ArrayList();
+	private ThreadLocal buffersToClose = new ThreadLocal();
 /**
  * Constructs a new buffer cache of the given size.
  */
@@ -48,14 +48,21 @@ protected boolean close(LRUCacheEntry entry) {
 	if (!((Openable)buffer.getOwner()).canBufferBeRemovedFromCache(buffer)) {
 		return false;
 	} else {
-		this.buffersToClose.add(buffer);
+		ArrayList buffers = (ArrayList) this.buffersToClose.get();
+		if (buffers == null) {
+			buffers = new ArrayList();
+			this.buffersToClose.set(buffers);
+		}
+		buffers.add(buffer);
 		return true;
 	}
 }
 
 void closeBuffers() {
-	ArrayList buffers = this.buffersToClose;
-	this.buffersToClose = new ArrayList();
+	ArrayList buffers = (ArrayList) this.buffersToClose.get();
+	if (buffers == null)
+		return;
+	this.buffersToClose.set(null);
 	for (int i = 0, length = buffers.size(); i < length; i++) {
 		((IBuffer) buffers.get(i)).close();
 	}
