@@ -1892,6 +1892,8 @@ public void illegalInstanceOfGenericType(TypeBinding checkedType, ASTNode locati
 		location.sourceEnd);
 }
 public void illegalLocalTypeDeclaration(TypeDeclaration typeDeclaration) {
+	if (isRecoveredName(typeDeclaration.name)) return;
+	
 	int problemID = 0;
 	if ((typeDeclaration.modifiers & ClassFileConstants.AccEnum) != 0) {
 		problemID = IProblem.CannotDefineEnumInLocalType;

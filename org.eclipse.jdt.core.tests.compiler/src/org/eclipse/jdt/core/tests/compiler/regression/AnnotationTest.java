@@ -7506,4 +7506,37 @@ public void test224() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=XXXXX
+public void test225() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  public void myMethod() {\n"+
+			"    @MyAnnot1()\n"+
+			"  }\n"+
+			"}\n"+
+			"@interface MyAnnot1 {\n"+
+			"}"
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	@MyAnnot1()\n" + 
+		"	          ^\n" + 
+		"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	@MyAnnot1()\n" + 
+		"	          ^\n" + 
+		"Syntax error, insert \"EnumBody\" to complete BlockStatements\n" + 
+		"----------\n", 
+		null, 
+		true, 
+		null /* no custom options */,
+		false /* do not generate output */,
+		false /* do not show category */, 
+		false /* do not show warning token */, 
+		false  /* do not skip javac for this peculiar test */,
+		true  /* do not perform statements recovery */);
+}
 }
