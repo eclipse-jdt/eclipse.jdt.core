@@ -12379,6 +12379,34 @@ public void testCompletionVariableName35() throws JavaModelException {
 			"zzzTest2[VARIABLE_DECLARATION]{zzzTest2, null, Ltest.Test2;, zzzTest2, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175834
+public void testCompletionVariableName36() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n"+
+            "public class Test {\n"+
+            "	void bar() {\n"+
+            "		/**/int varzz\n"+
+            "		{\n"+
+            "			int varzz1 = 0;\n"+
+            "			varzz1 = 0;\n"+
+            "		}\n"+
+            "		int varzz2 = 0;\n"+
+            "		#\n"+
+            "	}\n"+
+            "}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/**/int varzz";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"varzzI[VARIABLE_DECLARATION]{varzzI, null, I, varzzI, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
 public void testCompletionVariableName4() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionVariableName4.java",

@@ -3746,6 +3746,8 @@ public MethodDeclaration parseStatementsAfterCompletion(int start, int end, Comp
 	referenceContext = fakeMethod;
 	compilationUnit = unit;
 	
+	this.restartRecovery = true;
+	
 	scanner.resetTo(start, end);
 	consumeNestedMethod();
 	try {
