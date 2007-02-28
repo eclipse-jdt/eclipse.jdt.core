@@ -518,8 +518,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (container == null)
 			return false;
 		IJavaProject project = projects[0];
-		if (!containerInitializationInProgress(project).contains(containerPath))
-			return false;
 		IClasspathContainer previousSessionContainer = getPreviousSessionContainer(containerPath, project);
 		final IClasspathEntry[] newEntries = container.getClasspathEntries();
 		if (previousSessionContainer == null) 
