@@ -41,6 +41,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Debug variables
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
 	final static boolean PRINT = "true".equals(System.getProperty("print"));
+	/**
+	 * Flag to validate test run environnement.
+	 * <p>
+	 * This property has been added to speed-up check-up of local shells to run the
+	 * entire performance tests.
+	 * <p>
+	 * WARNING: if this property is set, *nothing at all* will be run, neither measure nor warm-up.
+	 */
+	final static boolean TOUCH = "true".equals(System.getProperty("touch"));
 
 	// Options
 	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
@@ -187,6 +196,33 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Patch version currently applied: may be null!
 	protected final static String PATCH_ID = System.getProperty("patch");
 	protected static String RUN_ID;
+
+	// Filter to get only the 3.0 plugins
+	class FullSourceProjectsFilter implements FileFilter {
+		public boolean accept(File project) {
+			if (project.isDirectory()) {
+				StringTokenizer tokenizer = new StringTokenizer(project.getName(), ".");
+				String token = tokenizer.nextToken();
+				if (token.equals("org") && tokenizer.hasMoreTokens()) {
+					token = tokenizer.nextToken();
+					if (token.equals("junit") && !tokenizer.hasMoreTokens()) {
+						return true;
+					}
+					if (token.equals("apache")) {
+						token = tokenizer.nextToken();
+						if (token.equals("ant") || token.equals("lucene")) {
+							return true;
+						}
+						return false;
+					}
+					if (token.equals("eclipse") && tokenizer.hasMoreTokens()) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	}
 
 	/**
 	 * Initialize log directory.
@@ -524,6 +560,13 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		// Increment test position
 		TEST_POSITION++;
 
+		// Abort if only touch
+		if (TOUCH) {
+			String testPrintName = "'"+scenarioShortName+"' test"; 
+			System.out.println("Touch "+testPrintName+" to verify that it will run correctly.");
+			throw new Error(testPrintName+" execution has been aborted!");
+		}
+
 		// Print test name
 		System.out.println("================================================================================");
 		System.out.println("Running "+this.scenarioReadableName+"...");
@@ -539,23 +582,39 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * Set up full source workpsace from zip file.
 	 */
 	private void setUpFullSourceWorkspace() throws IOException, CoreException {
-
-		// Get projects in workspace (save projects creation on local boxes...)
+		
+		// Get wksp info
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		IProject[] projects = workspaceRoot.getProjects();
-		int projectsLength = projects.length;
+		String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
 
-		// If no projects then unzip file
-		if (projectsLength == 0) {
-			projects = createFullSourceWorkspace();
-			projectsLength = projects.length;
+		// Get projects directories
+		File wkspDir = new File(targetWorkspacePath);
+		FullSourceProjectsFilter filter = new FullSourceProjectsFilter();
+		File[] directories = wkspDir.listFiles(filter);
+		long start = System.currentTimeMillis();
+		int dirLength = directories.length;
+		if (dirLength != 62) {
+			String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
+			System.out.println("Unzipping "+fullSourceZipPath);
+			System.out.print("	in "+targetWorkspacePath+"...");
+			Util.unzip(fullSourceZipPath, targetWorkspacePath);
+			System.out.println(" done in "+(System.currentTimeMillis()-start)+"ms.");
 		}
 
 		// Init environment with existing porjects
-		for (int i = 0; i < projectsLength; i++) {
-			ENV.addProject(projects[i]);
+		System.out.print("Create and open projects in environment...");
+		start = System.currentTimeMillis();
+		for (int i = 0; i < dirLength; i++) {
+			String dirName = directories[i].getName();
+			IProject project = workspaceRoot.getProject(dirName);
+			if (project.exists()) {
+				ENV.addProject(project);
+			} else {
+				ENV.addProject(dirName);
+			}
 		}
+		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 
 		// Init JRE_LIB variable
 		String jdkLib = Util.getJavaClassLibs()[0];
@@ -587,43 +646,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		IJavaElement element = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.compiler.parser.Parser");
 		assertTrue("Parser should exist in org.eclipse.jdt.core project!", element != null && element.exists());
 		PARSER_WORKING_COPY = (ICompilationUnit) element.getParent();
-	}
-
-	private IProject[] createFullSourceWorkspace() throws IOException, CoreException {
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
-
-		// Print for log in case of project creation troubles...
-		String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
-		long start = System.currentTimeMillis();
-		System.out.println("Unzipping "+fullSourceZipPath);
-		System.out.print("	in "+targetWorkspacePath+"...");
-
-		// Unzip file
-		Util.unzip(fullSourceZipPath, targetWorkspacePath);
-		System.out.println(" "+(System.currentTimeMillis()-start)+"ms.");
-
-		// Create and open projects
-		System.out.print("Create and open projects in environment...");
-		start = System.currentTimeMillis();
-		workspace.run(new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-				File targetWorkspaceDir = new File(targetWorkspacePath);
-				String[] projectNames = targetWorkspaceDir.list();
-				for (int i = 0, length = projectNames.length; i < length; i++) {
-					String projectName = projectNames[i];
-					if (".metadata".equals(projectName)) continue;
-					IProject project = workspaceRoot.getProject(projectName);
-					project.create(monitor);
-					project.open(monitor);
-				}
-			}
-		}, null);
-		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
-		
-		// Return unzipped projects
-		return workspaceRoot.getProjects();
 	}
 
 	/*
