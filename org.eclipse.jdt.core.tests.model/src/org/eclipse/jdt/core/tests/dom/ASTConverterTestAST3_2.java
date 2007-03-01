@@ -116,7 +116,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 664, -1 };
-//		TESTS_NUMBERS =  new int[] { 668 };
+//		TESTS_NUMBERS =  new int[] { 669 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8782,4 +8782,13 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Wrong name property", "org.eclipse.jdt.core.dom.SimpleName", EnumDeclaration.NAME_PROPERTY.getChildType().getName());
 		assertEquals("Wrong name property", "org.eclipse.jdt.core.dom.SimpleName", TypeDeclaration.NAME_PROPERTY.getChildType().getName());
 	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=176057
+	 */
+	public void _test0669() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0669", "UIPerformChangeOperation.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true, true);
+		assertNotNull(result);
+	}	
 }
