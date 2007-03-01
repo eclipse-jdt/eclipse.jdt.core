@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,12 +11,15 @@
 package org.eclipse.jdt.core.tests.performance;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
 import junit.framework.*;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -25,6 +28,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests.ProblemRequestor;
 import org.eclipse.jdt.internal.core.*;
 
@@ -83,40 +87,54 @@ protected void setUp() throws Exception {
 		setUpBigProjectInfo();
 	}
 }
-private void setUpBigProject() throws CoreException {
+private void setUpBigProject() throws CoreException, IOException {
 	try {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
+		String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
 		long start = System.currentTimeMillis();
 
 		// Print for log in case of project creation troubles...
-		System.out.println("Create project "+BIG_PROJECT_NAME+" in "+workspaceRoot.getLocation()+":");
-
-		// setup projects with several source folders and several packages per source folder
-		System.out.println("	- create "+FOLDERS_COUNT+" folders x "+PACKAGES_COUNT+" packages...");
-		final String[] sourceFolders = new String[FOLDERS_COUNT];
-		for (int i = 0; i < FOLDERS_COUNT; i++) {
-			sourceFolders[i] = "src" + i;
-		}
-		String path = workspaceRoot.getLocation().toString() + "/BigProject/src";
-		for (int i = 0; i < FOLDERS_COUNT; i++) {
-			if (PRINT && i>0 && i%10==0) System.out.print("		+ folder src"+i+"...");
-			long top = System.currentTimeMillis();
-			for (int j = 0; j < PACKAGES_COUNT; j++) {
-				new java.io.File(path + i + "/org/eclipse/jdt/core/tests" + i + "/performance" + j).mkdirs();
+		File wkspDir = new File(targetWorkspacePath);
+		File projectDir = new File(wkspDir, BIG_PROJECT_NAME);
+		if (projectDir.exists()) {
+			System.out.print("Add existing project "+BIG_PROJECT_NAME+" in "+workspaceRoot.getLocation()+" to workspace...");
+			IProject bigProject = workspaceRoot.getProject(BIG_PROJECT_NAME);
+			if (bigProject.exists()) {
+				ENV.addProject(bigProject);
+			} else {
+				ENV.addProject(BIG_PROJECT_NAME);
 			}
-			if (PRINT && i>0 && i%10==0) System.out.println("("+(System.currentTimeMillis()-top)+"ms)");
+			BIG_PROJECT = (JavaProject) ENV.getJavaProject(BIG_PROJECT_NAME);
+			BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
+		} else {
+			System.out.println("Create project "+BIG_PROJECT_NAME+" in "+workspaceRoot.getLocation()+":");
+	
+			// setup projects with several source folders and several packages per source folder
+			System.out.println("	- create "+FOLDERS_COUNT+" folders x "+PACKAGES_COUNT+" packages...");
+			final String[] sourceFolders = new String[FOLDERS_COUNT];
+			for (int i = 0; i < FOLDERS_COUNT; i++) {
+				sourceFolders[i] = "src" + i;
+			}
+			String path = workspaceRoot.getLocation().toString() + "/BigProject/src";
+			for (int i = 0; i < FOLDERS_COUNT; i++) {
+				if (PRINT && i>0 && i%10==0) System.out.print("		+ folder src"+i+"...");
+				long top = System.currentTimeMillis();
+				for (int j = 0; j < PACKAGES_COUNT; j++) {
+					new java.io.File(path + i + "/org/eclipse/jdt/core/tests" + i + "/performance" + j).mkdirs();
+				}
+				if (PRINT && i>0 && i%10==0) System.out.println("("+(System.currentTimeMillis()-top)+"ms)");
+			}
+			System.out.println("		=> global time = "+(System.currentTimeMillis()-start)/1000.0+" seconds)");
+
+			// Add project to workspace
+			start = System.currentTimeMillis();
+			System.out.print("	- add project to full source workspace...");
+			ENV.addProject(BIG_PROJECT_NAME);
+			BIG_PROJECT = (JavaProject) createJavaProject(BIG_PROJECT_NAME, sourceFolders, "bin", "1.4");
+			BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
 		}
-
-		// Print for log in case of project creation troubles...
-		System.out.println("		=> global time = "+(System.currentTimeMillis()-start)/1000.0+" seconds)");
-		start = System.currentTimeMillis();
-		System.out.print("	- add project to full source workspace...");
-
-		// Add project to workspace
-		ENV.addProject(BIG_PROJECT_NAME);
-		BIG_PROJECT = (JavaProject) createJavaProject(BIG_PROJECT_NAME, sourceFolders, "bin", "1.4");
-		BIG_PROJECT.setRawClasspath(BIG_PROJECT.getRawClasspath(), null);
+		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 
 		// Print for log in case of project creation troubles...
 		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
@@ -126,30 +144,32 @@ private void setUpBigProject() throws CoreException {
 		// Add CU with secondary type
 		BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (FOLDERS_COUNT-1) + "/performance" + (PACKAGES_COUNT-1) + "/TestBigProject.java");
 		IFile file = workspaceRoot.getFile(BIG_PROJECT_TYPE_PATH);
-		String content = "package org.eclipse.jdt.core.tests" + (FOLDERS_COUNT-1) + ".performance" + (PACKAGES_COUNT-1) + ";\n" +
-			"public class TestBigProject {\n" +
-			"	class Level1 {\n" +
-			"		class Level2 {\n" +
-			"			class Level3 {\n" +
-			"				class Level4 {\n" +
-			"					class Level5 {\n" +
-			"						class Level6 {\n" +
-			"							class Level7 {\n" +
-			"								class Level8 {\n" +
-			"									class Level9 {\n" +
-			"										class Level10 {}\n" +
-			"									}\n" +
-			"								}\n" +
-			"							}\n" +
-			"						}\n" +
-			"					}\n" +
-			"				}\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n" +
-			"class TestSecondary {}\n";
-		file.create(new ByteArrayInputStream(content.getBytes()), true, null);
+		if (!file.exists()) {
+			String content = "package org.eclipse.jdt.core.tests" + (FOLDERS_COUNT-1) + ".performance" + (PACKAGES_COUNT-1) + ";\n" +
+				"public class TestBigProject {\n" +
+				"	class Level1 {\n" +
+				"		class Level2 {\n" +
+				"			class Level3 {\n" +
+				"				class Level4 {\n" +
+				"					class Level5 {\n" +
+				"						class Level6 {\n" +
+				"							class Level7 {\n" +
+				"								class Level8 {\n" +
+				"									class Level9 {\n" +
+				"										class Level10 {}\n" +
+				"									}\n" +
+				"								}\n" +
+				"							}\n" +
+				"						}\n" +
+				"					}\n" +
+				"				}\n" +
+				"			}\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n" +
+				"class TestSecondary {}\n";
+			file.create(new ByteArrayInputStream(content.getBytes()), true, null);
+		}
 		WORKING_COPY = (ICompilationUnit)JavaCore.create(file);
 		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 	} finally {
@@ -295,7 +315,7 @@ private NameLookup getNameLookup(JavaProject project) throws JavaModelException 
 public void testPerfNameLookupFindKnownType() throws CoreException {
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
@@ -334,7 +354,7 @@ public void testPerfNameLookupFindKnownType() throws CoreException {
 public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -375,7 +395,7 @@ public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
 public void testPerfNameLookupFindUnknownType() throws CoreException {
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -415,7 +435,7 @@ public void testPerfProjectFindKnownType() throws CoreException {
 	tagAsSummary("Find known type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
@@ -453,7 +473,7 @@ public void testPerfProjectFindKnownMemberType() throws CoreException {
 	tagAsSummary("Find known member type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
@@ -494,7 +514,7 @@ public void testPerfProjectFindKnownSecondaryType() throws CoreException {
 	tagAsSummary("Find known secondary type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -531,7 +551,7 @@ public void testPerfProjectFindUnknownType() throws CoreException {
 	tagAsSummary("Find unknown type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -567,7 +587,7 @@ public void testPerfReconcile() throws CoreException {
 	tagAsGlobalSummary("Reconcile editor change", true); // put in global fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	ICompilationUnit workingCopy = null;
@@ -684,7 +704,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 	tagAsSummary("Reconcile editor change and complete", true); // put in fingerprint
 
 	// Wait for indexing end
-	waitUntilIndexesReady();
+	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Warm up
 	ICompilationUnit workingCopy = null;

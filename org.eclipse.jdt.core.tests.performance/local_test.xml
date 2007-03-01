@@ -20,40 +20,20 @@
     </delete>
   </target>
 
-  <!-- This target defines the tests that need to be run. -->
-  <target name="suite">
-    <property name="jdt-core-perf-folder" 
-              value="${eclipse-home}/jdt-core-perf-folder"/>
-    <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
-   	  <!-- Use a subdir 'data' so that the JCL jars are put in jdt-core-perf-folder and are deleted at the end of the tests. -->
-      <property name="data-dir" value="${jdt-core-perf-folder}/data"/>
-      <property name="plugin-name" value="${plugin-name}"/>
-      <property name="classname" 
-                value="org.eclipse.jdt.core.tests.performance.OneTest"/>
-    </ant>
-  </target>
-
   <!-- This target holds code to cleanup the testing environment after -->
   <!-- after all of the tests have been run. You can use this target to -->
   <!-- delete temporary files that have been created. -->
   <target name="cleanup">
   </target>
 
-  <!-- This target runs the test suite. Any actions that need to happen -->
-  <!-- after all the tests have been run should go here. -->
-  <target name="run" depends="init,suite,cleanup">
-    <ant target="collect" antfile="${library-file}" dir="${eclipse-home}">
-      <property name="includes" value="org*.xml"/>
-      <property name="output-file" value="${plugin-name}.xml"/>
-    </ant>
-  </target>
-
   <!-- This target defines the performance tests that need to be run. -->
   <target name="performance-suite">
-    <property name="jdt-core-perf-folder" value="${eclipse-home}/jdt-core-perf-folder"/>
+    <property name="jdt-core-perf-folder" value="${perfs-wksp}"/>
     <property name="extraVMargs" value="-Xmx256M -Xms256M -Dcompliance=1.5 -DPerformanceMeterFactory=org.eclipse.jdt.core.tests.performance:org.eclipse.jdt.core.tests.performance.util.JdtCorePerformanceMeterFactory -DlogDir=${jdt-core-perf-folder}/results"/>
 
+  	<!--
     <delete dir="${jdt-core-perf-folder}" quiet="true"/>
+  	-->
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
       <!-- Use a subdir 'data' so that the JCL jars are put in jdt-core-perf-folder and are deleted at the end of the tests. -->
       <property name="data-dir" value="${jdt-core-perf-folder}/data"/>
