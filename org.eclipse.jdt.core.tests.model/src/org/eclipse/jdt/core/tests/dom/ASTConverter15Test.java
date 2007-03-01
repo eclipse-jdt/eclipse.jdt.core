@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 244, 245 };
+//		TESTS_NUMBERS = new int[] { 247 };
 //		TESTS_RANGE = new int[] { 240, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -7866,4 +7866,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Doesn't exist", element.exists());
 		assertEquals("Wrong handle identifier", "=Converter15/src<xy{X.java[X[Inner", element.getHandleIdentifier());
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156352
+	 */
+	public void _test0247() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0247", "EclipseCompiler.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true, true);
+		assertNotNull("Not a compilation unit", result);
+	}	
 }
