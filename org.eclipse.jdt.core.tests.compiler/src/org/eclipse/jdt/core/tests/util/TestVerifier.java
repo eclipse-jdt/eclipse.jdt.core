@@ -263,10 +263,9 @@ private String getVerifyTestsCode() {
 		"	 * @return Returns null if file couldn\'t be found.\n" + 
 		"	 */\n" + 
 		"	private File locate(String fileName) { \n" + 
-		"		fileName= fileName.replace(\'.\', \'/\')+\".class\";\n" + 
-		"		File path= null;\n" + 
-		"		\n" + 
 		"		if (fileName != null) {\n" + 
+		"		  fileName= fileName.replace(\'.\', \'/\')+\".class\";\n" + 
+		"		  File path= null;\n" + 
 		"			for (int i= 0; i < fPathItems.length; i++) {\n" + 
 		"				path= new File(fPathItems[i], fileName);\n" + 
 		"				if (path.exists())\n" + 

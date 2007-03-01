@@ -148,10 +148,9 @@ public class VerifyClassLoader extends ClassLoader {
 	 * @return Returns null if file couldn't be found.
 	 */
 	private File locate(String fileName) { 
-		fileName= fileName.replace('.', '/')+".class";
-		File path= null;
-		
 		if (fileName != null) {
+			fileName= fileName.replace('.', '/')+".class";
+			File path= null;
 			for (int i= 0; i < fPathItems.length; i++) {
 				path= new File(fPathItems[i], fileName);
 				if (path.exists())
