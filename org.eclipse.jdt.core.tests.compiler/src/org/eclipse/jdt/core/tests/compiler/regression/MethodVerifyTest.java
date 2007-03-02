@@ -7420,4 +7420,27 @@ public void test123() {
 		""
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
+public void test124() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static String choose(String one, String two) {\n" + 
+			"    return one + X.<String>choose(one, two);\n" + 
+			"  }\n" + 
+			"  public static <T> T choose(T one, T two) {\n" + 
+			"    return two;\n" + 
+			"  }\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    System.out.println(choose(\"a\", \"b\"));\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	return one + X.<String>choose(one, two);\n" + 
+		"	                       ^^^^^^\n" + 
+		"The method choose(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+		"----------\n");
+}
 }
