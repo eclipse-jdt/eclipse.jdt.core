@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 BEA Systems, Inc. 
+ * Copyright (c) 2005 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,51 +7,55 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.build;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPlatformRunnable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.app.IApplication;
+import org.eclipse.equinox.app.IApplicationContext;
 
 /**
  * Commandline entry point for building a workspace using APT.
  * Currently cleans and then builds the entire workspace.<P>
- * 
+ *
  * Sample commandline invocation:
- * 
- * java -cp %ECLIPSE_HOME%/startup.jar org.eclipse.core.launcher.Main 
- * 	-noupdate -application org.eclipse.jdt.apt.core.aptBuild -data %WORKSPACE%
+ *
+ * %ECLIPSE_HOME%/eclipse -noupdate -application org.eclipse.jdt.apt.core.aptBuild -data %WORKSPACE%
  */
-public class AptBuilder implements IPlatformRunnable {
+public class AptBuilder implements IApplication {
 
 	/**
-	 * Runs this runnable with the given args and returns a result.
+	 * Runs this runnable with the given application context and returns a result.
 	 * The content of the args is unchecked and should conform to the expectations of
-	 * the runnable being invoked.  Typically this is a <code>String</code> array.
-	 * Applications can return any object they like.  If an <code>Integer</code> is returned
+	 * the runnable being invoked. Typically this is a <code>String</code> array.
+	 * Applications can return any object they like. If an <code>Integer</code> is returned
 	 * it is treated as the program exit code if Eclipse is exiting.
-	 * 
-	 * @param args the argument(s) to pass to the application
+	 *
+	 * @param context the given application context passed to the application
 	 * @return the return value of the application
 	 * @exception Exception if there is a problem running this runnable.
 	 * @see #EXIT_OK
 	 * @see #EXIT_RESTART
 	 * @see #EXIT_RELAUNCH
 	 */
-	public Object run(Object args) throws Exception {
+	public Object start(IApplicationContext context) throws Exception {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IProgressMonitor progressMonitor = new SystemOutProgressMonitor();
 		workspace.build(IncrementalProjectBuilder.CLEAN_BUILD, progressMonitor);
 		workspace.build(IncrementalProjectBuilder.FULL_BUILD, progressMonitor);
-		
-		return IPlatformRunnable.EXIT_OK;
+
+		return IApplication.EXIT_OK;
 	}
-	
+
+	public void stop() {
+		// nothing to do
+	}
+
 	/**
 	 * Sends all progress to StdOut
 	 */
