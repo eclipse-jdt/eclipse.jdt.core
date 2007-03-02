@@ -209,7 +209,7 @@ public void test010() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "Obj");
 	assertResults(
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICUNR+"}"
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
 	);
 }
 
@@ -224,8 +224,8 @@ public void test011() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BasicTest");
 	assertResults(
-		"BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+R_DICUNR+"}\n" + 
-		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DICNR+"}"
+		"BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+R_DRICUNR+"}\n" + 
+		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -240,8 +240,8 @@ public void test012() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BasicTest");
 	assertResults(
-		"BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+R_DICUNR+"}\n" + 
-		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DICNR+"}"
+		"BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+R_DRICUNR+"}\n" + 
+		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -257,8 +257,8 @@ public void test013() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BasicTest");
 	assertResults(
-		"BasicTestTypes<TPARAM>[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes<TTPARAM;>;, null, null, "+this.positions+R_DICUNR+"}\n" + 
-		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DICNR+"}"
+		"BasicTestTypes<TPARAM>[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes<TTPARAM;>;, null, null, "+this.positions+R_DRICUNR+"}\n" + 
+		"BasicTestReferences[TYPE_REF]{org.eclipse.jdt.core.tests.BasicTestReferences, org.eclipse.jdt.core.tests, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -274,7 +274,7 @@ public void test014() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "javadoc.types.tags.BasicTest");
 	assertResults(
-		"BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+R_DICNR+"}"
+		"BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -291,7 +291,7 @@ public void test015() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "javadoc.types.tags.BasicTest");
 	assertResults(
-		"BasicTestTypes<TPARAM>[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes<TTPARAM;>;, null, null, "+this.positions+R_DICNR+"}"
+		"BasicTestTypes<TPARAM>[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes<TTPARAM;>;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -307,7 +307,7 @@ public void test016() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "java.la");
 	assertResults(
-		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DICQNR+"}"
+		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}"
 	);
 }
 
@@ -323,7 +323,7 @@ public void test017() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "java.la");
 	assertResults(
-		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DICQNR+"}"
+		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}"
 	);
 }
 
@@ -338,9 +338,9 @@ public void test018() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "pack.Bin");
 	assertSortedResults(
-		"Bin1[TYPE_REF]{pack.Bin1, pack, Lpack.Bin1;, null, null, "+this.positions+R_DICQNR+"}\n" + 
-		"Bin2[TYPE_REF]{pack.Bin2, pack, Lpack.Bin2;, null, null, "+this.positions+R_DICQNR+"}\n" + 
-		"Bin3[TYPE_REF]{pack.Bin3, pack, Lpack.Bin3;, null, null, "+this.positions+R_DICQNR+"}"
+		"Bin1[TYPE_REF]{pack.Bin1, pack, Lpack.Bin1;, null, null, "+this.positions+R_DRICQNR+"}\n" + 
+		"Bin2[TYPE_REF]{pack.Bin2, pack, Lpack.Bin2;, null, null, "+this.positions+R_DRICQNR+"}\n" + 
+		"Bin3[TYPE_REF]{pack.Bin3, pack, Lpack.Bin3;, null, null, "+this.positions+R_DRICQNR+"}"
 	);
 }
 
@@ -355,9 +355,9 @@ public void test019() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "pack.Bin");
 	assertSortedResults(
-		"Bin1[TYPE_REF]{pack.Bin1, pack, Lpack.Bin1;, null, null, "+this.positions+R_DICQNR+"}\n" + 
-		"Bin2[TYPE_REF]{pack.Bin2, pack, Lpack.Bin2;, null, null, "+this.positions+R_DICQNR+"}\n" + 
-		"Bin3[TYPE_REF]{pack.Bin3, pack, Lpack.Bin3;, null, null, "+this.positions+R_DICQNR+"}"
+		"Bin1[TYPE_REF]{pack.Bin1, pack, Lpack.Bin1;, null, null, "+this.positions+R_DRICQNR+"}\n" + 
+		"Bin2[TYPE_REF]{pack.Bin2, pack, Lpack.Bin2;, null, null, "+this.positions+R_DRICQNR+"}\n" + 
+		"Bin3[TYPE_REF]{pack.Bin3, pack, Lpack.Bin3;, null, null, "+this.positions+R_DRICQNR+"}"
 	);
 }
 
@@ -372,7 +372,7 @@ public void test020() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "pack.Bin2");
 	assertSortedResults(
-		"Bin2[TYPE_REF]{pack.Bin2, pack, Lpack.Bin2;, null, null, "+this.positions+R_DICENQNR+"}"
+		"Bin2[TYPE_REF]{pack.Bin2, pack, Lpack.Bin2;, null, null, "+this.positions+R_DRICENQNR+"}"
 	);
 }
 
@@ -388,8 +388,8 @@ public void test021() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "I");
 	assertSortedResults(
-		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICUNR+"}\n" + 
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICUNR+"}"
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNR+"}\n" + 
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNR+"}"
 	);
 }
 
@@ -405,20 +405,20 @@ public void test022() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "java.lang.");
 	assertSortedResults(
-		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+R_DICQNR+"}\n" + 
-		"CharSequence[TYPE_REF]{CharSequence, java.lang, Ljava.lang.CharSequence;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"CloneNotSupportedException[TYPE_REF]{CloneNotSupportedException, java.lang, Ljava.lang.CloneNotSupportedException;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Comparable[TYPE_REF]{Comparable, java.lang, Ljava.lang.Comparable;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Error[TYPE_REF]{Error, java.lang, Ljava.lang.Error;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"RuntimeException[TYPE_REF]{RuntimeException, java.lang, Ljava.lang.RuntimeException;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Throwable[TYPE_REF]{Throwable, java.lang, Ljava.lang.Throwable;, null, null, "+this.positions+R_DICNR+"}"
+		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+R_DRICQNR+"}\n" + 
+		"CharSequence[TYPE_REF]{CharSequence, java.lang, Ljava.lang.CharSequence;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"CloneNotSupportedException[TYPE_REF]{CloneNotSupportedException, java.lang, Ljava.lang.CloneNotSupportedException;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Comparable[TYPE_REF]{Comparable, java.lang, Ljava.lang.Comparable;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Error[TYPE_REF]{Error, java.lang, Ljava.lang.Error;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"RuntimeException[TYPE_REF]{RuntimeException, java.lang, Ljava.lang.RuntimeException;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Throwable[TYPE_REF]{Throwable, java.lang, Ljava.lang.Throwable;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -433,8 +433,8 @@ public void test023() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "java.");
 	assertResults(
-		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DICQNR+"}\n" + 
-		"java.io[PACKAGE_REF]{java.io, java.io, null, null, null, "+this.positions+R_DICQNR+"}"
+		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}\n" + 
+		"java.io[PACKAGE_REF]{java.io, java.io, null, null, null, "+this.positions+R_DRICQNR+"}"
 	);
 }
 
@@ -450,9 +450,9 @@ public void test024() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "java.");
 	assertResults(
-		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+R_DICQNR+"}\n" + 
-		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DICQNR+"}\n" + 
-		"java.io[PACKAGE_REF]{java.io, java.io, null, null, null, "+this.positions+R_DICQNR+"}"
+		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+R_DRICQNR+"}\n" + 
+		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}\n" + 
+		"java.io[PACKAGE_REF]{java.io, java.io, null, null, null, "+this.positions+R_DRICQNR+"}"
 	);
 }
 
@@ -467,16 +467,16 @@ public void test025() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "java.lang.");
 	assertSortedResults(
-		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"CloneNotSupportedException[TYPE_REF]{CloneNotSupportedException, java.lang, Ljava.lang.CloneNotSupportedException;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Error[TYPE_REF]{Error, java.lang, Ljava.lang.Error;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"RuntimeException[TYPE_REF]{RuntimeException, java.lang, Ljava.lang.RuntimeException;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DICNR+"}\n" + 
-		"Throwable[TYPE_REF]{Throwable, java.lang, Ljava.lang.Throwable;, null, null, "+this.positions+R_DICNR+"}"
+		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"CloneNotSupportedException[TYPE_REF]{CloneNotSupportedException, java.lang, Ljava.lang.CloneNotSupportedException;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Error[TYPE_REF]{Error, java.lang, Ljava.lang.Error;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"RuntimeException[TYPE_REF]{RuntimeException, java.lang, Ljava.lang.RuntimeException;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+		"Throwable[TYPE_REF]{Throwable, java.lang, Ljava.lang.Throwable;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -491,7 +491,7 @@ public void test026() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "java.lang.Ob");
 	assertResults(
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DICNR+"}"
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -511,7 +511,7 @@ public void test030() throws JavaModelException {
 		"class BasicTestTypesTestSecondary {}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BasicTestTypesM");
 	assertResults(
-		"BasicTestTypes.BasicTestTypesMember[TYPE_REF]{BasicTestTypesMember, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes$BasicTestTypesMember;, null, null, "+this.positions+R_DICUNR+"}"
+		"BasicTestTypes.BasicTestTypesMember[TYPE_REF]{BasicTestTypesMember, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes$BasicTestTypesMember;, null, null, "+this.positions+R_DRICUNR+"}"
 	);
 }
 
@@ -528,7 +528,7 @@ public void test031() throws JavaModelException {
 		"class BasicTestTypesSecondary {}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BasicTestTypesM");
 	assertResults(
-		"BasicTestTypes.BasicTestTypesMember[TYPE_REF]{BasicTestTypesMember, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes$BasicTestTypesMember;, null, null, "+this.positions+R_DICUNR+"}"
+		"BasicTestTypes.BasicTestTypesMember[TYPE_REF]{BasicTestTypesMember, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes$BasicTestTypesMember;, null, null, "+this.positions+R_DRICUNR+"}"
 	);
 }
 
@@ -545,7 +545,7 @@ public void test032() throws JavaModelException {
 		"class BasicTestTypesSecondary {}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BasicTestTypesM");
 	assertResults(
-		"BasicTestTypes.BasicTestTypesMember[TYPE_REF]{BasicTestTypesMember, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes$BasicTestTypesMember;, null, null, "+this.positions+R_DICNR+"}"
+		"BasicTestTypes.BasicTestTypesMember[TYPE_REF]{BasicTestTypesMember, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes$BasicTestTypesMember;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -562,7 +562,7 @@ public void test033() throws JavaModelException {
 		"class BasicTestTypesSecondary {}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BasicTestTypesM");
 	assertResults(
-		"BasicTestTypes.BasicTestTypesMember[TYPE_REF]{BasicTestTypesMember, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes$BasicTestTypesMember;, null, null, "+this.positions+R_DICNR+"}"
+		"BasicTestTypes.BasicTestTypesMember[TYPE_REF]{BasicTestTypesMember, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes$BasicTestTypesMember;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -578,7 +578,7 @@ public void test034() throws JavaModelException {
 		"class BasicTestTypesSecondary {}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BasicTestTypesS");
 	assertResults(
-		"BasicTestTypesSecondary[TYPE_REF]{BasicTestTypesSecondary, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypesSecondary;, null, null, "+this.positions+R_DICUNR+"}"
+		"BasicTestTypesSecondary[TYPE_REF]{BasicTestTypesSecondary, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypesSecondary;, null, null, "+this.positions+R_DRICUNR+"}"
 	);
 }
 
@@ -594,7 +594,7 @@ public void test035() throws JavaModelException {
 		"class BasicTestTypesSecondary {}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "javadoc.types.tags.BasicTestTypesS");
 	assertResults(
-		"BasicTestTypesSecondary[TYPE_REF]{BasicTestTypesSecondary, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypesSecondary;, null, null, "+this.positions+R_DICNR+"}"
+		"BasicTestTypesSecondary[TYPE_REF]{BasicTestTypesSecondary, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypesSecondary;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -610,7 +610,7 @@ public void test036() throws JavaModelException {
 		"class BasicTestTypesSecondary {}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "javadoc.types.tags.BasicTestTypesS");
 	assertResults(
-		"BasicTestTypesSecondary[TYPE_REF]{BasicTestTypesSecondary, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypesSecondary;, null, null, "+this.positions+R_DICNR+"}"
+		"BasicTestTypesSecondary[TYPE_REF]{BasicTestTypesSecondary, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypesSecondary;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -657,7 +657,7 @@ public void test041() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "FIE");
 	assertResults(
-		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+R_DICNR+"}"
+		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -672,7 +672,7 @@ public void test042() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "FIE");
 	assertResults(
-		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+R_DICNR+"}"
+		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 
@@ -688,7 +688,7 @@ public void test043() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "fo");
 	assertResults(
-		"foo[FIELD_REF]{foo, Ljavadoc.types.tags.BasicTestTypes;, I, foo, null, "+this.positions+R_DICNRNS+"}"
+		"foo[FIELD_REF]{foo, Ljavadoc.types.tags.BasicTestTypes;, I, foo, null, "+this.positions+R_DRICNRNS+"}"
 	);
 }
 
@@ -704,7 +704,7 @@ public void test044() throws JavaModelException {
 		"}";
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "fo");
 	assertResults(
-		"foo[FIELD_REF]{foo, Ljavadoc.types.tags.BasicTestTypes;, I, foo, null, "+this.positions+R_DICNRNS+"}"
+		"foo[FIELD_REF]{foo, Ljavadoc.types.tags.BasicTestTypes;, I, foo, null, "+this.positions+R_DRICNRNS+"}"
 	);
 }
 
@@ -726,7 +726,7 @@ public void test045() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "fo");
 	assertResults(
-		"foo[FIELD_REF]{foo, Ljavadoc.types.tags.OtherTypes;, I, foo, null, "+this.positions+R_DICNRNS+"}"
+		"foo[FIELD_REF]{foo, Ljavadoc.types.tags.OtherTypes;, I, foo, null, "+this.positions+R_DRICNRNS+"}"
 	);
 }
 
@@ -784,7 +784,7 @@ public void test052() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "meth");
 	assertResults(
-		"method[METHOD_REF]{method(), Ljavadoc.types.tags.OtherTypes;, ()V, method, null, "+this.positions+R_DICNRNS+"}"
+		"method[METHOD_REF]{method(), Ljavadoc.types.tags.OtherTypes;, ()V, method, null, "+this.positions+R_DRICNRNS+"}"
 	);
 }
 
@@ -806,7 +806,7 @@ public void test053() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "meth");
 	assertResults(
-		"method[METHOD_REF]{method(), Ljavadoc.types.tags.OtherTypes;, ()V, method, null, "+this.positions+R_DICNRNS+"}"
+		"method[METHOD_REF]{method(), Ljavadoc.types.tags.OtherTypes;, ()V, method, null, "+this.positions+R_DRICNRNS+"}"
 	);
 }
 
@@ -1026,7 +1026,7 @@ public void test080() throws JavaModelException {
 			" */\n" + 
 			"public class BasicTestTypes {}\n";
 		completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BTT");
-		assertResults("BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+"16}");
+		assertResults("BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+"17}");
 	} finally {
 		JavaCore.setOptions(oldOptions);
 	}
@@ -1050,8 +1050,8 @@ public void test100() throws JavaModelException {
 			1,
 			new int[]{});
 	assertResults(
-			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICUNR+"}\n" + 
-			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICUNRIT+"}"
+			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DRICUNR+"}\n" + 
+			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DRICUNRIT+"}"
 	);
 }
 public void test101() throws JavaModelException {
@@ -1070,7 +1070,7 @@ public void test101() throws JavaModelException {
 			1,
 			new int[]{CompletionProposal.JAVADOC_TYPE_REF});
 	assertResults(
-			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICUNR+"}"
+			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DRICUNR+"}"
 	);
 }
 public void test102() throws JavaModelException {
@@ -1089,7 +1089,7 @@ public void test102() throws JavaModelException {
 			1,
 			new int[]{CompletionProposal.TYPE_REF});
 	assertResults(
-			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICUNRIT+"}"
+			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DRICUNRIT+"}"
 	);
 }
 public void test103() throws JavaModelException {
@@ -1110,7 +1110,7 @@ public void test103() throws JavaModelException {
 			1,
 			new int[]{});
 	assertResults(
-			"foo[JAVADOC_METHOD_REF]{{@link ZBasicTestTypes#foo()}, Ljavadoc.types.ZBasicTestTypes;, ()V, foo, null, "+this.positions+R_DICNRNSIT+"}"
+			"foo[JAVADOC_METHOD_REF]{{@link ZBasicTestTypes#foo()}, Ljavadoc.types.ZBasicTestTypes;, ()V, foo, null, "+this.positions+R_DRICNRNSIT+"}"
 	);
 }
 public void test104() throws JavaModelException {
@@ -1152,7 +1152,7 @@ public void test105() throws JavaModelException {
 			1,
 			new int[]{CompletionProposal.METHOD_REF});
 	assertResults(
-			"foo[JAVADOC_METHOD_REF]{{@link ZBasicTestTypes#foo()}, Ljavadoc.types.ZBasicTestTypes;, ()V, foo, null, "+this.positions+R_DICNRNSIT+"}"
+			"foo[JAVADOC_METHOD_REF]{{@link ZBasicTestTypes#foo()}, Ljavadoc.types.ZBasicTestTypes;, ()V, foo, null, "+this.positions+R_DRICNRNSIT+"}"
 	);
 }
 public void test106() throws JavaModelException {
@@ -1173,7 +1173,7 @@ public void test106() throws JavaModelException {
 			1,
 			new int[]{});
 	assertResults(
-			"foo[JAVADOC_FIELD_REF]{{@link ZBasicTestTypes#foo}, Ljavadoc.types.ZBasicTestTypes;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
+			"foo[JAVADOC_FIELD_REF]{{@link ZBasicTestTypes#foo}, Ljavadoc.types.ZBasicTestTypes;, I, foo, null, "+this.positions+R_DRICNRNSIT+"}"
 	);
 }
 public void test107() throws JavaModelException {
@@ -1215,7 +1215,7 @@ public void test108() throws JavaModelException {
 			1,
 			new int[]{CompletionProposal.FIELD_REF});
 	assertResults(
-			"foo[JAVADOC_FIELD_REF]{{@link ZBasicTestTypes#foo}, Ljavadoc.types.ZBasicTestTypes;, I, foo, null, "+this.positions+R_DICNRNSIT+"}"
+			"foo[JAVADOC_FIELD_REF]{{@link ZBasicTestTypes#foo}, Ljavadoc.types.ZBasicTestTypes;, I, foo, null, "+this.positions+R_DRICNRNSIT+"}"
 	);
 }
 public void test109() throws JavaModelException {
@@ -1234,8 +1234,8 @@ public void test109() throws JavaModelException {
 			1,
 			new int[]{});
 	assertResults(
-			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICNR+"}\n" + 
-			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICNRIT+"}"
+			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DRICNRIT+"}"
 	);
 }
 public void test110() throws JavaModelException {
@@ -1254,7 +1254,7 @@ public void test110() throws JavaModelException {
 			1,
 			new int[]{CompletionProposal.JAVADOC_TYPE_REF});
 	assertResults(
-			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICNR+"}"
+			"ZBasicTestTypes[TYPE_REF]{ZBasicTestTypes, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 public void test111() throws JavaModelException {
@@ -1273,7 +1273,7 @@ public void test111() throws JavaModelException {
 			1,
 			new int[]{CompletionProposal.TYPE_REF});
 	assertResults(
-			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DICNRIT+"}"
+			"ZBasicTestTypes[JAVADOC_TYPE_REF]{{@link ZBasicTestTypes}, javadoc.types, Ljavadoc.types.ZBasicTestTypes;, null, null, "+this.positions+R_DRICNRIT+"}"
 	);
 }
 public void test112() throws JavaModelException {
@@ -1294,8 +1294,8 @@ public void test112() throws JavaModelException {
 			1,
 			new int[]{});
 	assertResults(
-			"ZBasicTestTypes.Inner[TYPE_REF]{Inner, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DICNR+"}\n" + 
-			"ZBasicTestTypes.Inner[JAVADOC_TYPE_REF]{{@link Inner}, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DICNRIT+"}"
+			"ZBasicTestTypes.Inner[TYPE_REF]{Inner, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DRICNR+"}\n" + 
+			"ZBasicTestTypes.Inner[JAVADOC_TYPE_REF]{{@link Inner}, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DRICNRIT+"}"
 	);
 }
 public void test113() throws JavaModelException {
@@ -1316,7 +1316,7 @@ public void test113() throws JavaModelException {
 			1,
 			new int[]{CompletionProposal.JAVADOC_TYPE_REF});
 	assertResults(
-			"ZBasicTestTypes.Inner[TYPE_REF]{Inner, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DICNR+"}"
+			"ZBasicTestTypes.Inner[TYPE_REF]{Inner, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DRICNR+"}"
 	);
 }
 public void test114() throws JavaModelException {
@@ -1337,7 +1337,7 @@ public void test114() throws JavaModelException {
 			1,
 			new int[]{CompletionProposal.TYPE_REF});
 	assertResults(
-			"ZBasicTestTypes.Inner[JAVADOC_TYPE_REF]{{@link Inner}, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DICNRIT+"}"
+			"ZBasicTestTypes.Inner[JAVADOC_TYPE_REF]{{@link Inner}, javadoc.types, Ljavadoc.types.ZBasicTestTypes$Inner;, null, null, "+this.positions+R_DRICNRIT+"}"
 	);
 }
 }

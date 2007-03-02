@@ -60,8 +60,8 @@ public void testCodeSnippetAssistForBug132665() throws JavaModelException {
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length(), typeNames, names, modifiers, false, requestor);
 	
 	assertResults(
-		"foo1[METHOD_REF]{foo1(), Lbug132665.Bug132665;, ()V, foo1, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"foo3[METHOD_REF]{foo3(), Lbug132665.Bug132665;, ()V, foo3, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"foo1[METHOD_REF]{foo1(), Lbug132665.Bug132665;, ()V, foo1, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"foo3[METHOD_REF]{foo3(), Lbug132665.Bug132665;, ()V, foo3, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 }

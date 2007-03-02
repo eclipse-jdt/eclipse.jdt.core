@@ -3726,7 +3726,7 @@ public void parseBlockStatements(
 	canBeExplicitConstructor = 1;
 	super.parseBlockStatements(cd, unit);
 }
-public MethodDeclaration parseStatementsAfterCompletion(int start, int end, CompilationUnitDeclaration unit) {
+public MethodDeclaration parseSomeStatements(int start, int end, int fakeBlocksCount, CompilationUnitDeclaration unit) {
 	this.methodRecoveryActivated = true;
 	
 	initialize();
@@ -3746,10 +3746,14 @@ public MethodDeclaration parseStatementsAfterCompletion(int start, int end, Comp
 	referenceContext = fakeMethod;
 	compilationUnit = unit;
 	
+	this.diet = false;
 	this.restartRecovery = true;
 	
 	scanner.resetTo(start, end);
 	consumeNestedMethod();
+	for (int i = 0; i < fakeBlocksCount; i++) {
+		consumeOpenFakeBlock();
+	}
 	try {
 		parse();
 	} catch (AbortCompilation ex) {

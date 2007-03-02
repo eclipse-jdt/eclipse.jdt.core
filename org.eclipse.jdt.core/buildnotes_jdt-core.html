@@ -72,10 +72,25 @@ Eclipse SDK 3.3M6 - ???th March 2007
 </li>
 <li>The API method <code>IClassFile#getType()</code> does not longer throw <code>JavaModelException</code>
 (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=154667">154667</a>).</li>
+<li>Code Assist: unresolved simple names are proposed when completing a simple name reference<br>
+<pre>
+package test;
+public class E1 {
+        void m() {
+                variable = 10;
+                System.out.println(v); // do completion after 'v'
+        }
+}
+</pre>
+When <i>v</i> is completed, <i>variable</i> is proposed as a possible local variable which are not yet declared.<br>
+Unresolved simple names are searched before and after the completion location.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=154667">154667</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=162865">162865</a>
+Content assist for undeclared locals when using local
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=154667">154667</a>
 IClassFile#getType() should not throw JavaModelException
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=175571">175571</a>
 [compiler][null] Better compiler message for 'Redundant null check'

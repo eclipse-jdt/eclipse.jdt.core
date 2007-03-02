@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 
 public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	private static final int MAX_LINE_COUNT = 100;
+	private static final int FAKE_BLOCKS_COUNT = 50;
 	
 	public static interface UnresolvedReferenceNameRequestor {
 		public void acceptName(char[] name);
@@ -70,16 +71,28 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	}
 	
 	public void find(char[] startWith, Initializer initializer, ClassScope scope, int from, UnresolvedReferenceNameRequestor nameRequestor) {
-		MethodDeclaration fakeMethod = this.find(startWith, scope, from, initializer.bodyEnd, nameRequestor);
+		MethodDeclaration fakeMethod = this.findAfter(startWith, scope, from, initializer.bodyEnd, MAX_LINE_COUNT, false, nameRequestor);
 		if (fakeMethod != null) fakeMethod.traverse(this, scope);
 	}
 	
 	public void find(char[] startWith, AbstractMethodDeclaration methodDeclaration, int from, UnresolvedReferenceNameRequestor nameRequestor) {
-		MethodDeclaration fakeMethod = this.find(startWith, methodDeclaration.scope, from, methodDeclaration.bodyEnd, nameRequestor);
+		MethodDeclaration fakeMethod = this.findAfter(startWith, methodDeclaration.scope, from, methodDeclaration.bodyEnd, MAX_LINE_COUNT, false, nameRequestor);
 		if (fakeMethod != null) fakeMethod.traverse(this, methodDeclaration.scope.classScope());
 	}
 	
-	private MethodDeclaration find(char[] startWith, Scope s, int from, int to, UnresolvedReferenceNameRequestor nameRequestor) {
+	public void findAfter(char[] startWith, Scope scope, ClassScope classScope, int from, int to, UnresolvedReferenceNameRequestor nameRequestor) {
+		MethodDeclaration fakeMethod = this.findAfter(startWith, scope, from, to, MAX_LINE_COUNT / 2, true, nameRequestor);
+		if (fakeMethod != null) fakeMethod.traverse(this, classScope);
+	}
+	
+	private MethodDeclaration findAfter(
+			char[] startWith,
+			Scope s,
+			int from,
+			int to,
+			int maxLineCount,
+			boolean outsideEnclosingBlock,
+			UnresolvedReferenceNameRequestor nameRequestor) {
 		this.requestor = nameRequestor;
 		
 		// reinitialize completion scanner to be usable as a normal scanner
@@ -88,28 +101,83 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		// reinitialize completionIdentifier
 		this.completionScanner.prefix = startWith;
 		
-		// compute location of the end of the current block
-		this.completionScanner.resetTo(from + 1, to);
-		this.completionScanner.jumpOverBlock();
-		
-		int blockEnd = this.completionScanner.startPosition - 1;
+		if (!outsideEnclosingBlock) {
+			// compute location of the end of the current block
+			this.completionScanner.resetTo(from + 1, to);
+			this.completionScanner.jumpOverBlock();
+			
+			to = this.completionScanner.startPosition - 1;
+		}
 		
 		int maxEnd =
 			this.completionScanner.getLineEnd(
-					this.completionScanner.getLineNumber(from) + MAX_LINE_COUNT);
+					this.completionScanner.getLineNumber(from) + maxLineCount);
 		
 		int end;
 		if (maxEnd < 0) {
-			end = blockEnd;
+			end = to;
 		} else {
-			end = maxEnd < blockEnd ? maxEnd : blockEnd;
+			end = maxEnd < to ? maxEnd : to;
 		}
 		
 		this.completionScanner.startRecordingIdentifiers();
 		
-		MethodDeclaration fakeMethod = this.parser.parseStatementsAfterCompletion(
+		MethodDeclaration fakeMethod = this.parser.parseSomeStatements(
 				from,
 				end,
+				outsideEnclosingBlock ? FAKE_BLOCKS_COUNT : 0,
+				s.compilationUnitScope().referenceContext);
+		
+		this.completionScanner.stopRecordingIdentifiers();
+		
+		if(!this.initPotentialNamesTables()) return null;
+		
+		this.parentsPtr = -1;
+		this.parents = new ASTNode[10];
+		
+		return fakeMethod;
+	}
+	
+	public void findBefore(char[] startWith, Scope scope, ClassScope classScope, int from, int to, UnresolvedReferenceNameRequestor nameRequestor) {
+		MethodDeclaration fakeMethod = this.findBefore(startWith, scope, from, to, MAX_LINE_COUNT / 2, nameRequestor);
+		if (fakeMethod != null) fakeMethod.traverse(this, classScope);
+	}
+	
+	private MethodDeclaration findBefore(
+			char[] startWith,
+			Scope s,
+			int from,
+			int to,
+			int maxLineCount,
+			UnresolvedReferenceNameRequestor nameRequestor) {
+		this.requestor = nameRequestor;
+		
+		// reinitialize completion scanner to be usable as a normal scanner
+		this.completionScanner.cursorLocation = 0;
+		
+		// reinitialize completionIdentifier
+		this.completionScanner.prefix = startWith;
+		
+		int minStart =
+			this.completionScanner.getLineStart(
+					this.completionScanner.getLineNumber(to) - maxLineCount);
+		
+		int start;
+		int fakeBlocksCount;
+		if (minStart <= from) {
+			start = from;
+			fakeBlocksCount = 0;
+		} else {
+			start = minStart;
+			fakeBlocksCount = FAKE_BLOCKS_COUNT;
+		}
+		
+		this.completionScanner.startRecordingIdentifiers();
+		
+		MethodDeclaration fakeMethod = this.parser.parseSomeStatements(
+				start,
+				to,
+				fakeBlocksCount,
 				s.compilationUnitScope().referenceContext);
 		
 		this.completionScanner.stopRecordingIdentifiers();

@@ -81,11 +81,11 @@ public void testCodeSnippetAssistForClassFile() throws JavaModelException {
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
-		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
-		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 
@@ -114,12 +114,12 @@ public void testCodeSnippetAssistForCompilationUnit() throws JavaModelException 
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
-		"Victory[TYPE_REF]{Victory, aa.bb.cc, LVictory;, null, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
-		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"Victory[TYPE_REF]{Victory, aa.bb.cc, LVictory;, null, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 
@@ -148,12 +148,12 @@ public void testCodeSnippetAssistForClassFileWithSource() throws JavaModelExcept
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
-		"Victory[TYPE_REF]{Victory, aa.bb.cc, LVictory;, null, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
-		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"Victory[TYPE_REF]{Victory, aa.bb.cc, LVictory;, null, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 
@@ -179,11 +179,11 @@ public void testCodeSnippetAssistForCompilationUnitWithoutSource() throws JavaMo
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
-		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
-		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 
@@ -213,11 +213,11 @@ public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelExce
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
-		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
-		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, Laa.bb.cc.SuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 /*
@@ -242,11 +242,11 @@ public void testCodeSnippetAssistForClassFileInInterface() throws JavaModelExcep
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
-		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
-		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varsc[LOCAL_VARIABLE_REF]{varsc, null, LSuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, LSuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 /*
@@ -271,12 +271,12 @@ public void testCodeSnippetAssistForClassFileInInterface2() throws JavaModelExce
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
-		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
-		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varFoo[METHOD_REF]{varFoo(), Lxx.yy.MyInterface2;, ()V, varFoo, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varsc[LOCAL_VARIABLE_REF]{varsc, null, LSuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"var[LOCAL_VARIABLE_REF]{var, null, I, var, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varFoo[METHOD_REF]{varFoo(), Lxx.yy.MyInterface2;, ()V, varFoo, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varsc[LOCAL_VARIABLE_REF]{varsc, null, LSuperClass;, varsc, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelException {
@@ -298,9 +298,9 @@ public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelExcept
 	int tokenStart = snippet.lastIndexOf("var");
 	int tokenEnd = tokenStart + "var".length();
 	assertResults(
-		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
-		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"void[KEYWORD]{void, null, null, void, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+		"varX[LOCAL_VARIABLE_REF]{varX, null, I, varX, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+		"varY[LOCAL_VARIABLE_REF]{varY, null, I, varY, ["+tokenStart+", "+tokenEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 

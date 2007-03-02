@@ -143,7 +143,7 @@ public void test0001() throws Exception {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
 		
-		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
+		int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("x.fo") + "x.".length();
 		int end1 = start1 + "fo".length();
 		int start2 = str.lastIndexOf("XX");
@@ -237,7 +237,7 @@ public void test0002() throws Exception {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
 		
-		int relevance1 = R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
+		int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_NO_PROBLEMS;
 		int start1 = str.lastIndexOf("x.fo") + "x.".length();
 		int end1 = start1 + "fo".length();
 		int start2 = str.lastIndexOf("XX");

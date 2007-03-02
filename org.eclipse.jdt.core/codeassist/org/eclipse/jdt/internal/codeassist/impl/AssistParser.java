@@ -144,13 +144,23 @@ public RecoveredElement buildInitialRecoveryState(){
 		/* check for intermediate block creation, so recovery can properly close them afterwards */
 		int nodeStart = node.sourceStart;
 		for (int j = blockIndex; j <= realBlockPtr; j++){
-			if (blockStarts[j] > nodeStart){
-				blockIndex = j; // shift the index to the new block
-				break;
-			}
-			if (blockStarts[j] != lastStart){ // avoid multiple block if at same position
+			if (blockStarts[j] >= 0) {
+				if (blockStarts[j] > nodeStart){
+					blockIndex = j; // shift the index to the new block
+					break;
+				}
+				if (blockStarts[j] != lastStart){ // avoid multiple block if at same position
+					block = new Block(0);
+					block.sourceStart = lastStart = blockStarts[j];
+					element = element.add(block, 1);
+				}
+			} else {
+				if (-blockStarts[j] > nodeStart){
+					blockIndex = j; // shift the index to the new block
+					break;
+				}
 				block = new Block(0);
-				block.sourceStart = lastStart = blockStarts[j];
+				block.sourceStart = lastStart = -blockStarts[j];
 				element = element.add(block, 1);
 			}
 			blockIndex = j+1; // shift the index to the new block
@@ -231,10 +241,18 @@ public RecoveredElement buildInitialRecoveryState(){
 	/* might need some extra block (after the last reduced node) */
 	int pos = this.assistNode == null ? lastCheckPoint : this.assistNode.sourceStart;
 	for (int j = blockIndex; j <= realBlockPtr; j++){
-		if ((blockStarts[j] < pos) && (blockStarts[j] != lastStart)){ // avoid multiple block if at same position
-			block = new Block(0);
-			block.sourceStart = lastStart = blockStarts[j];
-			element = element.add(block, 1);
+		if (blockStarts[j] >= 0) {
+			if ((blockStarts[j] < pos) && (blockStarts[j] != lastStart)){ // avoid multiple block if at same position
+				block = new Block(0);
+				block.sourceStart = lastStart = blockStarts[j];
+				element = element.add(block, 1);
+			}
+		} else {
+			if ((blockStarts[j] < pos)){ // avoid multiple block if at same position
+				block = new Block(0);
+				block.sourceStart = lastStart = -blockStarts[j];
+				element = element.add(block, 1);
+			}
 		}
 	}
 	
@@ -402,6 +420,19 @@ protected void consumeOpenBlock() {
 			stackLength);
 	}
 	this.blockStarts[this.realBlockPtr] = scanner.startPosition;
+}
+protected void consumeOpenFakeBlock() {
+	// OpenBlock ::= $empty
+
+	super.consumeOpenBlock();
+	int stackLength = this.blockStarts.length;
+	if (this.realBlockPtr >= stackLength) {
+		System.arraycopy(
+			this.blockStarts, 0,
+			this.blockStarts = new int[stackLength + StackIncrement], 0,
+			stackLength);
+	}
+	this.blockStarts[this.realBlockPtr] = -scanner.startPosition;
 }
 protected void consumePackageDeclarationName() {
 	// PackageDeclarationName ::= 'package' Name
