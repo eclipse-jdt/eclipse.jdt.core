@@ -1173,10 +1173,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
         				Util.log(e, "Could not set classpath variable " + varName + " to " + newPath); //$NON-NLS-1$ //$NON-NLS-2$
         			}
         		}
-        	}
-        	else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
+        	} else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
         		recreatePersistedContainer(propertyName, (String)event.getNewValue(), false);
-        	} else {
+        	} else if (propertyName.startsWith(JavaCore.PLUGIN_ID)) {
         		int length = JavaCore.PLUGIN_ID.length() + 1;
         		String key = event.getKey();
         		StringTokenizer tokenizer = new StringTokenizer(key.substring(length));

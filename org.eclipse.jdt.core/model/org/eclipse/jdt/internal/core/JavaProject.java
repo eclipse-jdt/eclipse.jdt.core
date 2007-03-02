@@ -1420,21 +1420,23 @@ public class JavaProject
     		// Listen to preference changes
     		IEclipsePreferences.IPreferenceChangeListener preferenceListener = new IEclipsePreferences.IPreferenceChangeListener() {
     			public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
-    				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-    				int length = JavaCore.PLUGIN_ID.length() + 1;
-    				String key = event.getKey();
-    				StringTokenizer tokenizer = new StringTokenizer(key.substring(length));
-    				String token = tokenizer.nextToken();
-    				if (key.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
-    					token.equals("builder") || //$NON-NLS-1$
-    					key.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
-    					key.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
-    					key.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL) ||
-    					token.equals("classpath")) //$NON-NLS-1$
-    				{
-    					manager.deltaState.addClasspathValidation(JavaProject.this);
+    				String propertyName = event.getKey();
+    				if (propertyName.startsWith(JavaCore.PLUGIN_ID)) {
+	    				JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	    				int length = JavaCore.PLUGIN_ID.length() + 1;
+	    				StringTokenizer tokenizer = new StringTokenizer(propertyName.substring(length));
+	    				String token = tokenizer.nextToken();
+	    				if (propertyName.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
+	    					token.equals("builder") || //$NON-NLS-1$
+	    					propertyName.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
+	    					propertyName.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
+	    					propertyName.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL) ||
+	    					token.equals("classpath")) //$NON-NLS-1$
+	    				{
+	    					manager.deltaState.addClasspathValidation(JavaProject.this);
+	    				}
+	    				manager.resetProjectOptions(JavaProject.this);
     				}
-    				manager.resetProjectOptions(JavaProject.this);
     			}
     		};
     		eclipsePreferences.addPreferenceChangeListener(preferenceListener);
