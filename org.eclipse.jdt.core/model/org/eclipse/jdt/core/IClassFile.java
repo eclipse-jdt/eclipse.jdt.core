@@ -90,13 +90,11 @@ ICompilationUnit becomeWorkingCopy(IProblemRequestor problemRequestor, WorkingCo
 byte[] getBytes() throws JavaModelException;
 /**
  * Returns the type contained in this class file.
+ * This is a handle-only method. The type may or may not exist.
  *
  * @return the type contained in this class file
- *
- * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource
  */
-IType getType() throws JavaModelException;
+IType getType();
 /**
  * Returns a working copy on the source associated with this class file using the given 
  * factory to create the buffer, or <code>null</code> if there is no source associated

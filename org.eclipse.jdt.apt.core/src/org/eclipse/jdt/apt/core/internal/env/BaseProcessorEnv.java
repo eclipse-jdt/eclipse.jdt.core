@@ -581,10 +581,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			catch (JavaModelException e) {}
 		}
 		else if (classFile != null) {
-			try {
-				type = classFile.getType();
-			}
-			catch (JavaModelException e) {}
+			type = classFile.getType();
 		}
 
 		// Given a type, we can construct a package declaration impl from it,

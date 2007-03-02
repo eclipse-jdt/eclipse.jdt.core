@@ -712,15 +712,10 @@ protected IType createTypeHandle(String simpleTypeName) {
 	if (simpleTypeName.equals(binaryTypeQualifiedName))
 		return binaryType; // answer only top-level types, sometimes the classFile is for a member/local type
 
-	try {
-		// type name may be null for anonymous (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=164791)
-		String classFileName = simpleTypeName.length() == 0 ? binaryTypeQualifiedName : simpleTypeName;
-		IClassFile classFile = binaryType.getPackageFragment().getClassFile(classFileName + SuffixConstants.SUFFIX_STRING_class);
-		return classFile.getType();
-	} catch (JavaModelException e) {
-		// ignore as implementation of getType() cannot throw this exception
-	}
-	return null;
+	// type name may be null for anonymous (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=164791)
+	String classFileName = simpleTypeName.length() == 0 ? binaryTypeQualifiedName : simpleTypeName;
+	IClassFile classFile = binaryType.getPackageFragment().getClassFile(classFileName + SuffixConstants.SUFFIX_STRING_class);
+	return classFile.getType();
 }
 protected boolean encloses(IJavaElement element) {
 	return element != null && this.scope.encloses(element);
