@@ -7381,4 +7381,25 @@ public void test121() {
 		"SUCCESSSUCCESS"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=175987
+public void _test122() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+
+			"interface I {\n" + 
+			"  public void foo(Integer i, Y<String> l1, Y<String> l2);\n" + 
+			"}\n" + 
+			"public class X implements I {\n" + 
+			"  public void foo(Integer i, Y<String> l1, Y l2) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"}"},
+		// should complain that X does not implement I#foo
+		"----------\n" + 
+		"1. ERROR ...\n" + 
+		"----------\n"
+	);
+}
 }
