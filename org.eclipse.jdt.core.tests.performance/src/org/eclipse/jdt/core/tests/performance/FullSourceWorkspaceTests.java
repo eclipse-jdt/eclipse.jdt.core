@@ -605,6 +605,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			System.out.print("	in "+targetWorkspacePath+"...");
 			Util.unzip(fullSourceZipPath, targetWorkspacePath);
 			System.out.println(" done in "+(System.currentTimeMillis()-start)+"ms.");
+			directories = wkspDir.listFiles(filter);
+			dirLength = directories.length;
 		}
 
 		// Init environment with existing porjects
