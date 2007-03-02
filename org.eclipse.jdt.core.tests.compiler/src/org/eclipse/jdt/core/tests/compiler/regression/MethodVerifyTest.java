@@ -7421,8 +7421,9 @@ public void test123() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
-public void test124() {
-	this.runNegativeTest(
+// **
+public void _test124() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -7436,15 +7437,10 @@ public void test124() {
 			"    System.out.println(choose(\"a\", \"b\"));\n" + 
 			"  }\n" + 
 			"}"},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	return one + X.<String>choose(one, two);\n" + 
-		"	                       ^^^^^^\n" + 
-		"The method choose(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
-		"----------\n");
+		"ab");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
-// variant
+// ** variant
 public void test125() {
 	this.runNegativeTest(
 		new String[] {
@@ -7465,6 +7461,42 @@ public void test125() {
 		"	return one + X.<String>choose(one, two);\n" + 
 		"	                       ^^^^^^\n" + 
 		"The method choose(String, String) is ambiguous for the type X\n" +  
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
+// ** variant
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176171
+public void _test126() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"  public static String foo(String one, String two) {\n" + // complain
+			"    return X.<String>foo(one, two);\n" + 
+			"  }\n" + 
+			"  public String bar(String one, String two) {\n" + // complain
+			"    return this.<String>bar(one, two);\n" + 
+			"  }\n" +
+			"  @Override\n" + 
+			"  public String foobar(String one, String two) {\n" + // OK
+			"    return this.<String>foobar(one, two);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"  public <T> String foobar(String one, String two) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	return X.<String>foo(one, two);\n" + 
+		"	                 ^^^\n" + 
+		"The method foo(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	return this.<String>bar(one, two);\n" + 
+		"	                    ^^^\n" + 
+		"The method bar(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
 		"----------\n");
 }
 }
