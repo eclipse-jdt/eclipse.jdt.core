@@ -7386,7 +7386,6 @@ public void _test122() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-
 			"interface I {\n" + 
 			"  public void foo(Integer i, Y<String> l1, Y<String> l2);\n" + 
 			"}\n" + 
@@ -7400,6 +7399,25 @@ public void _test122() {
 		"----------\n" + 
 		"1. ERROR ...\n" + 
 		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=175987
+// variant that must pass because X#foo's signature is a subsignature of
+// I#foo's.
+public void test123() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  public void foo(Integer i, Y<String> l1, Y<String> l2);\n" + 
+			"}\n" + 
+			"public class X implements I {\n" + 
+			"  public void foo(Integer i, Y l1, Y l2) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"}"},
+		""
 	);
 }
 }
