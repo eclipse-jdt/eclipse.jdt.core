@@ -344,6 +344,10 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			for (int i=0, ln=LOG_TYPES.length; i<ln; i++) {
 				String suiteTypeName = suiteTypeShortName(testClass);
 				File logFile = new File(LOG_DIR, suiteTypeName+'_'+LOG_TYPES[i]+".log");
+				if (TOUCH) {
+					System.out.println("Log file "+logFile.getPath()+" would be opened.");
+					return;
+				}
 				try {
 					boolean fileExist = logFile.exists();
 					logStreams[i] = new PrintStream(new FileOutputStream(logFile, true));
@@ -402,6 +406,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * Log test performance result and close stream if it was last one.
 	 */
 	protected void logPerfResult(PrintStream[] logStreams, int count) {
+		if (TOUCH) return;
 
 		// Perfs comment buffers
 		String[] comments = new String[2];
