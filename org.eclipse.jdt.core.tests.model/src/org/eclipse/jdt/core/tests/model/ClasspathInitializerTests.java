@@ -815,7 +815,7 @@ public void testContainerInitializer16() throws CoreException {
 
 /* 
  * Ensures that no resource deta is reported if a container is initialized right after startup  to the same value it had before shutdown.
- * (regression test for bug )
+ * (regression test for bug 175849 Project is touched on restart)
  */
 public void testContainerInitializer17() throws CoreException {
 	IResourceChangeListener listener = new IResourceChangeListener() {
@@ -836,19 +836,27 @@ public void testContainerInitializer17() throws CoreException {
 				new String[] {}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 				"");
-				
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P3", "/P1/lib.jar"}));
+		createJavaProject(
+				"P3", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
 				
 		// simulate state on startup
 		simulateExitRestart();
 		
 		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
 		
-		// simulate concurrency (another thread is initializing all containers in parallel and thus this flag is set to false)
-		JavaModelManager.getJavaModelManager().deltaState.rootsAreStale = false;
-		
 		// initialize to the same value
-		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
-		ContainerInitializer.initializer.initialize(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"), p2);
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}) {
+	        public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+	        	// simulate concurrency (another thread is initializing all containers in parallel and thus this flag is set to true)
+	        	JavaModelManager.getJavaModelManager().batchContainerInitializations = true;
+	            super.initialize(containerPath, project);
+	        }
+		});
+		p2.getResolvedClasspath(true);
 
 		assertEquals(
 			"Unexpected resource delta on container initialization", 
@@ -859,6 +867,7 @@ public void testContainerInitializer17() throws CoreException {
 		getWorkspace().removeResourceChangeListener(listener);
 		deleteProject("P1");
 		deleteProject("P2");
+		deleteProject("P3");
 	}
 }
 

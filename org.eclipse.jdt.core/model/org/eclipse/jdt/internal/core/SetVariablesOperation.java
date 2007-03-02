@@ -51,7 +51,7 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 			}
 			
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			if (variablePutIfInitializingWithSameValue(manager))
+			if (manager.variablePutIfInitializingWithSameValue(this.variableNames, this.variablePaths))
 				return;
 	
 			int varLength = this.variableNames.length;
@@ -177,23 +177,6 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 		} finally {		
 			done();
 		}
-	}
-
-	/*
-	 * Optimize startup case where 1 variable is initialized at a time with the same value as on shutdown.
-	 */
-	private boolean variablePutIfInitializingWithSameValue(JavaModelManager manager) {
-		if (this.variableNames.length != 1)
-			return false;
-		String variableName = this.variableNames[0];
-		IPath oldPath = manager.getPreviousSessionVariable(variableName);
-		if (oldPath == null)
-			return false;
-		IPath newPath = this.variablePaths[0];
-		if (!oldPath.equals(newPath))
-			return false;
-		manager.variablePut(variableName, newPath);
-		return true;
 	}
 
 }

@@ -426,8 +426,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public synchronized IClasspathContainer containerGet(IJavaProject project, IPath containerPath) {	
 		// check initialization in progress first
-		HashSet projectInitializations = containerInitializationInProgress(project);
-		if (projectInitializations.contains(containerPath)) {
+		if (containerIsInitializationInProgress(project, containerPath)) {
 			return CONTAINER_INITIALIZATION_IN_PROGRESS;
 		}
 		
@@ -439,6 +438,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return container;
 	}
 	
+	public synchronized IClasspathContainer containerGetDefaultToPreviousSession(IJavaProject project, IPath containerPath) {	
+		Map projectContainers = (Map)this.containers.get(project);
+		if (projectContainers == null)
+			return getPreviousSessionContainer(containerPath, project);
+		IClasspathContainer container = (IClasspathContainer)projectContainers.get(containerPath);
+		if (container == null)
+			return getPreviousSessionContainer(containerPath, project);
+		return container;
+	}
+	
 	private synchronized Map containerClone(IJavaProject project) {
 		Map originalProjectContainers = (Map)this.containers.get(project);
 		if (originalProjectContainers == null) return null;
@@ -447,29 +456,31 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return projectContainers;
 	}
 	
-	/*
-	 * Returns the set of container paths for the given project that are being initialized in the current thread.
-	 */
-	private HashSet containerInitializationInProgress(IJavaProject project) {
+	private boolean containerIsInitializationInProgress(IJavaProject project, IPath containerPath) {
 		Map initializations = (Map)this.containerInitializationInProgress.get();
-		if (initializations == null) {
-			initializations = new HashMap();
-			this.containerInitializationInProgress.set(initializations);
-		}
-		HashSet projectInitializations = (HashSet)initializations.get(project);
-		if (projectInitializations == null) {
-			projectInitializations = new HashSet();
-			initializations.put(project, projectInitializations);
-		}
-		return projectInitializations;
+		if (initializations == null)
+			return false;
+		HashSet projectInitializations = (HashSet) initializations.get(project);
+		if (projectInitializations == null)
+			return false;
+		return projectInitializations.contains(containerPath);
 	}
 
+	private void containerAddInitializationInProgress(IJavaProject project, IPath containerPath) {
+		Map initializations = (Map)this.containerInitializationInProgress.get();
+		if (initializations == null)
+			this.containerInitializationInProgress.set(initializations = new HashMap());
+		HashSet projectInitializations = (HashSet) initializations.get(project);
+		if (projectInitializations == null)
+			initializations.put(project, projectInitializations = new HashSet());
+		projectInitializations.add(containerPath);
+	}
+	
 	public synchronized void containerPut(IJavaProject project, IPath containerPath, IClasspathContainer container){
 
 		// set/unset the initialization in progress
 		if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
-			HashSet projectInitializations = containerInitializationInProgress(project);
-			projectInitializations.add(containerPath);
+			containerAddInitializationInProgress(project, containerPath);
 			
 			// do not write out intermediate initialization value
 			return;
@@ -507,9 +518,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		this.containers.remove(project);
 	}
 	
-	/*
-	 * Optimize startup case where a container for 1 project is initialized at a time with the same entries as on shutdown.
-	 */
 	public boolean containerPutIfInitializingWithSameEntries(IPath containerPath, IJavaProject[] projects, IClasspathContainer[] respectiveContainers) {
 		int projectLength = projects.length;
 		if (projectLength != 1) 
@@ -518,16 +526,19 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (container == null)
 			return false;
 		IJavaProject project = projects[0];
-		IClasspathContainer previousSessionContainer = getPreviousSessionContainer(containerPath, project);
+		// optimize only if initializing, otherwise we are in a regular setContainer(...) call
+		if (!containerIsInitializationInProgress(project, containerPath)) 
+			return false;
+		IClasspathContainer previousContainer = containerGetDefaultToPreviousSession(project, containerPath);
 		final IClasspathEntry[] newEntries = container.getClasspathEntries();
-		if (previousSessionContainer == null) 
+		if (previousContainer == null) 
 			if (newEntries.length == 0) {
 				containerPut(project, containerPath, container);
 				return true;
 			} else {
 				return false;
 			}
-		final IClasspathEntry[] oldEntries = previousSessionContainer.getClasspathEntries();
+		final IClasspathEntry[] oldEntries = previousContainer.getClasspathEntries();
 		if (oldEntries.length != newEntries.length) 
 			return false;
 		for (int i = 0, length = newEntries.length; i < length; i++) {
@@ -594,12 +605,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 	
 	private void containerRemoveInitializationInProgress(IJavaProject project, IPath containerPath) {
-		HashSet projectInitializations = containerInitializationInProgress(project);
+		Map initializations = (Map)this.containerInitializationInProgress.get();
+		if (initializations == null)
+			return;
+		HashSet projectInitializations = (HashSet) initializations.get(project);
+		if (projectInitializations == null)
+			return;
 		projectInitializations.remove(containerPath);
-		if (projectInitializations.size() == 0) {
-			Map initializations = (Map)this.containerInitializationInProgress.get();
+		if (projectInitializations.size() == 0)
 			initializations.remove(project);
-		}
+		if (initializations.size() == 0)
+			this.containerInitializationInProgress.set(null);
 	}
 	
 	private synchronized void containersReset(String[] containerIDs) {
@@ -1432,15 +1448,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 	
+	private synchronized boolean batchContainerInitializations() {
+		if (this.batchContainerInitializations) {
+			this.batchContainerInitializations = false;
+			return true;
+		}
+		return false;
+	}
+	
 	public IClasspathContainer getClasspathContainer(final IPath containerPath, final IJavaProject project) throws JavaModelException {
 
 		IClasspathContainer container = containerGet(project, containerPath);
 
 		if (container == null) {
-			if (this.batchContainerInitializations) {
+			if (batchContainerInitializations()) {
 				// avoid deep recursion while initializaing container on workspace restart
 				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=60437)
-				this.batchContainerInitializations = false;
 				container = initializeAllContainers(project, containerPath);
 			} else {
 				container = initializeContainer(project, containerPath);
@@ -1980,7 +2003,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			IProject project = projects[i];
 			if (!JavaProject.hasJavaNature(project)) continue;
 			IJavaProject javaProject = new JavaProject(project, getJavaModel());
-			HashSet paths = null;
+			HashSet paths = (HashSet) allContainerPaths.get(javaProject);
 			IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
 			for (int j = 0, length2 = rawClasspath.length; j < length2; j++) {
 				IClasspathEntry entry = rawClasspath[j];
@@ -1992,6 +2015,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						allContainerPaths.put(javaProject, paths);
 					}
 					paths.add(path);
+					// mark container as being initialized
+					containerAddInitializationInProgress(javaProject, path);
 				}
 			}
 			/* TODO (frederic) put back when JDT/UI dummy project will be thrown away...
@@ -2013,10 +2038,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			allContainerPaths.put(javaProjectToInit, containerPaths);
 		}
 		containerPaths.add(containerToInit);
+		// mark container as being initialized
+		containerAddInitializationInProgress(javaProjectToInit, containerToInit);
 		// end block
-		
-		// mark all containers as being initialized
-		this.containerInitializationInProgress.set(allContainerPaths);
 		
 		// initialize all containers
 		boolean ok = false;
@@ -4047,6 +4071,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return (IPath)this.variables.get(variableName);
 	}
 
+	private synchronized IPath variableGetDefaultToPreviousSession(String variableName){
+		IPath variablePath = (IPath)this.variables.get(variableName);
+		if (variablePath == null)
+			return getPreviousSessionVariable(variableName);
+		return variablePath;
+	}
+
 	/*
 	 * Returns the set of variable names that are being initialized in the current thread.
 	 */
@@ -4108,6 +4139,23 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		} catch (BackingStoreException e) {
 			// ignore exception
 		}
+	}
+
+	/*
+	 * Optimize startup case where 1 variable is initialized at a time with the same value as on shutdown.
+	 */
+	public boolean variablePutIfInitializingWithSameValue(String[] variableNames, IPath[] variablePaths) {
+		if (variableNames.length != 1)
+			return false;
+		String variableName = variableNames[0];
+		IPath oldPath = variableGetDefaultToPreviousSession(variableName);
+		if (oldPath == null)
+			return false;
+		IPath newPath = variablePaths[0];
+		if (!oldPath.equals(newPath))
+			return false;
+		variablePut(variableName, newPath);
+		return true;
 	}
 
 	public void contentTypeChanged(ContentTypeChangeEvent event) {
