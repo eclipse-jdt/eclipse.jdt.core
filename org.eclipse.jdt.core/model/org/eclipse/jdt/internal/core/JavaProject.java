@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -1421,21 +1420,22 @@ public class JavaProject
     		IEclipsePreferences.IPreferenceChangeListener preferenceListener = new IEclipsePreferences.IPreferenceChangeListener() {
     			public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
     				String propertyName = event.getKey();
-    				if (propertyName.startsWith(JavaCore.PLUGIN_ID)) {
-	    				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	    				int length = JavaCore.PLUGIN_ID.length() + 1;
-	    				StringTokenizer tokenizer = new StringTokenizer(propertyName.substring(length));
-	    				String token = tokenizer.nextToken();
-	    				if (propertyName.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
-	    					token.equals("builder") || //$NON-NLS-1$
-	    					propertyName.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
-	    					propertyName.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
-	    					propertyName.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL) ||
-	    					token.equals("classpath")) //$NON-NLS-1$
-	    				{
-	    					manager.deltaState.addClasspathValidation(JavaProject.this);
-	    				}
-	    				manager.resetProjectOptions(JavaProject.this);
+					JavaModelManager manager = JavaModelManager.getJavaModelManager();
+					if (propertyName.startsWith(JavaCore.PLUGIN_ID)) {
+						if (propertyName.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
+							propertyName.equals(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER) ||
+							propertyName.equals(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE) ||
+							propertyName.equals(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER) ||
+							propertyName.equals(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH) ||
+							propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS) ||
+							propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS) ||
+							propertyName.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
+							propertyName.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
+							propertyName.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL))
+						{
+							manager.deltaState.addClasspathValidation(JavaProject.this);
+						}
+						manager.resetProjectOptions(JavaProject.this);
     				}
     			}
     		};

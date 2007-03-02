@@ -1175,37 +1175,34 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
         		}
         	} else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)) {
         		recreatePersistedContainer(propertyName, (String)event.getNewValue(), false);
-        	} else if (propertyName.startsWith(JavaCore.PLUGIN_ID)) {
-        		int length = JavaCore.PLUGIN_ID.length() + 1;
-        		String key = event.getKey();
-        		StringTokenizer tokenizer = new StringTokenizer(key.substring(length));
-        		String token = tokenizer.nextToken();
-        		if (key.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
-        			token.equals("builder") || //$NON-NLS-1$
-        			key.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
-        			key.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
-        			key.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL) ||
-        			token.equals("classpath")) //$NON-NLS-1$
-        		{
-        			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-        			IJavaModel model = manager.getJavaModel();
-        			IJavaProject[] projects;
-        			try {
-        				projects = model.getJavaProjects();
-        				for (int i = 0, pl = projects.length; i < pl; i++) {
-        					JavaProject javaProject = (JavaProject) projects[i];
-	    					manager.deltaState.addClasspathValidation(javaProject);
-	    					try {
-	    						// need to touch the project to force validation by DeltaProcessor
-	                            javaProject.getProject().touch(null);
-                            } catch (CoreException e) {
-	                            // skip
-                            }
-        				}
-        			} catch (JavaModelException e) {
-        				// skip
-        			}
-        		}
+        	} else if (propertyName.equals(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER) ||
+				propertyName.equals(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER) ||
+				propertyName.equals(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE) ||
+				propertyName.equals(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER) ||
+				propertyName.equals(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH) ||
+				propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS) ||
+				propertyName.equals(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS) ||
+				propertyName.equals(JavaCore.CORE_INCOMPLETE_CLASSPATH) ||
+				propertyName.equals(JavaCore.CORE_CIRCULAR_CLASSPATH) ||
+				propertyName.equals(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL)) {
+				JavaModelManager manager = JavaModelManager.getJavaModelManager();
+				IJavaModel model = manager.getJavaModel();
+				IJavaProject[] projects;
+				try {
+					projects = model.getJavaProjects();
+					for (int i = 0, pl = projects.length; i < pl; i++) {
+						JavaProject javaProject = (JavaProject) projects[i];
+						manager.deltaState.addClasspathValidation(javaProject);
+						try {
+							// need to touch the project to force validation by DeltaProcessor
+				            javaProject.getProject().touch(null);
+				        } catch (CoreException e) {
+				            // skip
+				        }
+					}
+				} catch (JavaModelException e) {
+					// skip
+				}
         	}
         }
 	}
