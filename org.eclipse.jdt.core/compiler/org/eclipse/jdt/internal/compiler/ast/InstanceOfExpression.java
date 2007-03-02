@@ -38,7 +38,7 @@ public FlowInfo analyseCode(
 	LocalVariableBinding local = this.expression.localVariableBinding();
 	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 		flowContext.recordUsingNullReference(currentScope, local, 
-			this.expression, FlowContext.CAN_ONLY_NULL, flowInfo);
+			this.expression, FlowContext.CAN_ONLY_NULL | FlowContext.IN_INSTANCEOF, flowInfo);
 		flowInfo = expression.analyseCode(currentScope, flowContext, flowInfo).
 			unconditionalInits();
 		FlowInfo initsWhenTrue = flowInfo.copy();

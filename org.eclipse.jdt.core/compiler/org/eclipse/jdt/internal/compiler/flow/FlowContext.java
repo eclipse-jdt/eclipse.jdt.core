@@ -437,7 +437,10 @@ protected boolean recordFinalAssignment(VariableBinding variable, Reference fina
  * @param expression the expression within which local lays
  * @param status the status against which the check must be performed; one of
  * 		{@link #CAN_ONLY_NULL CAN_ONLY_NULL}, {@link #CAN_ONLY_NULL_NON_NULL 
- * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL} 
+ * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL}, 
+ *      {@link #CAN_ONLY_NON_NULL CAN_ONLY_NON_NULL}, potentially 
+ *      combined with a context indicator (one of {@link #IN_COMPARISON_NULL},
+ *      {@link #IN_COMPARISON_NON_NULL}, {@link #IN_ASSIGNMENT} or {@link #IN_INSTANCEOF})
  */
 protected void recordNullReference(LocalVariableBinding local, 
 	Expression expression, int status) {
@@ -462,15 +465,23 @@ public void recordSettingFinal(VariableBinding variable, Reference finalReferenc
 }
 
 public static final int 
-  CAN_ONLY_NULL_NON_NULL = 20, 
+  CAN_ONLY_NULL_NON_NULL = 0x0000, 
   	// check against null and non null, with definite values -- comparisons
-  CAN_ONLY_NULL = 21,
-  	// check against null, with definite values -- assignment to null
-  MAY_NULL = 22,
+  CAN_ONLY_NULL = 0x0001,
+  	// check against null, with definite values -- comparisons
+  CAN_ONLY_NON_NULL = 0x0002,
+	// check against non null, with definite values -- comparisons
+  MAY_NULL = 0x0003,
 	// check against null, with potential values -- NPE guard
-  CAN_ONLY_NON_NULL = 23;
-	// subcase of CAN_ONLY_NULL_NON_NULL, in which we know that the local
-	// may be non null
+  CHECK_MASK = 0x00FF,
+  IN_COMPARISON_NULL = 0x0100,
+  IN_COMPARISON_NON_NULL = 0x0200,
+    // check happened in a comparison
+  IN_ASSIGNMENT = 0x0300,
+    // check happened in an assignment
+  IN_INSTANCEOF = 0x0400,
+    // check happened in an instanceof expression
+  CONTEXT_MASK = ~CHECK_MASK;
 
 /**
  * Record a null reference for use by deferred checks. Only looping or 
@@ -485,7 +496,9 @@ public static final int
  * @param reference the expression within which local lies
  * @param checkType the status against which the check must be performed; one 
  * 		of {@link #CAN_ONLY_NULL CAN_ONLY_NULL}, {@link #CAN_ONLY_NULL_NON_NULL 
- * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL}
+ * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL}, potentially 
+ *      combined with a context indicator (one of {@link #IN_COMPARISON_NULL},
+ *      {@link #IN_COMPARISON_NON_NULL}, {@link #IN_ASSIGNMENT} or {@link #IN_INSTANCEOF})
  * @param flowInfo the flow info at the check point; deferring contexts will
  *  	perform supplementary checks against flow info instances that cannot
  *  	be known at the time of calling this method (they are influenced by
@@ -498,30 +511,49 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 		return;
 	}
 	switch (checkType) {
-		case CAN_ONLY_NULL_NON_NULL :
+		case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL:
+		case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
 			if (flowInfo.isDefinitelyNonNull(local)) {
-				scope.problemReporter().localVariableCannotBeNull(local, reference);				
+				if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
+					scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+				} else {
+					scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+				}
 				return;
 			}
 			else if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
 				return;
 			}
-		case CAN_ONLY_NULL:
+		case CAN_ONLY_NULL | IN_COMPARISON_NULL:
+		case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
+		case CAN_ONLY_NULL | IN_ASSIGNMENT:
+		case CAN_ONLY_NULL | IN_INSTANCEOF:
 			if (flowInfo.isDefinitelyNull(local)) {
-				scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
-				return;
-			}
-			else if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
+				switch(checkType & CONTEXT_MASK) {
+					case FlowContext.IN_COMPARISON_NULL:
+						scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+						return;
+					case FlowContext.IN_COMPARISON_NON_NULL:
+						scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+						return;
+					case FlowContext.IN_ASSIGNMENT:
+						scope.problemReporter().localVariableRedundantNullAssignment(local, reference);
+						return;
+					case FlowContext.IN_INSTANCEOF:
+						scope.problemReporter().localVariableNullInstanceof(local, reference);
+						return;
+				}
+			} else if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
 				return;
 			}
 			break;
 		case MAY_NULL :
 			if (flowInfo.isDefinitelyNull(local)) {
-				scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+				scope.problemReporter().localVariableNullReference(local, reference);
 				return;
 			}
 			if (flowInfo.isPotentiallyNull(local)) {
-				scope.problemReporter().localVariableMayBeNull(local, reference);
+				scope.problemReporter().localVariablePotentialNullReference(local, reference);
 				return;
 			}
 			break;

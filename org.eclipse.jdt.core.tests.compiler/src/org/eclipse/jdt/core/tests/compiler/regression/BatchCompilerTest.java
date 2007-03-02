@@ -2802,7 +2802,7 @@ public void test044(){
         "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
         "	o.toString();\n" +
         "	^\n" +
-        "The variable o can only be null; it was either set to null or checked for null when last used\n" +
+        "Null pointer access: The variable o can only be null at this location\n" +
         "----------\n" +
         "1 problem (1 warning)",
         true);
@@ -5213,7 +5213,7 @@ public void test141_null_ref_option(){
      "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
      "	o.toString();\n" + 
      "	^\n" + 
-     "The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+     "Null pointer access: The variable o can only be null at this location\n" + 
      "----------\n" + 
      "1 problem (1 warning)",
      true);
@@ -5242,7 +5242,7 @@ public void test142_null_ref_option(){
   "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
   "	if (o == null) {}\n" + 
   "	    ^\n" + 
-  "The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+  "Redundant null check: The variable o can only be null at this location\n" + 
   "----------\n" + 
   "1 problem (1 warning)",
   true);

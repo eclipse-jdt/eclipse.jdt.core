@@ -72,7 +72,7 @@ public void test0001_simple_local() {
 	    "1. ERROR in X.java (at line 4)\n" + 
 	    "	o.toString();\n" + 
 	    "	^\n" + 
-	    "The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 	    "----------\n");
 }
   
@@ -114,7 +114,7 @@ public void test0003_simple_parameter() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -133,7 +133,7 @@ public void test0004_final_local() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -172,7 +172,7 @@ public void test0006_final_local() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
  
@@ -192,7 +192,7 @@ public void test0007_local_with_member() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	x.m.toString();\n" + 
 		"	^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable x can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -212,7 +212,7 @@ public void test0008_local_with_member() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	System.out.println(x.m);\n" + 
 		"	                   ^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable x can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -578,7 +578,7 @@ public void test0027_embedded_comparison() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -613,7 +613,7 @@ public void test0029_field_assignment() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	x.m = new Object();\n" + 
 		"	^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable x can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -632,7 +632,7 @@ public void test0030_conditional_expression() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -651,7 +651,7 @@ public void test0031_conditional_expression() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -684,7 +684,7 @@ public void test0033_conditional_expression() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -749,7 +749,7 @@ public void test0036_conditional_expression() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -769,7 +769,7 @@ public void test0040_autoboxing_compound_assignment() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	i += 1;\n" + 
 			"	^\n" + 
-			"The variable i can only be null; it was either set to null or checked for null when last used\n" + 
+			"Null pointer access: The variable i can only be null at this location\n" +  
 			"----------\n");
 	}
 }
@@ -791,7 +791,7 @@ public void test0041_autoboxing_increment_operator() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	i++;\n" + 
 			"	^\n" + 
-			"The variable i can only be null; it was either set to null or checked for null when last used\n" + 
+			"Null pointer access: The variable i can only be null at this location\n" +  
 			"----------\n");
 	}
 }
@@ -812,7 +812,7 @@ public void test0042_autoboxing_literal() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	if (i == null) {};\n" + 
 			"	    ^\n" + 
-			"The variable i cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+			"Null comparison always yields false: The variable i cannot be null at this location\n" +  
 			"----------\n");
 	}
 }
@@ -833,7 +833,7 @@ public void test0043_autoboxing_literal() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	System.out.println(i + 4);\n" + 
 			"	                   ^\n" + 
-			"The variable i can only be null; it was either set to null or checked for null when last used\n" + 
+			"Null pointer access: The variable i can only be null at this location\n" + 
 			"----------\n");
 	}
 }
@@ -872,7 +872,7 @@ public void test0045_autoboxing_operator() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	if (i == null) {}\n" + 
 			"	    ^\n" + 
-			"The variable i cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+			"Null comparison always yields false: The variable i cannot be null at this location\n" + 
 			"----------\n");
 	}
 }
@@ -908,7 +908,7 @@ public void test0051_array() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	args[0].toString();\n" + 
 		"	^^^^\n" + 
-		"The variable args can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable args can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -955,7 +955,7 @@ public void test0061_method_call_guard() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o == null) {};\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" +  
 		"----------\n");
 } 
 
@@ -978,7 +978,7 @@ public void test0062_method_call_isolation() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o == null) {/* empty */}\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n");
 }   
 
@@ -1019,7 +1019,7 @@ public void test0064_method_call_isolation() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o == null) {/* empty */}\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }   
 
@@ -1052,7 +1052,7 @@ public void test0066_method_call_invocation_target() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	(o = null).toString();\n" + 
 		"	^^^^^^^^^^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }   
 
@@ -1071,7 +1071,7 @@ public void test0067_method_call_invocation_target() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o == null)  { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" +  
 		"----------\n");
 }  
 
@@ -1107,7 +1107,7 @@ public void test0070_type_reference() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (c == null) {};\n" + 
 		"	    ^\n" + 
-		"The variable c cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable c cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -1124,7 +1124,7 @@ public void test0080_shortcut_boolean_expressions() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	if (o1 != null && (o2 = o1) != null) { /* */ }\n" + 
 		"	                  ^^^^^^^^^\n" + 
-		"The variable o2 cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o2 cannot be null at this location\n" +  
 		"----------\n"
 	);
 }
@@ -1142,7 +1142,7 @@ public void test0081_shortcut_boolean_expressions() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	while (o1 != null && (o2 = o1) != null) { /* */ }\n" + 
 		"	                     ^^^^^^^^^\n" + 
-		"The variable o2 cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o2 cannot be null at this location\n" +  
 		"----------\n"
 	);
 }
@@ -1164,12 +1164,12 @@ public void test0082_shortcut_boolean_expression() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	if (o == null || o == null) {\n" + 
 		"	                 ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1190,12 +1190,12 @@ public void test0083_shortcut_boolean_expression() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	if (o == null && o == null) {\n" + 
 		"	                 ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1215,7 +1215,7 @@ public void test0084_shortcut_boolean_expression() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	|| (i1.byteValue() == i2.byteValue());\n" + 
 		"	    ^^\n" + 
-		"The variable i1 may be null\n" + 
+		"Potential null pointer access: The variable i1 may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1235,12 +1235,12 @@ public void test0085_shortcut_boolean_expression() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	|| (i1.byteValue() == i2.byteValue());\n" + 
 		"	    ^^\n" + 
-		"The variable i1 may be null\n" + 
+		"Potential null pointer access: The variable i1 may be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	|| (i1.byteValue() == i2.byteValue());\n" + 
 		"	                      ^^\n" + 
-		"The variable i2 may be null\n" + 
+		"Potential null pointer access: The variable i2 may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1297,7 +1297,7 @@ public void test0092_instanceof() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (o instanceof X) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"instanceof always yields false: The variable o can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -1317,7 +1317,7 @@ public void test0093_instanceof() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (x == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable x cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -1356,7 +1356,7 @@ public void test0095_instanceof_conditional_or() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	|| x == null) {\n" + 
 		"	   ^\n" + 
-		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable x cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -1408,7 +1408,7 @@ public void test0122_strings_concatenation() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	return s1.toString();\n" + 
 		"	       ^^\n" + 
-		"The variable s1 may be null\n" + 
+		"Potential null pointer access: The variable s1 may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1528,7 +1528,7 @@ public void test0300_if_else() {
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -1548,7 +1548,7 @@ public void test0301_if_else() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -1570,7 +1570,7 @@ public void test0302_if_else() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -1592,7 +1592,7 @@ public void test0303_if_else() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -1612,7 +1612,7 @@ public void test0304_if_else() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -1633,7 +1633,7 @@ public void test0305_if_else() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1655,7 +1655,7 @@ public void test0306_if_else() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -1699,7 +1699,7 @@ public void test0308_if_else() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }   
 
@@ -1724,7 +1724,7 @@ public void test0309_if_else() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }   
 
@@ -1750,12 +1750,12 @@ public void test0310_if_else() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 11)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }   
 
@@ -1792,12 +1792,12 @@ public void test0312_if_else() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
  
@@ -1819,7 +1819,7 @@ public void test0313_if_else() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1840,7 +1840,7 @@ public void test0314_if_else() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1861,7 +1861,7 @@ public void test0315_if_else() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1881,7 +1881,7 @@ public void test0316_if_else() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1953,7 +1953,7 @@ public void test0320_if_else() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -1990,7 +1990,7 @@ public void test0322_if_else() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2069,7 +2069,7 @@ public void test0325_if_else_nested() {
 		"1. ERROR in X.java (at line 20)\n" + 
 		"	s.toString();\n" + 
 		"	^\n" + 
-		"The variable s may be null\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2093,7 +2093,7 @@ public void test0326_if_else() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	s1.toString();\n" + 
 		"	^^\n" + 
-		"The variable s1 may be null\n" + 
+		"Potential null pointer access: The variable s1 may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2119,7 +2119,7 @@ public void test0327_if_else() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	s2.toString();\n" + 
 		"	^^\n" + 
-		"The variable s2 may be null\n" + 
+		"Potential null pointer access: The variable s2 may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2143,7 +2143,7 @@ public void test0328_if_else() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2164,7 +2164,7 @@ public void test0329_if_else_nested() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2222,7 +2222,7 @@ public void test0332_if_else() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2246,7 +2246,7 @@ public void test0333_if_else() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2273,12 +2273,12 @@ public void test0334_if_else() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2304,7 +2304,7 @@ public void _test0335_if_else() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2332,12 +2332,12 @@ public void test0336_if_else() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2433,7 +2433,7 @@ public void test0339_if_else_nested() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2458,7 +2458,7 @@ public void test0340_if_else_nested() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2480,7 +2480,7 @@ public void test0341_if_else_nested() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	o1.toString();\n" + 
 		"	^^\n" + 
-		"The variable o1 may be null\n" + 
+		"Potential null pointer access: The variable o1 may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2502,7 +2502,7 @@ public void test0342_if_else_nested() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	o1.toString();\n" + 
 		"	^^\n" + 
-		"The variable o1 may be null\n" + 
+		"Potential null pointer access: The variable o1 may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2522,7 +2522,7 @@ public void test0401_while() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	while (o.toString() != null) {/* */}\n" + 
 		"	       ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2542,7 +2542,7 @@ public void test0402_while() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	while (o != null) {/* */}\n" + 
 		"	       ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2604,7 +2604,7 @@ public void test0405_while() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2624,7 +2624,7 @@ public void test0406_while() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	while (dummy || o != null) { /* */ }\n" + 
 		"	                ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2647,7 +2647,7 @@ public void test0407_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2702,7 +2702,7 @@ public void test0409_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2775,7 +2775,7 @@ public void test0412_while_if_nested() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2814,7 +2814,7 @@ public void test0414_while_unknown_parameter() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2858,7 +2858,7 @@ public void test0416_while() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2879,7 +2879,7 @@ public void test0417_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2923,7 +2923,7 @@ public void test0419_while() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	o.toString();      o = null;\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2948,7 +2948,7 @@ public void test0420_while() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -2990,7 +2990,7 @@ public void test0422_while() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -3014,7 +3014,7 @@ public void test0423_while() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -3060,7 +3060,7 @@ public void test0425_while() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -3081,7 +3081,7 @@ public void test0426_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -3105,7 +3105,7 @@ public void test0427_while_return() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -3239,7 +3239,7 @@ public void test0433_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	x.toString();\n" + 
 		"	^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable x can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -3347,7 +3347,7 @@ public void test0438_while() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 } 
 
@@ -3384,7 +3384,7 @@ public void test0440_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -3408,7 +3408,7 @@ public void test0441_while() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -3430,7 +3430,7 @@ public void test0442_while() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 } 
 
@@ -3511,7 +3511,7 @@ public void test0445_while_deeply_nested() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n");
 } 
 
@@ -3532,7 +3532,7 @@ public void test0446_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -3590,7 +3590,7 @@ public void test0448_while() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (o != null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n");
 } 
 
@@ -3635,7 +3635,7 @@ public void test0450_while() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 } 
 
@@ -3660,7 +3660,7 @@ public void test0451_while_nested() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 } 
 
@@ -3685,7 +3685,7 @@ public void _test0452_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n"
 	);
 }
@@ -3759,7 +3759,7 @@ public void test0455_while_nested() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 } 
 
@@ -3838,6 +3838,39 @@ public void test0458_while_nested_explicit_label() {
 		"");
 } 
 
+// null analysis -- while nested hits CAN_ONLY_NON_NULL
+public void test0459_while_nested() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(boolean b) {\n" + 
+			"    Object o = b ? null : new Object(),\n" + 
+			"           u = new Object(),\n" + 
+			"           v = new Object();\n" + 
+			"    while (o != null) {\n" + 
+			"      while (b) {\n" + 
+			"        if (v == null) {\n" +
+			"          o = new Object();\n" +
+			"        };\n" +
+			"        while (o == null) {\n" +
+			"          if (u == null) {\n" +
+			"            v = null;\n" +
+			"          };\n" +
+			"          u = null;\n" +
+			"        }\n" +
+			"      }\n" +
+			"    }\n" +
+			"  }\n" + 
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\r\n" + 
+		"	while (o == null) {\r\n" + 
+		"	       ^\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
+		"----------\n");
+}
+
 // null analysis -- try/finally
 public void test0500_try_finally() {
 	this.runConformTest(
@@ -3877,7 +3910,7 @@ public void test0501_try_finally() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n" // because finally assigns to null 
 	);
 }
@@ -3920,7 +3953,7 @@ public void test0503_try_finally() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	x = null;\n" + 
 		"	^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant assignment: The variable x can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -3942,7 +3975,7 @@ public void test0504_try_finally() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (x != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable x can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -3988,7 +4021,7 @@ public void test0506_try_finally() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4012,7 +4045,7 @@ public void test0507_try_finally() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4036,7 +4069,7 @@ public void test0508_try_finally() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4063,7 +4096,7 @@ public void test0509_try_finally_embedded() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o2.toString();\n" + 
 		"	^^\n" + 
-		"The variable o2 can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o2 can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -4133,7 +4166,7 @@ public void test0512_try_finally() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	x.toString();\n" + 
 		"	^\n" + 
-		"The variable x may be null\n" + 
+		"Potential null pointer access: The variable x may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4337,7 +4370,7 @@ public void test0518_try_finally() {
 		"1. ERROR in X.java (at line 28)\n" + 
 		"	x.toString();\n" + 
 		"	^\n" + 
-		"The variable x may be null\n" + 
+		"Potential null pointer access: The variable x may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4458,7 +4491,7 @@ public void test0522_try_finally() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	if(t.bar()) {\n" + 
 		"	   ^\n" + 
-		"The variable t can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable t can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -4491,7 +4524,7 @@ public void test0523_try_finally() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	if(t == null ? false : (t == null ? false : t.bar())) {\n" + 
 		"	                        ^\n" + 
-		"The variable t cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable t cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -4524,7 +4557,7 @@ public void test0524_try_finally() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	if(t != null ? false : (t == null ? false : t.bar())) {\n" + 
 		"	                        ^\n" + 
-		"The variable t can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable t can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4559,7 +4592,7 @@ public void test0525_try_finally_unchecked_exception() {
 		"1. ERROR in X.java (at line 13)\r\n" + 
 		"	o.toString();\r\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4594,7 +4627,7 @@ public void test0526_try_finally_unchecked_exception() {
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4626,7 +4659,7 @@ public void test0527_try_finally_unchecked_exception() {
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4651,12 +4684,12 @@ public void test0528_try_finally() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (x != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable x can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	if (y != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable y can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable y can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -4681,12 +4714,12 @@ public void test0529_try_finally() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	o2.toString();\n" + 
 		"	^^\n" + 
-		"The variable o2 can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o2 can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -4712,12 +4745,12 @@ public void test0530_try_finally() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	x.toString();\n" + 
 		"	^\n" + 
-		"The variable x may be null\n" + 
+		"Potential null pointer access: The variable x may be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	y.toString();\n" + 
 		"	^\n" + 
-		"The variable y can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable y can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -4744,12 +4777,12 @@ public void test0531_try_finally() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (x != null) {\n" + 
 		"	    ^\n" + 
-		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable x cannot be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	y.toString();\n" + 
 		"	^\n" + 
-		"The variable y can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable y can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4799,7 +4832,7 @@ public void test0551_try_catch() {
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4859,7 +4892,7 @@ public void test0553_try_catch() {
 		"1. ERROR in X.java (at line 15)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4895,7 +4928,7 @@ public void test0554_try_catch() {
 //		"1. ERROR in X.java (at line 10)\n" + 
 //		"	if (o != null) {\n" + 
 //		"	    ^\n" + 
-//		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+//		"Redundant null check: The variable o can only be null at this location\n" + 
 //		"----------\n"
 	);
 }
@@ -4924,7 +4957,7 @@ public void test0555_try_catch() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4952,7 +4985,7 @@ public void test0556_try_catch() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -4980,7 +5013,7 @@ public void test0557_try_catch() {
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5012,8 +5045,8 @@ public void test0558_try_catch() {
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-//		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
-		"The variable o may be null\n" +
+//		"Null pointer access: The variable o can only be null at this location\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" +
 		// conservative flow analysis softens the error
 		"----------\n");
 }
@@ -5048,8 +5081,8 @@ public void test0559_try_catch() {
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-//		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
-		"The variable o may be null\n" +
+//		"Null pointer access: The variable o can only be null at this location\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" +
 		// conservative flow analysis softens the error
 		"----------\n");
 }
@@ -5086,7 +5119,7 @@ public void test0560_try_catch() {
 		"1. ERROR in X.java (at line 19)\n" + 
 		"	if (c == null) { // should complain: c can only be null\n" + 
 		"	    ^\n" + 
-		"The variable c can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable c can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -5113,7 +5146,7 @@ public void test0561_try_catch_unchecked_exception() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5140,7 +5173,7 @@ public void test0562_try_catch_unchecked_exception() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5177,7 +5210,7 @@ public void test0563_try_catch() {
 		"1. ERROR in X.java (at line 20)\n" + 
 		"	if (ex == null) {\n" + 
 		"	    ^^\n" + 
-		"The variable ex cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable ex cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -5271,7 +5304,7 @@ public void test0601_do_while() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	while (o.toString() != null);\n" + 
 		"	       ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5292,7 +5325,7 @@ public void test0602_do_while() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	while (o != null);\n" + 
 		"	       ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5315,7 +5348,7 @@ public void test0603_do_while() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	while (o == null);\n" + 
 		"	       ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5357,7 +5390,7 @@ public void test0605_do_while() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	while (dummy || o != null);\n" + 
 		"	                ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5407,7 +5440,7 @@ public void test0607_do_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5448,7 +5481,7 @@ public void test0609_do_while() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5491,7 +5524,7 @@ public void test0611_do_while() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5519,7 +5552,7 @@ public void _test0612_do_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n"
 	);
 }
@@ -5567,7 +5600,7 @@ public void _test0614_do_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n"
 	);
 }
@@ -5593,7 +5626,7 @@ public void _test0615_do_while() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n"
 	);
 }
@@ -5614,7 +5647,7 @@ public void test0701_for() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	for (;o.toString() != null;) {/* */}\n" + 
 		"	      ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5634,7 +5667,7 @@ public void test0702_for() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	for (;o != null;) {/* */}\n" + 
 		"	      ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -5696,7 +5729,7 @@ public void test0705_for() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5730,7 +5763,7 @@ public void test0708_for() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	for (;o == null; o.toString()) {\n" + 
 		"	                 ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5748,7 +5781,7 @@ public void test0709_for() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	for (o.toString(); o == null;) { /* */ }\n" + 
 		"	                   ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5771,7 +5804,7 @@ public void test0710_for() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	for (o.toString(); bar();) {\n" + 
 		"	     ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -5792,7 +5825,7 @@ public void test0711_for() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	for (Object o : t) {/* */}\n" + 
 			"	                ^\n" + 
-			"The variable t can only be null; it was either set to null or checked for null when last used\n" + 
+			"Null pointer access: The variable t can only be null at this location\n" +  
 			"----------\n");
 	}
 }
@@ -5814,7 +5847,7 @@ public void test0712_for() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	for (Object o : i) {/* */}\n" + 
 			"	                ^\n" + 
-			"The variable i can only be null; it was either set to null or checked for null when last used\n" + 
+			"Null pointer access: The variable i can only be null at this location\n" +  
 			"----------\n");
 	}
 }
@@ -5872,7 +5905,7 @@ public void test0715_for() {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	flag.toString();\n" + 
 			"	^^^^\n" + 
-			"The variable flag may be null\n" + 
+			"Potential null pointer access: The variable flag may be null at this location\n" + 
 			"----------\n");
 	}
 }
@@ -5895,7 +5928,7 @@ public void test0716_for() {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	flag.toString();\n" + 
 			"	^^^^\n" + 
-			"The variable flag can only be null; it was either set to null or checked for null when last used\n" + 
+			"Null pointer access: The variable flag can only be null at this location\n" +  
 			"----------\n");
 	}
 }
@@ -5919,7 +5952,7 @@ public void test0717_for() {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	flag.toString();\n" + 
 			"	^^^^\n" + 
-			"The variable flag may be null\n" + 
+			"Potential null pointer access: The variable flag may be null at this location\n" + 
 			"----------\n");
 	}
 }
@@ -5940,7 +5973,7 @@ public void test0718_for() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	flag.toString();\n" + 
 		"	^^^^\n" + 
-		"The variable flag can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable flag can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -5992,7 +6025,7 @@ public void test0720_for_continue_break() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 	
@@ -6037,7 +6070,7 @@ public void test0722_for_return() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 	
@@ -6207,7 +6240,7 @@ public void test0730_for() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -6231,7 +6264,7 @@ public void test0731_for() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	if (o != null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -6382,7 +6415,7 @@ public void test0737_for_unknown_protection() {
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	if (b.booleanValue()) {\n" + 
 		"	    ^\n" + 
-		"The variable b can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable b can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -6460,7 +6493,7 @@ public void test0801_switch() {
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	if(o == null) { /* */ }\n" + 
 		"	   ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -6484,7 +6517,7 @@ public void test0802_switch() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -6510,7 +6543,7 @@ public void test0803_switch() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -6540,7 +6573,7 @@ public void test0804_switch() {
 		"1. ERROR in X.java (at line 15)\n" + 
 		"	if(o != null) { /* */ }\n" + 
 		"	   ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -6677,32 +6710,32 @@ public void test0903_non_null_protection_tag() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	o/*N N*/.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	o/*NNa*/.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 14)\n" + 
 		"	o/*aNN */.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 18)\n" + 
 		"	o/*NON NULL*/.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 22)\n" + 
 		"	o/*Non-Null*/.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 26)\n" + 
 		"	o/*aNON-NULL */.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -6722,7 +6755,7 @@ public void test0905_non_null_protection_tag() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	o.toString();/*NN*/\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -6741,7 +6774,7 @@ public void test0906_non_null_protection_tag() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	/*NN*/o.toString();\n" + 
 		"	      ^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -6780,7 +6813,7 @@ public void test0951_assert() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n");
 	}
 }
@@ -6802,7 +6835,7 @@ public void test0952_assert() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 	}
 }
@@ -6821,17 +6854,17 @@ public void test0953_assert_combined() {
 				"    if (o2 == null) { };\n" + 		// complain
 				"  }\n" + 
 				"}\n"},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	if (o1 == null) { };\n" + 
-		"	    ^^\n" + 
-		"The variable o1 cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	if (o2 == null) { };\n" + 
-		"	    ^^\n" + 
-		"The variable o2 can only be null; it was either set to null or checked for null when last used\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	if (o1 == null) { };\n" + 
+			"	    ^^\n" + 
+			"Null comparison always yields false: The variable o1 cannot be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	if (o2 == null) { };\n" + 
+			"	    ^^\n" + 
+			"Redundant null check: The variable o2 can only be null at this location\n" + 
+			"----------\n");
 	}
 }
 
@@ -6869,7 +6902,7 @@ public void test0955_assert_combined() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o == null) { };\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 	}
 }
@@ -6892,12 +6925,12 @@ public void test0956_assert_combined() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	assert(o != null);\n" + 
 		"	       ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	if (o == null) { };\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 	}
 }
@@ -7058,27 +7091,27 @@ public void test1004() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (x != null) { // 1\n" + 
 		"	    ^\n" + 
-		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable x cannot be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	if (x == null) { // 2\n" + 
 		"	    ^\n" + 
-		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable x cannot be null at this location\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 6)\n" + 
 		"	x.foo(null); // 3\n" + 
 		"	^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable x can only be null at this location\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 9)\n" + 
 		"	} else if (x != null) { // 6\n" + 
 		"	           ^\n" + 
-		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable x cannot be null at this location\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 12)\n" + 
 		"	x.foo(null); // 8\n" + 
 		"	^\n" + 
-		"The variable x may be null\n" + 
+		"Potential null pointer access: The variable x may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7182,7 +7215,7 @@ public void test1009() {
 		"1. ERROR in X.java (at line 22)\n" + 
 		"	if (c == null) {// should complain: c can only be null\n" + 
 		"	    ^\n" + 
-		"The variable c can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable c can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -7229,7 +7262,7 @@ public void test1011() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	if (other != null) {\n" + 
 		"	    ^^^^^\n" + 
-		"The variable other cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable other cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -7256,7 +7289,7 @@ public void test1012() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n"
 	);
 }
@@ -7280,12 +7313,12 @@ public void test1013() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (x == null) {\n" + 
 		"	    ^\n" + 
-		"The variable x cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable x cannot be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	x.foo(this);\n" + 
 		"	^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable x can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7307,7 +7340,7 @@ public void test1014() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	x.foo(null);\n" + 
 		"	^\n" + 
-		"The variable x may be null\n" + 
+		"Potential null pointer access: The variable x may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7351,12 +7384,12 @@ public void test1016() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	x = null;\n" + 
 		"	^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant assignment: The variable x can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	if (x != null) {\n" + 
 		"	    ^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable x can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7380,7 +7413,7 @@ public void test1017() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	x.foo(null);\n" + 
 		"	^\n" + 
-		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable x can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7405,12 +7438,12 @@ public void test1018() {
 		"1. ERROR in X.java (at line 6)\r\n" + 
 		"	if (o != null) return;\r\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\r\n" + 
 		"	o = null;\r\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant assignment: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7528,7 +7561,7 @@ public void test1023() {
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	if (o == null) return;\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7561,7 +7594,7 @@ public void test1024() {
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	if (progressJob == null) {\n" + 
 		"	    ^^^^^^^^^^^\n" + 
-		"The variable progressJob can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable progressJob can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -7585,7 +7618,7 @@ public void test1025() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	if (o == null) return;\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7700,7 +7733,7 @@ public void test1030() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (a == null) {\n" + 
 		"	    ^\n" + 
-		"The variable a can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable a can only be null at this location\n" +  
 		"----------\n");
 }
 
@@ -7729,12 +7762,12 @@ public void test1031() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (a == null) {\n" + 
 		"	    ^\n" + 
-		"The variable a can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable a can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 13)\n" + 
 		"	if (a == null) {\n" + 
 		"	    ^\n" + 
-		"The variable a cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable a cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7755,12 +7788,12 @@ public void test1032() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	while (o1 != null && (o3 = o1) != null) {\n" + 
 		"	       ^^\n" + 
-		"The variable o1 cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o1 cannot be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	while (o1 != null && (o3 = o1) != null) {\n" + 
 		"	                     ^^^^^^^^^\n" + 
-		"The variable o3 cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable o3 cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7784,12 +7817,12 @@ public void test1033() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	}while(a!=null);\n" + 
 		"	       ^\n" + 
-		"The variable a cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable a cannot be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	if(a!=null)\n" + 
 		"	   ^\n" + 
-		"The variable a can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable a can only be null at this location\n" + 
 		"----------\n");
 }
 
@@ -7851,12 +7884,12 @@ public void test1036() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	} while (o != null);\n" + 
 		"	         ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
@@ -7936,17 +7969,17 @@ public void test1052_options_all_error() {
 		"1. ERROR in X.java (at line 4)\r\n" + 
 		"	if (o != null) {\r\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\r\n" + 
 		"	o.toString();\r\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 9)\r\n" + 
 		"	p.toString();\r\n" + 
 		"	^\n" + 
-		"The variable p may be null\n" + 
+		"Potential null pointer access: The variable p may be null at this location\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
@@ -7975,7 +8008,7 @@ public void test1053_options_mix() {
 		"1. ERROR in X.java (at line 8)\r\n" + 
 		"	o.toString();\r\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n",
 		null /* no extra class libraries */, 
 		true /* flush output directory */, 
@@ -8012,12 +8045,12 @@ public void test1054_options_mix() {
 		"1. ERROR in X.java (at line 4)\r\n" + 
 		"	if (o != null) {\r\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 8)\r\n" + 
 		"	o.toString();\r\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n",
 		null /* no extra class libraries */, 
 		true /* flush output directory */, 
@@ -8054,12 +8087,12 @@ public void test1055_options_mix() {
 		"1. ERROR in X.java (at line 4)\r\n" + 
 		"	if (o != null) {\r\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\r\n" + 
 		"	p.toString();\r\n" + 
 		"	^\n" + 
-		"The variable p may be null\n" + 
+		"Potential null pointer access: The variable p may be null at this location\n" + 
 		"----------\n",
 		null /* no extra class libraries */, 
 		true /* flush output directory */, 
@@ -8098,7 +8131,7 @@ public void test1056_options_mix_with_SuppressWarnings() {
 		"1. ERROR in X.java (at line 9)\r\n" + 
 		"	o.toString();\r\n" + 
 		"	^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
 		"----------\n",
 		null /* no extra class libraries */, 
 		true /* flush output directory */, 
@@ -8128,7 +8161,7 @@ public void test1057_options_instanceof_is_check() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (o instanceof String) {};\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"instanceof always yields false: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
@@ -8310,7 +8343,7 @@ public void test2000_flow_info() {
 		"1. ERROR in X.java (at line 18)\n" + 
 		"	if (o65 == null) { /* */ }\n" + 
 		"	    ^^^\n" + 
-		"The variable o65 cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o65 cannot be null at this location\n" +  
 		"----------\n");
 }
 
@@ -8566,7 +8599,7 @@ public void test2009_flow_info() {
 		"1. ERROR in X.java (at line 20)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -8602,7 +8635,7 @@ public void test2010_flow_info() {
 		"1. ERROR in X.java (at line 21)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -8641,7 +8674,7 @@ public void test2011_flow_info() {
 		"1. ERROR in X.java (at line 24)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -8680,7 +8713,7 @@ public void test2012_flow_info() {
 		"1. ERROR in X.java (at line 24)\n" + 
 		"	if (o == null) { /* */ }\n" + 
 		"	    ^\n" + 
-		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
 		"----------\n");
 }
 
@@ -8710,7 +8743,7 @@ public void test2013_flow_info() {
 		"1. ERROR in X.java (at line 15)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -8942,7 +8975,7 @@ public void test2018_flow_info() {
 		"2. ERROR in X.java (at line 18)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -8979,7 +9012,7 @@ public void test2019_flow_info() {
 		"2. ERROR in X.java (at line 18)\n" + 
 		"	o.toString();\n" + 
 		"	^\n" + 
-		"The variable o may be null\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
 		"----------\n");
 }
 
@@ -9024,7 +9057,7 @@ public void test2020_flow_info() {
 		"2. ERROR in X.java (at line 26)\n" + 
 		"	o1.toString();\n" + 
 		"	^^\n" + 
-		"The variable o1 may be null\n" + 
+		"Potential null pointer access: The variable o1 may be null at this location\n" + 
 		"----------\n");
 }
 }

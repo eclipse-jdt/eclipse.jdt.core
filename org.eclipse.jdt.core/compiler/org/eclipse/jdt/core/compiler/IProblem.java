@@ -99,6 +99,15 @@
  *                                 TypeHidingTypeParameterFromType
  *                                 TypeHidingTypeParameterFromMethod
  *                                 TypeHidingType
+ *     IBM Corporation - added the following constants
+ *								   NullLocalVariableReference
+ *								   PotentialNullLocalVariableReference
+ *								   RedundantNullCheckOnNullLocalVariable
+ * 								   NullLocalVariableComparisonYieldsFalse
+ * 								   RedundantLocalVariableNullAssignment
+ * 								   NullLocalVariableInstanceofYieldsFalse
+ * 								   RedundantNullCheckOnNonNullLocalVariable
+ * 								   NonNullLocalVariableComparisonYieldsFalse
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -718,15 +727,12 @@ void setSourceStart(int sourceStart);
 	// local variable related problems
 	int DuplicateModifierForVariable = MethodRelated + 395;
 	int IllegalModifierForVariable = MethodRelated + 396;
-	/** @since 3.1 */
+	/** @deprecated - problem is no longer generated, use {@link #RedundantNullCheckOnNonNullLocalVariable} instead */
 	int LocalVariableCannotBeNull = Internal + 397; // since 3.3: semantics are LocalVariableRedundantCheckOnNonNull
-	/** @since 3.1 */
+	/** @deprecated - problem is no longer generated, use {@link #NullLocalVariableReference}, {@link #RedundantNullCheckOnNullLocalVariable} or {@link #RedundantLocalVariableNullAssignment} instead */
 	int LocalVariableCanOnlyBeNull = Internal + 398; // since 3.3: split with LocalVariableRedundantCheckOnNull depending on context
-													 //            this id shares the null dereference errors with LocalVariableMayBeNull
-	/** @since 3.2 */
+	/** @deprecated - problem is no longer generated, use {@link #PotentialNullLocalVariableReference} instead */
 	int LocalVariableMayBeNull = Internal + 399;
-	/** @since 3.3 */
-	int LocalVariableRedundantCheckOnNull = Internal + 392;
 
 	// method verifier problems
 	int AbstractMethodMustBeImplemented = MethodRelated + 400;
@@ -775,11 +781,29 @@ void setSourceStart(int sourceStart);
 	int UseEnumAsAnIdentifier = Internal + 441;
 	/** @since 3.2 */
 	int EnumConstantsCannotBeSurroundedByParenthesis = Syntax + Internal + 442;
-	
+
 	// detected task
 	/** @since 2.1 */
 	int Task = Internal + 450;
 	
+	// local variables related problems, cont'd
+	/** @since 3.3 */
+	int NullLocalVariableReference = Internal + 451;
+	/** @since 3.3 */
+	int PotentialNullLocalVariableReference = Internal + 452;
+	/** @since 3.3 */
+	int RedundantNullCheckOnNullLocalVariable = Internal + 453;
+	/** @since 3.3 */
+	int NullLocalVariableComparisonYieldsFalse = Internal + 454;
+	/** @since 3.3 */
+	int RedundantLocalVariableNullAssignment = Internal + 455;
+	/** @since 3.3 */
+	int NullLocalVariableInstanceofYieldsFalse = Internal + 456;
+	/** @since 3.3 */
+	int RedundantNullCheckOnNonNullLocalVariable = Internal + 457;
+	/** @since 3.3 */
+	int NonNullLocalVariableComparisonYieldsFalse = Internal + 458;
+
 	// block
 	/** @since 3.0 */
 	int UndocumentedEmptyBlock = Internal + 460;

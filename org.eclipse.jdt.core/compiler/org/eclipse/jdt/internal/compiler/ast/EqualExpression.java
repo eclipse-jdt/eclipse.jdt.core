@@ -36,21 +36,26 @@ public class EqualExpression extends BinaryExpression {
 	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, LocalVariableBinding local, int nullStatus, Expression reference) {
 		switch (nullStatus) {
 			case FlowInfo.NULL :
-				flowContext.recordUsingNullReference(scope, local, reference, 
-					FlowContext.CAN_ONLY_NULL_NON_NULL, flowInfo);
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
+					flowContext.recordUsingNullReference(scope, local, reference, 
+							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
 					initsWhenTrue.markAsComparedEqualToNull(local); // from thereon it is set
 					initsWhenFalse.markAsComparedEqualToNonNull(local); // from thereon it is set
 				} else {
+					flowContext.recordUsingNullReference(scope, local, reference, 
+							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
 					initsWhenTrue.markAsComparedEqualToNonNull(local); // from thereon it is set
 					initsWhenFalse.markAsComparedEqualToNull(local); // from thereon it is set
 				}
 				break;
 			case FlowInfo.NON_NULL :
-				flowContext.recordUsingNullReference(scope, local, reference, 
-					FlowContext.CAN_ONLY_NULL, flowInfo);
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
+					flowContext.recordUsingNullReference(scope, local, reference, 
+							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
 					initsWhenTrue.markAsComparedEqualToNonNull(local); // from thereon it is set
+				} else {
+					flowContext.recordUsingNullReference(scope, local, reference, 
+							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
 				}
 				break;
 		}	

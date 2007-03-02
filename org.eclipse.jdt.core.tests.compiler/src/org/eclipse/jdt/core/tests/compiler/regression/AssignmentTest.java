@@ -185,12 +185,12 @@ public void test033() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	}while(a!=null);\n" + 
 		"	       ^\n" + 
-		"The variable a cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
+		"Redundant null check: The variable a cannot be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	if(a!=null)\n" + 
 		"	   ^\n" + 
-		"The variable a can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable a can only be null at this location\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 13)\n" + 
 		"	System.out.println(a+b);\n" + 
@@ -641,12 +641,12 @@ public void test036() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	} while (o != null);\n" + 
 		"	         ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	if (o == null) {\n" + 
 		"	    ^\n" + 
-		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93588

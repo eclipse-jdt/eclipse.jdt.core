@@ -184,14 +184,18 @@ public static long getIrritant(int problemID) {
 		case IProblem.ConstructorVarargsArgumentNeedCast :
 			return CompilerOptions.VarargsArgumentNeedCast;
 
-		case IProblem.LocalVariableCanOnlyBeNull:
+		case IProblem.NullLocalVariableReference:
 			return CompilerOptions.NullReference;
 
-		case IProblem.LocalVariableMayBeNull:
+		case IProblem.PotentialNullLocalVariableReference:
 			return CompilerOptions.PotentialNullReference;
 			
-		case IProblem.LocalVariableCannotBeNull:
-		case IProblem.LocalVariableRedundantCheckOnNull:
+		case IProblem.RedundantLocalVariableNullAssignment:
+		case IProblem.RedundantNullCheckOnNonNullLocalVariable:
+		case IProblem.RedundantNullCheckOnNullLocalVariable:
+		case IProblem.NonNullLocalVariableComparisonYieldsFalse:
+		case IProblem.NullLocalVariableComparisonYieldsFalse:
+		case IProblem.NullLocalVariableInstanceofYieldsFalse:
 			return CompilerOptions.RedundantNullCheck;
 			
 		case IProblem.BoxingConversion :
@@ -4387,30 +4391,6 @@ private String javadocVisibilityArgument(int visibility, int modifiers) {
 	}
 	return argument;
 }
-public void localVariableCannotBeNull(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.LocalVariableCannotBeNull);
-	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
-	this.handle(
-		IProblem.LocalVariableCannotBeNull,
-		arguments,
-		arguments,
-		severity,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
-}
-public void localVariableCanOnlyBeNull(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.LocalVariableCanOnlyBeNull);
-	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
-	this.handle(
-		IProblem.LocalVariableCanOnlyBeNull,
-		arguments,
-		arguments,
-		severity,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
-}
 public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, boolean  isSpecialArgHidingField) {
 	if (hiddenVariable instanceof LocalVariableBinding) {
 		int id = (local instanceof Argument) 
@@ -4445,12 +4425,72 @@ public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, 
 			local.sourceEnd);
 	}
 }
-public void localVariableMayBeNull(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.LocalVariableMayBeNull);
+public void localVariableNonNullComparedToNull(LocalVariableBinding local, ASTNode location) {
+	int severity = computeSeverity(IProblem.NonNullLocalVariableComparisonYieldsFalse);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(local.name)  };
+	this.handle(
+		IProblem.NonNullLocalVariableComparisonYieldsFalse,
+		arguments,
+		arguments,
+		severity,
+		nodeSourceStart(local, location),
+		nodeSourceEnd(local, location));
+}
+public void localVariableNullComparedToNonNull(LocalVariableBinding local, ASTNode location) {
+	int severity = computeSeverity(IProblem.NullLocalVariableComparisonYieldsFalse);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(local.name)  };
+	this.handle(
+		IProblem.NullLocalVariableComparisonYieldsFalse,
+		arguments,
+		arguments,
+		severity,
+		nodeSourceStart(local, location),
+		nodeSourceEnd(local, location));
+}
+public void localVariableNullInstanceof(LocalVariableBinding local, ASTNode location) {
+	int severity = computeSeverity(IProblem.NullLocalVariableInstanceofYieldsFalse);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(local.name)  };
+	this.handle(
+		IProblem.NullLocalVariableInstanceofYieldsFalse,
+		arguments,
+		arguments,
+		severity,
+		nodeSourceStart(local, location),
+		nodeSourceEnd(local, location));
+}
+public void localVariableNullReference(LocalVariableBinding local, ASTNode location) {
+	int severity = computeSeverity(IProblem.NullLocalVariableReference);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(local.name)  };
+	this.handle(
+		IProblem.NullLocalVariableReference,
+		arguments,
+		arguments,
+		severity,
+		nodeSourceStart(local, location),
+		nodeSourceEnd(local, location));
+}
+public void localVariablePotentialNullReference(LocalVariableBinding local, ASTNode location) {
+	int severity = computeSeverity(IProblem.PotentialNullLocalVariableReference);
 	if (severity == ProblemSeverities.Ignore) return;
 	String[] arguments = new String[] {new String(local.name)};
 	this.handle(
-		IProblem.LocalVariableMayBeNull,
+		IProblem.PotentialNullLocalVariableReference,
+		arguments,
+		arguments,
+		severity,
+		nodeSourceStart(local, location),
+		nodeSourceEnd(local, location));
+}
+public void localVariableRedundantCheckOnNonNull(LocalVariableBinding local, ASTNode location) {
+	int severity = computeSeverity(IProblem.RedundantNullCheckOnNonNullLocalVariable);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(local.name)  };
+	this.handle(
+		IProblem.RedundantNullCheckOnNonNullLocalVariable,
 		arguments,
 		arguments,
 		severity,
@@ -4458,11 +4498,23 @@ public void localVariableMayBeNull(LocalVariableBinding local, ASTNode location)
 		nodeSourceEnd(local, location));
 }
 public void localVariableRedundantCheckOnNull(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.LocalVariableRedundantCheckOnNull);
+	int severity = computeSeverity(IProblem.RedundantNullCheckOnNullLocalVariable);
 	if (severity == ProblemSeverities.Ignore) return;
 	String[] arguments = new String[] {new String(local.name)  };
 	this.handle(
-		IProblem.LocalVariableRedundantCheckOnNull,
+		IProblem.RedundantNullCheckOnNullLocalVariable,
+		arguments,
+		arguments,
+		severity,
+		nodeSourceStart(local, location),
+		nodeSourceEnd(local, location));
+}
+public void localVariableRedundantNullAssignment(LocalVariableBinding local, ASTNode location) {
+	int severity = computeSeverity(IProblem.RedundantLocalVariableNullAssignment);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(local.name)  };
+	this.handle(
+		IProblem.RedundantLocalVariableNullAssignment,
 		arguments,
 		arguments,
 		severity,
