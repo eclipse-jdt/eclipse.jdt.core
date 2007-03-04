@@ -36639,85 +36639,101 @@ public void test1106() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=172913
 public void test1107() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"import java.util.ArrayList;\n" + 
-				"import java.util.Collection;\n" + 
-				"import java.util.HashMap;\n" + 
-				"import java.util.Iterator;\n" + 
-				"import java.util.List;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"  private void processLocks(HashMap locksMap, Object key) {\n" + 
-				"    for (Iterator iter = locksMap.keySet().iterator(); iter.hasNext();) {\n" + 
-				"      Object call = iter.next();\n" + 
-				"      List locks = externLocks((Collection) locksMap.get(call), call);\n" + 
-				"      // ...\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  private List externLocks(Collection locks, Object call) {\n" + 
-				"    List result = new ArrayList();\n" + 
-				"    // ..\n" + 
-				"    return result;\n" + 
-				"  }\n" + 
-				"}\n",
-			},
-			"");		
-		// ensure only one instance of: checkcast java.util.Collection
-		String expectedOutput =
-			"  // Method descriptor #15 (Ljava/util/HashMap;Ljava/lang/Object;)V\n" + 
-			"  // Stack: 3, Locals: 6\n" + 
-			"  private void processLocks(java.util.HashMap locksMap, java.lang.Object key);\n" + 
-			"     0  aload_1 [locksMap]\n" + 
-			"     1  invokevirtual java.util.HashMap.keySet() : java.util.Set [16]\n" + 
-			"     4  invokeinterface java.util.Set.iterator() : java.util.Iterator [22] [nargs: 1]\n" + 
-			"     9  astore_3 [iter]\n" + 
-			"    10  goto 38\n" + 
-			"    13  aload_3 [iter]\n" + 
-			"    14  invokeinterface java.util.Iterator.next() : java.lang.Object [28] [nargs: 1]\n" + 
-			"    19  astore 4 [call]\n" + 
-			"    21  aload_0 [this]\n" + 
-			"    22  aload_1 [locksMap]\n" + 
-			"    23  aload 4 [call]\n" + 
-			"    25  invokevirtual java.util.HashMap.get(java.lang.Object) : java.lang.Object [34]\n" + 
-			"    28  checkcast java.util.Collection [38]\n" + 
-			"    31  aload 4 [call]\n" + 
-			"    33  invokespecial X.externLocks(java.util.Collection, java.lang.Object) : java.util.List [40]\n" + 
-			"    36  astore 5\n" + 
-			"    38  aload_3 [iter]\n" + 
-			"    39  invokeinterface java.util.Iterator.hasNext() : boolean [44] [nargs: 1]\n" + 
-			"    44  ifne 13\n" + 
-			"    47  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 9]\n" + 
-			"        [pc: 13, line: 10]\n" + 
-			"        [pc: 21, line: 11]\n" + 
-			"        [pc: 38, line: 9]\n" + 
-			"        [pc: 47, line: 14]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 48] local: this index: 0 type: X\n" + 
-			"        [pc: 0, pc: 48] local: locksMap index: 1 type: java.util.HashMap\n" + 
-			"        [pc: 0, pc: 48] local: key index: 2 type: java.lang.Object\n" + 
-			"        [pc: 10, pc: 47] local: iter index: 3 type: java.util.Iterator\n" + 
-			"        [pc: 21, pc: 38] local: call index: 4 type: java.lang.Object\n";
-		
-		try {
-			File f = new File(OUTPUT_DIR + File.separator + "X.class");
-			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-			int index = result.indexOf(expectedOutput);
-			if (index == -1 || expectedOutput.length() == 0) {
-				System.out.println(Util.displayString(result, 3));
-			}
-			if (index == -1) {
-				assertEquals("Wrong contents", expectedOutput, result);
-			}
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue(false);
-		} catch (IOException e) {
-			assertTrue(false);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.HashMap;\n" + 
+			"import java.util.Iterator;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  private void processLocks(HashMap locksMap, Object key) {\n" + 
+			"    for (Iterator iter = locksMap.keySet().iterator(); iter.hasNext();) {\n" + 
+			"      Object call = iter.next();\n" + 
+			"      List locks = externLocks((Collection) locksMap.get(call), call);\n" + 
+			"      // ...\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  private List externLocks(Collection locks, Object call) {\n" + 
+			"    List result = new ArrayList();\n" + 
+			"    // ..\n" + 
+			"    return result;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");		
+	// ensure only one instance of: checkcast java.util.Collection
+	String expectedOutput =
+		"  // Method descriptor #15 (Ljava/util/HashMap;Ljava/lang/Object;)V\n" + 
+		"  // Stack: 3, Locals: 6\n" + 
+		"  private void processLocks(java.util.HashMap locksMap, java.lang.Object key);\n" + 
+		"     0  aload_1 [locksMap]\n" + 
+		"     1  invokevirtual java.util.HashMap.keySet() : java.util.Set [16]\n" + 
+		"     4  invokeinterface java.util.Set.iterator() : java.util.Iterator [22] [nargs: 1]\n" + 
+		"     9  astore_3 [iter]\n" + 
+		"    10  goto 38\n" + 
+		"    13  aload_3 [iter]\n" + 
+		"    14  invokeinterface java.util.Iterator.next() : java.lang.Object [28] [nargs: 1]\n" + 
+		"    19  astore 4 [call]\n" + 
+		"    21  aload_0 [this]\n" + 
+		"    22  aload_1 [locksMap]\n" + 
+		"    23  aload 4 [call]\n" + 
+		"    25  invokevirtual java.util.HashMap.get(java.lang.Object) : java.lang.Object [34]\n" + 
+		"    28  checkcast java.util.Collection [38]\n" + 
+		"    31  aload 4 [call]\n" + 
+		"    33  invokespecial X.externLocks(java.util.Collection, java.lang.Object) : java.util.List [40]\n" + 
+		"    36  astore 5\n" + 
+		"    38  aload_3 [iter]\n" + 
+		"    39  invokeinterface java.util.Iterator.hasNext() : boolean [44] [nargs: 1]\n" + 
+		"    44  ifne 13\n" + 
+		"    47  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 9]\n" + 
+		"        [pc: 13, line: 10]\n" + 
+		"        [pc: 21, line: 11]\n" + 
+		"        [pc: 38, line: 9]\n" + 
+		"        [pc: 47, line: 14]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 48] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 48] local: locksMap index: 1 type: java.util.HashMap\n" + 
+		"        [pc: 0, pc: 48] local: key index: 2 type: java.lang.Object\n" + 
+		"        [pc: 10, pc: 47] local: iter index: 3 type: java.util.Iterator\n" + 
+		"        [pc: 21, pc: 38] local: call index: 4 type: java.lang.Object\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
 		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
 	}
+}
+public void test1108() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface UnaryFunction <A, R, X extends Throwable> {\n" + 
+			"    public R invoke(A o) throws X;\n" + 
+			"}\n" + 
+			" \n" + 
+			"public class X implements UnaryFunction<String,Void,RuntimeException> {\n" + 
+			"    public Void invoke(String o) throws RuntimeException {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"");		
+}
 }
