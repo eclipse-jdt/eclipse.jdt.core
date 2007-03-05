@@ -46,7 +46,7 @@ String[] directoryList(String qualifiedPackageName) {
 	if (dirList != null) return dirList;
 
 	File dir = new File(this.path + qualifiedPackageName);
-	notFound : if (dir != null && dir.isDirectory()) {
+	notFound : if (dir.isDirectory()) {
 		// must protect against a case insensitive File call
 		// walk the qualifiedPackageName backwards looking for an uppercase character before the '/'
 		int index = qualifiedPackageName.length();

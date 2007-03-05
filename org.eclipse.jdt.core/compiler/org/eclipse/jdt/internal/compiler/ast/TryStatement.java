@@ -395,7 +395,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (tryBlockHasSomeCode) {
 		// natural exit may require subroutine invocation (if finally != null)
 		BranchLabel naturalExitLabel = new BranchLabel(codeStream);
-		BranchLabel catchesExitLabel = null;
 		BranchLabel postCatchesFinallyLabel = null;		
 		for (int i = 0; i < maxCatches; i++) {
 			exceptionLabels[i].placeEnd();
@@ -608,9 +607,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		} else {
 			// no subroutine, simply position end label (natural exit == end)
 			naturalExitLabel.place();
-			if (catchesExitLabel != null) {
-				catchesExitLabel.place();
-			}
 		}
 	} else {
 		// try block had no effect, only generate the body of the finally block if any
