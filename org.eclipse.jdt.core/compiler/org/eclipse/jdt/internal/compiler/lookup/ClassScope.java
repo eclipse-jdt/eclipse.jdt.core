@@ -105,8 +105,7 @@ public class ClassScope extends Scope {
 				} else {
 					knownFieldNames.put(field.name, fieldBinding);
 					// remember that we have seen a field with this name
-					if (fieldBinding != null)
-						fieldBindings[count++] = fieldBinding;
+					fieldBindings[count++] = fieldBinding;
 				}
 			}
 		}

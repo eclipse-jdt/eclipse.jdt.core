@@ -2799,32 +2799,19 @@ public final class JavaCore extends Plugin {
 		// inside the workspace
 		if (target instanceof IResource) {
 			IResource resolvedResource = (IResource) target;
-			if (resolvedResource != null) {
-				switch (resolvedResource.getType()) {
-					
-					case IResource.PROJECT :  
-						// internal project
-						return JavaCore.newProjectEntry(
-								resolvedPath, 
-								entry.getAccessRules(),
-								entry.combineAccessRules(), 
-								entry.getExtraAttributes(), 
-								entry.isExported());
-					case IResource.FILE : 
-						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedResource.getName())) {
-							// internal binary archive
-							return JavaCore.newLibraryEntry(
-									resolvedPath,
-									getResolvedVariablePath(entry.getSourceAttachmentPath()),
-									getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
-									entry.getAccessRules(), 
-									entry.getExtraAttributes(), 
-									entry.isExported());
-						}
-						break;
-						
-					case IResource.FOLDER : 
-						// internal binary folder
+			switch (resolvedResource.getType()) {
+				
+				case IResource.PROJECT :  
+					// internal project
+					return JavaCore.newProjectEntry(
+							resolvedPath, 
+							entry.getAccessRules(),
+							entry.combineAccessRules(), 
+							entry.getExtraAttributes(), 
+							entry.isExported());
+				case IResource.FILE : 
+					if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(resolvedResource.getName())) {
+						// internal binary archive
 						return JavaCore.newLibraryEntry(
 								resolvedPath,
 								getResolvedVariablePath(entry.getSourceAttachmentPath()),
@@ -2832,7 +2819,18 @@ public final class JavaCore extends Plugin {
 								entry.getAccessRules(), 
 								entry.getExtraAttributes(), 
 								entry.isExported());
-				}
+					}
+					break;
+					
+				case IResource.FOLDER : 
+					// internal binary folder
+					return JavaCore.newLibraryEntry(
+							resolvedPath,
+							getResolvedVariablePath(entry.getSourceAttachmentPath()),
+							getResolvedVariablePath(entry.getSourceAttachmentRootPath()),
+							entry.getAccessRules(), 
+							entry.getExtraAttributes(), 
+							entry.isExported());
 			}
 		}
 		// outside the workspace

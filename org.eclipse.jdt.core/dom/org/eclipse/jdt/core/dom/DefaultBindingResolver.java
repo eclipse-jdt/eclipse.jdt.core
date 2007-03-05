@@ -570,9 +570,7 @@ class DefaultBindingResolver extends BindingResolver {
 		Object oldNode = this.newAstToOldAst.get(fieldAccess);
 		if (oldNode instanceof FieldReference) {
 			FieldReference fieldReference = (FieldReference) oldNode;
-			if (fieldReference != null) {
-				return this.getVariableBinding(fieldReference.binding);
-			}
+			return this.getVariableBinding(fieldReference.binding);
 		}
 		return null;
 	}
@@ -1313,18 +1311,16 @@ class DefaultBindingResolver extends BindingResolver {
 		final Object node = this.newAstToOldAst.get(type);
 		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
-			if (typeDeclaration != null) {
-				ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
-				if (typeBinding == null) {
-					return null;
-				}
-				this.bindingsToAstNodes.put(typeBinding, type);
-				String key = typeBinding.getKey();
-				if (key != null) {
-					this.bindingTables.bindingKeysToBindings.put(key, typeBinding);
-				}
-				return typeBinding;
+			ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
+			if (typeBinding == null) {
+				return null;
 			}
+			this.bindingsToAstNodes.put(typeBinding, type);
+			String key = typeBinding.getKey();
+			if (key != null) {
+				this.bindingTables.bindingKeysToBindings.put(key, typeBinding);
+			}
+			return typeBinding;
 		}
 		return null;
 	}
@@ -1426,18 +1422,16 @@ class DefaultBindingResolver extends BindingResolver {
 		final Object node = this.newAstToOldAst.get(typeParameter);
 		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeParameter) {
 			org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter2 = (org.eclipse.jdt.internal.compiler.ast.TypeParameter) node;
-			if (typeParameter2 != null) {
-				ITypeBinding typeBinding = this.getTypeBinding(typeParameter2.binding);
-				if (typeBinding == null) {
-					return null;
-				}
-				this.bindingsToAstNodes.put(typeBinding, typeParameter);
-				String key = typeBinding.getKey();
-				if (key != null) {
-					this.bindingTables.bindingKeysToBindings.put(key, typeBinding);				
-				}
-				return typeBinding;
+			ITypeBinding typeBinding = this.getTypeBinding(typeParameter2.binding);
+			if (typeBinding == null) {
+				return null;
 			}
+			this.bindingsToAstNodes.put(typeBinding, typeParameter);
+			String key = typeBinding.getKey();
+			if (key != null) {
+				this.bindingTables.bindingKeysToBindings.put(key, typeBinding);				
+			}
+			return typeBinding;
 		}
 		return null;
 	}

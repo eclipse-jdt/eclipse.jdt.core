@@ -744,7 +744,7 @@ public boolean implementsInterface(ReferenceBinding anInterface, boolean searchH
 	ReferenceBinding currentType = this;
 	do {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES && itsInterfaces != null) { // in code assist cases when source types are added late, may not be finished connecting hierarchy
+		if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) { // in code assist cases when source types are added late, may not be finished connecting hierarchy
 			if (interfacesToVisit == null) {
 				interfacesToVisit = itsInterfaces;
 				nextPosition = interfacesToVisit.length;

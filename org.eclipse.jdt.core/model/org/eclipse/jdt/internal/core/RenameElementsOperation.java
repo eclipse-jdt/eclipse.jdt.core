@@ -65,8 +65,6 @@ protected IJavaModelStatus verify() {
  * @see MultiOperation
  */
 protected void verify(IJavaElement element) throws JavaModelException {
-	int elementType = element.getElementType();
-	
 	if (element == null || !element.exists())
 		error(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, element);
 		
@@ -76,6 +74,7 @@ protected void verify(IJavaElement element) throws JavaModelException {
 	if (!(element instanceof ISourceReference))
 		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
 		
+	int elementType = element.getElementType();
 	if (elementType < IJavaElement.TYPE || elementType == IJavaElement.INITIALIZER)
 		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
 		
