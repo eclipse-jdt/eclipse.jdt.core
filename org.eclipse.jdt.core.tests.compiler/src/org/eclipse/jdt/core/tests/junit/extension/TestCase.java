@@ -237,7 +237,7 @@ public static void assertStringEquals(String message, String expected, String ac
 /**
  * Same method as {@link #assertEquals(Object, Object)} if the flag
  * {@link #abortOnFailure} has been set to <code>true</code>.
- * Otherwise, the thrown exception {@link AssertionFailedError} is catched
+ * Otherwise, the thrown exception {@link AssertionFailedError} is caught
  * and its message is only displayed in the console hence producing no JUnit failure.
  */
 protected void assumeEquals(String expected, String actual) {
@@ -246,7 +246,7 @@ protected void assumeEquals(String expected, String actual) {
 /**
  * Same method as {@link #assertEquals(String, Object, Object)} if the flag
  * {@link #abortOnFailure} has been set to <code>true</code>.
- * Otherwise, the thrown exception {@link AssertionFailedError} is catched
+ * Otherwise, the thrown exception {@link AssertionFailedError} is caught
  * and its message is only displayed in the console hence producing no JUnit failure.
  */
 protected void assumeEquals(String msg, String expected, String actual) {
@@ -271,7 +271,7 @@ protected void assumeEquals(String msg, String expected, String actual) {
 /**
  * Same method as {@link #assertTrue(String, boolean)} if the flag
  * {@link #abortOnFailure} has been set to <code>true</code>.
- * Otherwise, the thrown exception {@link AssertionFailedError} is catched
+ * Otherwise, the thrown exception {@link AssertionFailedError} is caught
  * and its message is only displayed in the console hence producing no JUnit failure.
  */
 protected void assumeTrue(String msg, boolean cond) {
