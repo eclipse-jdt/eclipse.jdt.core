@@ -46,12 +46,12 @@
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.3M6 - ???th March 2007
+Eclipse SDK 3.3M6 - %date%
 <br>Project org.eclipse.jdt.core v_740
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_740">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
-<li>Refined the problem IDs and messages associated to null-related issues 
+<li>Refined the problem IDs and messages associated to null-related issues
     detection, for which typical examples would now be:
     <ul>
       <li><code>NullLocalVariableReference</code> - Null pointer access: The variable o can only be null at this location</li>
@@ -63,8 +63,8 @@ Eclipse SDK 3.3M6 - ???th March 2007
       <li><code>RedundantNullCheckOnNonNullLocalVariable</code> - Redundant null check: The variable o2 cannot be null at this location</li>
       <li><code>NonNullLocalVariableComparisonYieldsFalse</code> - Null comparison always yields false: The variable i cannot be null at this location</li>
     </ul>
-    Note that problem IDs <code>LocalVariableCannotBeNull</code>, 
-    <code>LocalVariableCanOnlyBeNull</code>, and 
+    Note that problem IDs <code>LocalVariableCannotBeNull</code>,
+    <code>LocalVariableCanOnlyBeNull</code>, and
     <code>LocalVariableMayBeNull</code> have been deprecated.<br>
     See bugs <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=175570">175570</a>
     and <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=175571">175571</a>
