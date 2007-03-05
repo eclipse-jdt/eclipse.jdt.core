@@ -3407,18 +3407,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		synchronized(this.perProjectInfos) {
 			values = new ArrayList(this.perProjectInfos.values());
 		}
-		if (values != null) {
-			Iterator iterator = values.iterator();
-			while (iterator.hasNext()) {
-				try {
-					PerProjectInfo info = (PerProjectInfo) iterator.next();
-					saveState(info, context);
-					info.rememberExternalLibTimestamps();
-				} catch (CoreException e) {
-					if (vStats == null)
-						vStats= new ArrayList();
-					vStats.add(e.getStatus());
-				}
+		Iterator iterator = values.iterator();
+		while (iterator.hasNext()) {
+			try {
+				PerProjectInfo info = (PerProjectInfo) iterator.next();
+				saveState(info, context);
+				info.rememberExternalLibTimestamps();
+			} catch (CoreException e) {
+				if (vStats == null)
+					vStats= new ArrayList();
+				vStats.add(e.getStatus());
 			}
 		}
 		if (vStats != null) {
