@@ -949,7 +949,7 @@ public void test012(){
         "                       Each directory or file can specify access rules for\n" +
         "                       types between ''['' and '']'' (e.g. [-X] to forbid\n" +
         "                       access to type X, [~X] to discourage access to type X,\n" +
-        "                       [+p/X:-p/*] to forbid access to all types in package p\n" +
+        "                       [+p/X" + File.pathSeparator + "-p/*] to forbid access to all types in package p\n" +
         "                       but allow access to p/X)\n" +
         "    -bootclasspath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" +
         "                       specify location for system classes. Each directory or\n" +
@@ -3200,10 +3200,13 @@ public void test056(){
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=147461
-public void _test057_access_restrictions_separator(){
+// the compilation is successful because we do not check the classpath entries
+// given in the rules; accordingly OK<sep>-KO is seen as a directory that is
+// added to positive rules, and the compilation completes normally
+public void test057_access_restrictions_separator(){
 	String oppositeSeparator = File.pathSeparatorChar == ':' ?
 			";" : ":";
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"/** */\n" +
@@ -3230,10 +3233,10 @@ public void _test057_access_restrictions_separator(){
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[+OK2" + oppositeSeparator + "-KO]"
+        + " -cp \"" + OUTPUT_DIR + "[+OK2" + oppositeSeparator + "-KO]\""
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "ERR: invalid spec",
+        "",
         true);
 }
 
