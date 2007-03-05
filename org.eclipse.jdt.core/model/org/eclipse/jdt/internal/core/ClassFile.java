@@ -202,8 +202,11 @@ public boolean existsUsingJarTypeCache() {
 		try {
 			info = getJarBinaryTypeInfo((PackageFragment) getParent());
 		} catch (CoreException e) {
+			// leave info null
 		} catch (IOException e) {
+			// leave info null
 		} catch (ClassFormatException e) {
+			// leave info null
 		}
 		manager.putJarTypeInfo(type, info == null ? JavaModelCache.NON_EXISTING_JAR_TYPE_INFO : info);
 		return info != null;

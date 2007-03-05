@@ -1564,7 +1564,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 			// container entry check
 			case IClasspathEntry.CPE_CONTAINER :
-				if (path != null && path.segmentCount() >= 1){
+				if (path.segmentCount() >= 1){
 					try {
 						IClasspathContainer container = JavaModelManager.getJavaModelManager().getClasspathContainer(path, project);
 						// container retrieval is performing validation check on container entry kinds.
@@ -1617,7 +1617,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				
 			// variable entry check
 			case IClasspathEntry.CPE_VARIABLE :
-				if (path != null && path.segmentCount() >= 1){
+				if (path.segmentCount() >= 1){
 					try {
 						entry = JavaCore.getResolvedClasspathEntry(entry);
 					} catch (AssertionFailedException e) {
@@ -1646,7 +1646,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 			// library entry check
 			case IClasspathEntry.CPE_LIBRARY :
-				if (path != null && path.isAbsolute() && !path.isEmpty()) {
+				if (path.isAbsolute() && !path.isEmpty()) {
 					IPath sourceAttachment = entry.getSourceAttachmentPath();
 					Object target = JavaModel.getTarget(workspaceRoot, path, true);
 					if (target != null && !JavaCore.IGNORE.equals(project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true))) {
@@ -1706,7 +1706,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 			// project entry check
 			case IClasspathEntry.CPE_PROJECT :
-				if (path != null && path.isAbsolute() && path.segmentCount() == 1) {
+				if (path.isAbsolute() && path.segmentCount() == 1) {
 					IProject prereqProjectRsc = workspaceRoot.getProject(path.segment(0));
 					IJavaProject prereqProject = JavaCore.create(prereqProjectRsc);
 					try {
@@ -1741,7 +1741,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				if (entry.getOutputLocation() != null && JavaCore.DISABLED.equals(project.getOption(JavaCore.CORE_ENABLE_CLASSPATH_MULTIPLE_OUTPUT_LOCATIONS, true))) {
 					return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS, project, path);
 				}
-				if (path != null && path.isAbsolute() && !path.isEmpty()) {
+				if (path.isAbsolute() && !path.isEmpty()) {
 					IPath projectPath= project.getProject().getFullPath();
 					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceFolder, new String[] {entryPathMsg, projectName})); 
