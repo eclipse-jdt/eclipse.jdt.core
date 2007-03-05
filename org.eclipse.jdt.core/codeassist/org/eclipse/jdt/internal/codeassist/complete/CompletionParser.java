@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 
 public class CompletionParser extends AssistParser {
@@ -3821,11 +3822,70 @@ private void pushCompletionOnMemberAccessOnExpressionStack(boolean isSuperAccess
 }
 protected boolean moveRecoveryCheckpoint() {
 	CompletionScanner completionScanner = (CompletionScanner) this.scanner;
-	if (completionScanner.record) {
-		completionScanner.currentToken = -1;
-		completionScanner.currentTokenStart = 0;
+	boolean recordIdentifers = completionScanner.record;
+	if (!recordIdentifers) {
+		return super.moveRecoveryCheckpoint();
 	}
-	return super.moveRecoveryCheckpoint();
+	
+	completionScanner.record = false;
+	
+	int pos = this.lastCheckPoint;
+	int curTok = completionScanner.lastUsedToken;
+	int curTokStart = completionScanner.lastUsedTokenStart;
+	
+	/* reset this.scanner, and move checkpoint by one token */
+	this.scanner.startPosition = pos;
+	this.scanner.currentPosition = pos;
+	this.scanner.diet = false; // quit jumping over method bodies
+	
+	completionScanner.currentToken = curTok;
+	completionScanner.currentTokenStart = curTokStart;
+	
+	/* if about to restart, then no need to shift token */
+	if (this.restartRecovery){
+		this.lastIgnoredToken = -1;
+		this.scanner.insideRecovery = true;		
+		completionScanner.record = true;
+		return true;
+	}
+	
+	/* protect against shifting on an invalid token */
+	this.lastIgnoredToken = this.nextIgnoredToken;
+	this.nextIgnoredToken = -1;
+	do {
+		try {
+			this.nextIgnoredToken = this.scanner.getNextToken();
+			if(this.scanner.currentPosition == this.scanner.startPosition){
+				this.scanner.currentPosition++; // on fake completion identifier
+				this.nextIgnoredToken = -1;
+			}
+			
+		} catch(InvalidInputException e){
+			pos = this.scanner.currentPosition;
+		}
+	} while (this.nextIgnoredToken < 0);
+	
+	if (this.nextIgnoredToken == TokenNameEOF) { // no more recovery after this point
+		if (this.currentToken == TokenNameEOF) { // already tried one iteration on EOF
+			completionScanner.record = true;
+			return false;
+		}
+	}
+	this.lastCheckPoint = this.scanner.currentPosition;
+	completionScanner.lastUsedToken = this.nextIgnoredToken;
+	completionScanner.lastUsedTokenStart = this.lastCheckPoint;
+	
+	/* reset this.scanner again to previous checkpoint location*/
+	this.scanner.startPosition = pos;
+	this.scanner.currentPosition = pos;
+	this.scanner.commentPtr = -1;
+	this.scanner.foundTaskCount = 0;
+	
+	completionScanner.currentToken = curTok;
+	completionScanner.currentTokenStart = curTokStart;
+	completionScanner.record = true;
+		
+	return true;
 }
 public void recordCompletionOnReference(){
 

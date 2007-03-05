@@ -15432,6 +15432,30 @@ public void testNameWithUnresolvedReferences010() throws JavaModelException {
 			"varzz1[LOCAL_VARIABLE_REF]{varzz1, null, I, varzz1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=176321
+public void testNameWithUnresolvedReferences011() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"   void foo() {\n" +
+			"      /**/zzz   zzz1.zzz2\n" +
+			"   }\n" +
+			"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/**/zzz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"zzz1[LOCAL_VARIABLE_REF]{zzz1, null, Ljava.lang.Object;, zzz1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 public void testParameterNames1() throws CoreException, IOException {
 	Hashtable options = JavaCore.getOptions();
 	Object timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);

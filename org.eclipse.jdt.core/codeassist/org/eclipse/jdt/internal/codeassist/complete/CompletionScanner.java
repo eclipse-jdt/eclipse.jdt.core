@@ -44,6 +44,8 @@ public class CompletionScanner extends Scanner {
 	public char[] prefix;
 	public int currentToken;
 	public int currentTokenStart;
+	public int lastUsedToken;
+	public int lastUsedTokenStart;
 	public int potentialVariableNamesPtr; 
 	public char[][] potentialVariableNames;
 	public int[] potentialVariableNameStarts;
@@ -878,6 +880,8 @@ public void resetTo(int begin, int end) {
 	if (this.record) {
 		this.currentToken = -1;
 		this.currentTokenStart = 0;
+		this.lastUsedToken = -1;
+		this.lastUsedTokenStart = 0;
 	}
 	super.resetTo(begin, end);
 }
