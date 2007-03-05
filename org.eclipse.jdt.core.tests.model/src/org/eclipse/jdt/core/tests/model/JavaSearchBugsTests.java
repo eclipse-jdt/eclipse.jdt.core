@@ -7829,7 +7829,24 @@ public void testBug167190() throws CoreException, JavaModelException {
 			return this.jsScope.enclosingProjectsAndJars();
 		}
 	};
-	TypeNameMatchCollector requestor = new TypeNameMatchCollector();
+	// Search all type names with TypeNameMatchRequestor
+	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		public String toString(){
+			return toFullyQualifiedNamesString();
+		}
+	};
+	new SearchEngine().searchAllTypeNames(
+		null,
+		SearchPattern.R_EXACT_MATCH,
+		"C".toCharArray(), // need a prefix which returns most of different types (class file, CU, member,...)
+		SearchPattern.R_PREFIX_MATCH,
+		IJavaSearchConstants.TYPE,
+		scope,
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		null);
+	// Search all type names with old API
+	TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 	new SearchEngine().searchAllTypeNames(
 		null,
 		SearchPattern.R_EXACT_MATCH,
@@ -7840,24 +7857,7 @@ public void testBug167190() throws CoreException, JavaModelException {
 		requestor,
 		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 		null);
-	assertSearchResults(
-		"C (not open) [in C.class [in test [in lib/b124469.jar [in JavaSearchBugs]]]]\n" + 
-		"C (not open) [in C.java [in b137984 [in src [in JavaSearchBugs]]]]\n" + 
-		"C (not open) [in C.java [in b137984 [in src [in JavaSearchBugs]]]]\n" + 
-		"C (not open) [in C.java [in b163984 [in src [in JavaSearchBugs]]]]\n" + 
-		"C2 (not open) [in C [in C.java [in b137984 [in src [in JavaSearchBugs]]]]]\n" + 
-		"C86293 (not open) [in C86293.class [in <default> [in lib/b86293.jar [in JavaSearchBugs]]]]\n" + 
-		"CJ (not open) [in CJ.class [in <default> [in lib/b137984.jar [in JavaSearchBugs]]]]\n" + 
-		"CJ2 (not open) [in CJ$CJ2.class [in <default> [in lib/b137984.jar [in JavaSearchBugs]]]]\n" + 
-		"CJ3 (not open) [in CJ$CJ2$CJ3.class [in <default> [in lib/b137984.jar [in JavaSearchBugs]]]]\n" + 
-		"C_124645 (not open) [in T_124645.java [in b124645 [in src [in JavaSearchBugs]]]]\n" + 
-		"CharSequence (not open) [in CharSequence.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
-		"Class (not open) [in Class.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
-		"CloneNotSupportedException (not open) [in CloneNotSupportedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
-		"Collection (not open) [in Collection.class [in b87627 [in lib/b87627.jar [in JavaSearchBugs]]]]\n" + 
-		"Comparable (not open) [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" + 
-		"Test (not open) [in Test.java [in b95794 [in src [in JavaSearchBugs]]]]",
-		requestor
-	);
+	// Should have same types with these 2 searches
+	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 }
 }
