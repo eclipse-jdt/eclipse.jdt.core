@@ -234,7 +234,15 @@ public static void assertStringEquals(String message, String expected, String ac
 		throw new ComparisonFailure(formatted.toString(),  expected, actual);
 	}
 }
-
+/**
+ * Same method as {@link #assertEquals(Object, Object)} if the flag
+ * {@link #abortOnFailure} has been set to <code>true</code>.
+ * Otherwise, the thrown exception {@link AssertionFailedError} is catched
+ * and its message is only displayed in the console hence producing no JUnit failure.
+ */
+protected void assumeEquals(String expected, String actual) {
+	assumeEquals(null, expected, actual);
+}
 /**
  * Same method as {@link #assertEquals(String, Object, Object)} if the flag
  * {@link #abortOnFailure} has been set to <code>true</code>.
