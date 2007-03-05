@@ -28,22 +28,22 @@ import org.eclipse.jdt.internal.core.SearchableEnvironment;
 public abstract class Engine implements ITypeRequestor {
 
 	public LookupEnvironment lookupEnvironment;
-	
+
 	protected CompilationUnitScope unitScope;
 	public SearchableEnvironment nameEnvironment;
 
 	public AssistOptions options;
-	public CompilerOptions compilerOptions; 
+	public CompilerOptions compilerOptions;
 	public boolean forbiddenReferenceIsError;
 	public boolean discouragedReferenceIsError;
-	
+
 	public boolean importCachesInitialized = false;
 	public char[][][] importsCache;
 	public ImportBinding[] onDemandImportsCache;
 	public int importCacheCount = 0;
 	public int onDemandImportCacheCount = 0;
 	public char[] currentPackageName = null;
-	
+
 	public Engine(Map settings){
 		this.options = new AssistOptions(settings);
 		this.compilerOptions = new CompilerOptions(settings);
@@ -52,7 +52,7 @@ public abstract class Engine implements ITypeRequestor {
 		this.discouragedReferenceIsError =
 			(this.compilerOptions.getSeverity(CompilerOptions.DiscouragedReference) & ProblemSeverities.Error) != 0;
 	}
-	
+
 	/**
 	 * Add an additional binary type
 	 */
@@ -95,20 +95,20 @@ public abstract class Engine implements ITypeRequestor {
 	}
 
 	public abstract AssistParser getParser();
-	
+
 	public void initializeImportCaches() {
 		ImportBinding[] importBindings = this.unitScope.imports;
 		int length = importBindings == null ? 0 : importBindings.length;
-		
+
 		this.currentPackageName = CharOperation.concatWith(unitScope.fPackage.compoundName, '.');
-		
+
 		for (int i = 0; i < length; i++) {
 			ImportBinding importBinding = importBindings[i];
 			if(importBinding.onDemand) {
 				if(this.onDemandImportsCache == null) {
 					this.onDemandImportsCache = new ImportBinding[length - i];
 				}
-				this.onDemandImportsCache[this.onDemandImportCacheCount++] = 
+				this.onDemandImportsCache[this.onDemandImportCacheCount++] =
 					importBinding;
 			} else {
 				if(!(importBinding.resolvedImport instanceof MethodBinding) ||
@@ -123,10 +123,10 @@ public abstract class Engine implements ITypeRequestor {
 				}
 			}
 		}
-		
+
 		this.importCachesInitialized = true;
 	}
-	
+
 	protected boolean mustQualifyType(
 		char[] packageName,
 		char[] typeName,
@@ -136,47 +136,43 @@ public abstract class Engine implements ITypeRequestor {
 		// If there are no types defined into the current CU yet.
 		if (unitScope == null)
 			return true;
-		
+
 		if(!this.importCachesInitialized) {
 			this.initializeImportCaches();
 		}
-		
-		char[] fullyQualifiedTypeName = null;
-		
+
 		for (int i = 0; i < this.importCacheCount; i++) {
 			char[][] importName = this.importsCache[i];
 			if(CharOperation.equals(typeName, importName[0])) {
-				if (fullyQualifiedTypeName == null) {
-					fullyQualifiedTypeName =
-						enclosingTypeNames == null || enclosingTypeNames.length == 0
-								? CharOperation.concat(
+				char[] fullyQualifiedTypeName =
+					enclosingTypeNames == null || enclosingTypeNames.length == 0
+							? CharOperation.concat(
+									packageName,
+									typeName,
+									'.')
+							: CharOperation.concat(
+									CharOperation.concat(
 										packageName,
-										typeName,
-										'.')
-								: CharOperation.concat(
-										CharOperation.concat(
-											packageName,
-											enclosingTypeNames,
-											'.'),
-										typeName,
-										'.');
-				}
+										enclosingTypeNames,
+										'.'),
+									typeName,
+									'.');
 				return !CharOperation.equals(fullyQualifiedTypeName, importName[1]);
 			}
 		}
-		
+
 		if ((enclosingTypeNames == null || enclosingTypeNames.length == 0 ) && CharOperation.equals(this.currentPackageName, packageName))
 			return false;
-		
+
 		char[] fullyQualifiedEnclosingTypeName = null;
-		
+
 		for (int i = 0; i < this.onDemandImportCacheCount; i++) {
 			ImportBinding importBinding = this.onDemandImportsCache[i];
 			Binding resolvedImport = importBinding.resolvedImport;
-			
+
 			char[][] importName = importBinding.compoundName;
 			char[] importFlatName = CharOperation.concatWith(importName, '.');
-			
+
 			boolean isFound = false;
 			// resolvedImport is a ReferenceBindng or a PackageBinding
 			if(resolvedImport instanceof ReferenceBinding) {
@@ -207,7 +203,7 @@ public abstract class Engine implements ITypeRequestor {
 					}
 				}
 			}
-			
+
 			// find potential conflict with another import
 			if(isFound) {
 				for (int j = 0; j < this.onDemandImportCacheCount; j++) {
@@ -222,7 +218,7 @@ public abstract class Engine implements ITypeRequestor {
 						} else {
 							char[] conflictingImportName =
 								CharOperation.concatWith(conflictingImportBinding.compoundName, '.');
-							
+
 							if (this.nameEnvironment.nameLookup.findType(
 									String.valueOf(typeName),
 									String.valueOf(conflictingImportName),
@@ -241,7 +237,7 @@ public abstract class Engine implements ITypeRequestor {
 	}
 
 	/*
-	 * Find the node (a field, a method or an initializer) at the given position 
+	 * Find the node (a field, a method or an initializer) at the given position
 	 * and parse its block statements if it is a method or an initializer.
 	 * Returns the node or null if not found
 	 */
@@ -283,12 +279,12 @@ public abstract class Engine implements ITypeRequestor {
 				AbstractMethodDeclaration method = methods[i];
 				if (method.bodyStart > position)
 					continue;
-				
+
 				if(method.isDefaultConstructor())
 					continue;
-				
+
 				if (method.declarationSourceEnd >= position) {
-					
+
 					getParser().parseBlockStatements(method, unit);
 					return method;
 				}
@@ -316,7 +312,7 @@ public abstract class Engine implements ITypeRequestor {
 	protected void reset() {
 		lookupEnvironment.reset();
 	}
-	
+
 	public static char[] getTypeSignature(TypeBinding typeBinding) {
 		return typeBinding.signature();
 	}
@@ -330,7 +326,7 @@ public abstract class Engine implements ITypeRequestor {
 			int oldMod = methodBinding.modifiers;
 			//TODO remove the next line when method from binary type will be able to generate generic siganute
 			methodBinding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-			result = methodBinding.genericSignature(); 
+			result = methodBinding.genericSignature();
 			if(result == null) {
 				result = methodBinding.signature();
 			}
@@ -341,7 +337,7 @@ public abstract class Engine implements ITypeRequestor {
 		}
 		return result;
 	}
-	
+
 	public static char[][] getSignatures(Binding[] bindings) {
 		int length = bindings == null ? 0 : bindings.length;
 		char[][] signatures = new char[length][];
