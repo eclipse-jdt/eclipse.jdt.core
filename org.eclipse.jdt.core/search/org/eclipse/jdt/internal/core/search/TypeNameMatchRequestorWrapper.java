@@ -92,6 +92,7 @@ public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName,
 						for (int j=1, l=enclosingTypeNames.length; j<l; j++) {
 							type = type.getType(new String(enclosingTypeNames[j]));
 						}
+						type = type.getType(new String(simpleTypeName));
 					} else {
 						type = cu.getType(new String(simpleTypeName));
 					}
