@@ -188,6 +188,7 @@ public boolean existsUsingJarTypeCache() {
 			return false;
 		else if (info != null)
 			return true;
+		// info is null
 		JavaElementInfo parentInfo = (JavaElementInfo) manager.getInfo(getParent());
 		if (parentInfo != null) {
 			// if parent is open, this class file must be in its children
@@ -201,11 +202,8 @@ public boolean existsUsingJarTypeCache() {
 		try {
 			info = getJarBinaryTypeInfo((PackageFragment) getParent());
 		} catch (CoreException e) {
-			info = null;
 		} catch (IOException e) {
-			info = null;
 		} catch (ClassFormatException e) {
-			info = null;
 		}
 		manager.putJarTypeInfo(type, info == null ? JavaModelCache.NON_EXISTING_JAR_TYPE_INFO : info);
 		return info != null;
