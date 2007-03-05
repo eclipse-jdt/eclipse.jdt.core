@@ -2068,8 +2068,6 @@ public void configure(String[] argv) throws InvalidInputException {
 
 		switch(mode) {
 			case DEFAULT :
-				customEncoding = null;
-
 				if (currentArg.startsWith("[")) { //$NON-NLS-1$
 					throw new InvalidInputException(
 						this.bind("configure.unexpectedBracket", //$NON-NLS-1$
