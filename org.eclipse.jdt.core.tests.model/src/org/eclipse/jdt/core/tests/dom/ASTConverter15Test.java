@@ -34,9 +34,9 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class ASTConverter15Test extends ConverterTestSetup {
-	
+
 	ICompilationUnit workingCopy;
-	
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST.JLS3);
@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 247 };
+//		TESTS_NUMBERS = new int[] { 248 };
 //		TESTS_RANGE = new int[] { 240, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -79,7 +79,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong number of modifiers", 1, modifiers.size());
 		Modifier modifier = (Modifier) modifiers.get(0);
 		checkSourceRange(modifier, "public", source);
-		
+
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Wrong type", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
@@ -91,7 +91,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(modifier, "static", source);
 		modifier = (Modifier) modifiers.get(2);
 		checkSourceRange(modifier, "final", source);
-		
+
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Wrong type", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -108,7 +108,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong number of modifiers", 1, modifiers.size());
 		modifier = (Modifier) modifiers.get(0);
 		checkSourceRange(modifier, "final", source);
-		
+
 		node = getASTNode(compilationUnit, 0, 2);
 		assertEquals("Wrong type", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		methodDeclaration = (MethodDeclaration) node;
@@ -119,7 +119,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		modifier = (Modifier) modifiers.get(1);
 		checkSourceRange(modifier, "static", source);
 	}
-	
+
 	public void test0002() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0002", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -127,7 +127,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	public void test0003() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0003", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -158,13 +158,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(memberValuePair.getName(), "first", source);
 		checkSourceRange(memberValuePair.getValue(), "\"Joe\"", source);
 		memberValuePair = (MemberValuePair) values.get(1);
-		checkSourceRange(memberValuePair, "last=\"Hacker\"", source);		
+		checkSourceRange(memberValuePair, "last=\"Hacker\"", source);
 		checkSourceRange(memberValuePair.getName(), "last", source);
 		checkSourceRange(memberValuePair.getValue(), "\"Hacker\"", source);
 		modifier = (ASTNode) modifiers.get(1);
 		checkSourceRange(modifier, "public", source);
 	}
-	
+
 	public void test0004() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0004", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -195,13 +195,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(memberValuePair.getName(), "first", source);
 		checkSourceRange(memberValuePair.getValue(), "\"Joe\"", source);
 		memberValuePair = (MemberValuePair) values.get(1);
-		checkSourceRange(memberValuePair, "last=\"Hacker\"", source);		
+		checkSourceRange(memberValuePair, "last=\"Hacker\"", source);
 		checkSourceRange(memberValuePair.getName(), "last", source);
 		checkSourceRange(memberValuePair.getValue(), "\"Hacker\"", source);
 		modifier = (ASTNode) modifiers.get(0);
 		checkSourceRange(modifier, "public", source);
 	}
-	
+
 	public void test0005() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0005", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -237,16 +237,16 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(memberValuePair.getName(), "first", source);
 		checkSourceRange(memberValuePair.getValue(), "\"Joe\"", source);
 		memberValuePair = (MemberValuePair) values.get(1);
-		checkSourceRange(memberValuePair, "last=\"Hacker\"", source);		
+		checkSourceRange(memberValuePair, "last=\"Hacker\"", source);
 		checkSourceRange(memberValuePair.getName(), "last", source);
 		checkSourceRange(memberValuePair.getValue(), "\"Hacker\"", source);
 		memberValuePair = (MemberValuePair) values.get(2);
-		checkSourceRange(memberValuePair, "age=32", source);		
+		checkSourceRange(memberValuePair, "age=32", source);
 		checkSourceRange(memberValuePair.getName(), "age", source);
 		checkSourceRange(memberValuePair.getValue(), "32", source);
 		modifier = (ASTNode) modifiers.get(1);
 		checkSourceRange(modifier, "public", source);
-		
+
 		typeDeclaration = (AbstractTypeDeclaration) types.get(0);
 		assertEquals("wrong type", ASTNode.ANNOTATION_TYPE_DECLARATION, typeDeclaration.getNodeType());
 		AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) typeDeclaration;
@@ -267,7 +267,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		expression = annotationTypeMemberDeclaration.getDefault();
 		assertNull("Got a default", expression);
 	}
-	
+
 	public void test0006() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0006", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -287,7 +287,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MarkerAnnotation markerAnnotation = (MarkerAnnotation) annotation;
 		checkSourceRange(markerAnnotation.getTypeName(), "Retention", source);
 	}
-	
+
 	public void test0007() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0007", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -304,7 +304,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(importDeclaration, "import static java.io.File.*;", source);
 		assertTrue("not static", importDeclaration.isStatic());
 	}
-	
+
 	/** @deprecated using deprecated code */
 	public void test0008() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0008", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -317,7 +317,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(1);
 		assertTrue("Not malformed", isMalformed(importDeclaration));
 	}
-	
+
 	public void test0009() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0009", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
@@ -341,7 +341,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Statement body = enhancedForStatement.getBody();
 		checkSourceRange(body, "{System.out.println(s);}", source);
 	}
-	
+
 	public void test0010() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0010", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
@@ -371,7 +371,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Statement body = enhancedForStatement.getBody();
 		checkSourceRange(body, "{System.out.println(s);}", source);
 	}
-	
+
 	public void test0011() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0011", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
@@ -402,7 +402,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Statement body = enhancedForStatement.getBody();
 		checkSourceRange(body, "{System.out.println(s);}", source);
 	}
-	
+
 	public void test0012() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0012", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
@@ -470,7 +470,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type typeArgument = (Type) typeArguments.get(0);
 		checkSourceRange(typeArgument, "A", source);
 	}
-	
+
 	public void test0014() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0014", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -506,7 +506,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeArgument = (Type) typeArguments.get(0);
 		checkSourceRange(typeArgument, "A", source);
 	}
-	
+
 	public void test0015() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0015", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -528,11 +528,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List typeBounds = typeParameter.typeBounds();
 		assertEquals("Wrong size", 3, typeBounds.size());
 		Type typeBound = (Type) typeBounds.get(0);
-		checkSourceRange(typeBound, "Object", source);	
+		checkSourceRange(typeBound, "Object", source);
 		typeBound = (Type) typeBounds.get(1);
 		checkSourceRange(typeBound, "java.io.Serializable", source);
 		typeBound = (Type) typeBounds.get(2);
-		checkSourceRange(typeBound, "Comparable<?>", source);		
+		checkSourceRange(typeBound, "Comparable<?>", source);
 	}
 
 	public void test0016() throws JavaModelException {
@@ -542,13 +542,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedProblems =
-			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" + 
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" +
 			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized";
 		assertProblemsSize(compilationUnit, 2, expectedProblems);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
 		assertEquals("Wrong first character", '<', source[node.getStartPosition()]);
 	}
-	
+
 	public void test0017() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0017", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -593,9 +593,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a qualified name", name.getNodeType() == ASTNode.QUALIFIED_NAME);
 		QualifiedName qualifiedName = (QualifiedName) name;
 		checkSourceRange(qualifiedName.getQualifier(), "test0017", source);
-		checkSourceRange(qualifiedName.getName(), "A", source);		
+		checkSourceRange(qualifiedName.getName(), "A", source);
 	}
-	
+
 	public void test0018() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0018", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -638,9 +638,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a qualified name", name.getNodeType() == ASTNode.QUALIFIED_NAME);
 		QualifiedName qualifiedName = (QualifiedName) name;
 		checkSourceRange(qualifiedName.getQualifier(), "test0018", source);
-		checkSourceRange(qualifiedName.getName(), "A", source);		
+		checkSourceRange(qualifiedName.getName(), "A", source);
 	}
-	
+
 	public void test0019() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0019", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -683,9 +683,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a qualified name", name.getNodeType() == ASTNode.QUALIFIED_NAME);
 		QualifiedName qualifiedName = (QualifiedName) name;
 		checkSourceRange(qualifiedName.getQualifier(), "test0019", source);
-		checkSourceRange(qualifiedName.getName(), "A", source);		
+		checkSourceRange(qualifiedName.getName(), "A", source);
 	}
-	
+
 	public void test0020() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0020", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -707,7 +707,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type typeArgument = (Type) typeArguments.get(0);
 		checkSourceRange(typeArgument, "?", source);
 	}
-	
+
 	public void test0021() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0021", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -734,7 +734,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(bound, "E", source);
 		assertTrue("Not an upper bound", wildcardType.isUpperBound());
 	}
-	
+
 	public void test0022() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0022", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -769,7 +769,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedProblems =
-			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" + 
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" +
 			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized";
 		assertProblemsSize(compilationUnit, 2, expectedProblems);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
@@ -782,7 +782,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		TypeParameter typeParameter = (TypeParameter) typeParameters.get(0);
 		checkSourceRange(typeParameter, "T", source);
 	}
-	
+
 	public void test0024() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0024", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -804,7 +804,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type type = (Type) typeArguments.get(0);
 		checkSourceRange(type, "String", source);
 	}
-	
+
 	public void test0025() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0025", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -820,7 +820,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type type = (Type) typeArguments.get(0);
 		checkSourceRange(type, "E", source);
 	}
-	
+
 	public void test0026() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0026", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -850,15 +850,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "PLUS", source);
 		checkSourceRange(enumConstantDeclaration, "PLUS {\n" +
-				"        @Override\n" + 
-				"        double eval(double x, double y) { return x + y; }\n" + 
+				"        @Override\n" +
+				"        double eval(double x, double y) { return x + y; }\n" +
 				"    }", source);
 		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());
 		AnonymousClassDeclaration anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
 		assertNotNull("No anonymous class", anonymousClassDeclaration);
 		checkSourceRange(anonymousClassDeclaration, "{\n" +
-				"        @Override\n" + 
-				"        double eval(double x, double y) { return x + y; }\n" + 
+				"        @Override\n" +
+				"        double eval(double x, double y) { return x + y; }\n" +
 				"    }", source);
 		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding);
@@ -870,16 +870,16 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		checkSourceRange(methodDeclaration.getName(), "eval", source);
 		checkSourceRange(methodDeclaration, "@Override\n        double eval(double x, double y) { return x + y; }", source);
-		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
-		
+		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());
+
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
 		assertNotNull("No binding", methodBinding);
 		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "MINUS", source);
 		checkSourceRange(enumConstantDeclaration, "MINUS {\n" +
-				"        @Override\n" + 
-				"        double eval(double x, double y) { return x - y; }\n" + 
+				"        @Override\n" +
+				"        double eval(double x, double y) { return x - y; }\n" +
 				"    }", source);
 		anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
 		typeBinding = anonymousClassDeclaration.resolveBinding();
@@ -887,8 +887,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a enum type", typeBinding.isEnum());
 		assertNotNull("No anonymous class", anonymousClassDeclaration);
 		checkSourceRange(anonymousClassDeclaration, "{\n" +
-				"        @Override\n" + 
-				"        double eval(double x, double y) { return x - y; }\n" + 
+				"        @Override\n" +
+				"        double eval(double x, double y) { return x - y; }\n" +
 				"    }", source);
 		bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 		assertEquals("wrong size", 1, bodyDeclarations.size());
@@ -897,7 +897,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		checkSourceRange(methodDeclaration.getName(), "eval", source);
 		checkSourceRange(methodDeclaration, "@Override\n        double eval(double x, double y) { return x - y; }", source);
-		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
+		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());
 
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(2);
 		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
@@ -905,14 +905,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "TIMES", source);
 		checkSourceRange(enumConstantDeclaration, "TIMES {\n" +
-				"        @Override\n" + 
-				"        double eval(double x, double y) { return x * y; }\n" + 
+				"        @Override\n" +
+				"        double eval(double x, double y) { return x * y; }\n" +
 				"    }", source);
 		anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
 		assertNotNull("No anonymous class", anonymousClassDeclaration);
 		checkSourceRange(anonymousClassDeclaration, "{\n" +
-				"        @Override\n" + 
-				"        double eval(double x, double y) { return x * y; }\n" + 
+				"        @Override\n" +
+				"        double eval(double x, double y) { return x * y; }\n" +
 				"    }", source);
 		typeBinding = anonymousClassDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding);
@@ -924,7 +924,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		checkSourceRange(methodDeclaration.getName(), "eval", source);
 		checkSourceRange(methodDeclaration, "@Override\n        double eval(double x, double y) { return x * y; }", source);
-		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
+		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());
 
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(3);
 		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
@@ -932,14 +932,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a constructor", methodBinding.isConstructor());
 		checkSourceRange(enumConstantDeclaration.getName(), "DIVIDED_BY", source);
 		checkSourceRange(enumConstantDeclaration, "DIVIDED_BY {\n" +
-				"        @Override\n" + 
-				"        double eval(double x, double y) { return x / y; }\n" + 
+				"        @Override\n" +
+				"        double eval(double x, double y) { return x / y; }\n" +
 				"    }", source);
 		anonymousClassDeclaration = enumConstantDeclaration.getAnonymousClassDeclaration();
 		assertNotNull("No anonymous class", anonymousClassDeclaration);
 		checkSourceRange(anonymousClassDeclaration, "{\n" +
-				"        @Override\n" + 
-				"        double eval(double x, double y) { return x / y; }\n" + 
+				"        @Override\n" +
+				"        double eval(double x, double y) { return x / y; }\n" +
 				"    }", source);
 		typeBinding = anonymousClassDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding);
@@ -951,9 +951,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		methodDeclaration = (MethodDeclaration) bodyDeclaration;
 		checkSourceRange(methodDeclaration.getName(), "eval", source);
 		checkSourceRange(methodDeclaration, "@Override\n        double eval(double x, double y) { return x / y; }", source);
-		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());		
+		assertEquals("wrong size", 0, enumConstantDeclaration.arguments().size());
 	}
-	
+
 	public void test0027() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0027", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -980,7 +980,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(enumConstantDeclaration.getName(), "PENNY", source);
 		checkSourceRange(enumConstantDeclaration, "PENNY(1)", source);
 		List arguments = enumConstantDeclaration.arguments();
-		assertEquals("wrong size", 1, arguments.size());		
+		assertEquals("wrong size", 1, arguments.size());
 		Expression argument = (Expression) arguments.get(0);
 		checkSourceRange(argument, "1", source);
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
@@ -989,7 +989,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "PENNY", binding.getName());
 		ASTNode node2 = compilationUnit.findDeclaringNode(binding);
 		assertTrue("Different node", node2 == enumConstantDeclaration);
-		
+
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
 		assertNotNull("No binding", methodBinding);
@@ -997,14 +997,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(enumConstantDeclaration.getName(), "NICKEL", source);
 		checkSourceRange(enumConstantDeclaration, "NICKEL(5)", source);
 		arguments = enumConstantDeclaration.arguments();
-		assertEquals("wrong size", 1, arguments.size());		
+		assertEquals("wrong size", 1, arguments.size());
 		argument = (Expression) arguments.get(0);
 		checkSourceRange(argument, "5", source);
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
 		binding = enumConstantDeclaration.resolveVariable();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong name", "NICKEL", binding.getName());
-		
+
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(2);
 		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
 		assertNotNull("No binding", methodBinding);
@@ -1012,7 +1012,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(enumConstantDeclaration.getName(), "DIME", source);
 		checkSourceRange(enumConstantDeclaration, "DIME(10)", source);
 		arguments = enumConstantDeclaration.arguments();
-		assertEquals("wrong size", 1, arguments.size());		
+		assertEquals("wrong size", 1, arguments.size());
 		argument = (Expression) arguments.get(0);
 		checkSourceRange(argument, "10", source);
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
@@ -1020,14 +1020,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong name", "DIME", binding.getName());
 
-	
+
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(3);
 		methodBinding = enumConstantDeclaration.resolveConstructorBinding();
 		assertNotNull("No binding", methodBinding);
 		checkSourceRange(enumConstantDeclaration.getName(), "QUARTER", source);
 		checkSourceRange(enumConstantDeclaration, "QUARTER(25)", source);
 		arguments = enumConstantDeclaration.arguments();
-		assertEquals("wrong size", 1, arguments.size());		
+		assertEquals("wrong size", 1, arguments.size());
 		argument = (Expression) arguments.get(0);
 		checkSourceRange(argument, "25", source);
 		assertEquals("not an number literal", ASTNode.NUMBER_LITERAL, argument.getNodeType());
@@ -1035,7 +1035,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong name", "QUARTER", binding.getName());
 	}
-	
+
 	public void test0028() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0028", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -1047,24 +1047,24 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		checkSourceRange(methodDeclaration.getName(), "foo", source);
-		checkSourceRange(methodDeclaration, "void foo(String[] args) {\n" + 
-				"    	if (args.length < 2) {\n" + 
-				"    		System.out.println(\"Usage: X <double> <double>\");\n" + 
-				"    		return;\n" + 
-				"    	}\n" + 
-				"        double x = Double.parseDouble(args[0]);\n" + 
-				"        double y = Double.parseDouble(args[1]);\n" + 
-				"\n" + 
-				"        for (X op : X.values())\n" + 
-				"            System.out.println(x + \" \" + op + \" \" + y + \" = \" + op.eval(x, y));\n" + 
+		checkSourceRange(methodDeclaration, "void foo(String[] args) {\n" +
+				"    	if (args.length < 2) {\n" +
+				"    		System.out.println(\"Usage: X <double> <double>\");\n" +
+				"    		return;\n" +
+				"    	}\n" +
+				"        double x = Double.parseDouble(args[0]);\n" +
+				"        double y = Double.parseDouble(args[1]);\n" +
+				"\n" +
+				"        for (X op : X.values())\n" +
+				"            System.out.println(x + \" \" + op + \" \" + y + \" = \" + op.eval(x, y));\n" +
 				"	}", source);
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		methodDeclaration = (MethodDeclaration) node;
 		checkSourceRange(methodDeclaration.getName(), "bar", source);
-		checkSourceRange(methodDeclaration, "abstract double bar(double x, double y);", source);		
+		checkSourceRange(methodDeclaration, "abstract double bar(double x, double y);", source);
 	}
-	
+
 	public void test0029() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0029", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -1072,7 +1072,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=67790
 	 */
@@ -1085,9 +1085,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertProblemsSize(compilationUnit, 0);
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Not a constructor invocation", ASTNode.CONSTRUCTOR_INVOCATION, node.getNodeType());
-		checkSourceRange(node, "<T>this();", source);		
+		checkSourceRange(node, "<T>this();", source);
 	}
-	
+
 	public void test0031() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0031", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -1095,7 +1095,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	public void test0032() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0032", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -1114,7 +1114,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type type2 = parameterizedType.getType();
 		checkSourceRange(type2, "C", source);
 	}
-	
+
 	public void test0033() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0033", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
@@ -1132,7 +1132,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=70292
 	 */
@@ -1144,7 +1144,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=67790
 	 */
@@ -1159,7 +1159,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
-		checkSourceRange(expressionStatement, "this.<T>foo();", source);		
+		checkSourceRange(expressionStatement, "this.<T>foo();", source);
 		Expression expression = expressionStatement.getExpression();
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		MethodInvocation methodInvocation = (MethodInvocation) expression;
@@ -1167,7 +1167,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List typeArguments = methodInvocation.typeArguments();
 		assertEquals("Wrong size", 1, typeArguments.size());
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=68838
 	 */
@@ -1203,7 +1203,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding3);
 		assertEquals("Wrong type", IBinding.TYPE, typeBinding3.getKind());
 		assertEquals("Wrong name", "T", typeBinding3.getName());
-		
+
 		typeParameter = (TypeParameter) typeParameters.get(1);
 		binding = typeParameter.resolveBinding();
 		assertNotNull("No binding", binding);
@@ -1225,7 +1225,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong type", IBinding.TYPE, typeBinding3.getKind());
 		assertEquals("Wrong name", "U", typeBinding3.getName());
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=69066
 	 */
@@ -1294,7 +1294,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeParameters = typeBinding2.getTypeParameters();
 		assertEquals("Wrong size", 0, typeParameters.length);
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72233
 	 */
@@ -1306,7 +1306,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72248
 	 */
@@ -1331,9 +1331,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding2 = returnType.resolveBinding();
 		assertNotNull("No binding", binding2);
 		assertEquals("wrong type", IBinding.TYPE, binding2.getKind());
-		assertEquals("wrong key", "Ltest0040/X;.foo<T:Ljava/lang/Object;>()TT;:TT;", binding2.getKey());		
+		assertEquals("wrong key", "Ltest0040/X;.foo<T:Ljava/lang/Object;>()TT;:TT;", binding2.getKey());
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72477
 	 */
@@ -1345,7 +1345,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=73048
 	 */
@@ -1370,9 +1370,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding2 = returnType.resolveBinding();
 		assertNotNull("No binding", binding2);
 		assertEquals("wrong type", IBinding.TYPE, binding2.getKind());
-		assertEquals("wrong key", "[Ltest0042/X;.foo<T:Ljava/lang/Object;>()[TT;:TT;", binding2.getKey());		
+		assertEquals("wrong key", "[Ltest0042/X;.foo<T:Ljava/lang/Object;>()[TT;:TT;", binding2.getKey());
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72882
 	 */
@@ -1395,7 +1395,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong qualified name", "T", typeBinding.getQualifiedName());
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72891
 	 */
@@ -1434,7 +1434,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong fully qualified name", "Z", typeBinding.getQualifiedName());
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72891
 	 */
@@ -1461,7 +1461,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No generic method", genericMethod);
 		assertFalse("Not a parameterized method", genericMethod.isParameterizedMethod());
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72889
 	 */
@@ -1488,7 +1488,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		String key2 = typeBinding.getKey();
 		assertFalse("Same keys", key1.equals(key2));
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=72859
 	 */
@@ -1500,7 +1500,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=73561
 	 */
@@ -1530,7 +1530,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(enumConstantDeclaration.getName(), "RED", source);
 		checkSourceRange(enumConstantDeclaration, "RED()", source);
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=73561
 	 */
@@ -1560,7 +1560,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(enumConstantDeclaration.getName(), "RED", source);
 		checkSourceRange(enumConstantDeclaration, "RED", source);
 	}
-	
+
 	/**
 	 * Ellipsis
 	 */
@@ -1587,7 +1587,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(arrayType.getComponentType(), "String", source);
 		assertEquals("Wrong extra dimensions", 1, singleVariableDeclaration.getExtraDimensions());
 	}
-	
+
 	/**
 	 * Ellipsis
 	 */
@@ -1626,7 +1626,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76100
 	 */
@@ -1642,7 +1642,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) node;
 		assertNotNull("No javadoc", annotationTypeDeclaration.getJavadoc());
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76100
 	 */
@@ -1658,7 +1658,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		EnumDeclaration enumDeclaration = (EnumDeclaration) node;
 		assertNotNull("No javadoc", enumDeclaration.getJavadoc());
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76100
 	 */
@@ -1674,7 +1674,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) node;
 		assertNotNull("No javadoc", annotationTypeDeclaration.getJavadoc());
 	}
-	
+
 	/**
 	 *
 	 */
@@ -1687,7 +1687,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		final String expectedOutput = "Zork1 cannot be resolved to a type";
 		assertProblemsSize(compilationUnit, 1, expectedOutput);
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77175
 	 */
@@ -1706,7 +1706,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not an enum type", typeBinding.isEnum());
 		assertTrue("Not a top level type", typeBinding.isTopLevel());
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77249
 	 */
@@ -1722,7 +1722,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		assertTrue("Not public type declaration", Modifier.isPublic(typeDeclaration.getModifiers()));
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77772
 	 */
@@ -1734,7 +1734,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	/*
 	 * Ensures that the type parameters of a method are included in its binding key.
 	 * (regression test for 73970 [1.5][dom] overloaded parameterized methods have same method binding key)
@@ -1761,9 +1761,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		for (int i = 0; i < length; i++)
 			keys[i] = methods[i].resolveBinding().getKey();
 		assertBindingKeysEqual(
-			"Lp/X;.foo<T:Ljava/lang/Object;>(TT;)V\n" + 
-			"Lp/X;.foo<T:Lp/X;>(TT;)V\n" + 
-			"Lp/X;.foo<T:Ljava/lang/Class;>(TT;)V\n" + 
+			"Lp/X;.foo<T:Ljava/lang/Object;>(TT;)V\n" +
+			"Lp/X;.foo<T:Lp/X;>(TT;)V\n" +
+			"Lp/X;.foo<T:Ljava/lang/Class;>(TT;)V\n" +
 			"Lp/X;.foo<T:Ljava/lang/Exception;:Ljava/lang/Runnable;>(TT;)V",
 			keys);
 	}
@@ -1824,7 +1824,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Expression expression = returnStatement.getExpression();
 		typeBinding = expression.resolveTypeBinding();
 		assertTrue("Not parameterized", typeBinding.isParameterizedType());
-		assertEquals("Wrong qualified name", "test0063.X<java.lang.String>", typeBinding.getQualifiedName());		
+		assertEquals("Wrong qualified name", "test0063.X<java.lang.String>", typeBinding.getQualifiedName());
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Wrong node", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1833,9 +1833,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SingleVariableDeclaration declaration = (SingleVariableDeclaration) parameters.get(0);
 		Type type = declaration.getType();
 		typeBinding = type.resolveBinding();
-		assertEquals("Wrong qualified name", "java.util.List<? extends test0063.X<?>>", typeBinding.getQualifiedName());				
+		assertEquals("Wrong qualified name", "java.util.List<? extends test0063.X<?>>", typeBinding.getQualifiedName());
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
 	 */
@@ -1858,7 +1858,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Expression expression = returnStatement.getExpression();
 		typeBinding = expression.resolveTypeBinding();
 		assertTrue("Not parameterized", typeBinding.isParameterizedType());
-		assertEquals("Wrong qualified name", "test0064.X<java.lang.String,java.lang.Integer>", typeBinding.getQualifiedName());		
+		assertEquals("Wrong qualified name", "test0064.X<java.lang.String,java.lang.Integer>", typeBinding.getQualifiedName());
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Wrong node", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1867,9 +1867,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SingleVariableDeclaration declaration = (SingleVariableDeclaration) parameters.get(0);
 		Type type = declaration.getType();
 		typeBinding = type.resolveBinding();
-		assertEquals("Wrong qualified name", "java.util.List<? extends test0064.X<?,?>>", typeBinding.getQualifiedName());				
+		assertEquals("Wrong qualified name", "java.util.List<? extends test0064.X<?,?>>", typeBinding.getQualifiedName());
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
 	 */
@@ -1894,7 +1894,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Expression expression = returnStatement.getExpression();
 		typeBinding = expression.resolveTypeBinding();
 		assertTrue("Not parameterized", typeBinding.isParameterizedType());
-		assertEquals("Wrong qualified name", "test0065.X<java.lang.String,java.util.List<?>>", typeBinding.getQualifiedName());		
+		assertEquals("Wrong qualified name", "test0065.X<java.lang.String,java.util.List<?>>", typeBinding.getQualifiedName());
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Wrong node", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1903,9 +1903,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SingleVariableDeclaration declaration = (SingleVariableDeclaration) parameters.get(0);
 		Type type = declaration.getType();
 		typeBinding = type.resolveBinding();
-		assertEquals("Wrong qualified name", "java.util.List<? extends test0065.X<?,?>>", typeBinding.getQualifiedName());				
+		assertEquals("Wrong qualified name", "java.util.List<? extends test0065.X<?,?>>", typeBinding.getQualifiedName());
 	}
-	
+
 	/*
 	 * Ensures that a raw type doesn't include the type parameters in its binding key.
 	 * (regression test for 77808 [1.5][dom] type bindings for raw List and List<E> have same key)
@@ -1953,7 +1953,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = wildcardType.resolveBinding();
 		assertTrue("Not an upperbound type binding", typeBinding.isUpperbound());
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78649
 	 */
@@ -2033,7 +2033,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SimpleName simpleName3 = qualifiedName.getName();
 		assertNotNull("No binding", simpleName3.resolveBinding());
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78934
 	 */
@@ -2080,7 +2080,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding);
         assertEquals("Wrong name 3", "test0070.Outer", typeBinding.getQualifiedName());
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78930
 	 */
@@ -2103,7 +2103,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IJavaElement javaElement = typeBinding.getJavaElement();
 		assertNotNull("No java element", javaElement);
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77645
 	 */
@@ -2158,7 +2158,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 									assertEquals("Wrong method", "bar3", methodName);
 								} else if (variableBindingName.equals("var12")) {
 									assertEquals("Wrong method", "X", methodName);
-								} 
+								}
 							}
 					}
 				}
@@ -2182,7 +2182,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			}
 		});
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77806
 	 */
@@ -2215,7 +2215,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Different binding", binding3.isEqualTo(binding));
 		assertTrue("Different binding", binding2.isEqualTo(binding));
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78934
 	 */
@@ -2266,7 +2266,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
         assertEquals("wrong kind", IBinding.PACKAGE, binding3.getKind());
         assertEquals("wrong name2", "java", binding3.getName());
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79271
 	 */
@@ -2283,7 +2283,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding genericType = binding.getTypeDeclaration();
 		assertFalse("Equals", binding.isEqualTo(genericType));
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79362
 	 */
@@ -2310,7 +2310,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		type = arrayType.getComponentType();
 		checkSourceRange(type, "Map<String, Double>", source);
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79362
 	 */
@@ -2337,7 +2337,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		type = arrayType.getComponentType();
 		checkSourceRange(type, "java.util.Map<String, Double>", source);
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79460
 	 */
@@ -2354,7 +2354,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Is a parameterized method", methodBinding.isParameterizedMethod());
 		assertFalse("Is a generic method", methodBinding.isGenericMethod());
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79460
 	 */
@@ -2362,28 +2362,28 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			"package p;\n" +
-			"public class X {\n" + 
-			"	\n" + 
-			"	/*start*/<T extends A> T foo(T t) {\n" + 
-			"		return t;\n" + 
-			"	}/*end*/\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new X().bar();\n" + 
-			"	}\n" + 
-			"	void bar() {\n" + 
-			"		B b = foo(new B());\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"\n" + 
-			"class A {}\n" + 
+			"public class X {\n" +
+			"	\n" +
+			"	/*start*/<T extends A> T foo(T t) {\n" +
+			"		return t;\n" +
+			"	}/*end*/\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().bar();\n" +
+			"	}\n" +
+			"	void bar() {\n" +
+			"		B b = foo(new B());\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class A {}\n" +
 			"class B extends A {}\n",
 			this.workingCopy);
 		IMethodBinding methodBinding = ((MethodDeclaration) node).resolveBinding();
 		assertFalse("Is a raw method", methodBinding.isRawMethod());
 		assertFalse("Is a parameterized method", methodBinding.isParameterizedMethod());
 		assertTrue("Not a generic method", methodBinding.isGenericMethod());
-	}	
-	
+	}
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79460
 	 */
@@ -2391,20 +2391,20 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			"package p;\n" +
-			"public class X {\n" + 
-			"	\n" + 
-			"	<T extends A> T foo(T t) {\n" + 
-			"		return t;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new X().bar();\n" + 
-			"	}\n" + 
-			"	void bar() {\n" + 
-			"		B b = /*start*/foo(new B())/*end*/;\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"\n" + 
-			"class A {}\n" + 
+			"public class X {\n" +
+			"	\n" +
+			"	<T extends A> T foo(T t) {\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().bar();\n" +
+			"	}\n" +
+			"	void bar() {\n" +
+			"		B b = /*start*/foo(new B())/*end*/;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class A {}\n" +
 			"class B extends A {}\n",
 			this.workingCopy);
 		IMethodBinding methodBinding = ((MethodInvocation) node).resolveMethodBinding();
@@ -2412,7 +2412,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
 		assertFalse("Is a generic method", methodBinding.isGenericMethod());
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79460
 	 */
@@ -2423,9 +2423,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedOutput =
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" +
 			"Y is a raw type. References to generic type Y<T> should be parameterized";
 		assertProblemsSize(compilationUnit, 4, expectedOutput);
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
@@ -2444,7 +2444,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Is a generic method", methodBinding.isGenericMethod());
 		assertFalse("Doesn't override itself", methodBinding.overrides(methodBinding));
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78183
 	 */
@@ -2455,7 +2455,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedOutput =
-			"Gen is a raw type. References to generic type Gen<X> should be parameterized\n" + 
+			"Gen is a raw type. References to generic type Gen<X> should be parameterized\n" +
 			"Gen.Inn is a raw type. References to generic type Gen<X>.Inn should be parameterized";
 		assertProblemsSize(compilationUnit, 2, expectedOutput);
 		ASTNode node = getASTNode(compilationUnit, 0);
@@ -2467,7 +2467,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a class", typeBinding.isClass());
 		assertTrue("Not a generic type", typeBinding.isGenericType());
 		assertTrue("Not a top level", typeBinding.isTopLevel());
-		
+
 		node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a member type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		typeDeclaration = (TypeDeclaration) node;
@@ -2477,7 +2477,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a class", typeBinding.isClass());
 		assertTrue("Not a member", typeBinding.isMember());
 		assertTrue("Not a nested class", typeBinding.isNested());
-		
+
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
@@ -2487,7 +2487,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a class", typeBinding.isClass());
 		assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
 		assertTrue("Not a toplevel", typeBinding.isTopLevel());
-		
+
 		node = getASTNode(compilationUnit, 0, 2);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		fieldDeclaration = (FieldDeclaration) node;
@@ -2508,7 +2508,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a class", typeBinding.isClass());
 		assertTrue("Not a raw type", typeBinding.isRawType());
 		assertTrue("Not a toplevel", typeBinding.isTopLevel());
-		
+
 		node = getASTNode(compilationUnit, 0, 4);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		fieldDeclaration = (FieldDeclaration) node;
@@ -2520,7 +2520,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a nested type", typeBinding.isNested());
 		assertFalse("Is parameterized", typeBinding.isParameterizedType());
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79544
 	 */
@@ -2535,7 +2535,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		ITypeBinding typeBinding = fieldDeclaration.getType().resolveBinding();
-		
+
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		fieldDeclaration = (FieldDeclaration) node;
@@ -2550,7 +2550,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		fieldDeclaration = (FieldDeclaration) node;
 		ITypeBinding typeBinding4 = fieldDeclaration.getType().resolveBinding();
-		
+
 		assertFalse("Binding are equals", typeBinding.isEqualTo(typeBinding2));
 		assertFalse("Binding are equals", typeBinding.isEqualTo(typeBinding3));
 		assertFalse("Binding are equals", typeBinding.isEqualTo(typeBinding4));
@@ -2558,7 +2558,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Binding are equals", typeBinding2.isEqualTo(typeBinding4));
 		assertFalse("Binding are equals", typeBinding3.isEqualTo(typeBinding4));
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79612
 	 */
@@ -2573,7 +2573,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
 		ITypeBinding typeBinding = fieldDeclaration.getType().resolveBinding();
-		
+
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		fieldDeclaration = (FieldDeclaration) node;
@@ -2581,7 +2581,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 		assertFalse("Binding are equals", typeBinding.isEqualTo(typeBinding2));
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79609
 	 */
@@ -2601,7 +2601,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IBinding binding = typeParameter.resolveBinding();
 		assertEquals("wrong type", IBinding.TYPE, binding.getKind());
 		ITypeBinding typeBinding = (ITypeBinding) binding;
-		
+
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		methodDeclaration = (MethodDeclaration) node;
@@ -2621,14 +2621,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			"package p;\n" +
-			"public class X {\n" + 
-			"	\n" + 
+			"public class X {\n" +
+			"	\n" +
 			"public Object foo() {\n" +
 			"		return /*start*/X.class/*end*/;\n" +
-			"	}" + 
-			"}\n" + 
-			"\n" + 
-			"class A {}\n" + 
+			"	}" +
+			"}\n" +
+			"\n" +
+			"class A {}\n" +
 			"class B extends A {}\n",
 			this.workingCopy);
 		TypeLiteral typeLiteral = (TypeLiteral) node;
@@ -2636,7 +2636,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "java.lang.Class<p.X>", typeBinding.getQualifiedName());
 		assertEquals("Wrong name", "Class<X>", typeBinding.getName());
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79775
 	 */
@@ -2657,7 +2657,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"}\n",
 			this.workingCopy);
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=79690
 	 */
@@ -2690,7 +2690,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Nodes don't match", typeParameter.subtreeMatch(new ASTMatcher(), node3));
 		assertTrue("Nodes don't match", typeParameter.subtreeMatch(new ASTMatcher(), node2));
 	}
-	
+
 	/*
 	 * Ensures that a parameterized method binding (with a wildcard parameter) doesn't throw a NPE when computing its binding key.
 	 * (regression test for 79967 NPE in WildcardBinding.signature with Mark Occurrences in Collections.class)
@@ -2773,7 +2773,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			}
 		});
 	}
-	
+
 	/*
 	 * Check bindings for annotation type declaration
 	 */
@@ -2801,7 +2801,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", methodBinding);
 		assertEquals("Wrong name", "id", methodBinding.getName());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80960
 	 */
@@ -2829,7 +2829,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=81023
 	 */
@@ -2858,7 +2858,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IJavaElement element = typeBinding.getJavaElement();
 		assertNotNull("No java element", element);
 	}
-	
+
 
 	public void test0094() throws JavaModelException {
 		String contents =
@@ -2888,7 +2888,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 	}
-	
+
 	/*
 	 * Ensures that resolving a generic method with a non existing parameter type doesn't throw a NPE when computing its binding key.
 	 * (regression test for 81134 [dom] [5.0] NPE when creating AST
@@ -2896,9 +2896,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0095() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
-			"public class X {\n" + 
-			"   /*start*/<T> void foo(NonExisting arg) {\n" + 
-			"   }/*end*/\n" + 
+			"public class X {\n" +
+			"   /*start*/<T> void foo(NonExisting arg) {\n" +
+			"   }/*end*/\n" +
 			"}",
 			this.workingCopy,
 			false);
@@ -2907,7 +2907,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			null,
 			binding);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82140
 	 */
@@ -2938,7 +2938,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not an annotation", modifier instanceof Annotation);
 		checkSourceRange((Annotation) modifier, "@An1(value=\"X\")", contents.toCharArray());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82140
 	 */
@@ -2968,7 +2968,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
 		assertTrue("Not an annotation", modifier instanceof Annotation);
 		checkSourceRange((Annotation) modifier, "@An2", contents.toCharArray());
-		
+
 		node = getASTNode(compilationUnit, 3, 0);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
@@ -2987,7 +2987,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not an annotation", modifier instanceof Annotation);
 		checkSourceRange((Annotation) modifier, "@An3", contents.toCharArray());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82140
 	 */
@@ -3008,7 +3008,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		List modifiers = typeDeclaration.modifiers();
 		assertEquals("Wrong size", 0, modifiers.size());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82141
 	 */
@@ -3069,7 +3069,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		binding = annotation.resolveTypeBinding();
 		assertNotNull("No binding", binding);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82216
 	 */
@@ -3100,7 +3100,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("no binding", variableBinding);
 		assertNull("is constant", variableBinding.getConstantValue());
 		assertTrue("Not an enum constant", variableBinding.isEnumConstant());
-		
+
 		node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
@@ -3109,7 +3109,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		assertEquals("wrong name", "D", fragment.getName().getIdentifier());
 		variableBinding = fragment.resolveBinding();
-		assertNotNull("no binding", variableBinding);			
+		assertNotNull("no binding", variableBinding);
 		assertFalse("An enum constant", variableBinding.isEnumConstant());
 
 		node = getASTNode(compilationUnit, 0, 1);
@@ -3120,10 +3120,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		fragment = (VariableDeclarationFragment) fragments.get(0);
 		assertEquals("wrong name", "F", fragment.getName().getIdentifier());
 		variableBinding = fragment.resolveBinding();
-		assertNotNull("no binding", variableBinding);	
+		assertNotNull("no binding", variableBinding);
 		assertNotNull("is constant", variableBinding.getConstantValue());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68823
 	 */
@@ -3149,7 +3149,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(assertStatement.getMessage(), "(\"hello\")", source);
 		checkSourceRange(assertStatement, "assert (true): (\"hello\");", source);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82670
 	 */
@@ -3175,7 +3175,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
 		checkSourceRange(fragment, "o= new HashMap<?, ?>[0]", contents.toCharArray());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82985
 	 */
@@ -3202,26 +3202,26 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		binding = simpleName.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong type", IBinding.VARIABLE, binding.getKind());
-		
+
 		Name name2 = qualifiedName.getQualifier();
 		binding = name2.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
-		
+
 		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name2.getNodeType());
 		qualifiedName = (QualifiedName) name2;
 		simpleName = qualifiedName.getName();
 		binding = simpleName.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
-		
+
 		Name name3 = qualifiedName.getQualifier();
 		binding = name3.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
-		
+
 		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name3.getNodeType());
-		
+
 		importDeclaration = (ImportDeclaration) imports.get(1);
 		binding = importDeclaration.resolveBinding();
 		assertNotNull("No binding", binding);
@@ -3248,14 +3248,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		binding = simpleName.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong type", IBinding.TYPE, binding.getKind());
-		
+
 		name2 = qualifiedName.getQualifier();
 		binding = name2.resolveBinding();
 		assertNotNull("No binding", binding);
 		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
 		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name2.getNodeType());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82985
 	 */
@@ -3304,7 +3304,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		binding = name.resolveTypeBinding();
 		assertNotNull("No binding", binding);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83011
 	 */
@@ -3344,7 +3344,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", binding);
 		name = qualifiedName.getQualifier();
 		binding = name.resolveBinding();
-		assertNotNull("No binding", binding);			
+		assertNotNull("No binding", binding);
 		assertEquals("Wrong kind of binding", IBinding.PACKAGE, binding.getKind());
 	}
 
@@ -3371,7 +3371,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		checkSourceRange(node, "@Main(child=@A(\"\")) @A class X {}", contents.toCharArray());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=83228
 	 */
@@ -3402,7 +3402,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclarations.get(0);
 		Type returnType = methodDeclaration.getReturnType2();
 		ITypeBinding typeBinding = returnType.resolveBinding();
-	
+
 		List enumConstants = enumDeclaration.enumConstants();
 		assertEquals("Wrong size", 1, enumConstants.size());
 		EnumConstantDeclaration constantDeclaration = (EnumConstantDeclaration) enumConstants.get(0);
@@ -3420,11 +3420,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
 		SimpleName simpleName = (SimpleName) name;
 		ITypeBinding typeBinding2 = simpleName.resolveTypeBinding();
-		
+
 		assertTrue("Not equals", typeBinding.isEqualTo(typeBinding2));
 		assertTrue("Not identical", typeBinding == typeBinding2);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=883297
 	 */
@@ -3449,7 +3449,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMethodBinding[] methods = typeBinding.getDeclaredMethods();
 		assertEquals("Wrong size", 2, methods.length);
 	}
-	
+
 	/*
 	 * Ensures that the type declaration of a top level type binding is correct.
 	 */
@@ -3729,7 +3729,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"Ljava/lang/Class<Ljava/lang/Class;+LX;:TE;>;",
 			binding);
 	}
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83817
     public void test0127() throws CoreException {
         this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -3766,11 +3766,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
         assertFalse("Keys are equals", methodBinding.getKey().equals(methodBinding2.getKey()));
         assertFalse("bindings are equals", methodBinding.isEqualTo(methodBinding2));
     }
-    
+
    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84064
     public void test0128() throws CoreException {
         this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-        final String contents = 
+        final String contents =
         	"class X {\n" +
             "	static X x;\n" +
             "\n" +
@@ -3806,11 +3806,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
         SuperConstructorInvocation constructorInvocation = (SuperConstructorInvocation) statement;
         checkSourceRange(constructorInvocation, "x.<String> super();", source);
     }
-    
+
    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84064
     public void test0129() throws CoreException {
         this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-        final String contents = 
+        final String contents =
         	"class X {\n" +
         	"	static X x;\n" +
         	"	static class G extends E {\n" +
@@ -3851,7 +3851,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=78934
     public void test0130() throws CoreException {
         this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-        final String contents = 
+        final String contents =
         	"class Outer<A> {\n" +
         	"	class Inner {\n" +
         	"		class InnerInner<C> {\n" +
@@ -3919,7 +3919,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding);
 		assertEquals("Wrong qualified name 8", "Outer", typeBinding.getQualifiedName());
    }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84140
     public void test0131() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -3956,7 +3956,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Not equals", parameterType.getComponentType() == parameterType.getElementType());
     	assertEquals("wrong dimension", 1, parameterType.getDimensions());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84140
     public void test0132() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -3998,7 +3998,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
 		ITypeBinding parameterType = parameterTypes[0];
     	assertTrue("Not an array binding", parameterType.isArray());
-       	assertEquals("wrong dimension", 3, parameterType.getDimensions());		
+       	assertEquals("wrong dimension", 3, parameterType.getDimensions());
        	ITypeBinding componentType = parameterType.getComponentType();
        	assertEquals("wrong dimension", 2, componentType.getDimensions());
        	assertTrue("Not equal", parameterType.getElementType() == componentType.getElementType());
@@ -4006,7 +4006,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
        	assertEquals("wrong dimension", 1, componentType2.getDimensions());
        	assertTrue("Not equal", parameterType.getElementType() == componentType2.getElementType());
      }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84181
     public void test0133() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4034,7 +4034,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Not a raw type", typeBinding.isRawType());
     	assertFalse("From source", typeBinding.isFromSource());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84181
     public void test0134() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4060,7 +4060,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
     	assertFalse("From source", typeBinding.isFromSource());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=78934
     public void test0135() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4090,7 +4090,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		}
     	});
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=78934
     public void test0136() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4119,7 +4119,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		}
     	});
     }
-    
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=79696
 	 */
@@ -4166,9 +4166,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
     	assertProblemsSize(compilationUnit, 4,
-    		"URL cannot be resolved to a type\n" + 
-			"URL cannot be resolved to a type\n" + 
-			"URL cannot be resolved to a type\n" + 
+    		"URL cannot be resolved to a type\n" +
+			"URL cannot be resolved to a type\n" +
+			"URL cannot be resolved to a type\n" +
 			"URL cannot be resolved to a type");
     	compilationUnit.accept(new ASTVisitor() {
     		public boolean visit(ParameterizedType type) {
@@ -4179,7 +4179,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		}
     	});
     }
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84358
 	 */
@@ -4221,7 +4221,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IPackageBinding packageBinding = (IPackageBinding) binding;
 		assertEquals("wrong name", "test0139a", packageBinding.getName());
 	}
-	
+
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85115
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85215
@@ -4245,7 +4245,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = markerAnnotation.resolveTypeBinding();
 		assertTrue("Not an annotation", typeBinding.isAnnotation());
 		assertTrue("Not a top level type", typeBinding.isTopLevel());
-		
+
 		sourceUnit = getCompilationUnit("Converter15" , "src", "test0140", "Annot.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		result = runJLS3Conversion(sourceUnit, true, false);
 		assertNotNull(result);
@@ -4262,16 +4262,16 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		int modifierValue = typeBinding.getModifiers();
 		assertEquals("Type is not public", Modifier.PUBLIC, modifierValue);
 	}
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83100
 	public void test0141() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	final String contents =
     		"public class X<T> {\n" +
     		"	int x;\n" +
- 			"	public static void main(String[] args) {\n" + 
-			"		System.out.println(new X<String>().x);\n" + 
-			"	}\n" + 
+ 			"	public static void main(String[] args) {\n" +
+			"		System.out.println(new X<String>().x);\n" +
+			"	}\n" +
     		"}";
     	ASTNode node = buildAST(
 			contents,
@@ -4307,16 +4307,16 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		node = compilationUnit.findDeclaringNode(variableBinding2);
 		assertNotNull("No declaring node", node);
     }
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83100
 	public void test0142() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	final String contents =
     		"public class X<T> {\n" +
- 			"	public static void main(String[] args) {\n" + 
+ 			"	public static void main(String[] args) {\n" +
    			"		int x = 0;\n" +
- 			"		System.out.println(x);\n" + 
-			"	}\n" + 
+ 			"		System.out.println(x);\n" +
+			"	}\n" +
     		"}";
     	ASTNode node = buildAST(
 			contents,
@@ -4338,7 +4338,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Not a parameter", variableBinding2.isParameter());
 		assertTrue("Bindings are equals", variableBinding.isEqualTo(variableBinding2));
     }
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84140
     public void test0143() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4378,24 +4378,24 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
 		ITypeBinding parameterType = parameterTypes[0];
     	assertTrue("Not an array binding", parameterType.isArray());
-    	assertEquals("wrong dimension", 2, parameterType.getDimensions());		
+    	assertEquals("wrong dimension", 2, parameterType.getDimensions());
     }
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87171
     public void test0144() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"public class X<T> {\n" + 
-    		"	void foo(T t) {\n" + 
-    		"		System.out.println(t);\n" + 
-    		"	}\n" + 
-    		"}\n" + 
-    		"\n" + 
-    		"class Use {\n" + 
-    		"	public static void main(String[] args) {\n" + 
-    		"		X<String> i= null;\n" + 
-    		"		i.foo(\"Eclipse\");\n" + 
-    		"	}\n" + 
+    		"public class X<T> {\n" +
+    		"	void foo(T t) {\n" +
+    		"		System.out.println(t);\n" +
+    		"	}\n" +
+    		"}\n" +
+    		"\n" +
+    		"class Use {\n" +
+    		"	public static void main(String[] args) {\n" +
+    		"		X<String> i= null;\n" +
+    		"		i.foo(\"Eclipse\");\n" +
+    		"	}\n" +
     		"}";
     	ASTNode node = buildAST(
 				contents,
@@ -4414,15 +4414,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		node = compilationUnit.findDeclaringNode(methodBinding);
 		assertNotNull("No declaring node", node);
     }
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87350
     public void test0145() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"public enum X {\n" + 
-    		"    RED, GREEN(), BLUE(17), PINK(1) {/*anon*};\n" + 
-    		"    Color() {}\n" + 
-    		"    Color(int i) {}\n" + 
+    		"public enum X {\n" +
+    		"    RED, GREEN(), BLUE(17), PINK(1) {/*anon*};\n" +
+    		"    Color() {}\n" +
+    		"    Color(int i) {}\n" +
     		"}";
     	ASTNode node = buildAST(
 				contents,
@@ -4431,22 +4431,22 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertNotNull("No node", node);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
-		String expectedErrors = "The constructor X(int) is undefined\n" + 
-			"The constructor X(int) is undefined\n" + 
+		String expectedErrors = "The constructor X(int) is undefined\n" +
+			"The constructor X(int) is undefined\n" +
 			"Unexpected end of comment";
     	assertProblemsSize(compilationUnit, 3, expectedErrors);
     }
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87481
     public void test0146() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"import java.util.Iterator;\n" + 
-    		"public class X {\n" + 
-    		"    void doit() {\n" + 
-    		"			Iterator iter= (Iterator) null;\n" + 
-    		"			System.out.println(iter);\n" + 
-    		"    }\n" + 
+    		"import java.util.Iterator;\n" +
+    		"public class X {\n" +
+    		"    void doit() {\n" +
+    		"			Iterator iter= (Iterator) null;\n" +
+    		"			System.out.println(iter);\n" +
+    		"    }\n" +
     		"}";
     	ASTNode node = buildAST(
 				contents,
@@ -4456,7 +4456,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
     	String expectedProblems =
-    		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
+    		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" +
     		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized";
     	assertProblemsSize(compilationUnit, 2, expectedProblems);
 		node = getASTNode(compilationUnit, 0, 0, 0);
@@ -4476,7 +4476,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Is a generic type", typeBinding.isGenericType());
 		assertFalse("Is a parameterized type", typeBinding.isParameterizedType());
     }
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87498
     public void test0147() throws CoreException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0147", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4485,14 +4485,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
     }
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87350
     public void test0148() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"public enum X {\n" + 
-    		"    RED, GREEN(), BLUE(17), PINK(1) {/*anon*};\n" + 
-    		"    Color() {}\n" + 
+    		"public enum X {\n" +
+    		"    RED, GREEN(), BLUE(17), PINK(1) {/*anon*};\n" +
+    		"    Color() {}\n" +
     		"    Color(int i) {}\n";
     	ASTNode node = buildAST(
 				contents,
@@ -4501,12 +4501,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertNotNull("No node", node);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
-		String expectedErrors = "The constructor X(int) is undefined\n" + 
-			"The constructor X(int) is undefined\n" + 
+		String expectedErrors = "The constructor X(int) is undefined\n" +
+			"The constructor X(int) is undefined\n" +
 			"Unexpected end of comment";
     	assertProblemsSize(compilationUnit, 3, expectedErrors);
     }
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88252
     public void test0149() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4589,7 +4589,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(annotation4, "@Jpf.ValidateMinLength(chars=\"12\")", contents);
 		checkSourceRange(memberValuePair3, "validateMinLength=@Jpf.ValidateMinLength(chars=\"12\")", contents);
    }
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88224
     public void test0150() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4630,15 +4630,15 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		enumConstantDeclaration = (EnumConstantDeclaration) enumConstants.get(1);
 		checkSourceRange(enumConstantDeclaration, "B", contents);
    }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
     public void test0151() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-	   		"public enum X {\n" + 
-    		"	RED, GREEN(), BLUE(17);\n" + 
-    		"	X() {}\n" + 
-    		"	X(int i) {}\n" + 
+	   		"public enum X {\n" +
+    		"	RED, GREEN(), BLUE(17);\n" +
+    		"	X() {}\n" +
+    		"	X(int i) {}\n" +
     		"	public static void main(String[] args) {\n" +
     		"		for (X x : X.values()) {\n" +
     		"			switch(x) {\n" +
@@ -4693,12 +4693,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Expression expression = switchCase.getExpression();
 		assertNull("Got a constant", expression.resolveConstantExpressionValue());
    }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
     public void test0152() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-	   		"public class X {\n" + 
+	   		"public class X {\n" +
 	   		"	public static final int CONST1 = 1;\n" +
 	   		"	public static final int CONST2 = 2;\n" +
     		"	public static void main(String[] args) {\n" +
@@ -4758,7 +4758,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No constant", constant);
 		assertEquals("Wrong value", "1", String.valueOf(constant));
    }
-	
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88841
     public void test0153() throws CoreException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0153", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4767,7 +4767,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
     public void test0154() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4787,7 +4787,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not boxed", literal.resolveBoxing());
 		assertFalse("Is unboxed", literal.resolveUnboxing());
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
     public void test0155() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4808,7 +4808,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not boxed", methodInvocation.resolveBoxing());
 		assertFalse("Is unboxed", methodInvocation.resolveUnboxing());
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
     public void test0156() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4828,7 +4828,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Is boxed", classInstanceCreation.resolveBoxing());
 		assertTrue("Not unboxed", classInstanceCreation.resolveUnboxing());
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
     public void test0157() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4847,13 +4847,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		NullLiteral nullLiteral = (NullLiteral) node;
 		assertNull("Got a constant", nullLiteral.resolveConstantExpressionValue());
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
     public void test0158() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
 				"public class X {\n" +
-				"	private static final String CONST = \"Hello World\";\n" + 
+				"	private static final String CONST = \"Hello World\";\n" +
 				"	public static void main(String[] s) {\n" +
 				"		System.out.println(/*start*/CONST/*end*/);\n" +
 				"	}\n" +
@@ -4866,7 +4866,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SimpleName name = (SimpleName) node;
 		assertNotNull("No constant", name.resolveConstantExpressionValue());
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
     public void test0159() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4886,7 +4886,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Is boxed", classInstanceCreation.resolveBoxing());
 		assertFalse("Is unboxed", classInstanceCreation.resolveUnboxing());
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
     public void test0160() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -4975,7 +4975,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Is boxed", argument.resolveBoxing());
 		assertFalse("Is unboxed", argument.resolveUnboxing());
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=87173
     public void test0162() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -5036,7 +5036,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a generic class", declaringClass.isGenericType());
 		assertEquals("Wrong name", "X", declaringClass.getName());
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86580
     public void test0164() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -5066,7 +5066,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "foo", methodBinding.getName());
 		assertTrue("Not a generic method", methodBinding.isGenericMethod());
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86580
     public void test0165() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -5095,7 +5095,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMethodBinding declaringMethod = typeBinding.getDeclaringMethod();
 		assertNotNull("No declaring method", declaringMethod);
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=86580
     public void test0166() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -5140,7 +5140,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SingleVariableDeclaration param = (SingleVariableDeclaration)parameters.get(3);
 		Type t = param.getType();
 		String typeName = ((SimpleType)t).getName().getFullyQualifiedName();
-		
+
 		IType[] types = sourceUnit.getTypes();
 		assertEquals("wrong size", 2, types.length);
 		IType mainType = types[1];
@@ -5157,11 +5157,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		final String contents =
 				"import java.util.List;\n" +
-				"public class X {\n" + 
+				"public class X {\n" +
 				"	void f() {\n" +
 				"		List<?> list = null;\n" +
 				"		System.out.println(list);\n" +
-				"    }\n" + 
+				"    }\n" +
 				"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -5193,13 +5193,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0169() throws CoreException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-				"public class X {\n" + 
-				"    static class BB<T, S> { }\n" + 
-				"    static class BD<T> extends BB<T, T> { }\n" + 
-				"    void f() {\n" + 
-				"        BB<? extends Number, ? super Integer> bb = null;\n" + 
-				"        Object o = (BD<Number>) bb;\n" + 
-				"    }\n" + 
+				"public class X {\n" +
+				"    static class BB<T, S> { }\n" +
+				"    static class BD<T> extends BB<T, T> { }\n" +
+				"    void f() {\n" +
+				"        BB<? extends Number, ? super Integer> bb = null;\n" +
+				"        Object o = (BD<Number>) bb;\n" +
+				"    }\n" +
 				"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -5234,13 +5234,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0170() throws CoreException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-				"public class X {\n" + 
-				"    static class BB<T, S> { }\n" + 
-				"    static class BD<T> extends BB<T, T> { }\n" + 
-				"    static BB<? extends Number, ? super Integer> bb = null;\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        System.out.println(/*start*/X.bb/*end*/);\n" + 
-				"    }\n" + 
+				"public class X {\n" +
+				"    static class BB<T, S> { }\n" +
+				"    static class BD<T> extends BB<T, T> { }\n" +
+				"    static BB<? extends Number, ? super Integer> bb = null;\n" +
+				"    public static void main(String[] args) {\n" +
+				"        System.out.println(/*start*/X.bb/*end*/);\n" +
+				"    }\n" +
 				"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -5266,10 +5266,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0171() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-				"public class X {\n" + 
-				"\n" + 
-				"    java.util.List<? extends Runnable> list;\n" + 
-				"    Object o= /*start*/list/*end*/;\n" + 
+				"public class X {\n" +
+				"\n" +
+				"    java.util.List<? extends Runnable> list;\n" +
+				"    Object o= /*start*/list/*end*/;\n" +
 				"}\n";
 	   	ASTNode node = buildAST(
 				contents,
@@ -5278,7 +5278,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding type = ((SimpleName)node).resolveTypeBinding();
 		assertNull("Unexpected element", type.getTypeArguments()[0].getJavaElement());
 	}
-	
+
 	/*
 	 * Ensures that 2 different capture bindings are not "isEqualTo(...)".
 	 * (regression test for bug 92888 ITypeBinding#isEqualTo(..) is wrong for capture bindings)
@@ -5286,35 +5286,35 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0172() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-			"public class X<T> {\n" + 
-			"  private static X<? super Number> num() {\n" + 
-			"		return null;\n" + 
+			"public class X<T> {\n" +
+			"  private static X<? super Number> num() {\n" +
+			"		return null;\n" +
 			"	}\n" +
 			"  void add(T t) {\n" +
 			"  }\n" +
-			"  void foo() {\n" + 
-			"    Number n= null;\n" + 
-			"    /*start1*/num().add(null)/*end1*/;\n" + 
-			"    /*start2*/num().add(n)/*end2*/;\n" + 
+			"  void foo() {\n" +
+			"    Number n= null;\n" +
+			"    /*start1*/num().add(null)/*end1*/;\n" +
+			"    /*start2*/num().add(n)/*end2*/;\n" +
 			"  }\n" +
 			"}\n";
 	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
 	   	assertTrue("2 different capture bindings should not be equals", !bindings[0].isEqualTo(bindings[1]));
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93093
 	 */
 	public void test0173() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-				"import java.util.Vector;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	void test1() {\n" + 
-				"		Vector<? extends Number[]> v = null;\n" + 
-				"		 /*start*/v.get(0)/*end*/;\n" + 
-				"	}\n" + 
+				"import java.util.Vector;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	void test1() {\n" +
+				"		Vector<? extends Number[]> v = null;\n" +
+				"		 /*start*/v.get(0)/*end*/;\n" +
+				"	}\n" +
 				"}\n";
 	   	ASTNode node = buildAST(
 				contents,
@@ -5322,8 +5322,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding type = ((Expression)node).resolveTypeBinding();
 		assertTrue("Should be one bound", type.getTypeBounds().length == 1);
 		assertEquals("Invalid bound", "[Ljava.lang.Number;", type.getTypeBounds()[0].getBinaryName());
-	}	
-	
+	}
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=88202
@@ -5331,13 +5331,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0174() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-				"import java.util.*;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	void test1() {\n" + 
-				"		List<? extends Collection> l = null;\n" + 
-				"		 /*start*/l.get(0)/*end*/;\n" + 
-				"	}\n" + 
+				"import java.util.*;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	void test1() {\n" +
+				"		List<? extends Collection> l = null;\n" +
+				"		 /*start*/l.get(0)/*end*/;\n" +
+				"	}\n" +
 				"}\n";
 	   	ASTNode node = buildAST(
 				contents,
@@ -5346,28 +5346,28 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding type = ((Expression)node).resolveTypeBinding();
 		assertTrue("Should be one bound", type.getTypeBounds().length == 1);
 		assertEquals("Invalid bound", "java.util.Collection", type.getTypeBounds()[0].getBinaryName());
-	}		
-	
+	}
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=88202
 	 */
 	public void test0175() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-				"import java.util.*;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	void test1() {\n" + 
-				"		List<?> l = null;\n" + 
-				"		 /*start*/l.get(0)/*end*/;\n" + 
-				"	}\n" + 
+				"import java.util.*;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	void test1() {\n" +
+				"		List<?> l = null;\n" +
+				"		 /*start*/l.get(0)/*end*/;\n" +
+				"	}\n" +
 				"}\n";
 	   	ASTNode node = buildAST(
 				contents,
     			this.workingCopy);
 		ITypeBinding type = ((Expression)node).resolveTypeBinding();
 		assertTrue("Should be no bound", type.getTypeBounds().length == 0);
-	}			
+	}
 
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982
@@ -5375,13 +5375,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0176() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-				"import java.util.*;\n" + 
-				"\n" + 
-				"public class X<T extends Collection> {\n" + 
-				"	void test1() {\n" + 
-				"		List<T> l = null;\n" + 
-				"		 /*start*/l.get(0)/*end*/;\n" + 
-				"	}\n" + 
+				"import java.util.*;\n" +
+				"\n" +
+				"public class X<T extends Collection> {\n" +
+				"	void test1() {\n" +
+				"		List<T> l = null;\n" +
+				"		 /*start*/l.get(0)/*end*/;\n" +
+				"	}\n" +
 				"}\n";
 	   	ASTNode node = buildAST(
 				contents,
@@ -5390,8 +5390,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding type = ((Expression)node).resolveTypeBinding();
 		assertTrue("Should be one bound", type.getTypeBounds().length == 1);
 		assertEquals("Invalid bound", "java.util.Collection", type.getTypeBounds()[0].getBinaryName());
-	}			
-	
+	}
+
 	/*
 	 * Ensure that the declaring class of a capture binding is correct
 	 * (https://bugs.eclipse.org/bugs/show_bug.cgi?id=93275)
@@ -5399,13 +5399,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
     public void test0177() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
    		String contents =
-				"public class X<T> {\n" + 
-				"    Object foo(X<?> list) {\n" + 
-				"       return /*start*/list.get()/*end*/;\n" + 
-				"    }\n" + 
-				"    T get() {\n" + 
-				"    	return null;\n" + 
-				"    }\n" + 
+				"public class X<T> {\n" +
+				"    Object foo(X<?> list) {\n" +
+				"       return /*start*/list.get()/*end*/;\n" +
+				"    }\n" +
+				"    T get() {\n" +
+				"    	return null;\n" +
+				"    }\n" +
 				"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -5458,7 +5458,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	   	wildcardType = (WildcardType) typeArgument;
 	   	checkSourceRange(wildcardType, "? super java.lang.Number", contents);
     }
-    
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93075
 	 */
@@ -5480,7 +5480,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
 	   	assertTrue("Not a marker annotation", modifier instanceof MarkerAnnotation);
     }
-    
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92360
 	 */
@@ -5500,7 +5500,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a wildcard type", typeBinding.isWildcardType());
 		assertFalse("Not an class", typeBinding.isClass());
     }
-    
+
 	/*
 	 * Ensures that 2 different parameterized type bindings are not "isEqualTo(...)".
 	 * (regression test for bug 93408 ITypeBinding#isEqualTo(..) does not resolve type variables)
@@ -5508,18 +5508,18 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0181() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-			"public class X<E> {\n" + 
-			"	/*start1*/Y<E>/*end1*/ y;\n" + 
-			"	static class Other<E> {\n" + 
-			"		/*start2*/Y<E>/*end2*/ y;\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class Y<E> {\n" + 
+			"public class X<E> {\n" +
+			"	/*start1*/Y<E>/*end1*/ y;\n" +
+			"	static class Other<E> {\n" +
+			"		/*start2*/Y<E>/*end2*/ y;\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y<E> {\n" +
 			"}";
 	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
 	   	assertTrue("2 different parameterized type bindings should not be equals", !bindings[0].isEqualTo(bindings[1]));
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=95911
 	 */
@@ -5550,7 +5550,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"		}";
     	checkSourceRange(fragment, expectedSource, contents);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=95911
 	 */
@@ -5579,7 +5579,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"	}";
     	checkSourceRange(fragment, expectedSource, contents);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=97841
 	 */
@@ -5607,7 +5607,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	ITypeBinding binding = initializer.resolveTypeBinding();
     	assertNotNull("No binding", binding);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98086
 	 */
@@ -5619,7 +5619,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		final CompilationUnit compilationUnit = (CompilationUnit) result;
 	   	assertProblemsSize(compilationUnit, 0);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98086
 	 */
@@ -5629,10 +5629,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		final ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		final CompilationUnit compilationUnit = (CompilationUnit) result;
-	   	assertProblemsSize(compilationUnit, 2, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>\n" + 
+	   	assertProblemsSize(compilationUnit, 2, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>\n" +
 	   			"ArrayList is a raw type. References to generic type ArrayList<T> should be parameterized");
 	}
-	
+
 	/*
 	 * Ensures that the binding key of a parameterized type can be computed when it contains a reference to a type variable.
 	 * (regression test for bug 98259 NPE computing ITypeBinding#getKey())
@@ -5656,7 +5656,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     		"LX~Y<LX;:1TT;>;",
     		type.resolveBinding());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98473
 	 */
@@ -5689,34 +5689,34 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
 			addLibrary(project, "lib.jar", "src.zip", new String[] {
 				"/P1/p/I1.java",
-				"package p;\n" + 
-				"public class I1<E> {\n" + 
+				"package p;\n" +
+				"public class I1<E> {\n" +
 				"}",
 				"/P1/p/I2.java",
-				"package p;\n" + 
-				"public interface I2<K, V> {\n" + 
-				"	interface I3<K,V> {}\n" + 
-				"	I1<I2.I3<K, V>> foo();\n" + 
+				"package p;\n" +
+				"public interface I2<K, V> {\n" +
+				"	interface I3<K,V> {}\n" +
+				"	I1<I2.I3<K, V>> foo();\n" +
 				"}",
 				"/P1/p/X.java",
-				"package p;\n" + 
-				"public class X<K,V>  implements I2<K,V> {\n" + 
-				"	public I1<I2.I3<K,V>> foo() {\n" + 
-				"		return null;\n" + 
-				"	}	\n" + 
+				"package p;\n" +
+				"public class X<K,V>  implements I2<K,V> {\n" +
+				"	public I1<I2.I3<K,V>> foo() {\n" +
+				"		return null;\n" +
+				"	}	\n" +
 				"}"
 			}, "1.5");
 			this.workingCopy = getWorkingCopy("/P1/p1/Y.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				"package p1;\n" +
-				"import p.*;\n" + 
-				"public abstract class Y implements I2 {\n" + 
-				"	public I1 foo() {\n" + 
-				"		return /*start*/bar().foo()/*end*/;\n" + 
-				"	}\n" + 
-				"	private X bar() {\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
+				"import p.*;\n" +
+				"public abstract class Y implements I2 {\n" +
+				"	public I1 foo() {\n" +
+				"		return /*start*/bar().foo()/*end*/;\n" +
+				"	}\n" +
+				"	private X bar() {\n" +
+				"		return null;\n" +
+				"	}\n" +
 				"}",
 				this.workingCopy,
 				false);
@@ -5729,7 +5729,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			deleteProject("P1");
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99355
 	public void test0190() throws CoreException, IOException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -5783,7 +5783,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	List modifiers = statement.modifiers();
     	assertEquals("Wrong size", 2, modifiers.size());
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99510
 	public void test0191() throws CoreException, IOException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0191", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5817,12 +5817,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0192() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-			"public class X<E> {\n" + 
-			"	public static class InnerClass {\n" + 
-			"		static class InnerInnerClass {\n" + 
-			"			/*start*/X.WrongInnerClass/*end*/.InnerInnerClass m;\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"public class X<E> {\n" +
+			"	public static class InnerClass {\n" +
+			"		static class InnerInnerClass {\n" +
+			"			/*start*/X.WrongInnerClass/*end*/.InnerInnerClass m;\n" +
+			"		}\n" +
+			"	}\n" +
 			"}";
 	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy, false/*don't report errors*/);
 	   	if (bindings[0] != null) {
@@ -5830,14 +5830,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		   	try {
 		   		bindings[0].toString();
 		   		fail("should get an exception if bug 100584 present");
-		   		// which means that the code would now return a non null, 
+		   		// which means that the code would now return a non null,
 		   		// erroneous binding, yet able to respond to toString
 		   	} catch (Throwable t) {/* absorb quietly */}
 	   	}
-	   	assertTrue("should yield a null, not a malformed binding", 
+	   	assertTrue("should yield a null, not a malformed binding",
 	   			bindings[0] == null);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=104492
 	public void test0193() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -5865,7 +5865,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	ArrayType arrayType = (ArrayType) type;
     	assertEquals("Should be 1", 1, arrayType.getDimensions());
     }
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=104492
 	public void test0194() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -5893,7 +5893,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	ArrayType arrayType = (ArrayType) type;
     	assertEquals("Should be 1", 1, arrayType.getDimensions());
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106834
 	public void test0195() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
@@ -5912,12 +5912,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
     	MethodDeclaration methodDeclaration = (MethodDeclaration) node;
     	IMethodBinding methodBinding = methodDeclaration.resolveBinding();
-    	
+
     	node = getASTNode(unit, 0, 1);
     	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
     	MethodDeclaration methodDeclaration2 = (MethodDeclaration) node;
     	IMethodBinding methodBinding2 = methodDeclaration2.resolveBinding();
-    	
+
     	node = getASTNode(unit, 0, 2);
     	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
     	MethodDeclaration methodDeclaration3 = (MethodDeclaration) node;
@@ -5933,7 +5933,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Bindings are not equals", methodBinding2.isEqualTo(methodBinding2));
     	assertTrue("Bindings are not equals", methodBinding.isEqualTo(methodBinding));
     }
-	
+
 	/*
 	 * Ensures that the signature of and IBinding representing a local type ends with the local type's simple name.
 	 * (regression test for bug 104879 BindingKey#internalToSignature() returns invalid signature for local type
@@ -5950,14 +5950,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((TypeDeclarationStatement) node).resolveBinding();
 		assertNotNull("No binding", binding);
-		
+
 		String key = binding.getKey();
 		String signature = new BindingKey(key).toSignature();
 		String simpleName = Signature.getSimpleName(Signature.toString(signature));
 		assertEquals("Unexpected simple name", "Y", simpleName);
 	}
 
-	
+
 	/*
 	 * Ensures that creating an AST with binding resolution where there is a problem in a binary
 	 * doesn't throw an NPE
@@ -5985,11 +5985,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			Util.delete(folder.getFolder("p").getFile("Bin.class"));
 	    	this.workingCopy = getWorkingCopy("/P/src/X.java", true/*resolve*/);
 	    	String contents =
-				"public class X {\n" + 
-				"	void bar() throws p.BinSub {\n" + 
-				"	}\n" + 
-				"	</*start*/T/*end*/> void foo() {\n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	void bar() throws p.BinSub {\n" +
+				"	}\n" +
+				"	</*start*/T/*end*/> void foo() {\n" +
+				"	}\n" +
 				"}";
 		   	IBinding[] bindings = resolveBindings(contents, this.workingCopy, false/*don't report errors*/);
 		   	assertBindingsEqual(
@@ -6039,7 +6039,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertFalse("Binding should not be equals", typeBinding.isEqualTo(typeBinding3));
     	assertFalse("Binding should not be equals", typeBinding3.isEqualTo(typeBinding));
     }
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
 	 */
@@ -6103,7 +6103,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	checkSourceRange(type, "byte[]", source);
     	checkSourceRange(parameter, "final byte[] bs", source);
     }
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
 	 */
@@ -6135,7 +6135,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	checkSourceRange(parameter, "final byte bs[]", source);
     	assertTrue("not a primitive type", type.isPrimitiveType());
     }
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
 	 */
@@ -6181,9 +6181,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 */
 	public void test0203() throws CoreException {
 	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-		final String source = "class X<T> {\n" + 
-				"        X<T> list= this;\n" + 
-				"        X<? super T> list2= this;\n" + 
+		final String source = "class X<T> {\n" +
+				"        X<T> list= this;\n" +
+				"        X<? super T> list2= this;\n" +
 				"}";
 		ASTNode node = buildAST(
 			source,
@@ -6211,8 +6211,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	initializer = fragment.getInitializer();
     	typeBinding = initializer.resolveTypeBinding();
     	assertTrue("Not a parameterized binding", typeBinding.isParameterizedType());
-	}	
-	
+	}
+
 	/*
 	 * Ensures that the key of parameterized type binding with a raw enclosing type is correct
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=83064)
@@ -6220,10 +6220,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0204() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"public class X<T> {\n" + 
-    		"	static class Y {\n" + 
-    		"		/*start*/Y/*end*/ y;\n" + 
-    		"	}\n" + 
+    		"public class X<T> {\n" +
+    		"	static class Y {\n" +
+    		"		/*start*/Y/*end*/ y;\n" +
+    		"	}\n" +
     		"}";
 	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
 	   	assertBindingsEqual(
@@ -6238,29 +6238,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0205() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"public class X<E> {\n" + 
-    		"    @I(12)\n" + 
-    		"    @interface I {\n" + 
-    		"        @I(/*start1*/value/*end1*/=13)\n" + 
-    		"        int /*start2*/value/*end2*/();\n" + 
-    		"    }\n" + 
+    		"public class X<E> {\n" +
+    		"    @I(12)\n" +
+    		"    @interface I {\n" +
+    		"        @I(/*start1*/value/*end1*/=13)\n" +
+    		"        int /*start2*/value/*end2*/();\n" +
+    		"    }\n" +
     		"}";
 	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
 	   	assertFalse("Declaration and reference keys should not be the same", bindings[0].getKey().equals(bindings[1].getKey()));
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=120263
 	 */
 	public void test0206() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"public class X {\n" + 
-    		"        public @interface Annot {\n" + 
-    		"        }\n" + 
-    		"        @Annot(newAttrib= {1, 2})\n" + 
-    		"        public void foo() {\n" + 
-    		"        }\n" + 
+    		"public class X {\n" +
+    		"        public @interface Annot {\n" +
+    		"        }\n" +
+    		"        @Annot(newAttrib= {1, 2})\n" +
+    		"        public void foo() {\n" +
+    		"        }\n" +
     		"}";
     	ASTNode node = buildAST(
     			contents,
@@ -6287,17 +6287,17 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = arrayInitializer.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=124716
 	 */
 	public void test0207() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"public class X {\n" + 
-			"    void m() {\n" + 
-			"        new Object() {};\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"    void m() {\n" +
+			"        new Object() {};\n" +
+			"    }\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -6317,14 +6317,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("Should not be null", annotations);
 		assertEquals("Should be empty", 0, annotations.length);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=125807
 	 */
 	public void test0208() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"@Override(x= 1)\n" + 
+			"@Override(x= 1)\n" +
 			"public class X { }";
 		ASTNode node = buildAST(
 				contents,
@@ -6334,7 +6334,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
 		String problems =
-			"The annotation @Override is disallowed for this location\n" + 
+			"The annotation @Override is disallowed for this location\n" +
 			"The attribute x is undefined for the annotation type Override";
 		assertProblemsSize(compilationUnit, 2, problems);
 		node = getASTNode(compilationUnit, 0);
@@ -6349,29 +6349,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, pairs.length);
 		assertNotNull("Should not be null", pairs[0].getValue());
 	}
-	
+
 	public void test0209() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test/V.java", true/*resolve*/);
 		String contents =
-			"package test;\n" + 
-			"import pack.*;\n" + 
-			"public class V {\n" + 
-			"	void bar() {\n" + 
-			"	}\n" + 
-			"	void foo() {\n" + 
-			"		@A3(\n" + 
-			"			annot = @A2(\n" + 
-			"				annot = @A1(value = E.CV, list = new E[] { E.CAV, E.CAV}, clazz = E.class),\n" + 
-			"				value = E.CV,\n" + 
-			"				list = new E[] { E.CAV, E.CAV},\n" + 
-			"				clazz = E.class),\n" + 
-			"			value = E.CV,\n" + 
-			"			list = new E[] { E.CAV, E.CAV},\n" + 
-			"			clazz = E.class)\n" + 
-			"		int x = 0;\n" + 
-			"		System.out.println(x);\n" + 
-			"		System.out.println(x + 1);\n" + 
-			"	}\n" + 
+			"package test;\n" +
+			"import pack.*;\n" +
+			"public class V {\n" +
+			"	void bar() {\n" +
+			"	}\n" +
+			"	void foo() {\n" +
+			"		@A3(\n" +
+			"			annot = @A2(\n" +
+			"				annot = @A1(value = E.CV, list = new E[] { E.CAV, E.CAV}, clazz = E.class),\n" +
+			"				value = E.CV,\n" +
+			"				list = new E[] { E.CAV, E.CAV},\n" +
+			"				clazz = E.class),\n" +
+			"			value = E.CV,\n" +
+			"			list = new E[] { E.CAV, E.CAV},\n" +
+			"			clazz = E.class)\n" +
+			"		int x = 0;\n" +
+			"		System.out.println(x);\n" +
+			"		System.out.println(x + 1);\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -6381,8 +6381,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
 		String problems =
-			"The value for annotation attribute A1.list must be an array initializer\n" + 
-			"The value for annotation attribute A2.list must be an array initializer\n" + 
+			"The value for annotation attribute A1.list must be an array initializer\n" +
+			"The value for annotation attribute A2.list must be an array initializer\n" +
 			"The value for annotation attribute A3.list must be an array initializer";
 		assertProblemsSize(compilationUnit, 3, problems);
 		List imports = compilationUnit.imports();
@@ -6398,14 +6398,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0210() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", false);
 		String contents =
-			"public class X {\n" + 
-			"	void foo(Object r) {\n" + 
-			"		if (r instanceof Future<?>) {\n" + 
-			"			System.out.println(\"TRUE\");\n" + 
-			"		} else {\n" + 
-			"			System.out.println(\"FALSE\");\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	void foo(Object r) {\n" +
+			"		if (r instanceof Future<?>) {\n" +
+			"			System.out.println(\"TRUE\");\n" +
+			"		} else {\n" +
+			"			System.out.println(\"FALSE\");\n" +
+			"		}\n" +
+			"	}\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -6430,9 +6430,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 */
 	public void test0211() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"	void foo(java.util.List<?> tab[]) {\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"	void foo(java.util.List<?> tab[]) {\n" +
+			"    }\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
@@ -6458,9 +6458,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 */
 	public void test0212() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"	void foo(java.util.List<?> tab[][]) {\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"	void foo(java.util.List<?> tab[][]) {\n" +
+			"    }\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
@@ -6481,16 +6481,16 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		checkSourceRange(variableDeclaration.getName(), "tab", contents);
 		assertEquals("wrong number of extra dimensions", 2, variableDeclaration.getExtraDimensions());
 	}
-	
+
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=130528
 	 */
 	public void test0213() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"    int test(String[] strings) {\n" + 
-			"        return strings.length;\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"    int test(String[] strings) {\n" +
+			"        return strings.length;\n" +
+			"    }\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
@@ -6514,29 +6514,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IVariableBinding variableBinding = (IVariableBinding) binding;
 		assertEquals("No annotations", 0, variableBinding.getAnnotations().length);
 	}
-	
+
 	/*
-	 * Check unique instance of generic method bindings 
+	 * Check unique instance of generic method bindings
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=104293
 	 */
 	public void test0214() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-			"public class X {\n" + 
-			"	\n" + 
-			"	<T extends A> T foo(T t) {\n" + 
-			"		return t;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new X().bar();\n" + 
-			"	}\n" + 
-			"	void bar() {\n" + 
-			"		B b1 = foo(new B());\n" + 
-			"		B b2 = foo(new B());\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"\n" + 
-			"class A {}\n" + 
+			"public class X {\n" +
+			"	\n" +
+			"	<T extends A> T foo(T t) {\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().bar();\n" +
+			"	}\n" +
+			"	void bar() {\n" +
+			"		B b1 = foo(new B());\n" +
+			"		B b2 = foo(new B());\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class A {}\n" +
 			"class B extends A {}\n";
 	   	ASTNode node = buildAST(
 				contents,
@@ -6554,7 +6554,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		MethodInvocation invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding = invocation.resolveMethodBinding();
-		
+
 		node = getASTNode(unit, 0, 2, 1);
 		assertEquals("Not a compilation unit", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		statement = (VariableDeclarationStatement) node;
@@ -6565,51 +6565,51 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding2 = invocation.resolveMethodBinding();
-		
+
 		assertTrue("Not identical", methodBinding == methodBinding2);
 	}
-	
+
 	/*
-	 * Check unique instance of generic method bindings 
+	 * Check unique instance of generic method bindings
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=104293
 	 */
 	public void test0215() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-			"public class X {\n" + 
-			"	static <T> T identity(T t) { return t; }\n" + 
-			"\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		String s = \"aaa\";\n" + 
-			"		identity(s);\n" + 
-			"		identity(s);\n" + 
-			"		identity(s);\n" + 
-			"\n" + 
-			"		Object o = new Object();\n" + 
-			"		identity(o);\n" + 
-			"		identity(o);\n" + 
-			"		identity(o);\n" + 
-			"\n" + 
-			"		Throwable t = null;\n" + 
-			"		identity(t);\n" + 
-			"		identity(t);\n" + 
-			"		identity(t);\n" + 
-			"\n" + 
-			"		Exception e = null;\n" + 
-			"		identity(e);\n" + 
-			"		identity(e);\n" + 
-			"		identity(e);\n" + 
-			"\n" + 
-			"		NullPointerException npe = null;\n" + 
-			"		identity(npe);\n" + 
-			"		identity(npe);\n" + 
-			"		identity(npe);\n" + 
-			"\n" + 
-			"		Cloneable c = null;\n" + 
-			"		identity(c);\n" + 
-			"		identity(c);\n" + 
-			"		identity(c);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	static <T> T identity(T t) { return t; }\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = \"aaa\";\n" +
+			"		identity(s);\n" +
+			"		identity(s);\n" +
+			"		identity(s);\n" +
+			"\n" +
+			"		Object o = new Object();\n" +
+			"		identity(o);\n" +
+			"		identity(o);\n" +
+			"		identity(o);\n" +
+			"\n" +
+			"		Throwable t = null;\n" +
+			"		identity(t);\n" +
+			"		identity(t);\n" +
+			"		identity(t);\n" +
+			"\n" +
+			"		Exception e = null;\n" +
+			"		identity(e);\n" +
+			"		identity(e);\n" +
+			"		identity(e);\n" +
+			"\n" +
+			"		NullPointerException npe = null;\n" +
+			"		identity(npe);\n" +
+			"		identity(npe);\n" +
+			"		identity(npe);\n" +
+			"\n" +
+			"		Cloneable c = null;\n" +
+			"		identity(c);\n" +
+			"		identity(c);\n" +
+			"		identity(c);\n" +
+			"	}\n" +
 			"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -6624,7 +6624,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		MethodInvocation invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding = invocation.resolveMethodBinding();
-		
+
 		node = getASTNode(unit, 0, 1, 2);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		statement = (ExpressionStatement) node;
@@ -6640,7 +6640,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding3 = invocation.resolveMethodBinding();
-		
+
 		node = getASTNode(unit, 0, 1, 5);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		statement = (ExpressionStatement) node;
@@ -6656,7 +6656,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding5 = invocation.resolveMethodBinding();
-		
+
 		node = getASTNode(unit, 0, 1, 9);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		statement = (ExpressionStatement) node;
@@ -6704,7 +6704,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding11 = invocation.resolveMethodBinding();
-		
+
 		node = getASTNode(unit, 0, 1, 17);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		statement = (ExpressionStatement) node;
@@ -6727,7 +6727,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		expression = statement.getExpression();
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		invocation = (MethodInvocation) expression;
-		IMethodBinding methodBinding14 = invocation.resolveMethodBinding();		
+		IMethodBinding methodBinding14 = invocation.resolveMethodBinding();
 
 		node = getASTNode(unit, 0, 1, 21);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
@@ -6751,7 +6751,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		expression = statement.getExpression();
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
 		invocation = (MethodInvocation) expression;
-		IMethodBinding methodBinding17 = invocation.resolveMethodBinding();		
+		IMethodBinding methodBinding17 = invocation.resolveMethodBinding();
 
 		assertTrue("method bindings are not equals", methodBinding == methodBinding2);
 		assertTrue("method bindings are not equals", methodBinding2 == methodBinding3);
@@ -6765,26 +6765,26 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("method bindings are not equals", methodBinding15 == methodBinding16);
 		assertTrue("method bindings are not equals", methodBinding17 == methodBinding16);
 	}
-	
+
 	/*
-	 * Check unique instance of generic method bindings 
+	 * Check unique instance of generic method bindings
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=104293
 	 */
 	public void test0216() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-			"class Y<T> {\n" + 
-			"	<T> Class foo(T t) {\n" + 
-			"		return t.getClass();\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"public class X { \n" + 
-			"	 \n" + 
-			"	public static void main(String[] args) { \n" + 
-			"		Class c = new Y().foo(null);\n" + 
-			"		Class c2 = new Y().foo(null);\n" + 
-			"	} \n" + 
-			"}\n" + 
+			"class Y<T> {\n" +
+			"	<T> Class foo(T t) {\n" +
+			"		return t.getClass();\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X { \n" +
+			"	 \n" +
+			"	public static void main(String[] args) { \n" +
+			"		Class c = new Y().foo(null);\n" +
+			"		Class c2 = new Y().foo(null);\n" +
+			"	} \n" +
+			"}\n" +
 			"";
 	   	ASTNode node = buildAST(
 				contents,
@@ -6793,12 +6793,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedOutput =
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
-			"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" +
+			"Y is a raw type. References to generic type Y<T> should be parameterized\n" +
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" +
 			"Y is a raw type. References to generic type Y<T> should be parameterized";
 		assertProblemsSize(unit, 7, expectedOutput);
 		node = getASTNode(unit, 1, 0, 0);
@@ -6827,18 +6827,18 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 		assertTrue("Method bindings are not identical", methodBinding == methodBinding2);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110799
 	 */
 	public void test0217() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-			"class Generic<E> {\n" + 
-			"}\n" + 
-			"public class X {\n" + 
-			"    Generic raw;\n" + 
-			"    java.util.Collection rawCollection;\n" + 
+			"class Generic<E> {\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    Generic raw;\n" +
+			"    java.util.Collection rawCollection;\n" +
 			"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -6847,8 +6847,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedOutput =
-			"Generic is a raw type. References to generic type Generic<E> should be parameterized\n" + 
-			"Collection is a raw type. References to generic type Collection<T> should be parameterized";			
+			"Generic is a raw type. References to generic type Generic<E> should be parameterized\n" +
+			"Collection is a raw type. References to generic type Collection<T> should be parameterized";
 		assertProblemsSize(unit, 2, expectedOutput);
 		node = getASTNode(unit, 1, 0);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
@@ -6856,40 +6856,40 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type type = fieldDeclaration.getType();
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertTrue("isRaw", typeBinding.isRawType());
-		
+
 		node = getASTNode(unit, 1, 1);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		fieldDeclaration = (FieldDeclaration) node;
 		type = fieldDeclaration.getType();
 		ITypeBinding typeBinding2 = type.resolveBinding();
 		assertTrue("isRaw", typeBinding2.isRawType());
-		
+
 		ITypeBinding[] typeParameters = typeBinding.getTypeParameters();
 		assertEquals("Wrong size", 0, typeParameters.length);
-		
+
 		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
 		assertEquals("Wrong size", 0, typeArguments.length);
 
 		typeParameters = typeBinding2.getTypeParameters();
 		assertEquals("Wrong size", 0, typeParameters.length);
-		
+
 		typeArguments = typeBinding2.getTypeArguments();
 		assertEquals("Wrong size", 0, typeArguments.length);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=140318
 	 */
 	public void test0218() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-			"import java.util.List;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	/**\n" + 
-			"	 * @category fo\n" + 
-			"	 */\n" + 
-			"	@Test private int fXoo;\n" + 
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	/**\n" +
+			"	 * @category fo\n" +
+			"	 */\n" +
+			"	@Test private int fXoo;\n" +
 			"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -6920,13 +6920,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0219() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-			"import java.util.List;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	/**\n" + 
-			"	 * @category fo\n" + 
-			"	 */\n" + 
-			"	@Test private int fXoo;\n" + 
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	/**\n" +
+			"	 * @category fo\n" +
+			"	 */\n" +
+			"	@Test private int fXoo;\n" +
 			"}\n" +
 			"class Test {}";
 	   	ASTNode node = buildAST(
@@ -6952,7 +6952,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
 		assertNull("Got a binding", annotationBinding);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=142793
 	 * updated for https://bugs.eclipse.org/bugs/show_bug.cgi?id=143001
@@ -6960,13 +6960,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0220() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"public class X {\n" + 
-			"        void bar(String[] c) {\n" + 
-			"                for(String s: c) {\n" + 
-			"                        try {\n" + 
-			"                        }\n" + 
-			"                }\n" + 
-			"        }\n" + 
+    		"public class X {\n" +
+			"        void bar(String[] c) {\n" +
+			"                for(String s: c) {\n" +
+			"                        try {\n" +
+			"                        }\n" +
+			"                }\n" +
+			"        }\n" +
 			"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -6985,14 +6985,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, statements.size());
 		assertTrue("Recovered", !isRecovered(body));
 		assertFalse("Malformed", isMalformed(body));
-		
+
 		Statement statement = (Statement)statements.get(0);
 		assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, statement.getNodeType());
 		EnhancedForStatement enhancedForStatement = (EnhancedForStatement) statement;
 		Statement forBody = enhancedForStatement.getBody();
 		assertNotNull("No body", forBody);
 		assertEquals("Not a block", ASTNode.BLOCK, forBody.getNodeType());
-		
+
 		statements = ((Block)forBody).statements();
 		assertEquals("Wrong size", 1, statements.size());
 		statement = (Statement)statements.get(0);
@@ -7001,18 +7001,18 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Block finallyBlock = tryStatement.getFinally();
 		assertNotNull("No finally block", finallyBlock);
 		assertTrue("Not recovered", isRecovered(finallyBlock));
-		
-		
+
+
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=147875
 	 */
 	public void test0221() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"import p1.p2.MyEnum;\n" + 
-    		"public class X {\n" + 
+    		"import p1.p2.MyEnum;\n" +
+    		"public class X {\n" +
 			"	MyEnum foo() {\n" +
 			"		return null;\n" +
 			"	}\n" +
@@ -7026,19 +7026,19 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=148797
 	 */
 	public void test0222() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"public class X {\n" + 
-    		"   public void a() {\n" + 
-    		"      Object a = null;\n" + 
-    		"      for (Object o : a.getClass()()) {\n" + 
-    		"      }\n" + 
-    		"   }\n" + 
+    		"public class X {\n" +
+    		"   public void a() {\n" +
+    		"      Object a = null;\n" +
+    		"      for (Object o : a.getClass()()) {\n" +
+    		"      }\n" +
+    		"   }\n" +
     		"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -7047,7 +7047,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     			true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		assertProblemsSize(unit, 2, "Syntax error on token \")\", invalid Name\n" + 
+		assertProblemsSize(unit, 2, "Syntax error on token \")\", invalid Name\n" +
 				"Syntax error, insert \")\" to complete EnhancedForStatementHeader");
 		node = getASTNode(unit, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
@@ -7069,10 +7069,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0223() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"public class X {\n" + 
-    		"    @Zork\n" + 
-    		"    public void foo( ) {\n" + 
-    		"    }\n" + 
+    		"public class X {\n" +
+    		"    @Zork\n" +
+    		"    public void foo( ) {\n" +
+    		"    }\n" +
     		"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -7094,7 +7094,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0224() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"@Zork\n" + 
+    		"@Zork\n" +
     		"public class X {\n" +
     		"}";
 	   	ASTNode node = buildAST(
@@ -7118,8 +7118,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
     		"public class X {\n" +
-    		"    public void foo(@Zork String s) {\n" + 
-    		"    }\n" + 
+    		"    public void foo(@Zork String s) {\n" +
+    		"    }\n" +
     		"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -7157,21 +7157,21 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IAnnotationBinding[] annotations = packageBinding.getAnnotations();
 		assertEquals("Wrong size", 0, annotations.length);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=155115
 	public void test0227() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"import anno.Anno;\n" + 
-    		"import binary.B;\n" + 
-    		"import intf.IFoo;\n" + 
-    		"\n" + 
-    		"public class X extends B {\n" + 
-    		"	@Anno(clz=IFoo.IBar.class)\n" + 
+    		"import anno.Anno;\n" +
+    		"import binary.B;\n" +
+    		"import intf.IFoo;\n" +
+    		"\n" +
+    		"public class X extends B {\n" +
+    		"	@Anno(clz=IFoo.IBar.class)\n" +
     			// the annotation we chase up is not this one, but the one
     			// carried by B#f
     		"	public void f() {}\n" +
-    		"   IFoo.IBar m;\n" + 
+    		"   IFoo.IBar m;\n" +
     		"}";
     	class TestASTRequestor extends ASTRequestor {
     		public ArrayList asts = new ArrayList();
@@ -7221,9 +7221,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Object value = memberValuePairBinding.getValue();
 		assertNotNull("No value", value);
 		assertTrue("Not a type binding", value instanceof ITypeBinding);
-		assertEquals("Wrong qualified name", "intf.IFoo.IBar", 
-				((ITypeBinding) value).getQualifiedName());		
-		IVariableBinding[] fields = 
+		assertEquals("Wrong qualified name", "intf.IFoo.IBar",
+				((ITypeBinding) value).getQualifiedName());
+		IVariableBinding[] fields =
 			declaration.resolveBinding().getDeclaredFields();
 		assertTrue("Bad field definition", fields != null && fields.length == 1);
 		assertEquals("Type binding mismatch", value, fields[0].getType());
@@ -7234,14 +7234,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0228() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
-    		"@interface Ann {\n" + 
-    		"  int foo();\n" + 
-    		"}\n" + 
-    		"@Ann(foo = bar())\n" + 
-    		"public class X {\n" + 
+    		"@interface Ann {\n" +
+    		"  int foo();\n" +
+    		"}\n" +
+    		"@Ann(foo = bar())\n" +
+    		"public class X {\n" +
     		"	public static int bar() {\n" +
     		" 		return 0;\n" +
-    		"	}\n" + 
+    		"	}\n" +
     		"}";
 	   	ASTNode node = buildAST(
 				contents,
@@ -7270,9 +7270,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		binding = pair.getValue().resolveTypeBinding();
 		assertNull("Got a binding", binding);
 		binding = pair.resolveMemberValuePairBinding();
-		assertNotNull("No binding", binding);		
+		assertNotNull("No binding", binding);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=160089
 	 */
@@ -7297,7 +7297,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				this.workingCopy
 			},
 			new String[] {
-				key	
+				key
 			},
 			new ASTRequestor() {
                 public void acceptAST(ICompilationUnit source, CompilationUnit localAst) {
@@ -7332,7 +7332,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Not assignement compatible", typeBinding.isAssignmentCompatible(typeBinding2));
     	assertTrue("Not assignement compatible", typeBinding.isAssignmentCompatible(collectionTypeBinding));
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156352
 	 */
@@ -7348,13 +7348,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			ITypeBinding typeBinding= (ITypeBinding) bindings[0];
 			StringBuffer buffer = new StringBuffer();
 			while (typeBinding != null) {
-				buffer.append(typeBinding.getAnnotations().length);	
+				buffer.append(typeBinding.getAnnotations().length);
 				typeBinding= typeBinding.getSuperclass();
 			}
 			assertEquals("Wrong number of annotations", "000", String.valueOf(buffer));
 		}
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156352
 	 */
@@ -7373,12 +7373,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		StringBuffer buffer = new StringBuffer();
 		while (typeBinding != null) {
-			buffer.append(typeBinding.getAnnotations().length);	
+			buffer.append(typeBinding.getAnnotations().length);
 			typeBinding= typeBinding.getSuperclass();
 		}
 		assertEquals("Wrong number of annotations", "020", String.valueOf(buffer));
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=167958
 	 */
@@ -7389,7 +7389,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			import static java.lang.annotation.RetentionPolicy.*;
 			import java.lang.annotation.Retention;
 			import java.lang.annotation.Target;
-			
+
 			@Target(TYPE)
 			@Retention(RUNTIME)
 			@interface Annot {
@@ -7401,10 +7401,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		 */
 		String contents =
 			"import test0232.X;\n" +
-			"public class A {\n" + 
-			"    X test() {\n" + 
-			"        return null;\n" + 
-			"    }\n" + 
+			"public class A {\n" +
+			"    X test() {\n" +
+			"        return null;\n" +
+			"    }\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/A.java", true/*resolve*/);
 		ASTNode node = buildAST(
@@ -7435,31 +7435,31 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0233() throws JavaModelException {
 		/*
 			package test0233;
-			
+
 			import static java.lang.annotation.ElementType.*;
 			import static java.lang.annotation.RetentionPolicy.*;
-			
+
 			import java.lang.annotation.Retention;
 			import java.lang.annotation.Target;
-			
+
 			@Target(TYPE)
 			@Retention(CLASS)
 			@interface Annot {
 				String message() default "";
 			}
-			
+
 			package test0233;
-			
+
 			@Annot(message="Hello, World!")
 			public class X {
 			}
 		 */
 		String contents =
 			"import test0233.X;\n" +
-			"public class A {\n" + 
-			"    X test() {\n" + 
-			"        return null;\n" + 
-			"    }\n" + 
+			"public class A {\n" +
+			"    X test() {\n" +
+			"        return null;\n" +
+			"    }\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/A.java", true/*resolve*/);
 		ASTNode node = buildAST(
@@ -7487,20 +7487,20 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong key", "message", pairs[0].getName());
 		assertEquals("Wrong value", "Hello, World!", pairs[0].getValue());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=169744
 	 */
 	public void test0234() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"class B {\n" + 
-			"	<T> int m() {\n" + 
-			"		return 0;\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"public class X<T> extends B {\n" + 
-			"	int i = super.<T> m();\n" + 
+			"class B {\n" +
+			"	<T> int m() {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X<T> extends B {\n" +
+			"	int i = super.<T> m();\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -7518,7 +7518,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Expression expression = fragment.getInitializer();
 		checkSourceRange(expression, "super.<T> m()", contents);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=172633
 	 */
@@ -7526,7 +7526,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0235/X.java", true/*resolve*/);
 		String contents =
 			"package test0235;\n" +
-			"public class X implements I {\n" + 
+			"public class X implements I {\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -7534,7 +7534,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		String expectedProblems = "The hierarchy of the type X is inconsistent\n" + 
+		String expectedProblems = "The hierarchy of the type X is inconsistent\n" +
 		"The type test0235.Zork cannot be resolved. It is indirectly referenced from required .class files";
 		assertProblemsSize(unit, 2, expectedProblems);
 		node = getASTNode(unit, 0);
@@ -7557,7 +7557,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	public void test0236() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
-			"public class X implements Runnable, Zork {\n" + 
+			"public class X implements Runnable, Zork {\n" +
 			"	public void run() {}\n" +
 			"}";
 		ASTNode node = buildAST(
@@ -7586,7 +7586,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0237/X.java", true/*resolve*/);
 		String contents =
 			"package test0237;\n" +
-			"public class X {\n" + 
+			"public class X {\n" +
 			"	Zork foo() {}\n" +
 			"}";
 		ASTNode node = buildAST(
@@ -7608,7 +7608,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertFalse("Method is not the method foo", "foo".equals(methodBindings[0].getName()));
 		assertNotNull("No return type", methodBindings[0].getReturnType());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=173338
 	 */
@@ -7616,7 +7616,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0238/X.java", true/*resolve*/);
 		String contents =
 			"package test0238;\n" +
-			"public class X extends A {\n" + 
+			"public class X extends A {\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -7643,7 +7643,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0239/X.java", true/*resolve*/);
 		String contents =
 			"package test0239;\n" +
-			"public class X extends A {\n" + 
+			"public class X extends A {\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -7662,7 +7662,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No variable bindings", variableBindings);
 		assertEquals("wrong size", 0, variableBindings.length);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=107001
 	 */
@@ -7688,7 +7688,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a type variable", typeParameter.isTypeVariable());
 		assertEquals("Wrong binary name", "X$T", typeParameter.getBinaryName());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=107001
 	 */
@@ -7773,18 +7773,18 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a type variable", typeParameter.isTypeVariable());
 		assertEquals("Wrong binary name", "p.X$(Ljava/lang/Integer;)V$T", typeParameter.getBinaryName());
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=173849
 	public void test0244() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", true/*resolve*/);
 		String contents =
-			"package xy;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	protected class Inner {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	Inner[] i;\n" + 
+			"package xy;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	protected class Inner {\n" +
+			"	}\n" +
+			"\n" +
+			"	Inner[] i;\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -7804,18 +7804,18 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Doesn't exist", element.exists());
 		assertEquals("Wrong handle identifier", "=Converter15/src<xy{X.java[X[Inner", element.getHandleIdentifier());
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=173849
 	public void test0245() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", true/*resolve*/);
 		String contents =
-			"package xy;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	protected class Inner {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	Inner i;\n" + 
+			"package xy;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	protected class Inner {\n" +
+			"	}\n" +
+			"\n" +
+			"	Inner i;\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -7835,18 +7835,18 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Doesn't exist", element.exists());
 		assertEquals("Wrong handle identifier", "=Converter15/src<xy{X.java[X[Inner", element.getHandleIdentifier());
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=173849
 	public void test0246() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", true/*resolve*/);
 		String contents =
-			"package xy;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	protected class Inner {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	Inner[][] i;\n" + 
+			"package xy;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	protected class Inner {\n" +
+			"	}\n" +
+			"\n" +
+			"	Inner[][] i;\n" +
 			"}";
 		ASTNode node = buildAST(
 				contents,
@@ -7866,7 +7866,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Doesn't exist", element.exists());
 		assertEquals("Wrong handle identifier", "=Converter15/src<xy{X.java[X[Inner", element.getHandleIdentifier());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156352
 	 */
@@ -7874,5 +7874,39 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0247", "EclipseCompiler.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true, true);
 		assertNotNull("Not a compilation unit", result);
-	}	
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
+	public void _test0248() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public <T> void find(T a, List<T> b) {\n" +
+			"		}\n" +
+			"	public void foo() {\n" +
+			"		find(x, Arrays.asList(\"a\"));\n" +
+			"	}\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedErrors =
+			"x cannot be resolved\n" +
+			"The method asList(String) is undefined for the type Arrays";
+		assertProblemsSize(unit, 2, expectedErrors);
+		node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding = invocation.resolveMethodBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+	}
 }
