@@ -1035,16 +1035,17 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	// Internal use only - use findMethod()
 	public MethodBinding findMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 		ReferenceBinding currentType = receiverType;
+		boolean receiverTypeIsInterface = receiverType.isInterface();
 		ObjectVector found = new ObjectVector(3);
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReferences(argumentTypes);
 
-		if (currentType.isInterface()) {
-			unitScope.recordTypeReference(currentType);
-			MethodBinding[] currentMethods = currentType.getMethods(selector);
-			if (currentMethods.length > 0)
-				found.addAll(currentMethods);
-			findMethodInSuperInterfaces(currentType, selector, found);
+		if (receiverTypeIsInterface) {
+			unitScope.recordTypeReference(receiverType);
+			MethodBinding[] receiverMethods = receiverType.getMethods(selector);
+			if (receiverMethods.length > 0)
+				found.addAll(receiverMethods);
+			findMethodInSuperInterfaces(receiverType, selector, found);
 			currentType = getJavaLangObject();
 		}
 
@@ -1053,17 +1054,16 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		boolean isCompliant14 = complianceLevel >= ClassFileConstants.JDK1_4;
 		boolean isCompliant15 = complianceLevel >= ClassFileConstants.JDK1_5;
 		ReferenceBinding classHierarchyStart = currentType;
-		boolean mustBePublic = receiverType.isInterface();
 		while (currentType != null) {
 			unitScope.recordTypeReference(currentType);
 			MethodBinding[] currentMethods = currentType.getMethods(selector);
 			int currentLength = currentMethods.length;
 			if (currentLength > 0) {
-				if (isCompliant14 && (mustBePublic || found.size > 0)) {
+				if (isCompliant14 && (receiverTypeIsInterface || found.size > 0)) {
 					nextMethod: for (int i = 0, l = currentLength; i < l; i++) { // currentLength can be modified inside the loop
 						MethodBinding currentMethod = currentMethods[i];
 						if (currentMethod == null) continue nextMethod;
-						if (mustBePublic && !currentMethod.isPublic()) { // only public methods from Object are visible to interface receiverTypes
+						if (receiverTypeIsInterface && !currentMethod.isPublic()) { // only public methods from Object are visible to interface receiverTypes
 							currentLength--;
 							currentMethods[i] = null;
 							continue nextMethod;
@@ -1114,6 +1114,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		MethodBinding[] candidates = null;
 		int candidatesCount = 0;
 		MethodBinding problemMethod = null;
+		boolean searchForDefaultAbstractMethod = isCompliant14 && ! receiverTypeIsInterface && (receiverType.isAbstract() || receiverType.isTypeVariable());
 		if (foundSize > 0) {
 			// argument type compatibility check
 			for (int i = 0; i < foundSize; i++) {
@@ -1123,7 +1124,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					if (compatibleMethod.isValidBinding()) {
 						if (foundSize == 1 && compatibleMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 							// return the single visible match now
-							if (isCompliant14 && (receiverType.isAbstract() || receiverType.isTypeVariable()))
+							if (searchForDefaultAbstractMethod)
 								return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, compatibleMethod);
 							unitScope.recordTypeReferences(compatibleMethod.thrownExceptions);
 							return compatibleMethod;
@@ -1138,14 +1139,19 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			}
 		}
 
-		// no match was found, try to find a close match when the parameter order is wrong or missing some parameters
+		// no match was found
 		if (candidatesCount == 0) {
-			// reduces secondary errors since missing interface method error is already reported
+			// abstract classes may get a match in interfaces; for non abstract
+			// classes, reduces secondary errors since missing interface method 
+			// error is already reported
 			MethodBinding interfaceMethod =
 				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
 			if (interfaceMethod != null) return interfaceMethod;
 			if (found.size == 0) return null;
 			if (problemMethod != null) return problemMethod;
+
+			// still no match; try to find a close match when the parameter 
+			// order is wrong or missing some parameters
 
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=69471
 			// bad guesses are foo(), when argument types have been supplied
@@ -1186,27 +1192,35 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 		// tiebreak using visibility check
 		int visiblesCount = 0;
-		for (int i = 0; i < candidatesCount; i++) {
-			MethodBinding methodBinding = candidates[i];
-			if (methodBinding.canBeSeenBy(receiverType, invocationSite, this)) {
-				if (visiblesCount != i) {
-					candidates[i] = null;
-					candidates[visiblesCount] = methodBinding;
-				}
-				visiblesCount++;
+		if (receiverTypeIsInterface) {
+			if (candidatesCount == 1) {
+				unitScope.recordTypeReferences(candidates[0].thrownExceptions);
+				return candidates[0];
 			}
-		}
-		if (visiblesCount == 1) {
-			if (isCompliant14 && (receiverType.isAbstract() || receiverType.isTypeVariable()))
-				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, candidates[0]);
-			unitScope.recordTypeReferences(candidates[0].thrownExceptions);
-			return candidates[0];
-		}
-		if (visiblesCount == 0) {
-			MethodBinding interfaceMethod =
-				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
-			if (interfaceMethod != null) return interfaceMethod;
-			return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, ProblemReasons.NotVisible);
+			visiblesCount = candidatesCount;
+		} else {
+			for (int i = 0; i < candidatesCount; i++) {
+				MethodBinding methodBinding = candidates[i];
+				if (methodBinding.canBeSeenBy(receiverType, invocationSite, this)) {
+					if (visiblesCount != i) {
+						candidates[i] = null;
+						candidates[visiblesCount] = methodBinding;
+					}
+					visiblesCount++;
+				}
+			}
+			if (visiblesCount == 1) {
+				if (searchForDefaultAbstractMethod)
+					return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, candidates[0]);
+				unitScope.recordTypeReferences(candidates[0].thrownExceptions);
+				return candidates[0];
+			}
+			if (visiblesCount == 0) {
+				MethodBinding interfaceMethod =
+					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
+				if (interfaceMethod != null) return interfaceMethod;
+				return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, ProblemReasons.NotVisible);
+			}
 		}
 
 		if (complianceLevel <= ClassFileConstants.JDK1_3) {
@@ -1230,11 +1244,14 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		}
 
 		MethodBinding mostSpecificMethod = mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite, receiverType);
-		if (isCompliant15
-			&& mostSpecificMethod.isValidBinding()
-			&& parameterCompatibilityLevel(mostSpecificMethod, argumentTypes) > COMPATIBLE) {
-				// see if there is a better match in the interfaces - see AutoBoxingTest 99
+		if (searchForDefaultAbstractMethod) { // search interfaces for a better match
+			if (mostSpecificMethod.isValidBinding())
+				// see if there is a better match in the interfaces - see AutoBoxingTest 99, LookupTest#81
 				return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, mostSpecificMethod);
+			// see if there is a match in the interfaces - see LookupTest#84
+			MethodBinding interfaceMethod = findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
+			if (interfaceMethod != null && interfaceMethod.isValidBinding() /* else return the same error as before */)
+				return interfaceMethod;
 		}
 		return mostSpecificMethod;
 	}

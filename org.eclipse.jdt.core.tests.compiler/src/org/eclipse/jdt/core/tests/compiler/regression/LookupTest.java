@@ -2729,6 +2729,145 @@ public void test080() {
 		},
 		"X\nX");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=174588
+public void test081() {
+	this.runConformTest(
+		new String[] {
+			"X.java",	//===================
+			"public class X extends Y {\n" + 
+			"  public void set(int value) {\n" + 
+			"      System.out.println(\"set(\" + value + \")\");\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    X x = new X();\n" + 
+			"    x.set(1L);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"abstract class Y implements I {\n" + 
+			"  public void set(long value) {\n" + 
+			"    set((int)value);\n" + 
+			"  }\n" + 
+			"  public void set(double value) {\n" + 
+			"    set((int)value);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface I {\n" + 
+			"  void set(int value);\n" + 
+			"  void set(long value);\n" + 
+			"}\n", 		// =================
+		},
+		"set(1)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=174588
+// variant
+public void test082() {
+	this.runConformTest(
+		new String[] {
+			"X.java",	//===================
+			"public class X extends Y {\n" + 
+			"  public void set(int value) {\n" + 
+			"      System.out.println(\"set(\" + value + \")\");\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    X x = new X();\n" + 
+			"    x.set(1L);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"abstract class Y implements I {\n" + 
+			"  public abstract void set(int value);\n" + 
+			"  public void set(long value) {\n" + 
+			"    set((int)value);\n" + 
+			"  }\n" + 
+			"  public void set(double value) {\n" + 
+			"    set((int)value);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface I {\n" + 
+			"  void set(int value);\n" + 
+			"  void set(long value);\n" + 
+			"}\n", 		// =================
+		},
+		"set(1)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=174588
+// variant
+public void test083() {
+	String src[] = 
+		new String[] {
+			"X.java",
+			"public class X extends Z {\n" + 
+			"  public void set(int value) {\n" + 
+			"      System.out.println(\"set(\" + value + \")\");\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    X x = new X();\n" + 
+			"    x.set(1L);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"abstract class Z extends Y {\n" + 
+			"  public void set(long value) {\n" + 
+			"    set((int)value);\n" + 
+			"  }\n" + 
+			"  public void set(double value) {\n" + 
+			"    set((int)value);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"abstract class Y implements I {\n" + 
+			"}\n" + 
+			"interface I {\n" + 
+			"  void set(int value);\n" + 
+			"  void set(long value);\n" + 
+			"}\n",
+		};
+	if (complianceLevel.compareTo(COMPLIANCE_1_3) <= 0) {
+		this.runNegativeTest(
+			src,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\r\n" + 
+			"	set((int)value);\r\n" + 
+			"	^^^\n" + 
+			"The method set(long) is ambiguous for the type Z\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\r\n" + 
+			"	set((int)value);\r\n" + 
+			"	^^^\n" + 
+			"The method set(long) is ambiguous for the type Z\n" + 
+			"----------\n");
+	} else {
+		this.runConformTest(
+			src,
+			"set(1)");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=174588
+// variant
+public void test084() {
+	this.runConformTest(
+		new String[] {
+			"X.java",	//===================
+			"public class X extends Y {\n" + 
+			"  public void set(int value, int i) {\n" + 
+			"      System.out.println(\"set(\" + value + \")\");\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    X x = new X();\n" + 
+			"    x.set(1L, 1);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"abstract class Y implements I {\n" + 
+			"  public void set(long value, int i) {\n" + 
+			"    set((int)value, i);\n" + 
+			"  }\n" + 
+			"  public void set(int i, double value) {\n" + 
+			"    set(i, (int)value);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface I {\n" + 
+			"  void set(int value, int i);\n" + 
+			"}\n", 		// =================
+		},
+		"set(1)");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }
