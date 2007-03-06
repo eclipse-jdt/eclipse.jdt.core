@@ -3871,6 +3871,54 @@ public void test0459_while_nested() {
 		"----------\n");
 }
 
+// null analysis - while
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
+// extraneous error in case of a labeled while(true) statement
+public void _test0460_while_explicit_label() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(int i) {\n" + 
+			"    Object o = null;\n" + 
+			"    done: while (true) {\n" + 
+			"      switch (i) {\n" + 
+			"        case 0:\n" + 
+			"          o = new Object();\n" + 
+			"          break;\n" + 
+			"        case 1:\n" + 
+			"          break done;\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    if (o == null) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+} 
+
+// null analysis - while
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
+// extraneous error in case of a labeled while(true) statement
+public void _test0461_while_explicit_label() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(boolean b) {\n" + 
+			"    Object o = null;\n" + 
+			"    done: while (true) {\n" + 
+			"      if (b) {\n" + 
+			"        break done;\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    if (o == null) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+} 
+
 // null analysis -- try/finally
 public void test0500_try_finally() {
 	this.runConformTest(
