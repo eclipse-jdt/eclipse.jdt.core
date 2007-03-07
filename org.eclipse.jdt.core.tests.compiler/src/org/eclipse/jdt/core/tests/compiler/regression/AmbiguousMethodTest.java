@@ -2054,4 +2054,48 @@ public void test053() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
+// variant
+public void test054() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void bar(Z x) {\n" + 
+			"    System.out.println(\"bar(Z)\");\n" + 
+			"  }\n" + 
+			"  void bar(I<?> x) {\n" + 
+			"    System.out.println(\"bar(I)\");\n" + 
+			"  }\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    (new X()).bar(new Z());\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface I<T> {}\n" + 
+			"class Z implements I<Object> {}"
+		},
+		"bar(Z)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
+// variant
+public void _test055() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {}\n" + 
+			"class X {\n" + 
+			"  void bar(Z x) {\n" + 
+			"    System.out.println(\"bar(Z)\");\n" + 
+			"  }\n" + 
+			"  void bar(I<?> x) {\n" + 
+			"    System.out.println(\"bar(I)\");\n" + 
+			"  }\n" + 
+			"  public static void main(String args[]) {\n" + 
+			"    (new X()).bar(new Z());\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Z implements I {}"
+		},
+		"ERR");
+}
 }
