@@ -36,6 +36,13 @@ public final class Messages extends NLS {
 	public static String element_nullName;
 	public static String element_nullType;
 	public static String element_illegalParent;
+	public static String javamodel_initialization;
+	public static String javamodel_building_after_upgrade;
+	public static String javamodel_configuring;
+	public static String javamodel_configuring_classpath_containers;
+	public static String javamodel_configuring_searchengine;
+	public static String javamodel_getting_build_state_number;
+	public static String javamodel_refreshing_external_jars;
 	public static String operation_needElements;
 	public static String operation_needName;
 	public static String operation_needPath;
@@ -168,7 +175,6 @@ public final class Messages extends NLS {
 	public static String path_mustBeAbsolute;
 	public static String cache_invalidLoadFactor;
 	public static String savedState_jobName;
-	public static String javamodel_initialization;
 	public static String restrictedAccess_project;
 	public static String restrictedAccess_library;
 	public static String restrictedAccess_constructor_project;

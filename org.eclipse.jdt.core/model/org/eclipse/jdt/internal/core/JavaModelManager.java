@@ -99,6 +99,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public HashMap previousSessionContainers = new HashMap(5);
 	private ThreadLocal containerInitializationInProgress = new ThreadLocal();
 	public boolean batchContainerInitializations = false;
+	public ThreadLocal batchContainerInitializationsProgress = new ThreadLocal();
 	public HashMap containerInitializersCache = new HashMap(5);
 	
 	/*
@@ -2046,34 +2047,44 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			IWorkspaceRunnable runnable = 				
 				new IWorkspaceRunnable() {
 					public void run(IProgressMonitor monitor) throws CoreException {
-						Set entrySet = allContainerPaths.entrySet();
-						int length = entrySet.size();
-						Map.Entry[] entries = new Map.Entry[length]; // clone as the following will have a side effect
-						entrySet.toArray(entries);
-						for (int i = 0; i < length; i++) {
-							Map.Entry entry = entries[i];
-							IJavaProject javaProject = (IJavaProject) entry.getKey();
-							HashSet pathSet = (HashSet) entry.getValue();
-							if (pathSet == null) continue;
-							int length2 = pathSet.size();
-							IPath[] paths = new IPath[length2];
-							pathSet.toArray(paths); // clone as the following will have a side effect
-							for (int j = 0; j < length2; j++) {
-								IPath path = paths[j];
-								initializeContainer(javaProject, path);
+						try {
+							Set entrySet = allContainerPaths.entrySet();
+							int length = entrySet.size();
+							if (monitor != null)
+								monitor.beginTask("", length); //$NON-NLS-1$
+							Map.Entry[] entries = new Map.Entry[length]; // clone as the following will have a side effect
+							entrySet.toArray(entries);
+							for (int i = 0; i < length; i++) {
+								Map.Entry entry = entries[i];
+								IJavaProject javaProject = (IJavaProject) entry.getKey();
+								HashSet pathSet = (HashSet) entry.getValue();
+								if (pathSet == null) continue;
+								int length2 = pathSet.size();
+								IPath[] paths = new IPath[length2];
+								pathSet.toArray(paths); // clone as the following will have a side effect
+								for (int j = 0; j < length2; j++) {
+									IPath path = paths[j];
+									initializeContainer(javaProject, path);
+								}
+								if (monitor != null)
+									monitor.worked(1);
 							}
+						} finally {
+							if (monitor != null)
+								monitor.done();
 						}
 					}
 				};
+			IProgressMonitor monitor = (IProgressMonitor) this.batchContainerInitializationsProgress.get();
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			if (workspace.isTreeLocked())
-				runnable.run(null/*no progress available*/);
+				runnable.run(monitor);
 			else
 				workspace.run(
 					runnable,
 					null/*don't take any lock*/,
 					IWorkspace.AVOID_UPDATE,
-					null/*no progress available here*/);
+					monitor);
 			ok = true;
 		} catch (CoreException e) {
 			// ignore
@@ -2112,9 +2123,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			containerPut(project, containerPath, CONTAINER_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 			boolean ok = false;
 			try {
+				IProgressMonitor monitor = (IProgressMonitor) this.batchContainerInitializationsProgress.get();
+				if (monitor != null)
+					monitor.subTask(Messages.bind(Messages.javamodel_configuring, initializer.getDescription(containerPath, project)));
+				
 				// let OperationCanceledException go through
 				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59363)
 				initializer.initialize(containerPath, project);
+				
+				if (monitor != null)
+					monitor.subTask(""); //$NON-NLS-1$
 				
 				// retrieve value (if initialization was successful)
 				container = containerGet(project, containerPath);

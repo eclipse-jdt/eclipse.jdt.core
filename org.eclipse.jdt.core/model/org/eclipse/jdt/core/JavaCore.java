@@ -2965,12 +2965,26 @@ public final class JavaCore extends Plugin {
 	 */
 	public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
 		try {
-			if (monitor != null) monitor.beginTask(Messages.javamodel_initialization, 100);
-			// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
-			SearchEngine engine = new SearchEngine();
-			JavaModelManager.getJavaModelManager().deltaState.initializeRoots(); // initialize all containers and variables
-			IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
+			if (monitor != null) 	monitor.beginTask(Messages.javamodel_initialization, 100);
+			
+			// initialize all containers and variables
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			try {
+				if (monitor != null) {
+					monitor.subTask(Messages.javamodel_configuring_classpath_containers);
+					manager.batchContainerInitializationsProgress.set(new SubProgressMonitor(monitor, 50)); // 50% of the time is spent in initializing containers and variables
+				}
+				manager.deltaState.initializeRoots(); 
+			} finally {
+				manager.batchContainerInitializationsProgress.set(null);
+			}
+			
+			// dummy query for waiting until the indexes are ready
+			SearchEngine engine = new SearchEngine();
+			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+			try {
+				if (monitor != null)
+					monitor.subTask(Messages.javamodel_configuring_searchengine);
 				engine.searchAllTypeNames(
 					null,
 					SearchPattern.R_EXACT_MATCH,
@@ -2991,7 +3005,7 @@ public final class JavaCore extends Plugin {
 					// will not activate index query caches if indexes are not ready, since it would take to long
 					// to wait until indexes are fully rebuild
 					IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
-					monitor == null ? null : new SubProgressMonitor(monitor, 99) // 99% of the time is spent in the dummy search
+					monitor == null ? null : new SubProgressMonitor(monitor, 49) // 49% of the time is spent in the dummy search
 				); 
 			} catch (JavaModelException e) {
 				// /search failed: ignore
@@ -3003,6 +3017,8 @@ public final class JavaCore extends Plugin {
 			
 			// check if the build state version number has changed since last session
 			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
+			if (monitor != null)
+				monitor.subTask(Messages.javamodel_getting_build_state_number);
 			QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			String versionNumber = null;
@@ -3011,7 +3027,7 @@ public final class JavaCore extends Plugin {
 			} catch (CoreException e) {
 				// could not read version number: consider it is new
 			}
-			final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+			final JavaModel model = manager.getJavaModel();
 			String newVersionNumber = Byte.toString(State.VERSION);
 			if (!newVersionNumber.equals(versionNumber)) {
 				// build state version number has changed: touch every projects to force a rebuild
@@ -3039,6 +3055,8 @@ public final class JavaCore extends Plugin {
 						}
 					}
 				};
+				if (monitor != null)
+					monitor.subTask(Messages.javamodel_building_after_upgrade);
 				try {
 					ResourcesPlugin.getWorkspace().run(runnable, monitor);
 				} catch (CoreException e) {
@@ -3053,6 +3071,8 @@ public final class JavaCore extends Plugin {
 			
 			// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
 			try {
+				if (monitor != null)
+					monitor.subTask(Messages.javamodel_refreshing_external_jars);
 				model.refreshExternalArchives(
 					null/*refresh all projects*/, 
 					monitor == null ? null : new SubProgressMonitor(monitor, 1) // 1% of the time is spent in jar refresh
