@@ -1312,8 +1312,20 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				currentType = interfacesToVisit[i];
 				compilationUnitScope().recordTypeReference(currentType);
 				MethodBinding[] currentMethods = currentType.getMethods(selector);
-				if (currentMethods.length > 0)
-					found.addAll(currentMethods);
+				if (currentMethods.length > 0) {
+					int foundSize = found.size;
+					if (foundSize > 0) {
+						// its possible to walk the same superinterface from different classes in the hierarchy
+						next : for (int c = 0, l = currentMethods.length; c < l; c++) {
+							MethodBinding current = currentMethods[c];
+							for (int f = 0; f < foundSize; f++)
+								if (current == found.elementAt(f)) continue next;
+							found.add(current);
+						}
+					} else {
+						found.addAll(currentMethods);
+					}
+				}
 				if ((itsInterfaces = currentType.superInterfaces()) != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 					int itsLength = itsInterfaces.length;
 					if (nextPosition + itsLength >= interfacesToVisit.length)
