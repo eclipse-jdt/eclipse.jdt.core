@@ -51,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
@@ -349,6 +350,32 @@ class DefaultBindingResolver extends BindingResolver {
 		domInstance = new AnnotationBinding(internalInstance, this);
 		this.bindingTables.compilerBindingsToASTBindings.put(internalInstance, domInstance);
 		return domInstance;
+	}
+
+	boolean isResolvedTypeInferredFromExpectedType(MethodInvocation methodInvocation) {
+		Object oldNode = this.newAstToOldAst.get(methodInvocation);
+		if (oldNode instanceof MessageSend) {
+			MessageSend messageSend = (MessageSend) oldNode;
+			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = messageSend.binding;
+			if (methodBinding instanceof ParameterizedGenericMethodBinding) {
+				ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
+				return genericMethodBinding.inferredReturnType;
+			}
+		}
+		return false;
+	}
+
+	boolean isResolvedTypeInferredFromExpectedType(SuperMethodInvocation superMethodInvocation) {
+		Object oldNode = this.newAstToOldAst.get(superMethodInvocation);
+		if (oldNode instanceof MessageSend) {
+			MessageSend messageSend = (MessageSend) oldNode;
+			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = messageSend.binding;
+			if (methodBinding instanceof ParameterizedGenericMethodBinding) {
+				ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
+				return genericMethodBinding.inferredReturnType;
+			}
+		}
+		return false;
 	}
 
 	/*

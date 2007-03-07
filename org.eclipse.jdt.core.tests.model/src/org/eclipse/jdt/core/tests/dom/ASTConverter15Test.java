@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 248 };
+//		TESTS_NUMBERS = new int[] { 249, 250 };
 //		TESTS_RANGE = new int[] { 240, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -7908,5 +7908,165 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMethodBinding methodBinding = invocation.resolveMethodBinding();
 		assertNotNull("No binding", methodBinding);
 		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174436
+	public void test0249() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import java.util.Collections;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	void caller() {\n" +
+			"		Map<String, String> explicitEmptyMap = Collections.<String, String> emptyMap();\n" +
+			"		method(explicitEmptyMap);\n" +
+			"		Map<String, String> emptyMap = Collections.emptyMap();\n" +
+			"		method(emptyMap);\n" +
+			"	}\n" +
+			"\n" +
+			"	void method(Map<String, String> map) {\n" +
+			"	}\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement= (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		assertFalse("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+
+		node = getASTNode(unit, 0, 0, 2);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		statement= (VariableDeclarationStatement) node;
+		fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		expression = fragment.getInitializer();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		methodInvocation = (MethodInvocation) expression;
+		assertTrue("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174436
+	public void test0250() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import java.util.Map;\n" +
+			"\n" +
+			"class A {\n" +
+			"	public <K,V> Map<K,V> foo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X extends A {\n" +
+			"	void caller() {\n" +
+			"		Map<String, String> explicitEmptyMap = super.<String, String> foo();\n" +
+			"		method(explicitEmptyMap);\n" +
+			"		Map<String, String> emptyMap = super.foo();\n" +
+			"		method(emptyMap);\n" +
+			"	}\n" +
+			"\n" +
+			"	void method(Map<String, String> map) {\n" +
+			"	}\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 1, 0, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement= (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not a super method invocation", ASTNode.SUPER_METHOD_INVOCATION, expression.getNodeType());
+		SuperMethodInvocation methodInvocation = (SuperMethodInvocation) expression;
+		assertFalse("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+
+		node = getASTNode(unit, 1, 0, 2);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		statement= (VariableDeclarationStatement) node;
+		fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		expression = fragment.getInitializer();
+		assertEquals("Not a super method invocation", ASTNode.SUPER_METHOD_INVOCATION, expression.getNodeType());
+		methodInvocation = (SuperMethodInvocation) expression;
+		assertTrue("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174436
+	public void test0251() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0251", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement= (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		assertFalse("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+
+		node = getASTNode(unit, 0, 0, 2);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		statement= (VariableDeclarationStatement) node;
+		fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		expression = fragment.getInitializer();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		methodInvocation = (MethodInvocation) expression;
+		assertFalse("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174436
+	public void test0252() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0252", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 1, 0, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement= (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not a super method invocation", ASTNode.SUPER_METHOD_INVOCATION, expression.getNodeType());
+		SuperMethodInvocation methodInvocation = (SuperMethodInvocation) expression;
+		assertFalse("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+
+		node = getASTNode(unit, 1, 0, 2);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		statement= (VariableDeclarationStatement) node;
+		fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		fragment = (VariableDeclarationFragment) fragments.get(0);
+		expression = fragment.getInitializer();
+		assertEquals("Not a super method invocation", ASTNode.SUPER_METHOD_INVOCATION, expression.getNodeType());
+		methodInvocation = (SuperMethodInvocation) expression;
+		assertFalse("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
 	}
 }
