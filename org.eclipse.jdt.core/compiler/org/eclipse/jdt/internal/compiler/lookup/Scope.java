@@ -3178,7 +3178,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	* or a closer superclass.
 	*/
 	protected final MethodBinding mostSpecificClassMethodBinding(MethodBinding[] visible, int visibleSize, InvocationSite invocationSite) {
-		MethodBinding problemMethod = null;
 		MethodBinding previous = null;
 		nextVisible : for (int i = 0; i < visibleSize; i++) {
 			MethodBinding method = visible[i];
@@ -3194,9 +3193,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
 			return method;
 		}
-		if (problemMethod == null)
-			return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
-		return problemMethod;
+		return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
 	}
 	
 	// Internal use only
@@ -3229,7 +3226,6 @@ public abstract class Scope implements TypeConstants, TypeIds {
 	}
 	*/
 	protected final MethodBinding mostSpecificInterfaceMethodBinding(MethodBinding[] visible, int visibleSize, InvocationSite invocationSite) {
-		MethodBinding problemMethod = null;
 		nextVisible : for (int i = 0; i < visibleSize; i++) {
 			MethodBinding method = visible[i];
 			for (int j = 0; j < visibleSize; j++) {
@@ -3240,9 +3236,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			compilationUnitScope().recordTypeReferences(method.thrownExceptions);
 			return method;
 		}
-		if (problemMethod == null)
-			return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
-		return problemMethod;
+		return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
 	}
 
 	// caveat: this is not a direct implementation of JLS
