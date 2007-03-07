@@ -3427,6 +3427,24 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 					}
 					keywords[count++]= Keywords.BREAK;
 					keywords[count++]= Keywords.CASE;
+					
+					keywords[count++]= Keywords.ASSERT;
+					keywords[count++]= Keywords.DO;
+					keywords[count++]= Keywords.FOR;
+					keywords[count++]= Keywords.IF;
+					keywords[count++]= Keywords.RETURN;
+					keywords[count++]= Keywords.SWITCH;
+					keywords[count++]= Keywords.SYNCHRONIZED;
+					keywords[count++]= Keywords.THROW;
+					keywords[count++]= Keywords.TRY;
+					keywords[count++]= Keywords.WHILE;
+	
+					keywords[count++]= Keywords.FINAL;
+					keywords[count++]= Keywords.CLASS;
+					
+					if(isInsideLoop()) {
+						keywords[count++]= Keywords.CONTINUE;
+					}
 				}
 			}
 			System.arraycopy(keywords, 0 , keywords = new char[count][], 0, count);

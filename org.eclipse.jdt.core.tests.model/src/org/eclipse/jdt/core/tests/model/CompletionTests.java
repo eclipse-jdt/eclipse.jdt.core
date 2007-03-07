@@ -5294,55 +5294,119 @@ public void testCompletionKeywordClass9() throws JavaModelException {
 			requestor.getResults());
 }
 public void testCompletionKeywordContinue1() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordContinue1.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src2/CompletionKeywordContinue1.java",
+		"public class CompletionKeywordContinue1 {\n" + 
+		"	void foo() {\n" + 
+		"		for(;;) {\n" + 
+		"			{\n" + 
+		"				cont\n" + 
+		"	}\n" + 
+		"}\n");
 
-		String str = cu.getSource();
-		String completeBehind = "cont";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "cont";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-		assertEquals(
-			"element:continue    completion:continue    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+	assertResults(
+			"continue[KEYWORD]{continue, null, null, continue, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordContinue2() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordContinue2.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src2/CompletionKeywordContinue2.java",
+		"public class CompletionKeywordContinue2 {\n" + 
+		"	void foo() {\n" + 
+		"		if(true) {\n" + 
+		"			cont\n" + 
+		"	}\n" + 
+		"}\n");
 
-		String str = cu.getSource();
-		String completeBehind = "cont";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "cont";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-		assertEquals(
+	assertResults(
 			"",
 			requestor.getResults());
 }
 public void testCompletionKeywordContinue3() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordContinue3.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src2/CompletionKeywordContinue3.java",
+		"public class CompletionKeywordContinue3 {\n" + 
+		"	void foo() {\n" + 
+		"		#\n" + 
+		"		for(;;) {\n" + 
+		"			{\n" + 
+		"				cont\n" + 
+		"	}\n" + 
+		"}\n");
 
-		String str = cu.getSource();
-		String completeBehind = "cont";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "cont";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-		assertEquals(
-			"element:continue    completion:continue    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+	assertResults(
+			"continue[KEYWORD]{continue, null, null, continue, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordContinue4() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordContinue4.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src2/CompletionKeywordContinue4.java",
+		"public class CompletionKeywordContinue4 {\n" + 
+		"	void foo() {\n" + 
+		"		#\n" + 
+		"		if(true) {\n" + 
+		"			cont\n" + 
+		"	}\n" + 
+		"}\n");
 
-		String str = cu.getSource();
-		String completeBehind = "cont";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "cont";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-		assertEquals(
+	assertResults(
 			"",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=176364
+public void testCompletionKeywordContinue5() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+ 		"    for (int i = 0; i < 1; i++) {\n" + 
+ 		"      switch (i) {\n" + 
+ 		"        case 0:\n" + 
+ 		"          conti\n" + 
+ 		"        break;\n" + 
+ 		"      }\n" + 
+ 		"    }\n" + 
+		"  }\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "conti";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"continue[KEYWORD]{continue, null, null, continue, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordDefault1() throws JavaModelException {
@@ -7945,81 +8009,147 @@ public void testCompletionKeywordPublic9() throws JavaModelException {
 			requestor.getResults());
 }
 public void testCompletionKeywordReturn1() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn1.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src2/CompletionKeywordReturn1.java",
+		"public class CompletionKeywordReturn1 {\n" + 
+		"	void foo() {\n" + 
+		"		re\n" + 
+		"	}\n" + 
+		"}\n");
 
-		String str = cu.getSource();
-		String completeBehind = "re";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "re";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-		assertEquals(
-			"element:return    completion:return    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+	assertResults(
+			"return[KEYWORD]{return, null, null, return, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordReturn2() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn2.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src2/CompletionKeywordReturn2.java",
+		"public class CompletionKeywordReturn2 {\n" + 
+		"	void foo() {\n" + 
+		"		if(re\n" + 
+		"	}\n" + 
+		"}\n");
 
-		String str = cu.getSource();
-		String completeBehind = "re";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "re";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-		assertEquals(
+	assertResults(
 			"",
 			requestor.getResults());
 }
 public void testCompletionKeywordReturn3() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn3.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src2/CompletionKeywordReturn3.java",
+		"public class CompletionKeywordReturn3 {\n" + 
+		"	re\n" + 
+		"}\n");
 
-		String str = cu.getSource();
-		String completeBehind = "re";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "re";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-		assertEquals(
-			"",
+	assertResults(
+			"re[POTENTIAL_METHOD_DECLARATION]{re, LCompletionKeywordReturn3;, ()V, re, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordReturn4() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn4.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src2/CompletionKeywordReturn4.java",
+		"public class CompletionKeywordReturn4 {\n" + 
+		"	void foo() {\n" + 
+		"		#\n" + 
+		"		re\n" + 
+		"	}\n" + 
+		"}\n");
 
-		String str = cu.getSource();
-		String completeBehind = "re";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "re";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-		assertEquals(
-			"element:return    completion:return    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+	assertResults(
+			"return[KEYWORD]{return, null, null, return, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordReturn5() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn5.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src2/CompletionKeywordReturn5.java",
+		"public class CompletionKeywordReturn5 {\n" + 
+		"	void foo() {\n" + 
+		"		#\n" + 
+		"		if(re\n" + 
+		"	}\n" + 
+		"}\n");
 
-		String str = cu.getSource();
-		String completeBehind = "re";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "re";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-		assertEquals(
+	assertResults(
 			"",
 			requestor.getResults());
 }
 public void testCompletionKeywordReturn6() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordReturn6.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src2/CompletionKeywordReturn6.java",
+		"#\n" + 
+		"public class CompletionKeywordReturn6 {\n" + 
+		"	re\n" + 
+		"}\n");
 
-		String str = cu.getSource();
-		String completeBehind = "re";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "re";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-		assertEquals(
-			"",
+	assertResults(
+			"re[POTENTIAL_METHOD_DECLARATION]{re, LCompletionKeywordReturn6;, ()V, re, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=176364
+public void testCompletionKeywordReturn7() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+ 		"    switch (i) {\n" + 
+ 		"      case 0:\n" + 
+ 		"        re\n" + 
+ 		"    }\n" + 
+		"  }\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "re";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"return[KEYWORD]{return, null, null, return, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordStatic1() throws JavaModelException {
