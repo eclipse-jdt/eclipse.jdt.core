@@ -963,8 +963,8 @@ public final class ImportRewrite {
 			monitor= new NullProgressMonitor();
 		}
 		
-		monitor.beginTask(Messages.bind(Messages.importRewrite_processDescription), 2);
 		try {
+			monitor.beginTask(Messages.bind(Messages.importRewrite_processDescription), 2);
 			if (!hasRecordedChanges()) {
 				this.createdImports= CharOperation.NO_STRINGS;
 				this.createdStaticImports= CharOperation.NO_STRINGS;

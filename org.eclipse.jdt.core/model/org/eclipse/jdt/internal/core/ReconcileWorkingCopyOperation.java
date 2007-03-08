@@ -67,59 +67,56 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	 * 	of the original compilation unit fails
 	 */
 	protected void executeOperation() throws JavaModelException {
-		if (this.progressMonitor != null) {
-			if (this.progressMonitor.isCanceled()) 
-				throw new OperationCanceledException();
-			this.progressMonitor.beginTask(Messages.element_reconciling, 2); 
-		}
-	
-		CompilationUnit workingCopy = getWorkingCopy();
-		boolean wasConsistent = workingCopy.isConsistent();
-		IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
-		this.resolveBindings |= problemRequestor != null && problemRequestor.isActive();
-		
-		// create the delta builder (this remembers the current content of the cu)
-		this.deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
-		
-		// make working copy consistent if needed and compute AST if needed
-		makeConsistent(workingCopy, problemRequestor);
-		
-		// notify reconcile participants
-		notifyParticipants(workingCopy);
-		
-		// recreate ast if needed
-		if (this.ast == null && (this.astLevel > ICompilationUnit.NO_AST || this.resolveBindings))
-			makeConsistent(workingCopy, problemRequestor);
-	
-		// report problems
-		if (this.problems != null && (this.forceProblemDetection || !wasConsistent)) {
-			try {
-				problemRequestor.beginReporting();
-				for (Iterator iteraror = this.problems.values().iterator(); iteraror.hasNext();) {
-					CategorizedProblem[] categorizedProblems = (CategorizedProblem[]) iteraror.next();
-					if (categorizedProblems == null) continue;
-					for (int i = 0, length = categorizedProblems.length; i < length; i++) {
-						CategorizedProblem problem = categorizedProblems[i];
-						if (JavaModelManager.VERBOSE){
-							System.out.println("PROBLEM FOUND while reconciling : " + problem.getMessage());//$NON-NLS-1$
-						}
-						if (this.progressMonitor != null && this.progressMonitor.isCanceled()) break;
-						problemRequestor.acceptProblem(problem);
-					}
-				}
-			} finally {
-				problemRequestor.endReporting();
-			}
-		}
-		
-		// report delta
+		checkCanceled();
 		try {
+			beginTask(Messages.element_reconciling, 2); 
+	
+			CompilationUnit workingCopy = getWorkingCopy();
+			boolean wasConsistent = workingCopy.isConsistent();
+			IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
+			this.resolveBindings |= problemRequestor != null && problemRequestor.isActive();
+			
+			// create the delta builder (this remembers the current content of the cu)
+			this.deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
+			
+			// make working copy consistent if needed and compute AST if needed
+			makeConsistent(workingCopy, problemRequestor);
+			
+			// notify reconcile participants
+			notifyParticipants(workingCopy);
+			
+			// recreate ast if needed
+			if (this.ast == null && (this.astLevel > ICompilationUnit.NO_AST || this.resolveBindings))
+				makeConsistent(workingCopy, problemRequestor);
+		
+			// report problems
+			if (this.problems != null && (this.forceProblemDetection || !wasConsistent)) {
+				try {
+					problemRequestor.beginReporting();
+					for (Iterator iteraror = this.problems.values().iterator(); iteraror.hasNext();) {
+						CategorizedProblem[] categorizedProblems = (CategorizedProblem[]) iteraror.next();
+						if (categorizedProblems == null) continue;
+						for (int i = 0, length = categorizedProblems.length; i < length; i++) {
+							CategorizedProblem problem = categorizedProblems[i];
+							if (JavaModelManager.VERBOSE){
+								System.out.println("PROBLEM FOUND while reconciling : " + problem.getMessage());//$NON-NLS-1$
+							}
+							if (this.progressMonitor != null && this.progressMonitor.isCanceled()) break;
+							problemRequestor.acceptProblem(problem);
+						}
+					}
+				} finally {
+					problemRequestor.endReporting();
+				}
+			}
+			
+			// report delta
 			JavaElementDelta delta = this.deltaBuilder.delta;
 			if (delta != null) {
 				addReconcileDelta(workingCopy, delta);
 			}
 		} finally {
-			if (this.progressMonitor != null) this.progressMonitor.done();
+			done();
 		}
 	}
 	/**

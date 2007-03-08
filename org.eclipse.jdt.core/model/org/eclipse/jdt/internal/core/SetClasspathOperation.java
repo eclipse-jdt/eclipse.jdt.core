@@ -47,8 +47,7 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 	 * Sets the classpath of the pre-specified project.
 	 */
 	protected void executeOperation() throws JavaModelException {
-		if (isCanceled()) 
-			return;
+		checkCanceled();
 		try {
 			// set raw classpath and null out resolved info
 			this.project.getPerProjectInfo().setClasspath(this.newRawClasspath, this.newOutputLocation, JavaModelStatus.VERIFIED_OK/*format is ok*/, null, null, null);

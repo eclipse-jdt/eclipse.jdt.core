@@ -98,8 +98,8 @@ public class UserLibraryManager {
 			monitor= new NullProgressMonitor();
 		}
 		
-		monitor.beginTask("Configure user libraries...", newNames.length);	//$NON-NLS-1$
 		try {
+			monitor.beginTask("", newNames.length);	//$NON-NLS-1$
 			int last= newNames.length - 1;
 			for (int i= 0; i < newLibs.length; i++) {
 				internalSetUserLibrary(newNames[i], newLibs[i], i == last, true, new SubProgressMonitor(monitor, 1));
@@ -213,43 +213,48 @@ public class UserLibraryManager {
 	}
 
 	private static void rebindClasspathEntries(String name, boolean remove, IProgressMonitor monitor) throws JavaModelException {
-		IWorkspaceRoot root= ResourcesPlugin.getWorkspace().getRoot();
-		IJavaProject[] projects= JavaCore.create(root).getJavaProjects();
-		IPath containerPath= new Path(JavaCore.USER_LIBRARY_CONTAINER_ID).append(name);
-		
-		ArrayList affectedProjects= new ArrayList();
-		
-		for (int i= 0; i < projects.length; i++) {
-			IJavaProject project= projects[i];
-			IClasspathEntry[] entries= project.getRawClasspath();
-			for (int k= 0; k < entries.length; k++) {
-				IClasspathEntry curr= entries[k];
-				if (curr.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
-					if (containerPath.equals(curr.getPath())) {
-						affectedProjects.add(project);
-						break;
-					}				
+		try {
+			if (monitor != null) {
+				monitor.beginTask("", 1); //$NON-NLS-1$
+			}
+			IWorkspaceRoot root= ResourcesPlugin.getWorkspace().getRoot();
+			IJavaProject[] projects= JavaCore.create(root).getJavaProjects();
+			IPath containerPath= new Path(JavaCore.USER_LIBRARY_CONTAINER_ID).append(name);
+			
+			ArrayList affectedProjects= new ArrayList();
+			
+			for (int i= 0; i < projects.length; i++) {
+				IJavaProject project= projects[i];
+				IClasspathEntry[] entries= project.getRawClasspath();
+				for (int k= 0; k < entries.length; k++) {
+					IClasspathEntry curr= entries[k];
+					if (curr.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+						if (containerPath.equals(curr.getPath())) {
+							affectedProjects.add(project);
+							break;
+						}				
+					}
 				}
 			}
-		}
-		if (!affectedProjects.isEmpty()) {
-			IJavaProject[] affected= (IJavaProject[]) affectedProjects.toArray(new IJavaProject[affectedProjects.size()]);
-			IClasspathContainer[] containers= new IClasspathContainer[affected.length];
-			if (!remove) {
-				// Previously, containers array only contained a null value. Then, user library classpath entry was first removed
-				// and then added a while after when post change delta event on .classpath file was fired...
-				// Unfortunately, in some cases, this event was fired a little bit too late and missed the refresh of Package Explorer
-				// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=61872)
-				// So now, instanciate a new user library classpath container instead which allow to refresh its content immediately
-				// as there's no classpath entry removal...
-				// Note that it works because equals(Object) method is not overridden for UserLibraryClasspathContainer.
-				// If it was, the update wouldn't happen while setting classpath container
-				// @see javaCore.setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
-				UserLibraryClasspathContainer container= new UserLibraryClasspathContainer(name);
-				containers[0] = container;
-			}
-			JavaCore.setClasspathContainer(containerPath, affected, containers, monitor);
-		} else {
+			if (!affectedProjects.isEmpty()) {
+				IJavaProject[] affected= (IJavaProject[]) affectedProjects.toArray(new IJavaProject[affectedProjects.size()]);
+				IClasspathContainer[] containers= new IClasspathContainer[affected.length];
+				if (!remove) {
+					// Previously, containers array only contained a null value. Then, user library classpath entry was first removed
+					// and then added a while after when post change delta event on .classpath file was fired...
+					// Unfortunately, in some cases, this event was fired a little bit too late and missed the refresh of Package Explorer
+					// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=61872)
+					// So now, instanciate a new user library classpath container instead which allow to refresh its content immediately
+					// as there's no classpath entry removal...
+					// Note that it works because equals(Object) method is not overridden for UserLibraryClasspathContainer.
+					// If it was, the update wouldn't happen while setting classpath container
+					// @see javaCore.setClasspathContainer(IPath, IJavaProject[], IClasspathContainer[], IProgressMonitor)
+					UserLibraryClasspathContainer container= new UserLibraryClasspathContainer(name);
+					containers[0] = container;
+				}
+				JavaCore.setClasspathContainer(containerPath, affected, containers, monitor == null ? null : new SubProgressMonitor(monitor, 1));
+			} 
+		} finally {
 			if (monitor != null) {
 				monitor.done();
 			}

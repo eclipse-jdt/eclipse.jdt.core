@@ -69,43 +69,46 @@ public CreatePackageFragmentOperation(IPackageFragmentRoot parentElement, String
  * @exception JavaModelException if the operation is unable to complete
  */
 protected void executeOperation() throws JavaModelException {
-	JavaElementDelta delta = null;
-	PackageFragmentRoot root = (PackageFragmentRoot) getParentElement();
-	beginTask(Messages.operation_createPackageFragmentProgress, this.pkgName.length); 
-	IContainer parentFolder = (IContainer) root.getResource();
-	String[] sideEffectPackageName = CharOperation.NO_STRINGS; 
-	ArrayList results = new ArrayList(this.pkgName.length);
-	char[][] inclusionPatterns = root.fullInclusionPatternChars();
-	char[][] exclusionPatterns = root.fullExclusionPatternChars();
-	int i;
-	for (i = 0; i < this.pkgName.length; i++) {
-		String subFolderName = this.pkgName[i];
-		sideEffectPackageName = Util.arrayConcat(sideEffectPackageName, subFolderName);
-		IResource subFolder = parentFolder.findMember(subFolderName);
-		if (subFolder == null) {
-			createFolder(parentFolder, subFolderName, force);
-			parentFolder = parentFolder.getFolder(new Path(subFolderName));
-			IPackageFragment addedFrag = root.getPackageFragment(sideEffectPackageName);
-			if (!Util.isExcluded(parentFolder, inclusionPatterns, exclusionPatterns)) {
-				if (delta == null) {
-					delta = newJavaElementDelta();
+	try {
+		JavaElementDelta delta = null;
+		PackageFragmentRoot root = (PackageFragmentRoot) getParentElement();
+		beginTask(Messages.operation_createPackageFragmentProgress, this.pkgName.length); 
+		IContainer parentFolder = (IContainer) root.getResource();
+		String[] sideEffectPackageName = CharOperation.NO_STRINGS; 
+		ArrayList results = new ArrayList(this.pkgName.length);
+		char[][] inclusionPatterns = root.fullInclusionPatternChars();
+		char[][] exclusionPatterns = root.fullExclusionPatternChars();
+		int i;
+		for (i = 0; i < this.pkgName.length; i++) {
+			String subFolderName = this.pkgName[i];
+			sideEffectPackageName = Util.arrayConcat(sideEffectPackageName, subFolderName);
+			IResource subFolder = parentFolder.findMember(subFolderName);
+			if (subFolder == null) {
+				createFolder(parentFolder, subFolderName, force);
+				parentFolder = parentFolder.getFolder(new Path(subFolderName));
+				IPackageFragment addedFrag = root.getPackageFragment(sideEffectPackageName);
+				if (!Util.isExcluded(parentFolder, inclusionPatterns, exclusionPatterns)) {
+					if (delta == null) {
+						delta = newJavaElementDelta();
+					}
+					delta.added(addedFrag);
 				}
-				delta.added(addedFrag);
+				results.add(addedFrag);
+			} else {
+				parentFolder = (IContainer) subFolder;
 			}
-			results.add(addedFrag);
-		} else {
-			parentFolder = (IContainer) subFolder;
+			worked(1);
 		}
-		worked(1);
-	}
-	if (results.size() > 0) {
-		this.resultElements = new IJavaElement[results.size()];
-		results.toArray(this.resultElements);
-		if (delta != null) {
-			addDelta(delta);
+		if (results.size() > 0) {
+			this.resultElements = new IJavaElement[results.size()];
+			results.toArray(this.resultElements);
+			if (delta != null) {
+				addDelta(delta);
+			}
 		}
+	} finally {
+		done();
 	}
-	done();
 }
 /**
  * Possible failures: <ul>

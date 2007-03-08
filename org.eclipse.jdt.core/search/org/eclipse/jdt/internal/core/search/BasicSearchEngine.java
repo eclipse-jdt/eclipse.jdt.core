@@ -172,21 +172,20 @@ public class BasicSearchEngine {
 	 */
 	void findMatches(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
 		if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	
-		/* initialize progress monitor */
-		if (monitor != null)
-			monitor.beginTask(Messages.engine_searching, 100); 
-		if (VERBOSE) {
-			Util.verbose("Searching for pattern: " + pattern.toString()); //$NON-NLS-1$
-			Util.verbose(scope.toString());
-		}
-		if (participants == null) {
-			if (VERBOSE) Util.verbose("No participants => do nothing!"); //$NON-NLS-1$
-			return;
-		}
-	
-		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 		try {
+			/* initialize progress monitor */
+			if (monitor != null)
+				monitor.beginTask(Messages.engine_searching, 100); 
+			if (VERBOSE) {
+				Util.verbose("Searching for pattern: " + pattern.toString()); //$NON-NLS-1$
+				Util.verbose(scope.toString());
+			}
+			if (participants == null) {
+				if (VERBOSE) Util.verbose("No participants => do nothing!"); //$NON-NLS-1$
+				return;
+			}
+	
+			IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 			requestor.beginReporting();
 			for (int i = 0, l = participants.length; i < l; i++) {
 				if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
@@ -607,10 +606,10 @@ public class BasicSearchEngine {
 		};
 
 		// add type names from indexes
-		if (progressMonitor != null) {
-			progressMonitor.beginTask(Messages.engine_searching, 100); 
-		}
 		try {
+			if (progressMonitor != null) {
+				progressMonitor.beginTask(Messages.engine_searching, 100); 
+			}
 			indexManager.performConcurrentJob(
 				new PatternSearchJob(
 					pattern, 
@@ -621,9 +620,12 @@ public class BasicSearchEngine {
 					? IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH
 					: IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH,
 				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));
-		}
-		catch (OperationCanceledException oce) {
+		} catch (OperationCanceledException oce) {
 			// do nothing
+		} finally {
+			if (progressMonitor != null) {
+				progressMonitor.done();
+			}
 		}
 	}
 

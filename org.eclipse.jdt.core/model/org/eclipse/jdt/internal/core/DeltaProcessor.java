@@ -334,12 +334,15 @@ public class DeltaProcessor {
 	 * Also triggers index updates
 	 */
 	public void checkExternalArchiveChanges(IJavaElement[] elementsToRefresh, IProgressMonitor monitor) throws JavaModelException {
+		if (monitor != null && monitor.isCanceled()) 
+			throw new OperationCanceledException(); 
 		try {
+			if (monitor != null) monitor.beginTask("", 1); //$NON-NLS-1$
+
 			for (int i = 0, length = elementsToRefresh.length; i < length; i++) {
 				this.addForRefresh(elementsToRefresh[i]);
 			}
 			boolean hasDelta = this.createExternalArchiveDelta(monitor);
-			if (monitor != null && monitor.isCanceled()) return; 
 			if (hasDelta){
 				// force classpath marker refresh of affected projects
 				JavaModel.flushExternalFileCache();

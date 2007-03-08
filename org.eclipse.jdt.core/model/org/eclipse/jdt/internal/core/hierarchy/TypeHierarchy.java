@@ -1215,11 +1215,11 @@ public synchronized void refresh(IProgressMonitor monitor) throws JavaModelExcep
 	try {
 		this.progressMonitor = monitor;
 		if (monitor != null) {
-			if (this.focusType != null) {
-				monitor.beginTask(Messages.bind(Messages.hierarchy_creatingOnType, this.focusType.getFullyQualifiedName()), 100); 
-			} else {
-				monitor.beginTask(Messages.hierarchy_creating, 100); 
-			}
+			monitor.beginTask(
+					this.focusType != null ? 
+							Messages.bind(Messages.hierarchy_creatingOnType, this.focusType.getFullyQualifiedName()) : 
+							Messages.hierarchy_creating, 
+					100); 
 		}
 		long start = -1;
 		if (DEBUG) {

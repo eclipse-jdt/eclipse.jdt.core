@@ -109,9 +109,6 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 			// check if source path is valid
 			Object target = JavaModel.getTarget(workspace.getRoot(), sourcePath, false);
 			if (target == null) {
-				if (monitor != null) {
-					monitor.done();
-				}
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, sourcePath));
 			}
 			SourceMapper mapper = createSourceMapper(sourcePath, rootPath);

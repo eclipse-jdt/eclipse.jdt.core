@@ -37,9 +37,9 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 	}
 
 	protected void executeOperation() throws JavaModelException {
-		if (isCanceled()) 
-			return;
+		checkCanceled();
 		try {
+			beginTask("", 1); //$NON-NLS-1$
 			if (JavaModelManager.CP_RESOLVE_VERBOSE)
 				verbose_set_container();
 			

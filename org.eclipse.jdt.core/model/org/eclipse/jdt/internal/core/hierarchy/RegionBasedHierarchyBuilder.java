@@ -71,32 +71,29 @@ public void build(boolean computeSubtypes) {
  */
 private void createTypeHierarchyBasedOnRegion(HashMap allOpenablesInRegion, IProgressMonitor monitor) {
 	
-	int size = allOpenablesInRegion.size();
-	if (size == 0) {
-		if (monitor != null) monitor.done();
-		return;
-	}
-		
-	this.infoToHandle = new HashMap(size);
-	Iterator javaProjects = allOpenablesInRegion.entrySet().iterator();
-	while (javaProjects.hasNext()) {
-		Map.Entry entry = (Map.Entry) javaProjects.next();  
-		JavaProject project = (JavaProject) entry.getKey();
-		ArrayList allOpenables = (ArrayList) entry.getValue();
-		Openable[] openables = new Openable[allOpenables.size()];
-		allOpenables.toArray(openables);
+	try {
+		int size = allOpenablesInRegion.size();		
+		if (monitor != null) monitor.beginTask("", size * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
+		this.infoToHandle = new HashMap(size);
+		Iterator javaProjects = allOpenablesInRegion.entrySet().iterator();
+		while (javaProjects.hasNext()) {
+			Map.Entry entry = (Map.Entry) javaProjects.next();  
+			JavaProject project = (JavaProject) entry.getKey();
+			ArrayList allOpenables = (ArrayList) entry.getValue();
+			Openable[] openables = new Openable[allOpenables.size()];
+			allOpenables.toArray(openables);
 	
-		try {
-			// resolve
-			if (monitor != null) monitor.beginTask("", size * 2/* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
-			SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(this.hierarchy.workingCopies);
-			this.nameLookup = searchableEnvironment.nameLookup;
-			this.hierarchyResolver.resolve(openables, null, monitor);
-		} catch (JavaModelException e) {
-			// project doesn't exit: ignore
-		} finally {
-			if (monitor != null) monitor.done();
+			try {
+				// resolve
+				SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(this.hierarchy.workingCopies);
+				this.nameLookup = searchableEnvironment.nameLookup;
+				this.hierarchyResolver.resolve(openables, null, monitor);
+			} catch (JavaModelException e) {
+				// project doesn't exit: ignore
+			} 
 		}
+	} finally {
+		if (monitor != null) monitor.done();
 	}
 }
 	

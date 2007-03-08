@@ -1202,9 +1202,9 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			}
 		} 
 
+	} finally {
 		if (this.progressMonitor != null)
 			this.progressMonitor.done();
-	} finally {
 		if (this.nameEnvironment != null)
 			this.nameEnvironment.cleanup();
 		manager.flushZipFiles();

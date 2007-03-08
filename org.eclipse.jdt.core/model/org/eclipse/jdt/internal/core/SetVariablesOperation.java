@@ -40,9 +40,9 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 	}
 
 	protected void executeOperation() throws JavaModelException {
-		if (isCanceled()) 
-			return;
+		checkCanceled();
 		try {
+			beginTask("", 1); //$NON-NLS-1$
 			if (JavaModelManager.CP_RESOLVE_VERBOSE){
 				Util.verbose(
 					"CPVariable SET  - setting variables\n" + //$NON-NLS-1$

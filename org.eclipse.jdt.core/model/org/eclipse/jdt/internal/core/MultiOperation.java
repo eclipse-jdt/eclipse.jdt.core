@@ -153,32 +153,35 @@ public abstract class MultiOperation extends JavaModelOperation {
 	 * be completed.
 	 */
 	protected void processElements() throws JavaModelException {
-		beginTask(getMainTaskName(), this.elementsToProcess.length);
-		IJavaModelStatus[] errors = new IJavaModelStatus[3];
-		int errorsCounter = 0;
-		for (int i = 0; i < this.elementsToProcess.length; i++) {
-			try {
-				verify(this.elementsToProcess[i]);
-				processElement(this.elementsToProcess[i]);
-			} catch (JavaModelException jme) {
-				if (errorsCounter == errors.length) {
-					// resize
-					System.arraycopy(errors, 0, (errors = new IJavaModelStatus[errorsCounter*2]), 0, errorsCounter);
+		try {
+			beginTask(getMainTaskName(), this.elementsToProcess.length);
+			IJavaModelStatus[] errors = new IJavaModelStatus[3];
+			int errorsCounter = 0;
+			for (int i = 0; i < this.elementsToProcess.length; i++) {
+				try {
+					verify(this.elementsToProcess[i]);
+					processElement(this.elementsToProcess[i]);
+				} catch (JavaModelException jme) {
+					if (errorsCounter == errors.length) {
+						// resize
+						System.arraycopy(errors, 0, (errors = new IJavaModelStatus[errorsCounter*2]), 0, errorsCounter);
+					}
+					errors[errorsCounter++] = jme.getJavaModelStatus();
+				} finally {
+					worked(1);
 				}
-				errors[errorsCounter++] = jme.getJavaModelStatus();
-			} finally {
-				worked(1);
 			}
-		}
-		done();
-		if (errorsCounter == 1) {
-			throw new JavaModelException(errors[0]);
-		} else if (errorsCounter > 1) {
-			if (errorsCounter != errors.length) {
-				// resize
-				System.arraycopy(errors, 0, (errors = new IJavaModelStatus[errorsCounter]), 0, errorsCounter);
+			if (errorsCounter == 1) {
+				throw new JavaModelException(errors[0]);
+			} else if (errorsCounter > 1) {
+				if (errorsCounter != errors.length) {
+					// resize
+					System.arraycopy(errors, 0, (errors = new IJavaModelStatus[errorsCounter]), 0, errorsCounter);
+				}
+				throw new JavaModelException(JavaModelStatus.newMultiStatus(errors));
 			}
-			throw new JavaModelException(JavaModelStatus.newMultiStatus(errors));
+		} finally {
+			done();
 		}
 	}
 	/**
