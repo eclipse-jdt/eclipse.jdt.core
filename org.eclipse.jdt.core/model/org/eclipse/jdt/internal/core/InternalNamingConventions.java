@@ -138,7 +138,10 @@ public class InternalNamingConventions {
 				case TerminalTokens.TokenNamelong :
 				case TerminalTokens.TokenNamefloat :
 				case TerminalTokens.TokenNamedouble :
-				case TerminalTokens.TokenNameboolean :	
+				case TerminalTokens.TokenNameboolean :
+					
+					if (internalPrefix != null && internalPrefix.length > 0) return;
+					
 					char[] name = computeBaseTypeNames(typeName[0], excludedNames);
 					if(name != null) {
 						tempNames =  new char[][]{name};
