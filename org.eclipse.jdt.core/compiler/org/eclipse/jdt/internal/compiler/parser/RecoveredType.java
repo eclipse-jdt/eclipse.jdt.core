@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -308,7 +309,12 @@ public Statement updatedStatement(){
 	TypeDeclaration updatedType = this.updatedTypeDeclaration();
 	if ((updatedType.bits & ASTNode.IsAnonymousType) != 0){
 		/* in presence of an anonymous type, we want the full allocation expression */
-		return updatedType.allocation;
+		QualifiedAllocationExpression allocation = updatedType.allocation;
+		
+		if (allocation.statementEnd == -1) {
+			allocation.statementEnd = updatedType.declarationSourceEnd;
+		}
+		return allocation;
 	}
 	return updatedType;
 }
