@@ -12,7 +12,9 @@ package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -23,9 +25,6 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class FileSystem implements INameEnvironment, SuffixConstants {
-	Classpath[] classpaths;
-	Set knownFileNames;
-
 	public interface Classpath {
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName);
 		boolean isPackage(String qualifiedPackageName);
@@ -53,6 +52,38 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 		 */
 		void initialize() throws IOException;
 	}
+
+	/**
+	 * This class is defined how to normalize the classpath entries.
+	 * It removes duplicate entries.
+	 */
+	public static class ClasspathNormalizer {
+		/**
+		 * Returns the normalized classpath entries (no duplicate).
+		 * <p>The given classpath entries are FileSystem.Classpath. We check the getPath() in order to find
+		 * duplicate entries.</p>
+		 *
+		 * @param classpaths the given classpath entries
+		 * @return the normalized classpath entries
+		 */
+		public static ArrayList normalize(ArrayList classpaths) {
+			ArrayList normalizedClasspath = new ArrayList();
+			HashSet cache = new HashSet();
+			for (Iterator iterator = classpaths.iterator(); iterator.hasNext(); ) {
+				FileSystem.Classpath classpath = (FileSystem.Classpath) iterator.next();
+				String path = classpath.getPath();
+				if (!cache.contains(path)) {
+					normalizedClasspath.add(classpath);
+					cache.add(path);
+				}
+			}
+			return normalizedClasspath;
+		}
+	}
+
+	Classpath[] classpaths;
+	Set knownFileNames;
+
 /*
 	classPathNames is a collection is Strings representing the full path of each class path
 	initialFileNames is a collection is Strings, the trailing '.java' will be removed if its not already.

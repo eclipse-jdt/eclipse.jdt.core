@@ -71,6 +71,20 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class Main implements ProblemSeverities, SuffixConstants {
+	/**
+	 * Resource bundle factory to share bundles for the same locale
+	 */
+	public static class ResourceBundleFactory {
+		private static HashMap Cache = new HashMap();
+		public static synchronized ResourceBundle getBundle(Locale locale) {
+			ResourceBundle bundle = (ResourceBundle) Cache.get(locale);
+			if (bundle == null) {
+				bundle = ResourceBundle.getBundle(Main.bundleName, locale);
+				Cache.put(locale, bundle);
+			}
+			return bundle;
+		}
+	}
 
 	public static class Logger {
 		private static final String CLASS = "class"; //$NON-NLS-1$
@@ -1026,8 +1040,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 	}
-	public final static String bundleName =
-		"org.eclipse.jdt.internal.compiler.batch.messages"; 	//$NON-NLS-1$
+	public final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.messages"; 	//$NON-NLS-1$
 
 	// two uses: recognize 'none' in options; code the singleton none
 		// for the '-d none' option (wherever it may be found)
@@ -3433,9 +3446,9 @@ public void relocalize() {
 private void relocalize(Locale locale) {
 	this.compilerLocale = locale;
 	try {
-		this.bundle = ResourceBundle.getBundle(Main.bundleName, locale);
+		this.bundle = ResourceBundleFactory.getBundle(locale);
 	} catch(MissingResourceException e) {
-		System.out.println("Missing resource : " + Main.bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
+		System.out.println("Missing resource : " + Main.bundleName.replace('.', '/') + ".properties for locale " + locale); //$NON-NLS-1$//$NON-NLS-2$
 		throw e;
 	}
 }
@@ -3495,6 +3508,7 @@ protected void setPaths(ArrayList bootclasspaths,
 	bootclasspaths.addAll(sourcepathClasspaths);
 	bootclasspaths.addAll(classpaths);
 	classpaths = bootclasspaths;
+	classpaths = FileSystem.ClasspathNormalizer.normalize(classpaths);
 	this.checkedClasspaths = new FileSystem.Classpath[classpaths.size()];
 	classpaths.toArray(this.checkedClasspaths);
 	this.logger.logClasspath(this.checkedClasspaths);

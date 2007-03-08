@@ -553,6 +553,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 			fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleBootclasspath(null, null));
 			fileSystemClasspaths.addAll((ArrayList<? extends FileSystem.Classpath>) this.handleClasspath(null, null));
 		}
+		fileSystemClasspaths = FileSystem.ClasspathNormalizer.normalize(fileSystemClasspaths);
 		final int size = fileSystemClasspaths.size();
 		if (size != 0) {
 			this.checkedClasspaths = new FileSystem.Classpath[size];
