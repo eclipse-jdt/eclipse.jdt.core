@@ -42,7 +42,7 @@ public class ParticipantBuildTests extends BuilderTests {
 		}
 	}
 
-	static class ParticipantProblem extends CategorizedProblem implements IProblem {
+	static class ParticipantProblem extends CategorizedProblem {
 		int counter = 0;
 		String message;
 		int id;
