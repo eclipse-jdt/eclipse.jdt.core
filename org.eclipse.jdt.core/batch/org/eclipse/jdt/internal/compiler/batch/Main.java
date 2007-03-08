@@ -2983,6 +2983,7 @@ protected void initialize(PrintWriter outWriter,
 		boolean systemExit,
 		Map customDefaultOptions) {
 	this.logger = new Logger(this, outWriter, errWriter);
+	this.proceed = true;
 	this.out = outWriter;
 	this.err = errWriter;
 	this.systemExitWhenFinished = systemExit;

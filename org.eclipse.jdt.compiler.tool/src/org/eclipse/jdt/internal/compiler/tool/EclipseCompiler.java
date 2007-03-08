@@ -97,18 +97,10 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 				// request compilation
 				performCompilation();
 			}
-			try {
-				if (this.fileManager != null) {
-					this.fileManager.flush();
-				}
-			} catch (IOException e) {
-				// ignore
-			}
 		} catch (InvalidInputException e) {
 			this.logger.logException(e);
 			if (this.systemExitWhenFinished) {
-				this.logger.flush();
-				this.logger.close();
+				cleanup();
 				System.exit(-1);
 			}
 			return false;
@@ -118,12 +110,23 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 			this.logger.logException(e);
 			return false;
 		} finally {
-			this.logger.flush();
-			this.logger.close();
+			cleanup();
 		}
 		if (this.globalErrorsCount == 0)
 			return true;
 		return false;
+	}
+
+	private void cleanup() {
+		this.logger.flush();
+		this.logger.close();
+		try {
+			if (this.fileManager != null) {
+				this.fileManager.flush();
+			}
+		} catch (IOException e) {
+			// ignore
+		}
 	}
 
 	public CompilationUnit[] getCompilationUnits() {
