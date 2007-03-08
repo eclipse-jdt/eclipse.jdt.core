@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * A jar entry that represents a non-java file found in a JAR.
@@ -45,6 +46,13 @@ public JarEntryFile clone(Object newParent) {
 	JarEntryFile file = new JarEntryFile(this.entryName, this.zipName, this.path);
 	file.setParent(newParent);
 	return file;
+}
+
+public boolean equals(Object obj) {
+	if (! (obj instanceof JarEntryFile))
+		return false;
+	JarEntryFile other = (JarEntryFile) obj;
+	return this.parent.equals(other.parent) && this.path.equals(other.path);
 }
 	
 public InputStream getContents() throws CoreException {
@@ -80,6 +88,9 @@ public String getName() {
 }
 public Object getParent() {
 	return this.parent;
+}
+public int hashCode() {
+	return Util.combineHashCodes(this.path.hashCode(), this.parent.hashCode());
 }
 public boolean isFile() {
 	return true;

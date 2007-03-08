@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.jdt.core.IJarEntryResource;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class JarEntryDirectory extends PlatformObject implements IJarEntryResource {
 	private Object parent;
@@ -45,6 +46,13 @@ public class JarEntryDirectory extends PlatformObject implements IJarEntryResour
 		return dir;
 	}
 	
+	public boolean equals(Object obj) {
+		if (! (obj instanceof JarEntryDirectory))
+			return false;
+		JarEntryDirectory other = (JarEntryDirectory) obj;
+		return this.parent.equals(other.parent) && this.path.equals(other.path);
+	}
+
 	public IJarEntryResource[] getChildren() {
 		return this.children;
 	}
@@ -63,6 +71,10 @@ public class JarEntryDirectory extends PlatformObject implements IJarEntryResour
 
 	public Object getParent() {
 		return this.parent;
+	}
+	
+	public int hashCode() {
+		return Util.combineHashCodes(this.path.hashCode(), this.parent.hashCode());
 	}
 	
 	public boolean isFile() {

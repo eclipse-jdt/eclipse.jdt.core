@@ -16,7 +16,7 @@ import org.eclipse.core.resources.IStorage;
  * A jar entry corresponding to a non-Java resource in an archive {@link IPackageFragment} or {@link IPackageFragmentRoot}.
  * <p>
  * One can navigate the non-Java resource tree using the {@link #getChildren()} and {@link #getParent()} methods.
- * Jar entry resources are either files ({@link #isFile()} returns true) or directories ({@link #isFile()} retunrs false).
+ * Jar entry resources are either files ({@link #isFile()} returns true) or directories ({@link #isFile()} returns false).
  * Files don't have any children and the returned array is always empty.
  * </p><p>
  * Jar entry resources that refer to the same element are guaranteed to be equal, but not necessarily identical.
