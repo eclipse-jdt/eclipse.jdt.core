@@ -270,7 +270,13 @@ public interface IPackageFragmentRoot
 	 * entry are considered non-Java resources and will appear in the result
 	 * (possibly in a folder). Thus when a nested source folder is excluded, it will appear
 	 * in the non-Java resources of the outer folder.
+	 * </p><p>
+	 * Since 3.3, if this package fragment root is an archive, the non-Java resources
+	 * are a tree of {@link IJarEntryResource}s. One can navigate this tree using
+	 * the {@link IJarEntryResource#getChildren()} and 
+	 * {@link IJarEntryResource#getParent()} methods.
 	 * </p>
+	 * 
 	 * @return an array of non-Java resources (<code>IFile</code>s, 
 	 *              <code>IFolder</code>s, or <code>IStorage</code>s if the
 	 *              package fragment root is in archive) contained in this package 

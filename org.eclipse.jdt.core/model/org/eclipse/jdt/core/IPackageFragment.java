@@ -165,6 +165,11 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * inclusion/exclusion patterns on the corresponding source classpath entry
 	 * are considered non-Java resources and will appear in the result
 	 * (possibly in a folder).
+	 * </p><p>
+	 * Since 3.3, if this package fragment is inside an archive, the non-Java resources
+	 * are a tree of {@link IJarEntryResource}s. One can navigate this tree using
+	 * the {@link IJarEntryResource#getChildren()} and 
+	 * {@link IJarEntryResource#getParent()} methods.
 	 * </p>
 	 * 
 	 * @exception JavaModelException if this element does not exist or if an

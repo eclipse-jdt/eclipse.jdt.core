@@ -98,11 +98,11 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				JarPackageFragmentInfo fragInfo= new JarPackageFragmentInfo();
 				int resLength= entries[NON_JAVA].size();
 				if (resLength == 0) {
-					packFrag.computeNonJavaResources(CharOperation.NO_STRINGS, fragInfo, jar.getName());
+					packFrag.computeNonJavaResources(CharOperation.NO_STRINGS, packFrag, fragInfo, jar.getName());
 				} else {
 					String[] resNames= new String[resLength];
 					entries[NON_JAVA].toArray(resNames);
-					packFrag.computeNonJavaResources(resNames, fragInfo, jar.getName());
+					packFrag.computeNonJavaResources(resNames, packFrag, fragInfo, jar.getName());
 				}
 				packFrag.computeChildren(fragInfo, entries[JAVA]);
 				newElements.put(packFrag, fragInfo);
@@ -171,7 +171,19 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 */
 	public Object[] getNonJavaResources() throws JavaModelException {
 		// We want to show non java resources of the default package at the root (see PR #1G58NB8)
-		return ((JarPackageFragment) getPackageFragment(CharOperation.NO_STRINGS)).storedNonJavaResources();
+		Object[] defaultPkgResources =  ((JarPackageFragment) getPackageFragment(CharOperation.NO_STRINGS)).storedNonJavaResources();
+		int length = defaultPkgResources.length;
+		if (length == 0)
+			return defaultPkgResources;
+		Object[] nonJavaResources = new Object[length];
+		for (int i = 0; i < length; i++) {
+			Object nonJavaResource = defaultPkgResources[i];
+			if (nonJavaResource instanceof JarEntryFile)
+				nonJavaResources[i] = ((JarEntryFile) nonJavaResource).clone(this);
+			else
+				nonJavaResources[i] = ((JarEntryDirectory) nonJavaResource).clone(this);
+		}
+		return nonJavaResources;
 	}
 	public PackageFragment getPackageFragment(String[] pkgName) {
 		return new JarPackageFragment(this, pkgName);

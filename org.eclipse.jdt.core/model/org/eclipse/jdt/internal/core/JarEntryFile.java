@@ -19,24 +19,34 @@ import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 
 /**
- * A jar entry that represents a non-java resource found in a JAR.
+ * A jar entry that represents a non-java file found in a JAR.
  *
  * @see IStorage
  */
-public class JarEntryFile extends PlatformObject implements IStorage {
+public class JarEntryFile extends PlatformObject implements IJarEntryResource {
+	private static final IJarEntryResource[] NO_CHILDREN = new IJarEntryResource[0];
+	private Object parent;
 	private String entryName;
 	private String zipName;
 	private IPath path;
 	
-	public JarEntryFile(String entryName, String zipName, IPath parentRelativePath) {
-		this.entryName = entryName;
-		this.zipName = zipName;
-		this.path = parentRelativePath;
-	}
+public JarEntryFile(String entryName, String zipName, IPath parentRelativePath) {
+	this.entryName = entryName;
+	this.zipName = zipName;
+	this.path = parentRelativePath;
+}
+
+public JarEntryFile clone(Object newParent) {
+	JarEntryFile file = new JarEntryFile(this.entryName, this.zipName, this.path);
+	file.setParent(newParent);
+	return file;
+}
+	
 public InputStream getContents() throws CoreException {
 
 	try {
@@ -53,6 +63,9 @@ public InputStream getContents() throws CoreException {
 		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 	}
 }
+public IJarEntryResource[] getChildren() {
+	return NO_CHILDREN;
+}
 /**
  * @see IStorage#getFullPath
  */
@@ -65,11 +78,20 @@ public IPath getFullPath() {
 public String getName() {
 	return this.path.lastSegment();
 }
+public Object getParent() {
+	return this.parent;
+}
+public boolean isFile() {
+	return true;
+}
 /**
  * @see IStorage#isReadOnly()
  */
 public boolean isReadOnly() {
 	return true;
+}
+public void setParent(Object parent) {
+	this.parent = parent;
 }
 /**
  * @see IStorage#isReadOnly()

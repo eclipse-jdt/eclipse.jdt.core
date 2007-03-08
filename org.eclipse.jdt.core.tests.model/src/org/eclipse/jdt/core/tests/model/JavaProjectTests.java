@@ -760,7 +760,7 @@ public void testPackageFragmentNonJavaResources6() throws JavaModelException {
 	Object[] resources = pkg.getNonJavaResources();
 	assertResourcesEqual(
 		"Unexpected resources", 
-		"x.y/Test.txt",
+		"x.y",
 		resources);
 }
 
@@ -862,7 +862,7 @@ public void testPackageFragmentRootNonJavaResources() throws JavaModelException 
 	resources = root.getNonJavaResources();
 	assertResourceNamesEqual(
 		"unexpected non java resoures (test case 4)", 
-		"MANIFEST.MF",
+		"META-INF",
 		resources);
 }
 /**

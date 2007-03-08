@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -20,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
@@ -61,7 +63,7 @@ protected boolean computeChildren(OpenableElementInfo info, ArrayList entryNames
 /**
  * Compute all the non-java resources according to the entry name found in the jar file.
  */
-/* package */ void computeNonJavaResources(String[] resNames, JarPackageFragmentInfo info, String zipName) {
+/* package */ void computeNonJavaResources(String[] resNames, JarPackageFragment pkg, JarPackageFragmentInfo info, String zipName) {
 	if (resNames == null) {
 		info.setNonJavaResources(null);
 		return;
@@ -70,19 +72,65 @@ protected boolean computeChildren(OpenableElementInfo info, ArrayList entryNames
 	if (max == 0) {
 	    info.setNonJavaResources(JavaElementInfo.NO_NON_JAVA_RESOURCES);
 	} else {
-		Object[] res = new Object[max];
-		int index = 0;
+		HashMap jarEntries = new HashMap(); // map from IPath to IJarEntryResource
+		HashMap childrenMap = new HashMap(); // map from IPath to ArrayList<IJarEntryResource>
+		ArrayList topJarEntries = new ArrayList();
 		for (int i = 0; i < max; i++) {
 			String resName = resNames[i];
 			// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
 			if (!Util.isJavaLikeFileName(resName)) {
-				IPath parentRelativePath = new Path(resName).removeFirstSegments(this.names.length);
-				res[index++] = new JarEntryFile(resName, zipName, parentRelativePath);
+				IPath childPath = new Path(resName).removeFirstSegments(this.names.length);
+				JarEntryFile file = new JarEntryFile(resName, zipName, childPath);
+				jarEntries.put(childPath, file);
+				if (childPath.segmentCount() == 1) {
+					file.setParent(pkg);
+					topJarEntries.add(file);
+				} else {
+					IPath parentPath = childPath.removeLastSegments(1);
+					while (parentPath.segmentCount() > 0) {
+						ArrayList parentChildren = (ArrayList) childrenMap.get(parentPath);
+						if (parentChildren == null) {
+							Object dir = new JarEntryDirectory(parentPath);
+							jarEntries.put(parentPath, dir);
+							childrenMap.put(parentPath, parentChildren = new ArrayList());
+							parentChildren.add(childPath);
+							if (parentPath.segmentCount() == 1) {
+								topJarEntries.add(dir);
+								break;
+							}
+							childPath = parentPath;
+							parentPath = childPath.removeLastSegments(1);
+						} else {
+							parentChildren.add(childPath);
+							break; // all parents are already registered
+						}
+					}
+				}
 			}
-		} 
-		if (index != max) {
-			System.arraycopy(res, 0, res = new Object[index], 0, index);
 		}
+		Iterator entries = childrenMap.entrySet().iterator();
+		while (entries.hasNext()) {
+			Map.Entry entry = (Map.Entry) entries.next();
+			IPath entryPath = (IPath) entry.getKey();
+			ArrayList entryValue =  (ArrayList) entry.getValue();
+			JarEntryDirectory jarEntryDirectory = (JarEntryDirectory) jarEntries.get(entryPath);
+			int size = entryValue.size();
+			IJarEntryResource[] children = new IJarEntryResource[size];
+			for (int i = 0; i < size; i++) {
+				Object child = jarEntries.get(entryValue.get(i));
+				if (child instanceof JarEntryFile) {
+					((JarEntryFile) child).setParent(jarEntryDirectory);
+				} else {
+					((JarEntryDirectory) child).setParent(jarEntryDirectory);
+				}
+				children[i] = (IJarEntryResource) child;
+			}
+			jarEntryDirectory.setChildren(children);
+			if (entryPath.segmentCount() == 1) {
+				jarEntryDirectory.setParent(pkg);
+			}
+		}
+		Object[] res = topJarEntries.toArray(new Object[topJarEntries.size()]);
 		info.setNonJavaResources(res);
 	}
 }
