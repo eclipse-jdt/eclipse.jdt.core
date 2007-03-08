@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
@@ -17,97 +18,60 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * A jar entry that represents a non-java file found in a JAR.
  *
  * @see IStorage
  */
-public class JarEntryFile extends PlatformObject implements IJarEntryResource {
+public class JarEntryFile  extends JarEntryResource {
 	private static final IJarEntryResource[] NO_CHILDREN = new IJarEntryResource[0];
-	private Object parent;
-	private String entryName;
-	private String zipName;
-	private IPath path;
 	
-public JarEntryFile(String entryName, String zipName, IPath parentRelativePath) {
-	this.entryName = entryName;
-	this.zipName = zipName;
-	this.path = parentRelativePath;
-}
-
-public JarEntryFile clone(Object newParent) {
-	JarEntryFile file = new JarEntryFile(this.entryName, this.zipName, this.path);
-	file.setParent(newParent);
-	return file;
-}
-
-public boolean equals(Object obj) {
-	if (! (obj instanceof JarEntryFile))
-		return false;
-	JarEntryFile other = (JarEntryFile) obj;
-	return this.parent.equals(other.parent) && this.path.equals(other.path);
-}
-	
-public InputStream getContents() throws CoreException {
-
-	try {
-		if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-			System.out.println("(" + Thread.currentThread() + ") [JarEntryFile.getContents()] Creating ZipFile on " + this.zipName); //$NON-NLS-1$	//$NON-NLS-2$
-		}
-		ZipFile zipFile = new ZipFile(this.zipName); 
-		ZipEntry zipEntry = zipFile.getEntry(this.entryName);
-		if (zipEntry == null){
-			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, this.entryName));
-		}
-		return zipFile.getInputStream(zipEntry);
-	} catch (IOException e){
-		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+	public JarEntryFile(String simpleName) {
+		super(simpleName);
 	}
-}
-public IJarEntryResource[] getChildren() {
-	return NO_CHILDREN;
-}
-/**
- * @see IStorage#getFullPath
- */
-public IPath getFullPath() {
-	return this.path;
-}
-/**
- * @see IStorage#getName
- */
-public String getName() {
-	return this.path.lastSegment();
-}
-public Object getParent() {
-	return this.parent;
-}
-public int hashCode() {
-	return Util.combineHashCodes(this.path.hashCode(), this.parent.hashCode());
-}
-public boolean isFile() {
-	return true;
-}
-/**
- * @see IStorage#isReadOnly()
- */
-public boolean isReadOnly() {
-	return true;
-}
-public void setParent(Object parent) {
-	this.parent = parent;
-}
-/**
- * @see IStorage#isReadOnly()
- */
-public String toString() {
-	return "JarEntryFile["+this.zipName+"::"+this.entryName+"]"; //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
-}
+	
+	public JarEntryResource clone(Object newParent) {
+		JarEntryFile file = new JarEntryFile(simpleName);
+		file.setParent(newParent);
+		return file;
+	}
+	
+	public InputStream getContents() throws CoreException {
+		ZipFile zipFile = null;
+		try {
+			zipFile = getZipFile();
+			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+				System.out.println("(" + Thread.currentThread() + ") [JarEntryFile.getContents()] Creating ZipFile on " +zipFile.getName()); //$NON-NLS-1$	//$NON-NLS-2$
+			}
+			String entryName = getEntryName();
+			ZipEntry zipEntry = zipFile.getEntry(entryName);
+			if (zipEntry == null){
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, entryName));
+			}
+			byte[] contents = Util.getZipEntryByteContent(zipEntry, zipFile);
+			return new ByteArrayInputStream(contents);
+		} catch (IOException e){
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		} finally {
+			// avoid leaking ZipFiles
+			JavaModelManager.getJavaModelManager().closeZipFile(zipFile);
+		}
+	}
+	
+	public IJarEntryResource[] getChildren() {
+		return NO_CHILDREN;
+	}
+	
+	public boolean isFile() {
+		return true;
+	}
+	
+	public String toString() {
+		return "JarEntryFile["+getEntryName()+"]"; //$NON-NLS-2$ //$NON-NLS-1$
+	}
 }

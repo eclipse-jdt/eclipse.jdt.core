@@ -177,11 +177,8 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			return defaultPkgResources;
 		Object[] nonJavaResources = new Object[length];
 		for (int i = 0; i < length; i++) {
-			Object nonJavaResource = defaultPkgResources[i];
-			if (nonJavaResource instanceof JarEntryFile)
-				nonJavaResources[i] = ((JarEntryFile) nonJavaResource).clone(this);
-			else
-				nonJavaResources[i] = ((JarEntryDirectory) nonJavaResource).clone(this);
+			JarEntryResource nonJavaResource = (JarEntryResource) defaultPkgResources[i];
+			nonJavaResources[i] = nonJavaResource.clone(this);
 		}
 		return nonJavaResources;
 	}

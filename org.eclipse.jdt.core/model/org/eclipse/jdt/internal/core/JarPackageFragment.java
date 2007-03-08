@@ -79,8 +79,9 @@ protected boolean computeChildren(OpenableElementInfo info, ArrayList entryNames
 			String resName = resNames[i];
 			// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
 			if (!Util.isJavaLikeFileName(resName)) {
-				IPath childPath = new Path(resName).removeFirstSegments(this.names.length);
-				JarEntryFile file = new JarEntryFile(resName, zipName, childPath);
+				IPath filePath = new Path(resName);
+				IPath childPath = filePath.removeFirstSegments(this.names.length);
+				JarEntryFile file = new JarEntryFile(filePath.lastSegment());
 				jarEntries.put(childPath, file);
 				if (childPath.segmentCount() == 1) {
 					file.setParent(pkg);
@@ -90,7 +91,7 @@ protected boolean computeChildren(OpenableElementInfo info, ArrayList entryNames
 					while (parentPath.segmentCount() > 0) {
 						ArrayList parentChildren = (ArrayList) childrenMap.get(parentPath);
 						if (parentChildren == null) {
-							Object dir = new JarEntryDirectory(parentPath);
+							Object dir = new JarEntryDirectory(parentPath.lastSegment());
 							jarEntries.put(parentPath, dir);
 							childrenMap.put(parentPath, parentChildren = new ArrayList());
 							parentChildren.add(childPath);
@@ -117,13 +118,9 @@ protected boolean computeChildren(OpenableElementInfo info, ArrayList entryNames
 			int size = entryValue.size();
 			IJarEntryResource[] children = new IJarEntryResource[size];
 			for (int i = 0; i < size; i++) {
-				Object child = jarEntries.get(entryValue.get(i));
-				if (child instanceof JarEntryFile) {
-					((JarEntryFile) child).setParent(jarEntryDirectory);
-				} else {
-					((JarEntryDirectory) child).setParent(jarEntryDirectory);
-				}
-				children[i] = (IJarEntryResource) child;
+				JarEntryResource child = (JarEntryResource) jarEntries.get(entryValue.get(i));
+				child.setParent(jarEntryDirectory);
+				children[i] = child;
 			}
 			jarEntryDirectory.setChildren(children);
 			if (entryPath.segmentCount() == 1) {

@@ -14,45 +14,30 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.jdt.core.IJarEntryResource;
-import org.eclipse.jdt.internal.core.util.Util;
 
-public class JarEntryDirectory extends PlatformObject implements IJarEntryResource {
-	private Object parent;
-	private IPath path;
+public class JarEntryDirectory extends JarEntryResource {
 	private IJarEntryResource[] children;
 	
-	public JarEntryDirectory(IPath parentRelativePath) {
-		this.path = parentRelativePath;
+	public JarEntryDirectory(String simpleName) {
+		super(simpleName);
 	}
 	
-	public JarEntryDirectory clone(Object newParent) {
-		JarEntryDirectory dir = new JarEntryDirectory(this.path);
+	public JarEntryResource clone(Object newParent) {
+		JarEntryDirectory dir = new JarEntryDirectory(this.simpleName);
 		dir.setParent(newParent);
 		int length = this.children.length;
 		if (length > 0) {
 			IJarEntryResource[] newChildren = new IJarEntryResource[length];
 			for (int i = 0; i < length; i++) {
-				IJarEntryResource child = this.children[i];
-				if (child instanceof JarEntryFile)
-					newChildren[i] = ((JarEntryFile) child).clone(dir);
-				else
-					newChildren[i] = ((JarEntryDirectory) child).clone(dir);
+				JarEntryResource child = (JarEntryResource) this.children[i];
+				newChildren[i] = child.clone(dir);
 			}
 			dir.setChildren(newChildren);
 		}
 		return dir;
 	}
 	
-	public boolean equals(Object obj) {
-		if (! (obj instanceof JarEntryDirectory))
-			return false;
-		JarEntryDirectory other = (JarEntryDirectory) obj;
-		return this.parent.equals(other.parent) && this.path.equals(other.path);
-	}
-
 	public IJarEntryResource[] getChildren() {
 		return this.children;
 	}
@@ -61,39 +46,15 @@ public class JarEntryDirectory extends PlatformObject implements IJarEntryResour
 		return new ByteArrayInputStream(new byte[0]);
 	}
 
-	public IPath getFullPath() {
-		return this.path;
-	}
-
-	public String getName() {
-		return this.path.lastSegment();
-	}
-
-	public Object getParent() {
-		return this.parent;
-	}
-	
-	public int hashCode() {
-		return Util.combineHashCodes(this.path.hashCode(), this.parent.hashCode());
-	}
-	
 	public boolean isFile() {
 		return false;
-	}
-
-	public boolean isReadOnly() {
-		return true;
 	}
 
 	public void setChildren(IJarEntryResource[] children) {
 		this.children = children;
 	}
 
-	public void setParent(Object parent) {
-		this.parent = parent;
-	}
-	
 	public String toString() {
-		return "JarEntryDirectory["+this.path+"]"; //$NON-NLS-1$ //$NON-NLS-2$ 
+		return "JarEntryDirectory["+getEntryName()+"]"; //$NON-NLS-1$ //$NON-NLS-2$ 
 	}
 }

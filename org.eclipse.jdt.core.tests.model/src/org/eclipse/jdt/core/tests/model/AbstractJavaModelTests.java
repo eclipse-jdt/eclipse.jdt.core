@@ -318,7 +318,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertElementsEqual(message, expected, elements);
 	}
 	
-	
 	protected void assertResourcesEqual(String message, String expected, Object[] resources) {
 		sortResources(resources);
 		StringBuffer buffer = new StringBuffer();
@@ -342,6 +341,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			buffer.toString()
 		);
 	}
+	
 	protected void assertResourceNamesEqual(String message, String expected, Object[] resources) {
 		sortResources(resources);
 		StringBuffer buffer = new StringBuffer();
@@ -365,6 +365,57 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			buffer.toString()
 		);
 	}
+	
+	protected void assertResourceTreeEquals(String message, String expected, Object[] resources) throws CoreException {
+		sortResources(resources);
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = resources.length; i < length; i++) {
+			printResourceTree(resources[i], buffer, 0);
+			if (i != length-1) buffer.append("\n");
+		}
+		if (!expected.equals(buffer.toString())) {
+			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(buffer.toString(), 2));
+			System.out.println(this.endChar);
+		}
+		assertEquals(
+			message,
+			expected,
+			buffer.toString()
+		);
+	}
+	
+	private void printResourceTree(Object resource, StringBuffer buffer, int indent) throws CoreException {
+		for (int i = 0; i < indent; i++) 
+			buffer.append("  ");
+		if (resource instanceof IResource) {
+			buffer.append(((IResource) resource).getName());
+			if (resource instanceof IContainer) {
+				IResource[] children = ((IContainer) resource).members();
+				int length = children.length;
+				if (length > 0) buffer.append("\n");
+				for (int j = 0; j < length; j++) {
+					printResourceTree(children[j], buffer, indent+1);
+					if (j != length-1) buffer.append("\n");
+				}
+			}
+		} else if (resource instanceof IJarEntryResource) {
+			IJarEntryResource jarEntryResource = (IJarEntryResource) resource;
+			buffer.append(jarEntryResource.getName());
+			if (!jarEntryResource.isFile()) {
+				IJarEntryResource[] children = jarEntryResource.getChildren();
+				int length = children.length;
+				if (length > 0) buffer.append("\n");
+				for (int j = 0; j < length; j++) {
+					printResourceTree(children[j], buffer, indent+1);
+					if (j != length-1) buffer.append("\n");
+				}
+			}
+		} else if (resource == null) {
+			buffer.append("<null>");
+		}
+		
+	}
+
 	protected void assertElementEquals(String message, String expected, IJavaElement element) {
 		String actual = element == null ? "<null>" : ((JavaElement) element).toStringWithAncestors(false/*don't show key*/);
 		if (!expected.equals(actual)) {
