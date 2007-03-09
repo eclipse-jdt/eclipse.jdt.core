@@ -41,8 +41,9 @@ private char[] cachedCategoryName;
 private static final int DEFAULT_BUFFER_SIZE = 2048;
 private static int BUFFER_READ_SIZE = DEFAULT_BUFFER_SIZE;
 private static final int BUFFER_WRITE_SIZE = DEFAULT_BUFFER_SIZE;
-private byte[] streamBuffer; // buffer used while reading category tables
-private int streamPos, streamEnd, bufferIndex;
+private byte[] streamBuffer;
+private int bufferIndex, bufferEnd; // used when reading from the file into the streamBuffer
+private int streamEnd; // used when writing data from the streamBuffer to the file
 
 public static final String SIGNATURE= "INDEX VERSION 1.121"; //$NON-NLS-1$
 private static final char[] SIGNATURE_CHARS = SIGNATURE.toCharArray();
@@ -143,7 +144,6 @@ private HashtableOfObject addQueryResult(HashtableOfObject results, char[] word,
 	} else {
 		SimpleLookupTable docsToRefs = memoryIndex.docsToReferences;
 		if (result == null) result = new EntryResult(word, null);
-		this.streamEnd = -1; // unknown
 		int[] docNumbers = readDocumentNumbers(wordsToDocNumbers.get(word));
 		for (int i = 0, l = docNumbers.length; i < l; i++) {
 			String docName = readDocumentName(docNumbers[i]);
@@ -217,21 +217,21 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 private void cacheDocumentNames() throws IOException {
 	// will need all document names so get them now
 	this.cachedChunks = new String[this.numberOfChunks][];
-	if (this.numberOfChunks > 5) BUFFER_READ_SIZE <<= 1;
-
 	FileInputStream stream = new FileInputStream(this.indexFile);
 	try {
+		if (this.numberOfChunks > 5) BUFFER_READ_SIZE <<= 1;
 		int offset = this.chunkOffsets[0];
 		stream.skip(offset);
 		this.streamBuffer = new byte[BUFFER_READ_SIZE];
-		this.streamEnd = this.startOfCategoryTables;
-		int readSize = this.streamEnd - offset;
 		this.bufferIndex = 0;
-		this.streamPos = stream.read(this.streamBuffer, 0, readSize < BUFFER_READ_SIZE ? readSize : BUFFER_READ_SIZE) + offset;
+		this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
 		for (int i = 0; i < this.numberOfChunks; i++) {
 			int size = i == this.numberOfChunks - 1 ? this.sizeOfLastChunk : CHUNK_SIZE;
 			readChunk(this.cachedChunks[i] = new String[size], stream, 0, size);
 		}
+	} catch (IOException e) {
+		this.cachedChunks = null;
+		throw e;
 	} finally {
 		stream.close();
 		this.streamBuffer = null;
@@ -494,9 +494,6 @@ DiskIndex mergeWith(MemoryIndex memoryIndex) throws IOException {
 		FileOutputStream stream = new FileOutputStream(newDiskIndex.indexFile, false);
 		int offsetToHeader = -1;
 		try {
-			newDiskIndex.streamBuffer = new byte[BUFFER_WRITE_SIZE];
-			newDiskIndex.bufferIndex = 0;
-			newDiskIndex.streamEnd = 0;
 			newDiskIndex.writeAllDocumentNames(docNames, stream);
 			docNames = null; // free up the space
 
@@ -519,9 +516,6 @@ DiskIndex mergeWith(MemoryIndex memoryIndex) throws IOException {
 			offsetToHeader = newDiskIndex.streamEnd;
 			newDiskIndex.writeHeaderInfo(stream);
 			positions = null; // free up the space
-			if (newDiskIndex.bufferIndex > 0) {
-				stream.write(newDiskIndex.streamBuffer, 0, newDiskIndex.bufferIndex);
-			}
 		} finally {
 			stream.close();
 			this.streamBuffer = null;
@@ -558,10 +552,8 @@ private synchronized String[] readAllDocumentNames() throws IOException {
 		int offset = this.chunkOffsets[0];
 		stream.skip(offset);
 		this.streamBuffer = new byte[BUFFER_READ_SIZE];
-		this.streamEnd = this.startOfCategoryTables;
-		int readSize = this.streamEnd - offset;
 		this.bufferIndex = 0;
-		this.streamPos = stream.read(this.streamBuffer, 0, readSize < BUFFER_READ_SIZE ? readSize : BUFFER_READ_SIZE) + offset;
+		this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
 		int lastIndex = this.numberOfChunks - 1;
 		String[] docNames = new String[lastIndex * CHUNK_SIZE + sizeOfLastChunk];
 		for (int i = 0; i < this.numberOfChunks; i++)
@@ -578,7 +570,6 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 	if (offset == HashtableOfIntValues.NO_VALUE) {
 		return null;
 	}
-	this.streamEnd = this.categoryEnds.get(categoryName);
 
 	if (this.categoryTables == null) {
 		this.categoryTables = new HashtableOfObject(3);
@@ -603,9 +594,8 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 	this.streamBuffer = new byte[BUFFER_READ_SIZE];
 	try {
 		stream.skip(offset);
-		int readSize = this.streamEnd - offset;
 		this.bufferIndex = 0;
-		this.streamPos = stream.read(this.streamBuffer, 0, readSize < BUFFER_READ_SIZE ? readSize : BUFFER_READ_SIZE) + offset;
+		this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
 		int size = readStreamInt(stream);
 		try {
 			if (size < 0) { // DEBUG
@@ -665,9 +655,8 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		stream = new FileInputStream(this.indexFile);
 		try {
 			stream.skip(firstOffset);
-			int readSize = this.streamEnd - firstOffset;
 			this.bufferIndex = 0;
-			this.streamPos = stream.read(this.streamBuffer, 0, readSize < BUFFER_READ_SIZE ? readSize : BUFFER_READ_SIZE) + firstOffset;
+			this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
 			for (int i = 0; i < count; i++) { // each array follows the previous one
 				categoryTable.put(matchingWords[i], readStreamDocumentArray(stream, readStreamInt(stream)));
 			}
@@ -685,18 +674,10 @@ private void readChunk(String[] docNames, FileInputStream stream, int index, int
 	String current = new String(readStreamChars(stream));
 	docNames[index++] = current;
 	for (int i = 1; i < size; i++) {
-		int start = (streamBuffer[this.bufferIndex++]&0xFF);
-		if (stream != null && this.bufferIndex == BUFFER_READ_SIZE) {
-			this.bufferIndex = 0;
-			int readSize = this.streamEnd - this.streamPos;
-			this.streamPos += stream.read(this.streamBuffer, 0, readSize < BUFFER_READ_SIZE ? readSize : BUFFER_READ_SIZE);
-		}
-		int end = (streamBuffer[this.bufferIndex++]&0xFF);
-		if (stream != null && this.bufferIndex == BUFFER_READ_SIZE) {
-			this.bufferIndex = 0;
-			int readSize = this.streamEnd - this.streamPos;
-			this.streamPos += stream.read(this.streamBuffer, 0, readSize < BUFFER_READ_SIZE ? readSize : BUFFER_READ_SIZE);
-		}
+		if (stream != null && this.bufferIndex + 2 >= this.bufferEnd)
+			readStreamBuffer(stream);
+		int start = streamBuffer[this.bufferIndex++] & 0xFF;
+		int end = streamBuffer[this.bufferIndex++] & 0xFF;
 		String next  = new String(readStreamChars(stream));
 		if (start > 0) {
 			if (end > 0) {
@@ -739,13 +720,14 @@ synchronized String readDocumentName(int docNumber) throws IOException {
 			file.close();
 		}
 		int numberOfNames = isLastChunk ? this.sizeOfLastChunk : CHUNK_SIZE;
-		chunk = this.cachedChunks[chunkNumber] = new String[numberOfNames];
+		chunk = new String[numberOfNames];
 		try {
 			readChunk(chunk, null, 0, numberOfNames);
 		} catch (IOException ioe) {
 			this.streamBuffer = null;
 			throw ioe;
 		}
+		this.cachedChunks[chunkNumber] = chunk;
 	}
 	this.streamBuffer = null;
 	return chunk[docNumber - (chunkNumber * CHUNK_SIZE)];
@@ -761,7 +743,7 @@ synchronized int[] readDocumentNumbers(Object arrayOffset) throws IOException {
 		stream.skip(offset);
 		this.streamBuffer = new byte[BUFFER_READ_SIZE];
 		this.bufferIndex = 0;
-		this.streamPos = stream.read(this.streamBuffer, 0, BUFFER_READ_SIZE) + offset;
+		this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
 		return readStreamDocumentArray(stream, readStreamInt(stream));
 	} finally {
 		stream.close();
@@ -820,6 +802,18 @@ synchronized void stopQuery() {
 		}
 	}
 }
+private void readStreamBuffer(FileInputStream stream) throws IOException {
+	// if we're about to read a known amount at the end of the existing buffer, but it does not completely fit
+	// so we need to shift the remaining bytes to be read, and fill the buffer from the stream
+	if (this.bufferEnd < this.streamBuffer.length)
+		return; // we're at the end of the stream - nothing left to read
+
+	int bytesInBuffer = this.bufferEnd - this.bufferIndex;
+	if (bytesInBuffer > 0)
+		System.arraycopy(this.streamBuffer, this.bufferIndex, this.streamBuffer, 0, bytesInBuffer);
+	this.bufferEnd = bytesInBuffer + stream.read(this.streamBuffer, bytesInBuffer, this.bufferIndex);
+	this.bufferIndex = 0;
+}
 /**
  * Reads in a string from the specified data input stream. The 
  * string has been encoded using a modified UTF-8 format. 
@@ -842,219 +836,122 @@ synchronized void stopQuery() {
  */
 private char[] readStreamChars(FileInputStream stream) throws IOException {
 	// read chars array length
-	int length = (streamBuffer[this.bufferIndex++]&0xFF)<<8;
-	int bufferSize = BUFFER_READ_SIZE;
-	if (stream != null && this.bufferIndex == bufferSize) {
-		this.bufferIndex = 0;
-		int readSize = this.streamEnd - this.streamPos;
-		this.streamPos += stream.read(this.streamBuffer, 0, readSize < bufferSize ? readSize : bufferSize);
-	}
-	length += (this.streamBuffer[this.bufferIndex++]&0xFF);
-	if (stream != null && this.bufferIndex == bufferSize) {
-		this.bufferIndex = 0;
-		int readSize = this.streamEnd - this.streamPos;
-		this.streamPos += stream.read(this.streamBuffer, 0, readSize < bufferSize ? readSize : bufferSize);
-	}
+	if (stream != null && this.bufferIndex + 2 >= this.bufferEnd)
+		readStreamBuffer(stream);
+	int length = (streamBuffer[this.bufferIndex++] & 0xFF) << 8;
+	length += this.streamBuffer[this.bufferIndex++] & 0xFF;
+
 	// fill the chars from bytes buffer
 	char[] word = new char[length];
-	int idx = this.bufferIndex;
 	int i = 0;
 	while (i < length) {
-		byte b = streamBuffer[idx++];
-		switch (b & 0xF0) {
-			case 0x00 :
-			case 0x10 :
-			case 0x20 :
-			case 0x30 :
-			case 0x40 :
-			case 0x50 :
-			case 0x60 :
-			case 0x70 :
-				word[i++]= (char) b;
-				break;
-			case 0xC0 :
-			case 0xD0 :
-				if (stream != null && idx == bufferSize) {
-					int readSize = this.streamEnd - this.streamPos;
-					this.streamPos += stream.read(this.streamBuffer, 0, readSize < bufferSize ? readSize : bufferSize);
-					idx = 0;
-				}
-				char next = (char) streamBuffer[idx++];
-				if ((next & 0xC0) != 0x80) {
+		// how many characters can be decoded without refilling the buffer?
+		int charsInBuffer = i + ((this.bufferEnd - this.bufferIndex) / 3);
+		// all the characters must already be in the buffer if we're at the end of the stream
+		if (charsInBuffer > length || this.bufferEnd != this.streamBuffer.length)
+			charsInBuffer = length;
+		while (i < charsInBuffer) {
+			byte b = this.streamBuffer[this.bufferIndex++];
+			switch (b & 0xF0) {
+				case 0x00 :
+				case 0x10 :
+				case 0x20 :
+				case 0x30 :
+				case 0x40 :
+				case 0x50 :
+				case 0x60 :
+				case 0x70 :
+					word[i++]= (char) b;
+					break;
+				case 0xC0 :
+				case 0xD0 :
+					char next = (char) this.streamBuffer[this.bufferIndex++];
+					if ((next & 0xC0) != 0x80) {
+						throw new UTFDataFormatException();
+					}
+					char ch = (char) ((b & 0x1F) << 6);
+					ch |= next & 0x3F;
+					word[i++] = ch;
+					break;
+				case 0xE0 :
+					char first = (char) this.streamBuffer[this.bufferIndex++];
+					char second = (char) this.streamBuffer[this.bufferIndex++];
+					if ((first & second & 0xC0) != 0x80) {
+						throw new UTFDataFormatException();
+					}
+					ch = (char) ((b & 0x0F) << 12);
+					ch |= ((first& 0x3F) << 6);
+					ch |= second & 0x3F;
+					word[i++] = ch;
+					break;
+				default:
 					throw new UTFDataFormatException();
-				}
-				char ch = (char) ((b & 0x1F) << 6);
-				ch |= next & 0x3F;
-				word[i++] = ch;
-				break;
-			case 0xE0 :
-				if (stream != null && idx == bufferSize) {
-					int readSize = this.streamEnd - this.streamPos;
-					this.streamPos += stream.read(this.streamBuffer, 0, readSize < bufferSize ? readSize : bufferSize);
-					idx = 0;
-				}
-				char first = (char) streamBuffer[idx++];
-				if (stream != null && idx == bufferSize) {
-					int readSize = this.streamEnd - this.streamPos;
-					this.streamPos += stream.read(this.streamBuffer, 0, readSize < bufferSize ? readSize : bufferSize);
-					idx = 0;
-				}
-				char second = (char) streamBuffer[idx++];
-				if ((first & second & 0xC0) != 0x80) {
-					throw new UTFDataFormatException();
-				}
-				ch = (char) ((b & 0x0F) << 12);
-				ch |= ((first& 0x3F) << 6);
-				ch |= second & 0x3F;
-				word[i++] = ch;
-				break;
-			default:
-				throw new UTFDataFormatException();
+			}
 		}
-		// as we read more bytes, chars array may be read before the end of the buffer
-		if (stream != null && idx == bufferSize) {
-			int readSize = this.streamEnd - this.streamPos;
-			this.streamPos += stream.read(this.streamBuffer, 0, readSize < bufferSize ? readSize : bufferSize);
-			idx = 0;
-		}
+		if (i < length && stream != null)
+			readStreamBuffer(stream);
 	}
-	this.bufferIndex = idx; // rsync buffer index
 	return word;
 }
 private int[] readStreamDocumentArray(FileInputStream stream, int arraySize) throws IOException {
 	int[] indexes = new int[arraySize];
 	if (arraySize == 0) return indexes;
-	int idx = this.bufferIndex;
-	int bufferSize = BUFFER_READ_SIZE;
+
+	int i = 0;
 	switch (this.documentReferenceSize) {
 		case 1 :
-			this.bufferIndex += arraySize;
-			if (this.bufferIndex < bufferSize) {
-				for (int i = 0; i < arraySize; i++) {
-					indexes[i] = streamBuffer[idx++] & 0xFF;
+			while (i < arraySize) {
+				// how many bytes without refilling the buffer?
+				int bytesInBuffer = i + this.bufferEnd - this.bufferIndex;
+				if (bytesInBuffer > arraySize)
+					bytesInBuffer = arraySize;
+				while (i < bytesInBuffer) {
+					indexes[i++] = this.streamBuffer[this.bufferIndex++] & 0xFF;
 				}
-			} else {
-				// set size to read on file
-				int readSize = this.streamEnd == -1 ? BUFFER_READ_SIZE : this.streamEnd - this.streamPos;
-				if (readSize > bufferSize) readSize = bufferSize;
-				// fill indexes array
-				for (int i = 0; i < arraySize; i++) {
-					indexes[i] = streamBuffer[idx++] & 0xFF;
-					if (idx == bufferSize) {
-						this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-						idx = 0;
-					}
-				}
+				if (i < arraySize && stream != null)
+					readStreamBuffer(stream);
 			}
 			break;
 		case 2 :
-			this.bufferIndex += arraySize << 1;
-			if (this.bufferIndex < bufferSize) {
-				for (int i = 0; i < arraySize; i++) {
-					int val = (streamBuffer[idx++]&0xFF)<<8;
-					indexes[i] = val + (streamBuffer[idx++] & 0xFF);
+			while (i < arraySize) {
+				// how many shorts without refilling the buffer?
+				int shortsInBuffer = i + ((this.bufferEnd - this.bufferIndex) / 2);
+				if (shortsInBuffer > arraySize)
+					shortsInBuffer = arraySize;
+				while (i < shortsInBuffer) {
+					int val = (this.streamBuffer[this.bufferIndex++] & 0xFF) << 8;
+					indexes[i++] = val + (this.streamBuffer[this.bufferIndex++] & 0xFF);
 				}
-			} else {
-				// set size to read on file
-				int readSize = this.streamEnd == -1 ? BUFFER_READ_SIZE : this.streamEnd - this.streamPos;
-				if (readSize > bufferSize) readSize = bufferSize;
-				// fill indexes array
-				for (int i = 0; i < arraySize; i++) {
-					int val = (streamBuffer[idx++]&0xFF)<<8;
-					if (idx == bufferSize) {
-						this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-						idx = 0;
-					}
-					indexes[i] = val + (streamBuffer[idx++] & 0xFF);
-					if (idx == bufferSize) {
-						this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-						idx = 0;
-					}
-				}
+				if (i < arraySize && stream != null)
+					readStreamBuffer(stream);
 			}
 			break;
 		default :
-			this.bufferIndex += arraySize << 2;
-			if (this.bufferIndex < bufferSize) {
-				for (int i = 0; i < arraySize; i++) {
-					int val = (streamBuffer[idx++]&0xFF)<<24;
-					val += (streamBuffer[idx++]&0xFF)<<16;
-					val += (streamBuffer[idx++]&0xFF)<<8;
-					indexes[i] += val + (streamBuffer[idx++]&0xFF);
-				}
-			} else {
-				// set size to read on file
-				int readSize = this.streamEnd == -1 ? BUFFER_READ_SIZE : this.streamEnd - this.streamPos;
-				if (readSize > bufferSize) readSize = bufferSize;
-				// fill indexes array
-				for (int i = 0; i < arraySize; i++) {
-					int val = (streamBuffer[idx++]&0xFF)<<24;
-					if (idx == bufferSize) {
-						this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-						idx = 0;
-					}
-					val += (streamBuffer[idx++]&0xFF)<<16;
-					if (idx == bufferSize) {
-						this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-						idx = 0;
-					}
-					val += (streamBuffer[idx++]&0xFF)<<8;
-					if (idx == bufferSize) {
-						this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-						idx = 0;
-					}
-					indexes[i] += val + (streamBuffer[idx++]&0xFF);
-					if (idx == bufferSize) {
-						this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-						idx = 0;
-					}
-				}
+			while (i < arraySize) {
+				indexes[i++] = readStreamInt(stream);
 			}
 			break;
 	}
-	this.bufferIndex = idx; // rsync buffer index
 	return indexes;
 }
 private int readStreamInt(FileInputStream stream) throws IOException {
-	int idx = this.bufferIndex;
-	this.bufferIndex += 4;
-	int bufferSize = BUFFER_READ_SIZE;
-	if (this.bufferIndex >= bufferSize) {
-		this.bufferIndex -= bufferSize;
-		int readSize = this.streamEnd == -1 ? BUFFER_READ_SIZE : this.streamEnd - this.streamPos;
-		if (readSize > bufferSize) readSize = bufferSize;
-		int val = (streamBuffer[idx++]&0xFF)<<24;
-		if (idx == bufferSize) {
-			this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-			idx = 0;
-		}
-		val += (streamBuffer[idx++]&0xFF)<<16;
-		if (idx == bufferSize) {
-			this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-			idx = 0;
-		}
-		val += (streamBuffer[idx++]&0xFF)<<8;
-		if (idx == bufferSize) {
-			this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-			idx = 0;
-		}
-		val += (streamBuffer[idx++]&0xFF);
-		if (idx == bufferSize) {
-			this.streamPos += stream.read(this.streamBuffer, 0, readSize);
-			idx = 0;
-		}
-		return val;
+	if (this.bufferIndex + 4 >= this.bufferEnd) {
+		readStreamBuffer(stream);
 	}
-	int val = (streamBuffer[idx]&0xFF)<<24;
-	val += (streamBuffer[idx+1]&0xFF)<<16;
-	val += (streamBuffer[idx+2]&0xFF)<<8;
-	return val + (streamBuffer[idx+3]&0xFF);
+	int val = (streamBuffer[this.bufferIndex++] & 0xFF) << 24;
+	val += (streamBuffer[this.bufferIndex++] & 0xFF) << 16;
+	val += (streamBuffer[this.bufferIndex++] & 0xFF) << 8;
+	return val + (streamBuffer[this.bufferIndex++] & 0xFF);
 }
 private void writeAllDocumentNames(String[] sortedDocNames, FileOutputStream stream) throws IOException {
 	if (sortedDocNames.length == 0)
 		throw new IllegalArgumentException();
 
 	// assume the file was just created by initializeFrom()
+	this.streamBuffer = new byte[BUFFER_WRITE_SIZE];
+	this.bufferIndex = 0;
+	this.streamEnd = 0;
+
 	// in order, write: SIGNATURE & headerInfoOffset place holder, then each compressed chunk of document names
 	writeStreamChars(stream, SIGNATURE_CHARS);
 	this.headerInfoOffset = this.streamEnd;
@@ -1237,6 +1134,11 @@ private void writeHeaderInfo(FileOutputStream stream) throws IOException {
 			writeStreamChars(stream, categoryNames[i]);
 			writeStreamInt(stream, offsets[i]);
 		}
+	}
+	// ensure buffer is written to the stream
+	if (this.bufferIndex > 0) {
+		stream.write(this.streamBuffer, 0, this.bufferIndex);
+		this.bufferIndex = 0;
 	}
 }
 private void writeOffsetToHeader(int offsetToHeader) throws IOException {
