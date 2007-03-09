@@ -7395,11 +7395,22 @@ public void _test122() {
 			"}\n" + 
 			"class Y<T> {\n" + 
 			"}"},
-		// should complain that X does not implement I#foo
 		"----------\n" + 
-		"1. ERROR ...\n" + 
-		"----------\n"
-	);
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	public class X implements I {\n" + 
+		"	             ^\n" + 
+		"The type X must implement the inherited abstract method I.foo(Integer, Y<String>, Y<String>)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	public void foo(Integer i, Y<String> l1, Y l2) {\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method foo(Integer, Y<String>, Y) of type X has the same erasure as foo(Integer, Y<String>, Y<String>) of type I but does not override it\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	public void foo(Integer i, Y<String> l1, Y l2) {\n" + 
+		"	                                         ^\n" + 
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=175987
 // variant that must pass because X#foo's signature is a subsignature of
