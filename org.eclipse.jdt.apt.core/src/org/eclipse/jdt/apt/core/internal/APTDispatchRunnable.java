@@ -659,7 +659,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		if (cpResults == null) {
 			return;
 		}
-		final List<IFile> deleted = new ArrayList<IFile>();
+		final Set<IFile> deleted = new HashSet<IFile>();
 		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
 		for( BuildContext cpResult : cpResults){
 			final IFile parentFile = cpResult.getFile();
@@ -704,7 +704,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			BuildEnv processorEnv,
 			Collection<IFile> deleted)
 	{
-		gfm.deleteObsoleteFilesAfterBuild(parentFile, newGeneratedFiles);
+		deleted.addAll(gfm.deleteObsoleteFilesAfterBuild(parentFile, newGeneratedFiles));
 	}
 
 	/**

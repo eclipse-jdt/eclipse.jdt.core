@@ -372,7 +372,9 @@ public class GeneratedFileManager
 	public Set<IFile> deleteObsoleteFilesAfterBuild(IFile parentFile, Set<IFile> newlyGeneratedFiles)
 	{
 		Set<IFile> deleted;
-		deleted = computeObsoleteFiles(parentFile, newlyGeneratedFiles);
+		List<ICompilationUnit> toDiscard = new ArrayList<ICompilationUnit>();
+		deleted = computeObsoleteFiles(parentFile, newlyGeneratedFiles, toDiscard);
+		
 		for (IFile toDelete : deleted) {
 			if (AptPlugin.DEBUG_GFM) AptPlugin.trace(
 					"deleted obsolete file during build: " + toDelete); //$NON-NLS-1$
@@ -381,8 +383,6 @@ public class GeneratedFileManager
 		
 		// Discard blank WCs *after* we delete the corresponding files:
 		// we don't want the type to become briefly visible to a reconcile thread.
-		List<ICompilationUnit> toDiscard;
-		toDiscard = computeObsoleteHiddenTypes(parentFile, deleted);
 		for (ICompilationUnit wcToDiscard : toDiscard) {
 			_CUHELPER.discardWorkingCopy(wcToDiscard);
 		}
@@ -961,7 +961,8 @@ public class GeneratedFileManager
 	 * {@link #deletePhysicalFile(IFile)}.
 	 */
 	private synchronized Set<IFile> computeObsoleteFiles(
-			IFile parentFile, Set<IFile> newlyGeneratedFiles)
+			IFile parentFile, Set<IFile> newlyGeneratedFiles,
+			List<ICompilationUnit> toDiscard)
 	{
 		Set<IFile> deleted = new HashSet<IFile>();
 		Set<IFile> obsoleteFiles = _buildDeps.getValues(parentFile);
@@ -976,6 +977,7 @@ public class GeneratedFileManager
 				deleted.add(generatedFile);
 			}
 		}
+		toDiscard.addAll(computeObsoleteHiddenTypes(parentFile, deleted));
 		assert checkIntegrity();
 		return deleted;
 	}
