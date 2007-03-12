@@ -31,13 +31,40 @@ boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	int length = oneArgs.length;
 	if (length != twoArgs.length) return false;
 
-	for (int i = 0; i < length; i++) {
-		if (!areTypesEqual(oneArgs[i], twoArgs[i])) {
-			// methods with raw parameters are considered equal to inherited methods with parameterized parameters for backwards compatibility
-			if (!one.declaringClass.isInterface() && oneArgs[i].leafComponentType().isRawType())
-				if (oneArgs[i].dimensions() == twoArgs[i].dimensions() && oneArgs[i].leafComponentType().isEquivalentTo(twoArgs[i].leafComponentType()))
-					continue;
-			return false;
+	if (one.declaringClass.isInterface()) {
+		for (int i = 0; i < length; i++)
+			if (!areTypesEqual(oneArgs[i], twoArgs[i]))
+				return false;
+	} else {
+		// methods with raw parameters are considered equal to inherited methods
+		// with parameterized parameters for backwards compatibility, need a more complex check
+		int i;
+		foundRAW: for (i = 0; i < length; i++) {
+			if (!areTypesEqual(oneArgs[i], twoArgs[i])) {
+				if (oneArgs[i].leafComponentType().isRawType()) {
+					if (oneArgs[i].dimensions() == twoArgs[i].dimensions() && oneArgs[i].leafComponentType().isEquivalentTo(twoArgs[i].leafComponentType())) {
+						// one parameter type is raw, hence all parameters types must be raw or non generic
+						// otherwise we have a mismatch check backwards
+						for (int j = 0; j < i; j++)
+							if (oneArgs[j].leafComponentType().isParameterizedType())
+								return false;
+						// switch to all raw mode
+						break foundRAW;
+					}
+				}
+				return false;
+			}
+		}
+		// all raw mode for remaining parameters (if any)
+		for (i++; i < length; i++) {
+			if (!areTypesEqual(oneArgs[i], twoArgs[i])) {
+				if (oneArgs[i].leafComponentType().isRawType())
+					if (oneArgs[i].dimensions() == twoArgs[i].dimensions() && oneArgs[i].leafComponentType().isEquivalentTo(twoArgs[i].leafComponentType()))
+						continue;
+				return false;
+			} else if (oneArgs[i].leafComponentType().isParameterizedType()) {
+				return false; // no remaining parameter can be a Parameterized type (if one has been converted then all RAW types must be converted)
+			}
 		}
 	}
 	return true;

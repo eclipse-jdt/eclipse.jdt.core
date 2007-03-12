@@ -7382,7 +7382,7 @@ public void test121() {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=175987
-public void _test122() {
+public void test122() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
