@@ -1537,7 +1537,7 @@ public final class CompletionEngine
 				// get the source positions of the completion identifier
 				if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
-							!this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF)) {
+							((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF))) {
 						int rangeStart = typeRef.completeInText() ? typeRef.sourceStart : (int) (completionPosition >>> 32);
 						setSourceRange(rangeStart, (int) completionPosition);
 						findMemberTypes(this.completionToken,
@@ -6374,7 +6374,7 @@ public final class CompletionEngine
 		
 		boolean proposeType =
 			!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
-			!this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF);
+			((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF));
 		
 		boolean proposeAllMemberTypes = !this.assistNodeIsConstructor;
 		
@@ -6631,7 +6631,7 @@ public final class CompletionEngine
 
 		boolean proposeType =
 			!this.requestor.isIgnored(CompletionProposal.TYPE_REF) ||
-			!this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF);
+			((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0 && !this.requestor.isIgnored(CompletionProposal.JAVADOC_TYPE_REF));
 		
 		char[] qualifiedName =
 			CharOperation.concatWith(packageBinding.compoundName, token, '.');
