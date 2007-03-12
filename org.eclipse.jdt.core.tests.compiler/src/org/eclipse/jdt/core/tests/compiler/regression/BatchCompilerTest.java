@@ -36,9 +36,9 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 
 	static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 59 };
+//	TESTS_NUMBERS = new int[] { 24 };
 //	TESTS_RANGE = new int[] { 107, -1 };
-}
+	}
 public BatchCompilerTest(String name) {
 	super(name);
 }
@@ -1116,8 +1116,8 @@ public void test012b(){
         "      maskedCatchBlock   + hidden catch block\n" +
         "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" +
         "      noEffectAssign     + assignment without effect\n" +
-        "      null                 potential missing or redundant null check\n" + 
-        "      nullDereference      missing null check\n" + 
+        "      null                 potential missing or redundant null check\n" +
+        "      nullDereference      missing null check\n" +
         "      over-ann             missing @Override annotation\n" +
         "      paramAssign          assignment to a parameter\n" +
         "      pkgDefaultMethod   + attempt to override package-default method\n" +
@@ -1264,7 +1264,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentialNullReference\" value=\"ignore\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullCheck\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" +
@@ -1731,28 +1731,32 @@ public void test019(){
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - explicit empty -extdirs removes extensions
 	public void test024(){
+		if (!System.getProperty("java.vm.vendor").equals("Sun Microsystems Inc.")) return;
+		/* this tests is using Sun vm layout. The type sun.net.spi.nameservice.dns.DNSNameService
+		 * is located in the ext dir.
+		 */
 		this.runNegativeTest(
-			new String[] {
-					"X.java",
-					"/** */\n" +
-					"public class X {\n" +
-					"  my.pkg.Zork dummy;\n" +
-					"}",
-			},
-	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-			+ " -extdirs \"\""
-	        + " -1.5 -g -preserveAllLocals"
-	        + " -proceedOnError -referenceInfo"
-	        + " -d \"" + OUTPUT_DIR + "\" ",
-	        "",
-	        "----------\n" +
-	        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-	        "	my.pkg.Zork dummy;\n" +
-	        "	^^\n" +
-	        "my cannot be resolved to a type\n" +
-	        "----------\n" +
-	        "1 problem (1 error)",
-	        true);
+				new String[] {
+						"X.java",
+						"/** */\n" +
+						"public class X {\n" +
+						"  sun.net.spi.nameservice.dns.DNSNameService dummy;\n" +
+						"}",
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+				+ " -extdirs \"\""
+				+ " -1.5 -g -preserveAllLocals"
+				+ " -proceedOnError -referenceInfo"
+				+ " -d \"" + OUTPUT_DIR + "\" ",
+				"",
+				"----------\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+				"	sun.net.spi.nameservice.dns.DNSNameService dummy;\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"sun.net.spi.nameservice.dns cannot be resolved to a type\n" +
+				"----------\n" +
+				"1 problem (1 error)",
+				true);
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
 	public void test025(){
@@ -5199,11 +5203,11 @@ public void test141_null_ref_option(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  void foo() {\n" + 
-			"    Object o = null;\n" + 
-			"    o.toString();\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object o = null;\n" +
+			"    o.toString();\n" +
+			"  }\n" +
 			"}"},
      "\"" + OUTPUT_DIR +  File.separator + "X.java\""
      + " -1.5 -g -preserveAllLocals"
@@ -5211,13 +5215,13 @@ public void test141_null_ref_option(){
      + " -cp " + getJCEJar()
      + " -warn:+nullDereference"
      + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-     "", 
-     "----------\n" + 
-     "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
-     "	o.toString();\n" + 
-     "	^\n" + 
-     "Null pointer access: The variable o can only be null at this location\n" + 
-     "----------\n" + 
+     "",
+     "----------\n" +
+     "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
+     "	o.toString();\n" +
+     "	^\n" +
+     "Null pointer access: The variable o can only be null at this location\n" +
+     "----------\n" +
      "1 problem (1 warning)",
      true);
 }
@@ -5228,11 +5232,11 @@ public void test142_null_ref_option(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  void foo() {\n" + 
-			"    Object o = null;\n" + 
-			"    if (o == null) {}\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object o = null;\n" +
+			"    if (o == null) {}\n" +
+			"  }\n" +
 			"}"},
   "\"" + OUTPUT_DIR +  File.separator + "X.java\""
   + " -1.5 -g -preserveAllLocals"
@@ -5240,13 +5244,13 @@ public void test142_null_ref_option(){
   + " -cp " + getJCEJar()
   + " -warn:+null"
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-  "", 
-  "----------\n" + 
-  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
-  "	if (o == null) {}\n" + 
-  "	    ^\n" + 
-  "Redundant null check: The variable o can only be null at this location\n" + 
-  "----------\n" + 
+  "",
+  "----------\n" +
+  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
+  "	if (o == null) {}\n" +
+  "	    ^\n" +
+  "Redundant null check: The variable o can only be null at this location\n" +
+  "----------\n" +
   "1 problem (1 warning)",
   true);
 }
@@ -5257,11 +5261,11 @@ public void test143_null_ref_option(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  void foo() {\n" + 
-			"    Object o = null;\n" + 
-			"    if (o == null) {}\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object o = null;\n" +
+			"    if (o == null) {}\n" +
+			"  }\n" +
 			"}"},
 "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 + " -1.5 -g -preserveAllLocals"
@@ -5269,7 +5273,7 @@ public void test143_null_ref_option(){
 + " -cp " + getJCEJar()
 + " -warn:+nullDereference"
 + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-"", 
+"",
 "",
 true);
 }
