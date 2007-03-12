@@ -778,6 +778,19 @@ public void testPackageFragmentNonJavaResources7() throws CoreException {
 }
 
 /*
+ * Ensures that the parent of a non-Java resource of a zip package is correct
+ */
+public void testPackageFragmentNonJavaResources8() throws CoreException {
+	IPackageFragment pkg = getPackageFragment("JavaProjectTests", "lib148949.jar", "p");
+	Object[] resources = pkg.getNonJavaResources();
+	Object parent = ((IJarEntryResource) resources[0]).getParent();
+	assertElementEquals(
+		"unexpected parent", 
+		"p [in lib148949.jar [in JavaProjectTests]]",
+		(IPackageFragment) parent);
+}
+
+/*
  * Ensures that the package-info.class file doesn't appear as a child of a package if proj=src
  * (regression test for bug 99654 [5.0] JavaModel returns both IClassFile and ICompilationUnit for package-info.java)
  */
@@ -869,6 +882,18 @@ public void testPackageFragmentRootNonJavaResources3() throws CoreException {
 		"META-INF\n" + 
 		"  MANIFEST.MF",
 		resources);
+}
+/*
+ * Ensures that the parent of a non-Java resource of a jar package fragment root is correct
+ */
+public void testPackageFragmentRootNonJavaResources4() throws CoreException {
+	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectTests", "lib.jar");
+	Object[] resources = root.getNonJavaResources();
+	Object parent = ((IJarEntryResource) resources[0]).getParent();
+	assertElementEquals(
+		"unexpected parent", 
+		"lib.jar [in JavaProjectTests]",
+		(IPackageFragmentRoot) parent);
 }
 /**
  * Test raw entry inference performance for package fragment root
