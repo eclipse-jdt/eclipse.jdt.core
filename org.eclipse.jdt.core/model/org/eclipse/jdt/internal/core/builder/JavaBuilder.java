@@ -31,7 +31,7 @@ IWorkspaceRoot workspaceRoot;
 CompilationParticipant[] participants;
 NameEnvironment nameEnvironment;
 SimpleLookupTable binaryLocationsPerProject; // maps a project to its binary resources (output folders, class folders, zip/jar files)
-State lastState;
+public State lastState;
 BuildNotifier notifier;
 char[][] extraResourceFileFilters;
 String[] extraResourceFolderFilters;
@@ -103,7 +103,7 @@ public static void removeProblemsFor(IResource resource) {
 	try {
 		if (resource != null && resource.exists()) {
 			resource.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
-			
+
 			// delete managed markers
 			Set markerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
 			if (markerTypes.size() == 0) return;
@@ -130,7 +130,7 @@ public static void removeProblemsAndTasksFor(IResource resource) {
 		if (resource != null && resource.exists()) {
 			resource.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
 			resource.deleteMarkers(IJavaModelMarker.TASK_MARKER, false, IResource.DEPTH_INFINITE);
-			
+
 			// delete managed markers
 			Set markerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
 			if (markerTypes.size() == 0) return;
@@ -201,24 +201,24 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	} catch (CoreException e) {
 		Util.log(e, "JavaBuilder handling CoreException while building: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage())); 
+		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()));
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
 		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 	} catch (ImageBuilderInternalException e) {
 		Util.log(e.getThrowable(), "JavaBuilder handling ImageBuilderInternalException while building: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage())); 
+		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()));
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
 		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 	} catch (MissingSourceFileException e) {
 		// do not log this exception since its thrown to handle aborted compiles because of missing source files
 		if (DEBUG)
-			System.out.println(Messages.bind(Messages.build_missingSourceFile, e.missingSourceFile)); 
+			System.out.println(Messages.bind(Messages.build_missingSourceFile, e.missingSourceFile));
 		removeProblemsAndTasksFor(currentProject); // make this the only problem for this project
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_missingSourceFile, e.missingSourceFile)); 
+		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_missingSourceFile, e.missingSourceFile));
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 	} finally {
@@ -237,7 +237,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 
 private void buildAll() {
 	notifier.checkCancel();
-	notifier.subTask(Messages.bind(Messages.build_preparingBuild, this.currentProject.getName())); 
+	notifier.subTask(Messages.bind(Messages.build_preparingBuild, this.currentProject.getName()));
 	if (DEBUG && lastState != null)
 		System.out.println("Clearing last state : " + lastState); //$NON-NLS-1$
 	clearLastState();
@@ -248,7 +248,7 @@ private void buildAll() {
 
 private void buildDeltas(SimpleLookupTable deltas) {
 	notifier.checkCancel();
-	notifier.subTask(Messages.bind(Messages.build_preparingBuild, this.currentProject.getName())); 
+	notifier.subTask(Messages.bind(Messages.build_preparingBuild, this.currentProject.getName()));
 	if (DEBUG && lastState != null)
 		System.out.println("Clearing last state : " + lastState); //$NON-NLS-1$
 	clearLastState(); // clear the previously built state so if the build fails, a full build will occur next time
@@ -280,7 +280,7 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 	} catch (CoreException e) {
 		Util.log(e, "JavaBuilder handling CoreException while cleaning: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage())); 
+		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()));
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 	} finally {
@@ -328,7 +328,7 @@ boolean filterExtraResource(IResource resource) {
 }
 
 private SimpleLookupTable findDeltas() {
-	notifier.subTask(Messages.bind(Messages.build_readingDelta, currentProject.getName())); 
+	notifier.subTask(Messages.bind(Messages.build_readingDelta, currentProject.getName()));
 	IResourceDelta delta = getDelta(currentProject);
 	SimpleLookupTable deltas = new SimpleLookupTable(3);
 	if (delta != null) {
@@ -364,7 +364,7 @@ private SimpleLookupTable findDeltas() {
 				if (canSkip) continue nextProject; // project has no structural changes in its output folders
 			}
 
-			notifier.subTask(Messages.bind(Messages.build_readingDelta, p.getName())); 
+			notifier.subTask(Messages.bind(Messages.build_readingDelta, p.getName()));
 			delta = getDelta(p);
 			if (delta != null) {
 				if (delta.getKind() != IResourceDelta.NO_CHANGE) {
@@ -389,7 +389,7 @@ public State getLastState(IProject project) {
 }
 
 /* Return the list of projects for which it requires a resource delta. This builder's project
-* is implicitly included and need not be specified. Builders must re-specify the list 
+* is implicitly included and need not be specified. Builders must re-specify the list
 * of interesting projects every time they are run as this is not carried forward
 * beyond the next build. Missing projects should be specified but will be ignored until
 * they are added to the workspace.
@@ -544,7 +544,7 @@ private int initializeBuilder(int kind, boolean forBuild) throws CoreException {
 			for (int i = 0, l = this.participants.length; i < l; i++)
 				if (this.participants[i].aboutToBuild(this.javaProject) == CompilationParticipant.NEEDS_FULL_BUILD)
 					kind = FULL_BUILD;
-	
+
 		// Flush the existing external files cache if this is the beginning of a build cycle
 		String projectName = currentProject.getName();
 		if (builtProjects == null || builtProjects.contains(projectName)) {
@@ -608,7 +608,7 @@ private boolean isWorthBuilding() throws CoreException {
 		removeProblemsAndTasksFor(currentProject); // remove all compilation problems
 
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.build_abortDueToClasspathProblems); 
+		marker.setAttribute(IMarker.MESSAGE, Messages.build_abortDueToClasspathProblems);
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
 		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
@@ -646,8 +646,8 @@ private boolean isWorthBuilding() throws CoreException {
 			IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 			marker.setAttribute(IMarker.MESSAGE,
 				isClasspathBroken(prereq.getRawClasspath(), p)
-					? Messages.bind(Messages.build_prereqProjectHasClasspathProblems, p.getName()) 
-					: Messages.bind(Messages.build_prereqProjectMustBeRebuilt, p.getName())); 
+					? Messages.bind(Messages.build_prereqProjectHasClasspathProblems, p.getName())
+					: Messages.bind(Messages.build_prereqProjectMustBeRebuilt, p.getName()));
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
 			marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
@@ -671,7 +671,7 @@ void mustPropagateStructuralChanges() {
 		if (participantPath != currentPath) {
 			IProject project = workspaceRoot.getProject(participantPath.segment(0));
 			if (hasBeenBuilt(project)) {
-				if (DEBUG) 
+				if (DEBUG)
 					System.out.println("Requesting another build iteration since cycle participant " + project.getName() //$NON-NLS-1$
 						+ " has not yet seen some structural changes"); //$NON-NLS-1$
 				needRebuild();

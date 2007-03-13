@@ -108,7 +108,7 @@ public class BuilderTests extends TestCase {
 			buf.append(problem.getMessage());
 			if (i < length - 1) buf.append('\n');
 		}
-		assertEquals("Unexpected problems", expected, buf.toString());		
+		assertEquals("Unexpected problems", expected, buf.toString());
 	}
 
 	/** Verifies that given element is not present.
@@ -260,7 +260,7 @@ public class BuilderTests extends TestCase {
 			printProblemsFor(root);
 
 		Problem[] rootProblems = env.getProblemsFor(root);
-	
+
 		for (int i = 0; i < expectedProblems.length; i++) {
 			Problem expectedProblem = expectedProblems[i];
 			boolean found = false;
@@ -414,7 +414,7 @@ public class BuilderTests extends TestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		
+
 		debugRequestor = new EfficiencyCompilerRequestor();
 		Compiler.DebugRequestor = debugRequestor;
 		if (env == null) {
@@ -435,7 +435,7 @@ public class BuilderTests extends TestCase {
 
 	/**
 	 * Concatenate and sort all problems for given root paths.
-	 * 
+	 *
 	 * @param roots The path to get the problems
 	 * @return All sorted problems of all given path
 	 */
@@ -478,7 +478,8 @@ public class BuilderTests extends TestCase {
 		suite.addTest(OutputFolderTests.suite());
 		suite.addTest(PackageTests.suite());
 		suite.addTest(StaticFinalTests.suite());
-		
+		suite.addTest(GetResourcesTests.suite());
+
 		if ((AbstractCompilerTest.getPossibleComplianceLevels()  & AbstractCompilerTest.F_1_5) != 0) {
 			suite.addTest(Java50Tests.suite());
             suite.addTest(PackageInfoTest.suite());

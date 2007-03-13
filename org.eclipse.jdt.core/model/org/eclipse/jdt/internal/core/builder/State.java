@@ -32,7 +32,7 @@ ClasspathLocation[] binaryLocations;
 // keyed by the project relative path of the type (ie. "src1/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
 SimpleLookupTable references;
 // keyed by qualified type name "p1/p2/A", value is the project relative path which defines this type "src1/p1/p2/A.java"
-SimpleLookupTable typeLocators;
+public SimpleLookupTable typeLocators;
 
 int buildNumber;
 long lastStructuralBuildTime;
@@ -97,8 +97,7 @@ void copyFrom(State lastState) {
 				this.typeLocators.put(keyTable[i], valueTable[i]);
 	}
 }
-
-char[][] getDefinedTypeNamesFor(String typeLocator) {
+public char[][] getDefinedTypeNamesFor(String typeLocator) {
 	Object c = references.get(typeLocator);
 	if (c instanceof AdditionalTypeCollection)
 		return ((AdditionalTypeCollection) c).definedTypeNames;
@@ -321,7 +320,7 @@ private static char[] readName(DataInputStream in) throws IOException {
 private static char[][] readNames(DataInputStream in) throws IOException {
 	int length = in.readInt();
 	char[][] names = new char[length][];
-	for (int i = 0; i < length; i++) 
+	for (int i = 0; i < length; i++)
 		names[i] = readName(in);
 	return names;
 }
@@ -627,7 +626,7 @@ private void writeRestriction(AccessRuleSet accessRuleSet, DataOutputStream out)
 		AccessRule[] accessRules = accessRuleSet.getAccessRules();
 		int length = accessRules.length;
 		out.writeInt(length);
-		if (length != 0) { 
+		if (length != 0) {
 			for (int i = 0; i < length; i++) {
 				AccessRule accessRule = accessRules[i];
 				writeName(accessRule.pattern, out);
