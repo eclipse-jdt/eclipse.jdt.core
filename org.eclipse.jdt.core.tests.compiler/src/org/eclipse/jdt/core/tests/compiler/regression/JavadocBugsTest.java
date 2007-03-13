@@ -4003,9 +4003,8 @@ public class JavadocBugsTest extends JavadocTest {
 	 * Bug 103304: [Javadoc] Wrong reference proposal for inner classes.
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=103304"
 	 */
-	public void testBug103304a() {
-		runNegativeTest(
-			new String[] {
+	public void testBug103304a_public() {
+		String[] units = new String[] {
 				"boden/IAFAState.java",
 				"package boden;\n" + 
 				"public interface IAFAState {\n" + 
@@ -4043,25 +4042,91 @@ public class JavadocBugsTest extends JavadocTest {
 				"	 */\n" + 
 				"	IAFAState.ValidationException valid2;\n" + 
 				"}\n"
-			},
-			//boden\TestValid.java:8: warning - Tag @see: reference not found: ValidationException
-			//boden\TestValid.java:12: warning - Tag @see: reference not found: ValidationException#IAFAState.ValidationException(String, IAFAState)
-			"----------\n" + 
-			"1. ERROR in boden\\TestValid.java (at line 4)\n" + 
-			"	* @see ValidationException\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n" + 
-			"2. ERROR in boden\\TestValid.java (at line 9)\n" + 
-			"	* @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n"
-		);
+			};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units,
+				//boden\TestValid.java:8: warning - Tag @see: reference not found: ValidationException
+				"----------\n" + 
+				"1. ERROR in boden\\TestValid.java (at line 4)\n" + 
+				"	* @see ValidationException\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n" + 
+				"2. ERROR in boden\\TestValid.java (at line 9)\n" + 
+				"	* @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n"
+			);
+		} else {
+			runConformTest(units);
+		}
 	}
+	
+	public void testBug103304a_private() {
+		String[] units = new String[] {
+				"boden/IAFAState.java",
+				"package boden;\n" + 
+				"public interface IAFAState {\n" + 
+				"    public class ValidationException extends Exception {\n" + 
+				"        public ValidationException(String variableName, IAFAState subformula) {\n" + 
+				"            super(\"Variable \'\"+variableName+\"\' may be unbound in \'\"+subformula+\"\'\");\n" + 
+				"        }\n" + 
+				"        public void method() {}\n" + 
+				"    }\n" + 
+				"    /**\n" + 
+				"     * Validates a formula for consistent bindings. Bindings are consistent, when at each point in time,\n" + 
+				"     * the set of povided variables can be guaranteed to be a superset of the set of required variables.\n" + 
+				"     * @throws ValidationException Thrown if a variable is unbound. \n" + 
+				"     * @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+				"     * @see IAFAState.ValidationException#method()\n" + 
+				"     * @see ValidationException\n" + 
+				"     * {@link ValidationException}\n" + 
+				"     */\n" + 
+				"    public void validate() throws ValidationException;\n" + 
+				"}\n",
+				"boden/TestValid.java",
+				"package boden;\n" + 
+				"import boden.IAFAState.ValidationException;\n" + 
+				"/**\n" + 
+				" * @see ValidationException\n" + 
+				" * @see IAFAState.ValidationException\n" + 
+				" */\n" + 
+				"public class TestValid {\n" + 
+				"	/**  \n" + 
+				"	 * @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+				"	 */\n" + 
+				"	IAFAState.ValidationException valid1;\n" + 
+				"	/**\n" + 
+				"	 * @see IAFAState.ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+				"	 */\n" + 
+				"	IAFAState.ValidationException valid2;\n" + 
+				"}\n"
+			};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units,
+				//boden\TestValid.java:8: warning - Tag @see: reference not found: ValidationException
+				//boden\TestValid.java:12: warning - Tag @see: reference not found: ValidationException#IAFAState.ValidationException(String, IAFAState)
+				"----------\n" + 
+				"1. ERROR in boden\\TestValid.java (at line 4)\n" + 
+				"	* @see ValidationException\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n" + 
+				"2. ERROR in boden\\TestValid.java (at line 9)\n" + 
+				"	* @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n"
+			);
+		} else {
+			runConformTest(units);
+		}
+	}
+
 	public void testBug103304b() {
-		runNegativeTest(
-			new String[] {
+		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
+		String[] units = new String[] {
 				"boden/IAFAState.java",
 				"package boden;\n" + 
 				"public interface IAFAState {\n" + 
@@ -4078,6 +4143,7 @@ public class JavadocBugsTest extends JavadocTest {
 				"public class TestInvalid1 {\n" + 
 				"	/** \n" + 
 				"	 * @see ValidationException#ValidationException(String, IAFAState)\n" + 
+				"	 * @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" +
 				"	 */ \n" + 
 				"	IAFAState.ValidationException invalid;\n" + 
 				"}\n",
@@ -4107,30 +4173,61 @@ public class JavadocBugsTest extends JavadocTest {
 				"	 */\n" + 
 				"	IAFAState.ValidationException invalid;\n" + 
 				"}\n"
-			},
-			//boden\TestInvalid1.java:7: warning - Tag @see: reference not found: ValidationException#ValidationException(String, IAFAState)
-			//boden\TestInvalid2.java:6: warning - Tag @see: can't find ValidationException(String, IAFAState) in boden.IAFAState.ValidationException => bug ID: 4288720
-			//boden\TestInvalid3.java:6: warning - Tag @see: can't find IAFA.State.ValidationException(String, IAFAState) in boden.IAFAState.ValidationException
-			//boden\TestInvalid4.java:6: warning - Tag @see: can't find IAFAState in boden.IAFAState.ValidationException
-			"----------\n" + 
-			"1. ERROR in boden\\TestInvalid1.java (at line 5)\n" + 
-			"	* @see ValidationException#ValidationException(String, IAFAState)\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. ERROR in boden\\TestInvalid3.java (at line 5)\n" + 
-			"	* @see IAFAState.ValidationException#IAFA.State.ValidationException(String, IAFAState)\n" + 
-		"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Invalid member type qualification\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. ERROR in boden\\TestInvalid4.java (at line 5)\n" + 
-			"	* @see IAFAState.ValidationException#IAFAState .ValidationException(String, IAFAState)\n" + 
-			"	                                     ^^^^^^^^^\n" + 
-			"Javadoc: IAFAState cannot be resolved or is not a field\n" + 
-			"----------\n"
+			};
+		String errors_14 = new String (
+				//boden\TestInvalid1.java:7: warning - Tag @see: reference not found: ValidationException#ValidationException(String, IAFAState)
+				//boden\TestInvalid1.java:8: warning - Tag @see: reference not found: ValidationException#IAFAState.ValidationException(String, IAFAState)
+				//boden\TestInvalid2.java:6: warning - Tag @see: can't find ValidationException(String, IAFAState) in boden.IAFAState.ValidationException => bug ID: 4288720
+				//boden\TestInvalid3.java:6: warning - Tag @see: can't find IAFA.State.ValidationException(String, IAFAState) in boden.IAFAState.ValidationException
+				//boden\TestInvalid4.java:6: warning - Tag @see: can't find IAFAState in boden.IAFAState.ValidationException
+				"----------\n" + 
+				"1. ERROR in boden\\TestInvalid1.java (at line 5)\n" + 
+				"	* @see ValidationException#ValidationException(String, IAFAState)\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n" + 
+				"2. ERROR in boden\\TestInvalid1.java (at line 6)\n" + 
+				"	* @see ValidationException#IAFAState.ValidationException(String, IAFAState)\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. ERROR in boden\\TestInvalid3.java (at line 5)\n" + 
+				"	* @see IAFAState.ValidationException#IAFA.State.ValidationException(String, IAFAState)\n" + 
+				"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. ERROR in boden\\TestInvalid4.java (at line 5)\n" + 
+				"	* @see IAFAState.ValidationException#IAFAState .ValidationException(String, IAFAState)\n" + 
+				"	                                     ^^^^^^^^^\n" + 
+				"Javadoc: IAFAState cannot be resolved or is not a field\n" + 
+				"----------\n"
 		);
+		String errors_50 = new String (
+				//boden\TestInvalid1.java:7: warning - Tag @see: reference not found: ValidationException#ValidationException(String, IAFAState)
+				//boden\TestInvalid2.java:6: warning - Tag @see: can't find ValidationException(String, IAFAState) in boden.IAFAState.ValidationException => bug ID: 4288720
+				//boden\TestInvalid3.java:6: warning - Tag @see: can't find IAFA.State.ValidationException(String, IAFAState) in boden.IAFAState.ValidationException
+				//boden\TestInvalid4.java:6: warning - Tag @see: can't find IAFAState in boden.IAFAState.ValidationException
+				"----------\n" + 
+				"1. ERROR in boden\\TestInvalid3.java (at line 5)\n" + 
+				"	* @see IAFAState.ValidationException#IAFA.State.ValidationException(String, IAFAState)\n" + 
+				"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. ERROR in boden\\TestInvalid4.java (at line 5)\n" + 
+				"	* @see IAFAState.ValidationException#IAFAState .ValidationException(String, IAFAState)\n" + 
+				"	                                     ^^^^^^^^^\n" + 
+				"Javadoc: IAFAState cannot be resolved or is not a field\n" + 
+				"----------\n"
+		);
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units, errors_14);
+		} else {
+			runNegativeTest(units, errors_50);
+		}
+		
 	}
 	public void testBug103304c() {
 		runConformTest(
@@ -5189,6 +5286,422 @@ public class JavadocBugsTest extends JavadocTest {
 				"Javadoc: \'public\' visibility for malformed doc comments hides this \'private\' reference\n" + 
 				"----------\n"
 			);
+		}
+	}
+	
+	/**
+	 * Bug 176027: [javadoc] @link to member type handled incorrectly
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=176027"
+	 */
+	public void testBug176027a() {
+		// case1 class X static class Inner
+		String[] units = new String[] {
+			"otherpkg/C.java",
+			"package otherpkg;\n" +
+			"public class C {\n" +
+			"        public static class Inner { }\n" +
+			"}\n"
+			,
+			"somepkg/MemberTypeDocTest.java",
+			"package somepkg;\n" +
+			"import otherpkg.C.Inner;\n" +
+			"/**\n" +
+			" * {@link Inner} -- error/warning \n" +
+			" */\n" +
+			"public class MemberTypeDocTest {\n" +
+			"      void m() { }\n" +
+			"}\n"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units,
+				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
+				"----------\n" + 
+				"1. ERROR in somepkg\\MemberTypeDocTest.java (at line 4)\n" + 
+				"	* {@link Inner} -- error/warning \n" + 
+				"	         ^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n"
+			);
+		}
+		else {
+			runConformTest(units);
+		}
+	}
+	
+	public void testBug176027b() {
+		// case3 class X class Inner
+		String[] units = new String[] {
+			"otherpkg/C.java",
+			"package otherpkg;\n" +
+			"public class C {\n" +
+			"        public class Inner { }\n" +
+			"}\n"
+			,
+			"somepkg/MemberTypeDocTest.java",
+			"package somepkg;\n" +
+			"import otherpkg.C.Inner;\n" +
+			"/**\n" +
+			" * {@link Inner} -- error/warning \n" +
+			" */\n" +
+			"public class MemberTypeDocTest {\n" +
+			"      void m() { }\n" +
+			"}\n"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units,
+				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
+				"----------\n" + 
+				"1. ERROR in somepkg\\MemberTypeDocTest.java (at line 4)\n" + 
+				"	* {@link Inner} -- error/warning \n" + 
+				"	         ^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n"
+			);
+		}
+		else {
+			runConformTest(units);
+		}
+	}
+	
+	public void testBug176027c() {
+		// case3 class X interface Inner
+		String[] units = new String[] {
+			"otherpkg/C.java",
+			"package otherpkg;\n" +
+			"public class C {\n" +
+			"        public interface Inner { }\n" +
+			"}\n"
+			,
+			"somepkg/MemberTypeDocTest.java",
+			"package somepkg;\n" +
+			"import otherpkg.C.Inner;\n" +
+			"/**\n" +
+			" * {@link Inner} -- error/warning \n" +
+			" */\n" +
+			"public class MemberTypeDocTest {\n" +
+			"      void m() { }\n" +
+			"}\n"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units,
+				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
+				"----------\n" + 
+				"1. ERROR in somepkg\\MemberTypeDocTest.java (at line 4)\n" + 
+				"	* {@link Inner} -- error/warning \n" + 
+				"	         ^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n"
+			);
+		}
+		else {
+			runConformTest(units);
+		}
+	}
+	
+	public void testBug176027d() {
+		// case4 interface X static class Inner
+		String[] units = new String[] {
+			"otherpkg/C.java",
+			"package otherpkg;\n" +
+			"public interface C {\n" +
+			"        public static class Inner { }\n" +
+			"}\n"
+			,
+			"somepkg/MemberTypeDocTest.java",
+			"package somepkg;\n" +
+			"import otherpkg.C.Inner;\n" +
+			"/**\n" +
+			" * {@link Inner} -- error/warning \n" +
+			" */\n" +
+			"public class MemberTypeDocTest {\n" +
+			"      void m() { }\n" +
+			"}\n"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units,
+				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
+				"----------\n" + 
+				"1. ERROR in somepkg\\MemberTypeDocTest.java (at line 4)\n" + 
+				"	* {@link Inner} -- error/warning \n" + 
+				"	         ^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n"
+			);
+		}
+		else {
+			runConformTest(units);
+		}
+	}
+	
+	public void testBug176027f() {
+		// case5 interface X class Inner
+		String[] units = new String[] {
+			"otherpkg/C.java",
+			"package otherpkg;\n" +
+			"public interface C {\n" +
+			"        public class Inner { }\n" +
+			"}\n"
+			,
+			"somepkg/MemberTypeDocTest.java",
+			"package somepkg;\n" +
+			"import otherpkg.C.Inner;\n" +
+			"/**\n" +
+			" * {@link Inner} -- error/warning \n" +
+			" */\n" +
+			"public class MemberTypeDocTest {\n" +
+			"      void m() { }\n" +
+			"}\n"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units,
+				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
+				"----------\n" + 
+				"1. ERROR in somepkg\\MemberTypeDocTest.java (at line 4)\n" + 
+				"	* {@link Inner} -- error/warning \n" + 
+				"	         ^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n"
+			);
+		}
+		else {
+			runConformTest(units);
+		}
+	}
+	
+	public void testBug176027g() {
+		// case6 interface X interface Inner
+		String[] units = new String[] {
+			"otherpkg/C.java",
+			"package otherpkg;\n" +
+			"public interface C {\n" +
+			"        public interface Inner { }\n" +
+			"}\n"
+			,
+			"somepkg/MemberTypeDocTest.java",
+			"package somepkg;\n" +
+			"import otherpkg.C.Inner;\n" +
+			"/**\n" +
+			" * {@link Inner} -- error/warning \n" +
+			" */\n" +
+			"public class MemberTypeDocTest {\n" +
+			"      void m() { }\n" +
+			"}\n"
+		};
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units,
+				//somepkg/MemberTypeDocTest.java:6: warning - Tag @link: reference not found: Inner
+				"----------\n" + 
+				"1. ERROR in somepkg\\MemberTypeDocTest.java (at line 4)\n" + 
+				"	* {@link Inner} -- error/warning \n" + 
+				"	         ^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n"
+			);
+		}
+		else {
+			runConformTest(units);
+		}
+	}
+	
+	public void testBug176027h_public() {
+		// test embedded inner classes
+		String[] units = new String[] {
+				"mainpkg/Outer.java",
+				"package mainpkg;\n" +
+				"public class Outer {\n" +
+				"        public class Inner {\n" +
+				"        	public class MostInner{\n" +
+				"    \n" +    		
+				"        	}\n" +
+				"        } \n" +
+				"}\n"
+				,
+				"pkg1/Valid1.java",
+				"package pkg1; \n" +
+				"import mainpkg.Outer.Inner.MostInner;\n" +
+				"// valid import - no error in 5.0\n" +
+				"\n" +
+				"/** \n" +
+				" * {@link MostInner}\n" +
+				" * \n" +
+				" */ \n" +
+				"public class Valid1 { \n" +
+				"	/** \n" +
+				"	 * {@link MostInner} \n" +
+				"	 * \n" +
+				"	 */ \n" +
+				"      void m() { } \n" +
+				"}\n"
+				,
+				"pkg2/Valid2.java",
+				"package pkg2; \n" +
+				"import mainpkg.Outer.Inner.*;\n" +
+				"//valid import - no error in 5.0\n" +
+				"\n" +
+				"/** \n" +
+				" * {@link MostInner}\n" +
+				" * \n" +
+				" */ \n" +
+				"public class Valid2 { \n" +
+				"      void m() { } \n" +
+				"}\n"
+				,
+				"pkg3/Invalid3.java",
+				"package pkg3; \n" +
+				"import mainpkg.Outer.*;\n" +
+				"//invalid import: expecting warning / error\n" +
+				"\n" +
+				"/** \n" +
+				" * {@link MostInner} -- error/warning  \n" +
+				" * \n" +
+				" */ \n" +
+				"public class Invalid3 { \n" +
+				"      void m() { } \n" +
+				"}\n"
+		};
+		
+		String error14 = new String (
+			//pkg1\Valid1.java:12: warning - Tag @link: reference not found: MostInner
+			//pkg2\Valid2.java:12: warning - Tag @link: reference not found: MostInner
+			//pkg3\Invalid3.java:12: warning - Tag @link: reference not found: MostInner
+			"----------\n" + 
+			"1. ERROR in pkg1\\Valid1.java (at line 6)\n" + 
+			"	* {@link MostInner}\n" + 
+			"	         ^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in pkg2\\Valid2.java (at line 6)\n" + 
+			"	* {@link MostInner}\n" + 
+			"	         ^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in pkg3\\Invalid3.java (at line 6)\n" + 
+			"	* {@link MostInner} -- error/warning  \n" + 
+			"	         ^^^^^^^^^\n" + 
+			"Javadoc: MostInner cannot be resolved to a type\n" + 
+			"----------\n");
+		
+		String error50 = new String (
+				//pkg3\Invalid3.java:12: warning - Tag @link: reference not found: MostInner
+				"----------\n" + 
+				"1. ERROR in pkg3\\Invalid3.java (at line 6)\n" + 
+				"	* {@link MostInner} -- error/warning  \n" + 
+				"	         ^^^^^^^^^\n" + 
+				"Javadoc: MostInner cannot be resolved to a type\n" + 
+				"----------\n");
+		
+		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units,error14);
+		}
+		else {
+			runNegativeTest(units,error50);
+		}
+	}
+	
+	public void testBug176027h_private() {
+		// test embedded inner classes
+		String[] units = new String[] {
+				"mainpkg/Outer.java",
+				"package mainpkg;\n" +
+				"public class Outer {\n" +
+				"        public class Inner {\n" +
+				"        	public class MostInner{\n" +
+				"    \n" +    		
+				"        	}\n" +
+				"        } \n" +
+				"}\n"
+				,
+				"pkg1/Valid1.java",
+				"package pkg1; \n" +
+				"import mainpkg.Outer.Inner.MostInner;\n" +
+				"// valid import - no error in 5.0\n" +
+				"\n" +
+				"/** \n" +
+				" * {@link MostInner}\n" +
+				" * \n" +
+				" */ \n" +
+				"public class Valid1 { \n" +
+				"	/** \n" +
+				"	 * {@link MostInner} \n" +
+				"	 * \n" +
+				"	 */ \n" +
+				"      void m() { } \n" +
+				"}\n"
+				,
+				"pkg2/Valid2.java",
+				"package pkg2; \n" +
+				"import mainpkg.Outer.Inner.*;\n" +
+				"//valid import - no error in 5.0\n" +
+				"\n" +
+				"/** \n" +
+				" * {@link MostInner}\n" +
+				" * \n" +
+				" */ \n" +
+				"public class Valid2 { \n" +
+				"      void m() { } \n" +
+				"}\n"
+				,
+				"pkg3/Invalid3.java",
+				"package pkg3; \n" +
+				"import mainpkg.Outer.*;\n" +
+				"//invalid import: expecting warning / error\n" +
+				"\n" +
+				"/** \n" +
+				" * {@link MostInner} -- error/warning  \n" +
+				" * \n" +
+				" */ \n" +
+				"public class Invalid3 { \n" +
+				"      void m() { } \n" +
+				"}\n"
+		};
+		
+		String error14 = new String(
+				//pkg1\Valid1.java:12: warning - Tag @link: reference not found: MostInner
+				//pkg1\Valid1.java:17: warning - Tag @link: reference not found: MostInner
+				//pkg2\Valid2.java:12: warning - Tag @link: reference not found: MostInner
+				//pkg3\Invalid3.java:12: warning - Tag @link: reference not found: MostInner
+				"----------\n" + 
+				"1. ERROR in pkg1\\Valid1.java (at line 6)\n" + 
+				"	* {@link MostInner}\n" + 
+				"	         ^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n" + 
+				"2. ERROR in pkg1\\Valid1.java (at line 11)\n" + 
+				"	* {@link MostInner} \n" + 
+				"	         ^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. ERROR in pkg2\\Valid2.java (at line 6)\n" + 
+				"	* {@link MostInner}\n" + 
+				"	         ^^^^^^^^^\n" + 
+				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. ERROR in pkg3\\Invalid3.java (at line 6)\n" + 
+				"	* {@link MostInner} -- error/warning  \n" + 
+				"	         ^^^^^^^^^\n" + 
+				"Javadoc: MostInner cannot be resolved to a type\n" + 
+		"----------\n");
+		
+		String error50 = new String(
+				//pkg3\Invalid3.java:12: warning - Tag @link: reference not found: MostInner
+				"----------\n" + 
+				"1. ERROR in pkg3\\Invalid3.java (at line 6)\n" + 
+				"	* {@link MostInner} -- error/warning  \n" + 
+				"	         ^^^^^^^^^\n" + 
+				"Javadoc: MostInner cannot be resolved to a type\n" + 
+				"----------\n");
+		
+		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
+		if (complianceLevel.equals(COMPLIANCE_1_3) || complianceLevel.equals(COMPLIANCE_1_4)) {
+			runNegativeTest(units,error14);
+		}
+		else {
+			runNegativeTest(units,error50);
 		}
 	}
 }

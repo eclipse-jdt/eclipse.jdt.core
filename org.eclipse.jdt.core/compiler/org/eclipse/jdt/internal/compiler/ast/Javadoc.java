@@ -740,15 +740,26 @@ public class Javadoc extends ASTNode {
 					return;
 				}
 			}
-
+			
 			// member types
 			if (resolvedType.isMemberType()) {
 				ReferenceBinding topLevelType = resolvedType;
-				int depth = 0;
+				// rebuild and store (in reverse order) compound name to handle embedded inner class
+				int packageLength = topLevelType.fPackage.compoundName.length;
+				int depth = resolvedType.depth();
+				int idx = depth + packageLength;
+				char[][] computedCompoundName = new char[idx+1][];
+				computedCompoundName[idx] = topLevelType.sourceName;
 				while (topLevelType.enclosingType() != null) {
 					topLevelType = topLevelType.enclosingType();
-					depth++;
+					computedCompoundName[--idx] = topLevelType.sourceName;
 				}
+				
+				// add package information
+				for (int i = packageLength; --i >= 0;) {
+					computedCompoundName[--idx] = topLevelType.fPackage.compoundName[i];
+				}
+										
 				ClassScope topLevelScope = scope.classScope();
 				// when scope is not on compilation unit type, then inner class may not be visible...
 				if (topLevelScope.parent.kind != Scope.COMPILATION_UNIT_SCOPE ||
@@ -757,9 +768,39 @@ public class Javadoc extends ASTNode {
 					if (typeReference instanceof JavadocSingleTypeReference) {
 						// inner class single reference can only be done in same unit
 						if ((!source15 && depth == 1) || topLevelType != topLevelScope.referenceContext.binding) {
-							if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
-							scope.problemReporter().javadocInvalidMemberTypeQualification(typeReference.sourceStart, typeReference.sourceEnd, scopeModifiers);
-							return;
+							// search for corresponding import
+							boolean hasValidImport = false;
+							if (source15) {
+								CompilationUnitScope unitScope = topLevelScope.compilationUnitScope();
+								ImportBinding[] imports = unitScope.imports;
+								int length = imports == null ? 0 : imports.length;
+								mainLoop: for (int i=0; i<length; i++) {
+									char[][] compoundName = imports[i].compoundName;
+									int compoundNameLength = compoundName.length;
+									if ((imports[i].onDemand && compoundNameLength == computedCompoundName.length-1) ||
+										(compoundNameLength == computedCompoundName.length))
+									{
+										for (int j = compoundNameLength; --j >= 0;) {
+											if (CharOperation.equals(imports[i].compoundName[j], computedCompoundName[j])) {
+												if (j == 0) {
+													hasValidImport = true;
+													break mainLoop;
+												}
+											} else {
+												break;	
+											}
+										}
+									}
+								}
+								if (!hasValidImport) {
+									if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+									scope.problemReporter().javadocInvalidMemberTypeQualification(typeReference.sourceStart, typeReference.sourceEnd, scopeModifiers);
+								}
+							} else {
+								if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+								scope.problemReporter().javadocInvalidMemberTypeQualification(typeReference.sourceStart, typeReference.sourceEnd, scopeModifiers);
+								return;
+							}
 						}
 					}
 				}
