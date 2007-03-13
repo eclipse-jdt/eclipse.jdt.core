@@ -38,7 +38,7 @@ public final class Util {
 			this.position = position;
 			this.length = length;
 		}
-		
+
 		public String getSource(char[] unitSource) {
 			//extra from the source the innacurate     token
 			//and "highlight" it using some underneath ^^^^^
@@ -49,7 +49,7 @@ public final class Util {
 			//sanity .....
 			int startPosition = this.position;
 			int endPosition = this.position + this.length - 1;
-			
+
 			if ((startPosition > endPosition)
 				|| ((startPosition < 0) && (endPosition < 0))
 				|| unitSource.length == 0)
@@ -57,14 +57,14 @@ public final class Util {
 
 			StringBuffer errorBuffer = new StringBuffer();
 			errorBuffer.append('\t');
-			
+
 			char c;
 			final char SPACE = ' ';
 			final char MARK = '^';
 			final char TAB = '\t';
 			//the next code tries to underline the token.....
 			//it assumes (for a good display) that token source does not
-			//contain any \r \n. This is false on statements ! 
+			//contain any \r \n. This is false on statements !
 			//(the code still works but the display is not optimal !)
 
 			// expand to line limits
@@ -75,11 +75,11 @@ public final class Util {
 			for (end = endPosition >= length ? length - 1 : endPosition ; end+1 < length; end++) {
 				if ((c = unitSource[end + 1]) == '\r' || c == '\n') break;
 			}
-			
+
 			// trim left and right spaces/tabs
 			while ((c = unitSource[begin]) == ' ' || c == '\t') begin++;
 			//while ((c = unitSource[end]) == ' ' || c == '\t') end--; TODO (philippe) should also trim right, but all tests are to be updated
-			
+
 			// copy source
 			errorBuffer.append(unitSource, begin, end-begin+1);
 			errorBuffer.append(Util.LINE_SEPARATOR).append("\t"); //$NON-NLS-1$
@@ -98,7 +98,7 @@ public final class Util {
 		ArrayList<EncodingError> encodingErrors = new ArrayList<EncodingError>();
 		FileObject fileObject;
 		String encoding;
-		
+
 		public EncodingErrorCollector(FileObject fileObject, String encoding) {
 			this.fileObject = fileObject;
 			this.encoding = encoding;
@@ -133,9 +133,9 @@ public final class Util {
 		ByteBuffer byteBuffer = ByteBuffer.allocate(contents.length);
 		byteBuffer.put(contents);
 		byteBuffer.flip();
-		return charsetDecoder.decode(byteBuffer).array();		
+		return charsetDecoder.decode(byteBuffer).array();
 	}
-	
+
 	public static CharSequence getCharContents(FileObject fileObject, boolean ignoreEncodingErrors, byte[] contents, String encoding) throws IOException {
 		if (contents == null) return null;
 		Charset charset = null;
@@ -164,33 +164,33 @@ public final class Util {
 			EncodingErrorCollector collector = null;
 			while (true) {
 				result = charsetDecoder.decode(byteBuffer, out, true);
-    			if (result.isMalformed() || result.isUnmappable()) {
-    				/* treat the error
-    				 * The wrong input character is at out.position
-    				 */
-    				if (collector == null) {
-    					collector = new EncodingErrorCollector(fileObject, encoding);
-    				}
-    				reportEncodingError(collector, out.position(), result.length());
-    				if ((out.position() + replacementLength) >= out.capacity()) {
-    					// resize
-        				CharBuffer temp = CharBuffer.allocate(out.capacity() * 2);
-        				out.flip();
-        				temp.put(out);
-        				out = temp;
-    				}
-    				out.append(replacement);
-    				byteBuffer.position(byteBuffer.position() + result.length());
-    				continue;
-    			}
-    			if (result.isOverflow()) {
-    				CharBuffer temp = CharBuffer.allocate(out.capacity() * 2);
-    				out.flip();
-    				temp.put(out);
-    				out = temp;
-    			} else {
-    				break;
-    			}
+				if (result.isMalformed() || result.isUnmappable()) {
+					/* treat the error
+					 * The wrong input character is at out.position
+					 */
+					if (collector == null) {
+						collector = new EncodingErrorCollector(fileObject, encoding);
+					}
+					reportEncodingError(collector, out.position(), result.length());
+					if ((out.position() + replacementLength) >= out.capacity()) {
+						// resize
+						CharBuffer temp = CharBuffer.allocate(out.capacity() * 2);
+						out.flip();
+						temp.put(out);
+						out = temp;
+					}
+					out.append(replacement);
+					byteBuffer.position(byteBuffer.position() + result.length());
+					continue;
+				}
+				if (result.isOverflow()) {
+					CharBuffer temp = CharBuffer.allocate(out.capacity() * 2);
+					out.flip();
+					temp.put(out);
+					out = temp;
+				} else {
+					break;
+				}
 			}
 			out.flip();
 			if (collector != null) {
@@ -199,7 +199,7 @@ public final class Util {
 			return out;
 		}
 	}
-	
+
 	private static void reportEncodingError(EncodingErrorCollector collector, int position, int length) {
 		collector.collect(position, -length);
 	}
