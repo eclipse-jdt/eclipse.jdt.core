@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
-import java.util.Enumeration;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -24,10 +22,7 @@ public class AllTests extends TestCase {
 	@SuppressWarnings("unchecked")
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
-		TestSuite compilerToolTestSuite = CompilerToolTests.suite();
-		for (Enumeration enumeration = compilerToolTestSuite.tests(); enumeration.hasMoreElements(); ){
-			suite.addTest((Test) enumeration.nextElement());
-		}
+		suite.addTest(CompilerToolTests.suite());
 		return suite;
 	}
 }
