@@ -201,7 +201,7 @@ protected void addAffectedSourceFiles(StringSet qualifiedSet, StringSet simpleSe
 			ReferenceCollection refs = (ReferenceCollection) valueTable[i];
 			if (refs.includes(internedQualifiedNames, internedSimpleNames)) {
 				IFile file = javaBuilder.currentProject.getFile(typeLocator);
-				SourceFile sourceFile = findSourceFile(file);
+				SourceFile sourceFile = findSourceFile(file, true);
 				if (sourceFile == null) continue next;
 				if (sourceFiles.contains(sourceFile)) continue next;
 				if (compiledAllAtOnce && previousSourceFiles != null && previousSourceFiles.contains(sourceFile))
@@ -306,16 +306,19 @@ protected void deleteGeneratedFiles(IFile[] deletedGeneratedFiles) {
 	// delete generated files and recompile any affected source files
 	try {
 		for (int j = deletedGeneratedFiles.length; --j >= 0;) {
-			SourceFile sourceFile = findSourceFile(deletedGeneratedFiles[j]);
-			if (sourceFile == null) continue;
+			IFile deletedFile = deletedGeneratedFiles[j];
+			if (deletedFile.exists()) continue; // only delete .class files for source files that were actually deleted
+
+			SourceFile sourceFile = findSourceFile(deletedFile, false);
 			String typeLocator = sourceFile.typeLocator();
 			int mdSegmentCount = sourceFile.sourceLocation.sourceFolder.getFullPath().segmentCount();
 			IPath typePath = sourceFile.resource.getFullPath().removeFirstSegments(mdSegmentCount).removeFileExtension();
+			addDependentsOf(typePath, true); // add dependents of the source file since its now deleted
+			previousSourceFiles = null; // existing source files did not see it as deleted since they were compiled before it was
 			char[][] definedTypeNames = newState.getDefinedTypeNamesFor(typeLocator);
 			if (definedTypeNames == null) { // defined a single type matching typePath
 				removeClassFile(typePath, sourceFile.sourceLocation.binaryFolder);
 			} else {
-				addDependentsOf(typePath, true); // add dependents of the source file since it may be involved in a name collision
 				if (definedTypeNames.length > 0) { // skip it if it failed to successfully define a type
 					IPath packagePath = typePath.removeLastSegments(1);
 					for (int d = 0, l = definedTypeNames.length; d < l; d++)
@@ -692,7 +695,7 @@ protected void processAnnotationResults(CompilationParticipantResult[] results) 
 		IFile[] addedGeneratedFiles = result.addedFiles;
 		if (addedGeneratedFiles != null) {
 			for (int j = addedGeneratedFiles.length; --j >= 0;) {
-				SourceFile sourceFile = findSourceFile(addedGeneratedFiles[j]);
+				SourceFile sourceFile = findSourceFile(addedGeneratedFiles[j], true);
 				if (sourceFile != null && !sourceFiles.contains(sourceFile))
 					this.sourceFiles.add(sourceFile);
 			}

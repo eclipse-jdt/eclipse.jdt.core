@@ -86,28 +86,50 @@ public class ParticipantBuildTests extends BuilderTests {
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
-		env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+		IPath test = env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
 			"public class Test extends GeneratedType {}\n" //$NON-NLS-1$
-			);
+		);
 
 		// install compilationParticipant
 		new BuildTestParticipant() {
-			boolean createFile = true;
+			int buildPass = 0;
 			public void buildStarting(BuildContext[] files, boolean isBatchBuild) {
 				// want to add a gen'ed source file that is referenced from the initial file to see if its recompiled
-				if (!this.createFile) return;
-				this.createFile = false;
 				BuildContext result = files[0];
 				IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
-				try {
-					genedType.create(new ByteArrayInputStream("public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
-				} catch (CoreException e) {
-					e.printStackTrace();
+				if (this.buildPass == 0 || this.buildPass == 3) {
+					try {
+						genedType.create(new ByteArrayInputStream("public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
+					} catch (CoreException e) {
+						e.printStackTrace();
+					}
+					result.recordAddedGeneratedFiles(new IFile[] {genedType});
+				} else if (this.buildPass == 1) {
+					try {
+						genedType.delete(true, null);
+					} catch (CoreException e) {
+						e.printStackTrace();
+					}
+					result.recordDeletedGeneratedFiles(new IFile[] {genedType});
 				}
-				result.recordAddedGeneratedFiles(new IFile[] {genedType});
+				this.buildPass++;
 			}
 		};
-		fullBuild(projectPath);
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
+		// GeneratedType will be deleted
+		env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class Test extends GeneratedType {}\n" //$NON-NLS-1$
+		);
+		incrementalBuild(projectPath);
+		expectingOnlySpecificProblemFor(test, new Problem("", "GeneratedType cannot be resolved to a type", test, 26, 39, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR));
+
+		// GeneratedType will be recreated
+		env.addClass(root, "", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"public class Test extends GeneratedType {}\n" //$NON-NLS-1$
+		);
+		incrementalBuild(projectPath);
 		expectingNoProblems();
 	}
 

@@ -385,8 +385,8 @@ protected void deleteGeneratedFiles(IFile[] deletedGeneratedFiles) {
 	// no op by default
 }
 
-protected SourceFile findSourceFile(IFile file) {
-	if (!file.exists()) return null;
+protected SourceFile findSourceFile(IFile file, boolean mustExist) {
+	if (mustExist && !file.exists()) return null;
 
 	// assumes the file exists in at least one of the source folders & is not excluded
 	ClasspathMultiDirectory md = sourceLocations[0];
@@ -443,7 +443,7 @@ protected IContainer createFolder(IPath packagePath, IContainer outputFolder) th
  * @see org.eclipse.jdt.internal.core.builder.ICompilationUnitLocator#fromIFile(org.eclipse.core.resources.IFile)
  */
 public ICompilationUnit fromIFile(IFile file) {
-	return findSourceFile(file);
+	return findSourceFile(file, true);
 }
 
 protected void initializeAnnotationProcessorManager(Compiler newCompiler) {
@@ -541,7 +541,7 @@ protected BuildContext[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
 		IFile[] addedGeneratedFiles = result.addedFiles;
 		if (addedGeneratedFiles != null) {
 			for (int j = addedGeneratedFiles.length; --j >= 0;) {
-				SourceFile sourceFile = findSourceFile(addedGeneratedFiles[j]);
+				SourceFile sourceFile = findSourceFile(addedGeneratedFiles[j], true);
 				if (sourceFile == null) continue;
 				if (uniqueFiles == null) {
 					uniqueFiles = new SimpleSet(unitsAboutToCompile.length + 3);
