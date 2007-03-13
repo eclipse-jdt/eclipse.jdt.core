@@ -19,7 +19,6 @@ import junit.framework.TestSuite;
  */
 public class AllTests extends TestCase {
 	// run all tests
-	@SuppressWarnings("unchecked")
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
 		suite.addTest(CompilerToolTests.suite());

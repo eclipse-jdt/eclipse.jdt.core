@@ -478,7 +478,6 @@ public class BuilderTests extends TestCase {
 		suite.addTest(OutputFolderTests.suite());
 		suite.addTest(PackageTests.suite());
 		suite.addTest(StaticFinalTests.suite());
-		suite.addTest(GetResourcesTests.suite());
 
 		if ((AbstractCompilerTest.getPossibleComplianceLevels()  & AbstractCompilerTest.F_1_5) != 0) {
 			suite.addTest(Java50Tests.suite());
