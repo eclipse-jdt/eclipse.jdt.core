@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.runtime.IPath;
 
 /**
  * A jar entry corresponding to a non-Java resource in an archive {@link IPackageFragment} or {@link IPackageFragmentRoot}.
@@ -35,12 +36,32 @@ public interface IJarEntryResource extends IStorage {
 	IJarEntryResource[] getChildren();
 	
 	/**
+	 * Returns the full, absolute path of this jar entry resource relative to the archive this jar 
+	 * entry belongs to.
+	 * <p>
+	 * A jar entry resource's full path indicates the route from the root of the archive
+	 * to the jar entry resource.  Within an archive, there is exactly one such path
+	 * for any given jar entry resource. The returned path never has a trailing separator.  
+	 * </p>
+	 * 
+	 * @return the absolute path of this jar entry resource
+	 */
+	IPath getFullPath();
+	
+	/**
 	 * Returns the parent of this jar entry resource. This is either an {@link IJarEntryResource}, an {@link IPackageFragment}
 	 * or an {@link IPackageFragmentRoot}.
 	 * 
 	 * @return the parent of this jar entry resource
 	 */
 	Object getParent();
+	
+	/**
+	 * Returns the package fragment root this jar entry file belongs to.
+	 * 
+	 * @return the package fragment root this jar entry file belongs to.
+	 */
+	IPackageFragmentRoot getPackageFragmentRoot();
 	
 	/**
 	 * Returns <code>true</code> if this jar entry represents a file.

@@ -53,7 +53,7 @@ public abstract class JarEntryResource  extends PlatformObject implements IJarEn
 	}
 	
 	public IPath getFullPath() {
-		return new Path(getEntryName());
+		return new Path(getEntryName()).makeAbsolute();
 	}
 	
 	public String getName() {
@@ -62,6 +62,16 @@ public abstract class JarEntryResource  extends PlatformObject implements IJarEn
 	
 	public Object getParent() {
 		return this.parent;
+	}
+	
+	public IPackageFragmentRoot getPackageFragmentRoot() {
+		if (this.parent instanceof IPackageFragment) {
+			return (IPackageFragmentRoot) ((IPackageFragment) this.parent).getParent();
+		} else if (this.parent instanceof IPackageFragmentRoot) {
+			return (IPackageFragmentRoot) this.parent;
+		} else {
+			return ((JarEntryDirectory) this.parent).getPackageFragmentRoot();
+		}
 	}
 	
 	protected ZipFile getZipFile() throws CoreException {
