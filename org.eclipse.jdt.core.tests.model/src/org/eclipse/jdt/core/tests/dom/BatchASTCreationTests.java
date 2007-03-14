@@ -1690,4 +1690,19 @@ public void test073() throws CoreException, IOException {
 		deleteProject("P072");
 	}
 }	
+
+	/*
+	 * Ensures that a secondary type binding can be retrieved using its key, even if the primary type doesn't exist.
+	 * (regression test for bug 177115 NullPointerException in BindingKeyResolver.consumeTypeVariable(...))
+	 */
+	public void test083() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"/*start*/class Y {\n" +
+				"}/*end*/",
+			}, 
+			"Lp1/X~Y;");
+	}
 }

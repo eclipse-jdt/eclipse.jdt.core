@@ -544,6 +544,7 @@ public class BindingKeyParser {
 		if (!this.parsingPaused) {
 			// fully qualified name
 			parseFullyQualifiedName();
+			parseSecondaryType();
 			if (pauseAfterFullyQualifiedName) {
 				this.parsingPaused = true;
 				return;
@@ -554,7 +555,6 @@ public class BindingKeyParser {
 			return;
 		}
 		consumeTopLevelType();
-		parseSecondaryType();
 		parseInnerType();
 		
 		if (this.scanner.isAtParametersStart()) {
