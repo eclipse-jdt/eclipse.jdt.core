@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -55,12 +53,12 @@ public class GetResourcesTests extends BuilderTests {
 		super(name);
 	}
 
+	static {
+//		TESTS_NUMBERS = new int[] { 15 };
+	}
+
 	public static Test suite() {
-		if (true)
-			return buildTestSuite(GetResourcesTests.class);
-		TestSuite suite = new TestSuite(GetResourcesTests.class.getName());
-		suite.addTest(new GetResourcesTests("test015"));
-		return suite;
+		return buildTestSuite(GetResourcesTests.class);
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=6584
