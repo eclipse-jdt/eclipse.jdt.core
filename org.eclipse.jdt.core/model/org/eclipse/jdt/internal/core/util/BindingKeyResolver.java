@@ -55,6 +55,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	ReferenceBinding genericType;
 	MethodBinding methodBinding;
 	
+	char[] secondarySimpleName;
 	CompilationUnitDeclaration parsedUnit;
 	BlockScope scope;
 	TypeBinding typeBinding;
@@ -308,9 +309,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 		this.typeBinding = this.environment.convertToRawType(this.typeBinding);
 	}
 	public void consumeSecondaryType(char[] simpleTypeName) {
-		if (this.parsedUnit == null) return;
-		this.typeDeclaration = null; // start from the parsed unit
-		this.typeBinding = getTypeBinding(simpleTypeName);
+		this.secondarySimpleName = simpleTypeName;
 	}
 	
 	public void consumeFullyQualifiedName(char[] fullyQualifiedName) {
@@ -325,7 +324,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (this.parsedUnit == null) {
 			this.typeBinding = getBinaryBinding();
 		} else {
-			char[] typeName = this.compoundName[this.compoundName.length-1];
+			char[] typeName = this.secondarySimpleName == null ? this.compoundName[this.compoundName.length-1] : this.secondarySimpleName;
 			this.typeBinding = getTypeBinding(typeName);
 		}
 	}
@@ -426,11 +425,21 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 * This key's scanner should be positioned on the package token.
 	 */
 	public CompilationUnitDeclaration getCompilationUnitDeclaration() {
-		char[][] name = compoundName();
+		char[][] name = this.compoundName;
 		if (name.length == 0) return null;
 		if (this.environment == null) return null;
 		ReferenceBinding binding = this.environment.getType(name);
-		if (!(binding instanceof SourceTypeBinding)) return null;
+		if (!(binding instanceof SourceTypeBinding)) {
+			if (this.secondarySimpleName == null) 
+				return null;
+			// case of a secondary type with no primary type (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=177115)
+			int length = name.length;
+			System.arraycopy(name, 0, name = new char[length][], 0, length-1);
+			name[length-1] = this.secondarySimpleName;
+			binding = this.environment.getType(name);
+			if (!(binding instanceof SourceTypeBinding))
+				return null;
+		}
 		SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) binding;
 		if (sourceTypeBinding.scope == null) 
 			return null;
@@ -443,8 +452,13 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 * This key's scanner should be positioned on the package token.
 	 */
 	public Binding getCompilerBinding() {
-		parse();
-		return this.compilerBinding;
+		try {
+			parse();
+			return this.compilerBinding;
+		} catch (RuntimeException e) {
+			Util.log(e, "Could not create binding from binding key: " + getKey()); //$NON-NLS-1$
+			return null;
+		}
 	}
 	
 	private TypeBinding getTypeBinding(char[] simpleTypeName) {
