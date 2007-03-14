@@ -593,8 +593,13 @@ public void testPerfReconcile() throws CoreException {
 	// Warm up
 	ICompilationUnit workingCopy = null;
 	try {
-		ProblemRequestor requestor = new ProblemRequestor();
-		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(new WorkingCopyOwner() {}, requestor, null);
+		final ProblemRequestor requestor = new ProblemRequestor();
+		WorkingCopyOwner owner = new WorkingCopyOwner() {
+			public IProblemRequestor getProblemRequestor(ICompilationUnit cu) {
+				return requestor;
+            }
+		};
+		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(owner, null);
 		if (WARMUP_COUNT > 0) {
 			for (int i=0; i<WARMUP_COUNT; i++) {
 				CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
@@ -710,8 +715,13 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 	// Warm up
 	ICompilationUnit workingCopy = null;
 	try {
-		ProblemRequestor requestor = new ProblemRequestor();
-		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(new WorkingCopyOwner() {}, requestor, null);
+		final ProblemRequestor requestor = new ProblemRequestor();
+		WorkingCopyOwner owner = new WorkingCopyOwner() {
+			public IProblemRequestor getProblemRequestor(ICompilationUnit cu) {
+				return requestor;
+            }
+		};
+		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(owner, null);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT });
 		if (WARMUP_COUNT > 0) {
 			for (int i=0; i<WARMUP_COUNT; i++) {
