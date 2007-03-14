@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -460,31 +462,71 @@ public class BuilderTests extends TestCase {
 		return allProblems;
 	}
 
-	public static Test suite() {
-		TestSuite suite = new TestSuite();
-
-		/* tests */
-		suite.addTest(AbstractMethodTests.suite());
-		suite.addTest(BasicBuildTests.suite());
-		suite.addTest(BuildpathTests.suite());
-		suite.addTest(CopyResourceTests.suite());
-		suite.addTest(DependencyTests.suite());
-		suite.addTest(ErrorsTests.suite());
-		suite.addTest(EfficiencyTests.suite());
-		suite.addTest(ExecutionTests.suite());
-		suite.addTest(IncrementalTests.suite());
-		suite.addTest(MultiProjectTests.suite());
-		suite.addTest(MultiSourceFolderAndOutputFolderTests.suite());
-		suite.addTest(OutputFolderTests.suite());
-		suite.addTest(PackageTests.suite());
-		suite.addTest(StaticFinalTests.suite());
-		suite.addTest(GetResourcesTests.suite());
+	private static Class[] getAllTestClasses() {
+		Class[] classes = new Class[] {
+			AbstractMethodTests.class,
+			BasicBuildTests.class,
+			BuildpathTests.class,
+			CopyResourceTests.class,
+			DependencyTests.class,
+			ErrorsTests.class,
+			EfficiencyTests.class,
+			ExecutionTests.class,
+			IncrementalTests.class,
+			MultiProjectTests.class,
+			MultiSourceFolderAndOutputFolderTests.class,
+			OutputFolderTests.class,
+			PackageTests.class,
+			StaticFinalTests.class,
+			GetResourcesTests.class,
+		};
 
 		if ((AbstractCompilerTest.getPossibleComplianceLevels()  & AbstractCompilerTest.F_1_5) != 0) {
-			suite.addTest(Java50Tests.suite());
-            suite.addTest(PackageInfoTest.suite());
-			suite.addTest(ParticipantBuildTests.suite());
+			int length = classes.length;
+			System.arraycopy(classes, 0, classes = new Class[length+3], 0, length);
+			classes[length++] = Java50Tests.class;
+            classes[length++] = PackageInfoTest.class;
+            classes[length++] = ParticipantBuildTests.class;
         }
+		return classes;
+	}
+
+	public static Test suite() {
+		TestSuite suite = new TestSuite(BuilderTests.class.getName());
+
+		// Hack to load all classes before computing their suite of test cases
+		// this allow to reset test cases subsets while running all Builder tests...
+		Class[] classes = getAllTestClasses();
+
+		// Reset forgotten subsets of tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS = null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+
+		/* tests */
+		for (int i = 0, length = classes.length; i < length; i++) {
+			Class clazz = classes[i];
+			Method suiteMethod;
+			try {
+				suiteMethod = clazz.getDeclaredMethod("suite", new Class[0]);
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+				continue;
+			}
+			Object test;
+			try {
+				test = suiteMethod.invoke(null, new Object[0]);
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+				continue;
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+				continue;
+			}
+			suite.addTest((Test) test);
+		}
 
 		return suite;
 	}
