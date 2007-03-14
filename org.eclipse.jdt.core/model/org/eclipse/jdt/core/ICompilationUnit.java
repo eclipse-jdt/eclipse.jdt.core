@@ -69,8 +69,8 @@ public static final int NO_AST = 0;
  * @since 3.0
  *
  * @deprecated Use {@link #becomeWorkingCopy(IProgressMonitor)} instead.
- * 	Note that if this deprecated method is used, problems will be reported on the passed problem requester
- * 	as well as on the problem requestor returned by the working copy owner (if not null).
+ * 	Note that if this deprecated method is used, problems will be reported to the given problem requestor
+ * 	as well as the problem requestor returned by the working copy owner (if not null).
  */
 void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException;
 /**

@@ -77,8 +77,8 @@ public interface IClassFile extends ITypeRoot {
  * @see ICompilationUnit#discardWorkingCopy()
  * @since 3.2
  * @deprecated Use {@link ITypeRoot#getWorkingCopy(WorkingCopyOwner, IProgressMonitor)} instead.
- * 	Note that if this deprecated method is used, problems will be reported on the passed problem requester
- * 	as well as on the problem requestor returned by the working copy owner (if not null).
+ * 	Note that if this deprecated method is used, problems will be reported to the given problem requestor
+ * 	as well as the problem requestor returned by the working copy owner (if not null).
  */
 ICompilationUnit becomeWorkingCopy(IProblemRequestor problemRequestor, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
 /**
