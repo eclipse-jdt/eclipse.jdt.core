@@ -68,6 +68,13 @@ public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonit
 		operation.runOperation(monitor);
 	}
 }
+/*
+ * @see ICompilationUnit#becomeWorkingCopy(IProgressMonitor)
+ */
+public void becomeWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
+	IProblemRequestor requestor = this.owner == null ? null : this.owner.getProblemRequestor(this);
+	becomeWorkingCopy(requestor, monitor);
+}
 protected boolean buildStructure(OpenableElementInfo info, final IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 
 	// check if this compilation unit can be opened
@@ -904,6 +911,7 @@ public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory fact
 }
 /**
  * @see ICompilationUnit#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
+ * @deprecated
  */
 public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 	if (!isPrimary()) return this;
@@ -1122,7 +1130,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	throws JavaModelException {
 	return reconcile(astLevel, forceProblemDetection, false, workingCopyOwner, monitor);
 }
-		
+
 /**
  * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
  * @since 3.0

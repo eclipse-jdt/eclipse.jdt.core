@@ -168,7 +168,7 @@ public void testAddExclusionOnPrimaryWorkingCopy() throws CoreException {
 	ICompilationUnit workingCopy = null;
 	try {
 		workingCopy = getCompilationUnit("/P/src/p/A.java");
-		workingCopy.becomeWorkingCopy(null, null);
+		workingCopy.becomeWorkingCopy(null);
 		
 		clearDeltas();
 		setClasspath(new String[] {"/P/src", "**/A.java"});

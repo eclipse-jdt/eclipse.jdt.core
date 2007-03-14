@@ -119,7 +119,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 			
 			String markerStart = "/*start" + markerNumber + "*/";
 			String markerEnd = "/*end" + markerNumber + "*/";
-			int astStart = source.indexOf(markerStart); // start of AST inclusive
+			int astStart = this.source.indexOf(markerStart); // start of AST inclusive
 			this.astStarts[markerIndex-1] = astStart;
 			removeMarkerFromSource(markerStart, astStart, markerIndex-1);
 			int astEnd = this.source.indexOf(markerEnd); // end of AST exclusive
@@ -380,15 +380,11 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	}
 	
 	protected ICompilationUnit[] createWorkingCopies(MarkerInfo[] markerInfos, WorkingCopyOwner owner) throws JavaModelException {
-		return createWorkingCopies(markerInfos, owner, null);
-	}
-
-	protected ICompilationUnit[] createWorkingCopies(MarkerInfo[] markerInfos, WorkingCopyOwner owner, IProblemRequestor problemRequestor) throws JavaModelException {
 		int length = markerInfos.length;
 		ICompilationUnit[] copies = new ICompilationUnit[length];
 		for (int i = 0; i < length; i++) {
 			MarkerInfo markerInfo = markerInfos[i];
-			ICompilationUnit workingCopy = getCompilationUnit(markerInfo.path).getWorkingCopy(owner, problemRequestor, null);
+			ICompilationUnit workingCopy = getCompilationUnit(markerInfo.path).getWorkingCopy(owner, null);
 			workingCopy.getBuffer().setContents(markerInfo.source);
 			workingCopy.makeConsistent(null);
 			copies[i] = workingCopy;
@@ -421,6 +417,21 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		ASTNode[] result = new ASTNode[size];
 		visitor.found.toArray(result);
 		return result;
+	}
+
+	/**
+	 * Create a new working copy owner using given problem requestor
+	 * to report problem.
+	 * 
+	 * @param problemRequestor The requestor used to report problems
+	 * @return The created working copy owner
+	 */
+	protected WorkingCopyOwner newWorkingCopyOwner(final IProblemRequestor problemRequestor) {
+		return new WorkingCopyOwner() {
+			public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {
+				return problemRequestor;
+			}
+		};
 	}
 
 	protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, IJavaProject project, WorkingCopyOwner owner) {

@@ -4156,7 +4156,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public void test0538b() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		try {
-			sourceUnit.becomeWorkingCopy(null, null);
+			sourceUnit.becomeWorkingCopy(null);
 			sourceUnit.getBuffer().setContents(
 				"package test0538;\n" +
 				"public class A {\n" +

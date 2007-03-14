@@ -50,9 +50,53 @@ Eclipse SDK 3.3M6 - %date%
 <br>Project org.eclipse.jdt.core v_742
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_742">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>The working copy owner (<code>WorkingCopyOwner</code>) now specifies the problem requestor
+(<code>IProblemrequestor</code>) used to report problems on working copies it owns 
+(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=175243">175243</a>).<br>
+To implement this new responsibility, a new API method has been added on <code>WorkingCopyOwner</code> class:
+<pre>
+/**
+ * Returns the problem requestor used by a working copy of this working copy owner.
+ *
+ * By default, no problem requestor is configured. Clients can override this 
+ * method to provide a requestor.
+ * 
+ * @param workingCopy The problem requestor used for the given working copy.
+ * If <code>null</code>, then return the problem requestor used for all working 
+ * copies of the working copy owner.
+ * @return the problem requestor to be used by working copies of this working 
+ * copy owner or <code>null</code> if no problem requestor is configured.
+ * 
+ * @since 3.3
+ */
+public IProblemRequestor getProblemRequestor(ICompilationUnit workingCopy) {
+	return null;
+}
+</pre>
+As a consequence of this addition, <code>IProblemRequestor</code> parameter
+of <code>*WorkingCopy</code> methods becomes unnecessary and corresponding
+methods have been deprecated:
+<ol>
+<li><code>ICompilationUnit#becomeWorkingCopy(IProblemRequestor, IProgressMonitor)</code></li>
+<li><code>ICompilationUnit#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)</code></li>
+<li><code>IClassFile#becomeWorkingCopy(IProblemRequestor, WorkingCopyOwner, IProgressMonitor)</code></li>
+<li><code>WorkingCopyOwner#newWorkingCopy(String, IClasspathEntry[], IProblemRequestor, IProgressMonitor)</code></li>
+</ol>
+And are obviously replaced by following methods:
+<ol>
+<li><code>ICompilationUnit#becomeWorkingCopy(IProgressMonitor)</code></li>
+<li><code>ICompilationUnit#getWorkingCopy(WorkingCopyOwner, IProgressMonitor)</code></li>
+<li><code>IClassFile#becomeWorkingCopy(WorkingCopyOwner, IProgressMonitor)</code></li>
+<li><code>WorkingCopyOwner#newWorkingCopy(String, IClasspathEntry[], IProgressMonitor)</code></li>
+</ol>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=163733">163733</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=175243">175243</a>
+[model] Let working copy owner control the problem requestor used
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=163733">163733</a>
 IncrementalImageBuilder.deleteGeneratedFiles() is broken
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=177079">177079</a>
 Add jdt.apt.pluggable.core as x-friend to jdt.core

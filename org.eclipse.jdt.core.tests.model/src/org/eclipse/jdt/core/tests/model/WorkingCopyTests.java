@@ -72,7 +72,7 @@ protected void setUp() throws Exception {
 			"  }\n" +
 			"}");
 		this.cu = this.getCompilationUnit("P/src/x/y/A.java");
-		this.copy = cu.getWorkingCopy(null);
+		this.copy = this.cu.getWorkingCopy(null);
 	} catch (CoreException e) {
 		e.printStackTrace();
 		throw new RuntimeException(e.getMessage());
@@ -232,7 +232,7 @@ public void testCreation() {
  */
 public void testCustomizedBuffer() throws JavaModelException {
 	WorkingCopyOwner owner = new TestWorkingCopyOwner();
-	ICompilationUnit customizedCopy = this.cu.getWorkingCopy(owner, null, null);
+	ICompilationUnit customizedCopy = this.cu.getWorkingCopy(owner, null);
 	try {
 		assertTrue("Unexpected buffer", customizedCopy.getBuffer() instanceof TestBuffer);
 	} finally {
@@ -244,7 +244,7 @@ public void testCustomizedBuffer() throws JavaModelException {
  */
 public void testCustomizedBuffer2() throws JavaModelException {
 	WorkingCopyOwner owner = new TestWorkingCopyOwner();
-	ICompilationUnit customizedCopy = this.cu.getWorkingCopy(owner, null, null);
+	ICompilationUnit customizedCopy = this.cu.getWorkingCopy(owner, null);
 	try {
 		customizedCopy.close();
 		customizedCopy.open(null);
@@ -263,7 +263,7 @@ public void testDelete2Fields() throws CoreException {
 		JavaCore.run(
 			new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
-					IType type = copy.getType("A");
+					IType type = WorkingCopyTests.this.copy.getType("A");
 					IField field1 = type.getField("field1");
 					IField field2 = type.getField("field2");
 					field1.delete(false, monitor);
@@ -410,7 +410,7 @@ public void testGetPrimaryField() {
  * Ensures that the primary import declaration can be retrieved.
  */
 public void testGetPrimaryImportDeclaration()  {
-	IImportDeclaration imprt = copy.getImport("java.io.File");
+	IImportDeclaration imprt = this.copy.getImport("java.io.File");
 	IJavaElement primary = imprt.getPrimaryElement();
 	assertTrue("Element should exist", primary.exists());
 }
@@ -427,7 +427,7 @@ public void testGetPrimaryImportContainer() {
  * Ensures that the primary initializer can be retrieved.
  */
 public void testGetPrimaryInitializer() {
-	IType type= copy.getType("A");
+	IType type= this.copy.getType("A");
 	IJavaElement primary= type.getInitializer(1).getPrimaryElement();
 	assertTrue("Element should exist", primary.exists());
 }
@@ -558,7 +558,7 @@ public void testMoveTypeToAnotherWorkingCopy() throws CoreException {
  */
 public void testShared1() throws JavaModelException {
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
-	ICompilationUnit shared = this.cu.getWorkingCopy(owner, null, null);
+	ICompilationUnit shared = this.cu.getWorkingCopy(owner, null);
 	try {
 		assertTrue("Should find shared working copy", this.cu.findWorkingCopy(owner) == shared);
 	} finally {
@@ -571,9 +571,9 @@ public void testShared1() throws JavaModelException {
  */
 public void testShared2() throws JavaModelException {
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
-	ICompilationUnit shared = this.cu.getWorkingCopy(owner, null, null);
+	ICompilationUnit shared = this.cu.getWorkingCopy(owner, null);
 	try {
-		ICompilationUnit shared2 = this.cu.getWorkingCopy(owner, null, null);
+		ICompilationUnit shared2 = this.cu.getWorkingCopy(owner, null);
 		assertTrue("Second working copy should be identical to first one", shared2 == shared);
 	} finally {
 		shared.discardWorkingCopy();

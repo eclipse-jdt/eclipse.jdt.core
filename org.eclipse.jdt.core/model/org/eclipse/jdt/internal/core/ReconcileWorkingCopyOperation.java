@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,11 +32,11 @@ import org.eclipse.jdt.internal.core.util.Util;
  * High level summmary of what a reconcile does:
  * <ul>
  * <li>populates the model with the new working copy contents</li>
- * <li>fires a fine grained delta (flag F_FINE_GRAINED) describing the difference between the previous content 
+ * <li>fires a fine grained delta (flag F_FINE_GRAINED) describing the difference between the previous content
  *      and the new content (which method was added/removed, which field was changed, etc.)</li>
  * <li>computes problems and reports them to the IProblemRequestor (begingReporting(), n x acceptProblem(...), endReporting()) iff
  *     	(working copy is not consistent with its buffer || forceProblemDetection is set)
- * 		&& problem requestor is active 
+ * 		&& problem requestor is active
  * </li>
  * <li>produces a DOM AST (either JLS_2, JLS_3 or NO_AST) that is resolved if flag is set</li>
  * <li>notifies compilation participants of the reconcile allowing them to participate in this operation and report problems</li>
@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	public static boolean PERF = false;
-	
+
 	public int astLevel;
 	public boolean resolveBindings;
 	public HashMap problems;
@@ -53,7 +53,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	WorkingCopyOwner workingCopyOwner;
 	public org.eclipse.jdt.core.dom.CompilationUnit ast;
 	public JavaElementDeltaBuilder deltaBuilder;
-	
+
 	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, int astLevel, boolean forceProblemDetection, boolean enableStatementsRecovery, WorkingCopyOwner workingCopyOwner) {
 		super(new IJavaElement[] {workingCopy});
 		this.astLevel = astLevel;
@@ -61,7 +61,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		this.enableStatementsRecovery = enableStatementsRecovery;
 		this.workingCopyOwner = workingCopyOwner;
 	}
-	
+
 	/**
 	 * @exception JavaModelException if setting the source
 	 * 	of the original compilation unit fails
@@ -69,47 +69,40 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	protected void executeOperation() throws JavaModelException {
 		checkCanceled();
 		try {
-			beginTask(Messages.element_reconciling, 2); 
-	
+			beginTask(Messages.element_reconciling, 2);
+
 			CompilationUnit workingCopy = getWorkingCopy();
 			boolean wasConsistent = workingCopy.isConsistent();
 			IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
+			if (problemRequestor != null) {
+				problemRequestor =  ((JavaModelManager.PerWorkingCopyInfo)problemRequestor).getProblemRequestor();
+			}
+			IProblemRequestor ownerProblemRequestor = this.workingCopyOwner.getProblemRequestor(workingCopy);
 			this.resolveBindings |= problemRequestor != null && problemRequestor.isActive();
-			
+
 			// create the delta builder (this remembers the current content of the cu)
 			this.deltaBuilder = new JavaElementDeltaBuilder(workingCopy);
-			
+
 			// make working copy consistent if needed and compute AST if needed
 			makeConsistent(workingCopy, problemRequestor);
-			
+
 			// notify reconcile participants
 			notifyParticipants(workingCopy);
-			
+
 			// recreate ast if needed
 			if (this.ast == null && (this.astLevel > ICompilationUnit.NO_AST || this.resolveBindings))
 				makeConsistent(workingCopy, problemRequestor);
-		
+
 			// report problems
 			if (this.problems != null && (this.forceProblemDetection || !wasConsistent)) {
-				try {
-					problemRequestor.beginReporting();
-					for (Iterator iteraror = this.problems.values().iterator(); iteraror.hasNext();) {
-						CategorizedProblem[] categorizedProblems = (CategorizedProblem[]) iteraror.next();
-						if (categorizedProblems == null) continue;
-						for (int i = 0, length = categorizedProblems.length; i < length; i++) {
-							CategorizedProblem problem = categorizedProblems[i];
-							if (JavaModelManager.VERBOSE){
-								System.out.println("PROBLEM FOUND while reconciling : " + problem.getMessage());//$NON-NLS-1$
-							}
-							if (this.progressMonitor != null && this.progressMonitor.isCanceled()) break;
-							problemRequestor.acceptProblem(problem);
-						}
-					}
-				} finally {
-					problemRequestor.endReporting();
+				if (problemRequestor != null) {
+					reportProblems(workingCopy, problemRequestor);
+				}
+				if (ownerProblemRequestor != null && ownerProblemRequestor != problemRequestor) {
+					reportProblems(workingCopy, ownerProblemRequestor);
 				}
 			}
-			
+
 			// report delta
 			JavaElementDelta delta = this.deltaBuilder.delta;
 			if (delta != null) {
@@ -119,18 +112,47 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			done();
 		}
 	}
+
+	/**
+	 * Report working copy problems to a given requestor.
+	 *
+	 * @param workingCopy
+	 * @param problemRequestor
+	 */
+	private void reportProblems(CompilationUnit workingCopy, IProblemRequestor problemRequestor) {
+		try {
+			problemRequestor.beginReporting();
+			for (Iterator iteraror = this.problems.values().iterator(); iteraror.hasNext();) {
+				CategorizedProblem[] categorizedProblems = (CategorizedProblem[]) iteraror.next();
+				if (categorizedProblems == null) continue;
+				for (int i = 0, length = categorizedProblems.length; i < length; i++) {
+					CategorizedProblem problem = categorizedProblems[i];
+					if (JavaModelManager.VERBOSE){
+						System.out.println("PROBLEM FOUND while reconciling : " + problem.getMessage());//$NON-NLS-1$
+					}
+					if (this.progressMonitor != null && this.progressMonitor.isCanceled()) break;
+					problemRequestor.acceptProblem(problem);
+				}
+			}
+		} finally {
+			problemRequestor.endReporting();
+		}
+	}
+
 	/**
 	 * Returns the working copy this operation is working on.
 	 */
 	protected CompilationUnit getWorkingCopy() {
 		return (CompilationUnit)getElementToProcess();
 	}
-	/**
-	 * @see JavaModelOperation#isReadOnly
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.core.JavaModelOperation#isReadOnly()
 	 */
 	public boolean isReadOnly() {
 		return true;
 	}
+
 	/*
 	 * Makes the given working copy consistent, computes the delta and computes an AST if needed.
 	 * Returns the AST.
@@ -144,7 +166,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			if (this.ast != null && this.deltaBuilder.delta != null)
 				this.deltaBuilder.delta.changedAST(this.ast);
 			return this.ast;
-		} 
+		}
 		if (this.ast != null) return this.ast; // no need to recompute AST if known already
 		if (this.forceProblemDetection || this.resolveBindings) {
 			if (JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject())) {
@@ -159,28 +181,28 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			    try {
 			    	// find problems
 					char[] contents = workingCopy.getContents();
-					unit = 
+					unit =
 						CompilationUnitProblemFinder.process(
-							workingCopy, 
-							contents, 
-							this.workingCopyOwner, 
-							problemMap, 
-							this.astLevel != ICompilationUnit.NO_AST/*creating AST if level is not NO_AST */, 
+							workingCopy,
+							contents,
+							this.workingCopyOwner,
+							problemMap,
+							this.astLevel != ICompilationUnit.NO_AST/*creating AST if level is not NO_AST */,
 							this.enableStatementsRecovery,
 							this.progressMonitor);
 					if (this.progressMonitor != null) this.progressMonitor.worked(1);
-					
+
 					// create AST if needed
 					if (this.astLevel != ICompilationUnit.NO_AST && unit != null) {
 						Map options = workingCopy.getJavaProject().getOptions(true);
-						this.ast = 
+						this.ast =
 							AST.convertCompilationUnit(
-								this.astLevel, 
-								unit, 
-								contents, 
-								options, 
-								true/*isResolved*/, 
-								workingCopy, 
+								this.astLevel,
+								unit,
+								contents,
+								options,
+								true/*isResolved*/,
+								workingCopy,
 								this.progressMonitor);
 						if (this.ast != null) {
 							this.deltaBuilder.delta = new JavaElementDelta(workingCopy);
@@ -200,12 +222,12 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			    }
 			} // else working copy not in a Java project
 			return this.ast;
-		} 
+		}
 		return null;
 	}
 	private void notifyParticipants(final CompilationUnit workingCopy) {
 		IJavaProject javaProject = getWorkingCopy().getJavaProject();
-		CompilationParticipant[] participants = JavaModelManager.getJavaModelManager().compilationParticipants.getCompilationParticipants(javaProject);	
+		CompilationParticipant[] participants = JavaModelManager.getJavaModelManager().compilationParticipants.getCompilationParticipants(javaProject);
 		if (participants == null) return;
 
 		final ReconcileContext context = new ReconcileContext(this, workingCopy);
@@ -229,6 +251,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			});
 		}
 	}
+
 	protected IJavaModelStatus verify() {
 		IJavaModelStatus status = super.verify();
 		if (!status.isOK()) {
@@ -240,6 +263,5 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		}
 		return status;
 	}
-
 
 }

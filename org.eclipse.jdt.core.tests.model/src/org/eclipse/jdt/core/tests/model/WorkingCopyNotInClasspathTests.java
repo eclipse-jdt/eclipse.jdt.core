@@ -13,15 +13,8 @@ package org.eclipse.jdt.core.tests.model;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class WorkingCopyNotInClasspathTests extends ModifyingResourceTests {
@@ -165,9 +158,10 @@ public void testReconcileSimpleProject() throws CoreException {
 		IFile file = project.getFile("A.java");
 		wc = JavaCore.createCompilationUnitFrom(file);
 		ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
-		wc.becomeWorkingCopy(pbRequestor, null);
+		wc.becomeWorkingCopy(null);
 		wc.getBuffer().setContents("public class A {}");
-		wc.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
+		WorkingCopyOwner owner = newWorkingCopyOwner(pbRequestor);
+		wc.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, owner, null);
 	} finally {
 		if (wc != null) {
 			wc.discardWorkingCopy();
@@ -187,8 +181,8 @@ public void testReconcileSimpleProject2() throws CoreException {
 		IFile file = project.getFile("A.java");
 		wc = JavaCore.createCompilationUnitFrom(file);
 		ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
-		wc.becomeWorkingCopy(pbRequestor, null);
-		wc.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
+		wc.becomeWorkingCopy(null);
+		wc.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, newWorkingCopyOwner(pbRequestor), null);
 	} finally {
 		if (wc != null) {
 			wc.discardWorkingCopy();
@@ -359,7 +353,7 @@ public void testReconcileAndCommit3() throws CoreException {
 			"class X {}";
 		IFile file = this.createFile("/SimpleProject/src/native.1/X.java", source);
 		primary = JavaCore.createCompilationUnitFrom(file);
-		primary.becomeWorkingCopy(null, null);
+		primary.becomeWorkingCopy(null);
 		
 		IBuffer workingCopyBuffer = primary.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);
@@ -397,7 +391,7 @@ public void testReconcileAndCommit4() throws CoreException {
 			"class X {}";
 		IFile file = this.createFile("/SimpleProject/src/native.1/some invalid name.java", source);
 		primary = JavaCore.createCompilationUnitFrom(file);
-		primary.becomeWorkingCopy(null, null);
+		primary.becomeWorkingCopy(null);
 		
 		IBuffer workingCopyBuffer = primary.getBuffer();
 		assertTrue("Working copy buffer should not be null", workingCopyBuffer != null);

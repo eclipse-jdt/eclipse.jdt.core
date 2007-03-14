@@ -57,6 +57,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected boolean displayName = false;
 	protected String endChar = ",";
 	
+	public static class BasicProblemRequestor implements IProblemRequestor {
+		public void acceptProblem(IProblem problem) {}
+		public void beginReporting() {}
+		public void endReporting() {}
+		public boolean isActive() {
+			return true;
+		}
+	} 
+
 	public static class ProblemRequestor implements IProblemRequestor {
 		public StringBuffer problems;
 		public int problemCount;
@@ -99,10 +108,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		public ByteArrayOutputStream stackTraces;
 	
 		public void elementChanged(ElementChangedEvent ev) {
-			IJavaElementDelta[] copy= new IJavaElementDelta[deltas.length + 1];
-			System.arraycopy(deltas, 0, copy, 0, deltas.length);
-			copy[deltas.length]= ev.getDelta();
-			deltas= copy;
+			IJavaElementDelta[] copy= new IJavaElementDelta[this.deltas.length + 1];
+			System.arraycopy(this.deltas, 0, copy, 0, this.deltas.length);
+			copy[this.deltas.length]= ev.getDelta();
+			this.deltas= copy;
 			
 			new Throwable("Caller of IElementChangedListener#elementChanged").printStackTrace(new PrintStream(this.stackTraces));
 		}
@@ -1589,24 +1598,40 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}	
 	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
 		return getWorkingCopy(path, source, false);
-	}	
+	}
 	public ICompilationUnit getWorkingCopy(String path, String source, boolean computeProblems) throws JavaModelException {
-		if (this.wcOwner == null) this.wcOwner = new WorkingCopyOwner() {};
-		return getWorkingCopy(path, source, this.wcOwner, computeProblems);
+		if (this.wcOwner == null) {
+			this.wcOwner = newWorkingCopyOwner(computeProblems ? new BasicProblemRequestor() : null);
+			return getWorkingCopy(path, source, this.wcOwner);
+		}
+		ICompilationUnit wc = getWorkingCopy(path, source, this.wcOwner);
+		// Verify that compute problem parameter is compatible with working copy problem requestor
+		if (computeProblems) {
+			assertNotNull("Cannot compute problems if working copy owner is set to null!", this.wcOwner.getProblemRequestor(wc));
+		} else {
+			assertNull("Cannot ignore problems if working copy owner is not set to null!", this.wcOwner.getProblemRequestor(wc));
+		}
+		return wc;
 	}
-	public ICompilationUnit getWorkingCopy(String path, String source, WorkingCopyOwner owner, boolean computeProblems) throws JavaModelException {
-		IProblemRequestor problemRequestor = computeProblems
-			? new IProblemRequestor() {
-				public void acceptProblem(IProblem problem) {}
-				public void beginReporting() {}
-				public void endReporting() {}
-				public boolean isActive() {
-					return true;
-				}
-			} 
-			: null;
-		return getWorkingCopy(path, source, owner, problemRequestor);
+	public ICompilationUnit getWorkingCopy(String path, String source, WorkingCopyOwner owner) throws JavaModelException {
+		ICompilationUnit workingCopy = getCompilationUnit(path);
+		if (owner != null)
+			workingCopy = workingCopy.getWorkingCopy(owner, null/*no progress monitor*/);
+		else
+			workingCopy.becomeWorkingCopy(null/*no progress monitor*/);
+		workingCopy.getBuffer().setContents(source);
+		IProblemRequestor problemRequestor = owner.getProblemRequestor(workingCopy);
+		if (problemRequestor instanceof ProblemRequestor) {
+			((ProblemRequestor) problemRequestor).initialize(source.toCharArray());
+		}
+		workingCopy.makeConsistent(null/*no progress monitor*/);
+		return workingCopy;
 	}
+	/**
+	 * This method is still necessary when we need to use an owner and a specific problem requestor
+	 * (typically while using primary owner).
+	 * @deprecated
+	 */
 	public ICompilationUnit getWorkingCopy(String path, String source, WorkingCopyOwner owner, IProblemRequestor problemRequestor) throws JavaModelException {
 		ICompilationUnit workingCopy = getCompilationUnit(path);
 		if (owner != null)
@@ -1683,15 +1708,33 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected ICompilationUnit newExternalWorkingCopy(String name, final String contents) throws JavaModelException {
 		return newExternalWorkingCopy(name, null/*no classpath*/, null/*no problem requestor*/, contents);
 	}
-	protected ICompilationUnit newExternalWorkingCopy(String name, IClasspathEntry[] classpath, IProblemRequestor problemRequestor, final String contents) throws JavaModelException {
+	protected ICompilationUnit newExternalWorkingCopy(String name, IClasspathEntry[] classpath, final IProblemRequestor problemRequestor, final String contents) throws JavaModelException {
 		WorkingCopyOwner owner = new WorkingCopyOwner() {
 			public IBuffer createBuffer(ICompilationUnit wc) {
 				IBuffer buffer = super.createBuffer(wc);
 				buffer.setContents(contents);
 				return buffer;
 			}
+			public IProblemRequestor getProblemRequestor(ICompilationUnit workingCopy) {
+				return problemRequestor;
+			}
 		};
-		return owner.newWorkingCopy(name, classpath, problemRequestor, null/*no progress monitor*/);
+		return owner.newWorkingCopy(name, classpath, null/*no progress monitor*/);
+	}
+
+	/**
+	 * Create a new working copy owner using given problem requestor
+	 * to report problem.
+	 * 
+	 * @param problemRequestor The requestor used to report problems
+	 * @return The created working copy owner
+	 */
+	protected WorkingCopyOwner newWorkingCopyOwner(final IProblemRequestor problemRequestor) {
+		return new WorkingCopyOwner() {
+			public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {
+				return problemRequestor;
+			}
+		};
 	}
 
 	public byte[] read(java.io.File file) throws java.io.IOException {
@@ -2015,10 +2058,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	IJavaElement selectJavaElement(ICompilationUnit unit, String selection, int occurences, int elementType) throws JavaModelException {
 		int[] selectionPositions = selectionInfo(unit, selection, occurences);
 		IJavaElement[] elements = null;
-		if (wcOwner == null) {
+		if (this.wcOwner == null) {
 			elements = unit.codeSelect(selectionPositions[0], selectionPositions[1]);
 		} else {
-			elements = unit.codeSelect(selectionPositions[0], selectionPositions[1], wcOwner);
+			elements = unit.codeSelect(selectionPositions[0], selectionPositions[1], this.wcOwner);
 		}
 		assertEquals("Invalid selection number", 1, elements.length);
 		assertEquals("Invalid java element type: "+elements[0].getElementName(), elements[0].getElementType(), elementType);

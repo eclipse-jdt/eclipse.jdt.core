@@ -19,7 +19,6 @@ import junit.framework.*;
 
 public class ResolveTests_1_5 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
-	WorkingCopyOwner owner = null; 
 	
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
@@ -36,20 +35,20 @@ public ResolveTests_1_5(String name) {
 	super(name);
 }
 public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
-	return super.getWorkingCopy(path, source, this.owner, null);
+	return super.getWorkingCopy(path, source, this.wcOwner);
 }
 private IJavaElement[] select(String path, String source, String selection) throws JavaModelException {
 	this.wc = getWorkingCopy(path, source);
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
-	return wc.codeSelect(start, length, this.owner);
+	return this.wc.codeSelect(start, length, this.wcOwner);
 }
 private IJavaElement[] selectAfter(String path, String source, String selection) throws JavaModelException {
 	this.wc = getWorkingCopy(path, source);
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	int start = str.lastIndexOf(selection) + selection.length();
-	return wc.codeSelect(start, 0, this.owner);
+	return this.wc.codeSelect(start, 0, this.wcOwner);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -60,8 +59,7 @@ public void setUpSuite() throws Exception {
 }
 protected void setUp() throws Exception {
 	super.setUp();
-	
-	this.owner = new WorkingCopyOwner(){};
+	this.wcOwner = new WorkingCopyOwner(){};
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("Resolve");
@@ -70,7 +68,7 @@ public void tearDownSuite() throws Exception {
 }
 
 protected void tearDown() throws Exception {
-	if(this.wc != null) {
+	if (this.wc != null) {
 		this.wc.discardWorkingCopy();
 	}
 	super.tearDown();
@@ -132,12 +130,12 @@ public void test0004() throws JavaModelException {
 			"	}\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test [in [Working copy] Test.java [in test0004 [in src2 [in Resolve]]]]",
@@ -523,11 +521,11 @@ public void test0027() throws JavaModelException {
 			"	Test.Inner<Object> x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inn";
 	int start = str.lastIndexOf(selection);
 	
-	IJavaElement[] elements = wc.codeSelect(start, 0);
+	IJavaElement[] elements = this.wc.codeSelect(start, 0);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0027 [in src2 [in Resolve]]]]]",
@@ -544,11 +542,11 @@ public void test0028() throws JavaModelException {
 			"	Test<Object>.Inner x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inn";
 	int start = str.lastIndexOf(selection);
 	
-	IJavaElement[] elements = wc.codeSelect(start, 0);
+	IJavaElement[] elements = this.wc.codeSelect(start, 0);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0028 [in src2 [in Resolve]]]]]",
@@ -565,11 +563,11 @@ public void test0029() throws JavaModelException {
 			"	Test<Object>.Inner<Object> x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inn";
 	int start = str.lastIndexOf(selection);
 	
-	IJavaElement[] elements = wc.codeSelect(start, 0);
+	IJavaElement[] elements = this.wc.codeSelect(start, 0);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0029 [in src2 [in Resolve]]]]]",
@@ -586,12 +584,12 @@ public void test0030() throws JavaModelException {
 			"	Test.Inner x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0030 [in src2 [in Resolve]]]]]",
@@ -608,12 +606,12 @@ public void test0031() throws JavaModelException {
 			"	Test.Inner<Object> x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0031 [in src2 [in Resolve]]]]]",
@@ -630,12 +628,12 @@ public void test0032() throws JavaModelException {
 			"	Test<Object>.Inner x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0032 [in src2 [in Resolve]]]]]",
@@ -652,12 +650,12 @@ public void test0033() throws JavaModelException {
 			"	Test<Object>.Inner<Object> x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0033 [in src2 [in Resolve]]]]]",
@@ -674,12 +672,12 @@ public void test0034() throws JavaModelException {
 			"	Test.Inner x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test.Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0034 [in src2 [in Resolve]]]]]",
@@ -696,12 +694,12 @@ public void test0035() throws JavaModelException {
 			"	Test.Inner<Object> x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test.Inner<Object>";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0035 [in src2 [in Resolve]]]]]",
@@ -718,12 +716,12 @@ public void test0036() throws JavaModelException {
 			"	Test<Object>.Inner x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test<Object>.Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0036 [in src2 [in Resolve]]]]]",
@@ -740,12 +738,12 @@ public void test0037() throws JavaModelException {
 			"	Test<Object>.Inner<Object> x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test<Object>.Inner<Object>";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0037 [in src2 [in Resolve]]]]]",
@@ -762,12 +760,12 @@ public void test0038() throws JavaModelException {
 			"	Test.Inner<Object> x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test.Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0038 [in src2 [in Resolve]]]]]",
@@ -784,12 +782,12 @@ public void test0039() throws JavaModelException {
 			"	Test<Object>.Inner<Object> x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test<Object>.Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0039 [in src2 [in Resolve]]]]]",
@@ -806,12 +804,12 @@ public void test0040() throws JavaModelException {
 			"	Test<Object>.Inner<Object> x;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inner<Object>";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0040 [in src2 [in Resolve]]]]]",
@@ -834,12 +832,12 @@ public void test0041() throws JavaModelException {
 			"	}\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Local1<Local3<Object>>.Local2<Local3<Object>>";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Local2 [in Local1 [in foo() [in Test [in [Working copy] Test.java [in test0041 [in src2 [in Resolve]]]]]]]",
@@ -856,12 +854,12 @@ public void test0042() throws JavaModelException {
 			"	Test<? super String>.Inner<? extends String> v;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test<? super String>.Inner<? extends String>";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0042 [in src2 [in Resolve]]]]]",
@@ -876,12 +874,12 @@ public void test0043() throws JavaModelException {
 			"	Test<T> var;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test [in [Working copy] Test.java [in test0043 [in src2 [in Resolve]]]]",
@@ -898,12 +896,12 @@ public void test0044() throws JavaModelException {
 			"	Test<T2> var;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test [in [Working copy] Test.java [in test0044 [in src2 [in Resolve]]]]",
@@ -918,12 +916,12 @@ public void test0045() throws JavaModelException {
 			"	String var;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "var";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"var [in Test [in [Working copy] Test.java [in test0045 [in src2 [in Resolve]]]]]",
@@ -941,12 +939,12 @@ public void test0046() throws JavaModelException {
 			"	}\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "var";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"var [in Test [in [Working copy] Test.java [in test0046 [in src2 [in Resolve]]]]]",
@@ -965,12 +963,12 @@ public void test0047() throws JavaModelException {
 			"	}\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "var";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"var [in Test [in [Working copy] Test.java [in test0047 [in src2 [in Resolve]]]]]",
@@ -989,12 +987,12 @@ public void test0048() throws JavaModelException {
 			"	}\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "var";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"var [in Test [in [Working copy] Test.java [in test0048 [in src2 [in Resolve]]]]]",
@@ -1013,12 +1011,12 @@ public void test0049() throws JavaModelException {
 			"	}\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "var";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"var [in Test [in [Working copy] Test.java [in test0049 [in src2 [in Resolve]]]]]",
@@ -1037,12 +1035,12 @@ public void test0050() throws JavaModelException {
 			"	}\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "var";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"var [in Test [in [Working copy] Test.java [in test0050 [in src2 [in Resolve]]]]]",
@@ -1063,12 +1061,12 @@ public void test0051() throws JavaModelException {
 			"	}\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "var";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"var [in Inner [in foo() [in Test [in [Working copy] Test.java [in test0051 [in src2 [in Resolve]]]]]]]",
@@ -1089,12 +1087,12 @@ public void test0052() throws JavaModelException {
 			"	}\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "var";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"var [in Inner [in foo() [in Test [in [Working copy] Test.java [in test0052 [in src2 [in Resolve]]]]]]]",
@@ -1116,12 +1114,12 @@ public void test0053() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0053 [in src2 [in Resolve]]]]]",
@@ -1143,12 +1141,12 @@ public void test0054() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0054 [in src2 [in Resolve]]]]]",
@@ -1170,12 +1168,12 @@ public void test0055() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0055 [in src2 [in Resolve]]]]]",
@@ -1195,12 +1193,12 @@ public void test0056() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0056 [in src2 [in Resolve]]]]]",
@@ -1222,12 +1220,12 @@ public void test0057() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0057 [in src2 [in Resolve]]]]]",
@@ -1249,12 +1247,12 @@ public void test0058() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0058 [in src2 [in Resolve]]]]]",
@@ -1276,12 +1274,12 @@ public void test0059() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0059 [in src2 [in Resolve]]]]]",
@@ -1303,12 +1301,12 @@ public void test0060() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0060 [in src2 [in Resolve]]]]]",
@@ -1326,12 +1324,12 @@ public void test0061() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0061 [in src2 [in Resolve]]]]]",
@@ -1349,12 +1347,12 @@ public void test0062() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0062 [in src2 [in Resolve]]]]]",
@@ -1376,12 +1374,12 @@ public void test0063() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "foo";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo() [in Test [in [Working copy] Test.java [in test0063 [in src2 [in Resolve]]]]]",
@@ -1400,12 +1398,12 @@ public void test0064() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test(U) [in Test [in [Working copy] Test.java [in test0064 [in src2 [in Resolve]]]]]",
@@ -1424,12 +1422,12 @@ public void test0065() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test(U) [in Test [in [Working copy] Test.java [in test0065 [in src2 [in Resolve]]]]]",
@@ -1448,12 +1446,12 @@ public void test0066() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test(U) [in Test [in [Working copy] Test.java [in test0066 [in src2 [in Resolve]]]]]",
@@ -1472,12 +1470,12 @@ public void test0067() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test(U) [in Test [in [Working copy] Test.java [in test0067 [in src2 [in Resolve]]]]]",
@@ -1496,12 +1494,12 @@ public void test0068() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test(U) [in Test [in [Working copy] Test.java [in test0068 [in src2 [in Resolve]]]]]",
@@ -1524,12 +1522,12 @@ public void test0069() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner(W) [in Inner [in Test [in [Working copy] Test.java [in test0069 [in src2 [in Resolve]]]]]]",
@@ -1548,12 +1546,12 @@ public void test0070() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test(U) [in Test [in [Working copy] Test.java [in test0070 [in src2 [in Resolve]]]]]",
@@ -1572,12 +1570,12 @@ public void test0071() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test(U) [in Test [in [Working copy] Test.java [in test0071 [in src2 [in Resolve]]]]]",
@@ -1596,12 +1594,12 @@ public void test0072() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test(U) [in Test [in [Working copy] Test.java [in test0072 [in src2 [in Resolve]]]]]",
@@ -1620,12 +1618,12 @@ public void test0073() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test(U) [in Test [in [Working copy] Test.java [in test0073 [in src2 [in Resolve]]]]]",
@@ -1644,12 +1642,12 @@ public void test0074() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Test";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Test(U) [in Test [in [Working copy] Test.java [in test0074 [in src2 [in Resolve]]]]]",
@@ -1672,12 +1670,12 @@ public void test0075() throws JavaModelException {
 			"  }\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner(W) [in Inner [in Test [in [Working copy] Test.java [in test0075 [in src2 [in Resolve]]]]]]",
@@ -1694,12 +1692,12 @@ public void test0076() throws JavaModelException {
 			"  Test<? super String>.Inner<int[][], Test<String[]>> var;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "Inner";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"Inner [in Test [in [Working copy] Test.java [in test0076 [in src2 [in Resolve]]]]]",
@@ -1715,12 +1713,12 @@ public void test0077() throws JavaModelException {
 			"public @MyAnn class Test {\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "MyAnn";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"MyAnn [in [Working copy] Test.java [in test0077 [in src2 [in Resolve]]]]",
@@ -1737,12 +1735,12 @@ public void test0078() throws JavaModelException {
 			"public @MyAnn(\"\") class Test {\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "MyAnn";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"MyAnn [in [Working copy] Test.java [in test0078 [in src2 [in Resolve]]]]",
@@ -1759,12 +1757,12 @@ public void test0079() throws JavaModelException {
 			"public @MyAnn class Test {\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "MyAnn";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"MyAnn [in [Working copy] Test.java [in test0079 [in src2 [in Resolve]]]]",
@@ -1782,12 +1780,12 @@ public void test0080() throws JavaModelException {
 			"public @MyAnn(value1 = \"\", value2 = \"\") class Test {\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "MyAnn";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"MyAnn [in [Working copy] Test.java [in test0080 [in src2 [in Resolve]]]]",
@@ -1805,12 +1803,12 @@ public void test0081() throws JavaModelException {
 			"public @MyAnn(value1 = \"\", value2 = \"\") class Test {\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "value1";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"value1() [in MyAnn [in [Working copy] Test.java [in test0081 [in src2 [in Resolve]]]]]",
@@ -1866,12 +1864,12 @@ public void test0086() throws JavaModelException {
 			"   List<Integer> list;\n" +
 			"}");
 	
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	String selection = "List";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
 	
-	IJavaElement[] elements = wc.codeSelect(start, length);
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
 		"",

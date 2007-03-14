@@ -46,7 +46,7 @@ public class ReconcilerStatementsRecoveryTests extends ModifyingResourceTests {
 	
 		boolean isCanceling = false;
 		public void acceptProblem(IProblem problem) {
-			if (isCanceling) this.progressMonitor.setCanceled(true); // auto-cancel on first problem
+			if (this.isCanceling) this.progressMonitor.setCanceled(true); // auto-cancel on first problem
 			super.acceptProblem(problem);
 		}		
 	}
@@ -121,7 +121,7 @@ protected void removeClasspathEntries(IClasspathEntry[] entries) throws JavaMode
 public void setUp() throws Exception {
 	super.setUp();
 	this.problemRequestor =  new ProblemRequestor();
-	this.workingCopy = getCompilationUnit("Reconciler/src/p1/X.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+	this.workingCopy = getCompilationUnit("Reconciler/src/p1/X.java").getWorkingCopy(newWorkingCopyOwner(this.problemRequestor), null);
 	this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 	startDeltas();
 }

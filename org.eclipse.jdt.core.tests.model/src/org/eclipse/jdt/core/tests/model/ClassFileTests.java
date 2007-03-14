@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -22,11 +23,11 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import junit.framework.Test;
 
 public class ClassFileTests extends ModifyingResourceTests {
-	
+
 	IPackageFragmentRoot jarRoot;
 	ICompilationUnit workingCopy;
 	IClassFile classFile;
-	
+
 public ClassFileTests(String name) {
 	super(name);
 }
@@ -47,13 +48,13 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	IJavaProject javaProject = createJavaProject("P");
 	String[] pathAndContents = new String[] {
-		"nongeneric/A.java", 
+		"nongeneric/A.java",
 		"package nongeneric;\n" +
-		"public class A {\n" + 
-		"}",			
-		"generic/X.java", 
+		"public class A {\n" +
+		"}",
+		"generic/X.java",
 		"package generic;\n" +
-		"public class X<T> {\n" + 
+		"public class X<T> {\n" +
 		"  <U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {\n" +
 		"    return null;\n" +
 		"  }\n" +
@@ -61,42 +62,42 @@ public void setUpSuite() throws Exception {
 		"    return value;\n" +
 		"  }\n" +
 		"}",
-		"generic/Y.java", 
+		"generic/Y.java",
 		"package generic;\n" +
-		"public class Y<K, L> {\n" + 
+		"public class Y<K, L> {\n" +
 		"}",
-		"generic/Z.java", 
+		"generic/Z.java",
 		"package generic;\n" +
-		"public class Z<T extends Object & I<? super T>> {\n" + 
+		"public class Z<T extends Object & I<? super T>> {\n" +
 		"}",
-		"generic/I.java", 
+		"generic/I.java",
 		"package generic;\n" +
-		"public interface I<T> {\n" + 
+		"public interface I<T> {\n" +
 		"}",
-		"generic/W.java", 
+		"generic/W.java",
 		"package generic;\n" +
-		"public class W<T extends X<T> , U extends T> {\n" + 
+		"public class W<T extends X<T> , U extends T> {\n" +
 		"}",
-		"generic/V.java", 
+		"generic/V.java",
 		"package generic;\n" +
-		"public class V extends X<Thread> implements I<String> {\n" + 
+		"public class V extends X<Thread> implements I<String> {\n" +
 		"}",
-		"varargs/X.java", 
+		"varargs/X.java",
 		"package varargs;\n" +
-		"public class X {\n" + 
+		"public class X {\n" +
 		"  void foo(String s, Object ... others) {\n" +
 		"  }\n" +
 		"}",
-		"workingcopy/X.java", 
+		"workingcopy/X.java",
 		"package workingcopy;\n" +
-		"public class X {\n" + 
+		"public class X {\n" +
 		"  void foo() {\n" +
 		"    System.out.println();\n" +
 		"  }\n" +
 		"}",
-		"workingcopy/Y.java", 
+		"workingcopy/Y.java",
 		"package workingcopy;\n" +
-		"public class Y<W> {\n" + 
+		"public class Y<W> {\n" +
 		"  <T> T foo(T t, String... args) {\n" +
 		"    return t;\n" +
 		"  }\n" +
@@ -157,7 +158,7 @@ public void testExceptionTypes2() throws JavaModelException {
 	IMethod method = type.getMethod("foo", new String[] {"Lgeneric.X<TT;>;"});
 	assertStringsEqual(
 		"Unexpected return type",
-		"Ljava.lang.RuntimeException;\n" + 
+		"Ljava.lang.RuntimeException;\n" +
 		"TU;\n",
 		method.getExceptionTypes());
 }
@@ -369,8 +370,8 @@ public void testGetChildrenForCategory01() throws CoreException, IOException {
 	IJavaElement[] children = this.classFile.getType().getChildrenForCategory("test");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
-		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
+		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
 		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
 		children);
 }
@@ -399,15 +400,15 @@ public void testGetChildrenForCategory02() throws CoreException, IOException {
 	IJavaElement[] tests  = this.classFile.getType().getChildrenForCategory("test");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
-		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
+		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
 		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
 		tests);
 	IJavaElement[] methods = this.classFile.getType().getChildrenForCategory("methods");
 	assertElementsEqual(
 		"Unexpected children",
-		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
-		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
+		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
 		"foo3() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
 		methods);
 	IJavaElement[] others = this.classFile.getType().getChildrenForCategory("other");
@@ -418,9 +419,9 @@ public void testGetChildrenForCategory02() throws CoreException, IOException {
 	IJavaElement[] all = this.classFile.getType().getChildrenForCategory("all");
 	assertElementsEqual(
 		"Unexpected children",
-		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
-		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
-		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
+		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
+		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" +
 		"foo3() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
 		all);
 }
@@ -432,7 +433,7 @@ public void testGetChildrenForCategory02() throws CoreException, IOException {
 public void testGetSuperclassTypeSignature() throws JavaModelException {
 	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("V.class").getType();
 	assertEquals(
-		"Unexpected signature", 
+		"Unexpected signature",
 		"Lgeneric.X<Ljava.lang.Thread;>;",
 		type.getSuperclassTypeSignature());
 }
@@ -444,7 +445,7 @@ public void testGetSuperclassTypeSignature() throws JavaModelException {
 public void testGetSuperInterfaceTypeSignatures() throws JavaModelException {
 	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("V.class").getType();
 	assertStringsEqual(
-		"Unexpected signatures", 
+		"Unexpected signatures",
 		"Lgeneric.I<Ljava.lang.String;>;\n",
 		type.getSuperInterfaceTypeSignatures());
 }
@@ -456,8 +457,8 @@ public void testParameterNames01() throws CoreException {
 	IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
 	String[] parameterNames = method.getParameterNames();
 	assertStringsEqual(
-		"Unexpected parameter names", 
-		"key\n" + 
+		"Unexpected parameter names",
+		"key\n" +
 		"value\n",
 		parameterNames);
 }
@@ -472,8 +473,8 @@ public void testParameterNames02() throws CoreException {
 		IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
 		String[] parameterNames = method.getParameterNames();
 		assertStringsEqual(
-			"Unexpected parameter names", 
-			"arg0\n" + 
+			"Unexpected parameter names",
+			"arg0\n" +
 			"arg1\n",
 			parameterNames);
 	} finally {
@@ -510,7 +511,7 @@ public void testParameterTypeSignatures3() throws JavaModelException {
 	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("Y.class").getType();
 	assertStringsEqual(
 		"Unexpected type parameters",
-		"K:Ljava.lang.Object;\n" + 
+		"K:Ljava.lang.Object;\n" +
 		"L:Ljava.lang.Object;\n",
 		type.getTypeParameterSignatures());
 }
@@ -533,7 +534,7 @@ public void testParameterTypeSignatures5() throws JavaModelException {
 	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("W.class").getType();
 	assertStringsEqual(
 		"Unexpected type parameters",
-		"T:Lgeneric.X<TT;>;\n" + 
+		"T:Lgeneric.X<TT;>;\n" +
 		"U:TT;\n",
 		type.getTypeParameterSignatures());
 }
@@ -547,7 +548,7 @@ public void testParameterTypeSignatures6() throws JavaModelException {
 	IMethod method = type.getMethod("foo", new String[] {"TK;", "TV;"});
 	assertStringsEqual(
 		"Unexpected type parameters",
-		"K:Ljava.lang.Object;\n" + 
+		"K:Ljava.lang.Object;\n" +
 		"V:Ljava.lang.Object;\n",
 		method.getTypeParameterSignatures());
 }
@@ -559,8 +560,8 @@ public void testRawParameterNames01() throws CoreException {
 	IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
 	String[] parameterNames = method.getRawParameterNames();
 	assertStringsEqual(
-		"Unexpected parameter names", 
-		"arg0\n" + 
+		"Unexpected parameter names",
+		"arg0\n" +
 		"arg1\n",
 		parameterNames);
 }
@@ -575,8 +576,8 @@ public void testRawParameterNames02() throws CoreException {
 		IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
 		String[] parameterNames = method.getParameterNames();
 		assertStringsEqual(
-			"Unexpected parameter names", 
-			"arg0\n" + 
+			"Unexpected parameter names",
+			"arg0\n" +
 			"arg1\n",
 			parameterNames);
 	} finally {
@@ -654,7 +655,7 @@ public void testTypeParameter() throws CoreException {
 	ITypeParameter typeParameter = clazz.getType().getTypeParameter("T");
 	clazz.close();
 	assertStringsEqual(
-		"Unexpected bounds", 
+		"Unexpected bounds",
 		"java.lang.Object\n",
 		typeParameter.getBounds());
 }
@@ -673,12 +674,12 @@ public void testVarargs() throws JavaModelException {
  */
 public void testWorkingCopy01() throws CoreException {
 	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	assertElementDescendants(
-		"Unexpected children", 
-		"[Working copy] X.class\n" + 
-		"  package workingcopy\n" + 
-		"  class X\n" + 
+		"Unexpected children",
+		"[Working copy] X.class\n" +
+		"  package workingcopy\n" +
+		"  class X\n" +
 		"    void foo()",
 		this.workingCopy);
 }
@@ -692,13 +693,13 @@ public void testWorkingCopy02() throws CoreException {
 		attachSource(this.jarRoot, null, null);
 		IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
 		assertNull("Should not have source attached", clazz.getSource());
-		this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+		this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 		assertElementDescendants(
-			"Unexpected children", 
-			"[Working copy] X.class\n" + 
-			"  package workingcopy\n" + 
-			"  class X\n" + 
-			"    X()\n" + 
+			"Unexpected children",
+			"[Working copy] X.class\n" +
+			"  package workingcopy\n" +
+			"  class X\n" +
+			"    X()\n" +
 			"    void foo()",
 			this.workingCopy);
 	} finally {
@@ -711,20 +712,20 @@ public void testWorkingCopy02() throws CoreException {
  */
 public void testWorkingCopy03() throws CoreException {
 	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
 		"package workingcopy;\n" +
-		"public class X {\n" + 
+		"public class X {\n" +
 		"  void bar() {\n" +
 		"  }\n" +
 		"}"
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false/*don't force problems*/, null/*primary owner*/, null/*no progress*/);
 	assertElementDescendants(
-		"Unexpected children", 
-		"[Working copy] X.class\n" + 
-		"  package workingcopy\n" + 
-		"  class X\n" + 
+		"Unexpected children",
+		"[Working copy] X.class\n" +
+		"  package workingcopy\n" +
+		"  class X\n" +
 		"    void bar()",
 		this.workingCopy);
 }
@@ -734,10 +735,10 @@ public void testWorkingCopy03() throws CoreException {
  */
 public void testWorkingCopy04() throws CoreException {
 	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
 		"package workingcopy;\n" +
-		"public class X {\n" + 
+		"public class X {\n" +
 		"  void bar() {\n" +
 		"  }\n" +
 		"}"
@@ -749,8 +750,8 @@ public void testWorkingCopy04() throws CoreException {
 		exception = e;
 	}
 	assertEquals(
-		"Unxepected JavaModelException", 
-		"Java Model Exception: Java Model Status [Operation not supported for specified element type(s):[Working copy] X.class [in workingcopy [in lib.jar [in P]]]]", 
+		"Unxepected JavaModelException",
+		"Java Model Exception: Java Model Status [Operation not supported for specified element type(s):[Working copy] X.class [in workingcopy [in lib.jar [in P]]]]",
 		exception.toString());
 }
 
@@ -759,19 +760,19 @@ public void testWorkingCopy04() throws CoreException {
  */
 public void testWorkingCopy05() throws CoreException {
 	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	this.workingCopy.createType(
-		"class Y {\n" + 
+		"class Y {\n" +
 		"}",
 		null,
 		false/*don't force*/,
 		null);
 	assertElementDescendants(
-		"Unexpected children", 
-		"[Working copy] X.class\n" + 
-		"  package workingcopy\n" + 
-		"  class X\n" + 
-		"    void foo()\n" + 
+		"Unexpected children",
+		"[Working copy] X.class\n" +
+		"  package workingcopy\n" +
+		"  class X\n" +
+		"    void foo()\n" +
 		"  class Y",
 		this.workingCopy);
 }
@@ -782,7 +783,7 @@ public void testWorkingCopy05() throws CoreException {
 public void testWorkingCopy06() throws CoreException {
 	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
-	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
+	this.workingCopy = clazz.getWorkingCopy(owner, null/*no progress*/);
 	ICompilationUnit primary = this.workingCopy.getPrimary();
 	assertEquals("Unexpected owner of primary working copy", null, primary.getOwner());
 }
@@ -793,10 +794,10 @@ public void testWorkingCopy06() throws CoreException {
 public void testWorkingCopy07() throws CoreException {
 	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
-	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
+	this.workingCopy = clazz.getWorkingCopy(owner, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
 		"package workingcopy;\n" +
-		"public class X {\n" + 
+		"public class X {\n" +
 		"  void bar() {\n" +
 		"  }\n" +
 		"}"
@@ -804,10 +805,10 @@ public void testWorkingCopy07() throws CoreException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false/*don't force problems*/, null/*primary owner*/, null/*no progress*/);
 	this.workingCopy.restore();
 	assertElementDescendants(
-		"Unexpected children", 
-		"[Working copy] X.class\n" + 
-		"  package workingcopy\n" + 
-		"  class X\n" + 
+		"Unexpected children",
+		"[Working copy] X.class\n" +
+		"  package workingcopy\n" +
+		"  class X\n" +
 		"    void foo()",
 		this.workingCopy);
 }
@@ -817,22 +818,22 @@ public void testWorkingCopy07() throws CoreException {
  */
 public void testWorkingCopy08() throws CoreException {
 	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
-	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
+	ProblemRequestor problemRequestor = new ProblemRequestor();
+	WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
+	this.workingCopy = clazz.getWorkingCopy(owner, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
 		"package workingcopy;\n" +
-		"public class X {\n" + 
+		"public class X {\n" +
 		"  public void bar() {\n" +
 		"  }\n" +
 		"}"
 	);
 	this.workingCopy.makeConsistent(null);
-	
+
 	ICompilationUnit cu = getCompilationUnit("/P/Y.java");
 	ICompilationUnit copy = null;
 	try {
-		ProblemRequestor problemRequestor = new ProblemRequestor();
-		copy = cu.getWorkingCopy(owner, problemRequestor, null/*no prpgress*/);
+		copy = cu.getWorkingCopy(owner, null/*no progress*/);
 		copy.getBuffer().setContents(
 			"public class Y {\n" +
 			"  void foo(workingcopy.X x) {\n" +
@@ -841,10 +842,11 @@ public void testWorkingCopy08() throws CoreException {
 			"}"
 		);
 		problemRequestor.problems = new StringBuffer();
+		problemRequestor.problemCount = 0;
 		copy.reconcile(ICompilationUnit.NO_AST, false/*don't force problems*/, owner, null/*no progress*/);
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
+			"Unexpected problems",
+			"----------\n" +
 			"----------\n",
 			problemRequestor);
 	} finally {
@@ -858,28 +860,29 @@ public void testWorkingCopy08() throws CoreException {
  */
 public void testWorkingCopy09() throws CoreException {
 	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
-	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
+	ProblemRequestor problemRequestor = new ProblemRequestor();
+	WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
+	this.workingCopy = clazz.getWorkingCopy(owner, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(	"");
 	this.workingCopy.makeConsistent(null);
-	
+
 	ICompilationUnit cu = getCompilationUnit("/P/Y.java");
 	ICompilationUnit copy = null;
 	try {
-		ProblemRequestor problemRequestor = new ProblemRequestor();
-		copy = cu.getWorkingCopy(owner, problemRequestor, null/*no prpgress*/);
+		copy = cu.getWorkingCopy(owner, /*problemRequestor, */null/*no prpgress*/);
 		copy.getBuffer().setContents(
 			"public class Y {\n" +
 			"  workingcopy.X x;\n" +
 			"}"
 		);
 		problemRequestor.problems = new StringBuffer();
+		problemRequestor.problemCount = 0;
 		copy.reconcile(ICompilationUnit.NO_AST, false/*don't force problems*/, owner, null/*no progress*/);
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
-			"1. ERROR in /P/Y.java\n" + 
-			"workingcopy.X cannot be resolved to a type\n" + 
+			"Unexpected problems",
+			"----------\n" +
+			"1. ERROR in /P/Y.java\n" +
+			"workingcopy.X cannot be resolved to a type\n" +
 			"----------\n",
 			problemRequestor);
 	} finally {
@@ -897,18 +900,18 @@ public void testWorkingCopy10() throws CoreException {
 		attachSource(this.jarRoot, null, null);
 		IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("Y.class");
 		assertNull("Should not have source attached", clazz.getSource());
-		this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+		this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 		assertSourceEquals(
-			"Unexpected source", 
-			"package workingcopy;\n" + 
-			"public class Y<W> {\n" + 
-			"  \n" + 
-			"  public Y() {\n" + 
-			"  }\n" + 
-			"  \n" + 
-			"  <T> T foo(T t, java.lang.String... args) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
+			"Unexpected source",
+			"package workingcopy;\n" +
+			"public class Y<W> {\n" +
+			"  \n" +
+			"  public Y() {\n" +
+			"  }\n" +
+			"  \n" +
+			"  <T> T foo(T t, java.lang.String... args) {\n" +
+			"    return null;\n" +
+			"  }\n" +
 			"}",
 			this.workingCopy.getSource());
 	} finally {
@@ -922,10 +925,10 @@ public void testWorkingCopy10() throws CoreException {
 public void testWorkingCopy11() throws CoreException {
 	IPackageFragment pkg = this.jarRoot.getPackageFragment("workingcopy");
 	IClassFile clazz = pkg.getClassFile("X.class");
-	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(	"");
 	this.workingCopy.makeConsistent(null);
-	
+
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {pkg});
 	AbstractJavaSearchTests.JavaSearchResultCollector requestor = new AbstractJavaSearchTests.JavaSearchResultCollector();
 	search("*", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, scope, requestor);

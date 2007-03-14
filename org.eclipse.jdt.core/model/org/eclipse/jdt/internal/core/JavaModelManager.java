@@ -1092,28 +1092,38 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static class PerWorkingCopyInfo implements IProblemRequestor {
 		int useCount = 0;
 		IProblemRequestor problemRequestor;
-		ICompilationUnit workingCopy;
-		public PerWorkingCopyInfo(ICompilationUnit workingCopy, IProblemRequestor problemRequestor) {
+		CompilationUnit workingCopy;
+		public PerWorkingCopyInfo(CompilationUnit workingCopy, IProblemRequestor problemRequestor) {
 			this.workingCopy = workingCopy;
 			this.problemRequestor = problemRequestor;
 		}
 		public void acceptProblem(IProblem problem) {
-			if (this.problemRequestor == null) return;
-			this.problemRequestor.acceptProblem(problem);
+			IProblemRequestor requestor = getProblemRequestor();
+			if (requestor == null) return;
+			requestor.acceptProblem(problem);
 		}
 		public void beginReporting() {
-			if (this.problemRequestor == null) return;
-			this.problemRequestor.beginReporting();
+			IProblemRequestor requestor = getProblemRequestor();
+			if (requestor == null) return;
+			requestor.beginReporting();
 		}
 		public void endReporting() {
-			if (this.problemRequestor == null) return;
-			this.problemRequestor.endReporting();
+			IProblemRequestor requestor = getProblemRequestor();
+			if (requestor == null) return;
+			requestor.endReporting();
+		}
+		public IProblemRequestor getProblemRequestor() {
+			if (this.problemRequestor == null && this.workingCopy.owner != null) {
+				return this.workingCopy.owner.getProblemRequestor(this.workingCopy);
+			}
+			return this.problemRequestor;
 		}
 		public ICompilationUnit getWorkingCopy() {
 			return this.workingCopy;
 		}
 		public boolean isActive() {
-			return this.problemRequestor != null && this.problemRequestor.isActive();
+			IProblemRequestor requestor = getProblemRequestor();
+			return requestor != null && requestor.isActive();
 		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
@@ -1123,6 +1133,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			buffer.append(this.useCount);
 			buffer.append("\nProblem requestor:\n  "); //$NON-NLS-1$
 			buffer.append(this.problemRequestor);
+			if (this.problemRequestor == null) {
+				IProblemRequestor requestor = getProblemRequestor();
+				buffer.append("\nOwner problem requestor:\n  "); //$NON-NLS-1$
+				buffer.append(requestor);
+			}
 			return buffer.toString();
 		}
 	}

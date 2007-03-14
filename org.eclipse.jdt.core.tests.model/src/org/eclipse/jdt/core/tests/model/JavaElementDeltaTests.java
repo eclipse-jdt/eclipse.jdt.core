@@ -785,7 +785,7 @@ public void testCreateSharedWorkingCopy() throws CoreException {
 			"}");
 		ICompilationUnit unit = getCompilationUnit("P", "", "", "X.java");
 		startDeltas();
-		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null, null);
+		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null);
 		assertDeltas(
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" +
@@ -1031,7 +1031,7 @@ public void testDiscardWorkingCopy2() throws CoreException { // renamed from tes
 			"public class X {\n" +
 			"}");
 		ICompilationUnit unit = getCompilationUnit("P", "", "", "X.java");
-		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null, null);
+		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null);
 		startDeltas();
 		copy.discardWorkingCopy();
 		assertDeltas(
@@ -1103,7 +1103,7 @@ public void testListenerPostChange() throws CoreException {
 		listener.flush();
 		
 		// shared working copy creation
-		wc = cu.getWorkingCopy(new WorkingCopyOwner() {}, null, null);
+		wc = cu.getWorkingCopy(new WorkingCopyOwner() {}, null);
 		assertEquals(
 			"Unexpected delta after creating shared working copy",
 			"P[*]: {CHILDREN}\n" +
@@ -1206,7 +1206,7 @@ public void testListenerReconcile() throws CoreException {
 		listener.flush();
 		
 		// shared working copy creation
-		wc = cu.getWorkingCopy(new WorkingCopyOwner() {}, null, null);
+		wc = cu.getWorkingCopy(new WorkingCopyOwner() {}, null);
 		assertEquals(
 			"Unexpected delta after creating shared working copy",
 			"",

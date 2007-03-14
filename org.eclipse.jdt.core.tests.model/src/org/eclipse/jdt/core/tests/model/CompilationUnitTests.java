@@ -111,10 +111,10 @@ public void tearDownSuite() throws Exception {
 }
 
 private ICompilationUnit createWorkingCopy(String source) throws JavaModelException {
-	this.workingCopy = getCompilationUnit("/P/src/p/Y.java").getWorkingCopy(new WorkingCopyOwner(){}, null, null);
+	this.workingCopy = getCompilationUnit("/P/src/p/Y.java").getWorkingCopy(new WorkingCopyOwner(){}, null);
 	this.workingCopy.getBuffer().setContents(source);
 	this.workingCopy.makeConsistent(null);
-	return workingCopy;
+	return this.workingCopy;
 }
 /**
  * Create working copy and compute problems.
@@ -283,7 +283,7 @@ public void testGetCategories02() throws CoreException {
 		"public interface Y {\n" +
 		"}"
 	);
-	String[] categories = workingCopy.getType("Y").getCategories();
+	String[] categories = this.workingCopy.getType("Y").getCategories();
 	assertStringsEqual(
 		"Unexpected categories",
 		"test\n",
@@ -302,7 +302,7 @@ public void testGetCategories03() throws CoreException {
 		"public enum Y {\n" +
 		"}"
 	);
-	String[] categories = workingCopy.getType("Y").getCategories();
+	String[] categories = this.workingCopy.getType("Y").getCategories();
 	assertStringsEqual(
 		"Unexpected categories",
 		"test\n",
@@ -321,7 +321,7 @@ public void testGetCategories04() throws CoreException {
 		"public @interface Y {\n" +
 		"}"
 	);
-	String[] categories = workingCopy.getType("Y").getCategories();
+	String[] categories = this.workingCopy.getType("Y").getCategories();
 	assertStringsEqual(
 		"Unexpected categories",
 		"test\n",
@@ -341,7 +341,7 @@ public void testGetCategories05() throws CoreException {
 		"  void foo() {}\n" +
 		"}"
 	);
-	String[] categories = workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
 		"Unexpected categories",
 		"test\n",
@@ -361,7 +361,7 @@ public void testGetCategories06() throws CoreException {
 		"  public Y() {}\n" +
 		"}"
 	);
-	String[] categories = workingCopy.getType("Y").getMethod("Y", new String[0]).getCategories();
+	String[] categories = this.workingCopy.getType("Y").getMethod("Y", new String[0]).getCategories();
 	assertStringsEqual(
 		"Unexpected categories",
 		"test\n",
@@ -381,7 +381,7 @@ public void testGetCategories07() throws CoreException {
 		"  int field;\n" +
 		"}"
 	);
-	String[] categories = workingCopy.getType("Y").getField("field").getCategories();
+	String[] categories = this.workingCopy.getType("Y").getField("field").getCategories();
 	assertStringsEqual(
 		"Unexpected categories",
 		"test\n",
@@ -401,7 +401,7 @@ public void testGetCategories08() throws CoreException {
 		"  class Member {}\n" +
 		"}"
 	);
-	String[] categories = workingCopy.getType("Y").getType("Member").getCategories();
+	String[] categories = this.workingCopy.getType("Y").getType("Member").getCategories();
 	assertStringsEqual(
 		"Unexpected categories",
 		"test\n",
@@ -420,7 +420,7 @@ public void testGetCategories09() throws CoreException {
 		"  void foo() {}\n" +
 		"}"
 	);
-	String[] categories = workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
 		"Unexpected categories",
 		"",
@@ -441,7 +441,7 @@ public void testGetCategories10() throws CoreException {
 		"  void foo() {}\n" +
 		"}"
 	);
-	String[] categories = workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
 		"Unexpected categories",
 		"test1\n" +
@@ -462,7 +462,7 @@ public void testGetCategories11() throws CoreException {
 		"  void foo() {}\n" +
 		"}"
 	);
-	String[] categories = workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
+	String[] categories = this.workingCopy.getType("Y").getMethod("foo", new String[0]).getCategories();
 	assertStringsEqual(
 		"Unexpected categories",
 		"test1\n" +
@@ -564,7 +564,7 @@ public void testGetChildrenForCategory01() throws CoreException {
 		"  void foo3() {}\n" +
 		"}"
 	);
-	IJavaElement[] children = workingCopy.getType("Y").getChildrenForCategory("test");
+	IJavaElement[] children = this.workingCopy.getType("Y").getChildrenForCategory("test");
 	assertElementsEqual(
 		"Unexpected children",
 		"field [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
@@ -594,7 +594,7 @@ public void testGetChildrenForCategory02() throws CoreException {
 		"  void foo2() {}\n" +
 		"}"
 	);
-	IJavaElement[] children = workingCopy.getType("Y").getChildrenForCategory("test1");
+	IJavaElement[] children = this.workingCopy.getType("Y").getChildrenForCategory("test1");
 	assertElementsEqual(
 		"Unexpected children",
 		"Member [in Y [in [Working copy] Y.java [in p [in src [in P]]]]]\n" + 
@@ -829,7 +829,7 @@ public void testGetImports() throws JavaModelException {
  * compilation unit for an inner type.
  */
 public void testGetInnerTypes() throws JavaModelException {
-	IType type1 = cu.getType("X");
+	IType type1 = this.cu.getType("X");
 	assertTrue("X type should have children", type1.hasChildren());
 	assertTrue("X type superclass name should be null", type1.getSuperclassName() == null);
 	String[] superinterfaceNames= type1.getSuperInterfaceNames();
@@ -1210,7 +1210,7 @@ public void testTypeParameter1() throws CoreException {
 		"public class Y<T> {\n" +
 		"}"
 	);
-	ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getTypeParameters();
 	assertTypeParametersEqual(
 		"T\n",
 		typeParameters);
@@ -1225,7 +1225,7 @@ public void testTypeParameter2() throws CoreException {
 		"public class Y<T, U> {\n" +
 		"}"
 	);
-	ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getTypeParameters();
 	assertTypeParametersEqual(
 		"T\n" +
 		"U\n",
@@ -1241,7 +1241,7 @@ public void testTypeParameter3() throws CoreException {
 		"public class Y<T extends List> {\n" +
 		"}"
 	);
-	ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getTypeParameters();
 	assertTypeParametersEqual(
 		"T extends List\n",
 		typeParameters);
@@ -1256,7 +1256,7 @@ public void testTypeParameter4() throws CoreException {
 		"public class Y<T extends List & Runnable & Comparable> {\n" +
 		"}"
 	);
-	ITypeParameter[] typeParameters = workingCopy.getType("Y").getTypeParameters();
+	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getTypeParameters();
 	assertTypeParametersEqual(
 		"T extends List & Runnable & Comparable\n",
 		typeParameters);
@@ -1274,7 +1274,7 @@ public void testTypeParameter5() throws CoreException {
 		"  }\n" +
 		"}"
 	);
-	ITypeParameter[] typeParameters = workingCopy.getType("Y").getMethod("foo", new String[]{}).getTypeParameters();
+	ITypeParameter[] typeParameters = this.workingCopy.getType("Y").getMethod("foo", new String[]{}).getTypeParameters();
 	assertTypeParametersEqual(
 		"T extends List\n" + 
 		"U extends X & Runnable\n",

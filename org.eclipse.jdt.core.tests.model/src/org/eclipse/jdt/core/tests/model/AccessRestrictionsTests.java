@@ -21,7 +21,7 @@ public class AccessRestrictionsTests extends ModifyingResourceTests {
 	static class ProblemRequestor extends AbstractJavaModelTests.ProblemRequestor {
 		ProblemRequestor (String source) {
 			if (source != null) 
-				unitSource = source.toCharArray();
+				this.unitSource = source.toCharArray();
 		}
 		ProblemRequestor() {
 		}
@@ -54,6 +54,19 @@ public class AccessRestrictionsTests extends ModifyingResourceTests {
 	protected void assertProblems(String message, String expected) {
 		assertProblems(message, expected, this.problemRequestor);
 	}
+	
+	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
+		return getWorkingCopy(path, source, this.wcOwner);
+	}
+
+	protected void setUp() throws Exception {
+		super.setUp();
+		this.wcOwner = new WorkingCopyOwner() {
+			public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {
+				return AccessRestrictionsTests.this.problemRequestor;
+			}
+		};
+	}
 
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76266
@@ -64,7 +77,6 @@ public class AccessRestrictionsTests extends ModifyingResourceTests {
 public void test001() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null, z = null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		createJavaProject(
 			"P1", 
 			new String[] {"src"}, 
@@ -77,9 +89,8 @@ public void test001() throws CoreException {
 			"public class X1 {\n" +
 			"	void foo() {\n" +
 			"	}\n" +
-			"}",
-			owner,
-			this.problemRequestor);	
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -91,8 +102,8 @@ public void test001() throws CoreException {
 			"public class X2 extends X1 {\n" +
 			"	void bar() {\n" +
 			"	}\n" +
-			"}",			owner,
-			this.problemRequestor);
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -113,9 +124,8 @@ public void test001() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		z = getWorkingCopy(			
 			"/P2/src/p/Z.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
@@ -137,9 +147,8 @@ public void test001() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(			
 			"/P2/src/p/Y.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
@@ -171,7 +180,6 @@ public void test001() throws CoreException {
 public void test002() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		createJavaProject(
 			"P1", 
 			new String[] {"src"}, 
@@ -183,9 +191,8 @@ public void test002() throws CoreException {
 			"package p;\n" +
 			"public class X1 {\n" +
 			"	int m1;\n" +
-			"}",
-			owner,
-			this.problemRequestor);	
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -196,9 +203,8 @@ public void test002() throws CoreException {
 			"package p;\n" +
 			"public class X2 extends X1 {\n" +
 			"	char m2;\n" +
-			"}",
-			owner,
-			this.problemRequestor);
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -222,9 +228,8 @@ public void test002() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(			
 			"/P2/src/p/Y.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
@@ -254,7 +259,6 @@ public void test002() throws CoreException {
 public void test003() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		createJavaProject(
 			"P1", 
 			new String[] {"src"}, 
@@ -270,9 +274,8 @@ public void test003() throws CoreException {
 			"	   protected void foo() {}\n" +
 			"	}\n" +
 			"	interface I1 {}\n" +
-			"}",
-			owner,
-			this.problemRequestor);	
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -284,9 +287,8 @@ public void test003() throws CoreException {
 			"public class X2 extends X1 {\n" +
 			"	class C2 {}\n" +
 			"	interface I2 {}\n" +
-			"}",
-			owner,
-			this.problemRequestor);
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -318,9 +320,8 @@ public void test003() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(			
 			"/P2/src/p/Y.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
@@ -372,7 +373,6 @@ public void test003() throws CoreException {
 public void test004() throws CoreException {
 	ICompilationUnit x1 = null, z = null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		createJavaProject(
 			"P1", 
 			new String[] {"src"}, 
@@ -385,9 +385,8 @@ public void test004() throws CoreException {
 			"public class X1 {\n" +
 			"	class C1 {}\n" +
 			"	interface I1 {}\n" +
-			"}",
-			owner,
-			this.problemRequestor);	
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -407,9 +406,8 @@ public void test004() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		z = getWorkingCopy(			
 			"/P2/src/p/Z.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
@@ -444,7 +442,6 @@ public void test004() throws CoreException {
 public void test005() throws CoreException {
 	ICompilationUnit x1 = null, i1 = null, x2 = null, y =  null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		createJavaProject(
 			"P1", 
 			new String[] {"src"}, 
@@ -457,9 +454,8 @@ public void test005() throws CoreException {
 			"public class X1 {\n" +
 			"	public void foo() {\n" +
 			"	}\n" +
-			"}",
-			owner,
-			this.problemRequestor);	
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -470,9 +466,8 @@ public void test005() throws CoreException {
 			"package q;\n" +
 			"interface I1 {\n" +
 			"	void foo();\n" +
-			"}",			
-			owner,
-			this.problemRequestor);
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -485,9 +480,8 @@ public void test005() throws CoreException {
 			"	public void bar() {\n" +
 			"	  foo();\n" +
 			"	}\n" +
-			"}",
-			owner,
-			this.problemRequestor);
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -515,9 +509,8 @@ public void test005() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(			
 			"/P2/src/r/Y.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
@@ -547,7 +540,6 @@ public void test005() throws CoreException {
 public void test006() throws CoreException {
 	ICompilationUnit x = null, y =  null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		IJavaProject p1 = createJavaProject(
 			"P1", 
 			new String[] {"src"}, 
@@ -563,9 +555,8 @@ public void test006() throws CoreException {
 			"package p;\n" +
 			"public class X<T> {\n" +
 			"	T m;\n" +
-			"}",
-			owner,
-			this.problemRequestor);	
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -594,9 +585,8 @@ public void test006() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(			
 			"/P2/src/p/Y.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
@@ -639,7 +629,6 @@ public void test006() throws CoreException {
 public void test007() throws CoreException {
 	ICompilationUnit x = null, y =  null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		IJavaProject p1 = createJavaProject(
 			"P1", 
 			new String[] {"src"}, 
@@ -658,9 +647,8 @@ public void test007() throws CoreException {
 			"  public X (T t) {\n" +
 			"    this.m = t;\n" +
 			"  }\n" +
-			"}",
-			owner,
-			this.problemRequestor);	
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -689,9 +677,8 @@ public void test007() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(			
 			"/P2/src/p/Y.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
@@ -734,7 +721,6 @@ public void test007() throws CoreException {
 public void test008() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		IJavaProject p1 = createJavaProject(
 			"P1", 
 			new String[] {"src"}, 
@@ -751,9 +737,8 @@ public void test008() throws CoreException {
 			"public class X1<T> {\n" +
 			"	void foo() {\n" +
 			"	}\n" +
-			"}",
-			owner,
-			this.problemRequestor);	
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -765,8 +750,8 @@ public void test008() throws CoreException {
 			"public class X2 extends X1 {\n" +
 			"	void bar() {\n" +
 			"	}\n" +
-			"}",			owner,
-			this.problemRequestor);
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -793,9 +778,8 @@ public void test008() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(			
 			"/P2/src/p/Y.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
@@ -824,7 +808,6 @@ public void test008() throws CoreException {
 public void test009() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		IJavaProject p1 = createJavaProject(
 			"P1", 
 			new String[] {"src"}, 
@@ -840,9 +823,8 @@ public void test009() throws CoreException {
 			"package p;\n" +
 			"public class X1<T> {\n" +
 			"	int m1;\n" +
-			"}",
-			owner,
-			this.problemRequestor);	
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -853,9 +835,8 @@ public void test009() throws CoreException {
 			"package p;\n" +
 			"public class X2 extends X1 {\n" +
 			"	char m2;\n" +
-			"}",
-			owner,
-			this.problemRequestor);
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -882,9 +863,8 @@ public void test009() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(			
 			"/P2/src/p/Y.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 
@@ -913,7 +893,6 @@ public void test009() throws CoreException {
 public void test010() throws CoreException {
 	ICompilationUnit x1 = null, x2 = null, y =  null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner(){};
 		IJavaProject p1 = createJavaProject(
 			"P1", 
 			new String[] {"src"}, 
@@ -933,9 +912,8 @@ public void test010() throws CoreException {
 			"	   protected void foo() {}\n" +
 			"	}\n" +
 			"	interface I1 {}\n" +
-			"}",
-			owner,
-			this.problemRequestor);	
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -947,9 +925,8 @@ public void test010() throws CoreException {
 			"public class X2 extends X1 {\n" +
 			"	class C2 {}\n" +
 			"	interface I2 {}\n" +
-			"}",
-			owner,
-			this.problemRequestor);
+			"}"
+		);	
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
@@ -985,9 +962,8 @@ public void test010() throws CoreException {
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(			
 			"/P2/src/p/Y.java", 
-			src,
-			owner,
-			this.problemRequestor);
+			src
+		);	
 		assertProblems(
 			"Unexpected problems value", 
 			"----------\n" + 

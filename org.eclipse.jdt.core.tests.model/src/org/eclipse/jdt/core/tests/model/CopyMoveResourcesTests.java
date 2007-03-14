@@ -596,7 +596,7 @@ public void testCopyWorkingCopyDestination() throws CoreException {
 			"}"
 		);
 		copy = getCompilationUnit("/P/src/p2/X.java");
-		copy.becomeWorkingCopy(null, null);
+		copy.becomeWorkingCopy(null);
 	
 		copyPositive(cuSource, pkgDest, null, null, true/*force*/);
 	} finally {
@@ -1028,7 +1028,7 @@ public void testMoveWorkingCopy2() throws CoreException {
 			"}"
 		);
 		copy = getCompilationUnit("/P/src/p1/X.java");
-		copy.becomeWorkingCopy(null, null);
+		copy.becomeWorkingCopy(null);
 	
 		this.createFolder("/P/src/p2");
 		IPackageFragment pkgDest = getPackage("/P/src/p2");

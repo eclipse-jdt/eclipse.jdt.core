@@ -667,7 +667,7 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
 	try {
 		// Setup
 		workingCopy = (ICompilationUnit) JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getFile(new Path("/BigProject/src/org/eclipse/jdt/core/tests/BigCu.java")));
-		workingCopy.becomeWorkingCopy(null, null);
+		workingCopy.becomeWorkingCopy(null);
 		
 		// Warm up
 		if (WARMUP_COUNT > 0) {

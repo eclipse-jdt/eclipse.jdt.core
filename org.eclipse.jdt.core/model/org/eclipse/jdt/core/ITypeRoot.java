@@ -79,7 +79,9 @@ IJavaElement getElementAt(int position) throws JavaModelException;
  * In particular, such a working copy can then be committed in order to create
  * the corresponding compilation unit.
  * </p><p>
- * Note that possible problems of this working copy are not reported using this method.
+ * Note that possible problems of this working copy are reported using this method only
+ * if the given working copy owner returns a problem requestor for this working copy
+ * (see {@link WorkingCopyOwner#getProblemRequestor(ICompilationUnit)}).
  * </p>
  * 
  * @param owner the working copy owner that creates a buffer that is used to get the content 

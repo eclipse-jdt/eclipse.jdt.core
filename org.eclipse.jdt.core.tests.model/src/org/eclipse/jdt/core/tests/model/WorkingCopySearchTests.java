@@ -183,7 +183,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	public void testAllTypeNames3() throws CoreException {
 		ICompilationUnit wc = getCompilationUnit("/JavaSearch/wc3/X44884.java");
 		try {
-			wc.becomeWorkingCopy(null, null);
+			wc.becomeWorkingCopy(null);
 			wc.getBuffer().setContents(
 				"package wc3;\n" +
 				"public class X44884 {\n" +
@@ -222,7 +222,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	public void testAllTypeNames4() throws CoreException {
 		ICompilationUnit wc = getCompilationUnit("/JavaSearch/wc3/X44884.java");
 		try {
-			wc.becomeWorkingCopy(null, null);
+			wc.becomeWorkingCopy(null);
 			wc.getBuffer().setContents(
 				"package wc3;\n" +
 				"public class X44884 {\n" +

@@ -643,7 +643,7 @@ public void testEmptyWorkingCopyPotentialSubtype() throws JavaModelException {
     ICompilationUnit workingCopy = null;
     try {
         workingCopy = getCompilationUnit("/TypeHierarchy/src/q4/Y.java");
-        workingCopy.becomeWorkingCopy(null, null);
+        workingCopy.becomeWorkingCopy(null);
         workingCopy.getBuffer().setContents("");
         workingCopy.makeConsistent(null);
         

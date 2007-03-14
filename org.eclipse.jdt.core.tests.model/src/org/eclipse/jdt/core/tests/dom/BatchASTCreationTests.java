@@ -208,7 +208,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.createASTs(cus, new String[] {}, requestor, null);
 	}
-	
+
 	protected ICompilationUnit[] createWorkingCopies(String[] pathAndSources) throws JavaModelException {
 		return createWorkingCopies(pathAndSources, this.owner);
 	}
@@ -225,7 +225,8 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			} 
 			: null;
 		MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
-		return createWorkingCopies(markerInfos, this.owner, problemRequestor);
+		this.owner = newWorkingCopyOwner(problemRequestor);
+		return createWorkingCopies(markerInfos, this.owner);
 	}
 	
 	private void resolveASTs(ICompilationUnit[] cus, TestASTRequestor requestor) {
@@ -1465,7 +1466,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		try {
 			// primary working copy with no method foo()
 			primaryWorkingCopy = getCompilationUnit("/P/p1/X.java");
-			primaryWorkingCopy.becomeWorkingCopy(null/*no pb requestor*/, null/*no progress*/);
+			primaryWorkingCopy.becomeWorkingCopy(null/*no progress*/);
 			primaryWorkingCopy.getBuffer().setContents(
 				"package p1;\n" +
 				"public class X {\n" +
@@ -1480,8 +1481,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class X {\n" +
 				"  void foo() {}\n" +
 				"}",
-				this.owner,
-				false/*don't compute problems*/
+				this.owner
 			);
 			
 			// create bindings
@@ -2007,8 +2007,8 @@ public void test081() throws CoreException, IOException {
 		class BindingRequestor extends ASTRequestor {
 			ITypeBinding _result = null;
 			public void acceptBinding(String bindingKey, IBinding binding) {
-				if (_result == null && binding != null && binding.getKind() == IBinding.TYPE)
-					_result = (ITypeBinding) binding;
+				if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+					this._result = (ITypeBinding) binding;
 			}
 		}
 		String[] keys = new String[] {
@@ -2036,8 +2036,8 @@ public void test082() throws CoreException, IOException {
 		class BindingRequestor extends ASTRequestor {
 			ITypeBinding _result = null;
 			public void acceptBinding(String bindingKey, IBinding binding) {
-				if (_result == null && binding != null && binding.getKind() == IBinding.TYPE)
-					_result = (ITypeBinding) binding;
+				if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+					this._result = (ITypeBinding) binding;
 			}
 		}
 		String[] keys = new String[] {

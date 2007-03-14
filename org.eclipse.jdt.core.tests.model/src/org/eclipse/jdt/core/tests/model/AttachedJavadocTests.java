@@ -33,7 +33,6 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
 
 public class AttachedJavadocTests extends ModifyingResourceTests {
 	static {
@@ -85,7 +84,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 				entries[i] = JavaCore.newLibraryEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), new IClasspathAttribute[] { attribute}, entry.isExported());
 			}
 		}
-		project.setRawClasspath(entries, null);
+		this.project.setRawClasspath(entries, null);
 
 		IPackageFragmentRoot[] roots = this.project.getAllPackageFragmentRoots();
 		int count = 0;
@@ -95,14 +94,14 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 				case IPackageFragmentRoot.K_BINARY :
 					if (!packageFragmentRoot.isExternal()) {
 						count++;
-						if (root == null) {
-							root = packageFragmentRoot;
+						if (this.root == null) {
+							this.root = packageFragmentRoot;
 						}
 					}
 			}
 		}
 		assertEquals("Wrong value", 1, count); //$NON-NLS-1$
-		assertNotNull("Should not be null", root); //$NON-NLS-1$
+		assertNotNull("Should not be null", this.root); //$NON-NLS-1$
 	}
 
 	/**
@@ -469,8 +468,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 				"/AttachedJavadocProject/src/Test.java", 
 				"import p2.Y;\n" +
 				"public class Test extends Y { }",
-				new WorkingCopyOwner() {},
-				problemRequestor
+				newWorkingCopyOwner(problemRequestor)
 			);
 			assertProblems(
 				"Unexpected problems", 

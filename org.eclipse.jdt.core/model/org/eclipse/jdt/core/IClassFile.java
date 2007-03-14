@@ -13,10 +13,10 @@ package org.eclipse.jdt.core;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
- * Represents an entire binary type (single <code>.class</code> file). 
+ * Represents an entire binary type (single <code>.class</code> file).
  * A class file has a single child of type <code>IType</code>.
  * Class file elements need to be opened before they can be navigated.
- * If a class file cannot be parsed, its structure remains unknown. Use 
+ * If a class file cannot be parsed, its structure remains unknown. Use
  * <code>IJavaElement.isStructureKnown</code> to determine whether this is the
  * case.
  * <p>
@@ -31,22 +31,22 @@ import org.eclipse.core.runtime.IProgressMonitor;
  *
  * @see IPackageFragmentRoot#attachSource(org.eclipse.core.runtime.IPath, org.eclipse.core.runtime.IPath, IProgressMonitor)
  */
- 
+
 public interface IClassFile extends ITypeRoot {
-	
+
 /**
  * Changes this class file handle into a working copy. A new {@link IBuffer} is
  * created using the given owner. Uses the primary owner if <code>null</code> is
  * specified.
  * <p>
- * When switching to working copy mode, problems are reported to the given 
+ * When switching to working copy mode, problems are reported to the given
  * {@link IProblemRequestor}. Note that once in working copy mode, the given
  * {@link IProblemRequestor} is ignored. Only the original {@link IProblemRequestor}
  * is used to report subsequent problems.
  * </p>
  * <p>
  * Once in working copy mode, changes to this working copy or its children are done in memory.
- * Only the new buffer is affected. 
+ * Only the new buffer is affected.
  * </p>
  * <p>
  * Using {@link ICompilationUnit#commitWorkingCopy(boolean, IProgressMonitor)} on the working copy
@@ -54,8 +54,8 @@ public interface IClassFile extends ITypeRoot {
  * </p>
  * <p>
  * If this class file was already in working copy mode, an internal counter is incremented and no
- * other action is taken on this working copy. To bring this working copy back into the original mode 
- * (where it reflects the underlying resource), {@link ICompilationUnit#discardWorkingCopy} must be call as many 
+ * other action is taken on this working copy. To bring this working copy back into the original mode
+ * (where it reflects the underlying resource), {@link ICompilationUnit#discardWorkingCopy} must be call as many
  * times as {@link #becomeWorkingCopy(IProblemRequestor, WorkingCopyOwner, IProgressMonitor)}.
  * </p>
  * <p>
@@ -65,17 +65,20 @@ public interface IClassFile extends ITypeRoot {
  * <p>
  * The resource of a class file's working copy is <code>null</code> if the class file is in an external jar file.
  * </p>
- * 
+ *
  * @param problemRequestor a requestor which will get notified of problems detected during
  * 	reconciling as they are discovered. The requestor can be set to <code>null</code> indicating
  * 	that the client is not interested in problems.
  * @param owner the given {@link WorkingCopyOwner}, or <code>null</code> for the primary owner
  * @param monitor a progress monitor used to report progress while opening this compilation unit
- * 	or <code>null</code> if no progress should be reported 
+ * 	or <code>null</code> if no progress should be reported
  * @return a working copy for this class file
  * @throws JavaModelException if this compilation unit could not become a working copy.
  * @see ICompilationUnit#discardWorkingCopy()
  * @since 3.2
+ * @deprecated Use {@link ITypeRoot#getWorkingCopy(WorkingCopyOwner, IProgressMonitor)} instead.
+ * 	Note that if this deprecated method is used, problems will be reported on the passed problem requester
+ * 	as well as on the problem requestor returned by the working copy owner (if not null).
  */
 ICompilationUnit becomeWorkingCopy(IProblemRequestor problemRequestor, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
 /**
@@ -96,7 +99,7 @@ byte[] getBytes() throws JavaModelException;
  */
 IType getType();
 /**
- * Returns a working copy on the source associated with this class file using the given 
+ * Returns a working copy on the source associated with this class file using the given
  * factory to create the buffer, or <code>null</code> if there is no source associated
  * with the class file.
  * <p>
@@ -106,7 +109,7 @@ IType getType();
  * The only valid operations on this working copy are <code>getBuffer()</code> or <code>getOriginalElement</code>.
  *
  * @param monitor a progress monitor used to report progress while opening this compilation unit
- *                 or <code>null</code> if no progress should be reported 
+ *                 or <code>null</code> if no progress should be reported
  * @param factory the factory that creates a buffer that is used to get the content of the working copy
  *                 or <code>null</code> if the internal factory should be used
  * @return a  a working copy on the source associated with this class file
@@ -131,7 +134,7 @@ IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) th
 boolean isClass() throws JavaModelException;
 /**
  * Returns whether this type represents an interface. This is not guaranteed to
- * be instantaneous, as it may require parsing the underlying file. 
+ * be instantaneous, as it may require parsing the underlying file.
  *
  * @return <code>true</code> if the class file represents an interface.
  *

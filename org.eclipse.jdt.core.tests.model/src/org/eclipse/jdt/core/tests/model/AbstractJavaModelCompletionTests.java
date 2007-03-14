@@ -70,7 +70,7 @@ protected void removeLibrary(String projectName, String jarName) throws CoreExce
 	removeLibraryEntry(javaProject, new Path(projectPath + jarName));
 }
 public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
-	return super.getWorkingCopy(path, source, this.wcOwner, null);
+	return super.getWorkingCopy(path, source, this.wcOwner);
 }
 protected CompletionResult complete(String path, String source, String completeBehind) throws JavaModelException {
 	return this.complete(path, source, false, completeBehind);

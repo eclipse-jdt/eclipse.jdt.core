@@ -128,16 +128,16 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"}"
 			}, 
 			"1.5");
+		IProblemRequestor problemRequestor = new IProblemRequestor() {
+			public void acceptProblem(IProblem problem) {}
+			public void beginReporting() {}
+			public void endReporting() {}
+			public boolean isActive() {
+				return true;
+			}
+		};
 		this.workingCopy = getCompilationUnit("/P/src/X.java").getWorkingCopy(
-			new WorkingCopyOwner() {}, 
-			new IProblemRequestor() {
-				public void acceptProblem(IProblem problem) {}
-				public void beginReporting() {}
-				public void endReporting() {}
-				public boolean isActive() {
-					return true;
-				}
-			}, 
+			newWorkingCopyOwner(problemRequestor), 
 			null/*no progress*/);
 	}
 	
@@ -443,7 +443,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"  public void foo(int i, String s) {\n" +
 			"  }\n" +
 			"}",
-			owner, false);
+			owner
+		);
 		this.workingCopies[1] = getWorkingCopy(
 			"/P/src/Y.java", 
 			"public class Y extends X {\n" +
@@ -451,13 +452,15 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"    new Y() {};\n" +
 			"  }\n" +
 			"}",
-			owner, false);
+			owner
+		);
 		this.workingCopies[2] = getWorkingCopy(
 			"/P/src/I.java", 
 			"public interface I {\n" +
 			"  int BAR;\n" +
 			"}",
-			owner, false);
+			owner
+		);
 		IType typeX = this.workingCopies[0].getType("X");
 		IJavaElement[] elements = new IJavaElement[] {
 			typeX, 
@@ -852,7 +855,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				bindingKeys,
 				requestor,
 				getJavaProject("P"),
-				workingCopy.getOwner()
+				this.workingCopy.getOwner()
 			);
 			IBinding[] bindings = requestor.getBindings(bindingKeys);
 			
@@ -1012,8 +1015,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"public class Y {\n" +
 				"  void foo(int i, String[] args, java.lang.Class clazz) {}\n" +
 				"}",
-				this.workingCopy.getOwner(), 
-				null
+				this.workingCopy.getOwner()
 			);
 			ASTNode node = buildAST(
 				"public class X {\n" +

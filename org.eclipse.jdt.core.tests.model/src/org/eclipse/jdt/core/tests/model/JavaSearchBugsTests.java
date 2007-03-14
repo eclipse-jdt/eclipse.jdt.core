@@ -95,7 +95,7 @@ public ICompilationUnit getWorkingCopy(String path, String source) throws JavaMo
 	if (this.wcOwner == null) {
 		this.wcOwner = new WorkingCopyOwner() {};
 	}
-	return getWorkingCopy(path, source, this.wcOwner, null/*don't compute problems*/);
+	return getWorkingCopy(path, source, this.wcOwner);
 }
 protected void search(IJavaElement element, int limitTo) throws CoreException {
 	search(element, limitTo, EXACT_RULE, getJavaSearchScopeBugs(), resultCollector);
@@ -231,9 +231,8 @@ public void testBug72866() throws CoreException {
 		"public abstract class A {\n" + 
 		"	public abstract void foo(V v);\n" + 
 		"}\n",
-		owner,
-		true
-		);
+		owner
+	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b72866/SX.java",
 		"package b72866;\n" + 
 		"public class SX extends A {\n" + 
@@ -241,8 +240,8 @@ public void testBug72866() throws CoreException {
 		"	    v.bar(this);\n" + 
 		"	}\n" + 
 		"}\n"	,
-		owner,
-		true);
+		owner
+	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b72866/V.java",
 		"package b72866;\n" + 
 		"public class V {\n" + 
@@ -250,8 +249,8 @@ public void testBug72866() throws CoreException {
 		"	void bar(X x) {}\n" + 
 		"	void bar(SX s) {}\n" + 
 		"}\n"	,
-		owner,
-		true);
+		owner
+	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b72866/X.java",
 		"package b72866;\n" + 
 		"public class X extends A {\n" + 
@@ -259,8 +258,8 @@ public void testBug72866() throws CoreException {
 		"	    v.bar(this);\n" + 
 		"	}\n" + 
 		"}\n"	,
-		owner,
-		true	);
+		owner
+	);
 	IType type = workingCopies[2].getType("V");
 	IMethod method = type.getMethod("bar", new String[] {"QX;"});
 	search(method, REFERENCES);
@@ -329,20 +328,20 @@ public void testBug73336() throws CoreException {
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b73336/A.java",
 		"package b73336;\n" + 
 		"public class A {}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b73336/AA.java",
 		"package b73336;\n" + 
 		"public class AA extends A {}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b73336/B.java",
 		"package b73336;\n" + 
 		"public class B extends X<A, A> {\n" + 
 		"	<T> void foo(T t) {}\n" + 
 		"}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b73336/C.java",
 		"package b73336;\n" + 
 		"public class C implements I<A> {\n" + 
@@ -351,15 +350,15 @@ public void testBug73336() throws CoreException {
 		"		b.<A>foo(new A());\n" + 
 		"	}\n" + 
 		"}\n",
-		owner,
-		true	);
+		owner
+	);
 	workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/b73336/I.java",
 		"package b73336;\n" + 
 		"public interface I<T>  {\n" + 
 		"	public void foo();\n" + 
 		"}\n",
-		owner,
-		true	);
+		owner
+	);
 	workingCopies[5] = getWorkingCopy("/JavaSearchBugs/src/b73336/X.java",
 		"package b73336;\n" + 
 		"public class X<T, U> {\n" + 
@@ -368,8 +367,8 @@ public void testBug73336() throws CoreException {
 		"		void foo() {}\n" + 
 		"	}\n" + 
 		"}\n",
-		owner,
-		true	);
+		owner
+	);
 	// search for first and second method should both return 2 inaccurate matches
 	IType type = workingCopies[0].getType("A");
 	search(type, REFERENCES); //, getJavaSearchScopeBugs("b73336", false));
@@ -388,14 +387,14 @@ public void testBug73336b() throws CoreException {
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b73336b/A.java",
 		"package b73336b;\n" + 
 		"public class A {}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b73336b/B.java",
 		"package b73336b;\n" + 
 		"public class B extends X<A, A> {\n" + 
 		"}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b73336b/C.java",
 		"package b73336b;\n" + 
 		"public class C extends X<A, A>.Member<A> {\n" + 
@@ -403,8 +402,8 @@ public void testBug73336b() throws CoreException {
 		"		new X<A, A>().super();\n" + 
 		"	}\n" + 
 		"}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b73336b/X.java",
 		"package b73336b;\n" + 
 		"public class X<T, U> {\n" + 
@@ -413,8 +412,8 @@ public void testBug73336b() throws CoreException {
 		"		void foo() {}\n" + 
 		"	}\n" + 
 		"}\n",
-		owner,
-		true	);
+		owner
+	);
 	// search for first and second method should both return 2 inaccurate matches
 	IType type = workingCopies[0].getType("A");
 //	search(type, REFERENCES, getJavaSearchScopeBugs("b73336b", false));
@@ -436,21 +435,21 @@ public void testBug73336c() throws CoreException {
 	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b73336c/A.java",
 		"package b73336c;\n" + 
 		"public class A {}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b73336c/B.java",
 		"package b73336c;\n" + 
 		"public class B extends X<A, A> {\n" + 
 		"}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b73336c/C.java",
 		"package b73336c;\n" + 
 		"public class C implements X<A, A>.Interface<A>  {\n" + 
 		"	void bar() {}\n" + 
 		"}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b73336c/X.java",
 		"package b73336c;\n" + 
 		"public class X<T, U> {\n" + 
@@ -458,8 +457,8 @@ public void testBug73336c() throws CoreException {
 		"		void bar();\n" + 
 		"	}\n" + 
 		"}\n",
-		owner,
-		true	);
+		owner
+	);
 	// search for first and second method should both return 2 inaccurate matches
 	IType type = workingCopies[0].getType("A");
 //	search(type, REFERENCES, getJavaSearchScopeBugs("b73336c", false));
@@ -484,13 +483,13 @@ public void testBug73696() throws CoreException {
 		"package b73696;\n" + 
 		"public class C implements  I {\n" + 
 		"}",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b73696/I.java",
 		"package b73696;\n" + 
 		"public interface I {}\n",
-		owner,
-		true);
+		owner
+	);
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(workingCopies);
 	
 	// Interface declaration
@@ -547,21 +546,21 @@ public void testBug74776() throws CoreException {
 		"	void foo(IRegion r) {\n" + 
 		"	}\n" + 
 		"}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b74776/IRegion.java",
 		"package b74776;\n" + 
 		"public interface IRegion {\n" + 
 		"}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b74776/Region.java",
 		"package b74776;\n" + 
 		"public class Region implements IRegion {\n" + 
 		"\n" + 
 		"}\n",
-		owner,
-		true);
+		owner
+	);
 	// search method references
 	IType type = workingCopies[0].getType("A");
 	IMethod method = type.getMethod("foo", new String[] { "QRegion;" });
@@ -681,8 +680,8 @@ public void testBug78082() throws CoreException {
 		"public class M {\n" + 
 		"	static int VAL=78082;\n" + 
 		"}\n",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b78082/XY.java",
 		"package b78082;\n" + 
 		"import static b78082.M.VAL;\n" + 
@@ -690,8 +689,8 @@ public void testBug78082() throws CoreException {
 		"	double val = VAL;\n" + 
 		"	double val2= b78082.M.VAL;\n" + 
 		"}\n",
-		owner,
-		true);
+		owner
+	);
 	// search field references
 	IType type = workingCopies[0].getType("M");
 	IField field = type.getField("VAL");
@@ -842,8 +841,8 @@ public void testBug79860() throws CoreException {
 		"package b79860;\n" + 
 		"public class X<T extends A> { }\n" + 
 		"class A { }",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b79860/Y.java",
 		"package b79860;\n" + 
 		"public class Y<T extends B&I1&I2&I3> { }\n" + 
@@ -851,8 +850,8 @@ public void testBug79860() throws CoreException {
 		"interface I1 {}\n" + 
 		"interface I2 {}\n" + 
 		"interface I3 {}\n",
-		owner,
-		true);
+		owner
+	);
 	IType type = workingCopies[0].getType("A");
 	search(type, REFERENCES);
 	assertSearchResults(
@@ -866,8 +865,8 @@ public void testBug79860string() throws CoreException {
 		"package b79860;\n" + 
 		"public class X<T extends A> { }\n" + 
 		"class A { }",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b79860/Y.java",
 		"package b79860;\n" + 
 		"public class Y<T extends B&I1&I2&I3> { }\n" + 
@@ -875,8 +874,8 @@ public void testBug79860string() throws CoreException {
 		"interface I1 {}\n" + 
 		"interface I2 {}\n" + 
 		"interface I3 {}\n",
-		owner,
-		true);
+		owner
+	);
 	search("I?", TYPE, REFERENCES);
 	assertSearchResults(
 		"src/b79860/Y.java b79860.Y [I1] EXACT_MATCH\n" + 
@@ -1053,15 +1052,15 @@ public void testBug80223() throws CoreException {
 		"public class A {\n" + 
 		"    void m() {}\n" + 
 		"}",
-		owner,
-		true);
+		owner
+	);
 	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b80223/b/B.java",
 		"package b80223.b;\n" + 
 		"public class B extends b80223.a.A {\n" + 
 		"    void m() {}\n" + 
 		"}",
-		owner,
-		true);
+		owner
+	);
 	// search for method declaration should find only A match
 	IType type = workingCopies[0].getType("A");
 	IMethod method = type.getMethod("m", new String[0]);
@@ -6308,8 +6307,7 @@ public void testBug125178() throws CoreException {
 		"		new Test().foo(100);\n" + 
 		"	}\n" + 
 		"}\n",
-		new WorkingCopyOwner() {},
-		problemRequestor
+		newWorkingCopyOwner(problemRequestor)
 	);
 	assertEquals("CU Should not have any problem!",
 		"----------\n" +

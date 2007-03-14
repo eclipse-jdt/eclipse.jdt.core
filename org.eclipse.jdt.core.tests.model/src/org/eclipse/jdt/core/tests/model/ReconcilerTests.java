@@ -37,10 +37,10 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 public class ReconcilerTests extends ModifyingResourceTests {
-	
+
 	protected ICompilationUnit workingCopy;
 	protected ProblemRequestor problemRequestor;
-	
+
 	/* A problem requestor that auto-cancels on first problem */
 	class CancelingProblemRequestor extends ProblemRequestor {
 		IProgressMonitor progressMonitor = new IProgressMonitor() {
@@ -58,14 +58,14 @@ public class ReconcilerTests extends ModifyingResourceTests {
 			public void subTask(String name) {}
 			public void worked(int work) {}
 		};
-	
+
 		boolean isCanceling = false;
 		public void acceptProblem(IProblem problem) {
-			if (isCanceling) this.progressMonitor.setCanceled(true); // auto-cancel on first problem
+			if (this.isCanceling) this.progressMonitor.setCanceled(true); // auto-cancel on first problem
 			super.acceptProblem(problem);
-		}		
+		}
 	}
-	
+
 	class ReconcileParticipant extends CompilationParticipant {
 		IJavaElementDelta delta;
 		org.eclipse.jdt.core.dom.CompilationUnit ast;
@@ -134,7 +134,7 @@ protected void addClasspathEntries(IClasspathEntry[] entries, boolean enableForb
 	System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 	System.arraycopy(entries, 0, newClasspath, oldLength, length);
 	project.setRawClasspath(newClasspath, null);
-	
+
 	if (enableForbiddenReferences) {
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 	}
@@ -154,7 +154,12 @@ protected void removeClasspathEntries(IClasspathEntry[] entries) throws JavaMode
 public void setUp() throws Exception {
 	super.setUp();
 	this.problemRequestor =  new ProblemRequestor();
-	this.workingCopy = getCompilationUnit("Reconciler/src/p1/X.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+	this.wcOwner = new WorkingCopyOwner() {
+		public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {
+			return ReconcilerTests.this.problemRequestor;
+		}
+	};
+	this.workingCopy = getCompilationUnit("Reconciler/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 	this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 	startDeltas();
 }
@@ -166,7 +171,7 @@ public void setUpSuite() throws Exception {
 	createFolder("/Reconciler/src/p1");
 	createFolder("/Reconciler/src/p2");
 	createFile(
-		"/Reconciler/src/p1/X.java", 
+		"/Reconciler/src/p1/X.java",
 		"package p1;\n" +
 		"import p2.*;\n" +
 		"public class X {\n" +
@@ -181,9 +186,9 @@ public void setUpSuite() throws Exception {
 	// Create project with 1.5 compliance
 	IJavaProject project15 = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 	addLibrary(
-		project15, 
-		"lib15.jar", 
-		"lib15src.zip", 
+		project15,
+		"lib15.jar",
+		"lib15src.zip",
 		new String[] {
 			"java/util/List.java",
 			"package java.util;\n" +
@@ -210,25 +215,26 @@ public void setUpSuite() throws Exception {
 			"public @interface SuppressWarnings {\n" +
 			"   String[] value();\n" +
 			"}"
-		}, 
+		},
 		JavaCore.VERSION_1_5
 	);
 	project15.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 	project15.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 }
 private void setUp15WorkingCopy() throws JavaModelException {
-	setUp15WorkingCopy("Reconciler15/src/p1/X.java", new WorkingCopyOwner() {});
+	setUp15WorkingCopy("Reconciler15/src/p1/X.java", this.wcOwner);
 }
 private void setUp15WorkingCopy(String path, WorkingCopyOwner owner) throws JavaModelException {
 	String contents = this.workingCopy.getSource();
 	setUpWorkingCopy(path, contents, owner);
 }
 private void setUpWorkingCopy(String path, String contents) throws JavaModelException {
-	setUpWorkingCopy(path, contents, new WorkingCopyOwner() {});
+	setUpWorkingCopy(path, contents, this.wcOwner);
 }
 private void setUpWorkingCopy(String path, String contents, WorkingCopyOwner owner) throws JavaModelException {
 	this.workingCopy.discardWorkingCopy();
-	this.workingCopy = getCompilationUnit(path).getWorkingCopy(owner, this.problemRequestor, null);
+	this.workingCopy = getCompilationUnit(path).getWorkingCopy(owner, null);
+	assertEquals("Invalid problem requestor!", this.problemRequestor, this.wcOwner.getProblemRequestor(this.workingCopy));
 	setWorkingCopyContents(contents);
 	this.workingCopy.makeConsistent(null);
 }
@@ -260,12 +266,12 @@ public void testAccessRestriction() throws CoreException {
 		createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[0], null, null, new boolean[0], "bin", null, new String[][] {{"**/X.java"}}, null, "1.4");
 		createFolder("/P1/src/p");
 		createFile("/P1/src/p/X.java", "package p; public class X {}");
-		
+
 		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "bin");
 		setUpWorkingCopy("/P2/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
+			"Unexpected problems",
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -299,8 +305,8 @@ public void testAccessRestriction2() throws CoreException, IOException {
 		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "bin");
 		setUpWorkingCopy("/P2/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
+			"Unexpected problems",
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -317,14 +323,14 @@ public void testAccessRestriction3() throws CoreException {
 		createJavaProject("P1");
 		createFolder("/P1/p");
 		createFile("/P1/p/X.java", "package p; public class X {}");
-		
+
 		createJavaProject("P2", new String[] {}, new String[] {}, null, null, new String[] {"/P1"}, null, null, new boolean[] {true}, "", null, null, null, "1.4");
-		
+
 		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[] {"/P2"}, null, new String[][] {new String[] {"**/X"}}, false/*don't combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, "1.4");
 		setUpWorkingCopy("/P3/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
+			"Unexpected problems",
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -340,18 +346,18 @@ public void testAccessRestriction4() throws CoreException {
 		createJavaProject("P1");
 		createFolder("/P1/p");
 		createFile("/P1/p/X.java", "package p; public class X {}");
-		
+
 		createJavaProject("P2", new String[] {}, new String[] {}, null, null, new String[] {"/P1"}, null, null, new boolean[] {true}, "", null, null, null, "1.4");
-		
+
 		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[] {"/P2"}, null, new String[][] {new String[] {"**/X"}}, true/*combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, "1.4");
 		setUpWorkingCopy("/P3/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
-			"1. ERROR in /P3/src/Y.java (at line 1)\n" + 
-			"	public class Y extends p.X {}\n" + 
-			"	                       ^^^\n" + 
-			"Access restriction: The type X is not accessible due to restriction on required project P1\n" + 
+			"Unexpected problems",
+			"----------\n" +
+			"1. ERROR in /P3/src/Y.java (at line 1)\n" +
+			"	public class Y extends p.X {}\n" +
+			"	                       ^^^\n" +
+			"Access restriction: The type X is not accessible due to restriction on required project P1\n" +
 			"----------\n"
 		);
 	} finally {
@@ -366,7 +372,7 @@ public void testAccessRestriction5() throws CoreException {
 	try {
 		createJavaProject("P1");
 		createFolder("/P1/p");
-		createFile("/P1/p/X.java", "package p; public class X {}");	
+		createFile("/P1/p/X.java", "package p; public class X {}");
 		IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
@@ -375,11 +381,11 @@ public void testAccessRestriction5() throws CoreException {
 		p2.setRawClasspath(classpath, null);
 		setUpWorkingCopy("/P2/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
+			"Unexpected problems",
+			"----------\n" +
 			"----------\n"
 		);
-		
+
 		// remove accessible rule
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
 		classpath[length] = createSourceEntry("P2", "/P1", "-**/*");
@@ -387,12 +393,12 @@ public void testAccessRestriction5() throws CoreException {
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
-			"1. ERROR in /P2/src/Y.java (at line 1)\n" + 
-			"	public class Y extends p.X {}\n" + 
-			"	                       ^^^\n" + 
-			"Access restriction: The type X is not accessible due to restriction on required project P1\n" + 
+			"Unexpected problems",
+			"----------\n" +
+			"1. ERROR in /P2/src/Y.java (at line 1)\n" +
+			"	public class Y extends p.X {}\n" +
+			"	                       ^^^\n" +
+			"Access restriction: The type X is not accessible due to restriction on required project P1\n" +
 			"----------\n"
 		);
 
@@ -415,8 +421,8 @@ public void testAddDuplicateMember() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()#2[+]: {}"
 	);
 }
@@ -440,9 +446,9 @@ public void testAddFieldAndConstructor() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	X(int)[+]: {}\n" + 
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	X(int)[+]: {}\n" +
 		"	i[+]: {}"
 	);
 }
@@ -464,7 +470,7 @@ public void testAddImports() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
+		"Unexpected delta",
 		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	import java.lang.reflect.*[+]: {}\n" +
 		"	import java.util.Vector[+]: {}"
@@ -488,7 +494,7 @@ public void testAddMethod1() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
+		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	bar()[+]: {}"
 	);
@@ -510,8 +516,8 @@ public void testAddPartialMethod1() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	some()[+]: {}"
 	);
 }
@@ -533,7 +539,7 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	
+
 	// Add { on partial method
 	clearDeltas();
 	setWorkingCopyContents(
@@ -546,7 +552,7 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
+		"Unexpected delta",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
 }
@@ -562,10 +568,10 @@ public void testBroadcastAST1() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
 	assertASTNodeEquals(
-		"Unexpected ast", 
-		"package p1;\n" + 
-		"import p2.*;\n" + 
-		"public class X {\n" + 
+		"Unexpected ast",
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
 		"}\n",
 		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
@@ -576,12 +582,12 @@ public void testBroadcastAST1() throws JavaModelException {
 public void testBroadcastAST2() throws JavaModelException {
 	this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null/*primary owner*/, null/*no progress*/);
 	assertASTNodeEquals(
-		"Unexpected ast", 
-		"package p1;\n" + 
-		"import p2.*;\n" + 
-		"public class X {\n" + 
-		"  public void foo(){\n" + 
-		"  }\n" + 
+		"Unexpected ast",
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void foo(){\n" +
+		"  }\n" +
 		"}\n",
 		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
@@ -592,12 +598,12 @@ public void testBroadcastAST2() throws JavaModelException {
 public void testBroadcastAST3() throws JavaModelException {
 	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
 	assertASTNodeEquals(
-		"Unexpected ast", 
-		"package p1;\n" + 
-		"import p2.*;\n" + 
-		"public class X {\n" + 
-		"  public void foo(){\n" + 
-		"  }\n" + 
+		"Unexpected ast",
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void foo(){\n" +
+		"  }\n" +
 		"}\n",
 		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
@@ -615,15 +621,15 @@ public void testBroadcastAST4() throws CoreException {
 					"import p2.*;\n" +
 					"public class X {\n" +
 					"}");
-				ReconcilerTests.this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, monitor);				
+				ReconcilerTests.this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, monitor);
 			}
 		},
 		null/*no progress*/);
 	assertASTNodeEquals(
-		"Unexpected ast", 
-		"package p1;\n" + 
-		"import p2.*;\n" + 
-		"public class X {\n" + 
+		"Unexpected ast",
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
 		"}\n",
 		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
@@ -666,11 +672,11 @@ public void testCancel() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.makeConsistent(null);
-	
+
 	// count the number of time isCanceled() is called when converting this source unit
 	CancelCounter counter = new CancelCounter();
 	this.workingCopy.reconcile(AST.JLS2, true, null, counter);
-	
+
 	// throw an OperatonCanceledException at each point isCanceled() is called
 	for (int i = 0; i < counter.count; i++) {
 		boolean gotException = false;
@@ -681,7 +687,7 @@ public void testCancel() throws JavaModelException {
 		}
 		assertTrue("Should get an OperationCanceledException (" + i + ")", gotException);
 	}
-	
+
 	// last should not throw an OperationCanceledException
 	this.workingCopy.reconcile(AST.JLS2, true, null, new Canceler(counter.count));
 }
@@ -702,8 +708,8 @@ public void testCategories1() throws JavaModelException {
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {CATEGORIES}"
 	);
 }
@@ -723,7 +729,7 @@ public void testCategories2() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.makeConsistent(null);
-	
+
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -734,8 +740,8 @@ public void testCategories2() throws JavaModelException {
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {CATEGORIES}"
 	);
 }
@@ -755,7 +761,7 @@ public void testCategories3() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.makeConsistent(null);
-	
+
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -769,8 +775,8 @@ public void testCategories3() throws JavaModelException {
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {CATEGORIES}"
 	);
 }
@@ -791,7 +797,7 @@ public void testCategories4() throws JavaModelException {
 		"}"
 	);
 	this.workingCopy.makeConsistent(null);
-	
+
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -805,11 +811,11 @@ public void testCategories4() throws JavaModelException {
 		"   */\n" +
 		"  int f2;\n" +
 		"}"
-	);	
+	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	f2[*]: {CATEGORIES}"
 	);
 }
@@ -830,7 +836,7 @@ public void testChangeExternalJar() throws CoreException, IOException {
 			"}"
 		}, jarPath, "1.4");
 		addLibraryEntry(project, jarPath, false);
-		
+
 		// force Y.class file to be cached during resolution
 		setWorkingCopyContents(
 			"package p1;\n" +
@@ -840,7 +846,7 @@ public void testChangeExternalJar() throws CoreException, IOException {
 			"  }\n" +
 			"}");
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-		
+
 		// change jar and refresh
 		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 			"p/Y.java",
@@ -851,7 +857,7 @@ public void testChangeExternalJar() throws CoreException, IOException {
 			"}"
 		}, jarPath, "1.4");
 		getJavaModel().refreshExternalArchives(null,null);
-		
+
 		setWorkingCopyContents(
 			"package p1;\n" +
 			"public class X extends p.Y {\n" +
@@ -861,8 +867,8 @@ public void testChangeExternalJar() throws CoreException, IOException {
 			"}");
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
+			"Unexpected problems",
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -881,8 +887,8 @@ public void testChangeInternalJar() throws CoreException, IOException {
 	try {
 		String[] pathAndContents = new String[] {
 			"test/before/Foo.java",
-			"package test.before;\n" + 
-			"public class Foo {\n" + 
+			"package test.before;\n" +
+			"public class Foo {\n" +
 			"}\n"
 		};
 		addLibrary(project, jarName, "b162621_src.zip", pathAndContents, JavaCore.VERSION_1_4);
@@ -897,48 +903,48 @@ public void testChangeInternalJar() throws CoreException, IOException {
 
 		// Set working copy content with no error
 		setUpWorkingCopy("/Reconciler/src/test/Test.java",
-			"package test;\n" + 
-			"import test.before.Foo;\n" + 
-			"public class Test {\n" + 
-			"	Foo f;\n" + 
+			"package test;\n" +
+			"import test.before.Foo;\n" +
+			"public class Test {\n" +
+			"	Foo f;\n" +
 			"}\n"
 		);
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
+			"Unexpected problems",
+			"----------\n" +
 			"----------\n"
 		);
 
 		// Update working copy with Jar expected changes
-		String contents = "package test;\n" + 
-			"import test.after.Foo;\n" + 
-			"public class Test {\n" + 
-			"	Foo f;\n" + 
+		String contents = "package test;\n" +
+			"import test.after.Foo;\n" +
+			"public class Test {\n" +
+			"	Foo f;\n" +
 			"}\n";
 		setWorkingCopyContents(contents);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 		assertProblems(
-			"Wrong expected problems", 
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/test/Test.java (at line 2)\n" + 
-			"	import test.after.Foo;\n" + 
-			"	       ^^^^^^^^^^\n" + 
-			"The import test.after cannot be resolved\n" + 
-			"----------\n" + 
-			"2. ERROR in /Reconciler/src/test/Test.java (at line 4)\n" + 
-			"	Foo f;\n" + 
-			"	^^^\n" + 
-			"Foo cannot be resolved to a type\n" + 
+			"Wrong expected problems",
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/test/Test.java (at line 2)\n" +
+			"	import test.after.Foo;\n" +
+			"	       ^^^^^^^^^^\n" +
+			"The import test.after cannot be resolved\n" +
+			"----------\n" +
+			"2. ERROR in /Reconciler/src/test/Test.java (at line 4)\n" +
+			"	Foo f;\n" +
+			"	^^^\n" +
+			"Foo cannot be resolved to a type\n" +
 			"----------\n"
 		);
-		
+
 		// change jar and refresh
 		String projectLocation = project.getProject().getLocation().toOSString();
 		String jarPath = projectLocation + File.separator + jarName;
 		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 			"test/after/Foo.java",
-			"package test.after;\n" + 
-			"public class Foo {\n" + 
+			"package test.after;\n" +
+			"public class Foo {\n" +
 			"}\n"
 		}, jarPath, "1.4");
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
@@ -954,8 +960,8 @@ public void testChangeInternalJar() throws CoreException, IOException {
 		this.problemRequestor.initialize(contents.toCharArray());
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 		assertProblems(
-			"Unexpected problems", 
-			"----------\n" + 
+			"Unexpected problems",
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -981,7 +987,7 @@ public void testChangeMethodTypeParameters() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
+		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {CONTENT}"
 	);
@@ -1004,7 +1010,7 @@ public void testChangeTypeTypeParameters() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
+		"Unexpected delta",
 		"X[*]: {CONTENT}"
 	);
 }
@@ -1024,7 +1030,7 @@ public void testChangeMethodVisibility() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
+		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {MODIFIERS CHANGED}"
 	);
@@ -1046,7 +1052,7 @@ public void testCloseWorkingCopy() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
+		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	bar()[+]: {}"
 	);
@@ -1078,7 +1084,7 @@ public void testConstantReference() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1092,17 +1098,16 @@ public void testConstantReference() throws CoreException {
 public void testConvertPrimitiveTypeArrayTypeArgument() throws CoreException {
 	ICompilationUnit otherCopy = null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		otherCopy = getWorkingCopy(
-			"Reconciler15/src/Y.java", 
+			"Reconciler15/src/Y.java",
 			"public class Y {\n" +
 			"  void foo(Z<int[]> z) {}\n" +
 			"}\n" +
 			"class Z<E> {\n" +
 			"}",
-			owner,
-			false/*don't compute problems*/);
-		setUp15WorkingCopy("/Reconciler15/src/X.java", owner);
+			this.wcOwner
+		);
+		setUp15WorkingCopy("/Reconciler15/src/X.java", this.wcOwner);
 		setWorkingCopyContents(
 			"public class X {\n" +
 			"  void bar(Y y) {\n" +
@@ -1110,10 +1115,10 @@ public void testConvertPrimitiveTypeArrayTypeArgument() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1135,7 +1140,7 @@ public void testDeleteMethod1() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
+		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[-]: {}"
 	);
@@ -1158,7 +1163,7 @@ public void testDeleteTwoMethods() throws JavaModelException {
 		"  }\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	
+
 	// delete the 2 methods
 	clearDeltas();
 	setWorkingCopyContents(
@@ -1168,7 +1173,7 @@ public void testDeleteTwoMethods() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
+		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	bar()[-]: {}\n" +
 		"	foo()[-]: {}"
@@ -1197,11 +1202,11 @@ public void testExcludePartOfAnotherProject1() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
-			"	public class X extends p.internal.Y {\n" + 
-			"	                       ^^^^^^^^^^^^\n" + 
-			"Access restriction: The type Y is not accessible due to restriction on required project P\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
+			"	public class X extends p.internal.Y {\n" +
+			"	                       ^^^^^^^^^^^^\n" +
+			"Access restriction: The type Y is not accessible due to restriction on required project P\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1232,7 +1237,7 @@ public void testExcludePartOfAnotherProject2() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1259,7 +1264,7 @@ public void testExternal1() throws CoreException {
 
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
+		"----------\n" +
 		"----------\n"
 	);
 }
@@ -1322,7 +1327,7 @@ public void testIncludePartOfAnotherProject1() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1353,11 +1358,11 @@ public void testIncludePartOfAnotherProject2() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
-			"	public class X extends p.internal.Y {\n" + 
-			"	                       ^^^^^^^^^^^^\n" + 
-			"Access restriction: The type Y is not accessible due to restriction on required project P\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
+			"	public class X extends p.internal.Y {\n" +
+			"	                       ^^^^^^^^^^^^\n" +
+			"Access restriction: The type Y is not accessible due to restriction on required project P\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1375,7 +1380,7 @@ public void testGrowImports() throws JavaModelException {
 		"public class X {\n" +
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-	
+
 	// add an import
 	clearDeltas();
 	setWorkingCopyContents(
@@ -1385,10 +1390,10 @@ public void testGrowImports() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
+		"Unexpected delta",
 		"<import container>[+]: {}"
 	);
-		
+
 	// append to import name
 	clearDeltas();
 	setWorkingCopyContents(
@@ -1398,9 +1403,9 @@ public void testGrowImports() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
-		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	import p[-]: {}\n" + 
+		"Unexpected delta",
+		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	import p[-]: {}\n" +
 		"	import p2[+]: {}"
 	);
 }
@@ -1437,7 +1442,7 @@ public void testIgnoreIfBetterNonAccessibleRule1() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1478,11 +1483,11 @@ public void testIgnoreIfBetterNonAccessibleRule2() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" + 
-			"	public class X extends p.internal.Y {\n" + 
-			"	                       ^^^^^^^^^^^^\n" + 
-			"Discouraged access: The type Y is not accessible due to restriction on required project P2\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" +
+			"	public class X extends p.internal.Y {\n" +
+			"	                       ^^^^^^^^^^^^\n" +
+			"Discouraged access: The type Y is not accessible due to restriction on required project P2\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1523,11 +1528,11 @@ public void testIgnoreIfBetterNonAccessibleRule3() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
-			"	public class X extends p.internal.Y {\n" + 
-			"	                       ^^^^^^^^^^^^\n" + 
-			"Access restriction: The type Y is not accessible due to restriction on required project P1\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
+			"	public class X extends p.internal.Y {\n" +
+			"	                       ^^^^^^^^^^^^\n" +
+			"Access restriction: The type Y is not accessible due to restriction on required project P1\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1560,11 +1565,11 @@ public void testIgnoreIfBetterNonAccessibleRule4() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
-			"	public class X extends p.internal.Y {\n" + 
-			"	                       ^^^^^^^^^^^^\n" + 
-			"Access restriction: The type Y is not accessible due to restriction on required project P1\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
+			"	public class X extends p.internal.Y {\n" +
+			"	                       ^^^^^^^^^^^^\n" +
+			"Access restriction: The type Y is not accessible due to restriction on required project P1\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1586,17 +1591,17 @@ public void testMethodWithError01() throws CoreException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta after syntax error", 
+		"Unexpected delta after syntax error",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {MODIFIERS CHANGED}"
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
-		"	public.void foo() {\n" + 
-		"	      ^\n" + 
-		"Syntax error on token \".\", delete this token\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" +
+		"	public.void foo() {\n" +
+		"	      ^\n" +
+		"Syntax error on token \".\", delete this token\n" +
 		"----------\n"
 	);
 
@@ -1612,17 +1617,17 @@ public void testMethodWithError01() throws CoreException {
 	setWorkingCopyContents(contents);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta after fixing syntax error", 
+		"Unexpected delta after fixing syntax error",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
 		"	foo()[*]: {MODIFIERS CHANGED}"
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" + 
-		"	import p2.*;\n" + 
-		"	       ^^\n" + 
-		"The import p2 is never used\n" + 
+		"----------\n" +
+		"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" +
+		"	import p2.*;\n" +
+		"	       ^^\n" +
+		"The import p2 is never used\n" +
 		"----------\n"
 	);
 }
@@ -1636,20 +1641,20 @@ public void testMethodWithError02() throws CoreException {
 		"public class X {\n" +
 		"  public.void foo() {\n" +
 		"  }\n" +
-		"}";		
+		"}";
 	setWorkingCopyContents(contents);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 
-	// use force flag to refresh problems			
+	// use force flag to refresh problems
 	this.problemRequestor.initialize(contents.toCharArray());
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
-		"	public.void foo() {\n" + 
-		"	      ^\n" + 
-		"Syntax error on token \".\", delete this token\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" +
+		"	public.void foo() {\n" +
+		"	      ^\n" +
+		"Syntax error on token \".\", delete this token\n" +
 		"----------\n"
 	);
 }
@@ -1682,11 +1687,11 @@ public void testMethodWithError03() throws CoreException {
 public void testMethodWithError04() throws CoreException {
 
 	CancelingProblemRequestor myPbRequestor = new CancelingProblemRequestor();
-	
+
 	this.workingCopy.discardWorkingCopy();
 	ICompilationUnit x = getCompilationUnit("Reconciler", "src", "p1", "X.java");
 	this.problemRequestor = myPbRequestor;
-	this.workingCopy = x.getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+	this.workingCopy = x.getWorkingCopy(this.wcOwner, null);
 
 	String contents =
 		"package p1;\n" +
@@ -1699,17 +1704,17 @@ public void testMethodWithError04() throws CoreException {
 
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 
-	// use force flag to refresh problems			
+	// use force flag to refresh problems
 	myPbRequestor.isCanceling = true;
 	myPbRequestor.initialize(contents.toCharArray());
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, myPbRequestor.progressMonitor);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 3)\n" + 
-		"	Zork f;	\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 3)\n" +
+		"	Zork f;	\n" +
+		"	^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
 		"----------\n"
 	);
 }
@@ -1729,19 +1734,19 @@ public void testMethodWithError05() throws CoreException {
 			"	}	\n"+
 			"}	\n";
 		createFile(
-			"/Reconciler/src/tests/AbstractSearchableSource.java", 
+			"/Reconciler/src/tests/AbstractSearchableSource.java",
 			contents);
-	
+
 		createFile(
-			"/Reconciler/src/tests/Source.java", 
+			"/Reconciler/src/tests/Source.java",
 			"package tests;	\n"+
 			"interface Source {	\n"+
 			"	long getValue(int index);	\n"+
 			"	int size();	\n"+
 			"}	\n");
-	
+
 		createFile(
-			"/Reconciler/src/tests/AbstractSource.java", 
+			"/Reconciler/src/tests/AbstractSource.java",
 			"package tests;	\n"+
 			"abstract class AbstractSource implements Source {	\n"+
 			"	AbstractSource() {	\n"+
@@ -1757,23 +1762,24 @@ public void testMethodWithError05() throws CoreException {
 			"		return 0;	\n"+
 			"	}	\n"+
 			"}	\n");
-	
+
 		createFile(
-			"/Reconciler/src/tests/SearchableSource.java", 
+			"/Reconciler/src/tests/SearchableSource.java",
 			"package tests;	\n"+
 			"interface SearchableSource extends Source {	\n"+
 			"	int indexOf(long value);	\n"+
 			"}	\n");
-	
+
 		ICompilationUnit compilationUnit = getCompilationUnit("Reconciler", "src", "tests", "AbstractSearchableSource.java");
 		ProblemRequestor pbReq =  new ProblemRequestor();
-		ICompilationUnit wc = compilationUnit.getWorkingCopy(new WorkingCopyOwner() {}, pbReq, null);
+		WorkingCopyOwner owner = newWorkingCopyOwner(pbReq);
+		ICompilationUnit wc = compilationUnit.getWorkingCopy(owner, null);
 		pbReq.initialize(contents.toCharArray());
 		startDeltas();
 		wc.reconcile(ICompilationUnit.NO_AST, true, null, null);
 		String actual = pbReq.problems.toString();
-		String expected = 
-			"----------\n" + 
+		String expected =
+			"----------\n" +
 			"----------\n";
 		if (!expected.equals(actual)){
 		 	System.out.println(Util.displayString(actual, 2));
@@ -1805,19 +1811,19 @@ public void testMethodWithError06() throws CoreException {
 			"  }\n" +
 			"}";
 		createFile(
-			"/Reconciler/src/p1/Y.java", 
+			"/Reconciler/src/p1/Y.java",
 			contents
 		);
 		this.problemRequestor =  new ProblemRequestor();
 		this.problemRequestor.initialize(contents.toCharArray());
-		this.workingCopy = getCompilationUnit("Reconciler/src/p1/Y.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler/src/p1/Y.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p1/Y.java (at line 3)\n" + 
-			"	public.void foo() {\n" + 
-			"	      ^\n" + 
-			"Syntax error on token \".\", delete this token\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p1/Y.java (at line 3)\n" +
+			"	public.void foo() {\n" +
+			"	      ^\n" +
+			"Syntax error on token \".\", delete this token\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1839,26 +1845,26 @@ public void testMethodWithError07() throws CoreException {
 			"  }\n" +
 			"}";
 		createFile(
-			"/Reconciler/src/p1/Y.java", 
+			"/Reconciler/src/p1/Y.java",
 			contents
 		);
 		this.problemRequestor =  new ProblemRequestor();
 		this.problemRequestor.initialize(contents.toCharArray());
-		this.workingCopy = getCompilationUnit("Reconciler/src/p1/Y.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler/src/p1/Y.java").getWorkingCopy(this.wcOwner, null);
 
 		// Close working copy
-		JavaModelManager.getJavaModelManager().removeInfoAndChildren((CompilationUnit)workingCopy); // use a back door as working copies cannot be closed
-		
+		JavaModelManager.getJavaModelManager().removeInfoAndChildren((CompilationUnit)this.workingCopy); // use a back door as working copies cannot be closed
+
 		// Reopen should detect syntax error
 		this.problemRequestor.initialize(contents.toCharArray());
 		this.workingCopy.open(null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p1/Y.java (at line 3)\n" + 
-			"	public.void foo() {\n" + 
-			"	      ^\n" + 
-			"Syntax error on token \".\", delete this token\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p1/Y.java (at line 3)\n" +
+			"	public.void foo() {\n" +
+			"	      ^\n" +
+			"Syntax error on token \".\", delete this token\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1874,35 +1880,35 @@ public void testMethodWithError08() throws CoreException {
 	this.workingCopy = null;
 	try {
 		createFile(
-			"/Reconciler/src/p1/X01.java", 
+			"/Reconciler/src/p1/X01.java",
 			"package p1;\n" +
 			"public abstract class X01 {\n" +
 			"	public abstract void bar();	\n"+
 			"  public abstract void foo(Zork z); \n"+
 			"}"
 		);
-		String contents = 
+		String contents =
 			"package p2;\n" +
 			"public class X01 extends p1.X01 {\n" +
 			"	public void bar(){}	\n"+
 			"}";
 		createFile(
-			"/Reconciler/src/p2/X01.java", 
+			"/Reconciler/src/p2/X01.java",
 			contents
 		);
 		this.problemRequestor =  new ProblemRequestor();
 		this.problemRequestor.initialize(contents.toCharArray());
-		this.workingCopy = getCompilationUnit("Reconciler/src/p2/X01.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler/src/p2/X01.java").getWorkingCopy(this.wcOwner, null);
 
 		// Close working copy
-		JavaModelManager.getJavaModelManager().removeInfoAndChildren((CompilationUnit)workingCopy); // use a back door as working copies cannot be closed
-		
+		JavaModelManager.getJavaModelManager().removeInfoAndChildren((CompilationUnit)this.workingCopy); // use a back door as working copies cannot be closed
+
 		// Reopen should detect syntax error
 		this.problemRequestor.initialize(contents.toCharArray());
 		this.workingCopy.open(null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n" // shouldn't report problem against p2.X01
 		);
 	} finally {
@@ -1916,10 +1922,9 @@ public void testMethodWithError08() throws CoreException {
 public void testMethodWithError09() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
 	try {
-		workingCopy1 = getCompilationUnit("/Reconciler/src/p1/X1.java").getWorkingCopy(owner, null, null);
+		workingCopy1 = getCompilationUnit("/Reconciler/src/p1/X1.java").getWorkingCopy(this.wcOwner, null);
 		workingCopy1.getBuffer().setContents(
 			"package p1;\n" +
 			"public abstract class X1 {\n" +
@@ -1927,20 +1932,20 @@ public void testMethodWithError09() throws CoreException {
 			"}"
 		);
 		workingCopy1.makeConsistent(null);
-		
+
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getCompilationUnit("Reconciler/src/p/X.java").getWorkingCopy(owner, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler/src/p/X.java").getWorkingCopy(this.wcOwner, null);
 		setWorkingCopyContents(
 			"package p;\n" +
 			"public class X extends p1.X1 {\n" +
 			"	public void bar(){}	\n"+
 			"}"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n" // shouldn't report problem against p.X
 		);
 	} finally {
@@ -1955,11 +1960,10 @@ public void testMethodWithError09() throws CoreException {
 public void testMethodWithError10() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
 	try {
 		createFolder("/Reconciler15/src/test/cheetah");
-		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/cheetah/NestedGenerics.java").getWorkingCopy(owner, null, null);
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/cheetah/NestedGenerics.java").getWorkingCopy(this.wcOwner, null);
 		workingCopy1.getBuffer().setContents(
 			"package test.cheetah;\n"+
 			"import java.util.List;\n"+
@@ -1969,9 +1973,9 @@ public void testMethodWithError10() throws CoreException {
 			"}\n"
 		);
 		workingCopy1.makeConsistent(null);
-		
+
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getCompilationUnit("Reconciler15/src/test/cheetah/NestedGenericsTest.java").getWorkingCopy(owner, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/cheetah/NestedGenericsTest.java").getWorkingCopy(this.wcOwner, null);
 		setWorkingCopyContents(
 			"package test.cheetah;\n"+
 			"import java.util.Stack;\n"+
@@ -1981,11 +1985,11 @@ public void testMethodWithError10() throws CoreException {
 			"    }\n"+
 			"}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2001,11 +2005,10 @@ public void testMethodWithError10() throws CoreException {
 public void testMethodWithError11() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
 	try {
 		createFolder("/Reconciler15/src/test/cheetah");
-		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/cheetah/NestedGenerics.java").getWorkingCopy(owner, null, null);
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/cheetah/NestedGenerics.java").getWorkingCopy(this.wcOwner, null);
 		workingCopy1.getBuffer().setContents(
 			"package test.cheetah;\n"+
 			"import java.util.*;\n"+
@@ -2016,9 +2019,9 @@ public void testMethodWithError11() throws CoreException {
 			"}\n"
 		);
 		workingCopy1.makeConsistent(null);
-		
+
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getCompilationUnit("Reconciler15/src/test/cheetah/NestedGenericsTest.java").getWorkingCopy(owner, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/cheetah/NestedGenericsTest.java").getWorkingCopy(this.wcOwner, null);
 		setWorkingCopyContents(
 			"package test.cheetah;\n"+
 			"import java.util.*;\n"+
@@ -2030,11 +2033,11 @@ public void testMethodWithError11() throws CoreException {
 			"    }\n"+
 			"}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2050,11 +2053,10 @@ public void testMethodWithError11() throws CoreException {
 public void testMethodWithError12() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
 	try {
 		createFolder("/Reconciler15/src/test/cheetah");
-		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/cheetah/NestedGenerics.java").getWorkingCopy(owner, null, null);
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/cheetah/NestedGenerics.java").getWorkingCopy(this.wcOwner, null);
 		workingCopy1.getBuffer().setContents(
 			"package test.cheetah;\n"+
 			"import java.util.*;\n"+
@@ -2065,9 +2067,9 @@ public void testMethodWithError12() throws CoreException {
 			"}\n"
 		);
 		workingCopy1.makeConsistent(null);
-		
+
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getCompilationUnit("Reconciler15/src/test/cheetah/NestedGenericsTest.java").getWorkingCopy(owner, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/cheetah/NestedGenericsTest.java").getWorkingCopy(this.wcOwner, null);
 		setWorkingCopyContents(
 			"package test.cheetah;\n"+
 			"import java.util.*;\n"+
@@ -2079,11 +2081,11 @@ public void testMethodWithError12() throws CoreException {
 			"    }\n"+
 			"}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2099,10 +2101,10 @@ public void testMethodWithError12() throws CoreException {
 public void testMethodWithError13() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
+	this.problemRequestor =  null;
 	try {
-		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/X.java").getWorkingCopy(owner, null, null);
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/X.java").getWorkingCopy(this.wcOwner, null);
 		createFolder("/Reconciler15/src/test");
 		workingCopy1.getBuffer().setContents(
 			"package test;\n"+
@@ -2115,9 +2117,9 @@ public void testMethodWithError13() throws CoreException {
 			"}\n"
 		);
 		workingCopy1.makeConsistent(null);
-		
+
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getCompilationUnit("Reconciler15/src/test/Y.java").getWorkingCopy(owner, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/Y.java").getWorkingCopy(this.wcOwner, null);
 		setWorkingCopyContents(
 			"package test;\n"+
 			"public class Y {\n"+
@@ -2127,15 +2129,15 @@ public void testMethodWithError13() throws CoreException {
 			"	}\n"+
 			"}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 
 		assertProblems(
 			"Unexpected problems",
-		"----------\n" + 
-		"1. WARNING in /Reconciler15/src/test/Y.java (at line 5)\n" + 
-		"	someX.bar(null);\n" + 
-		"	^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The method bar(Object[]) belongs to the raw type X. References to generic type X<T,U> should be parameterized\n" + 
+		"----------\n" +
+		"1. WARNING in /Reconciler15/src/test/Y.java (at line 5)\n" +
+		"	someX.bar(null);\n" +
+		"	^^^^^^^^^^^^^^^\n" +
+		"Type safety: The method bar(Object[]) belongs to the raw type X. References to generic type X<T,U> should be parameterized\n" +
 		"----------\n"
 		);
 	} finally {
@@ -2151,10 +2153,9 @@ public void testMethodWithError13() throws CoreException {
 public void testMethodWithError14() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
 	try {
-		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/X.java").getWorkingCopy(owner, null, null);
+		workingCopy1 = getCompilationUnit("/Reconciler15/src/test/X.java").getWorkingCopy(this.wcOwner, null);
 		createFolder("/Reconciler15/src/test");
 		workingCopy1.getBuffer().setContents(
 			"package test;\n"+
@@ -2163,9 +2164,9 @@ public void testMethodWithError14() throws CoreException {
 			"}\n"
 		);
 		workingCopy1.makeConsistent(null);
-		
+
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getCompilationUnit("Reconciler15/src/test/Y.java").getWorkingCopy(owner, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("Reconciler15/src/test/Y.java").getWorkingCopy(this.wcOwner, null);
 		setWorkingCopyContents(
 			"package test;\n"+
 			"public class Y {\n"+
@@ -2175,15 +2176,15 @@ public void testMethodWithError14() throws CoreException {
 			"	}\n"+
 			"}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler15/src/test/Y.java (at line 5)\n" + 
-			"	someX.bar();\n" + 
-			"	      ^^^\n" + 
-			"The method bar(Object) in the type X is not applicable for the arguments ()\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler15/src/test/Y.java (at line 5)\n" +
+			"	someX.bar();\n" +
+			"	      ^^^\n" +
+			"The method bar(Object) in the type X is not applicable for the arguments ()\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2208,7 +2209,7 @@ public void testMoveMember() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	clearDeltas();
-	
+
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;\n" +
@@ -2220,9 +2221,9 @@ public void testMoveMember() throws JavaModelException {
 		"}");
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Unexpected delta", 
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	bar()[*]: {REORDERED}\n" + 
+		"Unexpected delta",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	bar()[*]: {REORDERED}\n" +
 		"	foo()[*]: {REORDERED}"
 	);
 }
@@ -2265,15 +2266,14 @@ public void testNoChanges2() throws JavaModelException {
 public void testRawUsage() throws CoreException {
 	ICompilationUnit otherCopy = null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		otherCopy = getWorkingCopy(
-			"Reconciler15/src/Generic105756.java", 
+			"Reconciler15/src/Generic105756.java",
 			"public class Generic105756<T> {\n" +
 			"  void foo() {}\n" +
 			"}",
-			owner,
-			false/*don't compute problems*/);
-		setUp15WorkingCopy("/Reconciler15/src/X.java", owner);
+			this.wcOwner
+		);
+		setUp15WorkingCopy("/Reconciler15/src/X.java", this.wcOwner);
 		setWorkingCopyContents(
 			"public class X {\n" +
 			"  void bar(Generic105756 g) {\n" +
@@ -2281,10 +2281,10 @@ public void testRawUsage() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2309,9 +2309,9 @@ public void testReconcileParticipant01() throws CoreException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected participant delta",
-		"[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"		bar()[+]: {}\n" + 
+		"[Working copy] X.java[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"		bar()[+]: {}\n" +
 		"		foo()[-]: {}",
 		participant.delta
 	);
@@ -2358,11 +2358,11 @@ public void testReconcileParticipant03() throws CoreException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertASTNodeEquals(
 		"Unexpected participant delta",
-		"package p1;\n" + 
-		"import p2.*;\n" + 
-		"public class X {\n" + 
-		"  public void bar(){\n" + 
-		"  }\n" + 
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void bar(){\n" +
+		"  }\n" +
 		"}\n",
 		participant.ast
 	);
@@ -2419,7 +2419,7 @@ public void testReconcileParticipant05() throws CoreException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
+		"----------\n" +
 		"----------\n"
 	);
 }
@@ -2454,11 +2454,11 @@ public void testReconcileParticipant06() throws CoreException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
-		"	toString()\n" + 
-		"	         ^\n" + 
-		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" +
+		"	toString()\n" +
+		"	         ^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n"
 	);
 }
@@ -2499,7 +2499,7 @@ public void testReconcileParticipant07() throws CoreException {
  */
 public void testReconcileParticipant08() throws CoreException {
 	// set working copy contents and ensure it is consistent
-	String contents = 
+	String contents =
 		"package p1;\n" +
 		"public class X {\n" +
 		"  public void bar() {\n" +
@@ -2508,7 +2508,7 @@ public void testReconcileParticipant08() throws CoreException {
 	setWorkingCopyContents(contents);
 	this.workingCopy.makeConsistent(null);
 	this.problemRequestor.initialize(contents.toCharArray());
-	
+
 	// reconcile with a participant adding a list of problems
 	new ReconcileParticipant() {
 		public void reconcile(ReconcileContext context) {
@@ -2539,8 +2539,8 @@ public void testRenameMethod1() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	bar()[+]: {}\n" + 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	bar()[+]: {}\n" +
 		"	foo()[-]: {}"
 	);
 }
@@ -2562,17 +2562,17 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-		"	bar()[+]: {}\n" + 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	bar()[+]: {}\n" +
 		"	foo()[-]: {}"
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
-		"	public void bar( {\n" + 
-		"	               ^\n" + 
-		"Syntax error, insert \")\" to complete MethodDeclaration\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" +
+		"	public void bar( {\n" +
+		"	               ^\n" +
+		"Syntax error, insert \")\" to complete MethodDeclaration\n" +
 		"----------\n"
 	);
 }
@@ -2583,36 +2583,35 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 public void testSuppressWarnings1() throws JavaModelException {
 	ICompilationUnit otherCopy = null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		otherCopy = getWorkingCopy(
 			"/Reconciler15/src/X.java",
-	        "@Deprecated\n" + 
-	        "public class X {\n" + 
+	        "@Deprecated\n" +
+	        "public class X {\n" +
 	        "   void foo(){}\n" +
 	        "}\n",
-			owner,
-			false/*don't compute problems*/);
-		setUp15WorkingCopy("/Reconciler15/src/Y.java", owner);
+			this.wcOwner
+		);
+		setUp15WorkingCopy("/Reconciler15/src/Y.java", this.wcOwner);
 		setWorkingCopyContents(
-	        "public class Y extends X {\n" + 
+	        "public class Y extends X {\n" +
 	        "  @SuppressWarnings(\"all\")\n" +
 	        "   void foo(){ super.foo(); }\n" +
 	        "   Zork z;\n" +
 	        "}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler15/src/Y.java (at line 1)\n" + 
-			"	public class Y extends X {\n" + 
-			"	                       ^\n" + 
-			"The type X is deprecated\n" + 
-			"----------\n" + 
-			"2. ERROR in /Reconciler15/src/Y.java (at line 4)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler15/src/Y.java (at line 1)\n" +
+			"	public class Y extends X {\n" +
+			"	                       ^\n" +
+			"The type X is deprecated\n" +
+			"----------\n" +
+			"2. ERROR in /Reconciler15/src/Y.java (at line 4)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 	} finally {
 		if (otherCopy != null)
@@ -2625,42 +2624,41 @@ public void testSuppressWarnings1() throws JavaModelException {
 public void testSuppressWarnings2() throws JavaModelException {
 	ICompilationUnit otherCopy = null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		otherCopy = getWorkingCopy(
 			"/Reconciler15/src/java/util/List.java",
 			"package java.util;\n" +
-	        "public interface List<E> {\n" + 
+	        "public interface List<E> {\n" +
 	        "}\n",
-			owner,
-			false/*don't compute problems*/);
-		setUp15WorkingCopy("/Reconciler15/src/X.java", owner);
+			this.wcOwner
+		);
+		setUp15WorkingCopy("/Reconciler15/src/X.java", this.wcOwner);
 		setWorkingCopyContents(
-            "import java.util.List;\n" + 
-            "\n" + 
-            "public class X {\n" + 
-            "    void foo(List list) {\n" + 
-            "        List<String> ls1 = list;\n" + 
-            "    }\n" + 
-            "    @SuppressWarnings(\"unchecked\")\n" + 
-            "    void bar(List list) {\n" + 
-            "        List<String> ls2 = list;\n" + 
-            "    }\n" + 
+            "import java.util.List;\n" +
+            "\n" +
+            "public class X {\n" +
+            "    void foo(List list) {\n" +
+            "        List<String> ls1 = list;\n" +
+            "    }\n" +
+            "    @SuppressWarnings(\"unchecked\")\n" +
+            "    void bar(List list) {\n" +
+            "        List<String> ls2 = list;\n" +
+            "    }\n" +
             "   Zork z;\n" +
             "}\n"
 		);
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler15/src/X.java (at line 5)\n" + 
-			"	List<String> ls1 = list;\n" + 
-			"	                   ^^^^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
-			"----------\n" + 
-			"2. ERROR in /Reconciler15/src/X.java (at line 11)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler15/src/X.java (at line 5)\n" +
+			"	List<String> ls1 = list;\n" +
+			"	                   ^^^^\n" +
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" +
+			"----------\n" +
+			"2. ERROR in /Reconciler15/src/X.java (at line 11)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2674,33 +2672,32 @@ public void testSuppressWarnings2() throws JavaModelException {
 public void testSuppressWarnings3() throws JavaModelException {
 	ICompilationUnit otherCopy = null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		otherCopy = getWorkingCopy(
 			"/Reconciler15/src/java/util/HashMap.java",
 			"package java.util;\n" +
-	        "public class HashMap implements Map {\n" + 
+	        "public class HashMap implements Map {\n" +
 	        "}\n",
-			owner,
-			false/*don't compute problems*/);
-		setUp15WorkingCopy("/Reconciler15/src/X.java", owner);
+			this.wcOwner
+		);
+		setUp15WorkingCopy("/Reconciler15/src/X.java", this.wcOwner);
 		setWorkingCopyContents(
-			"import java.util.*;\n" + 
-			"@SuppressWarnings(\"unchecked\")\n" + 
-			"public class X {\n" + 
-			"	void foo() {\n" + 
-			"		Map<String, String>[] map = new HashMap[10];\n" + 
-			"	}\n" + 
-            "   Zork z;\n" +				
+			"import java.util.*;\n" +
+			"@SuppressWarnings(\"unchecked\")\n" +
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		Map<String, String>[] map = new HashMap[10];\n" +
+			"	}\n" +
+            "   Zork z;\n" +
 			"}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler15/src/X.java (at line 7)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler15/src/X.java (at line 7)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2714,36 +2711,35 @@ public void testSuppressWarnings3() throws JavaModelException {
 public void testSuppressWarnings4() throws JavaModelException {
 	ICompilationUnit otherCopy = null;
 	try {
-		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		otherCopy = getWorkingCopy(
 			"/Reconciler15/src/X.java",
-	        "/** @deprecated */\n" + 
-	        "public class X {\n" + 
+	        "/** @deprecated */\n" +
+	        "public class X {\n" +
 	        "   void foo(){}\n" +
 	        "}\n",
-			owner,
-			false/*don't compute problems*/);
-		setUp15WorkingCopy("/Reconciler15/src/Y.java", owner);
+			this.wcOwner
+		);
+		setUp15WorkingCopy("/Reconciler15/src/Y.java", this.wcOwner);
 		setWorkingCopyContents(
-	        "public class Y extends X {\n" + 
+	        "public class Y extends X {\n" +
 	        "  @SuppressWarnings(\"all\")\n" +
 	        "   void foo(){ super.foo(); }\n" +
 	        "   Zork z;\n" +
 	        "}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler15/src/Y.java (at line 1)\n" + 
-			"	public class Y extends X {\n" + 
-			"	                       ^\n" + 
-			"The type X is deprecated\n" + 
-			"----------\n" + 
-			"2. ERROR in /Reconciler15/src/Y.java (at line 4)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler15/src/Y.java (at line 1)\n" +
+			"	public class Y extends X {\n" +
+			"	                       ^\n" +
+			"The type X is deprecated\n" +
+			"----------\n" +
+			"2. ERROR in /Reconciler15/src/Y.java (at line 4)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 	} finally {
 		if (otherCopy != null)
@@ -2765,11 +2761,11 @@ public void testUnhandledException() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
-		"	throw new Exception();\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unhandled exception type Exception\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" +
+		"	throw new Exception();\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Unhandled exception type Exception\n" +
 		"----------\n"
 	);
 }
@@ -2781,7 +2777,7 @@ public void testMakeConsistentFoolingReconciler() throws JavaModelException {
 	this.workingCopy.makeConsistent(null);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
-		"Should have got NO delta", 
+		"Should have got NO delta",
 		""
 	);
 }
@@ -2826,11 +2822,10 @@ public void testTwoProjectsWithDifferentCompliances() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		
+
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "", "1.4");
 		createFolder("/P2/p");
-		WorkingCopyOwner owner = new WorkingCopyOwner() {};
-		this.workingCopy = getWorkingCopy("/P2/p/Y.java", "", owner, this.problemRequestor);
+		this.workingCopy = getWorkingCopy("/P2/p/Y.java", "", this.wcOwner);
 		setWorkingCopyContents(
 			"package p;\n" +
 			"public class Y {\n" +
@@ -2839,10 +2834,10 @@ public void testTwoProjectsWithDifferentCompliances() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force pb detection*/, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force pb detection*/, this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2856,7 +2851,6 @@ public void testTwoProjectsWithDifferentCompliances() throws CoreException {
 public void testTypeParameterWithBound() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
 	try {
 		workingCopy1 = getWorkingCopy(
@@ -2865,12 +2859,11 @@ public void testTypeParameterWithBound() throws CoreException {
 			"public interface I {\n"+
 			"	<T extends I> void foo(T t);\n"+
 			"}\n",
-			owner,
-			null /*no problem requestor*/
+			this.wcOwner
 		);
-		
+
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getWorkingCopy("Reconciler15/src/test/X.java", "", owner, this.problemRequestor);
+		this.workingCopy = getWorkingCopy("Reconciler15/src/test/X.java", "", this.wcOwner);
 		setWorkingCopyContents(
 			"package test;\n"+
 			"public class X implements I {\n"+
@@ -2878,11 +2871,11 @@ public void testTypeParameterWithBound() throws CoreException {
 			"	}\n"+
 			"}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2898,7 +2891,6 @@ public void testTypeParameterWithBound() throws CoreException {
 public void testTypeParameterStartingWithDollar() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
 	try {
 		workingCopy1 = getWorkingCopy(
@@ -2907,12 +2899,11 @@ public void testTypeParameterStartingWithDollar() throws CoreException {
 			"public class Y<$T> {\n"+
 			"	void foo($T t);\n"+
 			"}\n",
-			owner,
-			null /*no problem requestor*/
+			this.wcOwner
 		);
-		
+
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getWorkingCopy("Reconciler15/src/test/X.java", "", owner, this.problemRequestor);
+		this.workingCopy = getWorkingCopy("Reconciler15/src/test/X.java", "", this.wcOwner);
 		setWorkingCopyContents(
 			"package test;\n"+
 			"public class X {\n"+
@@ -2921,11 +2912,11 @@ public void testTypeParameterStartingWithDollar() throws CoreException {
 			"	}\n"+
 			"}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2947,17 +2938,17 @@ public void testTypeWithDollarName() throws CoreException {
 			"public class Y$Z {\n" +
 			"}";
 		createFile(
-			"/Reconciler/src/p1/Y$Z.java", 
+			"/Reconciler/src/p1/Y$Z.java",
 			contents
 		);
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getCompilationUnit("Reconciler/src/p1/Y$Z.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
-		
+		this.workingCopy = getCompilationUnit("Reconciler/src/p1/Y$Z.java").getWorkingCopy(this.wcOwner, null);
+
 		this.problemRequestor.initialize(contents.toCharArray());
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2969,7 +2960,7 @@ public void testTypeWithDollarName() throws CoreException {
  * (regression test for bug 125301 Handling of classes with $ in class name.)
  */
 public void testTypeWithDollarName2() throws CoreException {
-	ICompilationUnit workingCopy2 = null; 
+	ICompilationUnit workingCopy2 = null;
 	try {
 		WorkingCopyOwner owner = this.workingCopy.getOwner();
 		workingCopy2 = getWorkingCopy(
@@ -2977,8 +2968,7 @@ public void testTypeWithDollarName2() throws CoreException {
 			"package p1;\n" +
 			"public class Y$Z {\n" +
 			"}",
-			owner,
-			false/*don't compute problems*/
+			owner
 		);
 		setWorkingCopyContents(
 			"package p1;\n" +
@@ -2989,7 +2979,7 @@ public void testTypeWithDollarName2() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -3003,7 +2993,6 @@ public void testTypeWithDollarName2() throws CoreException {
 public void testVarargs() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	this.workingCopy = null;
-	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	ICompilationUnit workingCopy1 = null;
 	try {
 		workingCopy1 = getWorkingCopy(
@@ -3012,12 +3001,11 @@ public void testVarargs() throws CoreException {
 			"public class X {\n"+
 			"	void bar(String ... args) {}\n"+
 			"}\n",
-			owner,
-			null /*no problem requestor*/
+			this.wcOwner
 		);
-		
+
 		this.problemRequestor =  new ProblemRequestor();
-		this.workingCopy = getWorkingCopy("Reconciler15/src/test/Y.java", "", owner, this.problemRequestor);
+		this.workingCopy = getWorkingCopy("Reconciler15/src/test/Y.java", "", this.wcOwner);
 		setWorkingCopyContents(
 			"package test;\n"+
 			"public class Y {\n"+
@@ -3027,11 +3015,11 @@ public void testVarargs() throws CoreException {
 			"	}\n"+
 			"}\n"
 		);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, owner, null);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, this.wcOwner, null);
 
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -3050,37 +3038,37 @@ public void testBug114338() throws CoreException {
 	// Set initial CU content
 	setWorkingCopyContents(
 		"package p1;\n" +
-		"public class X {\n" + 
-		"	/**\n" + 
-		"	 * @return a\n" + 
-		"	 */\n" + 
-		"	boolean get() {\n" + 
-		"		return false;\n" + 
-		"	}\n" + 
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @return a\n" +
+		"	 */\n" +
+		"	boolean get() {\n" +
+		"		return false;\n" +
+		"	}\n" +
 		"}");
 	this.workingCopy.reconcile(AST.JLS3, true, this.wcOwner, null);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
+		"----------\n" +
 		"----------\n"
 	);
 
 	// Modify content
 	String contents =
 		"package p1;\n" +
-		"public class X {\n" + 
-		"	/**\n" + 
-		"	 * @return boolean\n" + 
-		"	 */\n" + 
-		"	boolean get() {\n" + 
-		"		return false;\n" + 
-		"	}\n" + 
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @return boolean\n" +
+		"	 */\n" +
+		"	boolean get() {\n" +
+		"		return false;\n" +
+		"	}\n" +
 		"}";
 	setWorkingCopyContents(contents);
 	this.workingCopy.reconcile(AST.JLS3, true, this.wcOwner, null);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
+		"----------\n" +
 		"----------\n"
 	);
 }
@@ -3093,42 +3081,42 @@ public void testBug36032a() throws CoreException, InterruptedException {
 	try {
 		// Resources creation
 		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
-		String source = 
-			"public class Test {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new SFoo().foo();\n" + 
-			"	}\n" + 
+		String source =
+			"public class Test {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new SFoo().foo();\n" +
+			"	}\n" +
 			"}\n";
 		this.createFile(
-			"/P/Foo.java", 
+			"/P/Foo.java",
 			"class SFoo { void foo() {} }\n"
 		);
 		this.createFile(
-			"/P/Test.java", 
+			"/P/Test.java",
 			source
 		);
-		
+
 		// Get compilation unit and reconcile it
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, problemRequestor, null);
+		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(this.wcOwner, null);
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
 		assertNoProblem(sourceChars, this.workingCopy);
 
 		// Add new secondary type
 		this.createFile(
-			"/P/Bar.java", 
+			"/P/Bar.java",
 			"class SBar{ void bar() {} }\n"
 		);
-		source = 
-			"public class Test {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new SFoo().foo();\n" + 
-			"		new SBar().bar();\n" + 
-			"	}\n" + 
+		source =
+			"public class Test {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new SFoo().foo();\n" +
+			"		new SBar().bar();\n" +
+			"	}\n" +
 			"}\n";
-		
+
 		// Reconcile with modified source
 		sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
@@ -3143,30 +3131,30 @@ public void testBug36032b() throws CoreException, InterruptedException {
 	try {
 		// Resources creation
 		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
-		String source = 
-			"public class Test {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new SFoo().foo();\n" + 
-			"		new SBar().bar();\n" + 
-			"	}\n" + 
+		String source =
+			"public class Test {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new SFoo().foo();\n" +
+			"		new SBar().bar();\n" +
+			"	}\n" +
 			"}\n";
 		createFile(
-			"/P/Foo.java", 
+			"/P/Foo.java",
 			"class SFoo { void foo() {} }\n"
 		);
 		createFile(
-			"/P/Test.java", 
+			"/P/Test.java",
 			source
 		);
 		createFile(
-			"/P/Bar.java", 
+			"/P/Bar.java",
 			"class SBar{ void bar() {} }\n"
 		);
-		
+
 		// Get compilation unit and reconcile it
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(this.wcOwner, null);
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
 		assertNoProblem(sourceChars, this.workingCopy);
@@ -3187,11 +3175,11 @@ public void testBug36032b() throws CoreException, InterruptedException {
 		);
 
 		// Fix the problem
-		source = 
-			"public class Test {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new SFoo().foo();\n" + 
-			"	}\n" + 
+		source =
+			"public class Test {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new SFoo().foo();\n" +
+			"	}\n" +
 			"}\n";
 		sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
@@ -3209,39 +3197,39 @@ public void testBug36032c() throws CoreException, InterruptedException {
 		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
 		createFolder("/P1/test");
 		createFile(
-			"/P1/test/Foo.java", 
+			"/P1/test/Foo.java",
 			"package test;\n" +
 			"class Secondary{ void foo() {} }\n"
 		);
 		createFile(
-			"/P1/test/Test1.java", 
+			"/P1/test/Test1.java",
 			"package test;\n" +
-			"public class Test1 {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new Secondary().foo();\n" + 
-			"	}\n" + 
+			"public class Test1 {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Secondary().foo();\n" +
+			"	}\n" +
 			"}\n"
 		);
 
 		// Create second project
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
-		String source = 
+		String source =
 			"package test;\n" +
-			"public class Test2 {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new Secondary().foo();\n" + 
-			"	}\n" + 
+			"public class Test2 {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Secondary().foo();\n" +
+			"	}\n" +
 			"}\n";
 		createFolder("/P2/test");
 		createFile(
-			"/P2/test/Test2.java", 
+			"/P2/test/Test2.java",
 			source
 		);
-		
+
 		// Get compilation unit and reconcile it => expect no error
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopy = getCompilationUnit("/P2/test/Test2.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopy = getCompilationUnit("/P2/test/Test2.java").getWorkingCopy(this.wcOwner, null);
 		this.workingCopy.getBuffer().setContents(source);
 		this.workingCopy.reconcile(AST.JLS3, true, null, null);
 		assertNoProblem(sourceChars, this.workingCopy);
@@ -3260,11 +3248,11 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
 		String source = "class Test {}\n";
 		createFile(
-			"/P1/Test.java", 
+			"/P1/Test.java",
 			source
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
-		String source2 = 
+		String source2 =
 			"class A {\n" +
 			"	Secondary s;\n" +
 			"}\n";
@@ -3274,17 +3262,16 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 		);
 		waitUntilIndexesReady();
 		this.workingCopies = new ICompilationUnit[2];
-		this.wcOwner = new WorkingCopyOwner() {};
 
 		// Get first working copy and verify that there's no error
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(this.wcOwner, null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
 
 		// Get second working copy and verify that there's one error (missing secondary type)
 		this.problemRequestor.initialize(source2.toCharArray());
-		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(this.wcOwner, null);
 		assertEquals("Working copy should not find secondary type 'Secondary'!", 1, this.problemRequestor.problemCount);
 		assertProblems("Working copy should have problem!",
 			"----------\n" +
@@ -3296,15 +3283,15 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 		);
 
 		// Delete file and recreate it with secondary
-		final String source1 = 
-			"public class Test {}\n" + 
+		final String source1 =
+			"public class Test {}\n" +
 			"class Secondary{}\n";
 		getWorkspace().run(
 			new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
 					deleteFile("/P1/Test.java");
 					createFile(
-						"/P1/Test.java", 
+						"/P1/Test.java",
 						source1
 					);
 				}
@@ -3342,11 +3329,11 @@ public void testBug118823b() throws CoreException, InterruptedException {
 		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
 		String source1 = "class Test {}\n";
 		createFile(
-			"/P1/Test.java", 
+			"/P1/Test.java",
 			source1
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
-		String source2 = 
+		String source2 =
 			"class A {\n" +
 			"	Secondary s;\n" +
 			"}\n";
@@ -3360,12 +3347,12 @@ public void testBug118823b() throws CoreException, InterruptedException {
 		// Get first working copy and verify that there's no error
 		char[] sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(this.wcOwner, null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
 
 		// Get second working copy and verify that there's one error (missing secondary type)
 		this.problemRequestor.initialize(source2.toCharArray());
-		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(this.wcOwner, null);
 		assertEquals("Working copy should not find secondary type 'Secondary'!", 1, this.problemRequestor.problemCount);
 		assertProblems("Working copy should have problem!",
 			"----------\n" +
@@ -3377,8 +3364,8 @@ public void testBug118823b() throws CoreException, InterruptedException {
 		);
 
 		// Modify first working copy and verify that there's still no error
-		source1 = 
-			"public class Test {}\n" + 
+		source1 =
+			"public class Test {}\n" +
 			"class Secondary{}\n";
 		sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
@@ -3410,11 +3397,11 @@ public void testBug118823c() throws CoreException, InterruptedException {
 		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
 		String source1 = "class Test {}\n";
 		createFile(
-			"/P1/Test.java", 
+			"/P1/Test.java",
 			source1
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
-		String source2 = 
+		String source2 =
 			"class A {\n" +
 			"	Secondary s;\n" +
 			"}\n";
@@ -3424,17 +3411,16 @@ public void testBug118823c() throws CoreException, InterruptedException {
 		);
 		waitUntilIndexesReady();
 		this.workingCopies = new ICompilationUnit[2];
-		this.wcOwner = new WorkingCopyOwner() {};
 
 		// Get first working copy and verify that there's no error
 		char[] sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[0] = getCompilationUnit("/P1/Test.java").getWorkingCopy(this.wcOwner, null);
 		assertNoProblem(sourceChars, this.workingCopies[0]);
 
 		// Get second working copy and verify that there's one error (missing secondary type)
 		this.problemRequestor.initialize(source2.toCharArray());
-		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[1] = getCompilationUnit("/P2/A.java").getWorkingCopy(this.wcOwner, null);
 		assertEquals("Working copy should not find secondary type 'Secondary'!", 1, this.problemRequestor.problemCount);
 		assertProblems("Working copy should have problem!",
 			"----------\n" +
@@ -3447,11 +3433,11 @@ public void testBug118823c() throws CoreException, InterruptedException {
 
 		// Delete file and recreate it with secondary
 		deleteFile("/P1/Test.java");
-		source1 = 
-			"public class Test {}\n" + 
+		source1 =
+			"public class Test {}\n" +
 			"class Secondary{}\n";
 		createFile(
-			"/P1/Test.java", 
+			"/P1/Test.java",
 			source1
 		);
 
@@ -3492,11 +3478,11 @@ public void test1001() throws CoreException, InterruptedException, IOException {
 		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
 		sources[0] = "class X {}\n";
 		createFile(
-			"/P1/X.java", 
+			"/P1/X.java",
 			sources[0]
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
-		sources[1] = 
+		sources[1] =
 			"interface I {\n" +
 			"  void foo();\n" +
 			"  void bar(X p);\n" +
@@ -3506,7 +3492,7 @@ public void test1001() throws CoreException, InterruptedException, IOException {
 			sources[1]
 		);
 		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P2" }, "bin");
-		sources[2] = 
+		sources[2] =
 			"class Y implements I {\n" +
 			"  // public void foo() { }\n" +
 			"  // public void bar(X p) { }\n" +
@@ -3520,33 +3506,32 @@ public void test1001() throws CoreException, InterruptedException, IOException {
 		}
 		waitUntilIndexesReady();
 		this.workingCopies = new ICompilationUnit[3];
-		this.wcOwner = new WorkingCopyOwner() {};
 
 		// Get first working copy and verify that there's no error
 		this.problemRequestor.initialize(sourcesAsCharArrays[0]);
-		this.workingCopies[0] = getCompilationUnit("/P1/X.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[0] = getCompilationUnit("/P1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertNoProblem(sourcesAsCharArrays[0], this.workingCopies[0]);
 
 		// Get second working copy and verify that there's no error
 		this.problemRequestor.initialize(sourcesAsCharArrays[1]);
-		this.workingCopies[1] = getCompilationUnit("/P2/I.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[1] = getCompilationUnit("/P2/I.java").getWorkingCopy(this.wcOwner, null);
 		assertNoProblem(sourcesAsCharArrays[1], this.workingCopies[1]);
 
 		// Get third working copy and verify that all expected errors are here
 		this.problemRequestor.initialize(sourcesAsCharArrays[2]);
-		this.workingCopies[2] = getCompilationUnit("/P3/Y.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[2] = getCompilationUnit("/P3/Y.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems("Working copy should have problems:",
-			"----------\n" + 
-			"1. ERROR in /P3/Y.java (at line 1)\n" + 
-			"	class Y implements I {\n" + 
+			"----------\n" +
+			"1. ERROR in /P3/Y.java (at line 1)\n" +
+			"	class Y implements I {\n" +
 			"	      ^\n" +
 // we miss the first diagnostic - see justification in bugzilla
-//			"The type Y must implement the inherited abstract method I.bar(X)\n" + 
-//			"----------\n" + 
-//			"2. ERROR in /P3/Y.java (at line 1)\n" + 
-//			"	class Y implements I {\n" + 
-//			"	      ^\n" + 
-			"The type Y must implement the inherited abstract method I.foo()\n" + 
+//			"The type Y must implement the inherited abstract method I.bar(X)\n" +
+//			"----------\n" +
+//			"2. ERROR in /P3/Y.java (at line 1)\n" +
+//			"	class Y implements I {\n" +
+//			"	      ^\n" +
+			"The type Y must implement the inherited abstract method I.foo()\n" +
 			"----------\n"
 		);
 	} finally {
@@ -3566,11 +3551,11 @@ public void test1002() throws CoreException, InterruptedException, IOException {
 		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
 		sources[0] = "class X {}\n";
 		createFile(
-			"/P1/X.java", 
+			"/P1/X.java",
 			sources[0]
 		);
 		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
-		sources[1] = 
+		sources[1] =
 			"interface I {\n" +
 			"  void foo();\n" +
 			"  void bar(X p);\n" +
@@ -3580,7 +3565,7 @@ public void test1002() throws CoreException, InterruptedException, IOException {
 			sources[1]
 		);
 		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" /* compare with test1001 */, "/P2" }, "bin");
-		sources[2] = 
+		sources[2] =
 			"class Y implements I {\n" +
 			"  // public void foo() { }\n" +
 			"  // public void bar(X p) { }\n" +
@@ -3594,32 +3579,31 @@ public void test1002() throws CoreException, InterruptedException, IOException {
 		}
 		waitUntilIndexesReady();
 		this.workingCopies = new ICompilationUnit[3];
-		this.wcOwner = new WorkingCopyOwner() {};
 
 		// Get first working copy and verify that there's no error
 		this.problemRequestor.initialize(sourcesAsCharArrays[0]);
-		this.workingCopies[0] = getCompilationUnit("/P1/X.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[0] = getCompilationUnit("/P1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertNoProblem(sourcesAsCharArrays[0], this.workingCopies[0]);
 
 		// Get second working copy and verify that there's no error
 		this.problemRequestor.initialize(sourcesAsCharArrays[1]);
-		this.workingCopies[1] = getCompilationUnit("/P2/I.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[1] = getCompilationUnit("/P2/I.java").getWorkingCopy(this.wcOwner, null);
 		assertNoProblem(sourcesAsCharArrays[1], this.workingCopies[1]);
 
 		// Get third working copy and verify that all expected errors are here
 		this.problemRequestor.initialize(sourcesAsCharArrays[2]);
-		this.workingCopies[2] = getCompilationUnit("/P3/Y.java").getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+		this.workingCopies[2] = getCompilationUnit("/P3/Y.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems("Working copy should have problems:",
-			"----------\n" + 
-			"1. ERROR in /P3/Y.java (at line 1)\n" + 
-			"	class Y implements I {\n" + 
-			"	      ^\n" + 
-			"The type Y must implement the inherited abstract method I.bar(X)\n" + 
-			"----------\n" + 
-			"2. ERROR in /P3/Y.java (at line 1)\n" + 
-			"	class Y implements I {\n" + 
-			"	      ^\n" + 
-			"The type Y must implement the inherited abstract method I.foo()\n" + 
+			"----------\n" +
+			"1. ERROR in /P3/Y.java (at line 1)\n" +
+			"	class Y implements I {\n" +
+			"	      ^\n" +
+			"The type Y must implement the inherited abstract method I.bar(X)\n" +
+			"----------\n" +
+			"2. ERROR in /P3/Y.java (at line 1)\n" +
+			"	class Y implements I {\n" +
+			"	      ^\n" +
+			"The type Y must implement the inherited abstract method I.foo()\n" +
 			"----------\n"
 		);
 	} finally {

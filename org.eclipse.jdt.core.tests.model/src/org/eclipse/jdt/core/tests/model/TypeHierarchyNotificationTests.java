@@ -122,7 +122,7 @@ public void testAddAnonymousInRegion() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
 		copy = getCompilationUnit("TypeHierarchyNotification", "src", "p3", "A.java");
-		copy.becomeWorkingCopy(null, null);
+		copy.becomeWorkingCopy(null);
 		
 		IRegion region = JavaCore.newRegion();
 		region.add(copy.getParent());
@@ -599,7 +599,7 @@ public void testChangeFocusModifier() throws CoreException {
 			"}"
 		);
 		workingCopy = getCompilationUnit("/P1/p/X.java");
-		workingCopy.becomeWorkingCopy(null/*no pb requestor*/, null/*no progress*/);
+		workingCopy.becomeWorkingCopy(null/*no progress*/);
 		h = workingCopy.getType("X").newTypeHierarchy(null);
 		h.addTypeHierarchyChangedListener(this);
 		
@@ -713,7 +713,7 @@ public void testAddExtendsSourceType2() throws CoreException {
 	ICompilationUnit copy = null;
 	try {
 		copy = getCompilationUnit("TypeHierarchyNotification", "src", "p2", "A.java");
-		copy.becomeWorkingCopy(null, null);
+		copy.becomeWorkingCopy(null);
 		
 		IRegion region = JavaCore.newRegion();
 		region.add(copy.getParent());
@@ -754,7 +754,7 @@ public void testAddExtendsSourceType3() throws CoreException {
 	ICompilationUnit copy = getCompilationUnit("TypeHierarchyNotification", "src", "p2", "B.java");
 	ITypeHierarchy h = null;
 	try {
-		copy.becomeWorkingCopy(null, null);
+		copy.becomeWorkingCopy(null);
 		h = getCompilationUnit("TypeHierarchyNotification", "src", "p2", "A.java").getType("A").newTypeHierarchy(javaProject, null);
 		h.addTypeHierarchyChangedListener(this);
 

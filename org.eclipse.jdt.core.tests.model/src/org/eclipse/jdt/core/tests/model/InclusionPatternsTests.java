@@ -386,9 +386,10 @@ public void testDefaultPackageProjectIsSource() throws CoreException {
 		"      class A",
 		root);
 }
-/*
+/**
  * Ensure that a type can be resolved if it is included but not its super packages.
  * (regression test for bug 119161 classes in "deep" packages not fully recognized when using tight inclusion filters)
+ * @deprecated
  */
 public void testIncludeCUOnly01() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p1/p2/*.java|q/*.java"});
@@ -409,7 +410,8 @@ public void testIncludeCUOnly01() throws CoreException {
 			"public class Y extends X {\n" +
 			"}",
 			null/*primary owner*/,
-			problemRequestor);
+			problemRequestor
+		);
 		assertProblems(
 			"Unepected problems",
 			"----------\n" + 
@@ -420,9 +422,40 @@ public void testIncludeCUOnly01() throws CoreException {
 			workingCopy.discardWorkingCopy();
 	}	
 }
-/*
+public void testIncludeCUOnly01_new() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p1/p2/*.java|q/*.java"});
+	addLibraryEntry(getJavaProject("P"), getExternalJCLPathString(), false);
+	createFolder("/P/src/p1/p2");
+	createFile(
+		"/P/src/p1/p2/X.java",
+		"package p1.p2;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit workingCopy = null;
+	try {
+		ProblemRequestor problemRequestor = new ProblemRequestor();
+		workingCopy = getWorkingCopy(
+			"/P/src/Y.java", 
+			"import p1.p2.X;\n" +
+			"public class Y extends X {\n" +
+			"}",
+			newWorkingCopyOwner(problemRequestor)
+		);
+		assertProblems(
+			"Unepected problems",
+			"----------\n" + 
+			"----------\n",
+			problemRequestor);
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}	
+}
+/**
  * Ensure that a type can be resolved if it is included but not its super packages.
  * (regression test for bug 119161 classes in "deep" packages not fully recognized when using tight inclusion filters)
+ * @deprecated
  */
 public void testIncludeCUOnly02() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p1/p2/p3/*.java|q/*.java"});
@@ -443,7 +476,38 @@ public void testIncludeCUOnly02() throws CoreException {
 			"public class Y extends X {\n" +
 			"}",
 			null/*primary owner*/,
+			problemRequestor
+		);
+		assertProblems(
+			"Unepected problems",
+			"----------\n" + 
+			"----------\n",
 			problemRequestor);
+	} finally {
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+	}
+}
+public void testIncludeCUOnly02_new() throws CoreException {
+	setClasspath(new String[] {"/P/src", "p1/p2/p3/*.java|q/*.java"});
+	addLibraryEntry(getJavaProject("P"), getExternalJCLPathString(), false);
+	createFolder("/P/src/p1/p2/p3");
+	createFile(
+		"/P/src/p1/p2/p3/X.java",
+		"package p1.p2.p3;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit workingCopy = null;
+	try {
+		ProblemRequestor problemRequestor = new ProblemRequestor();
+		workingCopy = getWorkingCopy(
+			"/P/src/Y.java", 
+			"import p1.p2.p3.X;\n" +
+			"public class Y extends X {\n" +
+			"}",
+			newWorkingCopyOwner(problemRequestor)
+		);
 		assertProblems(
 			"Unepected problems",
 			"----------\n" + 
@@ -466,10 +530,10 @@ public void testIsOnClasspath1() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-	assertTrue("Resource should not be on classpath", !project.isOnClasspath(file));
+	assertTrue("Resource should not be on classpath", !this.project.isOnClasspath(file));
 	
 	ICompilationUnit cu = getCompilationUnit("/P/src/p/A.java");
-	assertTrue("CU should not be on classpath", !project.isOnClasspath(cu));
+	assertTrue("CU should not be on classpath", !this.project.isOnClasspath(cu));
 }
 /*
  * Ensures that a cu that is included is on the classpath of the project.
@@ -483,10 +547,10 @@ public void testIsOnClasspath2() throws CoreException {
 		"public class A {\n" +
 		"}"
 	);
-	assertTrue("Resource should be on classpath", project.isOnClasspath(file));
+	assertTrue("Resource should be on classpath", this.project.isOnClasspath(file));
 	
 	ICompilationUnit cu = getCompilationUnit("/P/src/p/A.java");
-	assertTrue("CU should be on classpath", project.isOnClasspath(cu));
+	assertTrue("CU should be on classpath", this.project.isOnClasspath(cu));
 }
 /*
  * Ensures that a non-java resource that is not included is not on the classpath of the project.
@@ -495,7 +559,7 @@ public void testIsOnClasspath3() throws CoreException {
 	setClasspath(new String[] {"/P/src", "**/X.java"});
 	createFolder("/P/src/p");
 	IFile file = createFile("/P/src/p/readme.txt", "");
-	assertTrue("Resource should not be on classpath", !project.isOnClasspath(file));
+	assertTrue("Resource should not be on classpath", !this.project.isOnClasspath(file));
 }
 /*
  * Ensures that a non-java resource that is included is on the classpath of the project.
@@ -504,7 +568,7 @@ public void testIsOnClasspath4() throws CoreException {
 	setClasspath(new String[] {"/P/src", "p/**"});
 	createFolder("/P/src/p");
 	IFile file = createFile("/P/src/p/readme.txt", "");
-	assertTrue("Resource should be on classpath", project.isOnClasspath(file));
+	assertTrue("Resource should be on classpath", this.project.isOnClasspath(file));
 }
 /*
  * Ensures that moving a folder that contains an included package reports the correct delta.

@@ -2005,7 +2005,7 @@ public void test033() throws CoreException {
 			"	A, B, C, Z;\n" + 
 			"}";
 		unit = this.getCompilationUnit("/P/src/X.java");
-		unit.becomeWorkingCopy(null, null);
+		unit.becomeWorkingCopy(null);
 		String source = unit.getSource();
 		Document document = new Document(source);
 		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
@@ -2058,7 +2058,7 @@ public void test034() throws CoreException {
 			"}"
 		);
 		unit = this.getCompilationUnit("/P/src/X.java");
-		unit.becomeWorkingCopy(null, null);
+		unit.becomeWorkingCopy(null);
 		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setCompilerOptions(options.getMap());

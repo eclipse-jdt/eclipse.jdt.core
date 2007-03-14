@@ -837,8 +837,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	 */
 	public void testBug86380() throws CoreException {
 		this.wcOwner = new WorkingCopyOwner() {};
-		workingCopies = new ICompilationUnit[2];
-		workingCopies[0] = getWorkingCopy("/Tests/b86380/package-info.java",
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy("/Tests/b86380/package-info.java",
 			"/**\n" + 
 			" * Valid javadoc.\n" + 
 			" * @see Test\n" + 
@@ -851,11 +851,9 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			" * @throws unexpected\n" + 
 			" * @return unexpected \n" + 
 			" */\n" + 
-			"package b86380;\n",
-			wcOwner,
-			null/*don't compute problems*/
+			"package b86380;\n"
 		);
-		workingCopies[1] = getWorkingCopy("/Tests/b86380/Test.java",
+		this.workingCopies[1] = getWorkingCopy("/Tests/b86380/Test.java",
 			"/**\n" + 
 			" * Invalid javadoc\n" + 
 			" */\n" + 
@@ -863,9 +861,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"public class Test {\n" + 
 			"	public int field;\n" + 
 			"	public void foo() {}\n" + 
-			"}\n",
-			wcOwner,
-			null/*don't compute problems*/
+			"}\n"
 		);
 		IJavaElement[] elements = new IJavaElement[3];
 		elements[0] = selectType(this.workingCopies[0], "Test");
@@ -894,8 +890,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"	}\n" + 
 			"}\n"
 		);
-		int[] selectionPositions = selectionInfo(workingCopies[0], "field", 2);
-		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
+		int[] selectionPositions = selectionInfo(this.workingCopies[0], "field", 2);
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(selectionPositions[0], 0);
 		assertElementsEqual("Invalid selection(s)",
 			"field [in Test [in [Working copy] Test.java [in b90266 [in <project root> [in Tests]]]]]",
 			elements
@@ -912,8 +908,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"	}\n" + 
 			"}\n"
 		);
-		int[] selectionPositions = selectionInfo(workingCopies[0], "field", 2);
-		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
+		int[] selectionPositions = selectionInfo(this.workingCopies[0], "field", 2);
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(selectionPositions[0], 0);
 		assertElementsEqual("Invalid selection(s)",
 			"field [in Test [in [Working copy] Test.java [in b90266 [in <project root> [in Tests]]]]]",
 			elements
@@ -935,8 +931,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"	public void foo() {}\n" + 
 			"}\n"
 		);
-		int[] selectionPositions = selectionInfo(workingCopies[0], "fooo", 1);
-		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
+		int[] selectionPositions = selectionInfo(this.workingCopies[0], "fooo", 1);
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(selectionPositions[0], 0);
 		assertElementsEqual("Invalid selection(s)",
 			"Test [in [Working copy] Test.java [in b165701 [in <project root> [in Tests]]]]",
 			elements
@@ -977,8 +973,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"class Y {}\n" + 
 			"class Z {}"
 		);
-		int[] selectionPositions = selectionInfo(workingCopies[0], "getMax", 1);
-		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
+		int[] selectionPositions = selectionInfo(this.workingCopies[0], "getMax", 1);
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(selectionPositions[0], 0);
 		assertElementsEqual("Invalid selection(s)",
 			"getMax(A<T>) [in X [in [Working copy] Test.java [in b165794 [in <project root> [in Tests]]]]]",
 			elements
@@ -991,8 +987,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	 */
 	public void testBug171802() throws CoreException {
 		this.wcOwner = new WorkingCopyOwner() {};
-		workingCopies = new ICompilationUnit[2];
-		workingCopies[0] = getWorkingCopy("/Tests/b171802/Y.java",
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy("/Tests/b171802/Y.java",
 			"package b171802;\n" +
 			"\n" + 
 			"/**\n" +
@@ -1000,11 +996,9 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			" */\n" +
 			"public class Y {\n" + 
 			"\n" + 
-			"}\n",
-			wcOwner,
-			null/*don't compute problems*/
+			"}\n"
 		);
-		workingCopies[1] = getWorkingCopy("/Tests/b171802/X.java",
+		this.workingCopies[1] = getWorkingCopy("/Tests/b171802/X.java",
 			"package b171802;\n" + 
 			"\n" + 
 			"public class X {\n" + 
@@ -1019,9 +1013,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"	 */\n" + 
 			"	void bar(char[] param1, Y param2) {}\n" + 
 			"\n" +	
-			"}\n",
-			wcOwner,
-			null/*don't compute problems*/
+			"}\n"
 		);
 		IJavaElement[] elements = new IJavaElement[1];
 		elements[0] = selectMethod(this.workingCopies[1], "bar");

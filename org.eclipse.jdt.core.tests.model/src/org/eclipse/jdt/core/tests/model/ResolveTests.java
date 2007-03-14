@@ -19,7 +19,6 @@ import junit.framework.*;
 
 public class ResolveTests extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
-	WorkingCopyOwner owner = null; 
 
 static {
 //	TESTS_NAMES = new String[] { "testSecondaryTypes" };
@@ -32,14 +31,14 @@ public ResolveTests(String name) {
 	super(name);
 }
 public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
-	return super.getWorkingCopy(path, source, this.owner, null);
+	return super.getWorkingCopy(path, source, this.wcOwner);
 }
 private IJavaElement[] select(String path, String source, String selection) throws JavaModelException {
 	this.wc = getWorkingCopy(path, source);
-	String str = wc.getSource();
+	String str = this.wc.getSource();
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
-	return wc.codeSelect(start, length, this.owner);
+	return this.wc.codeSelect(start, length, this.wcOwner);
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -48,8 +47,7 @@ public void setUpSuite() throws Exception {
 }
 protected void setUp() throws Exception {
 	super.setUp();
-	
-	this.owner = new WorkingCopyOwner(){};
+	this.wcOwner = new WorkingCopyOwner(){};
 }
 
 public void tearDownSuite() throws Exception {
@@ -92,7 +90,8 @@ public void testAmbiguousMethod1() throws JavaModelException {
 		"class Test1 {\n" + 
 		"}\n" + 
 		"class Test2 {\n" + 
-		"}");
+		"}"
+	);
 
 	String str = this.workingCopies[0].getSource();
 	int start = str.lastIndexOf("foo(o)");

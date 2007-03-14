@@ -582,7 +582,7 @@ public void testReferenceInWorkingCopies() throws CoreException {
 		
 		// create working copies
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
-		workingCopy1 = getCompilationUnit("/P1/p1/X.java").getWorkingCopy(owner, null/*no problem requestor*/, null/*no progress monitor*/);
+		workingCopy1 = getCompilationUnit("/P1/p1/X.java").getWorkingCopy(owner, null/*no progress monitor*/);
 		workingCopy1.getBuffer().setContents(
 			"package p1;\n" +
 			"public class X {\n" +
@@ -591,7 +591,7 @@ public void testReferenceInWorkingCopies() throws CoreException {
 			"}"
 		);
 		workingCopy1.makeConsistent(null);
-		workingCopy2 = getCompilationUnit("/P2/p2/Y.java").getWorkingCopy(owner, null/*no problem requestor*/, null/*no progress monitor*/);
+		workingCopy2 = getCompilationUnit("/P2/p2/Y.java").getWorkingCopy(owner, null/*no progress monitor*/);
 		workingCopy2.getBuffer().setContents(
 			"package p2;\n" +
 			"import p1.X;\n" +

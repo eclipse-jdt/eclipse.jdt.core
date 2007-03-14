@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,9 +28,6 @@ public class DefaultWorkingCopyOwner extends WorkingCopyOwner {
 		// only one instance can be created
 	}
 
-	/**
-	 * @deprecated Marked deprecated as it is using deprecated code
-	 */
 	public IBuffer createBuffer(ICompilationUnit workingCopy) {
 		if (this.primaryBufferProvider != null) return this.primaryBufferProvider.createBuffer(workingCopy);
 		return super.createBuffer(workingCopy);
