@@ -398,7 +398,13 @@ public class GetResourcesTests extends BuilderTests {
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=6584
 	public void test006() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
+		IPath projectPath = null;
+		try {
+			projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
+		} catch (RuntimeException e) {
+			// no 1.5 VM or above is available
+			return;
+		}
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		fullBuild(projectPath);
 
