@@ -5704,4 +5704,73 @@ public class JavadocBugsTest extends JavadocTest {
 			runNegativeTest(units,error50);
 		}
 	}
+	
+	/**
+	 * @bug 177009: [javadoc] Missing Javadoc tag not reported
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=177009"
+	 */
+	public void testBug177009a() {
+		String[] units = new String[] {
+			"pkg/X.java",
+			"package pkg;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public X(String str, int anInt) {\n" +
+			"	}\n" +
+			"}\n",
+			"pkg/Y.java",
+			"package pkg;\n" +
+			"\n" +
+			"public class Y extends X {\n" +
+			"	private static int myInt = 0;\n" +
+			"	/**\n" +
+			"	 * @see X#X(String, int)\n" + // case1 potential AIOOBE
+			"	 */\n" +
+			"	public Y(String str) {\n" +
+			"		super(str, myInt);\n" +
+			"	}\n" +
+			"}\n"
+		};
+		reportMissingJavadocTags = CompilerOptions.WARNING;
+		runNegativeTest(units,
+				"----------\n" + 
+				"1. WARNING in pkg\\Y.java (at line 8)\n" + 
+				"	public Y(String str) {\n" + 
+				"	                ^^^\n" + 
+				"Javadoc: Missing tag for parameter str\n" + 
+				"----------\n");
+	}
+	
+	public void testBug177009b() {
+		String[] units = new String[] {
+			"pkg/X.java",
+			"package pkg;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public X(String str, int anInt) {\n" +
+			"	}\n" +
+			"}\n",
+			"pkg/Y.java",
+			"package pkg;\n" +
+			"\n" +
+			"public class Y extends X {\n" +
+			"	/**\n" +
+			"	 * @param str\n" +
+			"	 * @param anInt\n" +
+			"	 * @see X#X(String, int)\n" + // case2 find super ref
+			"	 */\n" +
+			"	public Y(String str, int anInt, int anotherInt) {\n" +
+			"		super(str, anInt);\n" +
+			"	}\n" +
+			"}\n"
+		};
+		reportMissingJavadocTags = CompilerOptions.WARNING;
+		runNegativeTest(units,
+				"----------\n" + 
+				"1. WARNING in pkg\\Y.java (at line 9)\n" + 
+				"	public Y(String str, int anInt, int anotherInt) {\n" + 
+				"	                                    ^^^^^^^^^^\n" + 
+				"Javadoc: Missing tag for parameter anotherInt\n" + 
+				"----------\n");
+	}
 }
