@@ -144,6 +144,11 @@ public class ASTParser {
 	private boolean statementsRecovery;
 
 	/**
+     * Request for a bindings recovery. Defaults to <code>false</code>.
+     */
+    private boolean bindingsRecovery;
+
+    /**
 	 * The focal point for a partial AST request.
      * Only used when <code>partial</code> is <code>true</code>.
      */
@@ -227,6 +232,24 @@ public class ASTParser {
 		this.compilerOptions = options;
 	}
 
+    /**
+     * Requests that the compiler should perform bindings recovery.
+     * When bindings recovery is enabled the compiler returns incomplete bindings.
+     * <p>
+     * Default to <code>false</code>.
+     * </p>
+     * <p>This should be set to true only if bindings are resolved. It has no effect if there is no binding
+     * resolution.</p>
+     *
+     * @param enabled <code>true</code> if incomplete bindings are expected,
+     *   and <code>false</code> if only complete bindings are expected.
+     *
+     * @see IBinding#isRecovered()
+     * @since 3.3
+     */
+    public void setBindingsRecovery(boolean enabled) {
+        this.bindingsRecovery = enabled;
+    }
 	/**
 	 * Sets the compiler options to be used when parsing.
 	 * <p>
@@ -699,16 +722,19 @@ public class ASTParser {
      */
 	public void createASTs(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor requestor, IProgressMonitor monitor) {
 		try {
+			int flags = 0;
+			if (this.statementsRecovery) flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
 			if (this.resolveBindings) {
 				if (this.project == null)
 					throw new IllegalStateException("project not specified"); //$NON-NLS-1$
-				CompilationUnitResolver.resolve(compilationUnits, bindingKeys, requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, this.statementsRecovery, monitor);
+				if (this.bindingsRecovery) flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+				CompilationUnitResolver.resolve(compilationUnits, bindingKeys, requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
 			} else {
-				CompilationUnitResolver.parse(compilationUnits, requestor, this.apiLevel, this.compilerOptions, monitor);
+				CompilationUnitResolver.parse(compilationUnits, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
 			}
 		} finally {
-	   	   // re-init defaults to allow reuse (and avoid leaking)
-	   	   initializeDefaults();
+			// re-init defaults to allow reuse (and avoid leaking)
+			initializeDefaults();
 		}
 	}
 
@@ -755,10 +781,13 @@ public class ASTParser {
 		try {
 			if (this.project == null)
 				throw new IllegalStateException("project not specified"); //$NON-NLS-1$
-			return CompilationUnitResolver.resolve(elements, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, this.statementsRecovery, monitor);
+			int flags = 0;
+			if (this.statementsRecovery) flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+			if (this.bindingsRecovery)  flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+			return CompilationUnitResolver.resolve(elements, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
 		} finally {
-	   	   // re-init defaults to allow reuse (and avoid leaking)
-	   	   initializeDefaults();
+			// re-init defaults to allow reuse (and avoid leaking)
+			initializeDefaults();
 		}
 	}
 
@@ -828,7 +857,10 @@ public class ASTParser {
 					if (this.partial) {
 						searcher = new NodeSearcher(this.focalPointPosition);
 					}
+					int flags = 0;
+					if (this.statementsRecovery) flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
 					if (needToResolveBindings) {
+						if (this.bindingsRecovery) flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 						try {
 							// parse and resolve
 							compilationUnitDeclaration =
@@ -838,14 +870,15 @@ public class ASTParser {
 									searcher,
 									this.compilerOptions,
 									this.workingCopyOwner,
-									this.statementsRecovery,
+									flags,
 									monitor);
 						} catch (JavaModelException e) {
+							flags &= ~ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 							compilationUnitDeclaration = CompilationUnitResolver.parse(
 									sourceUnit,
 									searcher,
 									this.compilerOptions,
-									this.statementsRecovery);
+									flags);
 							needToResolveBindings = false;
 						}
 					} else {
@@ -853,7 +886,7 @@ public class ASTParser {
 								sourceUnit,
 								searcher,
 								this.compilerOptions,
-								this.statementsRecovery);
+								flags);
 						needToResolveBindings = false;
 					}
 					CompilationUnit result = CompilationUnitResolver.convert(
@@ -864,6 +897,7 @@ public class ASTParser {
 						needToResolveBindings,
 						wcOwner,
 						needToResolveBindings ? new DefaultBindingResolver.BindingTables() : null,
+						flags,
 						monitor);
 					result.setTypeRoot(this.typeRoot);
 					return result;
@@ -955,6 +989,9 @@ public class ASTParser {
 		AST ast = AST.newAST(this.apiLevel);
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		ast.setBindingResolver(new BindingResolver());
+		if (this.statementsRecovery) {
+			ast.setFlag(ICompilationUnit.ENABLE_STATEMENTS_RECOVERY);
+		}
 		converter.setAST(ast);
 		CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 		CompilationUnit compilationUnit = ast.newCompilationUnit();

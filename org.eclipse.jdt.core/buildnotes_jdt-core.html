@@ -51,6 +51,25 @@ Eclipse SDK 3.3M6 - %date%
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_742">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>API addition to fix bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=130001">130001</a>. It is being able for a user
+to query what options were enabled when the DOM/AST tree has been created. The following API methods have been added:
+<ul>
+<li><code>org.eclipse.jdt.core.dom.AST#hasResolvedBindings()</code></li>
+<li><code>org.eclipse.jdt.core.dom.AST#hasStatementsRecovery()</code></li>
+<li><code>org.eclipse.jdt.core.dom.AST#hasBindingsRecovery()</code></li>
+</ul>
+</li>
+<li>API addition to fix bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=149567">149567</a>. It is about
+the incomplete binding handling. The following API methods or fields have been added:
+<ul>
+<li><code>org.eclipse.jdt.core.dom.ASTParser#setBindingsRecovery(boolean)</code></li>
+<li><code>org.eclipse.jdt.core.dom.IBinding#isRecovered()</code></li>
+<li><code>org.eclipse.jdt.core.ICompilationUnit#reconcile(int, int, WorkingCopyOwner, IProgressMonitor)</code></li>
+<li><code>org.eclipse.jdt.core.ICompilationUnit#FORCE_PROBLEM_DETECTION</code></li>
+<li><code>org.eclipse.jdt.core.ICompilationUnit#ENABLE_STATEMENTS_RECOVERY</code></li>
+<li><code>org.eclipse.jdt.core.ICompilationUnit#ENABLE_BINDINGS_RECOVERY</code></li>
+</ul>
+</li>
 <li>The working copy owner (<code>WorkingCopyOwner</code>) now specifies the problem requestor
 (<code>IProblemrequestor</code>) used to report problems on working copies it owns 
 (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=175243">175243</a>).<br>

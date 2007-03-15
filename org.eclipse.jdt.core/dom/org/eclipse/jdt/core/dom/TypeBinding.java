@@ -57,11 +57,11 @@ import org.eclipse.jdt.internal.core.JavaElement;
  * Internal implementation of type bindings.
  */
 class TypeBinding implements ITypeBinding {
-	private static final IMethodBinding[] NO_METHOD_BINDINGS = new IMethodBinding[0];
+	protected static final IMethodBinding[] NO_METHOD_BINDINGS = new IMethodBinding[0];
 
 	private static final String NO_NAME = ""; //$NON-NLS-1$
-	private static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
-	private static final IVariableBinding[] NO_VARIABLE_BINDINGS = new IVariableBinding[0];
+	protected static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
+	protected static final IVariableBinding[] NO_VARIABLE_BINDINGS = new IVariableBinding[0];
 
 	private static final int VALID_MODIFIERS = Modifier.PUBLIC | Modifier.PROTECTED | Modifier.PRIVATE |
 		Modifier.ABSTRACT | Modifier.STATIC | Modifier.FINAL | Modifier.STRICTFP;
@@ -248,6 +248,7 @@ class TypeBinding implements ITypeBinding {
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 			 */
+			org.eclipse.jdt.internal.core.util.Util.log(e, "Could not retrieve declared fields"); //$NON-NLS-1$
 		}
 		return this.fields = NO_VARIABLE_BINDINGS;
 	}
@@ -288,6 +289,7 @@ class TypeBinding implements ITypeBinding {
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 			 */
+			org.eclipse.jdt.internal.core.util.Util.log(e, "Could not retrieve declared methods"); //$NON-NLS-1$
 		}
 		return this.methods = NO_METHOD_BINDINGS;
 	}
@@ -329,6 +331,7 @@ class TypeBinding implements ITypeBinding {
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 			 */
+			org.eclipse.jdt.internal.core.util.Util.log(e, "Could not retrieve declared methods"); //$NON-NLS-1$
 		}
 		return this.members = NO_TYPE_BINDINGS;
 	}
@@ -349,6 +352,7 @@ class TypeBinding implements ITypeBinding {
 					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 					 */
+					org.eclipse.jdt.internal.core.util.Util.log(e, "Could not retrieve declaring method"); //$NON-NLS-1$
 				}
 			}
 		} else if (this.binding.isTypeVariable()) {
@@ -363,6 +367,7 @@ class TypeBinding implements ITypeBinding {
 					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 					 */
+					org.eclipse.jdt.internal.core.util.Util.log(e, "Could not retrieve declaring method"); //$NON-NLS-1$
 				}
 			}
 		}
@@ -384,6 +389,7 @@ class TypeBinding implements ITypeBinding {
 					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 					 */
+					org.eclipse.jdt.internal.core.util.Util.log(e, "Could not retrieve declaring class"); //$NON-NLS-1$
 				}
 			}
 		} else if (this.binding.isTypeVariable()) {
@@ -398,6 +404,7 @@ class TypeBinding implements ITypeBinding {
 					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 					 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 					 */
+					org.eclipse.jdt.internal.core.util.Util.log(e, "Could not retrieve declaring class"); //$NON-NLS-1$
 				}
 			}
 		}
@@ -463,6 +470,7 @@ class TypeBinding implements ITypeBinding {
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 			 */
+			org.eclipse.jdt.internal.core.util.Util.log(e, "Could not retrieve interfaces"); //$NON-NLS-1$
 		}
 		int length = internalInterfaces == null ? 0 : internalInterfaces.length;
 		if (length != 0) {
@@ -900,6 +908,7 @@ class TypeBinding implements ITypeBinding {
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 			 */
+			org.eclipse.jdt.internal.core.util.Util.log(e, "Could not retrieve superclass"); //$NON-NLS-1$
 			return this.resolver.resolveWellKnownType("java.lang.Object"); //$NON-NLS-1$
 		}
 		if (superclass == null) {
@@ -1070,6 +1079,7 @@ class TypeBinding implements ITypeBinding {
 	public boolean isAssignmentCompatible(ITypeBinding type) {
 		try {
 			if (this == type) return true;
+			if (!(type instanceof TypeBinding)) return false;
 			TypeBinding other = (TypeBinding) type;
 			Scope scope = this.resolver.scope();
 			if (scope == null) return false;
@@ -1100,6 +1110,7 @@ class TypeBinding implements ITypeBinding {
 			};
 			Scope scope = this.resolver.scope();
 			if (scope == null) return false;
+			if (!(type instanceof TypeBinding)) return false;
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding expressionType = ((TypeBinding) type).binding;
 			// simulate capture in case checked binding did not properly get extracted from a reference
 			expressionType = expressionType.capture(scope, 0);
@@ -1270,12 +1281,20 @@ class TypeBinding implements ITypeBinding {
 	}
 
 	/* (non-Javadoc)
+	 * @see IBinding#isRecovered()
+	 */
+	public boolean isRecovered() {
+		return false;
+	}
+
+	/* (non-Javadoc)
 	 * @see ITypeBinding#isSubTypeCompatible(ITypeBinding)
 	 */
 	public boolean isSubTypeCompatible(ITypeBinding type) {
 		try {
 			if (this == type) return true;
 			if (this.binding.isBaseType()) return false;
+			if (!(type instanceof TypeBinding)) return false;
 			TypeBinding other = (TypeBinding) type;
 			if (other.binding.isBaseType()) return false;
 			return this.binding.isCompatibleWith(other.binding);

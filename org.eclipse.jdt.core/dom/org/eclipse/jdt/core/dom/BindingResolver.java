@@ -180,6 +180,51 @@ class BindingResolver {
 		return null;
 	}
 
+
+	/**
+	 * Returns the new type binding corresponding to the given variableDeclaration.
+	 * This is used for recovered binding only.
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param variableDeclaration the given variable declaration
+	 * @return the new type binding
+	 */
+	ITypeBinding getTypeBinding(VariableDeclaration variableDeclaration) {
+		return null;
+	}
+
+	/**
+	 * Returns the new type binding corresponding to the given type. This is used for recovered binding
+	 * only.
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param type the given type
+	 * @return the new type binding
+	 */
+	ITypeBinding getTypeBinding(Type type) {
+		return null;
+	}
+
+	/**
+	 * Returns the new type binding corresponding to the given recovered type binding.
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param recoveredTypeBinding the recovered type binding
+	 * @return the new type binding
+	 */
+	ITypeBinding getTypeBinding(RecoveredTypeBinding recoveredTypeBinding) {
+		return null;
+	}
+
 	/**
 	 * Returns the new variable binding corresponding to the given old variable binding.
 	 * <p>
