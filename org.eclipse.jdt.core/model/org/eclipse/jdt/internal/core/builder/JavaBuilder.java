@@ -188,10 +188,11 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 						if (DEBUG)
 							System.out.println("Performing full build since deltas are missing after incremental request"); //$NON-NLS-1$
 						buildAll();
-					} else if (deltas.elementSize > 0)
+					} else if (deltas.elementSize > 0) {
 						buildDeltas(deltas);
-					else if (DEBUG)
+					} else if (DEBUG) {
 						System.out.println("Nothing to build since deltas were empty"); //$NON-NLS-1$
+					}
 				} else {
 					if (hasStructuralDelta()) { // double check that a jar file didn't get replaced in a binary project
 						if (DEBUG)
@@ -261,9 +262,9 @@ private void buildDeltas(SimpleLookupTable deltas) {
 		System.out.println("Clearing last state : " + lastState); //$NON-NLS-1$
 	clearLastState(); // clear the previously built state so if the build fails, a full build will occur next time
 	IncrementalImageBuilder imageBuilder = new IncrementalImageBuilder(this);
-	if (imageBuilder.build(deltas))
+	if (imageBuilder.build(deltas)) {
 		recordNewState(imageBuilder.newState);
-	else {
+	} else {
 		if (DEBUG)
 			System.out.println("Performing full build since incremental build failed"); //$NON-NLS-1$
 		buildAll();
