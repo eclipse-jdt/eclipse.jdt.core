@@ -148,7 +148,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		WorkingCopyOwner workingCopyOwner,
 		HashMap problems,
 		boolean creatingAST,
-		boolean statementsRecovery,
+		int reconcileFlags,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 
@@ -162,7 +162,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 			problemFinder = new CompilationUnitProblemFinder(
 				environment,
 				getHandlingPolicy(),
-				getCompilerOptions(project.getOptions(true), creatingAST, statementsRecovery),
+				getCompilerOptions(project.getOptions(true), creatingAST, ((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0)),
 				getRequestor(),
 				problemFactory);
 			if (parser != null) {
@@ -242,11 +242,11 @@ public class CompilationUnitProblemFinder extends Compiler {
 		WorkingCopyOwner workingCopyOwner,
 		HashMap problems,
 		boolean creatingAST,
-		boolean statementsRecovery,
+		int reconcileFlags,
 		IProgressMonitor monitor)
 		throws JavaModelException {
 			
-		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problems, creatingAST, statementsRecovery, monitor);
+		return process(null/*no CompilationUnitDeclaration*/, unitElement, contents, null/*use default Parser*/, workingCopyOwner, problems, creatingAST, reconcileFlags, monitor);
 	}
 
 	/* (non-Javadoc)

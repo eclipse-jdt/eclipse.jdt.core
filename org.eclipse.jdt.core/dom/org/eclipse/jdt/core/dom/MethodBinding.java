@@ -54,7 +54,7 @@ class MethodBinding implements IMethodBinding {
 	private ITypeBinding[] typeArguments;
 	private IAnnotationBinding[] annotations;
 	private IAnnotationBinding[] parameterAnnotations;
-	
+
 	MethodBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding) {
 		this.resolver = resolver;
 		this.binding = binding;
@@ -70,7 +70,7 @@ class MethodBinding implements IMethodBinding {
 	public boolean isConstructor() {
 		return this.binding.isConstructor();
 	}
-	
+
 	/**
 	 * @see IMethodBinding#isDefaultConstructor()
 	 * @since 3.0
@@ -88,7 +88,7 @@ class MethodBinding implements IMethodBinding {
 			return false;
 		}
 		return (this.binding.modifiers & ExtraCompilerModifiers.AccIsDefaultConstructor) != 0;
-	}	
+	}
 
 	/**
 	 * @see IBinding#getName()
@@ -121,7 +121,7 @@ class MethodBinding implements IMethodBinding {
 			}
 			domInstances[i] = annotationInstance;
 		}
-		return this.annotations = domInstances; 
+		return this.annotations = domInstances;
 	}
 
 	/**
@@ -151,7 +151,7 @@ class MethodBinding implements IMethodBinding {
 			}
 			domInstances[i] = annotationInstance;
 		}
-		return this.parameterAnnotations = domInstances; 
+		return this.parameterAnnotations = domInstances;
 	}
 
 	/**
@@ -226,7 +226,7 @@ class MethodBinding implements IMethodBinding {
 		}
 		return this.exceptionTypes = exTypes;
 	}
-	
+
 	public IJavaElement getJavaElement() {
 		JavaElement element = getUnresolvedJavaElement();
 		if (element == null)
@@ -298,7 +298,7 @@ class MethodBinding implements IMethodBinding {
 			return (JavaElement) candidates[0];
 		}
 	}
-	
+
 	/**
 	 * @see IBinding#getKind()
 	 */
@@ -318,6 +318,13 @@ class MethodBinding implements IMethodBinding {
 	 */
 	public boolean isDeprecated() {
 		return this.binding.isDeprecated();
+	}
+
+	/**
+	 * @see IBinding#isRecovered()
+	 */
+	public boolean isRecovered() {
+		return false;
 	}
 
 	/**
@@ -344,7 +351,7 @@ class MethodBinding implements IMethodBinding {
 		}
 		return this.key;
 	}
-	
+
 	/**
 	 * @see IBinding#isEqualTo(IBinding)
 	 * @since 3.1
@@ -364,7 +371,7 @@ class MethodBinding implements IMethodBinding {
 		org.eclipse.jdt.internal.compiler.lookup.MethodBinding otherBinding = ((MethodBinding) other).binding;
 		return BindingComparator.isEqual(this.binding, otherBinding);
 	}
-	
+
 	/**
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getTypeParameters()
 	 */
@@ -400,7 +407,7 @@ class MethodBinding implements IMethodBinding {
 		TypeVariableBinding[] typeVariableBindings = this.binding.typeVariables();
 		return (typeVariableBindings != null && typeVariableBindings.length > 0);
 	}
-	
+
 	/**
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getTypeArguments()
 	 */
@@ -443,7 +450,7 @@ class MethodBinding implements IMethodBinding {
 		return (this.binding instanceof ParameterizedGenericMethodBinding)
 			&& ((ParameterizedGenericMethodBinding) this.binding).isRaw;
 	}
-	
+
 	public boolean isSubsignature(IMethodBinding otherMethod) {
 		try {
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding other = ((MethodBinding) otherMethod).binding;
@@ -463,21 +470,21 @@ class MethodBinding implements IMethodBinding {
 	public IMethodBinding getMethodDeclaration() {
 		return this.resolver.getMethodBinding(this.binding.original());
 	}
-	
+
 	/**
 	 * @see IMethodBinding#overrides(IMethodBinding)
 	 */
 	public boolean overrides(IMethodBinding overridenMethod) {
 		try {
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding overridenCompilerBinding = ((MethodBinding) overridenMethod).binding;
-			if (this.binding == overridenCompilerBinding) 
+			if (this.binding == overridenCompilerBinding)
 				return false;
 			char[] selector = this.binding.selector;
 			if (!CharOperation.equals(selector, overridenCompilerBinding.selector))
 				return false;
 			TypeBinding match = this.binding.declaringClass.findSuperTypeWithSameErasure(overridenCompilerBinding.declaringClass);
 			if (!(match instanceof ReferenceBinding)) return false;
-			
+
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] superMethods = ((ReferenceBinding)match).getMethods(selector);
 			for (int i = 0, length = superMethods.length; i < length; i++) {
 				if (superMethods[i].original() == overridenCompilerBinding) {
@@ -485,7 +492,7 @@ class MethodBinding implements IMethodBinding {
 					if (lookupEnvironment == null) return false;
 					MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
 					org.eclipse.jdt.internal.compiler.lookup.MethodBinding superMethod = superMethods[i];
-					return !superMethod.isPrivate() 
+					return !superMethod.isPrivate()
 						&& !(superMethod.isDefault() && (superMethod.declaringClass.getPackage()) != this.binding.declaringClass.getPackage())
 						&& methodVerifier.doesMethodOverride(this.binding, superMethod);
 				}

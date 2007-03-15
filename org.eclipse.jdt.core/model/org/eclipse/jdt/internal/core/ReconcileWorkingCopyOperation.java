@@ -48,17 +48,15 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	public int astLevel;
 	public boolean resolveBindings;
 	public HashMap problems;
-	boolean forceProblemDetection;
-	boolean enableStatementsRecovery;
+	public int reconcileFlags;
 	WorkingCopyOwner workingCopyOwner;
 	public org.eclipse.jdt.core.dom.CompilationUnit ast;
 	public JavaElementDeltaBuilder deltaBuilder;
 
-	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, int astLevel, boolean forceProblemDetection, boolean enableStatementsRecovery, WorkingCopyOwner workingCopyOwner) {
+	public ReconcileWorkingCopyOperation(IJavaElement workingCopy, int astLevel, int reconcileFlags, WorkingCopyOwner workingCopyOwner) {
 		super(new IJavaElement[] {workingCopy});
 		this.astLevel = astLevel;
-		this.forceProblemDetection = forceProblemDetection;
-		this.enableStatementsRecovery = enableStatementsRecovery;
+		this.reconcileFlags = reconcileFlags;
 		this.workingCopyOwner = workingCopyOwner;
 	}
 
@@ -88,15 +86,15 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 
 			// notify reconcile participants only if working copy was not consistent or if forcing problem detection
 			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=177319)
-			if (!wasConsistent || this.forceProblemDetection)
-				notifyParticipants(workingCopy);
+			if (!wasConsistent || ((this.reconcileFlags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0))
+			notifyParticipants(workingCopy);
 
 			// recreate ast if needed
 			if (this.ast == null && (this.astLevel > ICompilationUnit.NO_AST || this.resolveBindings))
 				makeConsistent(workingCopy, problemRequestor);
 
 			// report problems
-			if (this.problems != null && (this.forceProblemDetection || !wasConsistent)) {
+			if (this.problems != null && (((this.reconcileFlags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0) || !wasConsistent)) {
 				if (problemRequestor != null) {
 					reportProblems(workingCopy, problemRequestor);
 				}
@@ -163,25 +161,25 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		if (!workingCopy.isConsistent()) {
 			// make working copy consistent
 			if (this.problems == null) this.problems = new HashMap();
-			this.ast = workingCopy.makeConsistent(this.astLevel, this.resolveBindings, this.enableStatementsRecovery, this.problems, this.progressMonitor);
+			this.ast = workingCopy.makeConsistent(this.astLevel, this.resolveBindings, reconcileFlags, this.problems, this.progressMonitor);
 			this.deltaBuilder.buildDeltas();
 			if (this.ast != null && this.deltaBuilder.delta != null)
 				this.deltaBuilder.delta.changedAST(this.ast);
 			return this.ast;
 		}
 		if (this.ast != null) return this.ast; // no need to recompute AST if known already
-		if (this.forceProblemDetection || this.resolveBindings) {
+		if (((this.reconcileFlags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0) || this.resolveBindings) {
 			if (JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject())) {
 				HashMap problemMap;
 				if (this.problems == null) {
 					problemMap = new HashMap();
-					if (this.forceProblemDetection)
+					if ((this.reconcileFlags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0)
 						this.problems = problemMap;
 				} else
 					problemMap = this.problems;
-			    CompilationUnitDeclaration unit = null;
-			    try {
-			    	// find problems
+				CompilationUnitDeclaration unit = null;
+				try {
+					// find problems
 					char[] contents = workingCopy.getContents();
 					unit =
 						CompilationUnitProblemFinder.process(
@@ -190,7 +188,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 							this.workingCopyOwner,
 							problemMap,
 							this.astLevel != ICompilationUnit.NO_AST/*creating AST if level is not NO_AST */,
-							this.enableStatementsRecovery,
+							reconcileFlags,
 							this.progressMonitor);
 					if (this.progressMonitor != null) this.progressMonitor.worked(1);
 
@@ -205,6 +203,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 								options,
 								true/*isResolved*/,
 								workingCopy,
+								reconcileFlags,
 								this.progressMonitor);
 						if (this.ast != null) {
 							this.deltaBuilder.delta = new JavaElementDelta(workingCopy);

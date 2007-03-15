@@ -268,8 +268,55 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery) throws JavaModelException {
 		ASTNode[] nodes = buildASTs(newContents, cu, reportErrors, enableStatementRecovery);
 		if (nodes.length == 0) return null;
-		return nodes[0];		
+		return nodes[0];
 	}	
+
+	protected ASTNode buildAST(String newContents, ICompilationUnit cu, int flags) throws JavaModelException {
+		ASTNode[] nodes = buildASTs(newContents, cu, flags);
+		if (nodes.length == 0) return null;
+		return nodes[0];
+	}
+
+	private ASTNode[] buildASTs(String newContents, ICompilationUnit cu, int flags) throws JavaModelException {
+		MarkerInfo markerInfo;
+		if (newContents == null) {
+			markerInfo = new MarkerInfo(cu.getSource());
+		} else {
+			markerInfo = new MarkerInfo(newContents);
+		}
+		newContents = markerInfo.source;
+
+		CompilationUnit unit;
+		if (cu.isWorkingCopy()) {
+			cu.getBuffer().setContents(newContents);
+			unit = cu.reconcile(AST.JLS3, flags, null, null);
+		} else {
+			IBuffer buffer = cu.getBuffer();
+			buffer.setContents(newContents);
+			buffer.save(null, false);
+			
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setSource(cu);
+			parser.setResolveBindings(true);
+			parser.setStatementsRecovery((flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
+			unit = (CompilationUnit) parser.createAST(null);
+		}
+		
+		if ((flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0) {
+			StringBuffer buffer = new StringBuffer();
+			IProblem[] problems = unit.getProblems();
+			for (int i = 0, length = problems.length; i < length; i++)
+				Util.appendProblem(buffer, problems[i], newContents.toCharArray(), i+1);
+			if (buffer.length() > 0)
+				System.err.println(buffer.toString());
+		}
+
+		ASTNode[] nodes = findNodes(unit, markerInfo);
+		if (nodes.length == 0)
+			return new ASTNode[] {unit};
+		return nodes;
+	}
+
 	protected ASTNode[] buildASTs(String contents, ICompilationUnit cu) throws JavaModelException {
 		return buildASTs(contents, cu, true);
 	}

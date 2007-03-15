@@ -58,7 +58,7 @@ import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 import org.eclipse.jdt.internal.core.util.DOMFinder;
 
 class CompilationUnitResolver extends Compiler {
-	
+
 	/* A list of int */
 	static class IntArrayList {
 		public int[] list = new int[5];
@@ -70,23 +70,23 @@ class CompilationUnitResolver extends Compiler {
 				this.list[this.length++] = i;
 			}
 		}
-		
+
 	/*
 	 * The sources that were requested.
 	 * Map from file name (char[]) to ICompilationUnit.
 	 */
 	HashtableOfObject requestedSources;
-	
+
 	/*
 	 * The binding keys that were requested.
 	 * Map from file name (char[]) to BindingKey (or ArrayList if multiple keys in the same file).
 	 */
 	HashtableOfObject requestedKeys;
-	
+
 	DefaultBindingResolver.BindingTables bindingTables;
-	
+
 	boolean hasCompilationAborted;
-	
+
 	private IProgressMonitor monitor;
 
 	/**
@@ -108,12 +108,12 @@ class CompilationUnitResolver extends Compiler {
 	 *      them all) and at the same time perform some actions such as opening a dialog
 	 *      in UI when compiling interactively.
 	 *      @see org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies
-	 * 
+	 *
 	 *	@param compilerOptions The compiler options to use for the resolution.
-	 *      
+	 *
 	 *  @param requestor org.eclipse.jdt.internal.compiler.api.ICompilerRequestor
 	 *      Component which will receive and persist all compilation results and is intended
-	 *      to consume them as they are produced. Typically, in a batch compiler, it is 
+	 *      to consume them as they are produced. Typically, in a batch compiler, it is
 	 *      responsible for writing out the actual .class files to the file system.
 	 *      @see org.eclipse.jdt.internal.compiler.CompilationResult
 	 *
@@ -136,7 +136,7 @@ class CompilationUnitResolver extends Compiler {
 		this.hasCompilationAborted = false;
 		this.monitor =monitor;
 	}
-	
+
 	/*
 	 * Add additional source types
 	 */
@@ -197,7 +197,7 @@ class CompilationUnitResolver extends Compiler {
 		for (int i = 0; i < keyLength; i++) {
 			BindingKeyResolver resolver = new BindingKeyResolver(bindingKeys[i], this, this.lookupEnvironment);
 			resolver.parse(true/*pause after fully qualified name*/);
-			// If it doesn't have a type name, then it is either an array type, package or base type, which will definitely not have a compilation unit. 
+			// If it doesn't have a type name, then it is either an array type, package or base type, which will definitely not have a compilation unit.
 			// Skipping it will speed up performance because the call will open jars. (theodora)
 			CompilationUnitDeclaration parsedUnit = resolver.hasTypeName() ? resolver.getCompilationUnitDeclaration() : null;
 			if (parsedUnit != null) {
@@ -212,41 +212,43 @@ class CompilationUnitResolver extends Compiler {
 					list.add(existing);
 					list.add(resolver);
 					this.requestedKeys.put(fileName, list);
-				} 
-					
+				}
+
 			} else {
-				char[] key = resolver.hasTypeName() 
+				char[] key = resolver.hasTypeName()
 					? resolver.getKey().toCharArray() // binary binding
 					: CharOperation.concatWith(resolver.compoundName(), '.'); // package binding or base type binding
 				this.requestedKeys.put(key, resolver);
 			}
 			worked(1);
 		}
-		
+
 		// binding resolution
 		lookupEnvironment.completeTypeBindings();
 	}
-	
+
 	IBinding createBinding(String key) {
 		if (this.bindingTables == null)
 			throw new RuntimeException("Cannot be called outside ASTParser#createASTs(...)"); //$NON-NLS-1$
 		BindingKeyResolver keyResolver = new BindingKeyResolver(key, this, this.lookupEnvironment);
 		Binding compilerBinding = keyResolver.getCompilerBinding();
 		if (compilerBinding == null) return null;
-		DefaultBindingResolver resolver = new DefaultBindingResolver(this.lookupEnvironment, null/*no owner*/, this.bindingTables);
+		DefaultBindingResolver resolver = new DefaultBindingResolver(this.lookupEnvironment, null/*no owner*/, this.bindingTables, false);
 		return resolver.getBinding(compilerBinding);
 	}
-	
-	public static CompilationUnit convert(CompilationUnitDeclaration compilationUnitDeclaration, char[] source, int apiLevel, Map options, boolean needToResolveBindings, WorkingCopyOwner owner, DefaultBindingResolver.BindingTables bindingTables, IProgressMonitor monitor) {
+
+	public static CompilationUnit convert(CompilationUnitDeclaration compilationUnitDeclaration, char[] source, int apiLevel, Map options, boolean needToResolveBindings, WorkingCopyOwner owner, DefaultBindingResolver.BindingTables bindingTables, int flags, IProgressMonitor monitor) {
 		BindingResolver resolver = null;
 		AST ast = AST.newAST(apiLevel);
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		CompilationUnit compilationUnit = null;
 		ASTConverter converter = new ASTConverter(options, needToResolveBindings, monitor);
 		if (needToResolveBindings) {
-			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope, owner, bindingTables);
+			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope, owner, bindingTables, (flags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0);
+			ast.setFlag(flags | AST.RESOLVED_BINDINGS);
 		} else {
 			resolver = new BindingResolver();
+			ast.setFlag(flags);
 		}
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
@@ -256,7 +258,7 @@ class CompilationUnitResolver extends Compiler {
 		ast.setOriginalModificationCount(ast.modificationCount());
 		return compilationUnit;
 	}
-	
+
 	protected static CompilerOptions getCompilerOptions(Map options, boolean statementsRecovery) {
 		CompilerOptions compilerOptions = new CompilerOptions(options);
 		compilerOptions.performMethodsFullRecovery = statementsRecovery;
@@ -270,13 +272,13 @@ class CompilationUnitResolver extends Compiler {
 	 */
 	protected static IErrorHandlingPolicy getHandlingPolicy() {
 
-		// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)	
+		// passes the initial set of files to the batch oracle (to avoid finding more than once the same units when case insensitive match)
 		return new IErrorHandlingPolicy() {
 			public boolean stopOnFirstError() {
 				return false;
 			}
 			public boolean proceedOnErrors() {
-				return false; // stop if there are some errors 
+				return false; // stop if there are some errors
 			}
 		};
 	}
@@ -316,7 +318,7 @@ class CompilationUnitResolver extends Compiler {
 			removeUnresolvedBindings(unit);
 		}
 	}
-	
+
 	/*
 	 * Compiler recovery in case of internal AbortCompilation event
 	 */
@@ -328,15 +330,15 @@ class CompilationUnitResolver extends Compiler {
 			removeUnresolvedBindings(unit);
 		}
 		this.hasCompilationAborted = true;
-	}	
-	
-	public static void parse(ICompilationUnit[] compilationUnits, ASTRequestor astRequestor, int apiLevel, Map options, IProgressMonitor monitor) {
+	}
+
+	public static void parse(ICompilationUnit[] compilationUnits, ASTRequestor astRequestor, int apiLevel, Map options, int flags, IProgressMonitor monitor) {
 		try {
 			CompilerOptions compilerOptions = new CompilerOptions(options);
 			Parser parser = new CommentRecorderParser(
 				new ProblemReporter(
-						DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-						compilerOptions, 
+						DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+						compilerOptions,
 						new DefaultProblemFactory()),
 				false);
 			int length = compilationUnits.length;
@@ -345,13 +347,13 @@ class CompilationUnitResolver extends Compiler {
 				org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) compilationUnits[i];
 				CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
 				CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
-				
+
 				if (compilationUnitDeclaration.ignoreMethodBodies) {
 					compilationUnitDeclaration.ignoreFurtherInvestigation = true;
 					// if initial diet parse did not work, no need to dig into method bodies.
-					continue; 
+					continue;
 				}
-				
+
 				//fill the methods bodies in order for the code to be generated
 				//real parse of the method....
 				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
@@ -359,43 +361,48 @@ class CompilationUnitResolver extends Compiler {
 					for (int j = types.length; --j >= 0;)
 						types[j].parseMethod(parser, compilationUnitDeclaration);
 				}
-				
+
 				// convert AST
-				CompilationUnit node = convert(compilationUnitDeclaration, parser.scanner.getSource(), apiLevel, options, false/*don't resolve binding*/, null/*no owner needed*/, null/*no binding table needed*/, monitor);
+				CompilationUnit node = convert(compilationUnitDeclaration, parser.scanner.getSource(), apiLevel, options, false/*don't resolve binding*/, null/*no owner needed*/, null/*no binding table needed*/, flags /* flags */, monitor);
 				node.setTypeRoot(compilationUnits[i]);
-				
+
 				// accept AST
 				astRequestor.acceptAST(compilationUnits[i], node);
-				
+
 				if (monitor != null) monitor.worked(1);
 			}
 		} finally {
 			if (monitor != null) monitor.done();
 		}
 	}
-	
-	public static CompilationUnitDeclaration parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, NodeSearcher nodeSearcher, Map settings, boolean statementsRecovery) {
+
+	public static CompilationUnitDeclaration parse(
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
+			NodeSearcher nodeSearcher,
+			Map settings,
+			int flags) {
 		if (sourceUnit == null) {
 			throw new IllegalStateException();
 		}
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
+		boolean statementsRecovery = (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0;
 		compilerOptions.performMethodsFullRecovery = statementsRecovery;
 		compilerOptions.performStatementsRecovery = statementsRecovery;
 		Parser parser = new CommentRecorderParser(
 			new ProblemReporter(
-					DefaultErrorHandlingPolicies.proceedWithAllProblems(), 
-					compilerOptions, 
+					DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+					compilerOptions,
 					new DefaultProblemFactory()),
 			false);
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
-		
+
 		if (compilationUnitDeclaration.ignoreMethodBodies) {
 			compilationUnitDeclaration.ignoreFurtherInvestigation = true;
 			// if initial diet parse did not work, no need to dig into method bodies.
-			return null; 
+			return null;
 		}
-		
+
 		if (nodeSearcher != null) {
 			char[] source = parser.scanner.getSource();
 			int searchPosition = nodeSearcher.position;
@@ -403,24 +410,24 @@ class CompilationUnitResolver extends Compiler {
 				// the position is out of range. There is no need to search for a node.
 	 			return compilationUnitDeclaration;
 			}
-		
+
 			compilationUnitDeclaration.traverse(nodeSearcher, compilationUnitDeclaration.scope);
-			
+
 			org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
 	 		if (node == null) {
 	 			return compilationUnitDeclaration;
 	 		}
-	 		
+
 	 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
-	 		
+
 			if (node instanceof AbstractMethodDeclaration) {
 				((AbstractMethodDeclaration)node).parseStatements(parser, compilationUnitDeclaration);
 			} else if (enclosingTypeDeclaration != null) {
 				if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(parser, enclosingTypeDeclaration, compilationUnitDeclaration);
-				} else {  					
+				} else {
 					((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(parser, compilationUnitDeclaration);
-				} 				
+				}
 			}
 		} else {
 			//fill the methods bodies in order for the code to be generated
@@ -442,9 +449,9 @@ class CompilationUnitResolver extends Compiler {
 		Map options,
 		IJavaProject javaProject,
 		WorkingCopyOwner owner,
-		boolean statementsRecovery,
+		int flags,
 		IProgressMonitor monitor) {
-	
+
 		CancelableNameEnvironment environment = null;
 		CancelableProblemFactory problemFactory = null;
 		try {
@@ -458,19 +465,19 @@ class CompilationUnitResolver extends Compiler {
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
-					getCompilerOptions(options, statementsRecovery),
+					getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0),
 					getRequestor(),
-					problemFactory, 
+					problemFactory,
 					monitor);
 
-			resolver.resolve(compilationUnits, bindingKeys, requestor, apiLevel, options, owner);
+			resolver.resolve(compilationUnits, bindingKeys, requestor, apiLevel, options, owner, flags);
 			if (NameLookup.VERBOSE) {
 				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
 				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} catch (JavaModelException e) {
 			// project doesn't exist -> simple parse without resolving
-			parse(compilationUnits, requestor, apiLevel, options, monitor);
+			parse(compilationUnits, requestor, apiLevel, options, flags, monitor);
 		} finally {
 			if (monitor != null) monitor.done();
 			if (environment != null) {
@@ -482,14 +489,14 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 	public static CompilationUnitDeclaration resolve(
-		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
-		IJavaProject javaProject,
-		NodeSearcher nodeSearcher,
-		Map options,
-		WorkingCopyOwner owner,
-		boolean statementsRecovery,
-		IProgressMonitor monitor) throws JavaModelException {
-	
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
+			IJavaProject javaProject,
+			NodeSearcher nodeSearcher,
+			Map options,
+			WorkingCopyOwner owner,
+			int flags,
+			IProgressMonitor monitor) throws JavaModelException {
+
 		CompilationUnitDeclaration unit = null;
 		CancelableNameEnvironment environment = null;
 		CancelableProblemFactory problemFactory = null;
@@ -501,12 +508,12 @@ class CompilationUnitResolver extends Compiler {
 				new CompilationUnitResolver(
 					environment,
 					getHandlingPolicy(),
-					getCompilerOptions(options, statementsRecovery),
+					getCompilerOptions(options, (flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0),
 					getRequestor(),
 					problemFactory,
 					monitor);
 
-			unit = 
+			unit =
 				resolver.resolve(
 					null, // no existing compilation unit declaration
 					sourceUnit,
@@ -517,7 +524,7 @@ class CompilationUnitResolver extends Compiler {
 			if (resolver.hasCompilationAborted) {
 				// the bindings could not be resolved due to missing types in name environment
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=86541
-				CompilationUnitDeclaration unitDeclaration = parse(sourceUnit, nodeSearcher, options, statementsRecovery);
+				CompilationUnitDeclaration unitDeclaration = parse(sourceUnit, nodeSearcher, options, flags);
 				final int problemCount = unit.compilationResult.problemCount;
 				if (problemCount != 0) {
 					unitDeclaration.compilationResult.problems = new CategorizedProblem[problemCount];
@@ -529,7 +536,7 @@ class CompilationUnitResolver extends Compiler {
 			if (NameLookup.VERBOSE) {
 				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
 				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
-			}	
+			}
 			return unit;
 		} finally {
 			if (environment != null) {
@@ -542,7 +549,7 @@ class CompilationUnitResolver extends Compiler {
 //			if (resolver != null) {
 //				for (int i = 1; i <  resolver.totalUnits; i++) { // could be more requested units
 //					CompilationUnitDeclaration parsedUnit = resolver.unitsToProcess[i];
-//					if (parsedUnit.scope != null) 
+//					if (parsedUnit.scope != null)
 //						parsedUnit.scope.faultInTypes(); // force resolution of signatures, so clients can query DOM AST
 //					parsedUnit.cleanUp();
 //				}
@@ -555,7 +562,7 @@ class CompilationUnitResolver extends Compiler {
 		Map compilerOptions,
 		IJavaProject javaProject,
 		WorkingCopyOwner owner,
-		boolean statementsRecovery,
+		int flags,
 		IProgressMonitor monitor) {
 
 		final int length = elements.length;
@@ -583,15 +590,15 @@ class CompilationUnitResolver extends Compiler {
 				} catch (JavaModelException e) {
 					throw new IllegalArgumentException(element + " does not exist"); //$NON-NLS-1$
 				}
-			}	
+			}
 		}
 		ICompilationUnit[] cus = new ICompilationUnit[cuNumber];
 		sourceElementPositions.keySet().toArray(cus);
-		
+
 		int bindingKeyNumber = binaryElementPositions.size();
 		String[] bindingKeys = new String[bindingKeyNumber];
 		binaryElementPositions.keysToArray(bindingKeys);
-		
+
 		class Requestor extends ASTRequestor {
 			IBinding[] bindings = new IBinding[length];
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
@@ -615,7 +622,7 @@ class CompilationUnitResolver extends Compiler {
 			}
 		}
 		Requestor requestor = new Requestor();
-		resolve(cus, bindingKeys, requestor, apiLevel, compilerOptions, javaProject, owner, statementsRecovery, monitor);
+		resolve(cus, bindingKeys, requestor, apiLevel, compilerOptions, javaProject, owner, flags, monitor);
 		return requestor.bindings;
 	}
 	/*
@@ -640,7 +647,7 @@ class CompilationUnitResolver extends Compiler {
 		if (type.binding != null && (type.binding.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
 			type.binding = null;
 		}
-		
+
 		final org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = type.fields;
 		if (fields != null) {
 			for (int i = 0, max = fields.length; i < max; i++){
@@ -649,7 +656,7 @@ class CompilationUnitResolver extends Compiler {
 				}
 			}
 		}
-	
+
 		final AbstractMethodDeclaration[] methods = type.methods;
 		if (methods != null) {
 			for (int i = 0, max = methods.length; i < max; i++){
@@ -660,8 +667,8 @@ class CompilationUnitResolver extends Compiler {
 		}
 	}
 
-	private void resolve(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor astRequestor, int apiLevel, Map compilerOptions, WorkingCopyOwner owner) {
-	
+	private void resolve(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor astRequestor, int apiLevel, Map compilerOptions, WorkingCopyOwner owner, int flags) {
+
 		// temporararily connect ourselves to the ASTResolver - must disconnect when done
 		astRequestor.compilationUnitResolver = this;
 		this.bindingTables = new DefaultBindingResolver.BindingTables();
@@ -689,7 +696,7 @@ class CompilationUnitResolver extends Compiler {
 					super.process(unit, i); // this.process(...) is optimized to not process already known units
 
 					// requested AST
-					char[] fileName = unit.compilationResult.getFileName();					
+					char[] fileName = unit.compilationResult.getFileName();
 					ICompilationUnit source = (ICompilationUnit) this.requestedSources.get(fileName);
 					if (source != null) {
 						// convert AST
@@ -697,9 +704,10 @@ class CompilationUnitResolver extends Compiler {
 						org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = compilationResult.compilationUnit;
 						char[] contents = sourceUnit.getContents();
 						AST ast = AST.newAST(apiLevel);
+						ast.setFlag(flags | AST.RESOLVED_BINDINGS);
 						ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 						ASTConverter converter = new ASTConverter(compilerOptions, true/*need to resolve bindings*/, this.monitor);
-						BindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
+						BindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables, (flags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0);
 						ast.setBindingResolver(resolver);
 						converter.setAST(ast);
 						CompilationUnit compilationUnit = converter.convert(unit, contents);
@@ -707,13 +715,13 @@ class CompilationUnitResolver extends Compiler {
 						compilationUnit.setLineEndTable(compilationResult.getLineSeparatorPositions());
 						ast.setDefaultNodeFlag(0);
 						ast.setOriginalModificationCount(ast.modificationCount());
-						
+
 						// pass it to requestor
 						astRequestor.acceptAST(source, compilationUnit);
-						
+
 						worked(1);
-					} 
-					
+					}
+
 					// requested binding
 					Object key = this.requestedKeys.get(fileName);
 					if (key instanceof BindingKeyResolver) {
@@ -726,53 +734,10 @@ class CompilationUnitResolver extends Compiler {
 							worked(1);
 						}
 					}
-					
+
 					// remove at the end so that we don't resolve twice if a source and a key for the same file name have been requested
 					this.requestedSources.removeKey(fileName);
 					this.requestedKeys.removeKey(fileName);
-						
-/*	Code used to fault in types and resolve which is no longer necessary as all questions asked to forward references are
- * lazily resolved.
- * Code used to be:
-					if (this.requestedKeys.containsKey(fileName) || this.requestedSources.containsKey(fileName)) {
-					   ...
-					} else {
-
-						if (unit.scope != null)
-							unit.scope.faultInTypes();// still force resolution of signatures, so clients can query DOM AST
-				
-						// the following ensures that all type, method and field bindings are correctly initialized
-						// as they may be needed by further units
-						// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=111822)
-						unit.resolve();
-						
-						// note that if this has a performance penalty on clients, the above code should be removed
-						// the following patch would workaround bug 111822:
-
-Index: FieldReference.java
-===================================================================
-RCS file: /cvsroot/eclipse/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/ast/FieldReference.java,v
-retrieving revision 1.87
-diff -u -r1.87 FieldReference.java
---- FieldReference.java	24 Sep 2005 15:23:46 -0000	1.87
-+++ FieldReference.java	7 Oct 2005 13:46:12 -0000
-@@ -407,7 +407,14 @@
- 
- 		FieldBinding originalField = binding.original();
- 		SourceTypeBinding sourceType = (SourceTypeBinding) originalField.declaringClass;
--		TypeDeclaration typeDecl = sourceType.scope.referenceContext;
-+		ClassScope classScope = sourceType.scope;
-+		if (classScope == null) {
-+			// Non compiler clients may not have resolved enough of the unit when processing it, and
-+			// scopes got cleaned. Assuming these clients thus do not care about constant info, will simply
-+			// pretend it is not a constant.
-+			return NotAConstant;
-+		}
-+		TypeDeclaration typeDecl = classScope.referenceContext;
- 		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
- 
- 		fieldDecl.resolve(originalField.isStatic() //side effect on binding 
-*/					
 				} finally {
 					// cleanup compilation unit result
 					unit.cleanUp();
@@ -780,9 +745,9 @@ diff -u -r1.87 FieldReference.java
 				this.unitsToProcess[i] = null; // release reference to processed unit declaration
 				this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 			}
-			
+
 			// remaining binding keys
-			DefaultBindingResolver resolver = new DefaultBindingResolver(this.lookupEnvironment, owner, this.bindingTables);
+			DefaultBindingResolver resolver = new DefaultBindingResolver(this.lookupEnvironment, owner, this.bindingTables, (flags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0);
 			Object[] keys = this.requestedKeys.valueTable;
 			for (int j = 0, keysLength = keys.length; j < keysLength; j++) {
 				BindingKeyResolver keyResolver = (BindingKeyResolver) keys[j];
@@ -805,7 +770,7 @@ diff -u -r1.87 FieldReference.java
 			throw e; // rethrow
 		} finally {
 			// disconnect ourselves from ast requestor
-            astRequestor.compilationUnitResolver = null;
+			astRequestor.compilationUnitResolver = null;
 		}
 	}
 
@@ -813,13 +778,13 @@ diff -u -r1.87 FieldReference.java
 		BindingKeyResolver keyResolver = (BindingKeyResolver) key;
 		Binding compilerBinding = keyResolver.getCompilerBinding();
 		if (compilerBinding != null) {
-			DefaultBindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables);
+			DefaultBindingResolver resolver = new DefaultBindingResolver(unit.scope, owner, this.bindingTables, false);
 			IBinding binding = resolver.getBinding(compilerBinding);
 			if (binding != null)
 				astRequestor.acceptBinding(keyResolver.getKey(), binding);
 		}
 	}
-	
+
 	private CompilationUnitDeclaration resolve(
 			CompilationUnitDeclaration unit,
 			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
@@ -852,11 +817,11 @@ diff -u -r1.87 FieldReference.java
 				int length = source.length;
 				if (searchPosition >= 0 && searchPosition <= length) {
 					unit.traverse(nodeSearcher, unit.scope);
-					
+
 					org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodeSearcher.found;
-					
+
 					this.parser.scanner.setSource(source, unit.compilationResult);
-					
+
 		 			if (node != null) {
 						org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enclosingTypeDeclaration = nodeSearcher.enclosingType;
 		  				if (node instanceof AbstractMethodDeclaration) {
@@ -864,14 +829,14 @@ diff -u -r1.87 FieldReference.java
 		 				} else if (enclosingTypeDeclaration != null) {
 							if (node instanceof org.eclipse.jdt.internal.compiler.ast.Initializer) {
 			 					((org.eclipse.jdt.internal.compiler.ast.Initializer) node).parseStatements(this.parser, enclosingTypeDeclaration, unit);
-		 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {  					
+		 					} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 								((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)node).parseMethod(this.parser, unit);
-							} 				
+							}
 		 				}
 		 			}
 				}
 			}
-			
+
 			if (unit.scope != null) {
 				// fault in fields & methods
 				unit.scope.faultInTypes();
@@ -881,11 +846,11 @@ diff -u -r1.87 FieldReference.java
 					unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
 				}
 				// type checking
-				unit.resolve();		
+				unit.resolve();
 
 				// flow analysis
 				if (analyzeCode) unit.analyseCode();
-		
+
 				// code generation
 				if (generateCode) unit.generateCode();
 			}
@@ -915,15 +880,15 @@ diff -u -r1.87 FieldReference.java
 	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
 	 */
 	public CompilationUnitDeclaration resolve(
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 			boolean verifyMethods,
 			boolean analyzeCode,
 			boolean generateCode) {
-				
+
 		return resolve(
 			null, /* no existing compilation unit declaration*/
 			sourceUnit,
-			null/*no node searcher*/, 
+			null/*no node searcher*/,
 			verifyMethods,
 			analyzeCode,
 			generateCode);
@@ -933,21 +898,21 @@ diff -u -r1.87 FieldReference.java
 	 * Internal API used to resolve a given compilation unit. Can run a subset of the compilation process
 	 */
 	public CompilationUnitDeclaration resolve(
-			CompilationUnitDeclaration unit, 
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit, 
+			CompilationUnitDeclaration unit,
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 			boolean verifyMethods,
 			boolean analyzeCode,
 			boolean generateCode) {
-		
+
 		return resolve(
-			unit, 
-			sourceUnit, 
-			null/*no node searcher*/, 
-			verifyMethods, 
-			analyzeCode, 
+			unit,
+			sourceUnit,
+			null/*no node searcher*/,
+			verifyMethods,
+			analyzeCode,
 			generateCode);
 	}
-	
+
 	private void worked(int work) {
 		if (this.monitor != null) {
 			if (this.monitor.isCanceled())

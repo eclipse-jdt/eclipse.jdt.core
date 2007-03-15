@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 public class ASTHolderCUInfo extends CompilationUnitElementInfo {
 	int astLevel;
 	boolean resolveBindings;
-	boolean statementsRecovery;
+	int reconcileFlags;
 	HashMap problems = null;
 	CompilationUnit ast;
 }

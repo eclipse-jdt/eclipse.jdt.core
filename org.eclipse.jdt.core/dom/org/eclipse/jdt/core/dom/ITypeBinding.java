@@ -49,17 +49,18 @@ public interface ITypeBinding extends IBinding {
 
 
 	/**
-	 * Answer an array type binding using the receiver and the given
-	 * dimension.
+	 * Answer an array type binding using the receiver and the given dimension.
 	 *
 	 * <p>If the receiver is an array binding, then the resulting dimension is the given dimension
 	 * plus the dimension of the receiver. Otherwise the resulting dimension is the given
 	 * dimension.</p>
+	 * <p>It cannot be called on a recovered binding.</p>
 	 *
 	 * @param dimension the given dimension
 	 * @return an array type binding
 	 * @throws IllegalArgumentException:<ul>
 	 * <li>if the receiver represents the void type</li>
+	 * <li>if the receiver represents a recovered binding</li>
 	 * <li>if the resulting dimensions is lower than one or greater than 255</li>
 	 * </ul>
 	 * @since 3.3
@@ -186,7 +187,7 @@ public interface ITypeBinding extends IBinding {
 	 * declared.
 	 * </p>
 	 * <p>Array types, primitive types, the null type, top-level types,
-	 * wildcard types have no declaring class.
+	 * wildcard types, recovered binding have no declaring class.
 	 * </p>
 	 *
 	 * @return the binding of the type that declares this type, or
@@ -209,7 +210,8 @@ public interface ITypeBinding extends IBinding {
 	 * returns <code>null</code> otherwise.
 	 * </p>
 	 * <p>Array types, primitive types, the null type, top-level types,
-	 * wildcard types, and capture bindings have no declaring method.
+	 * wildcard types, capture bindings, and recovered binding have no
+	 * declaring method.
 	 * </p>
 	 *
 	 * @return the binding of the method that declares this type, or
@@ -367,7 +369,7 @@ public interface ITypeBinding extends IBinding {
 	 * @return the binding for the package in which this class, interface,
 	 * enum, or annotation type is declared, or <code>null</code> if this type
 	 * binding represents a primitive type, an array type, the null type,
-	 * a type variable, a wildcard type, or a capture binding.
+	 * a type variable, a wildcard type, a capture binding, or a recovered binding.
 	 */
 	public IPackageBinding getPackage();
 
@@ -452,8 +454,8 @@ public interface ITypeBinding extends IBinding {
 	 * <p>
 	 * If this type binding represents an interface, an array type, a
 	 * primitive type, the null type, a type variable, an enum type,
-	 * an annotation type, a wildcard type, or a capture binding,
-     * then <code>null</code> is returned.
+	 * an annotation type, a wildcard type, a capture binding, or a
+	 * recovered binding then <code>null</code> is returned.
 	 * </p>
 	 *
 	 * @return the superclass of the class represented by this type binding,
@@ -591,6 +593,8 @@ public interface ITypeBinding extends IBinding {
 	 * of the given type, as specified in section 5.2 of <em>The Java Language
 	 * Specification, Third Edition</em> (JLS3).
 	 *
+	 * <p>If the receiver or the argument is a recovered type, the answer is always false.</p>
+	 *
 	 * @param variableType the type of a variable to check compatibility against
 	 * @return <code>true</code> if an expression of this type can be assigned to a
 	 *   variable of the given type, and <code>false</code> otherwise
@@ -636,6 +640,9 @@ public interface ITypeBinding extends IBinding {
 	 * When testing whether type B can be cast to type A, one would use:
 	 * <code>A.isCastCompatible(B)</code>
 	 * </p>
+	 *
+	 * <p>If the receiver or the argument is a recovered type, the answer is always false.</p>
+	 *
 	 * @param type the type to check compatibility against
 	 * @return <code>true</code> if this type is cast compatible with the
 	 * given type, and <code>false</code> otherwise
@@ -836,6 +843,8 @@ public interface ITypeBinding extends IBinding {
 	 * Returns whether this type is subtype compatible with the given type,
 	 * as specified in section 4.10 of <em>The Java Language
 	 * Specification, Third Edition</em> (JLS3).
+	 *
+	 * <p>If the receiver or the argument is a recovered type, the answer is always false.</p>
 	 *
 	 * @param type the type to check compatibility against
 	 * @return <code>true</code> if this type is subtype compatible with the

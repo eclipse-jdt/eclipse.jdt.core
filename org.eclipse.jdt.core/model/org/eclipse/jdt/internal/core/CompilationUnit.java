@@ -110,18 +110,18 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 
 	boolean createAST;
 	boolean resolveBindings;
-	boolean statementsRecovery;
+	int reconcileFlags;
 	HashMap problems;
 	if (info instanceof ASTHolderCUInfo) {
 		ASTHolderCUInfo astHolder = (ASTHolderCUInfo) info;
 		createAST = astHolder.astLevel != NO_AST;
 		resolveBindings = astHolder.resolveBindings;
-		statementsRecovery = astHolder.statementsRecovery;
+		reconcileFlags = astHolder.reconcileFlags;
 		problems = astHolder.problems;
 	} else {
 		createAST = false;
 		resolveBindings = false;
-		statementsRecovery = false;
+		reconcileFlags = 0;
 		problems = null;
 	}
 	
@@ -140,7 +140,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		!createAST /*optimize string literals only if not creating a DOM AST*/);
 	parser.reportOnlyOneSyntaxError = !computeProblems;
 	parser.setMethodsFullRecovery(true);
-	parser.setStatementsRecovery(statementsRecovery);
+	parser.setStatementsRecovery((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 	
 	if (!computeProblems && !resolveBindings && !createAST) // disable javadoc parsing if not computing problems, not resolving and not creating ast
 		parser.javadocParser.checkDocComment = false;
@@ -177,7 +177,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			if (problems == null) {
 				// report problems to the problem requestor
 				problems = new HashMap();
-				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, true, pm);
+				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, reconcileFlags, pm);
 				try {
 					perWorkingCopyInfo.beginReporting();
 					for (Iterator iteraror = problems.values().iterator(); iteraror.hasNext();) {
@@ -192,13 +192,13 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 				}
 			} else {
 				// collect problems
-				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, true, pm);
+				compilationUnitDeclaration = CompilationUnitProblemFinder.process(unit, this, contents, parser, this.owner, problems, createAST, reconcileFlags, pm);
 			}
 		}
 		
 		if (createAST) {
 			int astLevel = ((ASTHolderCUInfo) info).astLevel;
-			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(astLevel, unit, contents, options, computeProblems, this, pm);
+			org.eclipse.jdt.core.dom.CompilationUnit cu = AST.convertCompilationUnit(astLevel, unit, contents, options, computeProblems, this, reconcileFlags, pm);
 			((ASTHolderCUInfo) info).ast = cu;
 		}
 	} finally {
@@ -1004,9 +1004,9 @@ public boolean isWorkingCopy() {
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
-	makeConsistent(NO_AST, false/*don't resolve bindings*/, false /* don't perform statements recovery */, null/*don't collect problems but report them*/, monitor);
+	makeConsistent(NO_AST, false/*don't resolve bindings*/, 0 /* don't perform statements recovery */, null/*don't collect problems but report them*/, monitor);
 }
-public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boolean resolveBindings, boolean statementsRecovery, HashMap problems, IProgressMonitor monitor) throws JavaModelException {
+public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boolean resolveBindings, int reconcileFlags, HashMap problems, IProgressMonitor monitor) throws JavaModelException {
 	if (isConsistent()) return null;
 		
 	// create a new info and make it the current info
@@ -1015,7 +1015,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boo
 		ASTHolderCUInfo info = new ASTHolderCUInfo();
 		info.astLevel = astLevel;
 		info.resolveBindings = resolveBindings;
-		info.statementsRecovery = statementsRecovery;
+		info.reconcileFlags = reconcileFlags;
 		info.problems = problems;
 		openWhenClosed(info, monitor);
 		org.eclipse.jdt.core.dom.CompilationUnit result = info.ast;
@@ -1115,7 +1115,7 @@ public IMarker[] reconcile() throws JavaModelException {
  * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
  */
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
-	reconcile(NO_AST, forceProblemDetection, false, null/*use primary owner*/, monitor);
+	reconcile(NO_AST, forceProblemDetection? ICompilationUnit.FORCE_PROBLEM_DETECTION : 0, null/*use primary owner*/, monitor);
 }
 
 /**
@@ -1123,12 +1123,11 @@ public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) t
  * @since 3.0
  */
 public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
-	int astLevel,
-	boolean forceProblemDetection,
-	WorkingCopyOwner workingCopyOwner,
-	IProgressMonitor monitor)
-	throws JavaModelException {
-	return reconcile(astLevel, forceProblemDetection, false, workingCopyOwner, monitor);
+		int astLevel,
+		boolean forceProblemDetection,
+		WorkingCopyOwner workingCopyOwner,
+		IProgressMonitor monitor) throws JavaModelException {
+	return reconcile(astLevel, forceProblemDetection? ICompilationUnit.FORCE_PROBLEM_DETECTION : 0, workingCopyOwner, monitor);
 }
 
 /**
@@ -1136,12 +1135,23 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
  * @since 3.0
  */
 public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
-	int astLevel,
-	boolean forceProblemDetection,
-	boolean enableStatementsRecovery,
-	WorkingCopyOwner workingCopyOwner,
-	IProgressMonitor monitor)
-	throws JavaModelException {
+		int astLevel,
+		boolean forceProblemDetection,
+		boolean enableStatementsRecovery,
+		WorkingCopyOwner workingCopyOwner,
+		IProgressMonitor monitor) throws JavaModelException {
+	int flags = 0;
+	if (forceProblemDetection) flags |= ICompilationUnit.FORCE_PROBLEM_DETECTION;
+	if (enableStatementsRecovery) flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+	return reconcile(astLevel, flags, workingCopyOwner, monitor);
+}
+
+public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
+		int astLevel,
+		int reconcileFlags,
+		WorkingCopyOwner workingCopyOwner,
+		IProgressMonitor monitor)
+		throws JavaModelException {
 	
 	if (!isWorkingCopy()) return null; // Reconciling is not supported on non working copies
 	if (workingCopyOwner == null) workingCopyOwner = DefaultWorkingCopyOwner.PRIMARY;
@@ -1152,7 +1162,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 		stats = PerformanceStats.getStats(JavaModelManager.RECONCILE_PERF, this);
 		stats.startRun(new String(this.getFileName()));
 	}
-	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, astLevel, forceProblemDetection, enableStatementsRecovery,workingCopyOwner);
+	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, astLevel, reconcileFlags, workingCopyOwner);
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	try {
 		manager.cacheZipFiles(); // cache zip files for performance (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=134172)

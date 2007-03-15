@@ -29,7 +29,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	/** @deprecated Using deprecated code */
 	public static final int AST_INTERNAL_JLS2 = AST.JLS2;
-	
+
 	protected AST ast;
 	static List TEST_SUITES = null;
 	static boolean PROJECT_SETUP = false;
@@ -73,9 +73,9 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 				this.deleteProject("Converter15"); //$NON-NLS-1$
 			}
 		}
-		
+
 		super.tearDown();
-	}	
+	}
 
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		if ("1.5".equals(compliance)) {
@@ -85,7 +85,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 					new String[] {"CONVERTER_JCL15_LIB", "CONVERTER_JCL15_SRC", "CONVERTER_JCL15_SRCROOT"},
 					new IPath[] {getConverterJCLPath(compliance), getConverterJCLSourcePath(compliance), getConverterJCLRootSourcePath()},
 					null);
-			} 
+			}
 		} else {
 			if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) {
 				setupExternalJCL("converterJclMin");
@@ -93,10 +93,10 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 					new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"},
 					new IPath[] {getConverterJCLPath(), getConverterJCLSourcePath(), getConverterJCLRootSourcePath()},
 					null);
-			} 
-		}	
+			}
+		}
 	}
-	
+
 	/**
 	 * Create project and set the jar placeholder.
 	 */
@@ -122,7 +122,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
 		return runConversion(AST_INTERNAL_JLS2, classFile, position, resolveBindings);
 	}
-	
+
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
 		return runConversion(AST_INTERNAL_JLS2, source, unitName, project);
 	}
@@ -130,16 +130,26 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, boolean resolveBindings) {
 		return runConversion(AST_INTERNAL_JLS2, source, unitName, project, resolveBindings);
 	}
-	
+
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings) {
 		return runConversion(astLevel, unit, resolveBindings, false);
 	}
-	
+
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings, boolean statementsRecovery) {
+		return runConversion(astLevel, unit, resolveBindings, statementsRecovery, false);
+	}
+
+	public ASTNode runConversion(
+			int astLevel,
+			ICompilationUnit unit,
+			boolean resolveBindings,
+			boolean statementsRecovery,
+			boolean bindingsRecovery) {
 		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setStatementsRecovery(statementsRecovery);
+		parser.setBindingsRecovery(bindingsRecovery);
 		return parser.createAST(null);
 	}
 
@@ -401,14 +411,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			parser.setResolveBindings(resolveBindings);
 			parser.createAST(null);
 		}
-		
+
 		parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
-		
+
 		// Parse compilation unit
 		ASTNode result = parser.createAST(null);
-		
+
 		// Verify we get a compilation unit node and that binding are correct
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -417,7 +427,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		}
 		return result;
 	}
-	
+
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, int position, boolean resolveBindings) {
 
 		// Create parser
@@ -428,7 +438,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 
 		// Parse compilation unit
 		ASTNode result = parser.createAST(null);
-		
+
 		// Verify we get a compilation unit node and that binding are correct
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -448,7 +458,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 
 		// Parse compilation unit
 		ASTNode result = parser.createAST(null);
-		
+
 		// Verify we get a compilation unit node and that binding are correct
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -457,11 +467,11 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		}
 		return result;
 	}
-	
+
 	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project) {
 		return runConversion(astLevel, source, unitName, project, false);
 	}
-	
+
 	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project, boolean resolveBindings) {
 		return runConversion(astLevel, source, unitName, project, null, resolveBindings);
 	}
@@ -477,17 +487,17 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		parser.setResolveBindings(resolveBindings);
 		return parser.createAST(null);
 	}
-	
+
 	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project, Map options) {
 		return runConversion(astLevel, source, unitName, project, options, false);
 	}
-	
+
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options, boolean resolveBindings) {
 		return runConversion(AST_INTERNAL_JLS2, source, unitName, project, options, resolveBindings);
 	}
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
 		return runConversion(AST_INTERNAL_JLS2, source, unitName, project, options);
-	}	
+	}
 
 	protected ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
@@ -518,7 +528,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	protected ASTNode getASTNode(org.eclipse.jdt.core.dom.CompilationUnit unit, int typeIndex) {
 		return (ASTNode) unit.types().get(typeIndex);
 	}
-		
+
 	protected void checkSourceRange(ASTNode node, String expectedContents, String source) {
 		assertNotNull("The node is null", node); //$NON-NLS-1$
 		assertTrue("The node(" + node.getClass() + ").getLength() == 0", node.getLength() != 0); //$NON-NLS-1$ //$NON-NLS-2$
@@ -540,11 +550,11 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		String actualContentsString = new String(actualContents);
 		assertSourceEquals("Unexpected source", Util.convertToIndependantLineDelimiter(expectedContents), Util.convertToIndependantLineDelimiter(actualContentsString));
 	}
-		
+
 	protected boolean isMalformed(ASTNode node) {
 		return (node.getFlags() & ASTNode.MALFORMED) != 0;
 	}
-	
+
 	protected boolean isRecovered(ASTNode node) {
 		return (node.getFlags() & ASTNode.RECOVERED) != 0;
 	}
@@ -552,7 +562,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	protected boolean isOriginal(ASTNode node) {
 		return (node.getFlags() & ASTNode.ORIGINAL) != 0;
 	}
-	
+
 	protected void assertProblemsSize(CompilationUnit compilationUnit, int expectedSize) {
 		assertProblemsSize(compilationUnit, expectedSize, "");
 	}

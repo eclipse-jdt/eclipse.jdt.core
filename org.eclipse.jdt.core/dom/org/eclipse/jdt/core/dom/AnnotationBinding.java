@@ -128,7 +128,15 @@ class AnnotationBinding implements IAnnotationBinding {
 		}
 		return true;
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.IBinding#isRecovered()
+	 */
+	public boolean isRecovered() {
+		return false;
+	}
+
 	public boolean isSynthetic() {
 		return false;
 	}

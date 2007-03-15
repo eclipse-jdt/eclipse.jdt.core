@@ -171,6 +171,13 @@ class PackageBinding implements IPackageBinding {
 	}
 
 	/**
+	 * @see IBinding#isRecovered()
+	 */
+	public boolean isRecovered() {
+		return false;
+	}
+
+	/**
 	 * @see IBinding#isSynthetic()
 	 */
 	public boolean isSynthetic() {

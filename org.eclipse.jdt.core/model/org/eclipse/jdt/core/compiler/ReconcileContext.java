@@ -93,6 +93,8 @@ public org.eclipse.jdt.core.dom.CompilationUnit getAST3() throws JavaModelExcept
 		parser.setCompilerOptions(workingCopy.getJavaProject().getOptions(true));
 		if (JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject()))
 			parser.setResolveBindings(true);
+		parser.setStatementsRecovery((this.operation.reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
+		parser.setBindingsRecovery((this.operation.reconcileFlags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0);
 		parser.setSource(workingCopy);
 		return (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(this.operation.progressMonitor);		
 	}

@@ -47,8 +47,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 249, 250 };
-//		TESTS_RANGE = new int[] { 240, -1 };
+//		TESTS_NUMBERS = new int[] { 253, 254 };
+//		TESTS_RANGE = new int[] { 253, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -8068,5 +8068,130 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a super method invocation", ASTNode.SUPER_METHOD_INVOCATION, expression.getNodeType());
 		methodInvocation = (SuperMethodInvocation) expression;
 		assertFalse("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=149567
+	 */
+	public void test0253() throws JavaModelException {
+		String contents =
+			"public class X {\n" +
+			"	protected Object foo() {\n" +
+			"		List<String> c = null;\n" +
+			"		return c;\n" +
+			"	}\n" +
+			"}";
+		workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedError = "List cannot be resolved to a type";
+		assertProblemsSize(unit, 1, expectedError);
+		assertTrue("No binding recovery", unit.getAST().hasBindingsRecovery());
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("No fragments", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertTrue("Not a recovered binding", variableBinding.isRecovered());
+		ITypeBinding typeBinding = variableBinding.getType();
+		assertNotNull("No binding", typeBinding);
+		assertTrue("Not a recovered binding", typeBinding.isRecovered());
+		assertEquals("Wrong name", "List<String>", typeBinding.getName());
+		assertEquals("Wrong dimension", 0, typeBinding.getDimensions());
+	}
+
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=149567
+	 */
+	public void test0254() throws JavaModelException {
+		String contents =
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	protected Object foo() {\n" +
+			"		List<String> c = null;\n" +
+			"		return c;\n" +
+			"	}\n" +
+			"}";
+		workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		assertTrue("No binding recovery", unit.getAST().hasBindingsRecovery());
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("No fragments", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding variableBinding = fragment.resolveBinding();
+		assertNotNull("No binding", variableBinding);
+		assertFalse("A recovered binding", variableBinding.isRecovered());
+		ITypeBinding typeBinding = variableBinding.getType();
+		assertNotNull("No binding", typeBinding);
+		assertFalse("A recovered binding", typeBinding.isRecovered());
+		assertEquals("Wrong name", "List<String>", typeBinding.getName());
+		assertEquals("Wrong dimension", 0, typeBinding.getDimensions());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=130001
+	 */
+	public void test0255() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				ICompilationUnit.FORCE_PROBLEM_DETECTION | ICompilationUnit.ENABLE_BINDINGS_RECOVERY | ICompilationUnit.ENABLE_STATEMENTS_RECOVERY);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertTrue("No statement recovery", unit.getAST().hasStatementsRecovery());
+		assertTrue("No binding recovery", unit.getAST().hasBindingsRecovery());
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=130001
+	 */
+	public void test0256() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				ICompilationUnit.ENABLE_STATEMENTS_RECOVERY);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertTrue("No statement recovery", unit.getAST().hasStatementsRecovery());
+		assertFalse("Has binding recovery", unit.getAST().hasBindingsRecovery());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=130001
+	 */
+	public void test0257() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				0);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertFalse("Has statement recovery", unit.getAST().hasStatementsRecovery());
+		assertFalse("Has binding recovery", unit.getAST().hasBindingsRecovery());
 	}
 }

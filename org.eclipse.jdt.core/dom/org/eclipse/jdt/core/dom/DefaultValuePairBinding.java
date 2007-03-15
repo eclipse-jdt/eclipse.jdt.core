@@ -43,13 +43,13 @@ class DefaultValuePairBinding implements IMemberValuePairBinding {
 			buffer.append(value);
 		}
 	}
-	
+
 	DefaultValuePairBinding(org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding, BindingResolver resolver) {
 		this.method = binding;
 		this.domValue = MemberValuePairBinding.buildDOMValue(binding.getDefaultValue(), resolver);
 		this.bindingResolver = resolver;
 	}
-	
+
 	public IAnnotationBinding[] getAnnotations() {
 		return AnnotationBinding.NoAnnotations;
 	}
@@ -57,7 +57,7 @@ class DefaultValuePairBinding implements IMemberValuePairBinding {
 	public IJavaElement getJavaElement() {
 		return null;
 	}
-	
+
 	public String getKey() {
 		// TODO when implementing, update spec in IBinding
 		return null;
@@ -70,7 +70,7 @@ class DefaultValuePairBinding implements IMemberValuePairBinding {
 	public IMethodBinding getMethodBinding() {
 		return this.bindingResolver.getMethodBinding(this.method);
 	}
-	
+
 	public int getModifiers() {
 		return -1;
 	}
@@ -78,19 +78,19 @@ class DefaultValuePairBinding implements IMemberValuePairBinding {
 	public String getName() {
 		return new String(this.method.selector);
 	}
-	
+
 	public Object getValue() {
 		return this.domValue;
 	}
-	
+
 	public boolean isDefault() {
 		return true;
 	}
-	
+
 	public boolean isDeprecated() {
 		return false;
 	}
-	
+
 	public boolean isEqualTo(IBinding binding) {
 		if (this == binding)
 			return true;
@@ -105,6 +105,14 @@ class DefaultValuePairBinding implements IMemberValuePairBinding {
 		return value.equals(other.getValue());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.IBinding#isRecovered()
+	 */
+	public boolean isRecovered() {
+		return false;
+	}
+
 	public boolean isSynthetic() {
 		return false;
 	}
@@ -114,10 +122,10 @@ class DefaultValuePairBinding implements IMemberValuePairBinding {
 		toString(buffer);
 		return buffer.toString();
 	}
-	
+
 	public void toString(StringBuffer buffer) {
 		buffer.append(getName());
-		buffer.append(" = "); //$NON-NLS-1$		
+		buffer.append(" = "); //$NON-NLS-1$
 		appendValue(getValue(), buffer);
 	}
 }
