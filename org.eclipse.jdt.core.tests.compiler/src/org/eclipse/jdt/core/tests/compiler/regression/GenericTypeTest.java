@@ -36736,4 +36736,53 @@ public void test1108() {
 		},
 		"");		
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176591
+// ?: cuts assignment context
+public void test1109() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  public Y<String> foo()\n" + 
+			"  {\n" + 
+			"    return true ? Z.bar() : null;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"}\n" + 
+			"class Z {\n" + 
+			"  static <U> Y<U> bar() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	return true ? Z.bar() : null;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Y<Object> to Y<String>\n" + 
+		"----------\n");		
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176591
+// variant
+public void test1110() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"  public Y<String> foo()\n" + 
+			"  {\n" + 
+			"    return true ? Z.<String>bar() : null;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"}\n" + 
+			"class Z {\n" + 
+			"  static <U> Y<U> bar() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");		
+}
 }
