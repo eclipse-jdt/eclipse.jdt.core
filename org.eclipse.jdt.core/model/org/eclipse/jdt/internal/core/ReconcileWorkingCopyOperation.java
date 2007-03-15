@@ -86,8 +86,10 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			// make working copy consistent if needed and compute AST if needed
 			makeConsistent(workingCopy, problemRequestor);
 
-			// notify reconcile participants
-			notifyParticipants(workingCopy);
+			// notify reconcile participants only if working copy was not consistent or if forcing problem detection
+			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=177319)
+			if (!wasConsistent || this.forceProblemDetection)
+				notifyParticipants(workingCopy);
 
 			// recreate ast if needed
 			if (this.ast == null && (this.astLevel > ICompilationUnit.NO_AST || this.resolveBindings))

@@ -2357,7 +2357,7 @@ public void testReconcileParticipant03() throws CoreException {
 	);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertASTNodeEquals(
-		"Unexpected participant delta",
+		"Unexpected participant ast",
 		"package p1;\n" +
 		"import p2.*;\n" +
 		"public class X {\n" +
@@ -2383,7 +2383,7 @@ public void testReconcileParticipant04() throws CoreException {
 	);
 	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, false, null, null);
 	assertSame(
-		"Unexpected participant delta",
+		"Unexpected participant ast",
 		participant.ast,
 		ast
 	);
@@ -2521,6 +2521,40 @@ public void testReconcileParticipant08() throws CoreException {
 		""
 	);
 }
+/*
+ * Ensures that a reconcile participant is not notified when a working copy is reconciled 
+ * and it was consistent and forcing problem detection is off
+ * (regression test for 177319 Annotation Processing (APT) affects eclipse speed)
+ */
+public void testReconcileParticipant09() throws CoreException {
+	this.workingCopy.makeConsistent(null);
+	new ReconcileParticipant() {
+		public void reconcile(ReconcileContext context) {
+			assertTrue("Participant should not be notified of a reconcile", false);
+		}
+	};
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false/*don't force problem detection*/, null, null);
+}
+
+/*
+ * Ensures that a reconcile participant is notified when a working copy is reconciled 
+ * and it was consistent and forcing problem detection is on
+ */
+public void testReconcileParticipant10() throws CoreException {
+	this.workingCopy.makeConsistent(null);
+	final boolean[] participantReconciled = new boolean[1];
+	new ReconcileParticipant() {
+		public void reconcile(ReconcileContext context) {
+			participantReconciled[0] = true;
+		}
+	};
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
+	assertTrue(
+		"Participant should have been notified",
+		participantReconciled[0]
+	);
+}
+
 /**
  * Ensures that the reconciler reconciles the new contents with the current
  * contents, updating the structure of this reconciler's compilation
