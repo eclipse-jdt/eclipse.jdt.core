@@ -84,7 +84,7 @@ public class Scribe {
 		this.indentationLevel= 0; // initialize properly
 		this.numberOfIndentations = 0;
 		this.useTabsOnlyForLeadingIndents = formatter.preferences.use_tabs_only_for_leading_indentations;
-        this.indentEmptyLines = formatter.preferences.indent_empty_lines;
+		this.indentEmptyLines = formatter.preferences.indent_empty_lines;
 		this.tabChar = formatter.preferences.tab_char;
 		if (this.tabChar == DefaultCodeFormatterOptions.MIXED) {
 			this.indentationSize = formatter.preferences.indentation_size;
@@ -409,7 +409,7 @@ public class Scribe {
 		if (lastNumberOfNewLines == 0) {
 			linesNumber++; // add an extra line breaks
 			for (int i = 0; i < linesNumber; i++) {
-                if (indentEmptyLines) printIndentationIfNecessary(buffer);
+				if (indentEmptyLines) printIndentationIfNecessary(buffer);
 				buffer.append(this.lineSeparator);
 			}
 			lastNumberOfNewLines += linesNumber;
@@ -419,7 +419,7 @@ public class Scribe {
 			this.pendingSpace = false;
 		} else if (lastNumberOfNewLines == 1) {
 			for (int i = 0; i < linesNumber; i++) {
-                if (indentEmptyLines) printIndentationIfNecessary(buffer);
+				if (indentEmptyLines) printIndentationIfNecessary(buffer);
 				buffer.append(this.lineSeparator);
 			}
 			lastNumberOfNewLines += linesNumber;
@@ -434,7 +434,7 @@ public class Scribe {
 			}
 			final int realNewLineNumber = linesNumber - lastNumberOfNewLines + 1;
 			for (int i = 0; i < realNewLineNumber; i++) {
-                if (indentEmptyLines) printIndentationIfNecessary(buffer);
+				if (indentEmptyLines) printIndentationIfNecessary(buffer);
 				buffer.append(this.lineSeparator);
 			}
 			lastNumberOfNewLines += realNewLineNumber;
@@ -1034,9 +1034,9 @@ public class Scribe {
 	}
 
 	private void printEmptyLines(int linesNumber, int insertPosition) {
-        final String buffer = getEmptyLines(linesNumber);
-        if (Util.EMPTY_STRING == buffer) return;
-        
+		final String buffer = getEmptyLines(linesNumber);
+		if (Util.EMPTY_STRING == buffer) return;
+
 		addInsertEdit(insertPosition, buffer);
 	}
 
@@ -1060,7 +1060,6 @@ public class Scribe {
 						if (indentationsAsTab < numberOfLeadingIndents) {
 							buffer.append('\t');
 							indentationsAsTab++;
-							this.lastNumberOfNewLines = 0;
 							int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
 							this.column += complement;
 							this.needSpace = false;
@@ -1073,7 +1072,6 @@ public class Scribe {
 				} else {
 					while (this.column <= this.indentationLevel) {
 						buffer.append('\t');
-						this.lastNumberOfNewLines = 0;
 						int complement = this.tabLength - ((this.column - 1) % this.tabLength); // amount of space
 						this.column += complement;
 						this.needSpace = false;
