@@ -26,7 +26,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	private static final int ITERATION_COUNT = 40;
 	static int[] PROPOSAL_COUNTS;
 	static int TESTS_COUNT = 0;
-	static int TESTS_LENGTH = 0;
+	static int TESTS_LENGTH;
 	static int COMPLETIONS_COUNT = 0;
 
 	// Log files
@@ -38,7 +38,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 
 	public static Test suite() {
 		Test suite = buildSuite(testClass());
-		TESTS_COUNT = suite.countTestCases();
+		TESTS_LENGTH = TESTS_COUNT = suite.countTestCases();
 		PROPOSAL_COUNTS = new int[TESTS_COUNT];
 		createPrintStream(testClass(), LOG_STREAMS, TESTS_COUNT, "Complete");
 		return suite;
@@ -163,7 +163,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 		assertPerformance();
 	}
 	
-	public void testCompleteMethodDeclaration() throws JavaModelException {
+	public void testPerfCompleteMethodDeclaration() throws JavaModelException {
 		complete(
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -173,7 +173,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testCompleteMemberAccess() throws JavaModelException {
+	public void testPerfCompleteMemberAccess() throws JavaModelException {
 		tagAsGlobalSummary("Codeassist in expression", true); // put in global fingerprint
 		complete(
 				"org.eclipse.jdt.core",
@@ -185,7 +185,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testCompleteTypeReference() throws JavaModelException {
+	public void testPerfCompleteTypeReference() throws JavaModelException {
 		complete(
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -195,7 +195,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testCompleteEmptyName() throws JavaModelException {
+	public void testPerfCompleteEmptyName() throws JavaModelException {
 		complete(
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -205,7 +205,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testCompleteName() throws JavaModelException {
+	public void testPerfCompleteName() throws JavaModelException {
 		tagAsSummary("Codeassist in name", true); // put in fingerprint
 		complete(
 				"org.eclipse.jdt.core",
@@ -217,7 +217,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testCompleteEmptyNameWithoutTypes() throws JavaModelException {
+	public void testPerfCompleteEmptyNameWithoutTypes() throws JavaModelException {
 		complete(
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -228,7 +228,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testCompleteNameWithoutTypes() throws JavaModelException {
+	public void testPerfCompleteNameWithoutTypes() throws JavaModelException {
 		complete(
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -239,7 +239,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testCompleteEmptyNameWithoutMethods() throws JavaModelException {
+	public void testPerfCompleteEmptyNameWithoutMethods() throws JavaModelException {
 		complete(
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
@@ -250,7 +250,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testCompleteNameWithoutMethods() throws JavaModelException {
+	public void testPerfCompleteNameWithoutMethods() throws JavaModelException {
 		complete(
 				"org.eclipse.jdt.core",
 				"org.eclipse.jdt.internal.core",
