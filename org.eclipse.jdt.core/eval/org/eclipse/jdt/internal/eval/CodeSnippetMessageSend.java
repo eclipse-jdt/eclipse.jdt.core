@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class CodeSnippetMessageSend extends MessageSend implements ProblemReasons, EvaluationConstants {
@@ -47,10 +48,7 @@ public CodeSnippetMessageSend(EvaluationContext evaluationContext) {
  * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
  * @param valueRequired boolean
  */
-public void generateCode(
-	BlockScope currentScope,
-	CodeStream codeStream,
-	boolean valueRequired) {
+public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
 	int pc = codeStream.position;
 
@@ -70,6 +68,7 @@ public void generateCode(
 			}
 		} else {
 			this.receiver.generateCode(currentScope, codeStream, !isStatic);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);			
 		}
 		// generate arguments
 		generateArguments(binding, arguments, currentScope, codeStream);
@@ -97,6 +96,7 @@ public void generateCode(
 			currentScope.problemReporter().needImplementation();
 		} else {
 			this.receiver.generateCode(currentScope, codeStream, !isStatic);
+			codeStream.recordPositionsFrom(pc, this.sourceStart);			
 		}
 		if (isStatic) {
 			// we need an object on the stack which is ignored for the method invocation
@@ -139,25 +139,26 @@ public void generateCode(
 			codeStream.checkcast(this.codegenBinding.returnType);
 		}
 	}
-	// operation on the returned value
+	// required cast must occur even if no value is required
+	if (this.valueCast != null) codeStream.checkcast(this.valueCast);
 	if (valueRequired){
 		// implicit conversion if necessary
-		if (this.valueCast != null) 
-			codeStream.checkcast(this.valueCast);
 		codeStream.generateImplicitConversion(implicitConversion);
 	} else {
-		// pop return value if any
-		switch(binding.returnType.id){
+		boolean isUnboxing = (implicitConversion & TypeIds.UNBOXING) != 0;
+		// conversion only generated if unboxing
+		if (isUnboxing) codeStream.generateImplicitConversion(implicitConversion);
+		switch (isUnboxing ? postConversionType(currentScope).id : this.codegenBinding.returnType.id) {
 			case T_long :
 			case T_double :
 				codeStream.pop2();
 				break;
 			case T_void :
 				break;
-			default:
+			default :
 				codeStream.pop();
 		}
-	}
+	}	
 	codeStream.recordPositionsFrom(pc, (int)(this.nameSourcePosition >>> 32)); // highlight selector
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
