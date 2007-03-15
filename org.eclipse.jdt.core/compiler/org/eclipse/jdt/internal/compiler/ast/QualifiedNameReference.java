@@ -628,9 +628,8 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 		// only the last field binding is a write access
 		int positionsLength = this.sourcePositions.length;
 		if (this.otherCodegenBindings != null) {
-			int pc = codeStream.position;
 			for (int i = 0; i < otherBindingsCount; i++) {
-				pc = codeStream.position;
+				int pc = codeStream.position;
 				FieldBinding nextField = this.otherCodegenBindings[i];
 				TypeBinding nextGenericCast = this.otherGenericCasts == null ? null : this.otherGenericCasts[i];
 				if (lastFieldBinding != null) {
