@@ -23,6 +23,7 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
 		suite.addTestSuite(BatchDispatchTests.class);
+		//suite.addTestSuite(ModelTests.class);
 		return suite;
 	}
 }

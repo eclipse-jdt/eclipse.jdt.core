@@ -1,2 +1,3 @@
 org.eclipse.jdt.compiler.apt.tests.processors.genclass.GenClassProc
 org.eclipse.jdt.compiler.apt.tests.processors.checkargs.CheckArgsProc
+org.eclipse.jdt.compiler.apt.tests.processors.elements.ElementProc

@@ -39,6 +39,7 @@ import org.eclipse.core.runtime.Platform;
  * @since 3.3
  */
 public class BatchTestUtils {
+	private static final String RESOURCES_DIR = "resources";
 	// relative to plugin directory
 	private static final String PROCESSOR_JAR_NAME = "lib/apttestprocessors.jar";
 	private static String _processorJarPath;
@@ -59,7 +60,7 @@ public class BatchTestUtils {
 	 * Create a class that contains an annotation that generates another class,
 	 * and compile it.  Verify that generation and compilation succeeded.
 	 */
-	public static void compileOneClass(JavaCompiler compiler, File inputFile, List<String> options) {
+	public static void compileOneClass(JavaCompiler compiler, List<String> options, File inputFile) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
@@ -88,6 +89,56 @@ public class BatchTestUtils {
 		}
 	}
 
+	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder) {
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		// create new list containing inputfile
+		List<File> files = new ArrayList<File>();
+		findFilesUnder(targetFolder, files);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		options.add("-d");
+		options.add(_tmpBinFolderName);
+		options.add("-s");
+		options.add(_tmpGenFolderName);
+		options.add("-cp");
+		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarPath);
+		options.add("-processorpath");
+		options.add(_processorJarPath);
+		options.add("-XprintRounds");
+		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
+		Boolean result = task.call();
+
+		if (!result.booleanValue()) {
+			String errorOutput = stringWriter.getBuffer().toString();
+			System.err.println("Compilation failed: " + errorOutput);
+	 		Assert.assertTrue("Compilation failed : " + errorOutput, false);
+		}
+	}
+	
+	/**
+	 * Recursively collect all the files under some root.  Ignore directories named "CVS".
+	 * Used when compiling multiple source files.
+	 * @param files a List<File> to which all the files found will be added
+	 * @return the set of Files under a root folder.
+	 */
+	public static void findFilesUnder(File rootFolder, List<File> files) {
+		for (File child : rootFolder.listFiles()) {
+			if ("CVS".equals(child.getName())) {
+				continue;
+			}
+			if (child.isDirectory()) {
+				findFilesUnder(child, files);
+			}
+			else {
+				files.add(child);
+			}
+		}
+	}
+
+	/** @return the name of the folder where class files will be saved */
 	public static String getBinFolderName() {
 		return _tmpBinFolderName;
 	}
@@ -96,10 +147,12 @@ public class BatchTestUtils {
 		return _eclipseCompiler;
 	}
 
+	/** @return the name of the folder where generated files will be placed */
 	public static String getGenFolderName() {
 		return _tmpGenFolderName;
 	}
 
+	/** @return the name of the folder where source files will be found during compilation */
 	public static String getSrcFolderName() {
 		return _tmpSrcFolderName;
 	}
@@ -195,25 +248,49 @@ public class BatchTestUtils {
 		}
 		return fileBytes;
 	}
-	public static boolean convertToIndependantLineDelimiter(File file) {
+	
+	/**
+	 * @return true if this file's end-of-line delimiters should be replaced with
+	 * a platform-independent value, e.g. for compilation.
+	 */
+	public static boolean shouldConvertToIndependentLineDelimiter(File file) {
 		return file.getName().endsWith(".java");
 	}
+	
 	/**
-	 * Copy file from src (path to the original file) to dest (path to the destination file).
+	 * Copy a file from one location to another, unless the destination file already exists and has
+	 * the same timestamp and file size. Create the destination location if necessary. Convert line
+	 * delimiters according to {@link #shouldConvertToIndependentLineDelimiter(File)}.
+	 * 
+	 * @param src
+	 *            the full path to the resource location.
+	 * @param destFolder
+	 *            the full path to the destination location.
+	 * @throws IOException
 	 */
-	public static void copy(File src, File dest) throws IOException {
+	public static void copyResource(File src, File dest) throws IOException {
+		if (dest.exists() &&
+				src.lastModified() < dest.lastModified() && 
+				src.length() == dest.length()) 
+		{
+			return;
+		}
+		
 		// read source bytes
-		byte[] srcBytes = read(src);
+		byte[] srcBytes = null;
+		srcBytes = read(src);
 
-		if (convertToIndependantLineDelimiter(src)) {
+		if (shouldConvertToIndependentLineDelimiter(src)) {
 			String contents = new String(srcBytes);
-			contents = TestUtils.convertToIndependantLineDelimiter(contents);
+			contents = TestUtils.convertToIndependentLineDelimiter(contents);
 			srcBytes = contents.getBytes();
 		}
 
-		File parent = dest.getParentFile();
-		if (!parent.exists()) {
-			parent.mkdirs();
+		File destFolder = dest.getParentFile();
+		if (!destFolder.exists()) {
+			if (!destFolder.mkdirs()) {
+				throw new IOException("Unable to create directory " + destFolder);
+			}
 		}
 		// write bytes to dest
 		FileOutputStream out = null;
@@ -229,72 +306,77 @@ public class BatchTestUtils {
 	}
 
 	/**
-	 * Copy file from src (path to the original file) to dest (path to the destination file).
+	 * Copy a resource that is located under the <code>resources</code> folder of the plugin to a
+	 * corresponding location under the specified target folder. Convert line delimiters according
+	 * to {@link #shouldConvertToIndependentLineDelimiter(File)}.
+	 * 
+	 * @param resourcePath
+	 *            the relative path under <code>[plugin-root]/resources</code> of the resource to
+	 *            be copied
+	 * @param targetFolder
+	 *            the absolute path of the folder under which the resource will be copied. Folder
+	 *            and subfolders will be created if necessary.
+	 * @return a file representing the copied resource
+	 * @throws IOException
 	 */
-	public static File copyResource(File src, File dest) {
-		// read source bytes
-		byte[] srcBytes = null;
-		try {
-			srcBytes = read(src);
-		} catch (IOException e1) {
-			return null;
-		}
-
-		if (convertToIndependantLineDelimiter(src)) {
-			String contents = new String(srcBytes);
-			contents = TestUtils.convertToIndependantLineDelimiter(contents);
-			srcBytes = contents.getBytes();
-		}
-
-		if (!dest.exists()) {
-			dest.mkdirs();
-		}
-		// write bytes to dest
-		FileOutputStream out = null;
-		File result = new File(dest, src.getName());
-		try {
-			out = new FileOutputStream(result);
-			out.write(srcBytes);
-			out.flush();
-		} catch(IOException e) {
-			return null;
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
-		}
-		return result;
+	public static File copyResource(String resourcePath, File targetFolder) throws IOException {
+		File resDir = new File(getPluginDirectoryPath(), RESOURCES_DIR);
+		File resourceFile = new File(resDir, resourcePath);
+		File targetFile = new File(targetFolder, resourcePath);
+		copyResource(resourceFile, targetFile);
+		return targetFile;
 	}
-
-	public static String setupProcessorJar(String processorJar, String tmpDir) throws IOException {
-		String resourceDir = getPluginDirectoryPath();
-		java.io.File destinationDir = new java.io.File(tmpDir);
-		java.io.File libraryFile =
-			new java.io.File(tmpDir, processorJar);
-		if (!destinationDir.exists()) {
-			if (!destinationDir.mkdir()) {
-				//mkdir failed
-				throw new IOException("Could not create the directory " + destinationDir);
+	
+	/**
+	 * Copy all the files under the directory specified by src to the directory
+	 * specified by dest.  The src and dest directories must exist; child directories
+	 * under dest will be created as required.  Existing files in dest will be
+	 * overwritten.  Newlines will be converted according to 
+	 * {@link #shouldConvertToIndependentLineDelimiter(File)}.  Directories
+	 * named "CVS" will be ignored.
+	 * @param resourceFolderName the name of the source folder, relative to
+	 * <code>[plugin-root]/resources</code>
+	 * @param the absolute path of the destination folder
+	 * @throws IOException 
+	 */
+	public static void copyResources(String resourceFolderName, File destFolder) throws IOException {
+		File resDir = new File(getPluginDirectoryPath(), RESOURCES_DIR);
+		File resourceFolder = new File(resDir, resourceFolderName);
+		copyResources(resourceFolder, destFolder);
+	}
+	
+	private static void copyResources(File resourceFolder, File destFolder) throws IOException {
+		if (resourceFolder == null) {
+			return;
+		}
+		// Copy all resources in this folder
+		String[] children = resourceFolder.list();
+		if (null == children) {
+			return;
+		}
+		// if there are any children, (recursively) copy them
+		for (String child : children) {
+			if ("CVS".equals(child)) {
+				continue;
 			}
-			//copy the two files to the JCL directory
-			java.io.File libraryResource =
-				new java.io.File(resourceDir, processorJar);
-			copy(libraryResource, libraryFile);
-		} else {
-			//check that the two files, jclMin.jar and jclMinsrc.zip are present
-			//copy either file that is missing or less recent than the one in workspace
-			java.io.File libraryResource =
-				new java.io.File(resourceDir, processorJar);
-			if ((libraryFile.lastModified() < libraryResource.lastModified())
-					|| (libraryFile.length() != libraryResource.length())) {
-				copy(libraryResource, libraryFile);
+			File childRes = new File(resourceFolder, child);
+			File childDest = new File(destFolder, child);
+			if (childRes.isDirectory()) {
+				copyResources(childRes, childDest);
+			}
+			else {
+				copyResource(childRes, childDest);
 			}
 		}
-		return libraryFile.getCanonicalPath();
+	}
+	
+	public static String setupProcessorJar(String processorJar, String tmpDir) throws IOException {
+		File libDir = new File(getPluginDirectoryPath());
+		File libFile = new File(libDir, processorJar);
+		File destinationDir = new File(tmpDir);
+		File destinationFile = new File(destinationDir, processorJar);
+		copyResource(libFile, destinationFile);
+		return destinationFile.getCanonicalPath();
 	}
 
 	/**
@@ -319,9 +401,4 @@ public class BatchTestUtils {
 		f.delete();
 	}
 
-	public static File copyResource(String resourcePath, File targetFolder) {
-		File resDir = new File(getPluginDirectoryPath(), "resources");
-		File resourceFile = new File(resDir, resourcePath);
-		return copyResource(resourceFile, targetFolder);
-	}
 }

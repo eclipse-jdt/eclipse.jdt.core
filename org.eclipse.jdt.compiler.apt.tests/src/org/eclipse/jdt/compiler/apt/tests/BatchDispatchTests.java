@@ -12,6 +12,7 @@
 package org.eclipse.jdt.compiler.apt.tests;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,8 +75,9 @@ public class BatchDispatchTests extends TestCase {
 	/**
 	 * Veriy that processor sees correct environment options
 	 * (sanity check with system compiler)
+	 * @throws IOException 
 	 */
-	public void testProcessorArgumentsWithSystemCompiler() {
+	public void testProcessorArgumentsWithSystemCompiler() throws IOException {
 		// System compiler
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestProcessorArguments(compiler);
@@ -84,8 +86,9 @@ public class BatchDispatchTests extends TestCase {
 	/**
 	 * Veriy that processor sees correct environment options
 	 * when called from Eclipse compiler
+	 * @throws IOException 
 	 */
-	public void testProcessorArgumentsWithEclipseCompiler() {
+	public void testProcessorArgumentsWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestProcessorArguments(compiler);
 	}
@@ -94,8 +97,9 @@ public class BatchDispatchTests extends TestCase {
 	 * Read annotation values and generate a class using system compiler (javac)
 	 * This is a sanity check to verify that the processors, sample code, and
 	 * compiler options are correct.
+	 * @throws IOException 
 	 */
-	public void testCompilerOneClassWithSystemCompiler() {
+	public void testCompilerOneClassWithSystemCompiler() throws IOException {
 		// System compiler
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestGenerateClass(compiler);
@@ -103,8 +107,9 @@ public class BatchDispatchTests extends TestCase {
 
 	/**
 	 * Read annotation values and generate a class using Eclipse compiler
+	 * @throws IOException 
 	 */
-	public void testCompilerOneClassWithEclipseCompiler() {
+	public void testCompilerOneClassWithEclipseCompiler() throws IOException {
 		// Eclipse compiler
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestGenerateClass(compiler);
@@ -112,8 +117,9 @@ public class BatchDispatchTests extends TestCase {
 
 	/**
 	 * Verify that if a type has two annotations, both processors are run.
+	 * @throws IOException 
 	 */
-	public void testTwoAnnotations() {
+	public void testTwoAnnotations() throws IOException {
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
 		File inputFile = BatchTestUtils.copyResource("targets/dispatch/TwoAnnotations.java", targetFolder);
 		assertNotNull("No input file", inputFile);
@@ -123,7 +129,7 @@ public class BatchDispatchTests extends TestCase {
 		// Processor will throw IllegalStateException if it detects a mismatch.
 		options.add("-Afoo=bar");
 		options.add("-Anovalue");
-		BatchTestUtils.compileOneClass(BatchTestUtils.getEclipseCompiler(), inputFile, options);
+		BatchTestUtils.compileOneClass(BatchTestUtils.getEclipseCompiler(), options, inputFile);
 
 		// check that the src and class files were generated
  		File genSrcFile = TestUtils.concatPath(BatchTestUtils.getGenFolderName(), "gen", "TwoAnnotationsGen.java");
@@ -137,13 +143,13 @@ public class BatchDispatchTests extends TestCase {
 	}
 
 	// Called with system compiler and Eclipse compiler
-	private void internalTestGenerateClass(JavaCompiler compiler) {
+	private void internalTestGenerateClass(JavaCompiler compiler) throws IOException {
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
 		File inputFile = BatchTestUtils.copyResource("targets/dispatch/HasGenClass.java", targetFolder);
 		assertNotNull("No input file", inputFile);
 
 		List<String> options = new ArrayList<String>();
-		BatchTestUtils.compileOneClass(compiler, inputFile, options);
+		BatchTestUtils.compileOneClass(compiler, options, inputFile);
 
 		// check that the gen-src and class files were generated
  		File genSrcFile = TestUtils.concatPath(BatchTestUtils.getGenFolderName(), "gen", "HgcGen.java");
@@ -157,7 +163,7 @@ public class BatchDispatchTests extends TestCase {
 	}
 
 	// Called with system compiler and Eclipse compiler
-	private void internalTestProcessorArguments(JavaCompiler compiler) {
+	private void internalTestProcessorArguments(JavaCompiler compiler) throws IOException {
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
 		File inputFile = BatchTestUtils.copyResource("targets/dispatch/HasCheckArgs.java", targetFolder);
 		assertNotNull("No input file", inputFile);
@@ -167,7 +173,7 @@ public class BatchDispatchTests extends TestCase {
 		// Processor will throw IllegalStateException if it detects a mismatch.
 		options.add("-Afoo=bar");
 		options.add("-Anovalue");
-		BatchTestUtils.compileOneClass(compiler, inputFile, options);
+		BatchTestUtils.compileOneClass(compiler, options, inputFile);
 	}
 
 	@Override
