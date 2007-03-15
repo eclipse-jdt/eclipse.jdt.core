@@ -131,7 +131,25 @@ public void test002() {
 		"The assignment to variable next has no effect\n" + 
 		"----------\n");
 }
+public void test003() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	int portNumber;\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X x = new X();\n" + 
+			"		x.portNumber = Integer.parseInt(\"12\");\n" + 
+			"		x.run();\n" + 
+			"	}\n" + 
+			"	private void run() {\n" + 
+			"		System.out.println(portNumber);\n" + 
+			"	}\n" + 
+			"}", // =================
 
+		},
+		"12");
+}
 // final multiple assignment
 public void test020() {
 	this.runNegativeTest(

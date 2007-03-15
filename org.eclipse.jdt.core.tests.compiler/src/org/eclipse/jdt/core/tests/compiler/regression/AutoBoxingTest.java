@@ -3969,4 +3969,371 @@ public void test134() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372
+public void test135() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo() { return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                A<Long> a = new A<Long>();\n" + 
+			"				 A ua = a;\n" + 
+			"                try {\n" + 
+			"	                long s = a.foo();\n" + 
+			"                } catch(NullPointerException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test136() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo(Object o) {\n" + 
+			"                return (T) o; // should get unchecked warning\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                A<Long> a = new A<Long>();\n" + 
+			"                try {\n" + 
+			"	                long s = a.foo(new Object());\n" + 
+			"                } catch(ClassCastException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test137() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo;\n" +
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                A<Long> a = new A<Long>();\n" + 
+			"				 A ua = a;\n" +
+			"				 ua.foo = new Object();\n" +
+			"                try {\n" + 
+			"	                long s = a.foo;\n" + 
+			"                } catch(ClassCastException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test138() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo;\n" +
+			"}\n" + 
+			"\n" + 
+			"public class X extends A<Long>{\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"			new X().foo();\n" +
+			"		 }\n" +
+			" 		 public void foo() {\n" +
+			"				 A ua = this;\n" +
+			"				 ua.foo = new Object();\n" +
+			"                try {\n" + 
+			"	                long s = foo;\n" + 
+			"                } catch(ClassCastException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test139() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo;\n" +
+			"}\n" + 
+			"\n" + 
+			"public class X extends A<Long>{\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"			new X().foo();\n" +
+			"		 }\n" +
+			" 		 public void foo() {\n" +
+			"				 A ua = this;\n" +
+			"				 ua.foo = new Object();\n" +
+			"                try {\n" + 
+			"	                long s = this.foo;\n" + 
+			"                } catch(ClassCastException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test140() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A {\n" + 
+			"        long foo() {\n" + 
+			"                return 0L;\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                A a = new A();\n" + 
+			"	             Long s = a.foo();\n" + 
+			"                System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test141() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A {\n" + 
+			"        long foo = 0L;\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                A a = new A();\n" + 
+			"	             Long s = a.foo;\n" + 
+			"                System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test142() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A {\n" + 
+			"        long foo = 0L;\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends A {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"			new X().bar();\n" +
+			"        }\n" + 
+			"		void bar() {\n" +
+			"	             Long s = foo;\n" + 
+			"                System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"}\n", // =================			
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test143() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A {\n" + 
+			"        long foo = 0L;\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends A {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"			new X().bar();\n" +
+			"        }\n" + 
+			"		void bar() {\n" +
+			"	             Long s = this.foo;\n" + 
+			"                System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"}\n", // =================			
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test144() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T[] foo;\n" +
+			"}\n" + 
+			"\n" + 
+			"public class X extends A<Long>{\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"			new X().foo();\n" +
+			"		 }\n" +
+			" 		 public void foo() {\n" +
+			"				 A ua = this;\n" +
+			"				 ua.foo = new Object[1];\n" +
+			"                try {\n" + 
+			"	                long s = this.foo[0];\n" + 
+			"                } catch(ClassCastException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test145() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A {\n" + 
+			"        long[] foo = { 0L };\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends A {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"			new X().bar();\n" +
+			"        }\n" + 
+			"		void bar() {\n" +
+			"	             Long s = this.foo[0];\n" + 
+			"                System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"}\n", // =================			
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177372 - variation
+public void test146() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo;\n" +
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"            A<Long> a = new A<Long>();\n" + 
+			"	         long s = a.foo.MAX_VALUE;\n" + 
+			"            System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
 }

@@ -15129,20 +15129,21 @@ public void test0500(){
 			"     6  dup\n" + 
 			"     7  invokespecial X() [28]\n" + 
 			"    10  getfield X.e : XA [29]\n" + 
-			"    13  pop\n" + 
-			"    14  getstatic XAB.CONST : XB [31]\n" + 
-			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
-			"    20  new X [1]\n" + 
-			"    23  dup\n" + 
-			"    24  invokespecial X() [28]\n" + 
-			"    27  invokevirtual X.foo() : void [43]\n" + 
-			"    30  return\n" + 
+			"    13  checkcast XAB [31]\n" + 
+			"    16  pop\n" + 
+			"    17  getstatic XAB.CONST : XB [33]\n" + 
+			"    20  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+			"    23  new X [1]\n" + 
+			"    26  dup\n" + 
+			"    27  invokespecial X() [28]\n" + 
+			"    30  invokevirtual X.foo() : void [43]\n" + 
+			"    33  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 10]\n" + 
-			"        [pc: 20, line: 11]\n" + 
-			"        [pc: 30, line: 12]\n" + 
+			"        [pc: 23, line: 11]\n" + 
+			"        [pc: 33, line: 12]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 31] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 0, pc: 34] local: args index: 0 type: java.lang.String[]\n" + 
 			"  \n" + 
 			"  // Method descriptor #10 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
@@ -15238,20 +15239,21 @@ public void test0500(){
 			"     6  dup\n" + 
 			"     7  invokespecial X() [28]\n" + 
 			"    10  invokevirtual X.e() : XA [29]\n" + 
-			"    13  pop\n" + 
-			"    14  getstatic XAB.CONST : XB [31]\n" + 
-			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
-			"    20  new X [1]\n" + 
-			"    23  dup\n" + 
-			"    24  invokespecial X() [28]\n" + 
-			"    27  invokevirtual X.foo() : void [43]\n" + 
-			"    30  return\n" + 
+			"    13  checkcast XAB [31]\n" + 
+			"    16  pop\n" + 
+			"    17  getstatic XAB.CONST : XB [33]\n" + 
+			"    20  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+			"    23  new X [1]\n" + 
+			"    26  dup\n" + 
+			"    27  invokespecial X() [28]\n" + 
+			"    30  invokevirtual X.foo() : void [43]\n" + 
+			"    33  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 10]\n" + 
-			"        [pc: 20, line: 11]\n" + 
-			"        [pc: 30, line: 12]\n" + 
+			"        [pc: 23, line: 11]\n" + 
+			"        [pc: 33, line: 12]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 31] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 0, pc: 34] local: args index: 0 type: java.lang.String[]\n" + 
 			"  \n" + 
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
@@ -15360,18 +15362,22 @@ public void test0500(){
 			"     5  invokespecial X$1(X) [30]\n" + 
 			"     8  invokevirtual X$1.run() : void [33]\n" + 
 			"    11  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
-			"    14  getstatic XB.CONST : XB [42]\n" + 
-			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [48]\n" + 
-			"    20  return\n" + 
+			"    14  aload_0 [this]\n" + 
+			"    15  getfield X.e : XA [42]\n" + 
+			"    18  checkcast XB [44]\n" + 
+			"    21  pop\n" + 
+			"    22  getstatic XB.CONST : XB [46]\n" + 
+			"    25  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [50]\n" + 
+			"    28  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 13]\n" + 
 			"        [pc: 8, line: 17]\n" + 
 			"        [pc: 11, line: 18]\n" + 
-			"        [pc: 20, line: 19]\n" + 
+			"        [pc: 28, line: 19]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 29] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 21] local: this index: 0 type: X<E>\n";
+			"        [pc: 0, pc: 29] local: this index: 0 type: X<E>\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -33663,7 +33669,7 @@ public void test1039() {
 		"     5  ldc <String \"[B.local_field]\"> [32]\n" + 
 		"     7  invokestatic A.foo(java.lang.String) : Value [17]\n" + 
 		"    10  putfield B.local_field : Value [34]\n" + 
-		"    13  getstatic I.CONST : Value [36]\n" + 
+		"    13  getstatic B.CONST : Value [36]\n" + 
 		"    16  pop\n" + 
 		"    17  getstatic Value.NAME : java.lang.String [39]\n" + 
 		"    20  pop\n" + 
@@ -36736,8 +36742,8 @@ public void test1108() {
 		},
 		"");		
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176591
-// ?: cuts assignment context
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=176591
+//?: cuts assignment context
 public void test1109() {
 	this.runNegativeTest(
 		new String[] {
@@ -36763,8 +36769,8 @@ public void test1109() {
 		"Type mismatch: cannot convert from Y<Object> to Y<String>\n" + 
 		"----------\n");		
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176591
-// variant
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=176591
+//variant
 public void test1110() {
 	this.runConformTest(
 		new String[] {
@@ -36785,4 +36791,302 @@ public void test1110() {
 		},
 		"");		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177194
+public void test1111() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo(Object o) {\n" + 
+			"                return (T) o; // should get unchecked warning\n" + 
+			"        }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                A<X> a = new A<X>();\n" + 
+			"                try {\n" + 
+			"	                X s = a.foo(new Object());\n" + 
+			"                } catch(ClassCastException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177194 - variation
+public void test1112() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo;\n" +
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                A<X> a = new A<X>();\n" + 
+			"				 A ua = a;\n" +
+			"				 ua.foo = new Object();\n" +
+			"                try {\n" + 
+			"	                X s = a.foo;\n" + 
+			"                } catch(ClassCastException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177194 - variation
+public void test1113() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo;\n" +
+			"}\n" + 
+			"\n" + 
+			"public class X extends A<X>{\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"			new X().foo();\n" +
+			"		 }\n" +
+			" 		 public void foo() {\n" +
+			"				 A ua = this;\n" +
+			"				 ua.foo = new Object();\n" +
+			"                try {\n" + 
+			"	                X s = foo;\n" + 
+			"                } catch(ClassCastException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177194 - variation
+public void test1114() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo;\n" +
+			"}\n" + 
+			"\n" + 
+			"public class X extends A<X>{\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"			new X().foo();\n" +
+			"		 }\n" +
+			" 		 public void foo() {\n" +
+			"				 A ua = this;\n" +
+			"				 ua.foo = new Object();\n" +
+			"                try {\n" + 
+			"	                X s = this.foo;\n" + 
+			"                } catch(ClassCastException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177194 - variation
+public void test1115() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"        public T foo;\n" +
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"		 static X ROOT;\n" +
+			"        public static void main(String[] args) {\n" + 
+			"                A<X> a = new A<X>();\n" + 
+			"				 A ua = a;\n" +
+			"				 ua.foo = new Object();\n" +
+			"                try {\n" + 
+			"	                X s = a.foo.ROOT;\n" + 
+			"                } catch(ClassCastException e) {\n" + 
+			"                	System.out.println(\"SUCCESS\");\n" + 
+			"                	return;\n" + 
+			"                }\n" + 
+			"            	System.out.println(\"FAILED\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		settings,
+		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177194 - variation
+public void test1116() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"interface I {\n" + 
+			"    int CONST = 1;\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Z<T extends Serializable&I> {\n" + 
+			"    T c;\n" + 
+			"    Z(T c) {\n" + 
+			"        this.c = c;\n" + 
+			"    }\n" + 
+			"    int foo() {\n" + 
+			"        return c.CONST;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X implements Serializable, I {\n" + 
+			"    public static void main(String argv[]) {\n" + 
+			"        Z<X> z = new Z<X>(new X());\n" + 
+			"        Z rawz = z;\n" + 
+			"        rawz.c = new Serializable(){};\n" + 
+			"        try {\n" + 
+			"	        z.foo();\n" + 
+			"        } catch(ClassCastException e) {\n" + 
+			"        	System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS");		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177194 - variation
+public void test1117() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {\n" + 
+			"	Value<String> CONST = null;\n" + 
+			"}\n" + 
+			"class Value<V> {\n" + 
+			"	String NAME = \"VALUE\";\n" + 
+			"}\n" + 
+			"class B<V> implements I<V> {\n" + 
+			"	B(Value<String> param) {\n" + 
+			"		Value<String> v0 = CONST;\n" + 
+			"		Value<String> v1 = this.CONST;\n" + 
+			"		String s2 = CONST.NAME;\n" + 
+			"		Value<String> v3 = I.CONST;\n" + 
+			"		Value<String> v4 = B.CONST;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			new B<String>(new Value<String>());\n" + 
+			"		} catch(NullPointerException e) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		}, 
+		"SUCCESS",
+		null,
+		false,
+		null,
+		options,
+		null);
+	// check the reference to I.CONST is generated as B.CONST, except for v3 still issuing I.CONST
+	String expectedOutput = 
+		"  // Method descriptor #8 (LValue;)V\n" + 
+		"  // Signature: (LValue<Ljava/lang/String;>;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  B(Value param);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [12]\n" + 
+		"     4  getstatic B.CONST : Value [15]\n" + 
+		"     7  pop\n" + 
+		"     8  getstatic B.CONST : Value [15]\n" + 
+		"    11  pop\n" + 
+		"    12  getstatic B.CONST : Value [15]\n" + 
+		"    15  getfield Value.NAME : java.lang.String [19]\n" + 
+		"    18  pop\n" + 
+		"    19  getstatic I.CONST : Value [25]\n" + 
+		"    22  pop\n" + 
+		"    23  getstatic B.CONST : Value [15]\n" + 
+		"    26  pop\n" + 
+		"    27  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 8]\n" + 
+		"        [pc: 4, line: 9]\n" + 
+		"        [pc: 8, line: 10]\n" + 
+		"        [pc: 12, line: 11]\n" + 
+		"        [pc: 19, line: 12]\n" + 
+		"        [pc: 23, line: 13]\n" + 
+		"        [pc: 27, line: 14]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 28] local: this index: 0 type: B\n" + 
+		"        [pc: 0, pc: 28] local: param index: 1 type: Value\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 28] local: this index: 0 type: B<V>\n" + 
+		"        [pc: 0, pc: 28] local: param index: 1 type: Value<java.lang.String>\n";
+
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "B.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
+
 }

@@ -144,22 +144,23 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	} else {
 		codeStream.invokestatic(syntheticAccessor);
 	}
-	// operation on the returned value
+	// required cast must occur even if no value is required
+	if (this.valueCast != null) codeStream.checkcast(this.valueCast);
 	if (valueRequired){
 		// implicit conversion if necessary
-		if (this.valueCast != null) 
-			codeStream.checkcast(this.valueCast);
 		codeStream.generateImplicitConversion(implicitConversion);
 	} else {
-		// pop return value if any
-		switch(binding.returnType.id){
+		boolean isUnboxing = (implicitConversion & TypeIds.UNBOXING) != 0;
+		// conversion only generated if unboxing
+		if (isUnboxing) codeStream.generateImplicitConversion(implicitConversion);
+		switch (isUnboxing ? postConversionType(currentScope).id : this.codegenBinding.returnType.id) {
 			case T_long :
 			case T_double :
 				codeStream.pop2();
 				break;
 			case T_void :
 				break;
-			default:
+			default :
 				codeStream.pop();
 		}
 	}

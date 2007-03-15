@@ -95,14 +95,16 @@ public FlowInfo analyseCode(
 		if (valueRequired) {
 			codeStream.generateImplicitConversion(implicitConversion);
 		} else {
-			if ((implicitConversion & TypeIds.UNBOXING) != 0) {
-				codeStream.generateImplicitConversion(implicitConversion);
-			}
-			if (this.resolvedType == TypeBinding.LONG
-				|| this.resolvedType == TypeBinding.DOUBLE) {
-				codeStream.pop2();
-			} else {
-				codeStream.pop();
+			boolean isUnboxing = (implicitConversion & TypeIds.UNBOXING) != 0;
+			// conversion only generated if unboxing
+			if (isUnboxing) codeStream.generateImplicitConversion(implicitConversion);
+			switch (isUnboxing ? postConversionType(currentScope).id : this.resolvedType.id) {
+				case T_long :
+				case T_double :
+					codeStream.pop2();
+					break;
+				default :
+					codeStream.pop();
 			}
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);

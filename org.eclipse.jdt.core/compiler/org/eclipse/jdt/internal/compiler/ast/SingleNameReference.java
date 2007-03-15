@@ -134,7 +134,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	
 		switch (bits & RestrictiveFlagMASK) {
 			case Binding.FIELD : // reading a field
-				if (valueRequired) {
+				if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 					manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 				}
 				FieldBinding fieldBinding = (FieldBinding) binding;
@@ -334,6 +334,8 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			if (valueRequired) {
 				codeStream.generateConstant(constant, implicitConversion);
 			}
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
+			return;
 		} else {
 			switch (bits & RestrictiveFlagMASK) {
 				case Binding.FIELD : // reading a field
@@ -344,15 +346,18 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						if (valueRequired) {
 							codeStream.generateConstant(fieldConstant, implicitConversion);
 						}
-						break;
+						codeStream.recordPositionsFrom(pc, this.sourceStart);
+						return;
 					}
 					if (fieldBinding.isStatic()) {
-						if (!valueRequired) {
+						if (!valueRequired
 							// if no valueRequired, still need possible side-effects of <clinit> invocation, if field belongs to different class
-							if (((FieldBinding)binding).original().declaringClass == this.actualReceiverType.erasure()
-									&& ((implicitConversion & TypeIds.UNBOXING) == 0)) {
-								break;
-							}
+							&& ((FieldBinding)binding).original().declaringClass == this.actualReceiverType.erasure()
+							&& ((implicitConversion & TypeIds.UNBOXING) == 0)
+							&& this.genericCast == null) {
+							// if no valueRequired, optimize out entire gen
+							codeStream.recordPositionsFrom(pc, this.sourceStart);
+							return;
 						}
 						// managing private access							
 						if ((syntheticAccessors == null) || (syntheticAccessors[READ] == null)) {
@@ -360,27 +365,13 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						} else {
 							codeStream.invokestatic(syntheticAccessors[READ]);
 						}
-						if (valueRequired) {
-							if (this.genericCast != null) codeStream.checkcast(this.genericCast);
-							codeStream.generateImplicitConversion(implicitConversion);
-						} else {
-							if ((implicitConversion & TypeIds.UNBOXING) != 0) {
-								codeStream.generateImplicitConversion(implicitConversion);
-							}
-							// could occur if !valueRequired but static field belongs to different class
-							switch (fieldBinding.type.id) {
-								case T_long :
-								case T_double :
-									codeStream.pop2();
-									break;
-								default :
-									codeStream.pop();
-							}
-						}							
 					} else {
-						if (!valueRequired && ((implicitConversion & TypeIds.UNBOXING) == 0)) {
+						if (!valueRequired
+								&& (implicitConversion & TypeIds.UNBOXING) == 0 
+								&& this.genericCast == null) {
 							// if no valueRequired, optimize out entire gen
-							break;
+							codeStream.recordPositionsFrom(pc, this.sourceStart);
+							return;
 						}
 						// managing enclosing instance access
 						if ((bits & DepthMASK) != 0) {
@@ -396,44 +387,47 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						} else {
 							codeStream.invokestatic(syntheticAccessors[READ]);
 						}
-						// managing generic cast
-						if (this.genericCast != null) codeStream.checkcast(this.genericCast);			
-						codeStream.generateImplicitConversion(implicitConversion);
 					}
 					break;
 				case Binding.LOCAL : // reading a local
 					LocalVariableBinding localBinding = (LocalVariableBinding) this.codegenBinding;
-					if (valueRequired) {
-						// outer local?
-						if ((bits & DepthMASK) != 0) {
-							// outer local can be reached either through a synthetic arg or a synthetic field
-							VariableBinding[] path = currentScope.getEmulationPath(localBinding);
-							codeStream.generateOuterAccess(path, this, localBinding, currentScope);
-						} else {
-							// regular local variable read
-							codeStream.load(localBinding);
-						}
-						codeStream.generateImplicitConversion(implicitConversion);
-					} else if ((implicitConversion & TypeIds.UNBOXING) != 0) {
-
-						// outer local?
-						if ((bits & DepthMASK) != 0) {
-							// outer local can be reached either through a synthetic arg or a synthetic field
-							VariableBinding[] path = currentScope.getEmulationPath(localBinding);
-							codeStream.generateOuterAccess(path, this, localBinding, currentScope);
-						} else {
-							// regular local variable read
-							codeStream.load(localBinding);
-						}
-						codeStream.generateImplicitConversion(implicitConversion);
-						if ((localBinding.type == TypeBinding.LONG) || (localBinding.type == TypeBinding.DOUBLE)) {
-							codeStream.pop2();
-						} else {
-							codeStream.pop();
-						}
+					if (!valueRequired && (implicitConversion & TypeIds.UNBOXING) == 0) {
+						// if no valueRequired, optimize out entire gen
+						codeStream.recordPositionsFrom(pc, this.sourceStart);
+						return;
 					}
+					// outer local?
+					if ((bits & DepthMASK) != 0) {
+						// outer local can be reached either through a synthetic arg or a synthetic field
+						VariableBinding[] path = currentScope.getEmulationPath(localBinding);
+						codeStream.generateOuterAccess(path, this, localBinding, currentScope);
+					} else {
+						// regular local variable read
+						codeStream.load(localBinding);
+					}
+					break;
+				default: // type
+					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					return;					
 			}
 		}
+		// required cast must occur even if no value is required
+		if (this.genericCast != null) codeStream.checkcast(this.genericCast);
+		if (valueRequired) {
+			codeStream.generateImplicitConversion(implicitConversion);
+		} else {
+			boolean isUnboxing = (implicitConversion & TypeIds.UNBOXING) != 0;
+			// conversion only generated if unboxing
+			if (isUnboxing) codeStream.generateImplicitConversion(implicitConversion);
+			switch (isUnboxing ? postConversionType(currentScope).id : this.resolvedType.id) {
+				case T_long :
+				case T_double :
+					codeStream.pop2();
+					break;
+				default :
+					codeStream.pop();
+			}
+		}							
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	/*

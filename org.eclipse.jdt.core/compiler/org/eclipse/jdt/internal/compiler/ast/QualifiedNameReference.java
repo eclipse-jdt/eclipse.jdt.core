@@ -220,7 +220,7 @@ public class QualifiedNameReference extends NameReference {
 		boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 		switch (bits & RestrictiveFlagMASK) {
 			case Binding.FIELD : // reading a field
-				if (needValue) {
+				if (needValue || complyTo14) {
 					manageSyntheticAccessIfNecessary(currentScope, (FieldBinding) binding, this.actualReceiverType, 0, flowInfo);
 				}
 				if (this.indexOfFirstFieldBinding == 1) { // was an implicit reference to the first field binding
@@ -266,7 +266,7 @@ public class QualifiedNameReference extends NameReference {
 		if (otherBindings != null) {
 			for (int i = 0; i < otherBindingsCount; i++) {
 				needValue = i < otherBindingsCount-1 ? !otherBindings[i+1].isStatic() : valueRequired;
-				if (needValue || (i > 0 && complyTo14)) {
+				if (needValue || complyTo14) {
 					TypeBinding lastReceiverType = getGenericCast(i);
 					if (lastReceiverType == null) {
 						if (i == 0) {
@@ -375,11 +375,8 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 			codeStream.generateImplicitConversion(assignment.implicitConversion);
 		}
 	}
-	public void generateCode(
-		BlockScope currentScope,
-		CodeStream codeStream,
-		boolean valueRequired) {
-			
+
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {		
 		int pc = codeStream.position;
 		if (constant != Constant.NotAConstant) {
 			if (valueRequired) {
@@ -402,8 +399,11 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 					boolean isFirst = lastFieldBinding == this.binding 
 													&& (this.indexOfFirstFieldBinding == 1 || lastFieldBinding.declaringClass == currentScope.enclosingReceiverType())
 													&& this.otherBindings == null; // could be dup: next.next.next
-					if (valueRequired  || (!isFirst && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
-							|| ((implicitConversion & TypeIds.UNBOXING) != 0)) {
+					TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
+					if (valueRequired  
+							|| (!isFirst && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
+							|| ((implicitConversion & TypeIds.UNBOXING) != 0)
+							|| requiredGenericCast != null) {
 						int lastFieldPc = codeStream.position;
 						if (lastFieldBinding.declaringClass == null) { // array length
 							codeStream.arraylength();
@@ -427,23 +427,21 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 							} else {
 								codeStream.invokestatic(accessor);
 							}
-							TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
+							if (requiredGenericCast != null) codeStream.checkcast(requiredGenericCast);
 							if (valueRequired) {
-								if (requiredGenericCast != null) codeStream.checkcast(requiredGenericCast);
 								codeStream.generateImplicitConversion(implicitConversion);
 							} else {
-								if ((implicitConversion & TypeIds.UNBOXING) != 0) {
-									codeStream.generateImplicitConversion(implicitConversion);
-								}
-								// could occur if !valueRequired but compliance >= 1.4
-								switch (lastFieldBinding.type.id) {
+								boolean isUnboxing = (implicitConversion & TypeIds.UNBOXING) != 0;
+								// conversion only generated if unboxing
+								if (isUnboxing) codeStream.generateImplicitConversion(implicitConversion);
+								switch (isUnboxing ? postConversionType(currentScope).id : lastFieldBinding.type.id) {
 									case T_long :
 									case T_double :
 										codeStream.pop2();
 										break;
 									default :
 										codeStream.pop();
-								}							
+								}
 							}
 						}
 						
@@ -594,7 +592,7 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 				if (lastFieldBinding.constant() != Constant.NotAConstant) {
 					break;
 				}
-				if (needValue && !lastFieldBinding.isStatic()) {
+				if ((needValue && !lastFieldBinding.isStatic()) || lastGenericCast != null) {
 					int pc = codeStream.position;
 					if ((bits & DepthMASK) != 0) {
 						ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
@@ -647,7 +645,7 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 							codeStream.generateConstant(fieldConstant, 0);
 						}
 					} else {
-						if (needValue || (i > 0 && complyTo14)) {
+						if (needValue || (i > 0 && complyTo14) || lastGenericCast != null) {
 							MethodBinding accessor = syntheticReadAccessors == null ? null : syntheticReadAccessors[i]; 
 							if (accessor == null) {
 								if (lastFieldBinding.isStatic()) {
@@ -658,11 +656,8 @@ public void checkNPE(BlockScope scope, FlowContext flowContext,
 							} else {
 								codeStream.invokestatic(accessor);
 							}
-							if (needValue) {
-								if (lastGenericCast != null) codeStream.checkcast(lastGenericCast);
-							} else {
-								codeStream.pop();
-							}
+							if (lastGenericCast != null) codeStream.checkcast(lastGenericCast);
+							if (!needValue) codeStream.pop();
 						} else {
 							if (this.codegenBinding == lastFieldBinding) {
 								if (lastFieldBinding.isStatic()){

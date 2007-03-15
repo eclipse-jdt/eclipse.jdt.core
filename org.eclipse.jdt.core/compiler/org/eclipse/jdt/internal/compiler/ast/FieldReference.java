@@ -188,8 +188,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	}
-	if (valueRequired || (!isThisReceiver && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
-			|| ((implicitConversion & TypeIds.UNBOXING) != 0)) {
+	if (valueRequired 
+			|| (!isThisReceiver && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
+			|| ((implicitConversion & TypeIds.UNBOXING) != 0)
+			|| (this.genericCast != null)) {
 		receiver.generateCode(currentScope, codeStream, !isStatic);
 		pc = codeStream.position;
 		if (this.codegenBinding.declaringClass == null) { // array length
@@ -210,15 +212,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			} else {
 				codeStream.invokestatic(syntheticAccessors[READ]);
 			}
+			// required cast must occur even if no value is required
+			if (this.genericCast != null) codeStream.checkcast(this.genericCast);
 			if (valueRequired) {
-				if (this.genericCast != null) codeStream.checkcast(this.genericCast);
 				codeStream.generateImplicitConversion(implicitConversion);
 			} else {
-				if ((implicitConversion & TypeIds.UNBOXING) != 0) {
-					codeStream.generateImplicitConversion(implicitConversion);
-				}
-				// could occur if !valueRequired but compliance >= 1.4
-				switch (this.codegenBinding.type.id) {
+				boolean isUnboxing = (implicitConversion & TypeIds.UNBOXING) != 0;
+				// conversion only generated if unboxing
+				if (isUnboxing) codeStream.generateImplicitConversion(implicitConversion);
+				switch (isUnboxing ? postConversionType(currentScope).id : this.codegenBinding.type.id) {
 					case T_long :
 					case T_double :
 						codeStream.pop2();
