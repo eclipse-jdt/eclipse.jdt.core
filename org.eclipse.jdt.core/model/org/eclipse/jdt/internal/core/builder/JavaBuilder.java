@@ -167,6 +167,8 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 
 		if (isWorthBuilding()) {
 			if (kind == FULL_BUILD) {
+				if (DEBUG)
+					System.out.println("Performing full build as requested by user"); //$NON-NLS-1$
 				buildAll();
 			} else {
 				if ((this.lastState = getLastState(currentProject)) == null) {
@@ -176,18 +178,24 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 				} else if (hasClasspathChanged()) {
 					// if the output location changes, do not delete the binary files from old location
 					// the user may be trying something
+					if (DEBUG)
+						System.out.println("Performing full build since classpath has changed"); //$NON-NLS-1$
 					buildAll();
 				} else if (nameEnvironment.sourceLocations.length > 0) {
 					// if there is no source to compile & no classpath changes then we are done
 					SimpleLookupTable deltas = findDeltas();
-					if (deltas == null)
+					if (deltas == null) {
+						if (DEBUG)
+							System.out.println("Performing full build since deltas are missing after incremental request"); //$NON-NLS-1$
 						buildAll();
-					else if (deltas.elementSize > 0)
+					} else if (deltas.elementSize > 0)
 						buildDeltas(deltas);
 					else if (DEBUG)
 						System.out.println("Nothing to build since deltas were empty"); //$NON-NLS-1$
 				} else {
 					if (hasStructuralDelta()) { // double check that a jar file didn't get replaced in a binary project
+						if (DEBUG)
+							System.out.println("Performing full build since there are structural deltas"); //$NON-NLS-1$
 						buildAll();
 					} else {
 						if (DEBUG)
@@ -255,8 +263,11 @@ private void buildDeltas(SimpleLookupTable deltas) {
 	IncrementalImageBuilder imageBuilder = new IncrementalImageBuilder(this);
 	if (imageBuilder.build(deltas))
 		recordNewState(imageBuilder.newState);
-	else
+	else {
+		if (DEBUG)
+			System.out.println("Performing full build since incremental build failed"); //$NON-NLS-1$
 		buildAll();
+	}
 }
 
 protected void clean(IProgressMonitor monitor) throws CoreException {
