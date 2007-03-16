@@ -4686,4 +4686,112 @@ public void test0126(){
 			expectedReplacedSource,
 	"diet ast");
 }
+public void test0127(){
+	String str =
+		"public class Test {\n" +
+		"  public static final int zzint = 0;\n" +
+		"  @ZZAnnotation({ZZ})\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "{ZZ";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:ZZ>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ZZ";
+	String expectedReplacedSource = "ZZ";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public static final int zzint;\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  @ZZAnnotation({<CompleteOnName:ZZ>}) void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0128(){
+	String str =
+		"public class Test {\n" +
+		"  public static final int zzint = 0;\n" +
+		"  @ZZAnnotation(value={ZZ})\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "{ZZ";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:ZZ>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ZZ";
+	String expectedReplacedSource = "ZZ";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public static final int zzint;\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  @ZZAnnotation(value = {<CompleteOnName:ZZ>}) void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0129(){
+	String str =
+		"public class Test {\n" +
+		"  public static final int zzint = 0;\n" +
+		"  @ZZAnnotation({ZZ\n" +
+		"}";
+
+
+	String completeBehind = "{ZZ";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:ZZ>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ZZ";
+	String expectedReplacedSource = "ZZ";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  @ZZAnnotation(value = {<CompleteOnName:ZZ>})\n" + 
+		"  public static final int zzint;\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }

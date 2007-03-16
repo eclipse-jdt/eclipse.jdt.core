@@ -2187,18 +2187,23 @@ MemberValue -> MemberValueArrayInitializer
 /:$readableName MemberValue:/
 /:$compliance 1.5:/
 
-MemberValueArrayInitializer ::= '{' PushLeftBrace MemberValues ',' '}'
+MemberValueArrayInitializer ::= EnterMemberValueArrayInitializer '{' PushLeftBrace MemberValues ',' '}'
 /.$putCase consumeMemberValueArrayInitializer() ; $break ./
 /:$compliance 1.5:/
-MemberValueArrayInitializer ::= '{' PushLeftBrace MemberValues '}'
+MemberValueArrayInitializer ::= EnterMemberValueArrayInitializer '{' PushLeftBrace MemberValues '}'
 /.$putCase consumeMemberValueArrayInitializer() ; $break ./
 /:$compliance 1.5:/
-MemberValueArrayInitializer ::= '{' PushLeftBrace ',' '}'
+MemberValueArrayInitializer ::= EnterMemberValueArrayInitializer '{' PushLeftBrace ',' '}'
 /.$putCase consumeEmptyMemberValueArrayInitializer() ; $break ./
 /:$compliance 1.5:/
-MemberValueArrayInitializer ::= '{' PushLeftBrace '}'
+MemberValueArrayInitializer ::= EnterMemberValueArrayInitializer '{' PushLeftBrace '}'
 /.$putCase consumeEmptyMemberValueArrayInitializer() ; $break ./
 /:$readableName MemberValueArrayInitializer:/
+/:$compliance 1.5:/
+
+EnterMemberValueArrayInitializer ::= $empty
+/.$putCase consumeEnterMemberValueArrayInitializer() ; $break ./
+/:$readableName EnterMemberValueArrayInitializer:/
 /:$compliance 1.5:/
 
 MemberValues -> MemberValue

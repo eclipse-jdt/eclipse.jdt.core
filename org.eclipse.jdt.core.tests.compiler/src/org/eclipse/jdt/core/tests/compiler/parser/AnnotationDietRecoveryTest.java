@@ -586,4 +586,50 @@ public void test0010() {
 		expectedCompletionDietUnitToString,	
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=176725
+public void test0011() {
+
+	String s = 
+		"package a;										\n"
+			+ "public class X {							\n"
+			+ "  #										\n"
+			+ "  @AnAnnotation({var})					\n"
+			+ "  public void foo() {					\n"
+			+ "  }										\n"
+			+ "}										\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public @AnAnnotation({var}) void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public @AnAnnotation({var}) void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
 }

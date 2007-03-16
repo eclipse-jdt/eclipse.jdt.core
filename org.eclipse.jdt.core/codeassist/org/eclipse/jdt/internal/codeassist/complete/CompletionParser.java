@@ -72,6 +72,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_INSIDE_BREAK_STATEMENT = COMPLETION_PARSER + 34;
 	protected static final int K_INSIDE_CONTINUE_STATEMENT = COMPLETION_PARSER + 35;
 	protected static final int K_LABEL = COMPLETION_PARSER + 36;
+	protected static final int K_MEMBER_VALUE_ARRAY_INITIALIZER = COMPLETION_PARSER + 37;
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
 	public final static char[] FAKE_METHOD_NAME = new char[]{' '};
@@ -279,7 +280,14 @@ protected void attachOrphanCompletionNode(){
 		if (this.expressionPtr > -1) {
 			expression = this.expressionStack[this.expressionPtr];
 			if(expression == assistNode) {
-				if(this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) {
+				if (this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_MEMBER_VALUE_ARRAY_INITIALIZER ) {
+					ArrayInitializer arrayInitializer = new ArrayInitializer();
+					arrayInitializer.expressions = new Expression[]{expression};
+				
+					MemberValuePair valuePair =
+							new MemberValuePair(VALUE, expression.sourceStart, expression.sourceEnd, arrayInitializer);
+						buildMoreAnnotationCompletionContext(valuePair);
+				} else if(this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) {
 					if (expression instanceof SingleNameReference) {
 						SingleNameReference nameReference = (SingleNameReference) expression;
 						CompletionOnMemberValueName memberValueName = new CompletionOnMemberValueName(nameReference.token, nameReference.sourceStart, nameReference.sourceEnd);
@@ -2663,10 +2671,17 @@ protected void consumeToken(int token) {
 				}
 				break;
 			case TokenNameRBRACE:
-				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BLOCK_DELIMITER) {
-					popElement(K_BLOCK_DELIMITER);
-				} else {
-					popElement(K_ARRAY_INITIALIZER);
+				int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
+				switch (kind) {
+					case K_BLOCK_DELIMITER:
+						popElement(K_BLOCK_DELIMITER);
+						break;
+					case K_MEMBER_VALUE_ARRAY_INITIALIZER:
+						popElement(K_MEMBER_VALUE_ARRAY_INITIALIZER);
+						break;
+					default:
+						popElement(K_ARRAY_INITIALIZER);
+						break;
 				}
 				break;
 			case TokenNameRBRACKET:
@@ -2803,11 +2818,13 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameLBRACE:
 				this.bracketDepth++;
-				int kind;
-				if((kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) == K_FIELD_INITIALIZER_DELIMITER
+				int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
+				if(kind == K_FIELD_INITIALIZER_DELIMITER
 					|| kind == K_LOCAL_INITIALIZER_DELIMITER
 					|| kind == K_ARRAY_CREATION) {
 					pushOnElementStack(K_ARRAY_INITIALIZER, endPosition);
+				} else if (kind == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) {
+					pushOnElementStack(K_MEMBER_VALUE_ARRAY_INITIALIZER, endPosition);
 				} else {
 					switch(previous) {
 						case TokenNameRPAREN :
@@ -3061,6 +3078,16 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNamecontinue:
 				pushOnElementStack(K_INSIDE_CONTINUE_STATEMENT, bracketDepth);
+				break;
+		}
+	} else if (isInsideAnnotation()){
+		switch (token) {
+			case TokenNameLBRACE:
+				this.bracketDepth++;
+				int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
+				if (kind == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) {
+					pushOnElementStack(K_MEMBER_VALUE_ARRAY_INITIALIZER, endPosition);
+				}
 				break;
 		}
 	} else {
