@@ -278,7 +278,7 @@ public abstract class ClasspathContainerInitializer {
 	 * @param containerPath the path of the container which requires to be
 	 * 	updated
 	 * @param project the project for which the container is to be updated
-	 * @return returns the source attachment attirbute status
+	 * @return returns the access rules attribute status
 	 *
 	 * @since 3.3
 	 */
@@ -291,7 +291,7 @@ public abstract class ClasspathContainerInitializer {
 	}
 
 	/**
-	 * Returns an extra attribute status according to this initializer.
+	 * Returns the extra attribute status according to this initializer.
 	 * <p>
 	 * The returned {@link IStatus status} can have one of the following severities:
 	 * <ul>
@@ -315,7 +315,8 @@ public abstract class ClasspathContainerInitializer {
 	 * 	updated
 	 * @param project the project for which the container is to be updated
 	 * @param attributeKey the key of the extra attribute
-	 * @return returns the source attachment attirbute status
+	 * @return returns the extra attribute status
+	 * @see IClasspathAttribute
 	 *
 	 * @since 3.3
 	 */
@@ -351,7 +352,7 @@ public abstract class ClasspathContainerInitializer {
 	 * @param containerPath the path of the container which requires to be
 	 * 	updated
 	 * @param project the project for which the container is to be updated
-	 * @return returns the source attachment attirbute status
+	 * @return returns the source attachment attribute status
 	 *
 	 * @since 3.3
 	 */
