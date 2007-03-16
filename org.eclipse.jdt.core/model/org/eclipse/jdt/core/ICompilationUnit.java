@@ -12,8 +12,10 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.IBinding;
 
 
 /**
@@ -45,13 +47,16 @@ public static final int NO_AST = 0;
 public static final int FORCE_PROBLEM_DETECTION = 0x02;
 
 /**
- * Constant indicating that a reconcile operation should enable the statements recovery
+ * Constant indicating that a reconcile operation should enable the statements recovery.
+ * @see ASTParser#setStatementsRecovery(boolean)
  * @since 3.3
  */
 public static final int ENABLE_STATEMENTS_RECOVERY = 0x04;
 
 /**
  * Constant indicating that a reconcile operation should enable the bindings recovery
+ * @see ASTParser#setBindingsRecovery(boolean)
+ * @see IBinding#isRecovered()
  * @since 3.3
  */
 public static final int ENABLE_BINDINGS_RECOVERY = 0x08;
