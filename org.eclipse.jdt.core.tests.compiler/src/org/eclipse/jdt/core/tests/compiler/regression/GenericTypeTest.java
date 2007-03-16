@@ -37088,5 +37088,24 @@ public void test1117() {
 		assertTrue(false);
 	}			
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177715
+public void test1118() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	X() {\n" + 
+			"		Class<? extends List<?>> cls = null;\n" + 
+			"		foo(cls);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	<I, T extends List<I>> T foo(Class<T> pClass) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");		
+}
 }
