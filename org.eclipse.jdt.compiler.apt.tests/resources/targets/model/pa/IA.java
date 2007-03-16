@@ -1,5 +1,7 @@
 package targets.model.pa;
 
-public interface IA {
+import java.util.List;
 
+public interface IA {
+	public String methodIAString();
 }

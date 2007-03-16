@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 
 import junit.framework.TestCase;
 
@@ -27,31 +28,60 @@ import junit.framework.TestCase;
  */
 public class ModelTests extends TestCase {
 	
-	JavaCompiler _compiler = null;
+	// See corresponding usages in the ElementProc class
+	private static final String ELEMENTPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.elements.ElementProc";
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		BatchTestUtils.init();
-		_compiler = BatchTestUtils.getEclipseCompiler();
-		// For sanity checking, replace above line with this:
-		// _compiler = ToolProvider.getSystemJavaCompiler();
+	}
+
+	/**
+	 * Validate the testElement test against the javac compiler.
+	 * @throws IOException 
+	 */
+	public void testElementWithSystemCompiler() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestElement(compiler);
 	}
 
 	/**
 	 * Attempt to read various elements of the Element hierarchy.
 	 * @throws IOException 
 	 */
-	public void testElement() throws IOException {
+	public void testElementWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestElement(compiler);
+	}
+
+	/**
+	 * Attempt to read various elements of the Element hierarchy.
+	 * @throws IOException
+	 */
+	private void internalTestElement(JavaCompiler compiler) throws IOException {
+		System.clearProperty(ELEMENTPROCNAME);
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "model");
 		BatchTestUtils.copyResources("targets/model", targetFolder);
 
 		List<String> options = new ArrayList<String>();
-		options.add("-Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.ElementProc");
-		BatchTestUtils.compileTree(_compiler, options, targetFolder);
+		options.add("-A" + ELEMENTPROCNAME);
+		BatchTestUtils.compileTree(compiler, options, targetFolder);
 
-		// check that everything was processed
+		// If it succeeded, the processor will have set this property to "succeeded";
+		// if not, it will set it to an error value.
+		assertEquals("succeeded", System.getProperty(ELEMENTPROCNAME));
 	}
+
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	@Override
+	protected void tearDown() throws Exception {
+		System.clearProperty(ELEMENTPROCNAME);
+		super.tearDown();
+	}
+	
 
 
 }
