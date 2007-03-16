@@ -52,7 +52,7 @@ public abstract class ClasspathContainerInitializer {
 	 *
 	 * @since 3.3
 	 */
-	public static final int ATTRIBUTE_NOT_SUPPORTED= 1;
+	public static final int ATTRIBUTE_NOT_SUPPORTED = 1;
 
 	/**
 	 * Status code indicating that an attribute is not modifiable.
@@ -63,7 +63,7 @@ public abstract class ClasspathContainerInitializer {
 	 *
 	 * @since 3.3
 	 */
-	public static final int ATTRIBUTE_READ_ONLY= 2;
+	public static final int ATTRIBUTE_READ_ONLY = 2;
 
    /**
      * Creates a new classpath container initializer.
