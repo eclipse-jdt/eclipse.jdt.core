@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
@@ -21,16 +24,9 @@ import javax.lang.model.type.TypeMirror;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
-//TODO: I'm putting these things into HashSets, so I better figure out equality and hash!
 public class TypeElementImpl extends ElementImpl implements TypeElement {
 	
-	public static TypeElement newTypeElementImpl(ReferenceBinding binding)
-	{
-		//TODO: to get equality, probably want to cache these.  What's the lifecycle of the cache and who owns it?
-		return new TypeElementImpl(binding);
-	}
-
-	private TypeElementImpl(ReferenceBinding binding) {
+	/* package */ TypeElementImpl(ReferenceBinding binding) {
 		super(binding);
 		// TODO Auto-generated constructor stub
 	}
@@ -46,13 +42,42 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		return new String(name);
 	}
 	
-	protected ReferenceBinding getReferenceBinding() {
-		return (ReferenceBinding)_binding;
+	public List<? extends TypeMirror> getInterfaces() {
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		if (null == binding.superInterfaces() || binding.superInterfaces().length == 0) {
+			return Collections.emptyList();
+		}
+		List<TypeMirror> interfaces = new ArrayList<TypeMirror>(binding.superInterfaces().length);
+		for (ReferenceBinding interfaceBinding : binding.superInterfaces()) {
+			TypeMirror interfaceType = Factory.newTypeMirror(interfaceBinding);
+			interfaces.add(interfaceType);
+		}
+		return interfaces;
 	}
 
-	public List<? extends TypeMirror> getInterfaces() {
-		// TODO Auto-generated method stub
-		return null;
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getKind()
+	 */
+	@Override
+	public ElementKind getKind() {
+		ReferenceBinding refBinding = (ReferenceBinding)_binding;
+		// The order of these comparisons is important: e.g., enum is subset of class
+		if (refBinding.isEnum()) {
+			return ElementKind.ENUM;
+		}
+		else if (refBinding.isAnnotationType()) {
+			return ElementKind.ANNOTATION_TYPE;
+		}
+		else if (refBinding.isInterface()) {
+			return ElementKind.INTERFACE;
+		}
+		else if (refBinding.isClass()) {
+			return ElementKind.CLASS;
+		}
+		else {
+			throw new IllegalArgumentException("TypeElement " + new String(refBinding.shortReadableName()) +  //$NON-NLS-1$
+					" has unexpected attributes " + refBinding.modifiers); //$NON-NLS-1$
+		}
 	}
 
 	public NestingKind getNestingKind() {
@@ -61,8 +86,9 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	}
 
 	public Name getQualifiedName() {
+		ReferenceBinding binding = (ReferenceBinding)_binding;
 		//TODO: what is the right way to get this (including member types, parameterized types, ...?
-		return new NameImpl(CharOperation.concatWith(getReferenceBinding().compoundName, '.'));
+		return new NameImpl(CharOperation.concatWith(binding.compoundName, '.'));
 	}
 
 	public TypeMirror getSuperclass() {

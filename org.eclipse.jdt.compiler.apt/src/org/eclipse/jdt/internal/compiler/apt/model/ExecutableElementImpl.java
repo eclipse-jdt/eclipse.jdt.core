@@ -13,14 +13,17 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 import java.util.List;
 
 import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class ExecutableElementImpl extends ElementImpl implements
 		ExecutableElement {
@@ -40,7 +43,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		return _name;
 	}
 
-	ExecutableElementImpl(MethodBinding binding) {
+	/* package */ ExecutableElementImpl(MethodBinding binding) {
 		super(binding);
 		// TODO Auto-generated constructor stub
 	}
@@ -60,6 +63,26 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (name == null)
 			return null;
 		return new String(name);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getKind()
+	 */
+	@Override
+	public ElementKind getKind() {
+		MethodBinding binding = (MethodBinding)_binding;
+		if (binding.isConstructor()) {
+			return ElementKind.CONSTRUCTOR;
+		}
+		else if (CharOperation.equals(binding.selector, TypeConstants.CLINIT)) {
+			return ElementKind.STATIC_INIT;
+		}
+		else if (CharOperation.equals(binding.selector, TypeConstants.INIT)) {
+			return ElementKind.INSTANCE_INIT;
+		}
+		else {
+			return ElementKind.METHOD;
+		}
 	}
 
 	public List<? extends VariableElement> getParameters() {

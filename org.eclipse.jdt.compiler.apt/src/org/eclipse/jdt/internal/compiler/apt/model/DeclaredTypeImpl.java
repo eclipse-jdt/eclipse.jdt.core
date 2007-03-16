@@ -27,18 +27,10 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
  * Contrast with {@link TypeElement}, which is an element that potentially defines a family
  * of DeclaredTypes.
  */
-public class DeclaredTypeImpl implements DeclaredType {
+public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 	
-	private final ReferenceBinding _binding;
-
-	private DeclaredTypeImpl(ReferenceBinding binding) {
-		_binding = binding;
-	}
-
-	public static DeclaredType newDeclaredTypeImpl(ReferenceBinding binding)
-	{
-		//TODO: to get equality, probably want to cache these.  What's the lifecycle of the cache and who owns it?
-		return new DeclaredTypeImpl(binding);
+	/* package */ DeclaredTypeImpl(ReferenceBinding binding) {
+		super(binding);
 	}
 
 	/* (non-Javadoc)
@@ -46,7 +38,8 @@ public class DeclaredTypeImpl implements DeclaredType {
 	 */
 	@Override
 	public Element asElement() {
-		return TypeElementImpl.newTypeElementImpl(_binding);
+		// The JDT compiler does not distinguish between type elements and declared types
+		return Factory.newElement((ReferenceBinding)_binding);
 	}
 
 	/* (non-Javadoc)
@@ -81,8 +74,7 @@ public class DeclaredTypeImpl implements DeclaredType {
 	 */
 	@Override
 	public TypeKind getKind() {
-		// TODO Auto-generated method stub
-		return null;
+		return TypeKind.DECLARED;
 	}
 
 	@Override

@@ -25,6 +25,7 @@ import javax.lang.model.util.Types;
 
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.apt.model.ElementsImpl;
+import org.eclipse.jdt.internal.compiler.apt.model.TypesImpl;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 
@@ -49,7 +50,7 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 		_addedUnits = new ArrayList<ICompilationUnit>();
 		_deletedUnits = new ArrayList<ICompilationUnit>();
 		_elementUtils = new ElementsImpl(this);
-		//TODO: _typeUtils = new TypesImpl(this);
+		_typeUtils = new TypesImpl(this);
 	}
 
 	public void addNewUnit(ICompilationUnit unit) {

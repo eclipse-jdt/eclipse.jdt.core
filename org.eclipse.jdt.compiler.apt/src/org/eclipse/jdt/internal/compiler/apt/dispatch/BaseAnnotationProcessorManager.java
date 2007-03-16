@@ -135,7 +135,7 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 	 */
 	@Override
 	public void processAnnotations(CompilationUnitDeclaration[] units, boolean isLastRound) {
-		RoundEnvImpl roundEnv = new RoundEnvImpl(units, isLastRound);
+		RoundEnvImpl roundEnv = new RoundEnvImpl(units, isLastRound, _processingEnv);
 		if (_isFirstRound) {
 			_isFirstRound = false;
 		}

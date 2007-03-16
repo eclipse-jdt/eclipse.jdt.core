@@ -37,7 +37,7 @@ public class ElementImpl
 	
 	protected final Binding _binding;
 	
-	ElementImpl(Binding binding) {
+	/* package */ ElementImpl(Binding binding) {
 		_binding = binding;
 	}
 
@@ -77,9 +77,29 @@ public class ElementImpl
 		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see javax.lang.model.element.Element#getKind()
+	 * Subclasses may wish to implement this more efficiently
+	 */
 	public ElementKind getKind() {
-		// TODO Auto-generated method stub
-		return null;
+		switch (_binding.kind()) {
+		case Binding.FIELD:
+			return ElementKind.FIELD;
+		case Binding.LOCAL:
+			return ElementKind.LOCAL_VARIABLE;
+		case Binding.PACKAGE:
+			return ElementKind.PACKAGE;
+		case Binding.TYPE_PARAMETER:
+			return ElementKind.TYPE_PARAMETER;
+			
+		// case Binding.TYPE: handled by TypeElementImpl
+		// case Binding.METHOD: handled by ExecutableElementImpl
+		// case Binding.ARRAY_TYPE, etc: see TypeMirrorImpl.getKind()
+		default:
+			throw new IllegalArgumentException();
+		
+		}
 	}
 
 	public Set<Modifier> getModifiers() {

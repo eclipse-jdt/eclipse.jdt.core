@@ -12,24 +12,28 @@ package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
 import java.lang.annotation.Annotation;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
+import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 
 public class RoundEnvImpl implements RoundEnvironment
 {
-
+	//private final BaseProcessingEnvImpl _processingEnv;
 	private boolean _errorRaised = false;
 	private final boolean _isLastRound;
 	private final CompilationUnitDeclaration[] _units;
 	private final ManyToMany<TypeElement, Element> _annoToUnit;
 
-	public RoundEnvImpl(CompilationUnitDeclaration[] units, boolean isLastRound) {
+	public RoundEnvImpl(CompilationUnitDeclaration[] units, boolean isLastRound, BaseProcessingEnvImpl env) {
+		//_processingEnv = env;
 		_isLastRound = isLastRound;
 		_units = units;
 		
@@ -73,8 +77,19 @@ public class RoundEnvImpl implements RoundEnvironment
 	@Override
 	public Set<? extends Element> getRootElements()
 	{
-		// TODO Convert _units into Set<TypeElement>
-		return null;
+		Set<TypeElement> elements = new HashSet<TypeElement>(_units.length);
+		for (CompilationUnitDeclaration unit : _units) {
+			if (null == unit.scope || null == unit.scope.topLevelTypes)
+				continue;
+			for (SourceTypeBinding binding : unit.scope.topLevelTypes) {
+				TypeElement element = (TypeElement)Factory.newElement(binding);
+				if (null == element) {
+					throw new IllegalArgumentException("Top-level type binding could not be converted to element: " + binding); //$NON-NLS-1$
+				}
+				elements.add(element);
+			}
+		}
+		return elements;
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.apt.model.ElementFactory;
+import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
@@ -154,8 +154,8 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		for (Annotation annotation : annotations) {
 			AnnotationBinding binding = annotation.getCompilerAnnotation();
 			if (binding != null) { // binding should be resolved, but in case it's not, ignore it
-				TypeElement anno = (TypeElement)ElementFactory.newElement(binding.getAnnotationType()); 
-				Element element = ElementFactory.newElement(currentBinding);
+				TypeElement anno = (TypeElement)Factory.newElement(binding.getAnnotationType()); 
+				Element element = Factory.newElement(currentBinding);
 				_annoToElement.put(anno, element);
 			}
 		}

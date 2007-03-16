@@ -7,3 +7,4 @@ Code snippet and variable evaluation (should NOT generate new types?)
 FilerException thrown when processor tries to create same file twice.  See javadoc for Filer.
 Annotations on every possible element (fields, parameters, member classes, methods...)
 Originating elements of every possible type (including package and things that can't be annotated)
+Static and instance initializers (e.g., ElementKind.getKind())

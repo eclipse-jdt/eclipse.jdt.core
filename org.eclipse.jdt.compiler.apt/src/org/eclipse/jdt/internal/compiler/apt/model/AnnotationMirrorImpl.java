@@ -31,13 +31,13 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 		return new AnnotationMirrorImpl(binding);
 	}
 	
-	private AnnotationMirrorImpl(AnnotationBinding binding) {
+	/* package */ AnnotationMirrorImpl(AnnotationBinding binding) {
 		_binding = binding;
 	}
 
 	public DeclaredType getAnnotationType() {
 		ReferenceBinding annoType = _binding.getAnnotationType();
-		return DeclaredTypeImpl.newDeclaredTypeImpl(annoType);
+		return Factory.newDeclaredType(annoType);
 	}
 
 	public Map<? extends ExecutableElement, ? extends AnnotationValue> getElementValues() {

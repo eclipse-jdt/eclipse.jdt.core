@@ -27,6 +27,7 @@ import javax.lang.model.util.Elements;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * Utilities for working with language elements.
@@ -36,6 +37,10 @@ public class ElementsImpl implements Elements {
 	
 	private final BaseProcessingEnvImpl _env;
 	
+	/*
+	 * The processing env creates and caches an ElementsImpl.  Other clients should
+	 * not create their own; they should ask the env for it.
+	 */
 	public ElementsImpl(BaseProcessingEnvImpl env) {
 		_env = env;
 	}
@@ -135,7 +140,11 @@ public class ElementsImpl implements Elements {
 		for (int i = 0; i < length; i++) {
 			compoundName[i] = parts[i].toCharArray();
 		}
-		return TypeElementImpl.newTypeElementImpl(le.getType(compoundName));
+		ReferenceBinding binding = le.getType(compoundName);
+		if (binding == null) {
+			return null;
+		}
+		return new TypeElementImpl(binding);
 	}
 
 	/* (non-Javadoc)

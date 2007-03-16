@@ -43,7 +43,7 @@ public class ElementProc extends AbstractProcessor {
 	private static final String CLASSNAME = ElementProc.class.getName();
 	
 	// The set of elements we expect getRootElements to return
-	private static final String[] _rootElementNames = new String[] {"AnnoZ", "A", "IA", "AB", "AC", "D", "IB", "IC"};
+	private static final String[] ROOT_ELEMENT_NAMES = new String[] {"AnnoZ", "A", "IA", "AB", "AC", "D", "IB", "IC"};
 	
 	/**
 	 * Report an error to the test case code
@@ -89,8 +89,8 @@ public class ElementProc extends AbstractProcessor {
 		}
 		
 		// Verify that we get the root elements we expect
-		Set<String> expectedRootElementNames = new HashSet<String>(_rootElementNames.length);
-		for (String name : _rootElementNames) {
+		Set<String> expectedRootElementNames = new HashSet<String>(ROOT_ELEMENT_NAMES.length);
+		for (String name : ROOT_ELEMENT_NAMES) {
 			expectedRootElementNames.add(name);
 		}
 		Set<? extends Element> actualRootElements = roundEnv.getRootElements();
