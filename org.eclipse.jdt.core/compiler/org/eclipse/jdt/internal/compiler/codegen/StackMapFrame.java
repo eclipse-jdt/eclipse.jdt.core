@@ -76,6 +76,7 @@ public void addLocal(int resolvedPosition, VerificationTypeInfo info) {
 	}
 }
 public void addStackItem(VerificationTypeInfo info) {
+	if (info == null) return;
 	if (this.stackItems == null) {
 		this.stackItems = new VerificationTypeInfo[1];
 		this.stackItems[0] = info;
