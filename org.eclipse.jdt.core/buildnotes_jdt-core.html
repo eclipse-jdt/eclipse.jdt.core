@@ -51,6 +51,24 @@ Eclipse SDK 3.3M6 - %date%
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_742">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>As some clients need to know if some classpath container children attributes are supported or
+can be modifiable, the following API methods have been added in <code>org.eclipse.jdt.core.ClasspathContainerInitializer</code> class:
+<ul>
+<li><code>#getAccessRulesStatus(IPath, IJavaProject)</code></li>
+<li><code>#getAttributeStatus(IPath, IJavaProject, String)</code></li>
+<li><code>#getSourceAttachmentStatus(IPath, IJavaProject)</code></li>
+</ul>
+For each of these methods, the returned status can have one of the following severities:
+<ul>
+<li><code>IStatus#OK</code>: means that the attribute is supported <strong>and</strong> is modifiable</li>
+<li><code>IStatus#ERROR</code>: means that either the attribute is not supported or is not modifiable.<br>
+	In this case, the <code>IStatus#getCode()</code> will have respectively the <code>#ATTRIBUTE_NOT_SUPPORTED</code> value
+	or the <code>#ATTRIBUTE_READ_ONLY</code> value.</li>
+</ul>
+Note that if the subclass does not override this method, then the default behavior is
+to return </code>IStatus#OK</code> if and only if the classpath container can
+be updated (see <code>#canUpdateClasspathContainer(IPath, IJavaProject)</code>).
+</li>
 <li>API addition to fix bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=130001">130001</a>. It is being able for a user
 to query what options were enabled when the DOM/AST tree has been created. The following API methods have been added:
 <ul>
@@ -113,7 +131,9 @@ And are obviously replaced by following methods:
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=177478">177478</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=168077">168077</a>
+[classpath] Let classpath containers define what is configurable
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=177478">177478</a>
 [formatter] Indent new lines option adds extra empty lines
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=130001">130001</a>
 [api][AST] org.eclipse.jdt.core.dom.AST: should have API hasResolvedBindings, hasStatementRecovery
