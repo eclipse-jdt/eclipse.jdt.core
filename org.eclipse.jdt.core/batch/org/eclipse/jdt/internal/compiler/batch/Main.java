@@ -252,8 +252,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			//sanity .....
 			int startPosition = problem.getSourceStart();
 			int endPosition = problem.getSourceEnd();
+			int length = unitSource.length;
 			if ((startPosition > endPosition)
-					|| ((startPosition < 0) && (endPosition < 0))) {
+					|| ((startPosition < 0) && (endPosition < 0))
+					|| (length <= 0)
+					|| (endPosition > length)) {
 				this.parameters.put(Logger.VALUE, Messages.problem_noSourceInformation);
 				this.parameters.put(Logger.SOURCE_START, "-1"); //$NON-NLS-1$
 				this.parameters.put(Logger.SOURCE_END, "-1"); //$NON-NLS-1$
@@ -267,7 +270,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			//(the code still works but the display is not optimal !)
 
 			// expand to line limits
-			int length = unitSource.length, begin, end;
+			int begin, end;
 			for (begin = startPosition >= length ? length - 1 : startPosition; begin > 0; begin--) {
 				if ((c = unitSource[begin - 1]) == '\n' || c == '\r') break;
 			}

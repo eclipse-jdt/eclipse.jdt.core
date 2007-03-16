@@ -2415,7 +2415,7 @@ public void incorrectArityForParameterizedType(ASTNode location, TypeBinding typ
 			new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true)},
 			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
-			1);
+			0);
 		return; // not reached since aborted above
     }
 	this.handle(
@@ -4883,7 +4883,7 @@ public void nonGenericTypeCannotBeParameterized(int index, ASTNode location, Typ
 			new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true)},
 			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
-			1);
+			0);
 	    return;
 	}
     this.handle(
@@ -5153,7 +5153,7 @@ public void parameterizedMemberTypeMissingArguments(ASTNode location, TypeBindin
 			new String[] {new String(type.shortReadableName())},
 			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
-			1);
+			0);
 	    return;
 	}
     this.handle(
@@ -5475,7 +5475,7 @@ public void rawMemberTypeCannotBeParameterized(ASTNode location, ReferenceBindin
 			new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true), new String(type.enclosingType().shortReadableName())},
 			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
-			1);
+			0);
 	    return;
 	}
     this.handle(
@@ -5777,7 +5777,7 @@ public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding t
 			new String[] {new String(type.shortReadableName()), new String(type.enclosingType().shortReadableName()), },
 			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
-			1);
+			0);
 	    return;
 	}
 	int end = location.sourceEnd;
@@ -6023,7 +6023,7 @@ public void typeMismatchError(TypeBinding typeArgument, TypeVariableBinding type
 			new String[] { new String(typeArgument.shortReadableName()), new String(genericType.shortReadableName()), new String(typeParameter.sourceName), parameterBoundAsString(typeParameter, true) },
 			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 			0,
-			1);
+			0);
         return;
     }
 	this.handle(
@@ -6074,7 +6074,7 @@ public void undefinedTypeVariableSignature(char[] variableName, ReferenceBinding
 		new String[] {new String(variableName), new String(binaryType.shortReadableName())},
 		ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
 		0,
-		1);
+		0);
 }
 public void undocumentedEmptyBlock(int blockStart, int blockEnd) {
 	this.handle(
