@@ -85,9 +85,9 @@ public class WildcardBinding extends ReferenceBinding {
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
 	 * Constraints:
-	 *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., 1)
-	 *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
-	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
+	 *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_EXTENDS (1))
+	 *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., CONSTRAINT_EQUAL (0))
+	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_SUPER (2))
 	 */
 	public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
 

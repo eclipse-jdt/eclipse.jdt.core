@@ -107,9 +107,9 @@ public TypeBinding capture(Scope scope, int position) {
  * Collect the substitutes into a map for certain type variables inside the receiver type
  * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
  * Constraints:
- *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., 1)
- *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
- *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
+ *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_EXTENDS (1))
+ *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., CONSTRAINT_EQUAL (0))
+ *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_SUPER (2))
  */
 public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
 	// no substitute by default
