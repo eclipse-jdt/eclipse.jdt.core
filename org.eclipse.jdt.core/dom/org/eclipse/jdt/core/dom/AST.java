@@ -1183,7 +1183,10 @@ public final class AST {
 	 */
 	private final Object[] THIS_AST= new Object[] {this};
 
-	static final int RESOLVED_BINDINGS = 0x01;
+	/*
+	 * Must not collide with a value for ICompilationUnit constants
+	 */
+	static final int RESOLVED_BINDINGS = 0x80000000;
 
 	/**
 	 * Tag bit value. This represents internal state of the tree.

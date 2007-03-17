@@ -44,14 +44,14 @@ public static final int NO_AST = 0;
  * even if the source hasn't changed.
  * @since 3.3
  */
-public static final int FORCE_PROBLEM_DETECTION = 0x02;
+public static final int FORCE_PROBLEM_DETECTION = 0x01;
 
 /**
  * Constant indicating that a reconcile operation should enable the statements recovery.
  * @see ASTParser#setStatementsRecovery(boolean)
  * @since 3.3
  */
-public static final int ENABLE_STATEMENTS_RECOVERY = 0x04;
+public static final int ENABLE_STATEMENTS_RECOVERY = 0x02;
 
 /**
  * Constant indicating that a reconcile operation should enable the bindings recovery
@@ -59,7 +59,7 @@ public static final int ENABLE_STATEMENTS_RECOVERY = 0x04;
  * @see IBinding#isRecovered()
  * @since 3.3
  */
-public static final int ENABLE_BINDINGS_RECOVERY = 0x08;
+public static final int ENABLE_BINDINGS_RECOVERY = 0x04;
 
 /**
  * Changes this compilation unit handle into a working copy. A new {@link IBuffer} is
