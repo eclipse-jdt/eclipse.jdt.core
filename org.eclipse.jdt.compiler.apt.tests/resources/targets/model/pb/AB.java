@@ -8,7 +8,7 @@ public class AB implements IB, IA {
 		
 	}
 	
-	protected List<IA> fieldListIA;
+	protected List<IA> _fieldListIA;
 	
-	public String methodIAString() { return null; }
+	public String methodIAString(int int1) { return null; }
 }

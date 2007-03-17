@@ -26,14 +26,14 @@ public class Factory {
 
 	public static Element newElement(Binding binding) {
 		switch (binding.kind()) {
-		// TODO: fill in the rest of these
 		case Binding.FIELD:
 		case Binding.LOCAL:
 		case Binding.VARIABLE:
-			throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+			return new VariableElementImpl(binding);
 		case Binding.TYPE:
 			return new TypeElementImpl((ReferenceBinding)binding);
 		case Binding.METHOD:
+		// TODO: fill in the rest of these
 		case Binding.PACKAGE:
 		case Binding.IMPORT:
 		case Binding.ARRAY_TYPE:
@@ -79,5 +79,5 @@ public class Factory {
 		}
 		return null;
 	}
-	
+
 }

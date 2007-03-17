@@ -14,14 +14,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 public class TypeElementImpl extends ElementImpl implements TypeElement {
@@ -31,6 +36,40 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		// TODO Auto-generated constructor stub
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getEnclosedElements()
+	 */
+	@Override
+	public List<? extends Element> getEnclosedElements() {
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		List<Element> enclosed = new ArrayList<Element>(binding.fieldCount() + binding.methods().length);
+		for (MethodBinding method : binding.methods()) {
+			ExecutableElement executable = new ExecutableElementImpl(method);
+			enclosed.add(executable);
+		}
+		for (FieldBinding field : binding.fields()) {
+			 VariableElement variable = new VariableElementImpl(field);
+			 enclosed.add(variable);
+		}
+		return Collections.unmodifiableList(enclosed);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getEnclosingElement()
+	 */
+	@Override
+	public Element getEnclosingElement() {
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		ReferenceBinding enclosingType = binding.enclosingType();
+		if (null == enclosingType) {
+			// this is a top level type; get its package
+			return new PackageElementImpl(binding.fPackage);
+		}
+		else {
+			return Factory.newElement(binding.enclosingType());
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getFileName()
 	 */
@@ -52,7 +91,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			TypeMirror interfaceType = Factory.newTypeMirror(interfaceBinding);
 			interfaces.add(interfaceType);
 		}
-		return interfaces;
+		return Collections.unmodifiableList(interfaces);
 	}
 
 	/* (non-Javadoc)
@@ -92,10 +131,15 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	}
 
 	public TypeMirror getSuperclass() {
-		// TODO Auto-generated method stub
-		return null;
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		ReferenceBinding superBinding = binding.superclass();
+		if (null == superBinding) {
+			return null;
+		}
+		// superclass of a type must be a DeclaredType
+		return Factory.newDeclaredType(superBinding);
 	}
-
+	
 	public List<? extends TypeParameterElement> getTypeParameters() {
 		// TODO Auto-generated method stub
 		return null;

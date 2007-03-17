@@ -68,13 +68,11 @@ public class ElementImpl
 	}
 
 	public List<? extends Element> getEnclosedElements() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException(); // handled by subclasses 
 	}
 
 	public Element getEnclosingElement() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException(); // handled by subclasses 
 	}
 
 	/*
@@ -88,11 +86,10 @@ public class ElementImpl
 			return ElementKind.FIELD;
 		case Binding.LOCAL:
 			return ElementKind.LOCAL_VARIABLE;
-		case Binding.PACKAGE:
-			return ElementKind.PACKAGE;
 		case Binding.TYPE_PARAMETER:
 			return ElementKind.TYPE_PARAMETER;
 			
+		// case Binding.PACKAGE: handled by PackageElementImpl
 		// case Binding.TYPE: handled by TypeElementImpl
 		// case Binding.METHOD: handled by ExecutableElementImpl
 		// case Binding.ARRAY_TYPE, etc: see TypeMirrorImpl.getKind()

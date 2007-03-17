@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
@@ -23,6 +26,7 @@ import javax.lang.model.type.TypeMirror;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class ExecutableElementImpl extends ElementImpl implements
@@ -53,6 +57,18 @@ public class ExecutableElementImpl extends ElementImpl implements
 		return null;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getEnclosingElement()
+	 */
+	@Override
+	public Element getEnclosingElement() {
+		MethodBinding binding = (MethodBinding)_binding;
+		if (null == binding.declaringClass) {
+			return null;
+		}
+		return Factory.newElement(binding.declaringClass);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getFileName()
 	 */
@@ -86,13 +102,24 @@ public class ExecutableElementImpl extends ElementImpl implements
 	}
 
 	public List<? extends VariableElement> getParameters() {
-		// TODO Auto-generated method stub
-		return null;
+		MethodBinding binding = (MethodBinding)_binding;
+		if (0 == binding.parameters.length) {
+			return Collections.emptyList();
+		}
+		List<VariableElement> params = new ArrayList<VariableElement>(binding.parameters.length);
+		for (TypeBinding paramBinding : binding.parameters) {
+			VariableElement param = new VariableElementImpl(paramBinding);
+			params.add(param);
+		}
+		return Collections.unmodifiableList(params);
 	}
 
 	public TypeMirror getReturnType() {
-		// TODO Auto-generated method stub
-		return null;
+		MethodBinding binding = (MethodBinding)_binding;
+		if (binding.returnType == null) {
+			return null;
+		}
+		else return Factory.newTypeMirror(binding.returnType);
 	}
 
 	public List<? extends TypeMirror> getThrownTypes() {
