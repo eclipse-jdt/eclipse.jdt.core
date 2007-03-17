@@ -16,8 +16,12 @@ import javax.lang.model.element.Element;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 /**
  * Creates javax.lang.model wrappers around JDT internal compiler bindings.
@@ -33,6 +37,7 @@ public class Factory {
 		case Binding.TYPE:
 			return new TypeElementImpl((ReferenceBinding)binding);
 		case Binding.METHOD:
+			return new ExecutableElementImpl((MethodBinding)binding);
 		// TODO: fill in the rest of these
 		case Binding.PACKAGE:
 		case Binding.IMPORT:
@@ -58,18 +63,28 @@ public class Factory {
 
 	public static TypeMirror newTypeMirror(Binding binding) {
 		switch (binding.kind()) {
-		// TODO: fill in the rest of these
 		case Binding.FIELD:
 		case Binding.LOCAL:
 		case Binding.VARIABLE:
+			// For variables, return the type of the variable
+			return newTypeMirror(((VariableBinding)binding).type);
+			
 		case Binding.METHOD:
 		case Binding.PACKAGE:
 		case Binding.IMPORT:
 			throw new IllegalArgumentException("Invalid binding kind: " + binding.kind()); //$NON-NLS-1$
+			
 		case Binding.TYPE:
 			return new DeclaredTypeImpl((ReferenceBinding)binding);
+			
 		case Binding.ARRAY_TYPE:
+			return new ArrayTypeImpl((ArrayBinding)binding);
+			
 		case Binding.BASE_TYPE:
+			// PrimitiveTypeImpl implements both PrimitiveType and NoType
+			return new PrimitiveTypeImpl((BaseTypeBinding)binding);
+			
+			// TODO: fill in the rest of these
 		case Binding.PARAMETERIZED_TYPE:
 		case Binding.WILDCARD_TYPE:
 		case Binding.RAW_TYPE:

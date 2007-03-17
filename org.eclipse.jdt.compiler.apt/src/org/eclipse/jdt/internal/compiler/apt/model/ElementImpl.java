@@ -47,8 +47,7 @@ public class ElementImpl
 	}
 
 	public TypeMirror asType() {
-		// TODO Auto-generated method stub
-		return null;
+		return Factory.newTypeMirror(_binding);
 	}
 
 	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {

@@ -52,4 +52,14 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 		return valueMap;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * Sun implementation shows the values.  We avoid that here,
+	 * because getting the values is not idempotent.
+	 */
+	@Override
+	public String toString() {
+		return "@" + _binding.getAnnotationType().debugName(); //$NON-NLS-1$
+	}
+
 }

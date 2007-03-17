@@ -79,7 +79,7 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 
 	@Override
 	public String toString() {
-		return _binding.toString();
+		return new String(_binding.readableName());
 	}
 
 }

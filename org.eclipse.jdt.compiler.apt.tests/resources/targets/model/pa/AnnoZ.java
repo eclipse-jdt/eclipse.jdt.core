@@ -1,6 +1,6 @@
 package pa;
 
-@interface AnnoZ {
-	String annozString();
-	int annozint();
+public @interface AnnoZ {
+	String annoZString();
+	int annoZint() default 17;
 }

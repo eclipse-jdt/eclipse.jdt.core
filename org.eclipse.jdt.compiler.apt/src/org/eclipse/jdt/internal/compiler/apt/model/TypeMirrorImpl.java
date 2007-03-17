@@ -51,10 +51,11 @@ public class TypeMirrorImpl implements TypeMirror {
 	public TypeKind getKind() {
 		switch (_binding.kind()) {
 		// case Binding.TYPE: 
-		//case Binding.RAW_TYPE:
-		//case Binding.GENERIC_TYPE:
+		// case Binding.RAW_TYPE:
+		// case Binding.GENERIC_TYPE:
 		// case Binding.PARAMETERIZED_TYPE:
 		// handled by DeclaredTypeImpl, etc.
+		// case Binding.BASE_TYPE: handled by PrimitiveTypeImpl
 		
 		// TODO: fill in the rest of these
 		case Binding.FIELD:
@@ -67,9 +68,6 @@ public class TypeMirrorImpl implements TypeMirror {
 			return TypeKind.PACKAGE;
 		case Binding.ARRAY_TYPE:
 			return TypeKind.ARRAY;
-		case Binding.BASE_TYPE:
-			// TODO: return appropriate TypeKind
-			throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 		case Binding.WILDCARD_TYPE:
 			return TypeKind.WILDCARD;
 		case Binding.TYPE_PARAMETER:
@@ -78,4 +76,37 @@ public class TypeMirrorImpl implements TypeMirror {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return new String(_binding.readableName());
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((_binding == null) ? 0 : _binding.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof TypeMirrorImpl))
+			return false;
+		final TypeMirrorImpl other = (TypeMirrorImpl) obj;
+		return _binding == other._binding;
+	}
+
+	
 }

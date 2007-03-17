@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -23,6 +24,8 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -78,6 +81,8 @@ public class ElementProc extends AbstractProcessor {
 	private TypeElement _elementA;
 
 	private TypeElement _elementString;
+
+	private TypeElement _elementD;
 	
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.AbstractProcessor#init(javax.annotation.processing.ProcessingEnvironment)
@@ -140,7 +145,15 @@ public class ElementProc extends AbstractProcessor {
 			return false;
 		}
 		
+		if (!examineDMethods()) {
+			return false;
+		}
+		
 		if (!examinePBPackage()) {
+			return false;
+		}
+		
+		if (!examineDAnnotations()) {
 			return false;
 		}
 		
@@ -178,6 +191,15 @@ public class ElementProc extends AbstractProcessor {
 		}
 		if (_elementAB.getKind() != ElementKind.CLASS) {
 			reportError("AB claims to not be a class");
+			return false;
+		}
+		_elementD = _elementUtils.getTypeElement("targets.model.pb.D");
+		if (_elementD == null) {
+			reportError("element D was not found");
+			return false;
+		}
+		if (_elementD.getKind() != ElementKind.CLASS) {
+			reportError("D claims to not be a class");
 			return false;
 		}
 		_elementString = _elementUtils.getTypeElement("java.lang.String");
@@ -218,13 +240,7 @@ public class ElementProc extends AbstractProcessor {
 	 * @return true if all tests passed
 	 */
 	private boolean examineDHierarchy() {
-		// What is D's superclass?
-		TypeElement elementD = _elementUtils.getTypeElement("targets.model.pb.D");
-		if (elementD == null) {
-			reportError("element D was not found");
-			return false;
-		}
-		TypeMirror supertypeD = elementD.getSuperclass();
+		TypeMirror supertypeD = _elementD.getSuperclass();
 		if (null == supertypeD) {
 			reportError("element D's supertype was null");
 			return false;
@@ -239,7 +255,7 @@ public class ElementProc extends AbstractProcessor {
 	}
 	
 	/**
-	 * Examine the methods of element A
+	 * Examine the methods and fields of element A
 	 * @return true if all tests passed
 	 */
 	private boolean examineAMethodsAndFields() {
@@ -281,16 +297,19 @@ public class ElementProc extends AbstractProcessor {
 			reportError("Return type of A.methodIAString() does not equal java.lang.String");
 			return false;
 		}
-		/* TODO: this doesn't work, because VariableElement.getSimpleName returns type name rather than param name!
 		List<? extends VariableElement> paramsMethodIAString = methodIAString.getParameters();
 		VariableElement int1 = null;
 		for (VariableElement param : paramsMethodIAString) {
-			if ("int1".equals(param.getSimpleName().toString())) {
-				int1 = param;
-			}
+			int1 = param;
 		}
-		if (null == int1) {
-			reportError("A.methodIAString() does not report a parameter named int1");
+		TypeMirror int1Type = int1.asType();
+		if (null == int1Type || int1Type.getKind() != TypeKind.INT) {
+			reportError("The first parameter of A.methodIAString() is not of int type");
+			return false;
+		}
+		/* TODO: this doesn't work, because our implementation of VariableElement.getSimpleName returns type name rather than param name!
+		if !("int1".equals(int1.getSimpleName().toString())) {
+			reportError("The first parameter of A.methodIAString() is not named int1");
 			return false;
 		}
 		*/
@@ -314,6 +333,32 @@ public class ElementProc extends AbstractProcessor {
 		}
 		return true;
 	}
+	
+	/**
+	 * Examine the methods of D (which are interesting because of an enum param and void return)
+	 * @return true if all tests passed
+	 */
+	private boolean examineDMethods() {
+		List<ExecutableElement> methodsD = ElementFilter.methodsIn(_elementD.getEnclosedElements());
+		ExecutableElement methodDvoid = null;
+		for (ExecutableElement method : methodsD) {
+			Name methodName = method.getSimpleName();
+			if ("methodDvoid".equals(methodName.toString())) {
+				methodDvoid = method;
+			}
+		}
+		if (null == methodDvoid) {
+			reportError("element D did not contain methodDvoid()");
+			return false;
+		}
+		TypeMirror returnType = methodDvoid.getReturnType();
+		if (returnType.getKind() != TypeKind.VOID) {
+			reportError("D.methodDvoid() return type was not void");
+			return false;
+		}
+		//TODO: check parameter types
+		return true;
+	}
 
 	/**
 	 * Check the PackageDeclaration of pb
@@ -329,6 +374,57 @@ public class ElementProc extends AbstractProcessor {
 			reportError("The name of package pb is not targets.model.pb");
 			return false;
 		}
+		return true;
+	}
+	
+	/**
+	 * Read the annotations on element D (class and method)
+	 * @return true if all tests passed
+	 */
+	private boolean examineDAnnotations() {
+		// Examine annotation on class declaration
+		List<? extends AnnotationMirror> annotsD = _elementD.getAnnotationMirrors();
+		if (null == annotsD || annotsD.isEmpty()) {
+			reportError("element D reports no annotations");
+			return false;
+		}
+		for (AnnotationMirror annotD : annotsD) {
+			DeclaredType annotDType = annotD.getAnnotationType();
+			if (null == annotDType) {
+				reportError("annotation mirror of AnnoZ on element D reports null type");
+				return false;
+			}
+			Element annotDElem = annotDType.asElement();
+			if (!(annotDElem instanceof TypeElement) || 
+					"targets.model.pa.AnnoZ".equals(((TypeElement)annotDElem).getQualifiedName().toString())) {
+				reportError("annotation on element D is not TypeElement targets.model.pa.AnnoZ");
+				return false;
+			}
+			Map<? extends ExecutableElement, ? extends AnnotationValue> values = annotD.getElementValues();
+			if (null == values || values.isEmpty()) {
+				reportError("@AnnoZ on element D reports no values");
+				return false;
+			}
+			boolean foundStringMethod = false;
+			for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
+				String methodName = entry.getKey().getSimpleName().toString();
+				if ("annoZString".equals(methodName)) {
+					foundStringMethod = true;
+					Object value = entry.getValue().getValue();
+					if (!(value instanceof String)) {
+						reportError("Value of annoZString param on element D is null");
+						return false;
+					}
+				}
+			}
+			if (!foundStringMethod) {
+				reportError("Failed to find method annoZString on @AnnoZ on element D");
+				return false;
+			}
+		}
+		
+		// TODO: Examine annotation on method declaration
+
 		return true;
 	}
 }

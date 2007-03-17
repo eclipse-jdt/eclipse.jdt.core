@@ -10,3 +10,4 @@ Originating elements of every possible type (including package and things that c
 Static and instance initializers (e.g., ElementKind.getKind())
 Get package (ie enclosing element) of binary type, or other potentially-unresolved type
 Default (unnamed) packages
+Visitors
