@@ -38,6 +38,7 @@ import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.Messages;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.core.internal.util.ManyToMany;
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -1430,8 +1431,16 @@ public class GeneratedFileManager
 	private void saveCompilationUnit(IPackageFragment pkgFrag, final String cuName, String contents,
 			IProgressMonitor progressMonitor)
 	{
+		
 		ICompilationUnit unit = pkgFrag.getCompilationUnit(cuName);
 		boolean isWorkingCopy = unit.isWorkingCopy();
+		if (isWorkingCopy && !AptConfig.shouldProcessDuringReconcile(_jProject)) {
+			// Cover the case where the user turned off reconcile-time processing after some working
+			// copies were already created - else they'll get null timestamps and the commit will fail.
+			// There's probably a better way to do this but it's a corner case anyway. - WSH 3/07
+			_CUHELPER.discardWorkingCopy(unit);
+			isWorkingCopy = false;
+		}
 		if (isWorkingCopy) {
 			// If we have a working copy, all we
 			// need to do is update its contents and commit it.

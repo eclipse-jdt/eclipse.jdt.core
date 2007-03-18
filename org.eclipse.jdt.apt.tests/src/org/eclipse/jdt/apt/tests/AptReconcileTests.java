@@ -28,6 +28,8 @@ import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
 
 public class AptReconcileTests extends ModifyingResourceTests
 {
+	IJavaProject _jproject;
+	
 	public AptReconcileTests(String name)
 	{
 		super( name );
@@ -366,6 +368,111 @@ public class AptReconcileTests extends ModifyingResourceTests
 		
 	}
 
+	public void testNoReconcile() throws Throwable {
+		// Start by disabling reconcile-time processing
+		AptConfig.setProcessDuringReconcile(_jproject, false);
+		String fname = _testFolder + "/A.java";
+		try
+		{
+			
+			//
+			//  first make sure errors are present when the annotation
+			// is commented out
+			//
+			String codeWithErrors = "package test;" + "\n" +
+				"//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" + 
+				"public class A " +  "\n" +
+				"{" +  "\n" +
+				"    //@HelloWorldAnnotation" + "\n" + 
+				"    public static void main( String[] argv )" + "\n" +
+				"    {" + "\n" +
+				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
+				"    }" + "\n" +
+				"}";
+
+			createFile( fname, codeWithErrors );
+			this._problemRequestor = new ProblemRequestor();
+			
+			setUpWorkingCopy( fname, codeWithErrors );
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+				null );
+			
+			String expectedProblems = "----------\n" + 
+				"1. ERROR in /" + _testProject + "/src/test/A.java (at line 8)\n" + 
+				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^\n" + 
+				"generatedfilepackage cannot be resolved\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"2. ERROR in /" + _testProject + "/src/test/A.java (at line 8)\n" + 
+				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^\n" + 
+				"generatedfilepackage cannot be resolved\n" + 
+				"----------\n";
+			
+			assertProblems( "Unexpected problems", expectedProblems );
+			
+			
+			//
+			// should still see errors when annotations are present but reconcile is off
+			//
+			String codeWithOutErrors1 = "package test;" + "\n" +
+			    "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" + 
+			    "public class A " +  "\n" +
+			    "{" +  "\n" +
+			    "    @HelloWorldAnnotation" + "\n" + 
+				"    public static void main( String[] argv )" + "\n" +
+				"    {" + "\n" +
+				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
+				"    }" + "\n" +
+				"}";
+
+			setWorkingCopyContents( codeWithOutErrors1 );
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+					null );
+			
+			String expectedProblems2 = "----------\n" + 
+			"1. ERROR in /" + _testProject + "/src/test/A.java (at line 8)\n" + 
+			"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^\n" + 
+			"generatedfilepackage cannot be resolved\n" + 
+			"----------\n";
+		
+			assertProblems( "Unexpected problems", expectedProblems2 );
+			
+			//
+			// now enable reconcile-time processing and make sure errors go away
+			//
+			AptConfig.setProcessDuringReconcile(_jproject, true);
+			String codeWithOutErrors2 = "package test;" + "\n\n" +
+			    "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" + 
+			    "public class A " +  "\n" +
+			    "{" +  "\n" +
+			    "    @HelloWorldAnnotation" + "\n" + 
+				"    public static void main( String[] argv )" + "\n" +
+				"    {" + "\n" +
+				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
+				"    }" + "\n" +
+				"}";
+
+			setWorkingCopyContents( codeWithOutErrors2 );
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+					null );
+			
+			assertProblems( "UnexpectedProblems", "----------\n----------\n" );
+			
+		}
+		catch( Throwable e )
+		{
+			e.printStackTrace();
+			throw e;
+		}
+		finally
+		{
+			deleteFile( fname );
+		}
+	}
+
 	@SuppressWarnings("nls")
 	public void setUp() throws Exception 
 	{
@@ -392,10 +499,12 @@ public class AptReconcileTests extends ModifyingResourceTests
 		AptConfig.setEnabled(project, true);
 		
 		createFolder( _testFolder );
+		_jproject = project;
 		
 	}
 	public void tearDown() throws Exception
 	{
+		_jproject = null;
 		AptPlugin.trace("Tearing down " + _testProject );
 
 		deleteProject( _testProject );
@@ -415,6 +524,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 		this._problemRequestor.initialize( contents.toCharArray() );
 	}
 
+	@SuppressWarnings("deprecation")
 	private void setUpWorkingCopy(String path, String contents)
 		throws JavaModelException
 	{

@@ -23,6 +23,7 @@ public class AptPreferenceConstants {
 	public static final String APT_ENABLED = APT_STRING_BASE + ".aptEnabled"; //$NON-NLS-1$
 	public static final String APT_GENSRCDIR = APT_STRING_BASE + ".genSrcDir"; //$NON-NLS-1$
 	public static final String APT_PROCESSOROPTIONS = APT_STRING_BASE + ".processorOptions"; //$NON-NLS-1$
+	public static final String APT_RECONCILEENABLED = APT_STRING_BASE + ".reconcileEnabled"; //$NON-NLS-1$
 	
 	// Used in preference to indicate null value for processor option
 	public static final String APT_NULLVALUE = APT_STRING_BASE + ".NULLVALUE"; //$NON-NLS-1$
@@ -36,6 +37,7 @@ public class AptPreferenceConstants {
 		options.put(AptPreferenceConstants.APT_ENABLED, "false"); //$NON-NLS-1$
 		options.put(AptPreferenceConstants.APT_GENSRCDIR, DEFAULT_GENERATED_SOURCE_FOLDER_NAME);
 		options.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, ""); //$NON-NLS-1$
+		options.put(AptPreferenceConstants.APT_RECONCILEENABLED, "true"); //$NON-NLS-1$
 		DEFAULT_OPTIONS_MAP = Collections.unmodifiableMap(options);
 	}
 	
@@ -49,7 +51,8 @@ public class AptPreferenceConstants {
 	public static final String[] OPTION_NAMES = {
 		APT_ENABLED,
 		APT_GENSRCDIR,
-		APT_PROCESSOROPTIONS
+		APT_PROCESSOROPTIONS,
+		APT_RECONCILEENABLED,
 	};
 	
 	/**

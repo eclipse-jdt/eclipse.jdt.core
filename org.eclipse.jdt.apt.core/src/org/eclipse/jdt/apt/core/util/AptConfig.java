@@ -713,6 +713,7 @@ public class AptConfig {
 		return getBoolean(jproject, AptPreferenceConstants.APT_ENABLED);
 	}
 	
+	
 	/**
 	 * Turn annotation processing on or off for this project.
 	 * @param jproject an IJavaProject, or null to set workspace preferences.
@@ -727,6 +728,28 @@ public class AptConfig {
 			throw e;
 		}
 		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled);
+	}
+	
+	/**
+	 * Is annotation processing turned on during reconcile, or only during build?
+	 * Note that if isEnabled() is false, processing will not occur at all; the
+	 * two settings are independent.
+	 * @param jproject an IJavaProject to query, or null to get the default value.
+	 * @return true if processing is enabled during both reconcile and build
+	 */
+	public static boolean shouldProcessDuringReconcile(IJavaProject jproject) {
+		return getBoolean(jproject, AptPreferenceConstants.APT_RECONCILEENABLED);
+	}
+	
+	/**
+	 * Turn processing during reconcile on or off.  Processing during build is
+	 * unaffected.  Note that if isEnabled() is false, processing will not occur
+	 * at all; the two settings are independent.
+	 * @param jproject the IJavaProject to modify.  This setting is only valid
+	 * on individual projects.
+	 */
+	public static void setProcessDuringReconcile(IJavaProject jproject, boolean enabled) {
+		setBoolean(jproject, AptPreferenceConstants.APT_RECONCILEENABLED, enabled);
 	}
 	
 	private static boolean getBoolean(IJavaProject jproj, String optionName) {

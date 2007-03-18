@@ -62,11 +62,12 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 public class AptConfigurationBlock extends BaseConfigurationBlock {
 		
 	private static final Key KEY_APTENABLED= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_ENABLED);
+	private static final Key KEY_RECONCILEENABLED= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_RECONCILEENABLED);
 	private static final Key KEY_GENSRCDIR= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_GENSRCDIR);
 	
 	private static Key[] getAllKeys() {
 		return new Key[] {
-				KEY_APTENABLED, KEY_GENSRCDIR
+				KEY_APTENABLED, KEY_RECONCILEENABLED, KEY_GENSRCDIR
 		};	
 	}
 	
@@ -77,6 +78,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private final IJavaProject fJProj;
 
 	private SelectionButtonDialogField fAptEnabledField;
+	private SelectionButtonDialogField fReconcileEnabledField;
 	private StringDialogField fGenSrcDirField;
 	private ListDialogField fProcessorOptionsField;
 	
@@ -86,6 +88,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private Map<String, String> fOriginalProcOptions; // cache of saved values
 	private String fOriginalGenSrcDir;
 	private boolean fOriginalAptEnabled;
+	private boolean fOriginalReconcileEnabled;
 	
 	// used to distinguish actual changes from re-setting of same value - see useProjectSpecificSettings()
 	private boolean fPerProjSettingsEnabled; 
@@ -198,6 +201,10 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			fAptEnabledField = null;
 		}
 		
+		fReconcileEnabledField= new SelectionButtonDialogField(SWT.CHECK);
+		fReconcileEnabledField.setDialogFieldListener(adapter);
+		fReconcileEnabledField.setLabelText(Messages.AptConfigurationBlock_enableReconcileProcessing);
+		
 		fGenSrcDirField = new StringDialogField();
 		fGenSrcDirField.setDialogFieldListener(adapter);
 		fGenSrcDirField.setLabelText(Messages.AptConfigurationBlock_generatedSrcDir);
@@ -234,13 +241,23 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 */
 	@Override
 	protected String[] getFullBuildDialogStrings(boolean workspaceSettings) {
-		return workspaceSettings ? null : super.getFullBuildDialogStrings(workspaceSettings);
+		if (workspaceSettings)
+			return null;
+		// if the only thing that changed was the reconcile setting, return null: a rebuild is not necessary
+		if (fOriginalGenSrcDir.equals(fGenSrcDirField.getText())) {
+			if (fOriginalAptEnabled == fAptEnabledField.isSelected()) {
+				if (!procOptionsChanged()) {
+					return null;
+				}
+			}
+		}
+		return super.getFullBuildDialogStrings(workspaceSettings);
 	}
 
 	/*
 	 * Helper to eliminate unchecked-conversion warning
 	 */
-	@SuppressWarnings("unchecked") 
+	@SuppressWarnings("unchecked")
 	private List<ProcessorOption> getListElements() {
 		return fProcessorOptionsField.getElements();
 	}
@@ -248,7 +265,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper to eliminate unchecked-conversion warning
 	 */
-	@SuppressWarnings("unchecked") 
+	@SuppressWarnings("unchecked")
 	private List<ProcessorOption> getListSelection() {
 		return fProcessorOptionsField.getSelectedElements();
 	}
@@ -269,6 +286,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		setShell(parent.getShell());
 		
 		fPixelConverter= new PixelConverter(parent);
+		int indent= fPixelConverter.convertWidthInCharsToPixels(4);
 		
 		fBlockControl = new Composite(parent, SWT.NONE);
 		fBlockControl.setFont(parent.getFont());
@@ -283,16 +301,22 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		DialogField[] fields = fAptEnabledField != null ? 
 				new DialogField[] {
 					fAptEnabledField,
+					fReconcileEnabledField,
 					fGenSrcDirField,
 					fProcessorOptionsField,
 				} :
 				new DialogField[] {
+					fReconcileEnabledField,
 					fGenSrcDirField,
 					fProcessorOptionsField,
 				};
 		LayoutUtil.doDefaultLayout(fBlockControl, fields, true, SWT.DEFAULT, SWT.DEFAULT);
 		LayoutUtil.setHorizontalGrabbing(fProcessorOptionsField.getListControl(null));
-
+		
+		GridData reconcileGD= (GridData)fReconcileEnabledField.getSelectionButton(parent).getLayoutData();
+		reconcileGD.horizontalIndent = indent;
+		fReconcileEnabledField.getSelectionButton(parent).setLayoutData(reconcileGD);
+		
 		Label description= new Label(fBlockControl, SWT.WRAP);
 		description.setText(Messages.AptConfigurationBlock_classpathAddedAutomaticallyNote); 
 		GridData gdLabel= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
@@ -313,6 +337,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fOriginalProcOptions= AptConfig.getRawProcessorOptions(fJProj);
 		fOriginalGenSrcDir = AptConfig.getGenSrcDir(fJProj);
 		fOriginalAptEnabled = AptConfig.isEnabled(fJProj);
+		fOriginalReconcileEnabled = AptConfig.shouldProcessDuringReconcile(fJProj);
 		fPerProjSettingsEnabled = hasProjectSpecificOptionsNoCache(fProject);
 	}
 
@@ -343,22 +368,26 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 				if (fOriginalAptEnabled != AptConfig.isEnabled(null)) {
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
 				}
+				if (fOriginalReconcileEnabled != AptConfig.shouldProcessDuringReconcile(null)) {
+					fAptProject.preferenceChanged(AptPreferenceConstants.APT_RECONCILEENABLED);
+				}
 			}
 			else { // compare against current settings
 				if (!fOriginalGenSrcDir.equals(fGenSrcDirField.getText()))
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
 				if (fOriginalAptEnabled != fAptEnabledField.isSelected())
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
+				if (fOriginalReconcileEnabled != fReconcileEnabledField.isSelected())
+					fAptProject.preferenceChanged(AptPreferenceConstants.APT_RECONCILEENABLED);
 			}
 		}
 	}
-
+	
 	/**
-	 * Check whether any processor options have changed, as well as
-	 * any of the settings tracked in the "normal" way (as Keys).
+	 * Check whether any processor options have changed.
+	 * @return true if they did.
 	 */
-	@Override
-	protected boolean settingsChanged(IScopeContext currContext) {
+	private boolean procOptionsChanged() {
 		Map<String, String> savedProcOptions = new HashMap<String, String>(fOriginalProcOptions);
 		for (ProcessorOption o : getListElements()) {
 			final String savedVal = savedProcOptions.get(o.key);
@@ -374,7 +403,19 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			// found a saved option that has been removed
 			return true;
 		}
-		return super.settingsChanged(currContext);
+		return false;
+	}
+
+	/**
+	 * Check whether any processor options have changed, as well as
+	 * any of the settings tracked in the "normal" way (as Keys).
+	 */
+	@Override
+	protected boolean settingsChanged(IScopeContext currContext) {
+		if (procOptionsChanged())
+			return true;
+		else
+			return super.settingsChanged(currContext);
 	}
 
 	/**
@@ -440,6 +481,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			boolean aptEnabled= Boolean.valueOf(getValue(KEY_APTENABLED)).booleanValue();
 			fAptEnabledField.setSelection(aptEnabled);
 		}
+		boolean reconcileEnabled= Boolean.valueOf(getValue(KEY_RECONCILEENABLED)).booleanValue();
+		fReconcileEnabledField.setSelection(reconcileEnabled);
 		String str= getValue(KEY_GENSRCDIR);
 		fGenSrcDirField.setText(str == null ? "" : str); //$NON-NLS-1$
 	}	
@@ -455,7 +498,10 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		} else if (field == fGenSrcDirField) {
 			String newVal = fGenSrcDirField.getText();
 			setValue(KEY_GENSRCDIR, newVal);
-		} 
+		} else if (field == fReconcileEnabledField) {
+			String newVal = String.valueOf(fReconcileEnabledField.isSelected());
+			setValue(KEY_RECONCILEENABLED, newVal);
+		}
 		validateSettings(null, null, null); // params are ignored
 	}
 

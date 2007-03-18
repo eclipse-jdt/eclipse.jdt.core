@@ -66,7 +66,7 @@ public class CompilationUnitHelper
 		try {
 			pkgFragment = root.getPackageFragment(pkgName );
 			workingCopy = pkgFragment.getCompilationUnit(fname);
-			workingCopy.becomeWorkingCopy(null, null);
+			workingCopy.becomeWorkingCopy(null);
 		} catch (JavaModelException e) {
 			AptPlugin.log(e, "Unable to become working copy: " + typeName); //$NON-NLS-1$
 			return null;

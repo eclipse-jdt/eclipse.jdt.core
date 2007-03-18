@@ -26,6 +26,8 @@ public class Messages extends NLS {
 
 	public static String AptConfigurationBlock_enable;
 
+	public static String AptConfigurationBlock_enableReconcileProcessing;
+
 	public static String AptConfigurationBlock_generatedSrcDir;
 
 	public static String AptConfigurationBlock_options;

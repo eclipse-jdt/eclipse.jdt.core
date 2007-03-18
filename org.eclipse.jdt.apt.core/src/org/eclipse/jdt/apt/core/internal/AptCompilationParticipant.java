@@ -178,6 +178,10 @@ public class AptCompilationParticipant extends CompilationParticipant
 			IJavaProject javaProject = workingCopy.getJavaProject();			
 			if( javaProject == null )
 				return;
+			if (!AptConfig.shouldProcessDuringReconcile(javaProject)) {
+				AptPlugin.trace("Reconcile-time processing is disabled for project: " + javaProject.getElementName()); //$NON-NLS-1$
+				return;
+			}
 			AptProject aptProject = AptPlugin.getAptProject(javaProject);
 			
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = 
