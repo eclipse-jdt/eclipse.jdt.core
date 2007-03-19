@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.util.List;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Name;
@@ -29,6 +30,14 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 
 	PackageElementImpl(PackageBinding binding) {
 		super(binding);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getAnnotationMirrors()
+	 */
+	@Override
+	public List<? extends AnnotationMirror> getAnnotationMirrors() {
+		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)

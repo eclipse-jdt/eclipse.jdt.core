@@ -75,14 +75,15 @@ public class ElementProc extends AbstractProcessor {
 	private Elements _elementUtils;
 	private Types _typeUtils;
 
+	// Initialized in collectElements()
 	private TypeElement _elementIA;
 	private TypeElement _elementAB;
-
 	private TypeElement _elementA;
-
+	private TypeElement _elementD;
 	private TypeElement _elementString;
 
-	private TypeElement _elementD;
+	// Initialized in examineDMethods()
+	private ExecutableElement _methodDvoid;
 	
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.AbstractProcessor#init(javax.annotation.processing.ProcessingEnvironment)
@@ -307,8 +308,8 @@ public class ElementProc extends AbstractProcessor {
 			reportError("The first parameter of A.methodIAString() is not of int type");
 			return false;
 		}
-		/* TODO: this doesn't work, because our implementation of VariableElement.getSimpleName returns type name rather than param name!
-		if !("int1".equals(int1.getSimpleName().toString())) {
+		/* TODO: can't do this, because our implementation doesn't have access to the names of primitive-typed parameters
+		if (!("int1".equals(int1.getSimpleName().toString()))) {
 			reportError("The first parameter of A.methodIAString() is not named int1");
 			return false;
 		}
@@ -340,23 +341,34 @@ public class ElementProc extends AbstractProcessor {
 	 */
 	private boolean examineDMethods() {
 		List<ExecutableElement> methodsD = ElementFilter.methodsIn(_elementD.getEnclosedElements());
-		ExecutableElement methodDvoid = null;
+		_methodDvoid = null;
 		for (ExecutableElement method : methodsD) {
 			Name methodName = method.getSimpleName();
 			if ("methodDvoid".equals(methodName.toString())) {
-				methodDvoid = method;
+				_methodDvoid = method;
 			}
 		}
-		if (null == methodDvoid) {
+		if (null == _methodDvoid) {
 			reportError("element D did not contain methodDvoid()");
 			return false;
 		}
-		TypeMirror returnType = methodDvoid.getReturnType();
+		TypeMirror returnType = _methodDvoid.getReturnType();
 		if (returnType.getKind() != TypeKind.VOID) {
 			reportError("D.methodDvoid() return type was not void");
 			return false;
 		}
-		//TODO: check parameter types
+		List<? extends VariableElement> params = _methodDvoid.getParameters();
+		if (null == params || params.isEmpty()) {
+			reportError("D.methodDvoid() reports no parameters");
+			return false;
+		}
+		VariableElement param1 = params.iterator().next();
+		TypeMirror param1Type = param1.asType();
+		if (null == param1Type || param1Type.getKind() != TypeKind.DECLARED) {
+			reportError("First parameter of D.methodDvoid() is not a declared type");
+			return false;
+		}
+		// TODO: further investigation of that parameter type
 		return true;
 	}
 
@@ -411,8 +423,8 @@ public class ElementProc extends AbstractProcessor {
 				if ("annoZString".equals(methodName)) {
 					foundStringMethod = true;
 					Object value = entry.getValue().getValue();
-					if (!(value instanceof String)) {
-						reportError("Value of annoZString param on element D is null");
+					if (!"annoZOnD".equals(value)) {
+						reportError("Value of annoZString param on element D is not \"annoZOnD\"");
 						return false;
 					}
 				}
@@ -423,8 +435,46 @@ public class ElementProc extends AbstractProcessor {
 			}
 		}
 		
-		// TODO: Examine annotation on method declaration
-
+		List<? extends AnnotationMirror> annotsMethodDvoid = _methodDvoid.getAnnotationMirrors();
+		if (null == annotsMethodDvoid || annotsMethodDvoid.isEmpty()) {
+			reportError("method D.methodDvoid() reports no annotations");
+			return false;
+		}
+		for (AnnotationMirror annotMethodDvoid : annotsMethodDvoid) {
+			DeclaredType annotDType = annotMethodDvoid.getAnnotationType();
+			if (null == annotDType) {
+				reportError("annotation mirror of AnnoZ on D.methodDvoid() reports null type");
+				return false;
+			}
+			Element annotDElem = annotDType.asElement();
+			if (!(annotDElem instanceof TypeElement) || 
+					"targets.model.pa.AnnoZ".equals(((TypeElement)annotDElem).getQualifiedName().toString())) {
+				reportError("annotation on D.methodDvoid() is not TypeElement targets.model.pa.AnnoZ");
+				return false;
+			}
+			Map<? extends ExecutableElement, ? extends AnnotationValue> values = annotMethodDvoid.getElementValues();
+			if (null == values || values.isEmpty()) {
+				reportError("@AnnoZ on D.methodDvoid() reports no values");
+				return false;
+			}
+			boolean foundIntMethod = false;
+			for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
+				String methodName = entry.getKey().getSimpleName().toString();
+				if ("annoZint".equals(methodName)) {
+					foundIntMethod = true;
+					Object value = entry.getValue().getValue();
+					if (!(value instanceof Integer) || (Integer)value != 31) {
+						reportError("Value of annoZint param on D.methodDvoid() is not 31");
+						return false;
+					}
+				}
+			}
+			if (!foundIntMethod) {
+				reportError("Failed to find method annoZint on @AnnoZ on D.methodDvoid()");
+				return false;
+			}
+		}
+		
 		return true;
 	}
 }

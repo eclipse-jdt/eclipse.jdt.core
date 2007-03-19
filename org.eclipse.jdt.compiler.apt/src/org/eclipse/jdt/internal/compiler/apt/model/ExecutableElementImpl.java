@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -24,6 +25,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -34,22 +36,25 @@ public class ExecutableElementImpl extends ElementImpl implements
 	
 	private Name _name = null;
 	
-	@Override
-	public Name getSimpleName() {
-		MethodBinding binding = (MethodBinding)_binding;
-		if (_name == null) {
-			if (binding.isConstructor()) {
-				_name = new NameImpl(binding.declaringClass.sourceName());
-			} else {
-				_name = new NameImpl(binding.selector);
-			}
-		}
-		return _name;
-	}
-
 	/* package */ ExecutableElementImpl(MethodBinding binding) {
 		super(binding);
 		// TODO Auto-generated constructor stub
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getAnnotationMirrors()
+	 */
+	@Override
+	public List<? extends AnnotationMirror> getAnnotationMirrors() {
+		AnnotationBinding[] annotations = ((MethodBinding)_binding).getAnnotations();
+		if (0 == annotations.length) {
+			return Collections.emptyList();
+		}
+		List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.length);
+		for (AnnotationBinding annotation : annotations) {
+			list.add(AnnotationMirrorImpl.getAnnotationMirror(annotation));
+		}
+		return Collections.unmodifiableList(list);
 	}
 
 	public AnnotationValue getDefaultValue() {
@@ -57,6 +62,11 @@ public class ExecutableElementImpl extends ElementImpl implements
 		return null;
 	}
 	
+	@Override
+	public List<? extends Element> getEnclosedElements() {
+		return Collections.emptyList();
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getEnclosingElement()
 	 */
@@ -122,6 +132,19 @@ public class ExecutableElementImpl extends ElementImpl implements
 		else return Factory.newTypeMirror(binding.returnType);
 	}
 
+	@Override
+	public Name getSimpleName() {
+		MethodBinding binding = (MethodBinding)_binding;
+		if (_name == null) {
+			if (binding.isConstructor()) {
+				_name = new NameImpl(binding.declaringClass.sourceName());
+			} else {
+				_name = new NameImpl(binding.selector);
+			}
+		}
+		return _name;
+	}
+	
 	public List<? extends TypeMirror> getThrownTypes() {
 		// TODO Auto-generated method stub
 		return null;

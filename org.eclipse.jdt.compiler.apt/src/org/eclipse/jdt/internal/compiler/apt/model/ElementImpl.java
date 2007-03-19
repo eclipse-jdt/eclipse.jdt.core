@@ -12,12 +12,11 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
@@ -25,19 +24,18 @@ import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * Element represents any defined Java language element - a package, 
  * a method, a class or interface.  Contrast with DeclaredType.
  */
-public class ElementImpl 
+public abstract class ElementImpl 
 	implements javax.lang.model.element.Element, IElementInfo
 {
 	
 	protected final Binding _binding;
 	
-	/* package */ ElementImpl(Binding binding) {
+	protected ElementImpl(Binding binding) {
 		_binding = binding;
 	}
 
@@ -55,47 +53,15 @@ public class ElementImpl
 		return null;
 	}
 
-	public List<? extends AnnotationMirror> getAnnotationMirrors() {
-		if (!(_binding instanceof ReferenceBinding))
-			return null;
-		AnnotationBinding[] annotations = ((ReferenceBinding)_binding).getAnnotations();
+	protected List<? extends AnnotationMirror> getAnnotationMirrors(AnnotationBinding[] annotations) {
+		if (null == annotations || 0 == annotations.length) {
+			return Collections.emptyList();
+		}
 		List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.length);
 		for (AnnotationBinding annotation : annotations) {
 			list.add(AnnotationMirrorImpl.getAnnotationMirror(annotation));
 		}
-		return list;
-	}
-
-	public List<? extends Element> getEnclosedElements() {
-		throw new UnsupportedOperationException(); // handled by subclasses 
-	}
-
-	public Element getEnclosingElement() {
-		throw new UnsupportedOperationException(); // handled by subclasses 
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see javax.lang.model.element.Element#getKind()
-	 * Subclasses may wish to implement this more efficiently
-	 */
-	public ElementKind getKind() {
-		switch (_binding.kind()) {
-		case Binding.FIELD:
-			return ElementKind.FIELD;
-		case Binding.LOCAL:
-			return ElementKind.LOCAL_VARIABLE;
-		case Binding.TYPE_PARAMETER:
-			return ElementKind.TYPE_PARAMETER;
-			
-		// case Binding.PACKAGE: handled by PackageElementImpl
-		// case Binding.TYPE: handled by TypeElementImpl
-		// case Binding.METHOD: handled by ExecutableElementImpl
-		// case Binding.ARRAY_TYPE, etc: see TypeMirrorImpl.getKind()
-		default:
-			throw new IllegalArgumentException();
-		
-		}
+		return Collections.unmodifiableList(list);
 	}
 
 	public Set<Modifier> getModifiers() {
@@ -141,5 +107,4 @@ public class ElementImpl
 		// Subclasses should override and return something of value
 		return null;
 	}
-
 }
