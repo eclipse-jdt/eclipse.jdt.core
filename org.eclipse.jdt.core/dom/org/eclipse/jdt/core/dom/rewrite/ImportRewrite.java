@@ -209,7 +209,7 @@ public final class ImportRewrite {
 		
 	private ImportRewrite(ICompilationUnit cu, CompilationUnit astRoot, List existingImports) {
 		this.compilationUnit= cu;
-		this.astRoot= null; // might be null
+		this.astRoot= astRoot; // might be null
 		if (existingImports != null) {
 			this.existingImports= existingImports;
 			this.restoreExistingImports= !existingImports.isEmpty();
