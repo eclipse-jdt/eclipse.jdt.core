@@ -4834,6 +4834,25 @@ public void test0531_try_finally() {
 		"----------\n");
 }
 
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=177863
+public void _test0532_try_finally() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    try {\n" + 
+			"    } finally {\n" + 
+			"      o = Object.class.getClass();\n" + 
+			"      o.getClass();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}"},
+		"");
+}
+
 // null analysis -- try/catch
 public void test0550_try_catch() {
 	this.runConformTest(
