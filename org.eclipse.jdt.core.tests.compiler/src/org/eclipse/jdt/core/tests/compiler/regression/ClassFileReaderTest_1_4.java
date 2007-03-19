@@ -2788,7 +2788,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		checkClassFile("p", "X", "X$A", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=34373
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102473
 	public void test078() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" +
@@ -2814,7 +2814,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		}
 	}
 	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=34373
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102473
 	public void test079() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" +
@@ -2849,7 +2849,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		}
 	}
 	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=34373
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102473
 	public void test080() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" +
