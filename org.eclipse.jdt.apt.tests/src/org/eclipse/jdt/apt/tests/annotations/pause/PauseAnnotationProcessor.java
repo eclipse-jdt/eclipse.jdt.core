@@ -48,8 +48,9 @@ public class PauseAnnotationProcessor extends BaseProcessor {
         	// busy sleep
         	long end = System.currentTimeMillis() + pause;
         	while (System.currentTimeMillis() < end)
-        		for (int i = 0; i < 100000; ++i)
-        			;
+        		for (int i = 0; i < 100000; ++i) {
+        			/* pausing */
+        		}
         	System.out.println(phase + " finished pausing");
         }
 	}
