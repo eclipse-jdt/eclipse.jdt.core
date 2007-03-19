@@ -173,50 +173,50 @@ public String[] getParameterNames() throws JavaModelException {
 		if ((modifiers & ClassFileConstants.AccSynthetic) != 0) {
 			return this.parameterNames = getRawParameterNames(paramCount);
 		}
- 		String javadocContents = null;
- 		IType declaringType = this.getDeclaringType();
+		String javadocContents = null;
+		IType declaringType = this.getDeclaringType();
 		PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.getJavaProject().getProject());
- 		synchronized (projectInfo.javadocCache) {
- 			javadocContents = (String) projectInfo.javadocCache.get(declaringType);
- 			if (javadocContents == null) {
- 				projectInfo.javadocCache.put(declaringType, BinaryType.EMPTY_JAVADOC);
- 			}
- 		}
- 		if (javadocContents == null) {
- 			long timeOut = 50; // default value
- 			try {
- 				String option = this.getJavaProject().getOption(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, true);
- 				if (option != null) {
- 					timeOut = Long.parseLong(option);
- 				}
- 			} catch(NumberFormatException e) {
- 				// ignore
- 			}
- 			if (timeOut == 0) {
- 				// don't try to fetch the values
- 				return this.parameterNames = getRawParameterNames(paramCount);
- 			}
- 			final class ParametersNameCollector {
- 				String javadoc;
- 				public void setJavadoc(String s) {
- 					this.javadoc = s;
- 				}
- 				public String getJavadoc() {
- 					return this.javadoc;
- 				}
- 	 		}
- 			/*
- 			 * The declaring type is not in the cache yet. The thread wil retrieve the javadoc contents
- 			 */
-	 		final ParametersNameCollector nameCollector = new ParametersNameCollector();
+		synchronized (projectInfo.javadocCache) {
+			javadocContents = (String) projectInfo.javadocCache.get(declaringType);
+			if (javadocContents == null) {
+				projectInfo.javadocCache.put(declaringType, BinaryType.EMPTY_JAVADOC);
+			}
+		}
+		if (javadocContents == null) {
+			long timeOut = 50; // default value
+			try {
+				String option = this.getJavaProject().getOption(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, true);
+				if (option != null) {
+					timeOut = Long.parseLong(option);
+				}
+			} catch(NumberFormatException e) {
+				// ignore
+			}
+			if (timeOut == 0) {
+				// don't try to fetch the values
+				return this.parameterNames = getRawParameterNames(paramCount);
+			}
+			final class ParametersNameCollector {
+				String javadoc;
+				public void setJavadoc(String s) {
+					this.javadoc = s;
+				}
+				public String getJavadoc() {
+					return this.javadoc;
+				}
+			}
+			/*
+			 * The declaring type is not in the cache yet. The thread wil retrieve the javadoc contents
+			 */
+			final ParametersNameCollector nameCollector = new ParametersNameCollector();
 			Thread collect = new Thread() {
 				public void run() {
 					try {
 						// this call has a side-effect on the per project info cache
 						nameCollector.setJavadoc(BinaryMethod.this.getAttachedJavadoc(null));
-			        } catch (JavaModelException e) {
-	 		        	// ignore
-	 		        }
+					} catch (JavaModelException e) {
+						// ignore
+					}
 					synchronized(nameCollector) {
 						nameCollector.notify();
 					}
@@ -231,17 +231,25 @@ public String[] getParameterNames() throws JavaModelException {
 				}
 			}
 			javadocContents = nameCollector.getJavadoc();
- 		} else if (javadocContents != BinaryType.EMPTY_JAVADOC){
- 			// need to extract the part relative to the binary method since javadoc contains the javadoc for the declaring type
- 			try {
- 				javadocContents = extractJavadoc(declaringType, javadocContents);
- 			} catch(JavaModelException e) {
- 				// ignore
- 			}
- 		} else {
- 			// we don't want to set the parameter names
- 			return getRawParameterNames(paramCount);
- 		}
+		} else if (javadocContents != BinaryType.EMPTY_JAVADOC){
+			// need to extract the part relative to the binary method since javadoc contains the javadoc for the declaring type
+			try {
+				javadocContents = extractJavadoc(declaringType, javadocContents);
+			} catch(JavaModelException e) {
+				// ignore
+			}
+		} else {
+			// let's see if we can retrieve them from the debug infos
+			char[][] argumentNames = info.getArgumentNames();
+			if (argumentNames != null && argumentNames.length == paramCount) {
+				String[] names = new String[paramCount];
+				for (int i = 0; i < paramCount; i++) {
+					names[i] = new String(argumentNames[i]);
+				}
+				return this.parameterNames = names;
+			}
+			return getRawParameterNames(paramCount);
+		}
 		if (javadocContents != null && javadocContents != BinaryType.EMPTY_JAVADOC) {
 			final int indexOfOpenParen = javadocContents.indexOf('(');
 			if (indexOfOpenParen != -1) {
@@ -267,6 +275,15 @@ public String[] getParameterNames() throws JavaModelException {
 					return this.parameterNames;
 				}
 			}
+		}
+		// let's see if we can retrieve them from the debug infos
+		char[][] argumentNames = info.getArgumentNames();
+		if (argumentNames != null && argumentNames.length == paramCount) {
+			String[] names = new String[paramCount];
+			for (int i = 0; i < paramCount; i++) {
+				names[i] = new String(argumentNames[i]);
+			}
+			return this.parameterNames = names;
 		}
 	}
 	// if still no parameter names, produce fake ones

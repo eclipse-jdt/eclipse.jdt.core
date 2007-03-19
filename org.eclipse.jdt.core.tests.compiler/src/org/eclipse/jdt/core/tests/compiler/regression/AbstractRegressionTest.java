@@ -162,6 +162,32 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		this.checkClassFile(directoryName, className, className, source, expectedOutput, mode);
 	}
 
+	protected ClassFileReader getInternalClassFile(String directoryName, String className, String disassembledClassName, String source) throws ClassFormatException, IOException {
+		compileAndDeploy(source, directoryName, className);
+		try {
+			File directory = new File(EVAL_DIRECTORY, directoryName);
+			if (!directory.exists()) {
+				assertTrue(".class file not generated properly in " + directory, false);
+			}
+			File f = new File(directory, disassembledClassName + ".class");
+			ClassFileReader classFileReader = null;
+			try {
+				FileInputStream stream = new FileInputStream(f);
+				classFileReader = ClassFileReader.read(stream, className + ".class", true);
+				stream.close();
+			} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
+				e.printStackTrace();
+				assertTrue("ClassFormatException", false);
+			} catch (IOException e) {
+				e.printStackTrace();
+				assertTrue("IOException", false);
+			}
+			return classFileReader;
+		} finally {
+			removeTempClass(className);
+		}
+	}
+
 	protected void checkDisassembledClassFile(String fileName, String className, String expectedOutput) {
 		this.checkDisassembledClassFile(fileName, className, expectedOutput, ClassFileBytesDisassembler.DETAILED);
 	}

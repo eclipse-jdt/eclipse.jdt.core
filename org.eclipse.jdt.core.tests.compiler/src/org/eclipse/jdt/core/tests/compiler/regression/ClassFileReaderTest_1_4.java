@@ -14,13 +14,15 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 
 public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 77 };
+//		TESTS_NUMBERS = new int[] { 78, 79 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -66,7 +68,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" + 
 			"        [pc: 0, pc: 12] local: this index: 0 type: A001\n"; 
 		checkClassFile("A001", source, expectedOutput);
-	}			
+	}
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25188
@@ -2785,4 +2787,102 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"private static class p.X$A {\n";
 		checkClassFile("p", "X", "X$A", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=34373
+	public void test078() throws ClassFormatException, IOException {
+		String source =
+			"public class X {\n" +
+			"	X(int i, int j) {}\n" +
+			"	void foo(String s, double d) {}\n" +
+			"}";
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		IBinaryMethod[] methodInfos = classFileReader.getMethods();
+		assertNotNull("No method infos", methodInfos);
+		int length = methodInfos.length;
+		assertTrue("At least one method", length > 0);
+		for (int i = 0; i < length; i++) {
+			char[][] argNames = methodInfos[i].getArgumentNames();
+			assertNotNull("No names", argNames);
+			assertEquals("Wrong size", 2, argNames.length);
+			if (CharOperation.equals(methodInfos[i].getSelector(), "<init>".toCharArray())) {
+				assertEquals("Wrong argument name", "i", new String(argNames[0]));
+				assertEquals("Wrong argument name", "j", new String(argNames[1]));
+			} else if (CharOperation.equals(methodInfos[i].getSelector(), "foo".toCharArray())) {
+				assertEquals("Wrong argument name", "s", new String(argNames[0]));
+				assertEquals("Wrong argument name", "d", new String(argNames[1]));
+			}
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=34373
+	public void test079() throws ClassFormatException, IOException {
+		String source =
+			"public class X {\n" +
+			"	X(int i, int j) {}\n" +
+			"	void foo(String s, double d) throws Exception {\n" +
+			"		try {\n" +
+			"			System.out.println(s + d);\n" +
+			"		} catch(Exception e) {\n" +
+			"			e.printStackTrace();\n" +
+			"			throw e;\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}";
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		IBinaryMethod[] methodInfos = classFileReader.getMethods();
+		assertNotNull("No method infos", methodInfos);
+		int length = methodInfos.length;
+		assertTrue("At least one method", length > 0);
+		for (int i = 0; i < length; i++) {
+			char[][] argNames = methodInfos[i].getArgumentNames();
+			assertNotNull("No names", argNames);
+			assertEquals("Wrong size", 2, argNames.length);
+			if (CharOperation.equals(methodInfos[i].getSelector(), "<init>".toCharArray())) {
+				assertEquals("Wrong argument name", "i", new String(argNames[0]));
+				assertEquals("Wrong argument name", "j", new String(argNames[1]));
+			} else if (CharOperation.equals(methodInfos[i].getSelector(), "foo".toCharArray())) {
+				assertEquals("Wrong argument name", "s", new String(argNames[0]));
+				assertEquals("Wrong argument name", "d", new String(argNames[1]));
+			}
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=34373
+	public void test080() throws ClassFormatException, IOException {
+		String source =
+			"public class X {\n" +
+			"	X(int i, int j) {}\n" +
+			"	void foo(String s, double d) throws Exception {\n" +
+			"		try {\n" +
+			"			int k = 0;\n" +
+			"			System.out.println(s + d + k);\n" +
+			"		} catch(Exception e) {\n" +
+			"			e.printStackTrace();\n" +
+			"			throw e;\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}";
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		IBinaryMethod[] methodInfos = classFileReader.getMethods();
+		assertNotNull("No method infos", methodInfos);
+		int length = methodInfos.length;
+		assertTrue("At least one method", length > 0);
+		for (int i = 0; i < length; i++) {
+			char[][] argNames = methodInfos[i].getArgumentNames();
+			assertNotNull("No names", argNames);
+			assertEquals("Wrong size", 2, argNames.length);
+			if (CharOperation.equals(methodInfos[i].getSelector(), "<init>".toCharArray())) {
+				assertEquals("Wrong argument name", "i", new String(argNames[0]));
+				assertEquals("Wrong argument name", "j", new String(argNames[1]));
+			} else if (CharOperation.equals(methodInfos[i].getSelector(), "foo".toCharArray())) {
+				assertEquals("Wrong argument name", "s", new String(argNames[0]));
+				assertEquals("Wrong argument name", "d", new String(argNames[1]));
+			}
+		}
+	}
+
 }

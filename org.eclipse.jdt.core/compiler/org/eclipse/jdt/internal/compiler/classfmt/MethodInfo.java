@@ -12,12 +12,14 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Comparable {
 	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
+	static private final char[][] noArgumentNames = CharOperation.NO_CHAR_CHAR;
 	protected int accessFlags;
 	protected int attributeBytes;
 	protected char[] descriptor;
@@ -26,6 +28,8 @@ public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Compar
 	protected char[] signature;
 	protected int signatureUtf8Offset;
 	protected long tagBits;
+	protected char[][] argumentNames;
+	protected int argumentNamesIndex;
 
 public static MethodInfo createMethod(byte classFileBytes[], int offsets[], int offset) {
 	MethodInfo methodInfo = new MethodInfo(classFileBytes, offsets, offset);
@@ -193,7 +197,10 @@ public IBinaryAnnotation[] getAnnotations() {
  * @see org.eclipse.jdt.internal.compiler.env.IGenericMethod#getArgumentNames()
  */
 public char[][] getArgumentNames() {
-	return null;
+	if (this.argumentNames == null) {
+		readCodeAttribute();
+	}
+	return this.argumentNames;
 }
 public Object getDefaultValue() {
 	return null;
@@ -283,6 +290,7 @@ protected void initialize() {
 	getMethodDescriptor();
 	getExceptionTypeNames();
 	getGenericSignature();
+	getArgumentNames();
 	reset();
 }
 /**
@@ -403,5 +411,74 @@ protected void toStringContent(StringBuffer buffer) {
 	.append(getSelector())
 	.append(desc)
 	.append('}');
+}
+private void readCodeAttribute() {
+	int attributesCount = u2At(6);
+	int readOffset = 8;
+	if (attributesCount != 0) {
+		for (int i = 0; i < attributesCount; i++) {
+			int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
+			char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+			if (CharOperation.equals(attributeName, AttributeNamesConstants.CodeName)) {
+				decodeCodeAttribute(readOffset);
+				if (this.argumentNames == null) {
+					this.argumentNames = noArgumentNames;
+				}
+				return;
+			} else {
+				readOffset += (6 + u4At(readOffset + 2));
+			}
+		}
+	}
+	this.argumentNames = noArgumentNames;
+}
+private void decodeCodeAttribute(int offset) {
+	int readOffset = offset + 10;
+	int codeLength = (int) u4At(readOffset);
+	readOffset += (4 + codeLength);
+	int exceptionTableLength = u2At(readOffset);
+	readOffset += 2;
+	if (exceptionTableLength != 0) {
+		for (int i = 0; i < exceptionTableLength; i++) {
+			readOffset += 8;
+		}
+	}
+	int attributesCount = u2At(readOffset);
+	readOffset += 2;
+	for (int i = 0; i < attributesCount; i++) {
+		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
+		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		if (CharOperation.equals(attributeName, AttributeNamesConstants.LocalVariableTableName)) {
+			decodeLocalVariableAttribute(readOffset, codeLength);
+		}
+		readOffset += (6 + u4At(readOffset + 2));
+	}
+}
+private void decodeLocalVariableAttribute(int offset, int codeLength) {
+	int readOffset = offset + 6;
+	final int length = u2At(readOffset);
+	if (length != 0) {
+		readOffset += 2;
+		this.argumentNames = new char[length][];
+		this.argumentNamesIndex = 0;
+		for (int i = 0; i < length; i++) {
+			int startPC = u2At(readOffset);
+			if (startPC == 0) {
+				int nameIndex = u2At(4 + readOffset);
+				int utf8Offset = constantPoolOffsets[nameIndex] - structOffset;
+				char[] localVariableName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+				if (!CharOperation.equals(localVariableName, ConstantPool.This)) {
+					this.argumentNames[this.argumentNamesIndex++] = localVariableName;
+				}
+			} else {
+				break;
+			}
+			readOffset += 10;
+		}
+		if (this.argumentNamesIndex != this.argumentNames.length) {
+			// resize
+			System.arraycopy(this.argumentNames, 0, (this.argumentNames = new char[this.argumentNamesIndex][]), 0, this.argumentNamesIndex);
+		}
+	}
 }
 }
