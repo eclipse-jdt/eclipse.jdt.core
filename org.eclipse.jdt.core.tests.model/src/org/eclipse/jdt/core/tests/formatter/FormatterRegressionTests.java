@@ -55,7 +55,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	
 	static {
 //		TESTS_NUMBERS = new int[] { 656 };
-//		TESTS_RANGE = new int[] { 659, -1 };
+//		TESTS_RANGE = new int[] { 658, -1 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -9230,4 +9230,28 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test657", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
+
+/*	public void test658() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.indent_comments_on_first_column = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test658", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test659() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.indent_comments_on_first_column = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test659", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public void test660() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.indent_comments_on_first_column = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test660", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}*/
 }
