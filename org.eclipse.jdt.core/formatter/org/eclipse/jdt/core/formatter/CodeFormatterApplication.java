@@ -21,10 +21,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jface.text.BadLocationException;
@@ -158,7 +160,7 @@ public class CodeFormatterApplication implements IApplication {
 
 	private String configName;
 
-	private Properties options = null;
+	private Map options = null;
 
 	private static final String PDE_LAUNCH = "-pdelaunch"; //$NON-NLS-1$
 
@@ -373,8 +375,32 @@ public class CodeFormatterApplication implements IApplication {
 			System.out.println(Messages.bind(Messages.CommandLineStart));
 		}
 
-		// format the list of files and/or directories
+		// preserve existing default behavior
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=20793
+		if (this.options == null) {
+			this.options = JavaCore.getOptions();
+			this.options.put(
+				DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN,
+				DefaultCodeFormatterConstants.FALSE);
+			this.options.put(
+					DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN,
+					DefaultCodeFormatterConstants.FALSE);
+		} else {
+			Object option = this.options.get(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN);
+			if (option == null) {
+				this.options.put(
+						DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN,
+						DefaultCodeFormatterConstants.FALSE);
+			}
+			option = this.options.get(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN);
+			if (option == null) {
+				this.options.put(
+						DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN,
+						DefaultCodeFormatterConstants.FALSE);
+			}
+		}
 		final CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(this.options);
+		// format the list of files and/or directories
 		for (int i = 0, max = filesToFormat.length; i < max; i++) {
 			final File file = filesToFormat[i];
 			if (file.isDirectory()) {

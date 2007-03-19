@@ -50,6 +50,55 @@ Eclipse SDK 3.3M6 - %date%
 <br>Project org.eclipse.jdt.core v_743
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_743">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>New constant API have been added in <code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants</code> in order to fix bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=20793">20793</a>.
+The implementation will be provided after 3.3M6.<br>
+<pre>
+	/**
+	 * <pre>
+	 * FORMATTER / Option to indent block comments that start on the first column
+	 *     - option id:         "org.eclipse.jdt.core.formatter.formatter.never_indent_block_comments_on_first_column"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.3
+	 */
+	public static final String FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN = JavaCore.PLUGIN_ID + ".formatter.never_indent_block_comments_on_first_column"; //$NON-NLS-1$	
+	/**
+	 * <pre>
+	 * FORMATTER / Option to indent line comments that start on the first column
+	 *     - option id:         "org.eclipse.jdt.core.formatter.formatter.never_indent_line_comments_on_first_column"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.3
+	 */
+	public static final String FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN = JavaCore.PLUGIN_ID + ".formatter.never_indent_line_comments_on_first_column"; //$NON-NLS-1$	
+</pre>
+</li>
+<li>New constant API have been added in <code>org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants</code> in order to fix bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=79068">79068</a>.
+The implementation will be provided after 3.3M6.<br>
+<pre>
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the binary operator
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_binary_operator"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.3
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_BINARY_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_binary_operator"; //$NON-NLS-1$
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=102473">102473</a>
