@@ -3403,8 +3403,8 @@ public void testCompletionFindConstructor5() throws JavaModelException {
             requestor.getContext());
     
 	assertEquals(
-			"Constructor5[ANONYMOUS_CLASS_DECLARATION]{, Lzconstructors.Constructor5;, (I)V, null, (arg0), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Constructor5[METHOD_REF<CONSTRUCTOR>]{, Lzconstructors.Constructor5;, (I)V, Constructor5, (arg0), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			"Constructor5[ANONYMOUS_CLASS_DECLARATION]{, Lzconstructors.Constructor5;, (I)V, null, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Constructor5[METHOD_REF<CONSTRUCTOR>]{, Lzconstructors.Constructor5;, (I)V, Constructor5, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 

@@ -443,8 +443,8 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		String[] paramNames = method.getParameterNames();
 		assertNotNull(paramNames);
 		assertEquals("Wrong size", 2, paramNames.length); //$NON-NLS-1$
-		assertEquals("Wrong name", "arg0", paramNames[0]); //$NON-NLS-1$
-		assertEquals("Wrong name", "arg1", paramNames[1]); //$NON-NLS-1$
+		assertEquals("Wrong name", "i", paramNames[0]); //$NON-NLS-1$
+		assertEquals("Wrong name", "j", paramNames[1]); //$NON-NLS-1$
 	}
 	
 	/*

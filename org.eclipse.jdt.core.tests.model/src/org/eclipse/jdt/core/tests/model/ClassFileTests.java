@@ -474,8 +474,8 @@ public void testParameterNames02() throws CoreException {
 		String[] parameterNames = method.getParameterNames();
 		assertStringsEqual(
 			"Unexpected parameter names",
-			"arg0\n" +
-			"arg1\n",
+			"key\n" +
+			"value\n",
 			parameterNames);
 	} finally {
 		attachSource(this.jarRoot, sourceAttachmentPath.toString(), null);
@@ -577,8 +577,8 @@ public void testRawParameterNames02() throws CoreException {
 		String[] parameterNames = method.getParameterNames();
 		assertStringsEqual(
 			"Unexpected parameter names",
-			"arg0\n" +
-			"arg1\n",
+			"key\n" +
+			"value\n",
 			parameterNames);
 	} finally {
 		attachSource(this.jarRoot, sourceAttachmentPath.toString(), null);
