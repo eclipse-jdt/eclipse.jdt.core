@@ -733,7 +733,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
-			this.lookupEnvironment.unitBeingCompleted = null;
+			// leave this.lookupEnvironment.unitBeingCompleted set to the unit, until another unit is resolved
+			// other calls to dom can cause classpath errors to be detected, resulting in AbortCompilation exceptions
+
 			// No reset is performed there anymore since,
 			// within the CodeAssist (or related tools),
 			// the compiler may be called *after* a call

@@ -7633,7 +7633,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = typeBinding.getSuperclass();
 		IMethodBinding[] methodBindings = typeBinding.getDeclaredMethods();
 		assertNotNull("No method bindings", methodBindings);
-		assertEquals("wrong size", 0, methodBindings.length);
+		assertEquals("wrong size", 2, methodBindings.length);
 	}
 
 	/*
@@ -7660,7 +7660,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = typeBinding.getSuperclass();
 		IVariableBinding[] variableBindings = typeBinding.getDeclaredFields();
 		assertNotNull("No variable bindings", variableBindings);
-		assertEquals("wrong size", 0, variableBindings.length);
+		assertEquals("wrong size", 1, variableBindings.length);
 	}
 
 	/*
