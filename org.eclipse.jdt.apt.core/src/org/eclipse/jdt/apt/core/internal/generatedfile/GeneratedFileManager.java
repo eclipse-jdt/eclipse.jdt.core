@@ -38,9 +38,9 @@ import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.Messages;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.core.internal.util.ManyToMany;
-import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -1434,29 +1434,38 @@ public class GeneratedFileManager
 		
 		ICompilationUnit unit = pkgFrag.getCompilationUnit(cuName);
 		boolean isWorkingCopy = unit.isWorkingCopy();
-		if (isWorkingCopy && !AptConfig.shouldProcessDuringReconcile(_jProject)) {
-			// Cover the case where the user turned off reconcile-time processing after some working
-			// copies were already created - else they'll get null timestamps and the commit will fail.
-			// There's probably a better way to do this but it's a corner case anyway. - WSH 3/07
-			_CUHELPER.discardWorkingCopy(unit);
-			isWorkingCopy = false;
-		}
 		if (isWorkingCopy) {
-			// If we have a working copy, all we
-			// need to do is update its contents and commit it.
-			_CUHELPER.commitNewContents(unit, contents, progressMonitor);
-			if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
-					"Committed existing working copy during build: " + unit.getElementName()); //$NON-NLS-1$
+			try {
+				// If we have a working copy, all we
+				// need to do is update its contents and commit it...
+				_CUHELPER.commitNewContents(unit, contents, progressMonitor);
+				if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+						"Committed existing working copy during build: " + unit.getElementName()); //$NON-NLS-1$
+			}
+			catch (JavaModelException e) {
+				// ...unless, that is, the resource has been deleted behind our back
+				// due to a clean.  In that case, discard the working copy and try again.
+				if (e.getJavaModelStatus().getCode() == IJavaModelStatusConstants.INVALID_RESOURCE) {
+					_CUHELPER.discardWorkingCopy(unit);
+					isWorkingCopy = false;
+					if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+							"Discarded invalid existing working copy in order to try again: " + unit.getElementName()); //$NON-NLS-1$
+				}
+				else {
+					AptPlugin.log(e, "Unable to commit working copy to disk: " + unit.getElementName()); //$NON-NLS-1$
+					return;
+				}
+			}
 		}
-		else {
+		if (!isWorkingCopy) {
 			try {
 				unit = pkgFrag.createCompilationUnit(cuName, contents, true, progressMonitor);
+				if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+						"Created compilation unit during build: " + unit.getElementName()); //$NON-NLS-1$
 			} catch (JavaModelException e) {
 				AptPlugin.log(e, "Unable to create compilation unit on disk: " +  //$NON-NLS-1$
 						cuName + " in pkg fragment: " + pkgFrag.getElementName()); //$NON-NLS-1$
 			}
-			if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
-					"Created compilation unit during build: " + unit.getElementName()); //$NON-NLS-1$
 		}
 	}
 

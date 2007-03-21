@@ -33,15 +33,12 @@ public class CompilationUnitHelper
 
 	/**
 	 * Update the contents of a working copy and commit it to disk.
+	 * @throws JavaModelException 
 	 */
-	public void commitNewContents(ICompilationUnit wc, String contents, IProgressMonitor monitor) {
-		try {
-			IBuffer b = wc.getBuffer();
-			b.setContents(contents);
-			wc.commitWorkingCopy(true, monitor);
-		} catch (JavaModelException e) {
-			AptPlugin.log(e, "Unable to commit new contents for working copy " + wc.getElementName()); //$NON-NLS-1$
-		}
+	public void commitNewContents(ICompilationUnit wc, String contents, IProgressMonitor monitor) throws JavaModelException {
+		IBuffer b = wc.getBuffer();
+		b.setContents(contents);
+		wc.commitWorkingCopy(true, monitor);
 	}
 	
 	/**
