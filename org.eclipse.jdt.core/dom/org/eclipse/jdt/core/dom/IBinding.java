@@ -164,6 +164,7 @@ public interface IBinding {
 	 *
 	 * @return <code>true</code> if this binding is a recovered binding, and
 	 *    <code>false</code> otherwise
+	 * @since 3.3
 	 */
 	public boolean isRecovered();
 

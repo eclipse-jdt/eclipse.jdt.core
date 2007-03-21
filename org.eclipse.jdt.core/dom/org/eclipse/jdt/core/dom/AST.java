@@ -2835,6 +2835,7 @@ public final class AST {
 	 * Returns true if the ast tree was created with bindings, false otherwise
 	 *
 	 * @return true if the ast tree was created with bindings, false otherwise
+	 * @since 3.3
 	 */
 	public boolean hasResolvedBindings() {
 		return (this.bits & RESOLVED_BINDINGS) != 0;
@@ -2844,6 +2845,7 @@ public final class AST {
 	 * Returns true if the ast tree was created with statements recovery, false otherwise
 	 *
 	 * @return true if the ast tree was created with statements recovery, false otherwise
+	 * @since 3.3
 	 */
 	public boolean hasStatementsRecovery() {
 		return (this.bits & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0;
@@ -2853,6 +2855,7 @@ public final class AST {
 	 * Returns true if the ast tree was created with bindings recovery, false otherwise
 	 *
 	 * @return true if the ast tree was created with bindings recovery, false otherwise
+	 * @since 3.3
 	 */
 	public boolean hasBindingsRecovery() {
 		return (this.bits & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
