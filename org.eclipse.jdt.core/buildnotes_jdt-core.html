@@ -46,13 +46,23 @@
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.3M6 - %date% - 3.3 MILESTONE 6
+Eclipse SDK 3.3M6 - March 21, 2007 - 3.3 MILESTONE 6
 <br>Project org.eclipse.jdt.core v_745
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_745">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li><code>org.eclipse.jdt.core.JavaCore#setCompilanceOptions(String, Map)</code> has been renamed in <code>org.eclipse.jdt.core.JavaCore.setComplianceOptions(String, Map)</code>.</li>
+<li><code>org.eclipse.jdt.core.dom.RecoveredTypeBinding</code>, <code>org.eclipse.jdt.core.dom.RecoveredVariableBinding</code> are not part of the API. They have been
+moved to package default visibility.</li>
+<li><code>org.eclipse.jdt.core.search.MethodReferenceMatch#isPolymorphic()</code> has been removed.</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=178594">178594</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=178616">178616</a>
+[API] Fix typo for JavaCore#setComplianceOptions(String, Map)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=178607">178607</a>
+[API][dom] RecoveredTypeBinding and RecoveredVariableBinding should not be public
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=178594">178594</a>
 [search] Deprecated MethodReferenceMatch.isPolymorphic() should be removed
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=176118">176118</a>
 Missing library classes kill Intellisense without Error
