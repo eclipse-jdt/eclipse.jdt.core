@@ -394,6 +394,7 @@ public class SearchEngine {
 	 * @param type The java model handle of the type
 	 * @param modifiers Modifiers of the type
 	 * @return A non-null match on the given type.
+	 * @since 3.3
 	 */
 	public static TypeNameMatch createTypeNameMatch(IType type, int modifiers) {
 		return BasicSearchEngine.createTypeNameMatch(type, modifiers);
