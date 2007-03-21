@@ -4551,8 +4551,9 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @param compliance the given compliance
 	 * @param options the given options map
+	 * @since 3.3
 	 */
-	public static void setCompilanceOptions(String compliance, Map options) {
+	public static void setComplianceOptions(String compliance, Map options) {
 		switch((int) (CompilerOptions.versionToJdkLevel(compliance) >>> 16)) {
 			case ClassFileConstants.MAJOR_VERSION_1_3:
 				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
