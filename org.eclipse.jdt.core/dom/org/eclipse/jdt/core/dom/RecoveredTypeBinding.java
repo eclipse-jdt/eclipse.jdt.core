@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 /**
  * This class represents the recovered binding for a type
  */
-public class RecoveredTypeBinding implements ITypeBinding {
+class RecoveredTypeBinding implements ITypeBinding {
 
 	private VariableDeclaration variableDeclaration;
 	private Type currentType;

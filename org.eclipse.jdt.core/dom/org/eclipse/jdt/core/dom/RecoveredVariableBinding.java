@@ -12,12 +12,15 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.IJavaElement;
 
-public class RecoveredVariableBinding implements IVariableBinding {
+/**
+ * This class represents the recovered binding for a variable
+ */
+class RecoveredVariableBinding implements IVariableBinding {
 
 	private VariableDeclaration variableDeclaration;
 	private BindingResolver resolver;
 
-	public RecoveredVariableBinding(BindingResolver resolver, VariableDeclaration variableDeclaration) {
+	RecoveredVariableBinding(BindingResolver resolver, VariableDeclaration variableDeclaration) {
 		this.resolver = resolver;
 		this.variableDeclaration = variableDeclaration;
 	}
