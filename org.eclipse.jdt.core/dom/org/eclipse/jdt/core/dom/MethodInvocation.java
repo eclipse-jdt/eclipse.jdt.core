@@ -257,12 +257,14 @@ public class MethodInvocation extends Expression {
 	}
 
 	/**
-	 * Returns true if the resolved return type has been inferred from the assignment context (JLS3 15.12.2.8), false otherwise.
+	 * Returns <code>true</code> if the resolved return type has been inferred
+	 * from the assignment context (JLS3 15.12.2.8), <code>false</code> otherwise.
 	 * <p>
 	 * This information is available only when bindings are requested when the AST is being built
 	 * </p>.
 	 *
-	 * @return true if the resolved return type has been inferred from the assignment context (JLS3 15.12.2.8), false otherwise
+	 * @return <code>true</code> if the resolved return type has been inferred
+	 * 	from the assignment context (JLS3 15.12.2.8), <code>false</code> otherwise
 	 * @since 3.3
 	 */
 	public boolean isResolvedTypeInferredFromExpectedType() {
