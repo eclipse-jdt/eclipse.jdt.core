@@ -17,7 +17,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
@@ -53,6 +56,13 @@ public class BuildFilerImpl extends FilerImpl {
     		throw new IllegalArgumentException("Type name cannot be empty"); //$NON-NLS-1$
 
     	_env.checkValid();
+    	try {
+			_env.validateTypeName(typeName);
+		} catch (CoreException e) {
+			IOException ioe = new IOException();
+			ioe.initCause(e);
+			throw ioe;
+		}
 		_generatedClassFiles = true;
 		
 		// We do not want to write to disk during reconcile
@@ -113,8 +123,10 @@ public class BuildFilerImpl extends FilerImpl {
     		return new NoOpPrintWriter();
     	}
     	
+    	
     	IPath path = getOutputFileForLocation( loc, pkg, relPath );
     	IFile file = _env.getProject().getFile(path);
+    	validateFile(file);
     	OutputStream binaryOut = new EncodedFileOutputStream(file, _env, charsetName);
  
     	if (charsetName == null) {
@@ -126,7 +138,7 @@ public class BuildFilerImpl extends FilerImpl {
     	}
     }
 
-    /**
+	/**
      * Creates a new binary file, and returns a stream for writing to it. The 
      * file is located along with either the newly created source or newly 
      * created binary files. It may be named relative to some package (as 
@@ -156,6 +168,7 @@ public class BuildFilerImpl extends FilerImpl {
     	
     	IPath path = getOutputFileForLocation( loc, pkg, relPath );
     	IFile file = _env.getProject().getFile(path);
+    	validateFile(file);
     	return new BinaryFileOutputStream(file, _env);
     }
 
@@ -164,4 +177,15 @@ public class BuildFilerImpl extends FilerImpl {
 		return _env;
 	}
 	
+    private void validateFile(IFile file) throws IOException
+	{
+    	IStatus status = file.getWorkspace().validatePath(file.getFullPath().toOSString(), IResource.FILE);
+    	if (!status.isOK()) {
+        	CoreException ce = new CoreException(status);
+        	IOException ioe = new IOException("Invalid file name"); //$NON-NLS-1$
+        	ioe.initCause(ce);
+        	throw ioe;
+        }
+	}
+
 }

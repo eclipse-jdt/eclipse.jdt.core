@@ -13,5 +13,5 @@ package org.eclipse.jdt.apt.tests.annotations.filegen;
 
 public @interface TextGenAnnotation {
 
-	String value() default ""; //$NON-NLS-1$
+	String value(); // name of file to generate
 }

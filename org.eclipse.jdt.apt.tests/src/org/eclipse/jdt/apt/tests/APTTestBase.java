@@ -19,15 +19,17 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.generic.GenericFactory;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
+import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.util.Util;
+
+import com.sun.mirror.apt.AnnotationProcessor;
 
 /** 
  * Setup a project for common APT testing.
@@ -141,6 +143,37 @@ public abstract class APTTestBase extends BuilderTests{
 			buffer.append('\n');
 		}
 		return buffer.toString();
+	}
+	
+	protected void clearProcessorResult(Class<? extends AnnotationProcessor> processor) {
+		String propertyName = BaseProcessor.getPropertyName(processor);
+		System.clearProperty(propertyName);
+	}
+	
+	/*
+	 * Processors can set a result message with BaseProcessor.reportError() or reportSuccess().
+	 * This method will cause the test to fail if the processor reported an error.  The result
+	 * value will be cleared regardless of success or failure.
+	 */
+	protected String checkProcessorResult(Class<? extends AnnotationProcessor> processor) {
+		String propertyName = BaseProcessor.getPropertyName(processor);
+		String result = System.getProperty(propertyName);
+		System.clearProperty(propertyName);
+		if (!BaseProcessor.SUCCESS.equals(result)) {
+			fail(result);
+		}
+		return result;
+	}
+	
+	/*
+	 * Processors can set a result message with BaseProcessor.reportError() or reportSuccess().
+	 * This method returns the message reported by the processor, and clears the result value.
+	 */
+	protected String getProcessorResult(Class<? extends AnnotationProcessor> processor) {
+		String propertyName = BaseProcessor.getPropertyName(processor);
+		String result = System.getProperty(propertyName);
+		System.clearProperty(propertyName);
+		return result;
 	}
 	
 	protected void expectingMarkers(String[] messages)

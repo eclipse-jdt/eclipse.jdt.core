@@ -23,6 +23,8 @@ import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
+import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotationProcessor;
+import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotationProcessor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -160,6 +162,68 @@ public class AptBuilderTests extends APTTestBase
 
 		expectingOnlyProblemsFor( new IPath[0] );
 	}
+	
+	@SuppressWarnings("nls")
+	/**
+	 *  Try generating a bogus type name; expect exception 
+	 */
+	public void testGeneratingIllegalTypeName()
+	{
+		String projectName = getProjectName();
+		clearProcessorResult(HelloWorldAnnotationProcessor.class);
+		IProject project = env.getProject( projectName );
+		IPath srcRoot = getSourcePath( projectName );	
+
+		String code = "package p1;\n"
+			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
+			+ "import generatedfilepackage.GeneratedFileTest;"
+			+ "\n" + "public class A " + "\n" + "{"
+			+ "    @HelloWorldAnnotation(\"Bad-Type-Name\")" + "\n"
+			+ "    public static void main( String[] argv )" + "\n" + "    {"
+			+ "\n"
+			+ "        GeneratedFileTest.helloWorld();"
+			+ "\n" + "    }" + "\n" + "}" + "\n";
+
+		env.addClass( srcRoot, "p1", "A", code );
+		fullBuild( project.getFullPath() );
+		assertEquals("Could not generate text file due to IOException", getProcessorResult(HelloWorldAnnotationProcessor.class));
+	}
+	
+	@SuppressWarnings("nls")
+	/**
+	 *  Try running two processors on the same file, and look for interactions.
+	 *  Regression for https://bugs.eclipse.org/bugs/show_bug.cgi?id=175794
+	 */
+	public void disabled_testTwoAnnotations()
+	{
+		String projectName = getProjectName();
+		clearProcessorResult(HelloWorldAnnotationProcessor.class);
+		clearProcessorResult(MessagerAnnotationProcessor.class);
+		IProject project = env.getProject( projectName );
+		IPath srcRoot = getSourcePath( projectName );	
+
+		String codeMessageFirst = "package p1;\n"
+			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;\n"
+			+ "import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotation;\n"
+			+ "import generatedfilepackage.GeneratedFileTest;\n"
+			+ "@MessagerAnnotation(severity=MessagerAnnotation.Severity.ERROR)\n"
+			+ "@HelloWorldAnnotation\n"
+			+ "public class A {\n"
+			+ "    public static void main( String[] argv ) {\n"
+			+ "        GeneratedFileTest.helloWorld();\n"
+			+ "    }\n"
+			+ "}\n";
+
+		IPath p1aPath = env.addClass( srcRoot, "p1", "A", codeMessageFirst );
+		fullBuild( project.getFullPath() );
+		checkProcessorResult(HelloWorldAnnotationProcessor.class);
+		checkProcessorResult(MessagerAnnotationProcessor.class);
+		expectingOnlyProblemsFor( p1aPath );
+		expectingOnlySpecificProblemFor( p1aPath, new ExpectedProblem(
+			"A", MessagerAnnotationProcessor.PROBLEM_TEXT_ERROR, p1aPath ) ); //$NON-NLS-1$ //$NON-NLS-2$	
+	}
+	
+
 	
 	/**
 	 *  This test makes sure we run apt on generated files during build

@@ -14,5 +14,5 @@ package org.eclipse.jdt.apt.tests.annotations.helloworld;
 
 public @interface HelloWorldAnnotation
 {
-	String value() default ""; //$NON-NLS-1$
+	String value() default "GeneratedFileTest"; //$NON-NLS-1$
 }

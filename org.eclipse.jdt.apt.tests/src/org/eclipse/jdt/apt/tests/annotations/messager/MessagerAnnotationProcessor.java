@@ -64,6 +64,7 @@ public class MessagerAnnotationProcessor extends BaseProcessor {
         		break;
         	}
         }
+        reportSuccess(this.getClass());
 	}
 
 }

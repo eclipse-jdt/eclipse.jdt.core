@@ -14,34 +14,44 @@ package org.eclipse.jdt.apt.tests.annotations.filegen;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import com.sun.mirror.declaration.Declaration;
 
 public class TextGenAnnotationProcessor extends BaseProcessor {
 	
-	public static final String FILE_NAME = "TextFile.txt";
-
 	public TextGenAnnotationProcessor(AnnotationProcessorEnvironment env) {
 		super(env);
 	}
 	
 	public void process() {
 		Filer f = _env.getFiler();
+		AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration) _env.getTypeDeclaration(TextGenAnnotation.class.getName());
+		Collection<Declaration> annotatedDecls = _env.getDeclarationsAnnotatedWith(annoDecl);
 		try {
-			PrintWriter writer = f.createTextFile(
-					Filer.Location.CLASS_TREE, 
-					"", 
-					new File(FILE_NAME), 
-					null);
-			writer.print(TEXT);
-			writer.close();
-			
+			for (Declaration annotatedDecl : annotatedDecls) {
+				TextGenAnnotation tganno = annotatedDecl.getAnnotation(TextGenAnnotation.class);
+				String fileName = tganno.value();
+				PrintWriter writer = f.createTextFile(
+						Filer.Location.CLASS_TREE, 
+						"", 
+						new File(fileName), 
+						null);
+				writer.print(TEXT);
+				writer.close();
+			}
+			reportSuccess(this.getClass());
+		}
+		catch (NullPointerException npe) {
+			reportError(this.getClass(), "Could not read annotation in order to generate text file");
 		}
 		catch (IOException ioe) {
-			throw new RuntimeException("Could not generate text file",ioe);
+			reportError(this.getClass(), "Could not generate text file due to IOException");
 		}
 	}
 	

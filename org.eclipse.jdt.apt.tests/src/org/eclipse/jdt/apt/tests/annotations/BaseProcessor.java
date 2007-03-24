@@ -1,4 +1,5 @@
 /*******************************************************************************
+
  * Copyright (c) 2005 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,6 +17,20 @@ import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Messager;
 
 public abstract class BaseProcessor implements AnnotationProcessor {
+	
+	public static final String SUCCESS = "succeeded";
+	
+	public static String getPropertyName(Class<? extends AnnotationProcessor> processor) {
+		return processor.getName() + ".result";
+	}
+	
+	protected void reportSuccess(Class<? extends AnnotationProcessor> processor) {
+		System.setProperty(getPropertyName(processor), SUCCESS);
+	}
+	
+	protected void reportError(Class<? extends AnnotationProcessor> processor, String msg) {
+		System.setProperty(getPropertyName(processor), msg);
+	}
 
 	protected final AnnotationProcessorEnvironment _env;
 	

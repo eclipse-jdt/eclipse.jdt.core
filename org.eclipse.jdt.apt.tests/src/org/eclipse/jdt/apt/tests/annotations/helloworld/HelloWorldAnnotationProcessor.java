@@ -14,13 +14,23 @@ package org.eclipse.jdt.apt.tests.annotations.helloworld;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import com.sun.mirror.declaration.Declaration;
 
+/**
+ * A processor that looks for HelloWorldAnnotation, and in response
+ * generates a type named in the value of the annotation, containing code
+ * specified in getCode().
+ */
 public class HelloWorldAnnotationProcessor extends BaseProcessor {
+
+	private final static String PACKAGENAME = "generatedfilepackage"; //$NON-NLS-1$
 
 	public HelloWorldAnnotationProcessor(AnnotationProcessorEnvironment env) {
 		super(env);
@@ -28,43 +38,41 @@ public class HelloWorldAnnotationProcessor extends BaseProcessor {
 
 	public void process()
 	{
-		try
-		{
-			Filer f = _env.getFiler();
-			PrintWriter pw = f
-				.createSourceFile( getPackageName() + "." + getTypeName() ); //$NON-NLS-1$
-			pw.print( getCode() );
-			pw.close();
+		Filer f = _env.getFiler();
+		AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration) _env.getTypeDeclaration(HelloWorldAnnotation.class.getName());
+		Collection<Declaration> annotatedDecls = _env.getDeclarationsAnnotatedWith(annoDecl);
+		try {
+			for (Declaration annotatedDecl : annotatedDecls) {
+				String typeName = getTypeName(annotatedDecl);
+				PrintWriter writer = f.createSourceFile(
+						PACKAGENAME + "." + typeName);
+				writer.print(getCode(typeName));
+				writer.close();
+			}
+			reportSuccess(this.getClass());
 		}
-		catch( IOException ioe )
-		{
-			ioe.printStackTrace();
+		catch (NullPointerException npe) {
+			reportError(this.getClass(), "Could not read annotation in order to generate text file");
+		}
+		catch (IOException ioe) {
+			reportError(this.getClass(), "Could not generate text file due to IOException");
 		}
 	}
 
-	public String getCode() { return CODE; }
-	public String getPackageName() { return "generatedfilepackage"; } //$NON-NLS-1$
-	public String getTypeName() { return "GeneratedFileTest"; } //$NON-NLS-1$
+	private String getTypeName(Declaration annotatedDecl) { 
+		HelloWorldAnnotation tganno = annotatedDecl.getAnnotation(HelloWorldAnnotation.class);
+		return tganno.value();
+	}
 
-	protected final static String	PACKAGE_NAME	= ""; //$NON-NLS-1$
-
-	protected final static String	TYPE_NAME		= ""; //$NON-NLS-1$
-
-	@SuppressWarnings("nls")
-	protected String	CODE			= "package "
-														+ getPackageName()
-														+ ";"
-														+ "\n"
-														+ "public class "
-														+ getTypeName()
-														+ "\n"
-														+ "{"
-														+ "\n"
-														+ "    public static void helloWorld()"
-														+ "\n"
-														+ "    {"
-														+ "\n"
-														+ "        System.out.println( \"Hello, world!  I am a generated file!\" ); "
-														+ "\n" + "    }" + "\n"
-														+ "}";
+	private String getCode(String typeName) { 
+		return "package " + PACKAGENAME + ";" + "\n"
+		+ "public class "+ typeName	+ "\n"
+		+ "{" + "\n"
+		+ "    public static void helloWorld()"	+ "\n"
+		+ "    {" + "\n"
+		+ "        System.out.println( \"Hello, world!  I am a generated file!\" ); " + "\n" 
+		+ "    }" + "\n"
+		+ "}"; 
+	}
+	
 }

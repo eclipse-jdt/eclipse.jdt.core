@@ -137,13 +137,16 @@ public class FileGenerationTests extends APTTestBase {
 	}
 	
 	public void testTextFileGen() throws Exception {
+		final String TEXT_FILE_NAME = "TextFile.txt";
+
+		clearProcessorResult(TextGenAnnotationProcessor.class);
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		
 		String code = 
 				"package test;" + "\n" +
 				"import org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotation;" + "\n" +
-				"@TextGenAnnotation" + "\n" +
+				"@TextGenAnnotation(\"" + TEXT_FILE_NAME + "\")" + "\n" +
 				"public class Test" + "\n" +
 				"{" + "\n" +
 				"}";
@@ -157,17 +160,31 @@ public class FileGenerationTests extends APTTestBase {
 		Map<String,String> options = AptConfig.getProcessorOptions(JavaCore.create(project));
 		// We'll find it in the binary output directory
 		String outputRootPath = options.get("-d");
-		File theFile = new File(new File(outputRootPath), TextGenAnnotationProcessor.FILE_NAME);
+		File theFile = new File(new File(outputRootPath), TEXT_FILE_NAME);
 		
 		assertTrue("File was not found: " + theFile.getAbsolutePath(), theFile.exists());
 		
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		
-		// Look for the file again
+		checkProcessorResult(TextGenAnnotationProcessor.class);
 		assertTrue("File was not found: " + theFile.getAbsolutePath(), theFile.exists());
 		
-		// remove the annotation, and the file should be deleted
+		// Change the annotation to specify an illegal filename, and an exception should be thrown
+		code = 
+			"package test;" + "\n" +
+			"import org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotation;" + "\n" +
+			"@TextGenAnnotation(\">.txt\")" + "\n" +
+			"public class Test" + "\n" +
+			"{" + "\n" +
+			"}";
+		env.addClass(srcRoot, "test", "Test", code);
+		
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		assertEquals("Could not generate text file due to IOException", getProcessorResult(TextGenAnnotationProcessor.class));
+		assertTrue("File was found, but should be deleted: " + theFile.getAbsolutePath(), !theFile.exists());
+		
+		// remove the annotation, and the file should be deleted and processor should not run
 		code = 
 			"package test;" + "\n" +
 			"public class Test" + "\n" +
@@ -177,8 +194,7 @@ public class FileGenerationTests extends APTTestBase {
 		
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		
-		// Look for the file -- it should be gone
+		assertEquals(null, getProcessorResult(TextGenAnnotationProcessor.class));
 		assertTrue("File was found, but should be deleted: " + theFile.getAbsolutePath(), !theFile.exists());
 	}
 	
