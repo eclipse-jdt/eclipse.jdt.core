@@ -218,7 +218,6 @@ public class AptBuilderTests extends APTTestBase
 		fullBuild( project.getFullPath() );
 		checkProcessorResult(HelloWorldAnnotationProcessor.class);
 		checkProcessorResult(MessagerAnnotationProcessor.class);
-		expectingOnlyProblemsFor( p1aPath );
 		expectingOnlySpecificProblemFor( p1aPath, new ExpectedProblem(
 			"A", MessagerAnnotationProcessor.PROBLEM_TEXT_ERROR, p1aPath ) ); //$NON-NLS-1$ //$NON-NLS-2$	
 	}
