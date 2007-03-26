@@ -17,6 +17,7 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 
 /**
  * Run all compiler regression tests
@@ -57,6 +58,9 @@ public static Test suite() {
 	standardTests.add(RuntimeTests.class);
 	standardTests.add(DebugAttributeTest.class);
 	standardTests.add(NullReferenceTest.class);
+	if (UnconditionalFlowInfo.coverageTestFlag) {
+		standardTests.add(NullReferenceImplTests.class);
+	}
 	standardTests.add(CompilerInvocationTests.class);
 	standardTests.add(InnerEmulationTest.class);
 	standardTests.add(SuperTypeTest.class);
