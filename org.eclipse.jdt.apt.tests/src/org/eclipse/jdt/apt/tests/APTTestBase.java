@@ -331,6 +331,7 @@ public abstract class APTTestBase extends BuilderTests{
 			}
 			for (int j = 0; j < rootProblems.length; j++) {
 				Problem pb = rootProblems[j];
+				if (pb == null) continue;
 				System.out.print("got pb:		new Problem(\"" + pb.getLocation() + "\", \"" + pb.getMessage() + "\", \"" + pb.getResourcePath() + "\"");
 				System.out.print(", " + pb.getStart() + ", " + pb.getEnd() +  ", " + pb.getCategoryId());
 				System.out.println(")");
