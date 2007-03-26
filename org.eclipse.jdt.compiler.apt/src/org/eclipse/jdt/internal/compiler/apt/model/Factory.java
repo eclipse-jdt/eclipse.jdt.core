@@ -13,7 +13,7 @@
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
@@ -106,7 +106,7 @@ public class Factory {
 	 */
 	public static Set<Modifier> getModifiers(int modifiers)
 	{
-		Set<Modifier> result = new HashSet<Modifier>();
+		EnumSet<Modifier> result = EnumSet.noneOf(Modifier.class);
 		if (0 != (modifiers & ClassFileConstants.AccPublic)) {
 			result.add(Modifier.PUBLIC);
 		}
