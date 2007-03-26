@@ -39,15 +39,18 @@ public abstract class ElementImpl
 		_binding = binding;
 	}
 
+	@Override
 	public <R, P> R accept(ElementVisitor<R, P> v, P p) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public TypeMirror asType() {
 		return Factory.newTypeMirror(_binding);
 	}
 
+	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
 		// TODO Auto-generated method stub
 		return null;
@@ -64,11 +67,14 @@ public abstract class ElementImpl
 		return Collections.unmodifiableList(list);
 	}
 
+	@Override
 	public Set<Modifier> getModifiers() {
-		// TODO Auto-generated method stub
-		return null;
+		// Most subclasses implement this; this default is appropriate for 
+		// PackageElement and TypeParameterElement.
+		return Collections.emptySet();
 	}
 
+	@Override
 	public Name getSimpleName() {
 		return new NameImpl(_binding.shortReadableName());
 	}

@@ -13,11 +13,13 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
@@ -38,18 +40,12 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		// TODO Auto-generated constructor stub
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getAnnotationMirrors()
-	 */
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		AnnotationBinding[] annotations = ((ReferenceBinding)_binding).getAnnotations();
 		return getAnnotationMirrors(annotations);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getEnclosedElements()
-	 */
 	@Override
 	public List<? extends Element> getEnclosedElements() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
@@ -62,12 +58,13 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			 VariableElement variable = new VariableElementImpl(field);
 			 enclosed.add(variable);
 		}
+		for (ReferenceBinding memberType : binding.memberTypes()) {
+			TypeElement type = new TypeElementImpl(memberType);
+			enclosed.add(type);
+		}
 		return Collections.unmodifiableList(enclosed);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getEnclosingElement()
-	 */
 	@Override
 	public Element getEnclosingElement() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
@@ -81,9 +78,6 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getFileName()
-	 */
 	@Override
 	public String getFileName() {
 		char[] name = ((ReferenceBinding)_binding).getFileName();
@@ -92,6 +86,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		return new String(name);
 	}
 	
+	@Override
 	public List<? extends TypeMirror> getInterfaces() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		if (null == binding.superInterfaces() || binding.superInterfaces().length == 0) {
@@ -105,9 +100,6 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		return Collections.unmodifiableList(interfaces);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getKind()
-	 */
 	@Override
 	public ElementKind getKind() {
 		ReferenceBinding refBinding = (ReferenceBinding)_binding;
@@ -130,17 +122,46 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		}
 	}
 
-	public NestingKind getNestingKind() {
-		// TODO Auto-generated method stub
-		return null;
+	@Override
+	public Set<Modifier> getModifiers()
+	{
+		ReferenceBinding refBinding = (ReferenceBinding)_binding;
+		return Factory.getModifiers(refBinding.modifiers);
 	}
 
+	@Override
+	public NestingKind getNestingKind() {
+		ReferenceBinding refBinding = (ReferenceBinding)_binding;
+		if (refBinding.isAnonymousType()) {
+			return NestingKind.ANONYMOUS;
+		} else if (refBinding.isLocalType()) {
+			return NestingKind.LOCAL;
+		} else if (refBinding.isMemberType()) {
+			return NestingKind.MEMBER;
+		}
+		return NestingKind.TOP_LEVEL;
+	}
+
+	@Override
 	public Name getQualifiedName() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		//TODO: what is the right way to get this (including member types, parameterized types, ...?
 		return new NameImpl(CharOperation.concatWith(binding.compoundName, '.'));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getSimpleName()
+	 * @return last segment of name, e.g. for pa.pb.X.Y return Y.
+	 */
+	@Override
+	public Name getSimpleName()
+	{
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		return new NameImpl(binding.sourceName());
+	}
+
+	@Override
 	public TypeMirror getSuperclass() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		ReferenceBinding superBinding = binding.superclass();
@@ -151,6 +172,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		return Factory.newDeclaredType(superBinding);
 	}
 	
+	@Override
 	public List<? extends TypeParameterElement> getTypeParameters() {
 		// TODO Auto-generated method stub
 		return null;

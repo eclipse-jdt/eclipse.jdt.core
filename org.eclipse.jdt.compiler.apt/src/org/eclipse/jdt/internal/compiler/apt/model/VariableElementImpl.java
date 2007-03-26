@@ -14,10 +14,12 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
 
@@ -41,9 +43,6 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		super(binding);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getAnnotationMirrors()
-	 */
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		if (_binding instanceof VariableBinding) {
@@ -56,9 +55,6 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.element.VariableElement#getConstantValue()
-	 */
 	@Override
 	public Object getConstantValue() {
 		// TODO Auto-generated method stub
@@ -70,18 +66,12 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		return Collections.emptyList();
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.element.Element#getEnclosingElement()
-	 */
 	@Override
 	public Element getEnclosingElement() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.element.Element#getKind()
-	 */
 	@Override
 	public ElementKind getKind() {
 		if (_binding instanceof FieldBinding) {
@@ -92,9 +82,16 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getSimpleName()
-	 */
+	@Override
+	public Set<Modifier> getModifiers()
+	{
+		if (_binding instanceof VariableBinding) {
+			return Factory.getModifiers(((VariableBinding)_binding).modifiers);
+		}
+		// TODO: for method params, we might want to know about "final".
+		return Collections.emptySet();
+	}
+
 	@Override
 	public Name getSimpleName() {
 		if (_binding instanceof VariableBinding) {

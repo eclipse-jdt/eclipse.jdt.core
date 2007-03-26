@@ -12,7 +12,10 @@
 
 package org.eclipse.jdt.compiler.apt.tests.processors.elements;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +32,9 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
+import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -84,6 +89,7 @@ public class ElementProc extends AbstractProcessor {
 
 	// Initialized in examineDMethods()
 	private ExecutableElement _methodDvoid;
+	private TypeElement _elementDEnum;
 	
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.AbstractProcessor#init(javax.annotation.processing.ProcessingEnvironment)
@@ -138,6 +144,10 @@ public class ElementProc extends AbstractProcessor {
 			return false;
 		}
 		
+		if (!examineABModifiers()) {
+			return false;
+		}
+		
 		if (!examineDHierarchy()) {
 			return false;
 		}
@@ -147,6 +157,10 @@ public class ElementProc extends AbstractProcessor {
 		}
 		
 		if (!examineDMethods()) {
+			return false;
+		}
+		
+		if (!examineDEnum()) {
 			return false;
 		}
 		
@@ -174,6 +188,10 @@ public class ElementProc extends AbstractProcessor {
 		}
 		if (_elementIA.getKind() != ElementKind.INTERFACE) {
 			reportError("IA claims to not be an interface");
+			return false;
+		}
+		if (_elementIA.getNestingKind() != NestingKind.TOP_LEVEL) {
+			reportError("NestingKind of element IA is not TOP_LEVEL");
 			return false;
 		}
 		_elementA = _elementUtils.getTypeElement("targets.model.pa.A");
@@ -231,6 +249,40 @@ public class ElementProc extends AbstractProcessor {
 		}
 		if (!foundIAinterface) {
 			reportError("AB does not have IA as an interface");
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Examine the modifiers of AB's contents
+	 * @return true if all tests passed
+	 */
+	private boolean examineABModifiers() {
+		Map<String, Element> contents = new HashMap<String, Element>();
+		for (Element enclosed : _elementAB.getEnclosedElements()) {
+			contents.put(enclosed.getSimpleName().toString(), enclosed);
+		}
+		Element publicMethod = contents.get("methodIAString");
+		Element protectedField = contents.get("_fieldListIA");
+		Element privateClass = contents.get("E");
+		if (null == publicMethod || null == protectedField || null == privateClass) {
+			reportError("AB does not contain the expected enclosed elements");
+			return false;
+		}
+		Set<Modifier> modifiers = publicMethod.getModifiers();
+		if (!modifiers.contains(Modifier.PUBLIC) || modifiers.size() > 1) {
+			reportError("AB.methodIAString() has unexpected modifiers");
+			return false;
+		}
+		modifiers = protectedField.getModifiers();
+		if (!modifiers.contains(Modifier.PROTECTED) || modifiers.size() > 1) {
+			reportError("AB._fieldListIA() has unexpected modifiers");
+			return false;
+		}
+		modifiers = privateClass.getModifiers();
+		if (!modifiers.contains(Modifier.PRIVATE) || modifiers.size() > 1) {
+			reportError("AB.E() has unexpected modifiers");
 			return false;
 		}
 		return true;
@@ -368,7 +420,42 @@ public class ElementProc extends AbstractProcessor {
 			reportError("First parameter of D.methodDvoid() is not a declared type");
 			return false;
 		}
-		// TODO: further investigation of that parameter type
+		if (!"targets.model.pb.D.DEnum".equals(param1Type.toString())) {
+			reportError("Type of first parameter of D.methodDvoid() is not DEnum");
+			return false;
+		}
+		Element param1TypeElement = ((DeclaredType)param1Type).asElement();
+		if (null == param1TypeElement || param1TypeElement.getKind() != ElementKind.ENUM || !(param1TypeElement instanceof TypeElement)) {
+			reportError("Type of first parameter of D.methodDvoid() is not an enum");
+			return false;
+		}
+		_elementDEnum = (TypeElement)param1TypeElement;
+		return true;
+	}
+
+	/**
+	 * Check the DEnum type declared inside element D
+	 * @return true if all tests passed
+	 */
+	private boolean examineDEnum()
+	{
+		if (_elementDEnum.getNestingKind() != NestingKind.MEMBER) {
+			reportError("Type DEnum is not NestingKind.MEMBER");
+			return false;
+		}
+		Map<String, VariableElement> values = new LinkedHashMap<String, VariableElement>();
+		for (VariableElement enclosedElement : ElementFilter.fieldsIn(_elementDEnum.getEnclosedElements())) {
+			values.put(enclosedElement.getSimpleName().toString(), enclosedElement);
+		}
+		if (values.size() != 3) {
+			reportError("DEnum should have three values, but instead has: " + values.size());
+			return false;
+		}
+		Iterator<String> iter = values.keySet().iterator();
+		if (!"DEnum1".equals(iter.next()) || !"DEnum2".equals(iter.next()) || !"DEnum3".equals(iter.next())) {
+			reportError("DEnum does not have the expected values in the expected order");
+			return false;
+		}
 		return true;
 	}
 

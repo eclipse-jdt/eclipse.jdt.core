@@ -12,10 +12,16 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -93,6 +99,49 @@ public class Factory {
 			throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 		}
 		return null;
+	}
+
+	/**
+	 * Convert from the JDT's ClassFileConstants flags to the Modifier enum.
+	 */
+	public static Set<Modifier> getModifiers(int modifiers)
+	{
+		Set<Modifier> result = new HashSet<Modifier>();
+		if (0 != (modifiers & ClassFileConstants.AccPublic)) {
+			result.add(Modifier.PUBLIC);
+		}
+		if (0 != (modifiers & ClassFileConstants.AccPrivate)) {
+			result.add(Modifier.PRIVATE);
+		}
+		if (0 != (modifiers & ClassFileConstants.AccProtected)) {
+			result.add(Modifier.PROTECTED);
+		}
+		if (0 != (modifiers & ClassFileConstants.AccStatic)) {
+			result.add(Modifier.STATIC);
+		}
+		if (0 != (modifiers & ClassFileConstants.AccAbstract)) {
+			result.add(Modifier.ABSTRACT);
+		}
+		if (0 != (modifiers & ClassFileConstants.AccFinal)) {
+			result.add(Modifier.FINAL);
+		}
+		if (0 != (modifiers & ClassFileConstants.AccSynchronized)) {
+			result.add(Modifier.SYNCHRONIZED);
+		}
+		if (0 != (modifiers & ClassFileConstants.AccVolatile)) {
+			result.add(Modifier.VOLATILE);
+		}
+		if (0 != (modifiers & ClassFileConstants.AccTransient)) {
+			result.add(Modifier.TRANSIENT);
+		}
+		if (0 != (modifiers & ClassFileConstants.AccNative)) {
+			result.add(Modifier.NATIVE);
+		}
+		if (0 != (modifiers & ClassFileConstants.AccStrictfp)) {
+			result.add(Modifier.STRICTFP);
+		}
+			
+		return Collections.unmodifiableSet(result);
 	}
 
 }

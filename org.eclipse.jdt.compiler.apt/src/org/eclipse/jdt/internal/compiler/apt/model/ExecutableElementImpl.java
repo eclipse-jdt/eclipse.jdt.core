@@ -13,12 +13,14 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
@@ -41,9 +43,6 @@ public class ExecutableElementImpl extends ElementImpl implements
 		// TODO Auto-generated constructor stub
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getAnnotationMirrors()
-	 */
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		AnnotationBinding[] annotations = ((MethodBinding)_binding).getAnnotations();
@@ -57,6 +56,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		return Collections.unmodifiableList(list);
 	}
 
+	@Override
 	public AnnotationValue getDefaultValue() {
 		// TODO Auto-generated method stub
 		return null;
@@ -67,9 +67,6 @@ public class ExecutableElementImpl extends ElementImpl implements
 		return Collections.emptyList();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getEnclosingElement()
-	 */
 	@Override
 	public Element getEnclosingElement() {
 		MethodBinding binding = (MethodBinding)_binding;
@@ -79,9 +76,6 @@ public class ExecutableElementImpl extends ElementImpl implements
 		return Factory.newElement(binding.declaringClass);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getFileName()
-	 */
 	@Override
 	public String getFileName() {
 		ReferenceBinding dc = ((MethodBinding)_binding).declaringClass;
@@ -91,9 +85,6 @@ public class ExecutableElementImpl extends ElementImpl implements
 		return new String(name);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getKind()
-	 */
 	@Override
 	public ElementKind getKind() {
 		MethodBinding binding = (MethodBinding)_binding;
@@ -111,6 +102,14 @@ public class ExecutableElementImpl extends ElementImpl implements
 		}
 	}
 
+	@Override
+	public Set<Modifier> getModifiers()
+	{
+		MethodBinding binding = (MethodBinding)_binding;
+		return Factory.getModifiers(binding.modifiers);
+	}
+
+	@Override
 	public List<? extends VariableElement> getParameters() {
 		MethodBinding binding = (MethodBinding)_binding;
 		if (0 == binding.parameters.length) {
@@ -124,6 +123,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		return Collections.unmodifiableList(params);
 	}
 
+	@Override
 	public TypeMirror getReturnType() {
 		MethodBinding binding = (MethodBinding)_binding;
 		if (binding.returnType == null) {
@@ -145,16 +145,19 @@ public class ExecutableElementImpl extends ElementImpl implements
 		return _name;
 	}
 	
+	@Override
 	public List<? extends TypeMirror> getThrownTypes() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public List<? extends TypeParameterElement> getTypeParameters() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public boolean isVarArgs() {
 		// TODO Auto-generated method stub
 		return false;
