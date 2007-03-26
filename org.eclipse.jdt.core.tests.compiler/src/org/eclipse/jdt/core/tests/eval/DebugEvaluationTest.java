@@ -3639,7 +3639,7 @@ public void testNegative001() {
 			}
 		}
 		assertEquals("Unexpected errors",
-			"Cannot use this in a static context |",
+			"Cannot use this in a static context|",
 			buffer == null ? "none" : buffer.toString());
 	} finally {
 		removeTempClass("ANegative001");
@@ -3864,5 +3864,48 @@ public void test063() {
 	} finally {
 		removeTempClass("A62");
 	}
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=178861
+ */
+public void testNegative005() {
+	String userCode = "";
+	JDIStackFrame stackFrame = new JDIStackFrame(
+		this.jdiVM, 
+		this,
+		userCode);
+
+	DebugRequestor requestor = new DebugRequestor();
+	char[] snippet = "run()".toCharArray();
+	try {
+		context.evaluate(
+			snippet,
+			stackFrame.localVariableTypeNames(),
+			stackFrame.localVariableNames(),
+			stackFrame.localVariableModifiers(),
+			stackFrame.declaringTypeName(),
+			stackFrame.isStatic(),
+			stackFrame.isConstructorCall(),
+			getEnv(), 
+			getCompilerOptions(), 
+			requestor, 
+			getProblemFactory());
+	} catch (InstallException e) {
+		assertTrue("No targetException " + e.getMessage(), false);
+	}
+	assertTrue("Got one result", requestor.resultIndex == 0);
+	EvaluationResult result = requestor.results[0];
+	CategorizedProblem[] problems = result.getProblems();
+	StringBuffer buffer = null;
+	for (int i = 0, max = problems.length; i < max; i++){
+		if (problems[i].isError()){
+			if (buffer == null) buffer = new StringBuffer(10);
+			buffer.append(problems[i].getMessage());
+			buffer.append('|');
+		}
+	}
+	assertEquals("Unexpected errors",
+		"Cannot use this in a static context|",
+		buffer == null ? "none" : buffer.toString());
 }
 }

@@ -89,15 +89,20 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 		// implicit this
 		this.constant = Constant.NotAConstant;
 		TypeBinding snippetType = null;
-		if (this.isImplicit || checkAccess(scope.methodScope())){
-			snippetType = scope.enclosingSourceType();
+		MethodScope methodScope = scope.methodScope();
+		if (!this.isImplicit && !checkAccess(methodScope)) {
+			return null;
 		}
-		if (snippetType == null) return null;
+		snippetType = scope.enclosingSourceType();
 		
 		this.delegateThis = scope.getField(snippetType, DELEGATE_THIS, this);
-		if (this.delegateThis == null) return null; // internal error, field should have been found
-		if (this.delegateThis.isValidBinding()) return this.resolvedType = this.delegateThis.type;
-		return this.resolvedType = snippetType;
+		if (this.delegateThis == null || !this.delegateThis.isValidBinding()) {
+			// should not happen
+			// if this happen we should report illegal access to this in a static context
+			methodScope.problemReporter().errorThisSuperInStatic(this);
+			return null;
+		}
+		return this.resolvedType = this.delegateThis.type;
 	}
 	public void setActualReceiverType(ReferenceBinding receiverType) {
 		// ignored

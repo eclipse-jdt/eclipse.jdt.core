@@ -3650,7 +3650,7 @@ public void test093() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	System.out.println(X.this);	\n" + 
 		"	                   ^^^^^^\n" + 
-		"Cannot use this in a static context \n" + 
+		"Cannot use this in a static context\n" + 
 		"----------\n");
 }
 

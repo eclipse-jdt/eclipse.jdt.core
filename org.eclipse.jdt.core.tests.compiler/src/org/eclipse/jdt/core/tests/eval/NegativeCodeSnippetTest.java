@@ -163,7 +163,7 @@ public void testInvalidImport() {
 public void testInvalidUseOfThisInSnippet() {
 	evaluateWithExpectedProblem(
 		"this".toCharArray(), 
-		"Cannot use this in a static context \n"); 
+		"Cannot use this in a static context\n"); 
 }
 /**
  * Test use of this.
@@ -172,7 +172,7 @@ public void testInvalidUseOfThisInSnippet2() {
 	// just an expression with an extra curly bracket
 	evaluateWithExpectedProblem(
 		"return this;".toCharArray(), 
-		"Cannot use this in a static context \n"); 
+		"Cannot use this in a static context\n"); 
 }
 /**
  * Test a code snippet that misses a closing round bracket.
