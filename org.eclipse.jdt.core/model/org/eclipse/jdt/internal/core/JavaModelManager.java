@@ -3101,14 +3101,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 	
-	private void saveVariablesAndContainers() throws CoreException {
+	private void saveVariablesAndContainers(ISaveContext context) throws CoreException {
 		File file = getVariableAndContainersFile();
 		DataOutputStream out = null;
 		try {
 			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			out.writeInt(VARIABLES_AND_CONTAINERS_FILE_VERSION);
 			if (VARIABLES_AND_CONTAINERS_FILE_VERSION != 1)
-				new VariablesAndContainersSaveHelper(out).save();
+				new VariablesAndContainersSaveHelper(out).save(context);
 			else {
 				// old code retained for performance comparisons
     			
@@ -3202,27 +3202,39 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.stringIds = new HashtableOfObjectToInt();
 		}
 
-		void save() throws IOException, JavaModelException {
-			saveProjects(JavaModelManager.this.getJavaModel().getJavaProjects());
-			
-			// remove variables that should not be saved
-			HashMap varsToSave = null;
-			Iterator iterator = JavaModelManager.this.variables.entrySet().iterator();
-			IEclipsePreferences defaultPreferences = getDefaultPreferences();
-			while (iterator.hasNext()) {
-				Map.Entry entry = (Map.Entry) iterator.next();
-				String varName = (String) entry.getKey();
-				if (defaultPreferences.get(CP_VARIABLE_PREFERENCES_PREFIX + varName, null) != null // don't save classpath variables from the default preferences as there is no delta if they are removed
-					|| CP_ENTRY_IGNORE_PATH.equals(entry.getValue())) {
-					
-					if (varsToSave == null)
-						varsToSave = new HashMap(JavaModelManager.this.variables);
-					varsToSave.remove(varName);
-				}
-					
+		void save(ISaveContext context) throws IOException, JavaModelException {
+			IProject project = context.getProject();
+			if (project == null) { // save all projects if none specified (snapshot or full save)
+				saveProjects(JavaModelManager.this.getJavaModel().getJavaProjects());
+			}
+			else {
+				saveProjects(new IJavaProject[] {JavaCore.create(project)});
 			}
 			
-			saveVariables(varsToSave != null ? varsToSave : JavaModelManager.this.variables);
+			switch (context.getKind()) {
+				case ISaveContext.FULL_SAVE :
+					// TODO (eric) - investigate after 3.3 if variables should be saved for a SNAPSHOT
+				case ISaveContext.SNAPSHOT :
+					// remove variables that should not be saved
+					HashMap varsToSave = null;
+					Iterator iterator = JavaModelManager.this.variables.entrySet().iterator();
+					IEclipsePreferences defaultPreferences = getDefaultPreferences();
+					while (iterator.hasNext()) {
+						Map.Entry entry = (Map.Entry) iterator.next();
+						String varName = (String) entry.getKey();
+						if (defaultPreferences.get(CP_VARIABLE_PREFERENCES_PREFIX + varName, null) != null // don't save classpath variables from the default preferences as there is no delta if they are removed
+								|| CP_ENTRY_IGNORE_PATH.equals(entry.getValue())) {
+						
+							if (varsToSave == null)
+								varsToSave = new HashMap(JavaModelManager.this.variables);
+							varsToSave.remove(varName);
+						}
+					}				
+					saveVariables(varsToSave != null ? varsToSave : JavaModelManager.this.variables);
+					break;
+				default :
+					// do nothing
+			}
 		}
 
 		private void saveAccessRule(ClasspathAccessRule rule) throws IOException {
@@ -3403,11 +3415,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	public void saving(ISaveContext context) throws CoreException {
 		
-	    // save variable and container values on snapshot/full save
-		long start = -1;
+	    long start = -1;
 		if (VERBOSE)
 			start = System.currentTimeMillis();
-		saveVariablesAndContainers();
+
+		// save variable and container values on snapshot/full save
+		saveVariablesAndContainers(context);
+
 		if (VERBOSE)
 			traceVariableAndContainers("Saved", start); //$NON-NLS-1$
 		
