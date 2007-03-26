@@ -617,17 +617,17 @@ public void testDeleteMultipleMembersFromVariousCUs() throws CoreException {
 			"Unexpected delta",
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
-			"		a.b[*]: {CHILDREN}\n" + 
-			"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
-			"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"					foo[-]: {}\n" + 
-			"					main(String[])[-]: {}\n" + 
 			"		a.b.c[*]: {CHILDREN}\n" + 
 			"			X.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 			"				<import container>[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					import java.util.Vector[-]: {}\n" + 
 			"				X[*]: {CHILDREN | FINE GRAINED}\n" + 
 			"					Bar[-]: {}\n" + 
+			"					main(String[])[-]: {}\n" +
+			"		a.b[*]: {CHILDREN}\n" + 
+			"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
+			"				Y[*]: {CHILDREN | FINE GRAINED}\n" + 
+			"					foo[-]: {}\n" + 
 			"					main(String[])[-]: {}"
 		);
 	} finally {

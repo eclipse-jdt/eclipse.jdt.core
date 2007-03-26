@@ -248,9 +248,9 @@ public void testCopySourceFolder4() throws CoreException {
 		assertDeltas(
 			"Unexpected delta (1)",
 			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
-			"	src[+]: {}\n" + 
 			"	src1[*]: {REORDERED}\n" + 
 			"	src2[*]: {REORDERED}\n" + 
+			"	src[+]: {}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertElementsEqual(
@@ -602,8 +602,8 @@ public void testDeleteSourceFolder2() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
-			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src1/src2[*]: {REORDERED}\n" + 
+			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]\n" + 
 			"	ResourceDelta(/P/src1)[*]"
 		);
@@ -752,8 +752,8 @@ public void testMoveSourceFolder3() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
-			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src1/src2[*]: {REORDERED}\n" + 
+			"	src1[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"	ResourceDelta(/P1/src1)[*]\n" + 
 			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
@@ -806,9 +806,9 @@ public void testMoveSourceFolder4() throws CoreException {
 			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
-			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	src1[*]: {REORDERED}\n" + 
 			"	src2[*]: {REORDERED}\n" + 
+			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(
@@ -853,8 +853,8 @@ public void testMoveSourceFolder5() throws CoreException {
 			"	src[-]: {MOVED_TO(src [in P2])}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]\n" + 
 			"P2[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
-			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	src2[*]: {REORDERED}\n" + 
+			"	src[+]: {MOVED_FROM(src [in P1])}\n" + 
 			"	ResourceDelta(/P2/.classpath)[*]"
 		);
 		assertJavaProject(

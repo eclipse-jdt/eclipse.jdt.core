@@ -386,8 +386,8 @@ public void testRenameEmptyPF() throws CoreException {
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
-		"		x.y[+]: {MOVED_FROM(x.y.z [in src [in P]])}\n" + 
-		"		x.y.z[-]: {MOVED_TO(x.y [in src [in P]])}"
+		"		x.y.z[-]: {MOVED_TO(x.y [in src [in P]])}\n" +
+		"		x.y[+]: {MOVED_FROM(x.y.z [in src [in P]])}"
 	);
 }
 /*
@@ -770,8 +770,8 @@ public void testRenamePF2() throws CoreException {
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
 		"	src[*]: {CHILDREN}\n" + 
-		"		x.y.z[-]: {MOVED_TO(x.y.z2 [in src [in P]])}\n" + 
-		"		x.y.z2[+]: {MOVED_FROM(x.y.z [in src [in P]])}"
+		"		x.y.z2[+]: {MOVED_FROM(x.y.z [in src [in P]])}\n" +
+		"		x.y.z[-]: {MOVED_TO(x.y.z2 [in src [in P]])}"
 	);
 }
 /*

@@ -568,10 +568,10 @@ public void testNestedSourceFolder6() throws CoreException {
 	assertDeltas(
 		"Unexpected deltas",
 		"P[*]: {CHILDREN}\n" + 
-		"	src1[*]: {CHILDREN}\n" + 
-		"		p[-]: {MOVED_TO(p [in src1/src2 [in P]])}\n" + 
 		"	src1/src2[*]: {CHILDREN}\n" + 
-		"		p[+]: {MOVED_FROM(p [in src1 [in P]])}"
+		"		p[+]: {MOVED_FROM(p [in src1 [in P]])}\n" +
+		"	src1[*]: {CHILDREN}\n" + 
+		"		p[-]: {MOVED_TO(p [in src1/src2 [in P]])}"
 	);
 }
 /*

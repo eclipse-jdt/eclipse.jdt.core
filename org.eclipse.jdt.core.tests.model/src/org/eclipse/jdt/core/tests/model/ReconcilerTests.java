@@ -1405,8 +1405,8 @@ public void testGrowImports() throws JavaModelException {
 	assertDeltas(
 		"Unexpected delta",
 		"<import container>[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	import p[-]: {}\n" +
-		"	import p2[+]: {}"
+		"	import p2[+]: {}\n" +
+		"	import p[-]: {}"
 	);
 }
 /*

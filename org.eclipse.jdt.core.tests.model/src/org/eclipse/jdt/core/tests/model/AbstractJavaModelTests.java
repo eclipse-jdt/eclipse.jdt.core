@@ -129,22 +129,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			return null;
 		}
 		protected void sortDeltas(IJavaElementDelta[] elementDeltas) {
-			org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
-				public int compare(Object a, Object b) {
-					IJavaElementDelta deltaA = (IJavaElementDelta)a;
-					IJavaElementDelta deltaB = (IJavaElementDelta)b;
-					return deltaA.getElement().getElementName().compareTo(deltaB.getElement().getElementName());
-				}
-			};
-			org.eclipse.jdt.internal.core.util.Util.sort(elementDeltas, comparer);
-			for (int i = 0, max = elementDeltas.length; i < max; i++) {
-				IJavaElementDelta delta = elementDeltas[i];
-				IJavaElementDelta[] children = delta.getAffectedChildren();
-				if (children != null) {
-					sortDeltas(children);
-				}
-			}
-		}
+        	org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
+        		public int compare(Object a, Object b) {
+        			IJavaElementDelta deltaA = (IJavaElementDelta)a;
+        			IJavaElementDelta deltaB = (IJavaElementDelta)b;
+        			return deltaA.toString().compareTo(deltaB.toString());
+        		}
+        	};
+        	org.eclipse.jdt.internal.core.util.Util.sort(elementDeltas, comparer);
+        	for (int i = 0, max = elementDeltas.length; i < max; i++) {
+        		IJavaElementDelta delta = elementDeltas[i];
+        		IJavaElementDelta[] children = delta.getAffectedChildren();
+        		if (children != null) {
+        			sortDeltas(children);
+        		}
+        	}
+        }
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
 			for (int i=0, length= this.deltas.length; i<length; i++) {

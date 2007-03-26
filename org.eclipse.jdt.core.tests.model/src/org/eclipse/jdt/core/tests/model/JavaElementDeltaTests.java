@@ -1471,10 +1471,10 @@ public void testMoveCuInEnclosingPkg() throws CoreException {
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
 			"	<project root>[*]: {CHILDREN}\n" + 
-			"		x[*]: {CHILDREN}\n" + 
-			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in <project root> [in P]]])}\n" + 
 			"		x.y[*]: {CHILDREN}\n" + 
-			"			A.java[-]: {MOVED_TO(A.java [in x [in <project root> [in P]]])}"
+			"			A.java[-]: {MOVED_TO(A.java [in x [in <project root> [in P]]])}\n" + 
+			"		x[*]: {CHILDREN}\n" + 
+			"			A.java[+]: {MOVED_FROM(A.java [in x.y [in <project root> [in P]]])}"
 		);
 		assertElementDescendants(
 			"Unexpected children for package x",
@@ -1566,8 +1566,8 @@ public void testNestedRootParentMove() throws CoreException {
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN | CONTENT}\n" + 
-			"	nested2/src[+]: {MOVED_FROM(nested/src [in P])}\n" + 
 			"	nested/src[-]: {MOVED_TO(nested2/src [in P])}\n" + 
+			"	nested2/src[+]: {MOVED_FROM(nested/src [in P])}\n" + 
 			"	ResourceDelta(/P/nested)[*]\n" + 
 			"	ResourceDelta(/P/nested2)[*]"
 		);
@@ -1733,8 +1733,8 @@ public void testPackageFragmentMove() throws CoreException {
 			"Unexpected delta", 
 			"P[*]: {CHILDREN}\n" + 
 			"	src[*]: {CHILDREN}\n" + 
-			"		p[-]: {MOVED_TO(p2 [in src [in P]])}\n" + 
-			"		p2[+]: {MOVED_FROM(p [in src [in P]])}"
+			"		p2[+]: {MOVED_FROM(p [in src [in P]])}\n" + 
+			"		p[-]: {MOVED_TO(p2 [in src [in P]])}"
 		);
 	} finally {
 		stopDeltas();
@@ -2075,8 +2075,8 @@ public void testRenameJavaProject() throws CoreException {
 		renameProject("P", "P1");
 		assertDeltas(
 			"Unexpected delta", 
-			"P[-]: {MOVED_TO(P1)}\n" +
-			"P1[+]: {MOVED_FROM(P)}"
+			"P1[+]: {MOVED_FROM(P)}\n" +
+			"P[-]: {MOVED_TO(P1)}"
 		);
 	} finally {
 		stopDeltas();
@@ -2234,8 +2234,8 @@ public void testSetClasspathOnFreshProject() throws CoreException {
 		assertDeltas(
 			"Should notice src2 and myLib additions to the classpath", 
 			"P1[*]: {CHILDREN | CONTENT | CLASSPATH CHANGED}\n" + 
-			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	/LibProj/mylib.jar[*]: {ADDED TO CLASSPATH}\n" + 
+			"	<project root>[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	src2[*]: {ADDED TO CLASSPATH}\n" + 
 			"	ResourceDelta(/P1/.classpath)[*]"
 		);

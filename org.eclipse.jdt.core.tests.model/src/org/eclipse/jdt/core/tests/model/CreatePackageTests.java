@@ -48,9 +48,9 @@ public void testCreatePackageFragment1() throws JavaModelException {
 		"Unexpected delta",
 		"P[*]: {CHILDREN}\n" + 
 		"	<project root>[*]: {CHILDREN}\n" + 
-		"		one[+]: {}\n" + 
+		"		one.two.three[+]: {}\n" +
 		"		one.two[+]: {}\n" + 
-		"		one.two.three[+]: {}"
+		"		one[+]: {}"
 	);
 }
 /**
@@ -68,10 +68,10 @@ public void testCreatePackageFragment2() throws JavaModelException {
 		"Unexpected delta",
 		"P[*]: {CHILDREN}\n" + 
 		"	<project root>[*]: {CHILDREN}\n" + 
-		"		one[+]: {}\n" + 
-		"		one.two[+]: {}\n" + 
+		"		one.two.three.four[+]: {}\n" +
 		"		one.two.three[+]: {}\n" + 
-		"		one.two.three.four[+]: {}"
+		"		one.two[+]: {}\n" + 
+		"		one[+]: {}"
 	);
 }
 /**
