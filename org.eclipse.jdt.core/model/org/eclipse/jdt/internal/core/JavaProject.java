@@ -1884,13 +1884,8 @@ public class JavaProject
 	 */
 	public IClasspathEntry[] getResolvedClasspath(boolean ignoreUnresolvedEntry) throws JavaModelException {
 		if  (JavaModelManager.getJavaModelManager().isClasspathBeingResolved(this)) {
-			if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-				Util.verbose(
-					"CPResolution: reentering raw classpath resolution, will use empty classpath instead" + //$NON-NLS-1$
-					"	project: " + getElementName() + '\n' + //$NON-NLS-1$
-					"	invocation stack trace:"); //$NON-NLS-1$
-				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
-			}						
+			if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+				verbose_reentering_classpath_resolution();
 		    return RESOLUTION_IN_PROGRESS;
 		}
 		PerProjectInfo perProjectInfo = getPerProjectInfo();
@@ -1914,6 +1909,14 @@ public class JavaProject
 		if (!ignoreUnresolvedEntry && unresolvedEntryStatus != null && !unresolvedEntryStatus.isOK())
 			throw new JavaModelException(unresolvedEntryStatus);
 		return resolvedClasspath;
+	}
+
+	private void verbose_reentering_classpath_resolution() {
+		Util.verbose(
+			"CPResolution: reentering raw classpath resolution, will use empty classpath instead" + //$NON-NLS-1$
+			"	project: " + getElementName() + '\n' + //$NON-NLS-1$
+			"	invocation stack trace:"); //$NON-NLS-1$
+		new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 	}
 
 	/**

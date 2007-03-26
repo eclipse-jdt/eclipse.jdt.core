@@ -43,12 +43,8 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 		checkCanceled();
 		try {
 			beginTask("", 1); //$NON-NLS-1$
-			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				Util.verbose(
-					"CPVariable SET  - setting variables\n" + //$NON-NLS-1$
-					"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(this.variableNames) + '\n' +//$NON-NLS-1$
-					"	values: " + org.eclipse.jdt.internal.compiler.util.Util.toString(this.variablePaths)); //$NON-NLS-1$
-			}
+			if (JavaModelManager.CP_RESOLVE_VERBOSE)
+				verbose_set_variables();
 			
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			if (manager.variablePutIfInitializingWithSameValue(this.variableNames, this.variablePaths))
@@ -142,13 +138,9 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 	
 						JavaProject affectedProject = (JavaProject) projectsToUpdate.next();
 	
-						if (JavaModelManager.CP_RESOLVE_VERBOSE){
-							Util.verbose(
-								"CPVariable SET  - updating affected project due to setting variables\n" + //$NON-NLS-1$
-								"	project: " + affectedProject.getElementName() + '\n' + //$NON-NLS-1$
-								"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
-						}
 						// force resolved classpath to be recomputed
+						if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+							verbose_update_project(dbgVariableNames, affectedProject);
 						affectedProject.getPerProjectInfo().resetResolvedClasspath();
 						
 						// if needed, generate delta, update project ref, create markers, ...
@@ -161,10 +153,7 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 					}
 				} catch (CoreException e) {
 					if (JavaModelManager.CP_RESOLVE_VERBOSE){
-						Util.verbose(
-							"CPVariable SET  - FAILED DUE TO EXCEPTION\n" + //$NON-NLS-1$
-							"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames), //$NON-NLS-1$
-							System.err); 
+						verbose_failure(dbgVariableNames); 
 						e.printStackTrace();
 					}
 					if (e instanceof JavaModelException) {
@@ -177,6 +166,28 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 		} finally {		
 			done();
 		}
+	}
+
+	private void verbose_failure(String[] dbgVariableNames) {
+		Util.verbose(
+			"CPVariable SET  - FAILED DUE TO EXCEPTION\n" + //$NON-NLS-1$
+			"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames), //$NON-NLS-1$
+			System.err);
+	}
+
+	private void verbose_update_project(String[] dbgVariableNames,
+			JavaProject affectedProject) {
+		Util.verbose(
+			"CPVariable SET  - updating affected project due to setting variables\n" + //$NON-NLS-1$
+			"	project: " + affectedProject.getElementName() + '\n' + //$NON-NLS-1$
+			"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(dbgVariableNames)); //$NON-NLS-1$
+	}
+
+	private void verbose_set_variables() {
+		Util.verbose(
+			"CPVariable SET  - setting variables\n" + //$NON-NLS-1$
+			"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(this.variableNames) + '\n' +//$NON-NLS-1$
+			"	values: " + org.eclipse.jdt.internal.compiler.util.Util.toString(this.variablePaths)); //$NON-NLS-1$
 	}
 
 }

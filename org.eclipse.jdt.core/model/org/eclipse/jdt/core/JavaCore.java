@@ -1601,27 +1601,20 @@ public final class JavaCore extends Plugin {
 			for(int i = 0; i < extensions.length; i++){
 				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
 				for(int j = 0; j < configElements.length; j++){
-					String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
+					IConfigurationElement configurationElement = configElements[j];
+					String initializerID = configurationElement.getAttribute("id"); //$NON-NLS-1$
 					if (initializerID != null && initializerID.equals(containerID)){
-						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-							Util.verbose(
-								"CPContainer INIT - found initializer\n" + //$NON-NLS-1$
-								"	container ID: " + containerID + '\n' + //$NON-NLS-1$
-								"	class: " + configElements[j].getAttribute("class")); //$NON-NLS-1$ //$NON-NLS-2$
-						}
+						if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+							verbose_found_container_initializer(containerID, configurationElement);
 						try {
-							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+							Object execExt = configurationElement.createExecutableExtension("class"); //$NON-NLS-1$
 							if (execExt instanceof ClasspathContainerInitializer){
 								return (ClasspathContainerInitializer)execExt;
 							}
 						} catch(CoreException e) {
 							// executable extension could not be created: ignore this initializer
 							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-								Util.verbose(
-									"CPContainer INIT - failed to instanciate initializer\n" + //$NON-NLS-1$
-									"	container ID: " + containerID + '\n' + //$NON-NLS-1$
-									"	class: " + configElements[j].getAttribute("class"), //$NON-NLS-1$ //$NON-NLS-2$
-									System.err);
+								verbose_failed_to_instanciate_container_initializer(containerID, configurationElement);
 								e.printStackTrace();
 							}
 						}
@@ -1630,6 +1623,21 @@ public final class JavaCore extends Plugin {
 			}
 		}
 		return null;
+	}
+
+	private static void verbose_failed_to_instanciate_container_initializer(String containerID, IConfigurationElement configurationElement) {
+		Util.verbose(
+			"CPContainer INIT - failed to instanciate initializer\n" + //$NON-NLS-1$
+			"	container ID: " + containerID + '\n' + //$NON-NLS-1$
+			"	class: " + configurationElement.getAttribute("class"), //$NON-NLS-1$ //$NON-NLS-2$
+			System.err);
+	}
+
+	private static void verbose_found_container_initializer(String containerID, IConfigurationElement configurationElement) {
+		Util.verbose(
+			"CPContainer INIT - found initializer\n" + //$NON-NLS-1$
+			"	container ID: " + containerID + '\n' + //$NON-NLS-1$
+			"	class: " + configurationElement.getAttribute("class")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -1666,14 +1674,10 @@ public final class JavaCore extends Plugin {
 		// even if persisted value exists, initializer is given priority, only if no initializer is found the persisted value is reused
 		final ClasspathVariableInitializer initializer = JavaCore.getClasspathVariableInitializer(variableName);
 		if (initializer != null){
-			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				Util.verbose(
-					"CPVariable INIT - triggering initialization\n" + //$NON-NLS-1$
-					"	variable: " + variableName + '\n' + //$NON-NLS-1$
-					"	initializer: " + initializer + '\n' + //$NON-NLS-1$
-					"	invocation stack trace:"); //$NON-NLS-1$
-				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
-			}
+			if (JavaModelManager.CP_RESOLVE_VERBOSE)
+				verbose_triggering_variable_initialization(variableName, initializer);
+			if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+				verbose_triggering_variable_initialization_invocation_trace();
 			manager.variablePut(variableName, JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 			boolean ok = false;
 			try {
@@ -1683,35 +1687,53 @@ public final class JavaCore extends Plugin {
 
 				variablePath = manager.variableGet(variableName); // initializer should have performed side-effect
 				if (variablePath == JavaModelManager.VARIABLE_INITIALIZATION_IN_PROGRESS) return null; // break cycle (initializer did not init or reentering call)
-				if (JavaModelManager.CP_RESOLVE_VERBOSE){
-					Util.verbose(
-						"CPVariable INIT - after initialization\n" + //$NON-NLS-1$
-						"	variable: " + variableName +'\n' + //$NON-NLS-1$
-						"	variable path: " + variablePath); //$NON-NLS-1$
-				}
+				if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+					verbose_variable_value_after_initialization(variableName, variablePath);
 				manager.variablesWithInitializer.add(variableName);
 				ok = true;
 			} catch (RuntimeException e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE)
 					e.printStackTrace();
-				}
 				throw e;
 			} catch (Error e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE)
 					e.printStackTrace();
-				}
 				throw e;
 			} finally {
 				if (!ok) JavaModelManager.getJavaModelManager().variablePut(variableName, null); // flush cache
 			}
 		} else {
-			if (JavaModelManager.CP_RESOLVE_VERBOSE){
-				Util.verbose(
-					"CPVariable INIT - no initializer found\n" + //$NON-NLS-1$
-					"	variable: " + variableName); //$NON-NLS-1$
-			}
+			if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+				verbose_no_variable_initializer_found(variableName);
 		}
 		return variablePath;
+	}
+
+	private static void verbose_no_variable_initializer_found(String variableName) {
+		Util.verbose(
+			"CPVariable INIT - no initializer found\n" + //$NON-NLS-1$
+			"	variable: " + variableName); //$NON-NLS-1$
+	}
+
+	private static void verbose_variable_value_after_initialization(String variableName, IPath variablePath) {
+		Util.verbose(
+			"CPVariable INIT - after initialization\n" + //$NON-NLS-1$
+			"	variable: " + variableName +'\n' + //$NON-NLS-1$
+			"	variable path: " + variablePath); //$NON-NLS-1$
+	}
+
+	private static void verbose_triggering_variable_initialization(String variableName, ClasspathVariableInitializer initializer) {
+		Util.verbose(
+			"CPVariable INIT - triggering initialization\n" + //$NON-NLS-1$
+			"	variable: " + variableName + '\n' + //$NON-NLS-1$
+			"	initializer: " + initializer); //$NON-NLS-1$
+	}
+
+	private static void verbose_triggering_variable_initialization_invocation_trace() {
+		Util.verbose(
+			"CPVariable INIT - triggering initialization\n" + //$NON-NLS-1$
+			"	invocation trace:"); //$NON-NLS-1$
+		new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 	}
 
 	/**
@@ -1746,17 +1768,13 @@ public final class JavaCore extends Plugin {
 			for(int i = 0; i < extensions.length; i++){
 				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
 				for(int j = 0; j < configElements.length; j++){
+					IConfigurationElement configElement = configElements[j];
 					try {
-						IConfigurationElement configElement = configElements[j];
 						String varAttribute = configElement.getAttribute("variable"); //$NON-NLS-1$
 						if (variable.equals(varAttribute)) {
-							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-								Util.verbose(
-									"CPVariable INIT - found initializer\n" + //$NON-NLS-1$
-									"	variable: " + variable + '\n' + //$NON-NLS-1$
-									"	class: " + configElements[j].getAttribute("class")); //$NON-NLS-1$ //$NON-NLS-2$
-							}
-							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+							if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+								verbose_found_variable_initializer(variable, configElement);
+							Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$
 							if (execExt instanceof ClasspathVariableInitializer){
 								ClasspathVariableInitializer initializer = (ClasspathVariableInitializer)execExt;
 								String deprecatedAttribute = configElement.getAttribute("deprecated"); //$NON-NLS-1$
@@ -1773,11 +1791,7 @@ public final class JavaCore extends Plugin {
 					} catch(CoreException e){
 						// executable extension could not be created: ignore this initializer
 						if (JavaModelManager.CP_RESOLVE_VERBOSE) {
-							Util.verbose(
-								"CPContainer INIT - failed to instanciate initializer\n" + //$NON-NLS-1$
-								"	variable: " + variable + '\n' + //$NON-NLS-1$
-								"	class: " + configElements[j].getAttribute("class"), //$NON-NLS-1$ //$NON-NLS-2$
-								System.err);
+							verbose_failed_to_instanciate_variable_initializer(variable, configElement);
 							e.printStackTrace();
 						}
 					}
@@ -1785,6 +1799,21 @@ public final class JavaCore extends Plugin {
 			}
 		}
 		return null;
+	}
+
+	private static void verbose_failed_to_instanciate_variable_initializer(String variable, IConfigurationElement configElement) {
+		Util.verbose(
+			"CPContainer INIT - failed to instanciate initializer\n" + //$NON-NLS-1$
+			"	variable: " + variable + '\n' + //$NON-NLS-1$
+			"	class: " + configElement.getAttribute("class"), //$NON-NLS-1$ //$NON-NLS-2$
+			System.err);
+	}
+
+	private static void verbose_found_variable_initializer(String variable, IConfigurationElement configElement) {
+		Util.verbose(
+			"CPVariable INIT - found initializer\n" + //$NON-NLS-1$
+			"	variable: " + variable + '\n' + //$NON-NLS-1$
+			"	class: " + configElement.getAttribute("class")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**

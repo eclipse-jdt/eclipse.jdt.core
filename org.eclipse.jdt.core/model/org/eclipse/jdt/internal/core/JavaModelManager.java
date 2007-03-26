@@ -175,6 +175,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String JAVAMODEL_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
 	private static final String JAVAMODELCACHE_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel/cache" ; //$NON-NLS-1$
 	private static final String CP_RESOLVE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution" ; //$NON-NLS-1$
+	private static final String CP_RESOLVE_ADVANCED_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution/advanced" ; //$NON-NLS-1$
 	private static final String ZIP_ACCESS_DEBUG = JavaCore.PLUGIN_ID + "/debug/zipaccess" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG =JavaCore.PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG_VERBOSE =JavaCore.PLUGIN_ID + "/debug/javadelta/verbose" ; //$NON-NLS-1$
@@ -537,72 +538,91 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				containerPut(project, containerPath, container);
 				return true;
 			} else {
+				if (CP_RESOLVE_VERBOSE)
+					verbose_missbehaving_container(containerPath, projects, respectiveContainers, container, newEntries, null/*no old entries*/);
 				return false;
 			}
 		final IClasspathEntry[] oldEntries = previousContainer.getClasspathEntries();
-		if (oldEntries.length != newEntries.length) 
+		if (oldEntries.length != newEntries.length) {
+			if (CP_RESOLVE_VERBOSE)
+				verbose_missbehaving_container(containerPath, projects, respectiveContainers, container, newEntries, oldEntries);
 			return false;
+		}
 		for (int i = 0, length = newEntries.length; i < length; i++) {
 			if (!newEntries[i].equals(oldEntries[i])) {
-				if (CP_RESOLVE_VERBOSE) {
-					Util.verbose(
-						"CPContainer SET  - missbehaving container\n" + //$NON-NLS-1$
-						"	container path: " + containerPath + '\n' + //$NON-NLS-1$
-						"	projects: {" +//$NON-NLS-1$
-						org.eclipse.jdt.internal.compiler.util.Util.toString(
-							projects, 
-							new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
-								public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
-							}) +
-						"}\n	values on previous session: {\n"  +//$NON-NLS-1$
-						org.eclipse.jdt.internal.compiler.util.Util.toString(
-							respectiveContainers, 
-							new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
-								public String displayString(Object o) { 
-									StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
-									if (o == null) {
-										buffer.append("<null>"); //$NON-NLS-1$
-										return buffer.toString();
-									}
-									buffer.append(container.getDescription());
-									buffer.append(" {\n"); //$NON-NLS-1$
-									for (int j = 0; j < oldEntries.length; j++){
-										buffer.append(" 			"); //$NON-NLS-1$
-										buffer.append(oldEntries[j]); 
-										buffer.append('\n'); 
-									}
-									buffer.append(" 		}"); //$NON-NLS-1$
-									return buffer.toString();
-								}
-							}) +
-						"}\n	new values: {\n"  +//$NON-NLS-1$
-						org.eclipse.jdt.internal.compiler.util.Util.toString(
-							respectiveContainers, 
-							new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
-								public String displayString(Object o) { 
-									StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
-									if (o == null) {
-										buffer.append("<null>"); //$NON-NLS-1$
-										return buffer.toString();
-									}
-									buffer.append(container.getDescription());
-									buffer.append(" {\n"); //$NON-NLS-1$
-									for (int j = 0; j < newEntries.length; j++){
-										buffer.append(" 			"); //$NON-NLS-1$
-										buffer.append(newEntries[j]); 
-										buffer.append('\n'); 
-									}
-									buffer.append(" 		}"); //$NON-NLS-1$
-									return buffer.toString();
-								}
-							}) +
-						"\n	}"); //$NON-NLS-1$
-				}
+				if (CP_RESOLVE_VERBOSE)
+					verbose_missbehaving_container(containerPath, projects, respectiveContainers, container, newEntries, oldEntries);
 				return false;
 			}
 		}
 		containerPut(project, containerPath, container);
 		return true;
+	}
+
+	private void verbose_missbehaving_container(
+			IPath containerPath,
+			IJavaProject[] projects,
+			IClasspathContainer[] respectiveContainers,
+			final IClasspathContainer container,
+			final IClasspathEntry[] newEntries,
+			final IClasspathEntry[] oldEntries) {
+		Util.verbose(
+			"CPContainer SET  - missbehaving container\n" + //$NON-NLS-1$
+			"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+			"	projects: {" +//$NON-NLS-1$
+			org.eclipse.jdt.internal.compiler.util.Util.toString(
+				projects, 
+				new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+					public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
+				}) +
+			"}\n	values on previous session: {\n"  +//$NON-NLS-1$
+			org.eclipse.jdt.internal.compiler.util.Util.toString(
+				respectiveContainers, 
+				new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+					public String displayString(Object o) { 
+						StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+						if (o == null) {
+							buffer.append("<null>"); //$NON-NLS-1$
+							return buffer.toString();
+						}
+						buffer.append(container.getDescription());
+						buffer.append(" {\n"); //$NON-NLS-1$
+						if (oldEntries == null) {
+							buffer.append(" 			"); //$NON-NLS-1$
+							buffer.append("<null>\n"); //$NON-NLS-1$
+						} else {
+							for (int j = 0; j < oldEntries.length; j++){
+								buffer.append(" 			"); //$NON-NLS-1$
+								buffer.append(oldEntries[j]); 
+								buffer.append('\n'); 
+							}
+						}
+						buffer.append(" 		}"); //$NON-NLS-1$
+						return buffer.toString();
+					}
+				}) +
+			"}\n	new values: {\n"  +//$NON-NLS-1$
+			org.eclipse.jdt.internal.compiler.util.Util.toString(
+				respectiveContainers, 
+				new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+					public String displayString(Object o) { 
+						StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+						if (o == null) {
+							buffer.append("<null>"); //$NON-NLS-1$
+							return buffer.toString();
+						}
+						buffer.append(container.getDescription());
+						buffer.append(" {\n"); //$NON-NLS-1$
+						for (int j = 0; j < newEntries.length; j++){
+							buffer.append(" 			"); //$NON-NLS-1$
+							buffer.append(newEntries[j]); 
+							buffer.append('\n'); 
+						}
+						buffer.append(" 		}"); //$NON-NLS-1$
+						return buffer.toString();
+					}
+				}) +
+			"\n	}"); //$NON-NLS-1$
 	}
 	
 	private void containerRemoveInitializationInProgress(IJavaProject project, IPath containerPath) {
@@ -1144,6 +1164,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	
 	public static boolean VERBOSE = false;
 	public static boolean CP_RESOLVE_VERBOSE = false;
+	public static boolean CP_RESOLVE_VERBOSE_ADVANCED = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
 	
 	/**
@@ -1281,6 +1302,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			
 			option = Platform.getDebugOption(CP_RESOLVE_DEBUG);
 			if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE = option.equalsIgnoreCase(TRUE) ;
+
+			option = Platform.getDebugOption(CP_RESOLVE_ADVANCED_DEBUG);
+			if(option != null) JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED = option.equalsIgnoreCase(TRUE) ;
 
 			option = Platform.getDebugOption(DELTA_DEBUG);
 			if(option != null) DeltaProcessor.DEBUG = option.equalsIgnoreCase(TRUE) ;
@@ -1777,30 +1801,33 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (previousContainerValues != null){
 			    IClasspathContainer previousContainer = (IClasspathContainer)previousContainerValues.get(containerPath);
 			    if (previousContainer != null) {
-					if (JavaModelManager.CP_RESOLVE_VERBOSE){
-						StringBuffer buffer = new StringBuffer();
-						buffer.append("CPContainer INIT - reentering access to project container during its initialization, will see previous value\n"); //$NON-NLS-1$ 
-						buffer.append("	project: " + project.getElementName() + '\n'); //$NON-NLS-1$
-						buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
-						buffer.append("	previous value: "); //$NON-NLS-1$
-						buffer.append(previousContainer.getDescription());
-						buffer.append(" {\n"); //$NON-NLS-1$
-						IClasspathEntry[] entries = previousContainer.getClasspathEntries();
-						if (entries != null){
-							for (int j = 0; j < entries.length; j++){
-								buffer.append(" 		"); //$NON-NLS-1$
-								buffer.append(entries[j]); 
-								buffer.append('\n'); 
-							}
-						}
-						buffer.append(" 	}"); //$NON-NLS-1$
-						Util.verbose(buffer.toString());
-						new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
-					}			    
+					if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+						verbose_reentering_project_container_access(containerPath, project, previousContainer);
 					return previousContainer;
 			    }
 			}
 		    return null; // break cycle if none found
+	}
+
+	private void verbose_reentering_project_container_access(	IPath containerPath, IJavaProject project, IClasspathContainer previousContainer) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("CPContainer INIT - reentering access to project container during its initialization, will see previous value\n"); //$NON-NLS-1$ 
+		buffer.append("	project: " + project.getElementName() + '\n'); //$NON-NLS-1$
+		buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
+		buffer.append("	previous value: "); //$NON-NLS-1$
+		buffer.append(previousContainer.getDescription());
+		buffer.append(" {\n"); //$NON-NLS-1$
+		IClasspathEntry[] entries = previousContainer.getClasspathEntries();
+		if (entries != null){
+			for (int j = 0; j < entries.length; j++){
+				buffer.append(" 		"); //$NON-NLS-1$
+				buffer.append(entries[j]); 
+				buffer.append('\n'); 
+			}
+		}
+		buffer.append(" 	}"); //$NON-NLS-1$
+		Util.verbose(buffer.toString());
+		new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 	}
 	
 	/**
@@ -1809,16 +1836,19 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public IPath getPreviousSessionVariable(String variableName) {
 		IPath previousPath = (IPath)this.previousSessionVariables.get(variableName);
 		if (previousPath != null){
-			if (CP_RESOLVE_VERBOSE){
-				Util.verbose(
-					"CPVariable INIT - reentering access to variable during its initialization, will see previous value\n" + //$NON-NLS-1$
-					"	variable: "+ variableName + '\n' + //$NON-NLS-1$
-					"	previous value: " + previousPath); //$NON-NLS-1$
-				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
-			}
+			if (CP_RESOLVE_VERBOSE_ADVANCED)
+				verbose_reentering_variable_access(variableName, previousPath);
 			return previousPath;
 		}
 	    return null; // break cycle
+	}
+
+	private void verbose_reentering_variable_access(String variableName, IPath previousPath) {
+		Util.verbose(
+			"CPVariable INIT - reentering access to variable during its initialization, will see previous value\n" + //$NON-NLS-1$
+			"	variable: "+ variableName + '\n' + //$NON-NLS-1$
+			"	previous value: " + previousPath); //$NON-NLS-1$
+		new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 	}
 
 	/**
@@ -2001,12 +2031,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Return the container for the given path and project.
 	 */
 	private IClasspathContainer initializeAllContainers(IJavaProject javaProjectToInit, IPath containerToInit) throws JavaModelException {
-		if (CP_RESOLVE_VERBOSE) {
-			Util.verbose(
-				"CPContainer INIT - batching containers initialization\n" + //$NON-NLS-1$
-				"	project to init: " + javaProjectToInit.getElementName() + '\n' + //$NON-NLS-1$
-				"	container path to init: " + containerToInit); //$NON-NLS-1$
-		}
+		if (CP_RESOLVE_VERBOSE_ADVANCED)
+			verbose_batching_containers_initialization(javaProjectToInit, containerToInit);
 
 		// collect all container paths
 		final HashMap allContainerPaths = new HashMap();
@@ -2116,20 +2142,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return containerGet(javaProjectToInit, containerToInit);
 	}
 
+	private void verbose_batching_containers_initialization(IJavaProject javaProjectToInit, IPath containerToInit) {
+		Util.verbose(
+			"CPContainer INIT - batching containers initialization\n" + //$NON-NLS-1$
+			"	project to init: " + javaProjectToInit.getElementName() + '\n' + //$NON-NLS-1$
+			"	container path to init: " + containerToInit); //$NON-NLS-1$
+	}
+
 	IClasspathContainer initializeContainer(IJavaProject project, IPath containerPath) throws JavaModelException {
 
 		IClasspathContainer container = null;
 		final ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
 		if (initializer != null){
-			if (CP_RESOLVE_VERBOSE){
-				Util.verbose(
-					"CPContainer INIT - triggering initialization\n" + //$NON-NLS-1$
-					"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
-					"	container path: " + containerPath + '\n' + //$NON-NLS-1$
-					"	initializer: " + initializer + '\n' + //$NON-NLS-1$
-					"	invocation stack trace:"); //$NON-NLS-1$
-				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
-			}
+			if (CP_RESOLVE_VERBOSE)
+				verbose_triggering_container_initialization(project, containerPath, initializer);
+			if (CP_RESOLVE_VERBOSE_ADVANCED)
+				verbose_triggering_container_initialization_invocation_trace();
 			PerformanceStats stats = null;
 			if(JavaModelManager.PERF_CONTAINER_INITIALIZER) {
 				stats = PerformanceStats.getStats(JavaModelManager.CONTAINER_INITIALIZER_PERF, this);
@@ -2160,14 +2188,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					throw new JavaModelException(e);
 				}
 			} catch (RuntimeException e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE)
 					e.printStackTrace();
-				}
 				throw e;
 			} catch (Error e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+				if (JavaModelManager.CP_RESOLVE_VERBOSE)
 					e.printStackTrace();
-				}
 				throw e;
 			} finally {
 				if(JavaModelManager.PERF_CONTAINER_INITIALIZER) {
@@ -2177,52 +2203,76 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					// just remove initialization in progress and keep previous session container so as to avoid a full build
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=92588
 					containerRemoveInitializationInProgress(project, containerPath); 
-					if (CP_RESOLVE_VERBOSE) {
-						if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
-							Util.verbose(
-								"CPContainer INIT - FAILED (initializer did not initialize container)\n" + //$NON-NLS-1$
-								"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
-								"	container path: " + containerPath + '\n' + //$NON-NLS-1$
-								"	initializer: " + initializer); //$NON-NLS-1$
-							
-						} else {
-							Util.verbose(
-								"CPContainer INIT - FAILED (see exception above)\n" + //$NON-NLS-1$
-								"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
-								"	container path: " + containerPath + '\n' + //$NON-NLS-1$
-								"	initializer: " + initializer); //$NON-NLS-1$
-						}
-					}
+					if (CP_RESOLVE_VERBOSE) 
+						verbose_container_initialization_failed(project, containerPath, container, initializer);
 				}
 			}
-			if (CP_RESOLVE_VERBOSE){
-				StringBuffer buffer = new StringBuffer();
-				buffer.append("CPContainer INIT - after resolution\n"); //$NON-NLS-1$
-				buffer.append("	project: " + project.getElementName() + '\n'); //$NON-NLS-1$
-				buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
-				if (container != null){
-					buffer.append("	container: "+container.getDescription()+" {\n"); //$NON-NLS-2$//$NON-NLS-1$
-					IClasspathEntry[] entries = container.getClasspathEntries();
-					if (entries != null){
-						for (int i = 0; i < entries.length; i++){
-							buffer.append("		" + entries[i] + '\n'); //$NON-NLS-1$
-						}
-					}
-					buffer.append("	}");//$NON-NLS-1$
-				} else {
-					buffer.append("	container: {unbound}");//$NON-NLS-1$
-				}
-				Util.verbose(buffer.toString());
-			}
+			if (CP_RESOLVE_VERBOSE_ADVANCED)
+				verbose_container_value_after_initialization(project, containerPath, container);
 		} else {
-			if (CP_RESOLVE_VERBOSE){
-				Util.verbose(
-					"CPContainer INIT - no initializer found\n" + //$NON-NLS-1$
-					"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
-					"	container path: " + containerPath); //$NON-NLS-1$
-			}
+			if (CP_RESOLVE_VERBOSE_ADVANCED)
+				verbose_no_container_initializer_found(project, containerPath);
 		}
 		return container;
+	}
+
+	private void verbose_no_container_initializer_found(IJavaProject project, IPath containerPath) {
+		Util.verbose(
+			"CPContainer INIT - no initializer found\n" + //$NON-NLS-1$
+			"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+			"	container path: " + containerPath); //$NON-NLS-1$
+	}
+
+	private void verbose_container_value_after_initialization(IJavaProject project, IPath containerPath, IClasspathContainer container) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("CPContainer INIT - after resolution\n"); //$NON-NLS-1$
+		buffer.append("	project: " + project.getElementName() + '\n'); //$NON-NLS-1$
+		buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
+		if (container != null){
+			buffer.append("	container: "+container.getDescription()+" {\n"); //$NON-NLS-2$//$NON-NLS-1$
+			IClasspathEntry[] entries = container.getClasspathEntries();
+			if (entries != null){
+				for (int i = 0; i < entries.length; i++){
+					buffer.append("		" + entries[i] + '\n'); //$NON-NLS-1$
+				}
+			}
+			buffer.append("	}");//$NON-NLS-1$
+		} else {
+			buffer.append("	container: {unbound}");//$NON-NLS-1$
+		}
+		Util.verbose(buffer.toString());
+	}
+
+	private void verbose_container_initialization_failed(IJavaProject project, IPath containerPath, IClasspathContainer container, ClasspathContainerInitializer initializer) {
+		if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
+			Util.verbose(
+				"CPContainer INIT - FAILED (initializer did not initialize container)\n" + //$NON-NLS-1$
+				"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+				"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+				"	initializer: " + initializer); //$NON-NLS-1$
+			
+		} else {
+			Util.verbose(
+				"CPContainer INIT - FAILED (see exception above)\n" + //$NON-NLS-1$
+				"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+				"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+				"	initializer: " + initializer); //$NON-NLS-1$
+		}
+	}
+
+	private void verbose_triggering_container_initialization(IJavaProject project, IPath containerPath,  ClasspathContainerInitializer initializer) {
+		Util.verbose(
+			"CPContainer INIT - triggering initialization\n" + //$NON-NLS-1$
+			"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+			"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+			"	initializer: " + initializer); //$NON-NLS-1$
+	}
+	
+	private void verbose_triggering_container_initialization_invocation_trace() {
+		Util.verbose(
+			"CPContainer INIT - triggering initialization\n" + //$NON-NLS-1$
+			"	invocation trace:"); //$NON-NLS-1$
+		new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 	}
 
 	/**

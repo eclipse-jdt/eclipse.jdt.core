@@ -42,6 +42,8 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 			beginTask("", 1); //$NON-NLS-1$
 			if (JavaModelManager.CP_RESOLVE_VERBOSE)
 				verbose_set_container();
+			if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
+				verbose_set_container_invocation_trace();
 			
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			if (manager.containerPutIfInitializingWithSameEntries(this.containerPath, this.affectedProjects, this.respectiveContainers))
@@ -100,7 +102,7 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 					
 					JavaProject affectedProject = (JavaProject)modifiedProjects[i];
 					if (affectedProject == null) continue; // was filtered out
-					if (JavaModelManager.CP_RESOLVE_VERBOSE)
+					if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
 						verbose_update_project(affectedProject);
 		
 					// force resolved classpath to be recomputed
@@ -190,7 +192,13 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 						return buffer.toString();
 					}
 				}) +
-			"\n	}\n	invocation stack trace:"); //$NON-NLS-1$
+			"\n	}");//$NON-NLS-1$
+	}
+	
+	private void verbose_set_container_invocation_trace() {
+		Util.verbose(
+			"CPContainer SET  - setting container\n" + //$NON-NLS-1$
+			"	invocation stack trace:"); //$NON-NLS-1$
 			new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 	}
 	
