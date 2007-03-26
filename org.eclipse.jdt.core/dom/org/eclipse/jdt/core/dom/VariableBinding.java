@@ -162,7 +162,7 @@ class VariableBinding implements IVariableBinding {
 		if (binding.isFinal()) {
 			return IModifierConstants.ACC_FINAL;
 		}
-		return 0;
+		return Modifier.NONE;
 	}
 
 	/*

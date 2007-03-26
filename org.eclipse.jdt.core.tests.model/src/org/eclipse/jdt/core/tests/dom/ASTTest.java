@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1289,8 +1289,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(a2.apiLevel() == AST.JLS2);
 		AST a3 = AST.newAST(AST.JLS3);
 		assertTrue(a3.apiLevel() == AST.JLS3);
-		
-		
+
 		// modification count is always non-negative
 		assertTrue(ast.modificationCount() >= 0);
 		
@@ -1775,6 +1774,13 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue("\'z\'".equals(x.getEscapedValue())); //$NON-NLS-1$
 		assertTrue(x.charValue() == 'z');
 
+		try {
+			x.setEscapedValue("\"z\""); //$NON-NLS-1$
+			assertTrue(false);
+		} catch(IllegalArgumentException e) {
+			// pass
+		}
+
 		// test other factory method
 		previousCount = ast.modificationCount();
 		CharacterLiteral y = ast.newCharacterLiteral();
@@ -1825,14 +1831,40 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.charValue() == '\\');
 		x.setEscapedValue("\'\\\'\'"); //$NON-NLS-1$
 		assertTrue(x.getEscapedValue().equals("\'\\\'\'")); //$NON-NLS-1$
-		assertTrue(x.charValue() == '\'');		
+		assertTrue(x.charValue() == '\'');
 		x.setCharValue('\'');
 		assertTrue(x.getEscapedValue().equals("\'\\\'\'")); //$NON-NLS-1$
-		assertTrue(x.charValue() == '\'');		
+		assertTrue(x.charValue() == '\'');
 		x.setCharValue('\\');
 		assertTrue(x.getEscapedValue().equals("\'\\\\\'")); //$NON-NLS-1$
-		assertTrue(x.charValue() == '\\');		
-	}		
+		assertTrue(x.charValue() == '\\');
+		x.setCharValue('\b');
+		assertTrue(x.getEscapedValue().equals("\'\\b\'")); //$NON-NLS-1$
+		x.setCharValue('\n');
+		assertTrue(x.getEscapedValue().equals("\'\\n\'")); //$NON-NLS-1$
+		x.setCharValue('\f');
+		assertTrue(x.getEscapedValue().equals("\'\\f\'")); //$NON-NLS-1$
+		x.setCharValue('\r');
+		assertTrue(x.getEscapedValue().equals("\'\\r\'")); //$NON-NLS-1$
+		x.setCharValue('\"');
+		assertTrue(x.getEscapedValue().equals("\'\\\"\'")); //$NON-NLS-1$
+		x.setCharValue('\0');
+		assertTrue(x.getEscapedValue().equals("\'\\0\'")); //$NON-NLS-1$
+		x.setCharValue('\1');
+		assertTrue(x.getEscapedValue().equals("\'\\1\'")); //$NON-NLS-1$
+		x.setCharValue('\2');
+		assertTrue(x.getEscapedValue().equals("\'\\2\'")); //$NON-NLS-1$
+		x.setCharValue('\3');
+		assertTrue(x.getEscapedValue().equals("\'\\3\'")); //$NON-NLS-1$
+		x.setCharValue('\4');
+		assertTrue(x.getEscapedValue().equals("\'\\4\'")); //$NON-NLS-1$
+		x.setCharValue('\5');
+		assertTrue(x.getEscapedValue().equals("\'\\5\'")); //$NON-NLS-1$
+		x.setCharValue('\6');
+		assertTrue(x.getEscapedValue().equals("\'\\6\'")); //$NON-NLS-1$
+		x.setCharValue('\7');
+		assertTrue(x.getEscapedValue().equals("\'\\7\'")); //$NON-NLS-1$
+	}
 
 	public void testNumberLiteral() {
 		long previousCount = ast.modificationCount();
@@ -3308,6 +3340,18 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(x.getReturnType().getParent() == x);
 			assertTrue(x.getReturnType().isPrimitiveType());
 			assertTrue(((PrimitiveType) x.getReturnType()).getPrimitiveTypeCode() == PrimitiveType.VOID);
+			try {
+				x.typeParameters();
+				assertTrue("Should have failed", false);
+			} catch(UnsupportedOperationException e) {
+				// pass
+			}
+			try {
+				x.isVarargs();
+				assertTrue("Should have failed", false);
+			} catch(UnsupportedOperationException e) {
+				// pass
+			}
 		} else {
 			assertTrue(x.modifiers().size() == 0);
 			assertTrue(x.typeParameters().size() == 0);
@@ -3514,6 +3558,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(x.isVarargs()); // 2 param fixed arity
 			x.parameters().add(ast.newSingleVariableDeclaration());
 			assertTrue(!x.isVarargs()); // only last param counts
+		}
+		try {
+			x.setExtraDimensions(-1);
+			assertTrue("Should fail", false);
+		} catch(IllegalArgumentException e) {
+			// pass
 		}
 	}	
 	

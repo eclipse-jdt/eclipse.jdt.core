@@ -177,7 +177,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getModifiers()
 	 */
 	public int getModifiers() {
-		return 0;
+		return Modifier.NONE;
 	}
 
 	/* (non-Javadoc)

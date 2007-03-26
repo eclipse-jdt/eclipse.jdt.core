@@ -5923,6 +5923,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No binding", binding); //$NON-NLS-1$
 		assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind()); //$NON-NLS-1$
 		assertEquals("Wrong name", "test0247", binding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong modifier", Modifier.NONE, binding.getModifiers());
 	}
 
 	/**

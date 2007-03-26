@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 253, 254 };
+//		TESTS_NUMBERS = new int[] { 261 };
 //		TESTS_RANGE = new int[] { 253, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -1418,14 +1418,14 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong key", "Ltest0044/X;.foo<Z:Ljava/lang/Object;>(TZ;)V:TZ;", binding.getKey());
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
 		assertNotNull("no binding", methodBinding);
-		assertEquals("Wrong isConstructor", false, methodBinding.isConstructor());
-		assertEquals("Wrong isDefaultConstructor", false, methodBinding.isDefaultConstructor());
-		assertEquals("Wrong isDeprecated", false, methodBinding.isDeprecated());
-		assertEquals("Wrong isGenericMethod", true, methodBinding.isGenericMethod());
-		assertEquals("Wrong isParameterizedMethod", false, methodBinding.isParameterizedMethod());
-		assertEquals("Wrong isRawMethod", false, methodBinding.isRawMethod());
-		assertEquals("Wrong isSynthetic", false, methodBinding.isSynthetic());
-		assertEquals("Wrong isVarargs", false, methodBinding.isVarargs());
+		assertFalse("Wrong isConstructor", methodBinding.isConstructor());
+		assertFalse("Wrong isDefaultConstructor", methodBinding.isDefaultConstructor());
+		assertFalse("Wrong isDeprecated", methodBinding.isDeprecated());
+		assertTrue("Wrong isGenericMethod", methodBinding.isGenericMethod());
+		assertFalse("Wrong isParameterizedMethod", methodBinding.isParameterizedMethod());
+		assertFalse("Wrong isRawMethod", methodBinding.isRawMethod());
+		assertFalse("Wrong isSynthetic", methodBinding.isSynthetic());
+		assertFalse("Wrong isVarargs", methodBinding.isVarargs());
 		ITypeBinding[] typeParametersBindings = methodBinding.getTypeParameters();
 		assertNotNull("No type parameters", typeParametersBindings);
 		assertEquals("Wrong size", 1, typeParametersBindings.length);
@@ -4220,6 +4220,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong type", IBinding.PACKAGE, binding.getKind());
 		IPackageBinding packageBinding = (IPackageBinding) binding;
 		assertEquals("wrong name", "test0139a", packageBinding.getName());
+		assertEquals("Wrong modifier", Modifier.NONE, packageBinding.getModifiers());
 	}
 
 	/**
@@ -6918,8 +6919,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=140318
 	 */
 	public void test0219() throws JavaModelException {
-    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-    	String contents =
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
 			"import java.util.List;\n" +
 			"\n" +
 			"public class X {\n" +
@@ -6929,10 +6930,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"	@Test private int fXoo;\n" +
 			"}\n" +
 			"class Test {}";
-	   	ASTNode node = buildAST(
+		ASTNode node = buildAST(
 				contents,
-    			this.workingCopy,
-    			false);
+				this.workingCopy,
+				false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 1, "Type mismatch: cannot convert from Test to Annotation");
@@ -8193,5 +8194,420 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) node;
 		assertFalse("Has statement recovery", unit.getAST().hasStatementsRecovery());
 		assertFalse("Has binding recovery", unit.getAST().hasBindingsRecovery());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=179042
+	 */
+	public void test0258() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"@interface Annot {\n" +
+			"	public int id() default 0;\n" +
+			"}\n" +
+			"@Annot(id=4)\n" +
+			"public class X {\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				0);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 1);
+		assertEquals("Not a type declaration unit", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		List modifiers = typeDeclaration.modifiers();
+		assertEquals("wrong size", 2, modifiers.size());
+		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Not an annotation", modifier.isAnnotation());
+		Annotation annotation = (Annotation) modifier;
+		assertEquals("Not a normal annotation", ASTNode.NORMAL_ANNOTATION, annotation.getNodeType());
+		NormalAnnotation normalAnnotation = (NormalAnnotation) annotation;
+		IAnnotationBinding annotationBinding = normalAnnotation.resolveAnnotationBinding();
+		assertEquals("Wrong size", 0, annotationBinding.getAnnotations().length);
+		IJavaElement javaElement = annotationBinding.getJavaElement();
+		assertNotNull("No java element", javaElement);
+		assertEquals("Wrong kind", IBinding.ANNOTATION, annotationBinding.getKind());
+		assertNull("No key", annotationBinding.getKey());
+		assertEquals("Wrong modifier", Modifier.NONE, annotationBinding.getModifiers());
+		assertFalse("A deprecated annotation", annotationBinding.isDeprecated());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=179042
+	 */
+	public void test0259() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"@Deprecated\n" +
+			"@interface Annot {\n" +
+			"	public int id() default 0;\n" +
+			"}\n" +
+			"@Annot(id=4)\n" +
+			"public class X {\n" +
+			"}\n" +
+			"@Annot(id=4) class Y {\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				0);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 1);
+		assertEquals("Not a type declaration unit", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		List modifiers = typeDeclaration.modifiers();
+		assertEquals("wrong size", 2, modifiers.size());
+		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Not an annotation", modifier.isAnnotation());
+		Annotation annotation = (Annotation) modifier;
+		assertEquals("Not a normal annotation", ASTNode.NORMAL_ANNOTATION, annotation.getNodeType());
+		NormalAnnotation normalAnnotation = (NormalAnnotation) annotation;
+		IAnnotationBinding annotationBinding = normalAnnotation.resolveAnnotationBinding();
+		assertEquals("Wrong size", 0, annotationBinding.getAnnotations().length);
+		IJavaElement javaElement = annotationBinding.getJavaElement();
+		assertNotNull("No java element", javaElement);
+		assertEquals("Wrong kind", IBinding.ANNOTATION, annotationBinding.getKind());
+		assertNull("No key", annotationBinding.getKey());
+		assertEquals("Wrong modifier", Modifier.NONE, annotationBinding.getModifiers());
+		assertTrue("Not a deprecated annotation", annotationBinding.isDeprecated());
+		IMemberValuePairBinding[] allMemberValuePairs = annotationBinding.getAllMemberValuePairs();
+		assertEquals("Wrong size", 1, allMemberValuePairs.length);
+		assertFalse("Not a recovered binding", annotationBinding.isRecovered());
+		assertFalse("Not a synthetic binding", annotationBinding.isSynthetic());
+		
+		node = getASTNode(unit, 2);
+		assertEquals("Not a type declaration unit", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		typeDeclaration = (TypeDeclaration) node;
+		modifiers = typeDeclaration.modifiers();
+		assertEquals("wrong size", 1, modifiers.size());
+		modifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Not an annotation", modifier.isAnnotation());
+		annotation = (Annotation) modifier;
+		assertEquals("Not a normal annotation", ASTNode.NORMAL_ANNOTATION, annotation.getNodeType());
+		normalAnnotation = (NormalAnnotation) annotation;
+		IAnnotationBinding annotationBinding2 = normalAnnotation.resolveAnnotationBinding();
+		
+		assertTrue("Should be equal", annotationBinding2.isEqualTo(annotationBinding));
+		assertTrue("Should be equal", annotationBinding.isEqualTo(annotationBinding2));
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=179042
+	 */
+	public void test0260() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"@interface Annot {\n" +
+			"	public int id() default 0;\n" +
+			"	public String name() default \"\";\n" +
+			"}\n" +
+			"@Annot(id=4)\n" +
+			"public class X {\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				0);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 1);
+		assertEquals("Not a type declaration unit", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		List modifiers = typeDeclaration.modifiers();
+		assertEquals("wrong size", 2, modifiers.size());
+		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Not an annotation", modifier.isAnnotation());
+		Annotation annotation = (Annotation) modifier;
+		assertEquals("Not a normal annotation", ASTNode.NORMAL_ANNOTATION, annotation.getNodeType());
+		NormalAnnotation normalAnnotation = (NormalAnnotation) annotation;
+		IAnnotationBinding annotationBinding = normalAnnotation.resolveAnnotationBinding();
+		assertEquals("Wrong size", 0, annotationBinding.getAnnotations().length);
+		IJavaElement javaElement = annotationBinding.getJavaElement();
+		assertNotNull("No java element", javaElement);
+		assertEquals("Wrong kind", IBinding.ANNOTATION, annotationBinding.getKind());
+		assertNull("No key", annotationBinding.getKey());
+		assertEquals("Wrong modifier", Modifier.NONE, annotationBinding.getModifiers());
+		assertFalse("Not a deprecated annotation", annotationBinding.isDeprecated());
+		IMemberValuePairBinding[] declaredMemberValuePairs = annotationBinding.getDeclaredMemberValuePairs();
+		assertEquals("Wrong size", 1, declaredMemberValuePairs.length);
+		IMemberValuePairBinding[] allMemberValuePairs = annotationBinding.getAllMemberValuePairs();
+		assertEquals("Wrong size", 2, allMemberValuePairs.length);
+		assertFalse("Not a recovered binding", annotationBinding.isRecovered());
+		assertFalse("Not a synthetic binding", annotationBinding.isSynthetic());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=179065 
+	 */
+	public void test0261() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"@interface Annot {\n" + 
+			"	public boolean booleanValue() default true;\n" + 
+			"\n" + 
+			"	public byte byteValue() default 0;\n" + 
+			"\n" + 
+			"	public char charValue() default \' \';\n" + 
+			"\n" + 
+			"	public double doubleValue() default 0.0;\n" + 
+			"\n" + 
+			"	public float floatValue() default 0.0f;\n" + 
+			"\n" + 
+			"	public int intValue() default 1;\n" + 
+			"\n" + 
+			"	public long longValue() default Long.MAX_VALUE;\n" + 
+			"\n" + 
+			"	public short shortValue() default 127;\n" + 
+			"\n" + 
+			"	public String stringValue() default \"\";\n" + 
+			"\n" + 
+			"	public E enumValue() default E.A;\n" + 
+			"\n" + 
+			"	public Class classValue() default String.class;\n" + 
+			"\n" + 
+			"	@Deprecated public Ann annotationValue() default @Ann();\n" + 
+			"\n" + 
+			"	public boolean[] booleanArrayValue() default { true, false };\n" + 
+			"\n" + 
+			"	public byte[] byteArrayValue() default { 0, 1 };\n" + 
+			"\n" + 
+			"	public char[] charArrayValue() default { \'#\' };\n" + 
+			"\n" + 
+			"	@Deprecated public double[] doubleArrayValue() default { 2.0 };\n" + 
+			"\n" + 
+			"	public float[] floatArrayValue() default { 1.0f };\n" + 
+			"\n" + 
+			"	public int[] intArrayValue() default { 0, 1 };\n" + 
+			"\n" + 
+			"	public long[] longArrayValue() default { Long.MIN_VALUE };\n" + 
+			"\n" + 
+			"	public short[] shortArrayValue() default { 127 };\n" + 
+			"\n" + 
+			"	public String[] stringArrayValue() default { \"Hello\", \"World\" };\n" + 
+			"\n" + 
+			"	public E[] enumArrayValue() default { E.A, E.B };\n" + 
+			"\n" + 
+			"	public Class[] classArrayValue() default { Object.class, Annot.class };\n" + 
+			"\n" + 
+			"	public Ann[] annotationArrayValue() default {};\n" + 
+			"}\n" + 
+			"\n" + 
+			"enum E {\n" + 
+			"	A, B, C, D\n" + 
+			"}\n" + 
+			"\n" + 
+			"@interface Ann {}\n" + 
+			"\n" + 
+			"@Annot(\n" +
+			"	booleanValue = true,\n" +
+			"	byteValue = (byte) 1,\n" +
+			"	charValue = \' \',\n" +
+			"	doubleValue = 4.0,\n" +
+			"	floatValue = 3.0f,\n" +
+			"	intValue = 1,\n" +
+			"	longValue = 65535L,\n" +
+			"	shortValue = (short) 128,\n" +
+			"	stringValue = \"SUCCESS\",\n" +
+			"	enumValue = E.B,\n" +
+			"	classValue = Object.class,\n" +
+			"	annotationValue = @Ann())\n" + 
+			"public class X {\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				0);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedProblems =
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized";
+		assertProblemsSize(unit, 2, expectedProblems);
+		node = getASTNode(unit, 3);
+		assertEquals("Not a type declaration unit", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		List modifiers = typeDeclaration.modifiers();
+		assertEquals("wrong size", 2, modifiers.size());
+		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Not an annotation", modifier.isAnnotation());
+		Annotation annotation = (Annotation) modifier;
+		assertEquals("Not a normal annotation", ASTNode.NORMAL_ANNOTATION, annotation.getNodeType());
+		NormalAnnotation normalAnnotation = (NormalAnnotation) annotation;
+		IAnnotationBinding annotationBinding = normalAnnotation.resolveAnnotationBinding();
+		assertEquals("Wrong size", 0, annotationBinding.getAnnotations().length);
+		IJavaElement javaElement = annotationBinding.getJavaElement();
+		assertNotNull("No java element", javaElement);
+		assertEquals("Wrong kind", IBinding.ANNOTATION, annotationBinding.getKind());
+		assertNull("No key", annotationBinding.getKey());
+		assertEquals("Wrong modifier", Modifier.NONE, annotationBinding.getModifiers());
+		assertFalse("Not a deprecated annotation", annotationBinding.isDeprecated());
+		IMemberValuePairBinding[] declaredMemberValuePairs = annotationBinding.getDeclaredMemberValuePairs();
+		assertEquals("Wrong size", 12, declaredMemberValuePairs.length);
+
+		IMemberValuePairBinding pairBinding = declaredMemberValuePairs[0];
+		assertEquals("Wrong name", "booleanValue", pairBinding.getName());
+		Object value = pairBinding.getValue();
+		assertTrue("Not a Boolean", value instanceof Boolean);
+		assertEquals("Wrong value", Boolean.TRUE, value);
+		assertTrue("Not the default value", pairBinding.isDefault());
+		IMethodBinding methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "booleanValue", methodBinding.getName());
+		Object defaultValue = methodBinding.getDefaultValue();
+		assertTrue("Different values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+		
+		pairBinding = declaredMemberValuePairs[1];
+		assertEquals("Wrong name", "byteValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not a Byte", value instanceof Byte);
+		assertEquals("Wrong value", new Byte((byte) 1), value);
+		assertFalse("The default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "byteValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertFalse("Same values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+
+		pairBinding = declaredMemberValuePairs[2];
+		assertEquals("Wrong name", "charValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not a Character", value instanceof Character);
+		assertEquals("Wrong value", new Character(' '), value);
+		assertTrue("Not the default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "charValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertTrue("Different values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+
+		pairBinding = declaredMemberValuePairs[3];
+		assertEquals("Wrong name", "doubleValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not a Double", value instanceof Double);
+		assertEquals("Wrong value", new Double(4.0), value);
+		assertFalse("The default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "doubleValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertFalse("Same values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+
+		pairBinding = declaredMemberValuePairs[4];
+		assertEquals("Wrong name", "floatValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not a Float", value instanceof Float);
+		assertEquals("Wrong value", new Float(3.0f), value);
+		assertFalse("The default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "floatValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertFalse("Same values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+
+		pairBinding = declaredMemberValuePairs[5];
+		assertEquals("Wrong name", "intValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not an Integer", value instanceof Integer);
+		assertEquals("Wrong value", new Integer(1), value);
+		assertTrue("Not the default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "intValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertTrue("Different values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+
+		pairBinding = declaredMemberValuePairs[6];
+		assertEquals("Wrong name", "longValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not a Long", value instanceof Long);
+		assertEquals("Wrong value", new Long(65535L), value);
+		assertFalse("The default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "longValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertFalse("Same values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+
+		pairBinding = declaredMemberValuePairs[7];
+		assertEquals("Wrong name", "shortValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not a Short", value instanceof Short);
+		assertEquals("Wrong value", new Short((short) 128), value);
+		assertFalse("The default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "shortValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertFalse("Same values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+
+		pairBinding = declaredMemberValuePairs[8];
+		assertEquals("Wrong name", "stringValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not a String", value instanceof String);
+		assertEquals("Wrong value", "SUCCESS", value);
+		assertFalse("The default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "stringValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertFalse("Same values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+
+		pairBinding = declaredMemberValuePairs[9];
+		assertEquals("Wrong name", "enumValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not an IVariableBinding", value instanceof IVariableBinding);
+		IVariableBinding variableBinding = (IVariableBinding) value;
+		assertEquals("Wrong value", "B", variableBinding.getName());
+		assertFalse("The default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "enumValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertFalse("Same values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+
+		pairBinding = declaredMemberValuePairs[10];
+		assertEquals("Wrong name", "classValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not an ITypeBinding", value instanceof ITypeBinding);
+		ITypeBinding typeBinding = (ITypeBinding) value;
+		assertEquals("Wrong value", "java.lang.Object", typeBinding.getQualifiedName());
+		assertFalse("The default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "classValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertFalse("Same values", value.equals(defaultValue));
+		assertFalse("Is deprecated", pairBinding.isDeprecated());
+
+		pairBinding = declaredMemberValuePairs[11];
+		assertEquals("Wrong name", "annotationValue", pairBinding.getName());
+		value = pairBinding.getValue();
+		assertTrue("Not an IAnnotationBinding", value instanceof IAnnotationBinding);
+		IAnnotationBinding annotationBinding2 = (IAnnotationBinding) value;
+		assertEquals("Wrong value", "Ann", annotationBinding2.getName());
+		assertTrue("The default value", pairBinding.isDefault());
+		methodBinding = pairBinding.getMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong name", "annotationValue", methodBinding.getName());
+		defaultValue = methodBinding.getDefaultValue();
+		assertTrue("not a IBinding", defaultValue instanceof IBinding);
+		assertTrue("Same values", annotationBinding2.isEqualTo((IBinding) defaultValue));
+		assertTrue("Not deprecated", pairBinding.isDeprecated());
 	}
 }

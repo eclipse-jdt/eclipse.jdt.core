@@ -160,7 +160,7 @@ class PackageBinding implements IPackageBinding {
 	 * @see IBinding#getModifiers()
 	 */
 	public int getModifiers() {
-		return -1;
+		return Modifier.NONE;
 	}
 
 	/*

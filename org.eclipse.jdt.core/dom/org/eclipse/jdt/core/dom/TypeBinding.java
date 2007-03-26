@@ -641,7 +641,7 @@ class TypeBinding implements ITypeBinding {
 			// clear the AccEnum bits
 			return accessFlags & ~ClassFileConstants.AccEnum;
 		} else {
-			return 0;
+			return Modifier.NONE;
 		}
 	}
 
