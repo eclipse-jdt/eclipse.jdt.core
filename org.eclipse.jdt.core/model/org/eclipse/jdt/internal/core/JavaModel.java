@@ -358,6 +358,9 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 	if (!path.isAbsolute()) return null; 
 
 	// lookup - outside the container
+	return getTargetAsExternalFile(path, checkResourceExistence);	
+}
+private synchronized static Object getTargetAsExternalFile(IPath path, boolean checkResourceExistence) {
 	File externalFile = new File(path.toOSString());
 	if (!checkResourceExistence) {
 		return externalFile;
