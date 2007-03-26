@@ -15,6 +15,7 @@ import java.util.List;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -7858,4 +7859,57 @@ public void testBug167190() throws CoreException, JavaModelException {
 	// Should have same types with these 2 searches
 	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 }
+
+/**
+ * @bug 178847 [search] Potential matches found when searching references to IJavaElement#getResource()
+ * @test Ensure that accurate matches are found
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=178847"
+ */
+public void testBug178847() throws CoreException {
+	try {
+		createJavaProject("P1", new String[] {"src" }, "bin");
+		createFolder("/P1/src/p");
+		createFile(
+			"/P1/src/p/X.java",
+			"package p;\n" +
+			"public class X{\n" +
+			"}"
+		);
+		createFile(
+			"/P1/src/p/Y.java",
+			"package p;\n" +
+			"public class Y extends X {\n" +
+			"  public static void foo() {}\n" +
+			"}"
+		);
+		getProject("P1").build(IncrementalProjectBuilder.FULL_BUILD, null);
+		deleteFile("/P1/bin/p/X.class");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB", "/P1/bin"}, "");
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/P2/Test1.java",
+			"public class Test1 {\n" + 
+			"  void bar() {\n" + 
+			"    p.Y.foo();\n" + 
+			"    new p.X();\n" + // cause AbortCompilation here
+			"  }\n" + 
+			"}"
+		);
+		workingCopies[1] = getWorkingCopy("/P2/Test2.java",
+			"public class Test2 {\n" + 
+			"  void foo() {}\n" +
+			"  void bar() {\n" +
+			"    foo();\n" +
+			"  }\n" +
+			"}"
+		);
+		IMethod method = workingCopies[1].getType("Test2").getMethod("foo", new String[0]);
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), resultCollector);
+		assertSearchResults(
+			"Test2.java void Test2.bar() [foo()] EXACT_MATCH"
+		);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2" });
+	}
+}
+
 }

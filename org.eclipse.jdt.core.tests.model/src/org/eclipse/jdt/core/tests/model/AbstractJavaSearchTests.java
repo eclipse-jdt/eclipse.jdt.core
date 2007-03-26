@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 /**
  * Abstract class for Java Search tests.
  */
-public class AbstractJavaSearchTests extends AbstractJavaModelTests implements IJavaSearchConstants {
+public class AbstractJavaSearchTests extends ModifyingResourceTests implements IJavaSearchConstants {
 
 	public static List JAVA_SEARCH_SUITES = null;
 	protected static IJavaProject JAVA_PROJECT;

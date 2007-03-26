@@ -1537,6 +1537,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 				if (BasicSearchEngine.VERBOSE)
 					System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 	
+				this.lookupEnvironment.unitBeingCompleted = unit;
 				reduceParseTree(unit);
 	
 				if (unit.scope != null) {
@@ -1559,6 +1560,7 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 			throw e;
 		}
 	} finally {
+		this.lookupEnvironment.unitBeingCompleted = null;
 		this.currentPossibleMatch = null;
 	}
 }

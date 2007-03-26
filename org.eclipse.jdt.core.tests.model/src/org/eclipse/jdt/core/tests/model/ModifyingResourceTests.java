@@ -25,6 +25,9 @@ public class ModifyingResourceTests extends AbstractJavaModelTests {
 public ModifyingResourceTests(String name) {
 	super(name);
 }
+public ModifyingResourceTests(String name, int tabs) {
+	super(name, tabs);
+}
 protected void assertElementDescendants(String message,  String expected, IJavaElement element) throws CoreException {
 	String actual = expandAll(element);
 	if (!expected.equals(actual)){
