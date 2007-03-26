@@ -212,12 +212,12 @@ public class ValueConversionProcessor extends BaseProcessor {
 	{
 		if( actualValue != null && expectedType != actualValue.getClass() ){
 			final Messager msgr = _env.getMessager(); 
-			msgr.printError("type mismatch for memeber " + name + 
+			msgr.printError("type mismatch for member " + name + 
 					" expected " + expectedType.getName() + " but got " + actualValue.getClass().getName());
 		}
 		else if( !expectedValue.equals(actualValue) ){
 			final Messager msgr = _env.getMessager(); 
-			msgr.printError("value mismatch for memeber " + name + 
+			msgr.printError("value mismatch for member " + name + 
 					" expected " + expectedValue + " but got " + actualValue);
 		}
 	}
@@ -242,7 +242,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		
 		if( actual != expected ){
 			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for memeber " + name + 
+			msgr.printError("value mismatch for member " + name + 
 					" expected " + expected + " but got " + actual);
 		}
 	}
@@ -254,7 +254,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		
 		if( actual != expected ){
 			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for memeber " + name + 
+			msgr.printError("value mismatch for member " + name + 
 					" expected " + expected + " but got " + actual);
 		}
 	}
@@ -266,7 +266,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		
 		if( actual != expected ){
 			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for memeber " + name + 
+			msgr.printError("value mismatch for member " + name + 
 					" expected " + expected + " but got " + actual);
 		}
 	}
@@ -278,7 +278,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		
 		if( actual != expected ){
 			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for memeber " + name + 
+			msgr.printError("value mismatch for member " + name + 
 					" expected " + expected + " but got " + actual);
 		}
 	}
@@ -290,7 +290,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		
 		if( actual != expected ){
 			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for memeber " + name + 
+			msgr.printError("value mismatch for member " + name + 
 					" expected " + expected + " but got " + actual);
 		}
 	}
@@ -302,7 +302,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		
 		if( actual != expected ){
 			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for memeber " + name + 
+			msgr.printError("value mismatch for member " + name + 
 					" expected " + expected + " but got " + actual);
 		}
 	}
@@ -314,7 +314,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		
 		if( actual != expected ){
 			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for memeber " + name + 
+			msgr.printError("value mismatch for member " + name + 
 					" expected " + expected + " but got " + actual);
 		}
 	}
@@ -326,7 +326,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		
 		if( actual != expected ){
 			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for memeber " + name + 
+			msgr.printError("value mismatch for member " + name + 
 					" expected " + expected + " but got " + actual);
 		}
 	}
@@ -341,7 +341,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		final Messager msgr = _env.getMessager(); 
 		for( boolean a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for memeber " + name + 
+				msgr.printError("value mismatch for member " + name + 
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
@@ -357,7 +357,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		final Messager msgr = _env.getMessager(); 
 		for( byte a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for memeber " + name + 
+				msgr.printError("value mismatch for member " + name + 
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
@@ -373,7 +373,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		final Messager msgr = _env.getMessager(); 
 		for( char a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for memeber " + name + 
+				msgr.printError("value mismatch for member " + name + 
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
@@ -389,7 +389,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		final Messager msgr = _env.getMessager(); 
 		for( double a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for memeber " + name + 
+				msgr.printError("value mismatch for member " + name + 
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
@@ -405,7 +405,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		final Messager msgr = _env.getMessager(); 
 		for( float a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for memeber " + name + 
+				msgr.printError("value mismatch for member " + name + 
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
@@ -421,7 +421,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		final Messager msgr = _env.getMessager(); 
 		for( int a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for memeber " + name + 
+				msgr.printError("value mismatch for member " + name + 
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
@@ -437,7 +437,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		final Messager msgr = _env.getMessager(); 
 		for( long a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for memeber " + name + 
+				msgr.printError("value mismatch for member " + name + 
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
@@ -453,7 +453,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		final Messager msgr = _env.getMessager(); 
 		for( short a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for memeber " + name + 
+				msgr.printError("value mismatch for member " + name + 
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
