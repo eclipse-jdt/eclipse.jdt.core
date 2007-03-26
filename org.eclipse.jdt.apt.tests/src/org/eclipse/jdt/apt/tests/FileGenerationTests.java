@@ -137,6 +137,8 @@ public class FileGenerationTests extends APTTestBase {
 	}
 	
 	public void testTextFileGen() throws Exception {
+		// enable the test only on windows for now
+		if (System.getProperty("os.name").indexOf("Windows") == -1) return;
 		final String TEXT_FILE_NAME = "TextFile.txt";
 
 		clearProcessorResult(TextGenAnnotationProcessor.class);
