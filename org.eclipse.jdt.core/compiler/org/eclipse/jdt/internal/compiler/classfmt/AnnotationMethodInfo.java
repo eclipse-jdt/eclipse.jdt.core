@@ -67,8 +67,9 @@ public static MethodInfo createAnnotationMethod(byte classFileBytes[], int offse
 	methodInfo.attributeBytes = readOffset;
 
 	if (defaultValue != null) {
-		if (annotations != null)
+		if (annotations != null) {
 			return new AnnotationMethodInfoWithAnnotations(methodInfo, defaultValue, annotations);
+		}
 		return new AnnotationMethodInfo(methodInfo, defaultValue);
 	}
 	if (annotations != null)
