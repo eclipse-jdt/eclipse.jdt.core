@@ -17,13 +17,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.processing.Processor;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-
-import org.eclipse.jdt.compiler.apt.tests.processors.elements.ElementProc;
-import org.eclipse.jdt.compiler.apt.tests.processors.generics.GenericsProc;
-import org.eclipse.jdt.compiler.apt.tests.processors.visitors.VisitorProc;
 
 import junit.framework.TestCase;
 
@@ -33,6 +28,11 @@ import junit.framework.TestCase;
  */
 public class ModelTests extends TestCase {
 	
+	// Processor class names; see corresponding usage in the processor classes.
+	private static final String ELEMENTPROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.ElementProc";
+	private static final String GENERICSPROC = "org.eclipse.jdt.compiler.apt.tests.processors.generics.GenericsProc";
+	private static final String VISITORPROC = "org.eclipse.jdt.compiler.apt.tests.processors.visitors.VisitorProc";
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -45,7 +45,7 @@ public class ModelTests extends TestCase {
 	 */
 	public void testElementWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTest(compiler, ElementProc.class);
+		internalTest(compiler, ELEMENTPROC);
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class ModelTests extends TestCase {
 	 */
 	public void testElementWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTest(compiler, ElementProc.class);
+		internalTest(compiler, ELEMENTPROC);
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class ModelTests extends TestCase {
 	 */
 	public void testGenericsWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTest(compiler, GenericsProc.class);
+		internalTest(compiler, GENERICSPROC);
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class ModelTests extends TestCase {
 	 */
 	public void testGenericsWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTest(compiler, GenericsProc.class);
+		internalTest(compiler, GENERICSPROC);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class ModelTests extends TestCase {
 	 */
 	public void testVisitorsWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTest(compiler, VisitorProc.class);
+		internalTest(compiler, VISITORPROC);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class ModelTests extends TestCase {
 	 */
 	public void testVisitorsWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTest(compiler, VisitorProc.class);
+		internalTest(compiler, VISITORPROC);
 	}
 
 	/**
@@ -99,18 +99,18 @@ public class ModelTests extends TestCase {
 	 * and must report its errors or success via the methods in BaseProcessor.
 	 * @throws IOException
 	 */
-	private void internalTest(JavaCompiler compiler, Class<? extends Processor> processor) throws IOException {
-		System.clearProperty(processor.getName());
+	private void internalTest(JavaCompiler compiler, String processorClass) throws IOException {
+		System.clearProperty(processorClass);
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "model");
 		BatchTestUtils.copyResources("targets/model", targetFolder);
 
 		List<String> options = new ArrayList<String>();
-		options.add("-A" + processor.getName());
+		options.add("-A" + processorClass);
 		BatchTestUtils.compileTree(compiler, options, targetFolder);
 
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
-		assertEquals("succeeded", System.getProperty(processor.getName()));
+		assertEquals("succeeded", System.getProperty(processorClass));
 	}
 
 	@Override
