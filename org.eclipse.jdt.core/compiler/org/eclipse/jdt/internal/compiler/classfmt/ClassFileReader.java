@@ -24,6 +24,19 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClassFileReader extends ClassFileStruct implements IBinaryType {
+private static String printTypeModifiers(int modifiers) {
+	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+	java.io.PrintWriter print = new java.io.PrintWriter(out);
+
+	if ((modifiers & ClassFileConstants.AccPublic) != 0) print.print("public "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccPrivate) != 0) print.print("private "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccFinal) != 0) print.print("final "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccSuper) != 0) print.print("super "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccInterface) != 0) print.print("interface "); //$NON-NLS-1$
+	if ((modifiers & ClassFileConstants.AccAbstract) != 0) print.print("abstract "); //$NON-NLS-1$
+	print.flush();
+	return out.toString();
+}
 public static ClassFileReader read(InputStream stream, String fileName) throws ClassFormatException, IOException {
 	return read(stream, fileName, false);
 }
@@ -954,7 +967,7 @@ public String toString() {
 	print.println(this.getClass().getName() + "{"); //$NON-NLS-1$
 	print.println(" this.className: " + new String(getName())); //$NON-NLS-1$
 	print.println(" this.superclassName: " + (getSuperclassName() == null ? "null" : new String(getSuperclassName()))); //$NON-NLS-2$ //$NON-NLS-1$
-	print.println(" access_flags: " + ClassFileStruct.printTypeModifiers(this.accessFlags()) + "(" + this.accessFlags() + ")"); //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
+	print.println(" access_flags: " + printTypeModifiers(this.accessFlags()) + "(" + this.accessFlags() + ")"); //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
 	print.flush();
 	return out.toString();
 }
