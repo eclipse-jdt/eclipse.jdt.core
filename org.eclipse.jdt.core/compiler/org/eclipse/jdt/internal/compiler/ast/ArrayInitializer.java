@@ -155,29 +155,28 @@ public class ArrayInitializer extends Expression {
 			for (int i = 0, length = this.expressions.length; i < length; i++) {
 				Expression expression = this.expressions[i];
 				expression.setExpectedType(elementType);
-				TypeBinding exprType = expression instanceof ArrayInitializer
+				TypeBinding expressionType = expression instanceof ArrayInitializer
 						? expression.resolveTypeExpecting(scope, elementType)
 						: expression.resolveType(scope);
-				if (exprType == null)
-					return null;
+				if (expressionType == null)
+					continue;
 
 				// Compile-time conversion required?
-				if (elementType != exprType) // must call before computeConversion() and typeMismatchError()
-					scope.compilationUnitScope().recordTypeConversion(elementType, exprType);
+				if (elementType != expressionType) // must call before computeConversion() and typeMismatchError()
+					scope.compilationUnitScope().recordTypeConversion(elementType, expressionType);
 
-				if ((expression.isConstantValueOfTypeAssignableToType(exprType, elementType)
-						|| (elementType.isBaseType() && BaseTypeBinding.isWidening(elementType.id, exprType.id)))
-						|| exprType.isCompatibleWith(elementType)) {
-					expression.computeConversion(scope, elementType, exprType);
-				} else if (scope.isBoxingCompatibleWith(exprType, elementType) 
-									|| (exprType.isBaseType()  // narrowing then boxing ?
+				if ((expression.isConstantValueOfTypeAssignableToType(expressionType, elementType)
+						|| (elementType.isBaseType() && BaseTypeBinding.isWidening(elementType.id, expressionType.id)))
+						|| expressionType.isCompatibleWith(elementType)) {
+					expression.computeConversion(scope, elementType, expressionType);
+				} else if (scope.isBoxingCompatibleWith(expressionType, elementType) 
+									|| (expressionType.isBaseType()  // narrowing then boxing ?
 											&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
 											&& !elementType.isBaseType()
-											&& expression.isConstantValueOfTypeAssignableToType(exprType, scope.environment().computeBoxingType(elementType)))) {
-					expression.computeConversion(scope, elementType, exprType);
+											&& expression.isConstantValueOfTypeAssignableToType(expressionType, scope.environment().computeBoxingType(elementType)))) {
+					expression.computeConversion(scope, elementType, expressionType);
 				} else {
-					scope.problemReporter().typeMismatchError(exprType, elementType, expression);
-					return null;
+					scope.problemReporter().typeMismatchError(expressionType, elementType, expression);
 				} 				
 			}
 			return this.binding;

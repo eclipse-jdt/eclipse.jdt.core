@@ -357,22 +357,62 @@ public void test012() {
 	"        [pc: 0, pc: 15] local: this index: 0 type: X\n" + 
 	"        [pc: 13, pc: 15] local: all index: 1 type: java.lang.Object[][]\n";
 
-try {
-	File f = new File(OUTPUT_DIR + File.separator + "X.class");
-	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
-	int index = result.indexOf(expectedOutput);
-	if (index == -1 || expectedOutput.length() == 0) {
-		System.out.println(Util.displayString(result, 3));
-	}
-	if (index == -1) {
-		assertEquals("Wrong contents", expectedOutput, result);
-	}
-} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-	assertTrue(false);
-} catch (IOException e) {
-	assertTrue(false);
-}		
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//check resolution of faulty initializer
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179477
+public void test013() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    String[] m(String arg) {\n" + 
+			"        System.out.println(argument + argument);\n" + 
+			"        return new String[] { argument + argument, argument/*no problem*/ };\n" + 
+			"    }\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(argument + argument);\n" + 
+		"	                   ^^^^^^^^\n" + 
+		"argument cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(argument + argument);\n" + 
+		"	                              ^^^^^^^^\n" + 
+		"argument cannot be resolved\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	return new String[] { argument + argument, argument/*no problem*/ };\n" + 
+		"	                      ^^^^^^^^\n" + 
+		"argument cannot be resolved\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	return new String[] { argument + argument, argument/*no problem*/ };\n" + 
+		"	                                 ^^^^^^^^\n" + 
+		"argument cannot be resolved\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 4)\n" + 
+		"	return new String[] { argument + argument, argument/*no problem*/ };\n" + 
+		"	                                           ^^^^^^^^\n" + 
+		"argument cannot be resolved\n" + 
+		"----------\n");
 }
 }
