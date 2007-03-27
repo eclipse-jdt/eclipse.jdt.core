@@ -14,10 +14,12 @@ import java.util.HashMap;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
+import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
 /**
@@ -958,6 +960,51 @@ public void testBug119203() throws CoreException {
 		assertSearchResults(
 			"src/X.java [in P1] X.test [Test]",
 			resultCollector);
+	}
+	finally {
+		deleteProject("P1");
+	}
+}
+/**
+ * @bug 179199: [search] Open type throws NPE during Items filtering
+ * @test Ensure that NPE does no longer happen when output location is also set as class folder in a project build path
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=179199"
+ */
+public void testBug179199() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P1", new String[] {"src"}, new String[] {"bin"}, "bin");
+		createFile(
+			"/P1/src/Test.java",
+			"public class Test {\n" +
+			"}" 
+		);
+		createFile(
+			"/P1/src/X.java",
+			"public class X {\n" +
+			"	Test test;\n" +
+			"}" 
+		);
+		// Build to create bin/Test.class
+		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
+		// Remove source file to peek the class file in 'bin' instead while searching all type names
+		deleteFile("/P1/src/Test.java");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			"Test".toCharArray(),
+			SearchPattern.R_PREFIX_MATCH,
+			IJavaSearchConstants.TYPE,
+			scope,
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertSearchResults(
+			"Test (not open) [in Test.class [in <default> [in bin [in P1]]]]",
+			collector
+		);
 	}
 	finally {
 		deleteProject("P1");

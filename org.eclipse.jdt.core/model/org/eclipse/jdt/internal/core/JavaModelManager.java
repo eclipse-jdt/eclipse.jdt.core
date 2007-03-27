@@ -766,14 +766,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		} else {
 			element = determineIfOnClasspath(folder, project);
 		}
-		
-		if (conflictsWithOutputLocation(folder.getFullPath(), (JavaProject)project)
-		 	|| (folder.getName().indexOf('.') >= 0 
-		 		&& !(element instanceof IPackageFragmentRoot))) {
-			return null; // only package fragment roots are allowed with dot names
-		} else {
-			return element;
-		}
+		return element;
 	}
 
 	/**

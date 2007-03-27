@@ -283,7 +283,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		addLibraryEntry(this.currentProject, new Path(path), null, null, null, null, exported);
 	} 
 	protected void addLibraryEntry(IJavaProject project, String path, boolean exported) throws JavaModelException {
-		addLibraryEntry(project, new Path(path), null, null, null, null, exported);
+		addLibraryEntry(project, new Path(path), exported);
+	} 
+	protected void addLibraryEntry(IJavaProject project, IPath path, boolean exported) throws JavaModelException {
+		addLibraryEntry(project, path, null, null, null, null, exported);
 	} 
 	protected void addLibraryEntry(IJavaProject project, String path, String srcAttachmentPath, String srcAttachmentPathRoot, boolean exported) throws JavaModelException{
 		addLibraryEntry(
@@ -1765,10 +1768,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			org.eclipse.jdt.core.tests.util.Util.delete(project.getFile(sourceZipName));
 		}
 	}
-	protected void removeLibraryEntry(Path path) throws JavaModelException {
+	protected void removeLibraryEntry(IPath path) throws JavaModelException {
 		removeLibraryEntry(this.currentProject, path);
 	}
-	protected void removeLibraryEntry(IJavaProject project, Path path) throws JavaModelException {
+	protected void removeLibraryEntry(IJavaProject project, IPath path) throws JavaModelException {
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
 		IClasspathEntry[] newEntries = null;
