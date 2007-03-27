@@ -179,105 +179,105 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 
 	public void recordUsingNullReference(Scope scope, LocalVariableBinding local, 
 			Expression reference, int checkType, FlowInfo flowInfo) {
-		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
-		if (deferNullDiagnostic) { // within an enclosing loop, be conservative
-			switch (checkType) {
-				case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL:
-				case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
-				case CAN_ONLY_NULL | IN_COMPARISON_NULL:
-				case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
-				case CAN_ONLY_NULL | IN_ASSIGNMENT:
-				case CAN_ONLY_NULL | IN_INSTANCEOF:
-					if (flowInfo.cannotBeNull(local)) {
-						if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
-							scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
-						} else {
-							scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 && !flowInfo.isDefinitelyUnknown(local))	{
+			if (deferNullDiagnostic) { // within an enclosing loop, be conservative
+				switch (checkType) {
+					case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL:
+					case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
+					case CAN_ONLY_NULL | IN_COMPARISON_NULL:
+					case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
+					case CAN_ONLY_NULL | IN_ASSIGNMENT:
+					case CAN_ONLY_NULL | IN_INSTANCEOF:
+						if (flowInfo.cannotBeNull(local)) {
+							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
+								scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+							} else {
+								scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+							}
+							return;
 						}
-						return;
-					}
-					if (flowInfo.canOnlyBeNull(local)) {
-						switch(checkType & CONTEXT_MASK) {
-							case FlowContext.IN_COMPARISON_NULL:
-								scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
-								return;
-							case FlowContext.IN_COMPARISON_NON_NULL:
-								scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
-								return;
-							case FlowContext.IN_ASSIGNMENT:
-								scope.problemReporter().localVariableRedundantNullAssignment(local, reference);
-								return;
-							case FlowContext.IN_INSTANCEOF:
-								scope.problemReporter().localVariableNullInstanceof(local, reference);
-								return;
+						if (flowInfo.canOnlyBeNull(local)) {
+							switch(checkType & CONTEXT_MASK) {
+								case FlowContext.IN_COMPARISON_NULL:
+									scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+									return;
+								case FlowContext.IN_COMPARISON_NON_NULL:
+									scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+									return;
+								case FlowContext.IN_ASSIGNMENT:
+									scope.problemReporter().localVariableRedundantNullAssignment(local, reference);
+									return;
+								case FlowContext.IN_INSTANCEOF:
+									scope.problemReporter().localVariableNullInstanceof(local, reference);
+									return;
+							}
 						}
-					}
-					break;
-				case MAY_NULL :
-					if (flowInfo.cannotBeNull(local)) {
-						return;
-					}
-					if (flowInfo.canOnlyBeNull(local)) {
-						scope.problemReporter().localVariableNullReference(local, reference);
-						return;
-					}
-					break;
-				default:
-					// never happens
+						break;
+					case MAY_NULL :
+						if (flowInfo.cannotBeNull(local)) {
+							return;
+						}
+						if (flowInfo.canOnlyBeNull(local)) {
+							scope.problemReporter().localVariableNullReference(local, reference);
+							return;
+						}
+						break;
+					default:
+						// never happens
+				}
 			}
-		}
-		else { // no enclosing loop, be as precise as possible right now
-			switch (checkType) {
-				case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL:
-				case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
-					if (flowInfo.isDefinitelyNonNull(local)) {
-						if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
-							scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
-						} else {
-							scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+			else { // no enclosing loop, be as precise as possible right now
+				switch (checkType) {
+					case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL:
+					case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
+						if (flowInfo.isDefinitelyNonNull(local)) {
+							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
+								scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
+							} else {
+								scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
+							}
+							return;
 						}
-						return;
-					}
-				case CAN_ONLY_NULL | IN_COMPARISON_NULL:
-				case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
-				case CAN_ONLY_NULL | IN_ASSIGNMENT:
-				case CAN_ONLY_NULL | IN_INSTANCEOF:
-					if (flowInfo.isDefinitelyNull(local)) {
-						switch(checkType & CONTEXT_MASK) {
-							case FlowContext.IN_COMPARISON_NULL:
-								scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
-								return;
-							case FlowContext.IN_COMPARISON_NON_NULL:
-								scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
-								return;
-							case FlowContext.IN_ASSIGNMENT:
-								scope.problemReporter().localVariableRedundantNullAssignment(local, reference);
-								return;
-							case FlowContext.IN_INSTANCEOF:
-								scope.problemReporter().localVariableNullInstanceof(local, reference);
-								return;
+					case CAN_ONLY_NULL | IN_COMPARISON_NULL:
+					case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
+					case CAN_ONLY_NULL | IN_ASSIGNMENT:
+					case CAN_ONLY_NULL | IN_INSTANCEOF:
+						if (flowInfo.isDefinitelyNull(local)) {
+							switch(checkType & CONTEXT_MASK) {
+								case FlowContext.IN_COMPARISON_NULL:
+									scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
+									return;
+								case FlowContext.IN_COMPARISON_NON_NULL:
+									scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
+									return;
+								case FlowContext.IN_ASSIGNMENT:
+									scope.problemReporter().localVariableRedundantNullAssignment(local, reference);
+									return;
+								case FlowContext.IN_INSTANCEOF:
+									scope.problemReporter().localVariableNullInstanceof(local, reference);
+									return;
+							}
 						}
-					}
-					break;
-				case MAY_NULL :
-					if (flowInfo.isDefinitelyNull(local)) {
-						scope.problemReporter().localVariableNullReference(local, reference);
-						return;
-					}
-					if (flowInfo.isPotentiallyNull(local)) {
-						scope.problemReporter().localVariablePotentialNullReference(local, reference);
-						return;
-					}
-					if (flowInfo.isDefinitelyNonNull(local)) {
-						return; // shortcut: cannot be null
-					}
-					break;
-				default:
-					// never happens
+						break;
+					case MAY_NULL :
+						if (flowInfo.isDefinitelyNull(local)) {
+							scope.problemReporter().localVariableNullReference(local, reference);
+							return;
+						}
+						if (flowInfo.isPotentiallyNull(local)) {
+							scope.problemReporter().localVariablePotentialNullReference(local, reference);
+							return;
+						}
+						if (flowInfo.isDefinitelyNonNull(local)) {
+							return; // shortcut: cannot be null
+						}
+						break;
+					default:
+						// never happens
+				}
 			}
-		}
-		recordNullReference(local, reference, checkType); 
-		// prepare to re-check with try/catch flow info
+			recordNullReference(local, reference, checkType); 
+			// prepare to re-check with try/catch flow info
 		}
 	}
 	
