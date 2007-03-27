@@ -42,6 +42,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 public class CompilerToolTests extends TestCase {
+	private static final boolean DEBUG = false;
+
 	public CompilerToolTests(String name) {
 		super(name);
 	}
@@ -187,13 +189,17 @@ public class CompilerToolTests extends TestCase {
 			@Override
 			public FileObject getFileForInput(Location location, String packageName, String relativeName)
 					throws IOException {
-				System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+				if (DEBUG) {
+					System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+				}
 				return super.getFileForInput(location, packageName, relativeName);
 			}
 			@Override
 			public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind)
 					throws IOException {
-				System.out.println("Create java file for input : " + className + " in location " + location);
+				if (DEBUG) {
+					System.out.println("Create java file for input : " + className + " in location " + location);
+				}
 				return super.getJavaFileForInput(location, className, kind);
 			}
 			@Override
@@ -202,9 +208,13 @@ public class CompilerToolTests extends TestCase {
 					Kind kind,
 					FileObject sibling) throws IOException {
 
-				System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				if (DEBUG) {
+					System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				}
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
-				System.out.println(javaFileForOutput.toUri());
+				if (DEBUG) {
+					System.out.println(javaFileForOutput.toUri());
+				}
 				return javaFileForOutput;
 			}
 		};
@@ -264,13 +274,17 @@ public class CompilerToolTests extends TestCase {
 			@Override
 			public FileObject getFileForInput(Location location, String packageName, String relativeName)
 					throws IOException {
-				System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+				if (DEBUG) {
+					System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+				}
 				return super.getFileForInput(location, packageName, relativeName);
 			}
 			@Override
 			public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind)
 					throws IOException {
-				System.out.println("Create java file for input : " + className + " in location " + location);
+				if (DEBUG) {
+					System.out.println("Create java file for input : " + className + " in location " + location);
+				}
 				return super.getJavaFileForInput(location, className, kind);
 			}
 			@Override
@@ -279,9 +293,13 @@ public class CompilerToolTests extends TestCase {
 					Kind kind,
 					FileObject sibling) throws IOException {
 
-				System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				if (DEBUG) {
+					System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				}
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
-				System.out.println(javaFileForOutput.toUri());
+				if (DEBUG) {
+					System.out.println(javaFileForOutput.toUri());
+				}
 				return javaFileForOutput;
 			}
 		};
@@ -295,18 +313,20 @@ public class CompilerToolTests extends TestCase {
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
- 		CompilationTask task = systemCompiler.getTask(printWriter, manager, null, options, null, units);
+		CompilationTask task = systemCompiler.getTask(printWriter, manager, null, options, null, units);
 
- 		System.out.println("Has location CLASS_OUPUT : " + forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+		if (DEBUG) {
+			System.out.println("Has location CLASS_OUPUT : " + forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+		}
 
 		Boolean result = task.call();
- 		displayLocation(manager, StandardLocation.CLASS_PATH);
- 		displayLocation(manager, StandardLocation.PLATFORM_CLASS_PATH);
+		displayLocation(manager, StandardLocation.CLASS_PATH);
+		displayLocation(manager, StandardLocation.PLATFORM_CLASS_PATH);
 
- 		if (!result.booleanValue()) {
- 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
- 		}
+		if (!result.booleanValue()) {
+			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+			assertTrue("Compilation failed ", false);
+		}
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 	}
@@ -343,9 +363,13 @@ public class CompilerToolTests extends TestCase {
 					Kind kind,
 					FileObject sibling) throws IOException {
 
-				System.out.println("EC: Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				if (DEBUG) {
+					System.out.println("EC: Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				}
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
-				System.out.println(javaFileForOutput.toUri());
+				if (DEBUG) {
+					System.out.println(javaFileForOutput.toUri());
+				}
 				return javaFileForOutput;
 			}
 		};
@@ -415,9 +439,13 @@ public class CompilerToolTests extends TestCase {
 					Kind kind,
 					FileObject sibling) throws IOException {
 
-				System.out.println("EC: Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				if (DEBUG) {
+					System.out.println("EC: Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				}
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
-				System.out.println(javaFileForOutput.toUri());
+				if (DEBUG) {
+					System.out.println(javaFileForOutput.toUri());
+				}
 				return javaFileForOutput;
 			}
 		};
@@ -490,9 +518,13 @@ public class CompilerToolTests extends TestCase {
 					Kind kind,
 					FileObject sibling) throws IOException {
 
-				System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				if (DEBUG) {
+					System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				}
 				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
-				System.out.println(javaFileForOutput.toUri());
+				if (DEBUG) {
+					System.out.println(javaFileForOutput.toUri());
+				}
 				return javaFileForOutput;
 			}
 		};
