@@ -592,19 +592,14 @@ public void testBroadcastAST2() throws JavaModelException {
 		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
 /*
- * Ensures that the AST broadcasted during a reconcile operation is correct.
- * (case of a working copy being reconciled with NO changes, creating AST and no problem detection)
+ * Ensures that no AST is broadcasted during a reconcile operation if the working copy being reconciled 
+ * has NO changes and NO problem detection is requested)
  */
 public void testBroadcastAST3() throws JavaModelException {
 	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
 	assertASTNodeEquals(
 		"Unexpected ast",
-		"package p1;\n" +
-		"import p2.*;\n" +
-		"public class X {\n" +
-		"  public void foo(){\n" +
-		"  }\n" +
-		"}\n",
+		"null",
 		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
 /*
@@ -2258,6 +2253,19 @@ public void testNoChanges2() throws JavaModelException {
 		"Unexpected delta",
 		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
+}
+/*
+ * Ensures that the problem requestor is not called when the source
+ * to reconcile is the same as the current contents, 
+ * no ast is requested, no problem is requested and problem requestor is not active.
+ * (regression test for bug 179258 simple reconcile starts problem finder - main thread waiting)
+ * 
+ */
+public void testNoChanges3() throws JavaModelException {
+	setWorkingCopyContents(this.workingCopy.getSource());
+	this.problemRequestor.isActive = false;
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertProblems("Unexpected problems", "");
 }
 /*
  * Ensures that using a non-generic method with no parameter and with a raw receiver type doesn't create a type safety warning

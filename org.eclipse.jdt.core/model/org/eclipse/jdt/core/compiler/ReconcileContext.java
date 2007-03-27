@@ -98,7 +98,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit getAST3() throws JavaModelExcept
 		parser.setSource(workingCopy);
 		return (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(this.operation.progressMonitor);		
 	}
-	return this.operation.makeConsistent(this.workingCopy, null/*don't report problems to the working copy's problem requestor*/);
+	return this.operation.makeConsistent(this.workingCopy);
 }
 
 /**

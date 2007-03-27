@@ -70,6 +70,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		public StringBuffer problems;
 		public int problemCount;
 		protected char[] unitSource;
+		public boolean isActive = true;
 		public ProblemRequestor() {
 			initialize(null);
 		}
@@ -85,7 +86,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				this.problems.append("----------\n");
 		}
 		public boolean isActive() {
-			return true;
+			return this.isActive;
 		}
 		public void initialize(char[] source) {
 			this.problems = new StringBuffer();
