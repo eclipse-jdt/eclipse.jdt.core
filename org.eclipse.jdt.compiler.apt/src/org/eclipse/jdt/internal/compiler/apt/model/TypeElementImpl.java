@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
@@ -40,6 +41,12 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		// TODO Auto-generated constructor stub
 	}
 	
+	@Override
+	public <R, P> R accept(ElementVisitor<R, P> v, P p)
+	{
+		return v.visitType(this, p);
+	}
+
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		AnnotationBinding[] annotations = ((ReferenceBinding)_binding).getAnnotations();

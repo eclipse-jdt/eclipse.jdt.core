@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -42,8 +40,8 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
+
+import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
  * A processor that explores the "model" target hierarchy and complains if it does
@@ -53,33 +51,13 @@ import javax.lang.model.util.Types;
  */
 @SupportedAnnotationTypes("*")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-public class ElementProc extends AbstractProcessor {
+public class ElementProc extends BaseProcessor {
 	
 	private static final String CLASSNAME = ElementProc.class.getName();
 	
 	// The set of elements we expect getRootElements to return
 	private static final String[] ROOT_ELEMENT_NAMES = new String[] {"AnnoZ", "A", "IA", "AB", "AC", "D", "IB", "IC"};
 	
-	/**
-	 * Report an error to the test case code
-	 * @param value
-	 */
-	public static void reportError(String value) {
-		// Debugging - don't report error
-		// value = "succeeded";
-		System.setProperty(CLASSNAME, value);
-	}
-	
-	/**
-	 * Report success to the test case code
-	 */
-	public static void reportSuccess() {
-		System.setProperty(CLASSNAME, "succeeded");
-	}
-
-	private Elements _elementUtils;
-	private Types _typeUtils;
-
 	// Initialized in collectElements()
 	private TypeElement _elementIA;
 	private TypeElement _elementAB;
@@ -91,16 +69,6 @@ public class ElementProc extends AbstractProcessor {
 	private ExecutableElement _methodDvoid;
 	private TypeElement _elementDEnum;
 	
-	/* (non-Javadoc)
-	 * @see javax.annotation.processing.AbstractProcessor#init(javax.annotation.processing.ProcessingEnvironment)
-	 */
-	@Override
-	public synchronized void init(ProcessingEnvironment processingEnv) {
-		super.init(processingEnv);
-		_elementUtils = processingEnv.getElementUtils();
-		_typeUtils = processingEnv.getTypeUtils();
-	}
-
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
 	@Override
@@ -172,7 +140,7 @@ public class ElementProc extends AbstractProcessor {
 			return false;
 		}
 		
-		ElementProc.reportSuccess();
+		reportSuccess();
 		return false;
 	}
 	

@@ -13,6 +13,9 @@ Require-Bundle: org.junit,
 Bundle-ClassPath: compilerapttests.jar
 Export-Package: org.eclipse.jdt.compiler.apt.tests,
  org.eclipse.jdt.compiler.apt.tests.annotations,
+ org.eclipse.jdt.compiler.apt.tests.processors.base,
  org.eclipse.jdt.compiler.apt.tests.processors.checkargs,
- org.eclipse.jdt.compiler.apt.tests.processors.genclass
+ org.eclipse.jdt.compiler.apt.tests.processors.elements,
+ org.eclipse.jdt.compiler.apt.tests.processors.genclass,
+ org.eclipse.jdt.compiler.apt.tests.processors.visitors
 Import-Package: org.eclipse.jdt.internal.compiler.tool;resolution:=optional

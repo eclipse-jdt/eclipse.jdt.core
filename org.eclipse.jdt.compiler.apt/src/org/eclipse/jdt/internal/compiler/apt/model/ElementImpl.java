@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeMirror;
@@ -37,12 +36,6 @@ public abstract class ElementImpl
 	
 	protected ElementImpl(Binding binding) {
 		_binding = binding;
-	}
-
-	@Override
-	public <R, P> R accept(ElementVisitor<R, P> v, P p) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

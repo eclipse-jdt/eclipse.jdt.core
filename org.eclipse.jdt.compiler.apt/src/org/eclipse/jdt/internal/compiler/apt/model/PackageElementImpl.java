@@ -17,6 +17,7 @@ import java.util.List;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 
@@ -31,52 +32,40 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 	PackageElementImpl(PackageBinding binding) {
 		super(binding);
 	}
+	
+	@Override
+	public <R, P> R accept(ElementVisitor<R, P> v, P p)
+	{
+		return v.visitPackage(this, p);
+	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getAnnotationMirrors()
-	 */
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getEnclosedElements()
-	 */
 	@Override
 	public List<? extends Element> getEnclosedElements() {
 		//PackageBinding binding = (PackageBinding)_binding;
 		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getEnclosingElement()
-	 */
 	@Override
 	public Element getEnclosingElement() {
 		// packages have no enclosing element
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.ElementImpl#getKind()
-	 */
 	@Override
 	public ElementKind getKind() {
 		return ElementKind.PACKAGE;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.element.PackageElement#getQualifiedName()
-	 */
 	@Override
 	public Name getQualifiedName() {
 		return new NameImpl(CharOperation.concatWith(((PackageBinding)_binding).compoundName, '.'));
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.element.PackageElement#isUnnamed()
-	 */
 	@Override
 	public boolean isUnnamed() {
 		PackageBinding binding = (PackageBinding)_binding;

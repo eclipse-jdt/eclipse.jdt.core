@@ -30,6 +30,8 @@ public class ModelTests extends TestCase {
 	
 	// See corresponding usages in the ElementProc class
 	private static final String ELEMENTPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.elements.ElementProc";
+	// See corresponding usages in the VisitorProc class
+	private static final String VISITORPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.visitors.VisitorProc";
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -56,6 +58,24 @@ public class ModelTests extends TestCase {
 	}
 
 	/**
+	 * Validate the testElement test against the javac compiler.
+	 * @throws IOException 
+	 */
+	public void testVisitorsWithSystemCompiler() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestVisitors(compiler);
+	}
+
+	/**
+	 * Attempt to read various elements of the Element hierarchy.
+	 * @throws IOException 
+	 */
+	public void testVisitorsWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestVisitors(compiler);
+	}
+
+	/**
 	 * Attempt to read various elements of the Element hierarchy.
 	 * @throws IOException
 	 */
@@ -71,6 +91,24 @@ public class ModelTests extends TestCase {
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(ELEMENTPROCNAME));
+	}
+
+	/**
+	 * Test Visitor functionality.
+	 * @throws IOException
+	 */
+	private void internalTestVisitors(JavaCompiler compiler) throws IOException {
+		System.clearProperty(VISITORPROCNAME);
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "model");
+		BatchTestUtils.copyResources("targets/model", targetFolder);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-A" + VISITORPROCNAME);
+		BatchTestUtils.compileTree(compiler, options, targetFolder);
+
+		// If it succeeded, the processor will have set this property to "succeeded";
+		// if not, it will set it to an error value.
+		assertEquals("succeeded", System.getProperty(VISITORPROCNAME));
 	}
 
 	/* (non-Javadoc)
