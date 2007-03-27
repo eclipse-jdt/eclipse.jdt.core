@@ -6490,7 +6490,7 @@ public void test0737_for_unknown_protection() {
 // suggested by https://bugs.eclipse.org/bugs/show_bug.cgi?id=127570
 // the issue is that we cannot do less than full aliasing analysis to
 // catch this one
-// TODO (maxime) reconsider when/if we bring full aliasing in
+// PREMATURE (maxime) reconsider when/if we bring full aliasing in
 public void _test0738_for_unknown_protection() {
 	this.runConformTest(
 		new String[] {
@@ -6513,6 +6513,31 @@ public void _test0738_for_unknown_protection() {
 			"  }\n" + 
 			"}"},
 		"");
+}
+
+// null analysis -- for
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=178895
+public void test0739_for() {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" + 
+				"  void foo(List<Object> l, boolean b) {\n" +
+				"    for (Object o : l) {\n" +
+				"      if (b) {\n" +
+				"        if (o != null) {\n" +
+				"          return;\n" +
+				"        }\n" +
+				"      } else {\n" + 
+				"        o.toString();\n" +
+				"      }\n" +
+				"    }\n" +
+				"  }\n" + 
+				"}\n"},
+			"");
+	}
 }
 
 // null analysis -- switch

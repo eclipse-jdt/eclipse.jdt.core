@@ -96,6 +96,7 @@ public class ForeachStatement extends Statement {
 				continueLabel, scope);
 		UnconditionalFlowInfo actionInfo = 
 			condInfo.nullInfoLessUnconditionalCopy();
+		actionInfo.markAsDefinitelyUnknown(this.elementVariable.binding);
 		FlowInfo exitBranch;
 		if (!(action == null || (action.isEmptyBlock() 
 		        	&& currentScope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3))) {
