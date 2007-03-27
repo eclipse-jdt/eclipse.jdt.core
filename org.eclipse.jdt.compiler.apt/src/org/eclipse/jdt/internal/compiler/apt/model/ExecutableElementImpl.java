@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class ExecutableElementImpl extends ElementImpl implements
 		ExecutableElement {
@@ -160,8 +161,16 @@ public class ExecutableElementImpl extends ElementImpl implements
 
 	@Override
 	public List<? extends TypeParameterElement> getTypeParameters() {
-		// TODO Auto-generated method stub
-		return null;
+		MethodBinding binding = (MethodBinding)_binding;
+		TypeVariableBinding[] variables = binding.typeVariables();
+		if (variables.length == 0) {
+			return Collections.emptyList();
+		}
+		List<TypeParameterElement> params = new ArrayList<TypeParameterElement>(variables.length); 
+		for (TypeVariableBinding variable : variables) {
+			params.add(Factory.newTypeParameterElement(variable, this));
+		}
+		return Collections.unmodifiableList(params);
 	}
 
 	@Override

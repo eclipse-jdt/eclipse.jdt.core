@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypeElementImpl extends ElementImpl implements TypeElement {
 	
@@ -181,8 +182,16 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	
 	@Override
 	public List<? extends TypeParameterElement> getTypeParameters() {
-		// TODO Auto-generated method stub
-		return null;
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		TypeVariableBinding[] variables = binding.typeVariables();
+		if (variables.length == 0) {
+			return Collections.emptyList();
+		}
+		List<TypeParameterElement> params = new ArrayList<TypeParameterElement>(variables.length); 
+		for (TypeVariableBinding variable : variables) {
+			params.add(Factory.newTypeParameterElement(variable, this));
+		}
+		return Collections.unmodifiableList(params);
 	}
 
 	@Override

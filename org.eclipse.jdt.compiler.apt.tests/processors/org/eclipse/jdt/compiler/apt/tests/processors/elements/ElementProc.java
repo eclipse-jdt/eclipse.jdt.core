@@ -53,8 +53,6 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class ElementProc extends BaseProcessor {
 	
-	private static final String CLASSNAME = ElementProc.class.getName();
-	
 	// The set of elements we expect getRootElements to return
 	private static final String[] ROOT_ELEMENT_NAMES = new String[] {"AnnoZ", "A", "IA", "AB", "AC", "D", "IB", "IC"};
 	
@@ -78,7 +76,7 @@ public class ElementProc extends BaseProcessor {
 			return false;
 		}
 		Map<String, String> options = processingEnv.getOptions();
-		if (!options.containsKey(CLASSNAME)) {
+		if (!options.containsKey(this.getClass().getName())) {
 			// Disable this processor unless we are intentionally performing the test.
 			return false;
 		}

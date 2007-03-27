@@ -17,21 +17,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.processing.Processor;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+
+import org.eclipse.jdt.compiler.apt.tests.processors.elements.ElementProc;
+import org.eclipse.jdt.compiler.apt.tests.processors.generics.GenericsProc;
+import org.eclipse.jdt.compiler.apt.tests.processors.visitors.VisitorProc;
 
 import junit.framework.TestCase;
 
 /**
- * 
+ * Tests of the type system implementation
  * @since 3.3
  */
 public class ModelTests extends TestCase {
-	
-	// See corresponding usages in the ElementProc class
-	private static final String ELEMENTPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.elements.ElementProc";
-	// See corresponding usages in the VisitorProc class
-	private static final String VISITORPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.visitors.VisitorProc";
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -45,7 +45,7 @@ public class ModelTests extends TestCase {
 	 */
 	public void testElementWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestElement(compiler);
+		internalTest(compiler, ElementProc.class);
 	}
 
 	/**
@@ -54,72 +54,68 @@ public class ModelTests extends TestCase {
 	 */
 	public void testElementWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestElement(compiler);
+		internalTest(compiler, ElementProc.class);
 	}
 
 	/**
-	 * Validate the testElement test against the javac compiler.
+	 * Validate the generics test against the javac compiler.
+	 * @throws IOException 
+	 */
+	public void testGenericsWithSystemCompiler() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, GenericsProc.class);
+	}
+
+	/**
+	 * Test handling of generic types.
+	 * @throws IOException 
+	 */
+	public void testGenericsWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, GenericsProc.class);
+	}
+
+	/**
+	 * Validate the visitors test against the javac compiler.
 	 * @throws IOException 
 	 */
 	public void testVisitorsWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestVisitors(compiler);
+		internalTest(compiler, VisitorProc.class);
 	}
 
 	/**
-	 * Attempt to read various elements of the Element hierarchy.
+	 * Test the Visitor method implementations.
 	 * @throws IOException 
 	 */
 	public void testVisitorsWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestVisitors(compiler);
+		internalTest(compiler, VisitorProc.class);
 	}
 
 	/**
-	 * Attempt to read various elements of the Element hierarchy.
+	 * Test functionality by running a particular processor against the types in
+	 * resources/targets.  The processor must support "*" (the set of all annotations) 
+	 * and must report its errors or success via the methods in BaseProcessor.
 	 * @throws IOException
 	 */
-	private void internalTestElement(JavaCompiler compiler) throws IOException {
-		System.clearProperty(ELEMENTPROCNAME);
+	private void internalTest(JavaCompiler compiler, Class<? extends Processor> processor) throws IOException {
+		System.clearProperty(processor.getName());
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "model");
 		BatchTestUtils.copyResources("targets/model", targetFolder);
 
 		List<String> options = new ArrayList<String>();
-		options.add("-A" + ELEMENTPROCNAME);
+		options.add("-A" + processor.getName());
 		BatchTestUtils.compileTree(compiler, options, targetFolder);
 
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
-		assertEquals("succeeded", System.getProperty(ELEMENTPROCNAME));
+		assertEquals("succeeded", System.getProperty(processor.getName()));
 	}
 
-	/**
-	 * Test Visitor functionality.
-	 * @throws IOException
-	 */
-	private void internalTestVisitors(JavaCompiler compiler) throws IOException {
-		System.clearProperty(VISITORPROCNAME);
-		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "model");
-		BatchTestUtils.copyResources("targets/model", targetFolder);
-
-		List<String> options = new ArrayList<String>();
-		options.add("-A" + VISITORPROCNAME);
-		BatchTestUtils.compileTree(compiler, options, targetFolder);
-
-		// If it succeeded, the processor will have set this property to "succeeded";
-		// if not, it will set it to an error value.
-		assertEquals("succeeded", System.getProperty(VISITORPROCNAME));
-	}
-
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#tearDown()
-	 */
 	@Override
 	protected void tearDown() throws Exception {
-		System.clearProperty(ELEMENTPROCNAME);
 		super.tearDown();
 	}
-	
-
 
 }
