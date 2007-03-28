@@ -37113,12 +37113,20 @@ public void test1119() {
 		new String[] {
 			"X.java",
 			"public class X<T extends Comparable<T> & Runnable> {\n" + 
-			"\n" + 
+			"	T get() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
 			"	public static void main(String[] args) {\n" + 
 			"		\n" + 
 			"		X<OnlyRunnable> x1 = null; // error\n" + 
 			"		X<OnlyComparable> x2 = null; // error\n" + 
 			"		X<ComparableRunnable> x3 = null; // ok\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	void foo(X<?> x) {\n" + 
+			"		x.get().run();\n" + 
+			"		x.get().compareTo(null);\n" + 
+			"		x.get().compareTo(x.get()); // error\n" + 
 			"	}\n" + 
 			"}\n" + 
 			"\n" + 
@@ -37127,15 +37135,20 @@ public void test1119() {
 			"abstract class ComparableRunnable implements Comparable<ComparableRunnable>, Runnable {}", // =================
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
 		"	X<OnlyRunnable> x1 = null; // error\n" + 
 		"	  ^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type OnlyRunnable is not a valid substitute for the bounded parameter <T extends Comparable<T> & Runnable> of the type X<T>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
 		"	X<OnlyComparable> x2 = null; // error\n" + 
 		"	  ^^^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type OnlyComparable is not a valid substitute for the bounded parameter <T extends Comparable<T> & Runnable> of the type X<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 15)\n" + 
+		"	x.get().compareTo(x.get()); // error\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"The method compareTo(capture#3-of ?) in the type Comparable<capture#3-of ?> is not applicable for the arguments (capture#4-of ?)\n" + 
 		"----------\n");		
 }
 }
