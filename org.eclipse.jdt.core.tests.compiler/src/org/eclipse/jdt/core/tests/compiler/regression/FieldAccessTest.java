@@ -192,6 +192,297 @@ public void test006() {
 		true,
 		options);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+public void test007() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	private void foo() {\n" + 
+			"		new A().a2.a.test = 8;\n" + 
+			"	}\n" + 
+			"}",
+			"A.java",
+			"class A {\n" + 
+			"	private int test;\n" + 
+			"	A a2;\n" + 
+			"	A a = new A();\n" + 
+			"}\n" + 
+			"\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	new A().a2.a.test = 8;\n" + 
+		"	             ^^^^\n" + 
+		"The field A.test is not visible\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+public void test008() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	private void foo() {\n" + 
+			"		new A().a2.a.test = 8;\n" + 
+			"	}\n" + 
+			"}",
+			"A.java",
+			"class A {\n" + 
+			"	int test;\n" + 
+			"	private A a2;\n" + 
+			"	A a = new A();\n" + 
+			"}\n" + 
+			"\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	new A().a2.a.test = 8;\n" + 
+		"	        ^^\n" + 
+		"The field A.a2 is not visible\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+public void test009() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	private void foo() {\n" + 
+			"		new A().a2.a.test = 8;\n" + 
+			"	}\n" + 
+			"}",
+			"A.java",
+			"class A {\n" + 
+			"	int test;\n" + 
+			"	A a2;\n" + 
+			"	private A a = new A();\n" + 
+			"}\n" + 
+			"\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	new A().a2.a.test = 8;\n" + 
+		"	           ^\n" + 
+		"The field A.a is not visible\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+public void test010() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	private void foo() {\n" + 
+			"		A.a2.a.test = 8;\n" + 
+			"	}\n" + 
+			"}",
+			"A.java",
+			"class A {\n" + 
+			"	static int test;\n" + 
+			"	static A a2;\n" + 
+			"	static private A a = new A();\n" + 
+			"}\n" + 
+			"\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	A.a2.a.test = 8;\n" + 
+		"	     ^\n" + 
+		"The field A.a is not visible\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+public void test011() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	private void foo() {\n" + 
+			"		A.a2.a.test = 8;\n" + 
+			"	}\n" + 
+			"}",
+			"A.java",
+			"class A {\n" + 
+			"	static int test;\n" + 
+			"	static private A a2;\n" + 
+			"	static A a = new A();\n" + 
+			"}\n" + 
+			"\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	A.a2.a.test = 8;\n" + 
+		"	  ^^\n" + 
+		"The field A.a2 is not visible\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+public void test012() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	private void foo() {\n" + 
+			"		A.a2.a.test = 8;\n" + 
+			"	}\n" + 
+			"}",
+			"A.java",
+			"class A {\n" + 
+			"	private static int test;\n" + 
+			"	static A a2;\n" + 
+			"	A a = new A();\n" + 
+			"}\n" + 
+			"\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	A.a2.a.test = 8;\n" + 
+		"	       ^^^^\n" + 
+		"The field A.test is not visible\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+public void test013() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends A {\n" + 
+			"	private void foo() {\n" + 
+			"		test = 8;\n" + 
+			"	}\n" + 
+			"}",
+			"A.java",
+			"class A {\n" + 
+			"	private int test;\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	test = 8;\n" + 
+		"	^^^^\n" + 
+		"The field A.test is not visible\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+public void test014() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends A {\n" + 
+			"	private void foo() {\n" + 
+			"		this.test = 8;\n" + 
+			"	}\n" + 
+			"}",
+			"A.java",
+			"class A {\n" + 
+			"	private int test;\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	this.test = 8;\n" + 
+		"	     ^^^^\n" + 
+		"The field A.test is not visible\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+public void test015() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends A {\n" + 
+			"	private void foo() {\n" + 
+			"		MyA.test = 8;\n" + 
+			"	}\n" + 
+			"}",
+			"A.java",
+			"class A {\n" + 
+			"	private static A MyA;\n" +
+			"	static int test;\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	MyA.test = 8;\n" + 
+		"	^^^\n" + 
+		"The field A.MyA is not visible\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179056
+public void test016() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends A {\n" + 
+			"	private void foo() {\n" + 
+			"		MyA2.MyA.test = 8;\n" + 
+			"	}\n" + 
+			"}",
+			"A.java",
+			"class A {\n" + 
+			"	private static A MyA;\n" +
+			"	static A MyA2;\n" +
+			"	static int test;\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	MyA2.MyA.test = 8;\n" + 
+		"	     ^^^\n" + 
+		"The field A.MyA is not visible\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
 public static Class testClass() {
 	return FieldAccessTest.class;
 }

@@ -2244,7 +2244,7 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 					new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.readableName())},
 					new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.shortReadableName())},
 					nodeSourceStart(field, importRef),
-					nodeSourceEnd(field, importRef));			
+					nodeSourceEnd(field, importRef));
 				return;
 			case ProblemReasons.Ambiguous :
 				id = IProblem.AmbiguousField;
@@ -2926,7 +2926,7 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 				new String[] {new String(name), new String(field.declaringClass.readableName())},
 				new String[] {new String(name), new String(field.declaringClass.shortReadableName())},
 				nodeSourceStart(field, nameRef),
-				nodeSourceEnd(field, nameRef));				
+				nodeSourceEnd(field, nameRef));
 			return;
 		case ProblemReasons.Ambiguous :
 			id = IProblem.AmbiguousField;
@@ -3004,7 +3004,7 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 				new String[] {fieldName, new String(field.declaringClass.readableName())},
 				new String[] {fieldName, new String(field.declaringClass.shortReadableName())},
 				nodeSourceStart(field, nameRef), 
-				nodeSourceEnd(field, nameRef));				
+				nodeSourceEnd(field, nameRef));
 			return;
 		case ProblemReasons.Ambiguous :
 			id = IProblem.AmbiguousField;
@@ -4781,7 +4781,7 @@ private int nodeSourceEnd(Binding field, ASTNode node, int index) {
 		}
 		FieldBinding[] otherFields = ref.otherBindings;
 		if (otherFields != null) {
-			int offset = ref.indexOfFirstFieldBinding == 1 ? 1 : ref.indexOfFirstFieldBinding - 1;
+			int offset = ref.indexOfFirstFieldBinding;
 			for (int i = 0, length = otherFields.length; i < length; i++) {
 				if (otherFields[i] == field)
 					return (int) (ref.sourcePositions[i + offset]);
@@ -4810,7 +4810,7 @@ private int nodeSourceStart(Binding field, ASTNode node) {
 		}
 		FieldBinding[] otherFields = ref.otherBindings;
 		if (otherFields != null) {
-			int offset = ref.indexOfFirstFieldBinding == 1 ? 1 : ref.indexOfFirstFieldBinding - 1;
+			int offset = ref.indexOfFirstFieldBinding;
 			for (int i = 0, length = otherFields.length; i < length; i++) {
 				if (otherFields[i] == field)
 					return (int) (ref.sourcePositions[i + offset] >> 32);
