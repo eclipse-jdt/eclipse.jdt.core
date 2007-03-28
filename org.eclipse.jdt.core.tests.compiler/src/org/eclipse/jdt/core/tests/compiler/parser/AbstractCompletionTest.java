@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 public abstract class AbstractCompletionTest extends AbstractCompilerTest {
 
 	public final static String NONE = "<NONE>";
+	public final static String NULL = "null";
 public AbstractCompletionTest(String testName){
 	super(testName);
 }
@@ -84,76 +85,15 @@ public void checkDietParse(
 
 	CompilationUnitDeclaration unit = parser.dietParse(sourceUnit, compilationResult, cursorLocation);
 
-	String computedCompletion = parser.assistNode == null 
-									? NONE
-									: parser.assistNode.toString();
-	String computedParentCompletion = parser.assistNodeParent == null 
-								? NONE
-								: parser.assistNodeParent.toString();
-	String computedUnitToString = unit.toString();
-	//System.out.println(computedUnitToString);
-	//System.out.println(Util.displayString(computedUnitToString));
-	//System.out.println(expectedUnitToString);
-	
-	if (!expectedCompletion.equals(computedCompletion)) {
-		System.out.println(Util.displayString(computedCompletion));
-	}
-	assertEquals(
-		"invalid completion node-" + testName,
-		expectedCompletion,
-		computedCompletion);
-	
-	if(expectedParentCompletion != null) {
-		if (!expectedParentCompletion.equals(computedParentCompletion)) {
-			System.out.println(Util.displayString(computedParentCompletion));
-		}
-		assertEquals(
-		"invalid completion parent node-" + testName,
-		expectedParentCompletion,
-		computedParentCompletion);
-	}
-
-	if (!expectedUnitToString.equals(computedUnitToString)) {
-		System.out.println(Util.displayString(computedUnitToString));
-	}
-	assertEquals(
-		"invalid completion tree-" + testName,
-		expectedUnitToString,
-		computedUnitToString);
-	
-	if (expectedCompletionIdentifier != null){
-		char[] chars = ((CompletionScanner)parser.scanner).completionIdentifier;
-		String computedCompletionIdentifier = chars == null ? NONE : new String(chars);
-		assertEquals(
-			"invalid completion identifier-" + testName,
+	checkParse(
+			expectedCompletion,
+			expectedParentCompletion,
+			expectedUnitToString,
 			expectedCompletionIdentifier,
-			computedCompletionIdentifier);
-	}
-	
-	if (expectedReplacedSource != null){
-		char[] chars = null;
-		if (parser.assistNode != null){
-			chars = CharOperation.subarray(
-				parser.scanner.source, 
-				parser.assistNode.sourceStart, 
-				parser.assistNode.sourceEnd + 1);
-		} else {
-			if (parser.assistIdentifier() != null){
-				if (((CompletionScanner)parser.scanner).completedIdentifierEnd 
-					>= ((CompletionScanner)parser.scanner).completedIdentifierStart){
-					chars = CharOperation.subarray(
-						parser.scanner.source, 
-						((CompletionScanner)parser.scanner).completedIdentifierStart, 
-						((CompletionScanner)parser.scanner).completedIdentifierEnd + 1);
-				}
-			}
-		}
-		String computedReplacedSource  = chars == null ? NONE : new String(chars);
-		assertEquals(
-			"invalid replaced source-" + testName,
 			expectedReplacedSource,
-			computedReplacedSource);
-	}
+			testName,
+			parser,
+			unit);
 }
 /*
  * Parse a method with completionNode check
@@ -193,111 +133,36 @@ public void checkMethodParse(
 			}
 		}
 	}
-	assertTrue("no method found at cursor location", foundMethod != null);
-	if (foundMethod instanceof AbstractMethodDeclaration) {
-		parser.parseBlockStatements((AbstractMethodDeclaration)foundMethod, unit);
-	} else {
-		TypeDeclaration type = (TypeDeclaration)foundMethod;
-		if (type.fields != null) {
-			for (int i = 0; i < type.fields.length; i++) {
-				FieldDeclaration field = type.fields[i];
-				if (field.declarationSourceStart <= cursorLocation && (cursorLocation <= field.declarationSourceEnd || field.declarationSourceEnd == 0)) {
-					if (field instanceof Initializer) {
-						parser.parseBlockStatements((Initializer)field, type, unit);
-						break;
+	
+	if (foundMethod != null) {
+		if (foundMethod instanceof AbstractMethodDeclaration) {
+			parser.parseBlockStatements((AbstractMethodDeclaration)foundMethod, unit);
+		} else {
+			TypeDeclaration type = (TypeDeclaration)foundMethod;
+			if (type.fields != null) {
+				done : for (int i = 0; i < type.fields.length; i++) {
+					FieldDeclaration field = type.fields[i];
+					if (field.declarationSourceStart <= cursorLocation && (cursorLocation <= field.declarationSourceEnd || field.declarationSourceEnd == 0)) {
+						if (field instanceof Initializer) {
+							parser.parseBlockStatements((Initializer)field, type, unit);
+							break;
+						}
+						break done; // field initializer
 					}
-					assertTrue("TBD", false); // field initializer
 				}
 			}
 		}
 	}
 	
-	String computedCompletion = parser.assistNode == null 
-								? NONE
-								: parser.assistNode.toString();
-	String computedParentCompletion = parser.assistNodeParent == null 
-								? NONE
-								: parser.assistNodeParent.toString();
-	String computedUnitToString = unit.toString();
-
-	if (!expectedCompletion.equals(computedCompletion)) {
-		System.out.println(Util.displayString(computedCompletion));
-	}
-	assertEquals(
-		"invalid completion node-" + testName,
-		expectedCompletion,
-		computedCompletion);
-		
-	if(expectedParentCompletion != null) {
-		if (!expectedParentCompletion.equals(computedParentCompletion)) {
-			System.out.println(Util.displayString(computedParentCompletion));
-		}
-		assertEquals(
-		"invalid completion parent node-" + testName,
-		expectedParentCompletion,
-		computedParentCompletion);
-	}
-
-	if (!expectedUnitToString.equals(computedUnitToString)) {
-		System.out.println(Util.displayString(computedUnitToString));
-	}
-	assertEquals(
-		"invalid completion location-"+testName,
-		expectedUnitToString,
-		computedUnitToString);
-
-	if (expectedCompletionIdentifier != null){
-		char[] chars = ((CompletionScanner)parser.scanner).completionIdentifier;
-		String computedCompletionIdentifier = chars == null ? NONE : new String(chars);
-		if (!expectedCompletionIdentifier.equals(computedCompletionIdentifier)) {
-			System.out.println(Util.displayString(computedCompletionIdentifier));
-		}
-		assertEquals(
-			"invalid completion identifier-" + testName,
+	checkParse(
+			expectedCompletion,
+			expectedParentCompletion,
+			expectedUnitToString,
 			expectedCompletionIdentifier,
-			computedCompletionIdentifier);
-	}
-	if (expectedReplacedSource != null){
-		char[] chars = null;
-		if (parser.assistNode != null){
-			chars = CharOperation.subarray(
-				parser.scanner.source, 
-				parser.assistNode.sourceStart, 
-				parser.assistNode.sourceEnd + 1);
-		} else {
-			if (parser.assistIdentifier() != null){
-				if (((CompletionScanner)parser.scanner).completedIdentifierEnd 
-					>= ((CompletionScanner)parser.scanner).completedIdentifierStart){
-					chars = CharOperation.subarray(
-						parser.scanner.source, 
-						((CompletionScanner)parser.scanner).completedIdentifierStart, 
-						((CompletionScanner)parser.scanner).completedIdentifierEnd + 1);
-				}
-			}
-		}
-		String computedReplacedSource  = chars == null ? NONE : new String(chars);
-		if (!expectedReplacedSource.equals(computedReplacedSource)) {
-			System.out.println(Util.displayString(computedReplacedSource));
-		}
-		assertEquals(
-			"invalid replaced source-" + testName,
 			expectedReplacedSource,
-			computedReplacedSource);
-		if (expectedReplacedSource.length() == 0) {
-			assertEquals(
-				"invalid insertion point-" + testName,
-				cursorLocation + 1, 
-				parser.assistNode.sourceStart);
-		}
-	}
-	if (expectedLabels != null) {
-//		int length = (parser.labels == null) ? 0 : parser.labels.length;
-//		assertEquals("invalid number of labels-" + testName, expectedLabels.length, length);
-//		for (int i = 0; i < length; i++) {
-//			String label = new String(parser.labels[i]);
-//			assertEquals("invalid label-" + testName, expectedLabels[i], label);
-//		}
-	}
+			testName,
+			parser,
+			unit);
 }
 /*
  * Parse a method with completionNode check
@@ -369,6 +234,105 @@ public void checkMethodParse(
 		expectedReplacedSource,
 		expectedLabels,
 		testName);
+}
+private void checkParse(
+		String expectedCompletion,
+		String expectedParentCompletion,
+		String expectedUnitToString,
+		String expectedCompletionIdentifier,
+		String expectedReplacedSource,
+		String testName,
+		CompletionParser parser,
+		CompilationUnitDeclaration unit) {
+	String computedCompletion = parser.assistNode == null 
+									? NONE
+									: parser.assistNode.toString();
+	
+	String computedParentCompletion = NULL;
+	if (expectedParentCompletion != null) {
+		computedParentCompletion = parser.assistNodeParent == null 
+								? NONE
+								: parser.assistNodeParent.toString();
+	}
+	
+	String computedUnitToString = unit.toString();
+	//System.out.println(computedUnitToString);
+	//System.out.println(Util.displayString(computedUnitToString));
+	//System.out.println(expectedUnitToString);
+	
+	if (!expectedCompletion.equals(computedCompletion)) {
+		System.out.println(Util.displayString(computedCompletion));
+	}
+	
+	if(expectedParentCompletion != null) {
+		if (!expectedParentCompletion.equals(computedParentCompletion)) {
+			System.out.println(Util.displayString(computedParentCompletion));
+		}
+	}
+
+	if (!expectedUnitToString.equals(computedUnitToString)) {
+		System.out.println(Util.displayString(computedUnitToString));
+	}
+	
+	String computedCompletionIdentifier = NULL;
+	if (expectedCompletionIdentifier != null){
+		char[] chars = ((CompletionScanner)parser.scanner).completionIdentifier;
+		computedCompletionIdentifier = chars == null ? NONE : new String(chars);
+	}
+	
+	String computedReplacedSource = NULL;
+	if (expectedReplacedSource != null){
+		char[] chars = null;
+		if (parser.assistNode != null){
+			chars = CharOperation.subarray(
+				parser.scanner.source, 
+				parser.assistNode.sourceStart, 
+				parser.assistNode.sourceEnd + 1);
+		} else {
+			if (parser.assistIdentifier() != null){
+				if (((CompletionScanner)parser.scanner).completedIdentifierEnd 
+					>= ((CompletionScanner)parser.scanner).completedIdentifierStart){
+					chars = CharOperation.subarray(
+						parser.scanner.source, 
+						((CompletionScanner)parser.scanner).completedIdentifierStart, 
+						((CompletionScanner)parser.scanner).completedIdentifierEnd + 1);
+				}
+			}
+		}
+		computedReplacedSource  = chars == null ? NONE : new String(chars);
+	}
+	assertEquals(
+			testName,
+			concatResults(
+					expectedCompletion,
+					expectedParentCompletion,
+					expectedUnitToString,
+					expectedCompletionIdentifier,
+					expectedReplacedSource),
+			concatResults(computedCompletion,
+					computedParentCompletion,
+					computedUnitToString,
+					computedCompletionIdentifier,
+					computedReplacedSource));
+}
+private String concatResults(
+		String completionNode, 
+		String parentCompletionNode,
+		String unitToString, 
+		String completionIdentifier,
+		String replacedSource) {
+	StringBuffer buffer = new StringBuffer();
+	buffer.append("### Completion node ###\n");
+	buffer.append(completionNode);
+	buffer.append("\n### Parent completion node ###\n");
+	buffer.append(parentCompletionNode);
+	buffer.append("\n### Completed identifier ###\n");
+	buffer.append(completionIdentifier);
+	buffer.append("\n### Replaced source ###\n");
+	buffer.append(replacedSource);
+	buffer.append("\n### Completed unit ###\n");
+	buffer.append(unitToString);
+	return buffer.toString();
 }
 /*
  * Returns the method, the constructor or the type declaring the initializer

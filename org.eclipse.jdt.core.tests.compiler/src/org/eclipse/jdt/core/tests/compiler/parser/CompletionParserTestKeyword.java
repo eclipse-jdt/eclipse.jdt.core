@@ -665,7 +665,7 @@ public void test0020(){
 /*
  * Test for 'abstract' keyword.
  */
-public void test0021(){
+public void test0021_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -699,20 +699,35 @@ public void test0021(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:abst>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "abst";
-	expectedReplacedSource = "abst";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'abstract' keyword.
+ */
+public void test0021_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:abst>;\n" +
+		"  void foo(){\n" +
+		"    abst\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "abst";
+	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:abst>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "abst";
+	String expectedReplacedSource = "abst";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:abst>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -727,7 +742,7 @@ public void test0021(){
 /*
  * Test for 'abstract' keyword.
  */
-public void test0022(){
+public void test0022_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -761,20 +776,35 @@ public void test0022(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:abst>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "abst";
-	expectedReplacedSource = "abst";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'abstract' keyword.
+ */
+public void test0022_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:abst>;\n" +
+		"  void foo(){\n" +
+		"    abst zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "abst";
+	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:abst>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "abst";
+	String expectedReplacedSource = "abst";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:abst>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -789,7 +819,7 @@ public void test0022(){
 /*
  * Test for 'break' keyword.
  */
-public void test0023(){
+public void test0023_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -823,20 +853,35 @@ public void test0023(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:bre>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "bre";
-	expectedReplacedSource = "bre";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'break' keyword.
+ */
+public void test0023_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:bre>;\n" +
+		"  void foo(){\n" +
+		"    bre\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "bre";
+	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:bre>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "bre";
+	String expectedReplacedSource = "bre";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:bre>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -851,7 +896,7 @@ public void test0023(){
 /*
  * Test for 'break' keyword.
  */
-public void test0024(){
+public void test0024_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -887,23 +932,40 @@ public void test0024(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:bre>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "bre";
-	expectedReplacedSource = "bre";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'break' keyword.
+ */
+public void test0024_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    {\n" +
-		"      <CompleteOnName:bre>;\n" +
+		"  void foo(){\n" +
+		"    for(int i; i < 10; i++) {\n" +
+		"      bre\n" +
 		"    }\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "bre";
+	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:bre>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "bre";
+	String expectedReplacedSource = "bre";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    int i;\n" +
+			"    {\n" +
+			"      <CompleteOnName:bre>;\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -918,7 +980,7 @@ public void test0024(){
 /*
  * Test for 'case' keyword.
  */
-public void test0025(){
+public void test0025_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -952,20 +1014,35 @@ public void test0025(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cas>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cas";
-	expectedReplacedSource = "cas";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'case' keyword.
+ */
+public void test0025_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:cas>;\n" +
+		"  void foo(){\n" +
+		"    cas\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "cas";
+	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cas>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cas";
+	String expectedReplacedSource = "cas";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cas>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -980,7 +1057,7 @@ public void test0025(){
 /*
  * Test for 'case' keyword.
  */
-public void test0026(){
+public void test0026_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -1016,20 +1093,37 @@ public void test0026(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:cas>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cas";
-	expectedReplacedSource = "cas";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'case' keyword.
+ */
+public void test0026_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnKeyword:cas>;\n" +
+		"  void foo(){\n" +
+		"    switch(0) {\n" +
+		"      cas\n" +
+		"    }\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "cas";
+	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:cas>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cas";
+	String expectedReplacedSource = "cas";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnKeyword:cas>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1044,7 +1138,7 @@ public void test0026(){
 /*
  * Test for 'catch' keyword.
  */
-public void test0027(){
+public void test0027_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -1078,20 +1172,35 @@ public void test0027(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cat>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cat";
-	expectedReplacedSource = "cat";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'catch' keyword.
+ */
+public void test0027_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:cat>;\n" +
+		"  void foo(){\n" +
+		"     cat\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "cat";
+	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cat>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cat";
+	String expectedReplacedSource = "cat";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cat>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1106,7 +1215,7 @@ public void test0027(){
 /*
  * Test for 'catch' keyword.
  */
-public void test0028(){
+public void test0028_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -1141,20 +1250,36 @@ public void test0028(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:cat>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cat";
-	expectedReplacedSource = "cat";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'catch' keyword.
+ */
+public void test0028_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnKeyword:cat>;\n" +
+		"  void foo(){\n" +
+		"    try {\n" +
+		"    } cat\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "cat";
+	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:cat>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cat";
+	String expectedReplacedSource = "cat";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnKeyword:cat>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1409,7 +1534,7 @@ public void test0036(){
 /*
  * Test for 'class' keyword.
  */
-public void test0037(){
+public void test0037_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -1441,19 +1566,33 @@ public void test0037(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cla>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cla";
-	expectedReplacedSource = "cla";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'class' keyword.
+ */
+public void test0037_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:cla>;\n" +
+		"    cla\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "cla";
+	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cla>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cla";
+	String expectedReplacedSource = "cla";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cla>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1468,7 +1607,7 @@ public void test0037(){
 /*
  * Test for 'class' keyword.
  */
-public void test0038(){
+public void test0038_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -1500,19 +1639,33 @@ public void test0038(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cla>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cla";
-	expectedReplacedSource = "cla";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'class' keyword.
+ */
+public void test0038_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:cla>;\n" +
+		"    final cla\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "cla";
+	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cla>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cla";
+	String expectedReplacedSource = "cla";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cla>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1527,7 +1680,7 @@ public void test0038(){
 /*
  * Test for 'class' keyword.
  */
-public void test0039(){
+public void test0039_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -1559,19 +1712,33 @@ public void test0039(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cla>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cla";
-	expectedReplacedSource = "cla";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'class' keyword.
+ */
+public void test0039_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:cla>;\n" +
+		"    final cla Y\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "cla";
+	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cla>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cla";
+	String expectedReplacedSource = "cla";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cla>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1586,7 +1753,7 @@ public void test0039(){
 /*
  * Test for 'continue' keyword.
  */
-public void test0040(){
+public void test0040_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -1620,20 +1787,35 @@ public void test0040(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:con>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "con";
-	expectedReplacedSource = "con";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'continue' keyword.
+ */
+public void test0040_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:con>;\n" +
+		"  void foo(){\n" +
+		"     con\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "con";
+	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:con>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "con";
+	String expectedReplacedSource = "con";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:con>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1648,7 +1830,7 @@ public void test0040(){
 /*
  * Test for 'continue' keyword.
  */
-public void test0041(){
+public void test0041_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -1684,23 +1866,40 @@ public void test0041(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:con>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "con";
-	expectedReplacedSource = "con";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'continue' keyword.
+ */
+public void test0041_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    {\n" +
-		"      <CompleteOnName:con>;\n" +
-		"    }\n" +
+		"  void foo(){\n" +
+		"     for(int i; i < 5; i++) {\n" +
+		"       con\n" +
+		"     }\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "con";
+	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:con>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "con";
+	String expectedReplacedSource = "con";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    int i;\n" +
+			"    {\n" +
+			"      <CompleteOnName:con>;\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1715,7 +1914,7 @@ public void test0041(){
 /*
  * Test for 'default' keyword.
  */
-public void test0042(){
+public void test0042_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -1749,20 +1948,35 @@ public void test0042(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:def>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "def";
-	expectedReplacedSource = "def";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'default' keyword.
+ */
+public void test0042_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:def>;\n" +
+		"  void foo(){\n" +
+		"     def\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "def";
+	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:def>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "def";
+	String expectedReplacedSource = "def";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:def>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1777,7 +1991,7 @@ public void test0042(){
 /*
  * Test for 'default' keyword.
  */
-public void test0043(){
+public void test0043_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -1814,22 +2028,40 @@ public void test0043(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:def>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "def";
-	expectedReplacedSource = "def";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'default' keyword.
+ */
+public void test0043_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    {\n" +
-		"      <CompleteOnName:def>;\n" +
-		"    }\n" +
+		"  void foo(){\n" +
+		"     switch(0) {\n" +
+		"       case 1 : break;\n" +
+		"       def\n" +
+		"     }\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "def";
+	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:def>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "def";
+	String expectedReplacedSource = "def";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    {\n" +
+			"      <CompleteOnName:def>;\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1844,7 +2076,7 @@ public void test0043(){
 /*
  * Test for 'do' keyword.
  */
-public void test0044(){
+public void test0044_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -1878,20 +2110,35 @@ public void test0044(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:do>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "do";
-	expectedReplacedSource = "do";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'do' keyword.
+ */
+public void test0044_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:do>;\n" +
+		"  void foo(){\n" +
+		"     do\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "do";
+	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:do>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "do";
+	String expectedReplacedSource = "do";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:do>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1906,7 +2153,7 @@ public void test0044(){
 /*
  * Test for 'else' keyword.
  */
-public void test0045(){
+public void test0045_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -1940,20 +2187,35 @@ public void test0045(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:els>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "els";
-	expectedReplacedSource = "els";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'else' keyword.
+ */
+public void test0045_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:els>;\n" +
+		"  void foo(){\n" +
+		"     els\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "els";
+	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:els>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "els";
+	String expectedReplacedSource = "els";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:els>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1968,7 +2230,7 @@ public void test0045(){
 /*
  * Test for 'else' keyword.
  */
-public void test0046(){
+public void test0046_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -2003,20 +2265,36 @@ public void test0046(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:els>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "els";
-	expectedReplacedSource = "els";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'else' keyword.
+ */
+public void test0046_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:els>;\n" +
+		"  void foo(){\n" +
+		"     if(true) {\n" +
+		"     } els\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "els";
+	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:els>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "els";
+	String expectedReplacedSource = "els";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:els>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2264,7 +2542,7 @@ public void test0054(){
 /*
  * Test for 'finally' keyword.
  */
-public void test0055(){
+public void test0055_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -2298,20 +2576,35 @@ public void test0055(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:fin>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "fin";
-	expectedReplacedSource = "fin";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'finally' keyword.
+ */
+public void test0055_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:fin>;\n" +
+		"  void foo(){\n" +
+		"     fin" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "fin";
+	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:fin>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "fin";
+	String expectedReplacedSource = "fin";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:fin>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2326,7 +2619,7 @@ public void test0055(){
 /*
  * Test for 'finally' keyword.
  */
-public void test0056(){
+public void test0056_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -2361,20 +2654,36 @@ public void test0056(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:fin>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "fin";
-	expectedReplacedSource = "fin";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'finally' keyword.
+ */
+public void test0056_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnKeyword:fin>;\n" +
+		"  void foo(){\n" +
+		"     try {" +
+		"     } fin" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "fin";
+	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:fin>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "fin";
+	String expectedReplacedSource = "fin";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnKeyword:fin>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2389,7 +2698,7 @@ public void test0056(){
 /*
  * Test for 'for' keyword.
  */
-public void test0057(){
+public void test0057_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -2423,20 +2732,35 @@ public void test0057(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:for>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "for";
-	expectedReplacedSource = "for";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'for' keyword.
+ */
+public void test0057_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:for>;\n" +
+		"  void foo(){\n" +
+		"     for" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "for";
+	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:for>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "for";
+	String expectedReplacedSource = "for";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:for>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2451,7 +2775,7 @@ public void test0057(){
 /*
  * Test for 'if' keyword.
  */
-public void test0058(){
+public void test0058_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -2485,20 +2809,35 @@ public void test0058(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:if>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "if";
-	expectedReplacedSource = "if";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'if' keyword.
+ */
+public void test0058_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:if>;\n" +
+		"  void foo(){\n" +
+		"     if" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "if";
+	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:if>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "if";
+	String expectedReplacedSource = "if";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:if>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2513,7 +2852,7 @@ public void test0058(){
 /*
  * Test for 'switch' keyword.
  */
-public void test0059(){
+public void test0059_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -2547,20 +2886,35 @@ public void test0059(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:swi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "swi";
-	expectedReplacedSource = "swi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'switch' keyword.
+ */
+public void test0059_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:swi>;\n" +
+		"  void foo(){\n" +
+		"     swi" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "swi";
+	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:swi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "swi";
+	String expectedReplacedSource = "swi";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:swi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3162,7 +3516,7 @@ public void test0079(){
 /*
  * Test for 'interface' keyword.
  */
-public void test0080(){
+public void test0080_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -3194,19 +3548,33 @@ public void test0080(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:int>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "int";
-	expectedReplacedSource = "int";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'interface' keyword.
+ */
+public void test0080_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:int>;\n" +
+		"    int\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "int";
+	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:int>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "int";
+	String expectedReplacedSource = "int";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:int>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3221,7 +3589,7 @@ public void test0080(){
 /*
  * Test for 'interface' keyword.
  */
-public void test0081(){
+public void test0081_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -3253,19 +3621,33 @@ public void test0081(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:int>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "int";
-	expectedReplacedSource = "int";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'interface' keyword.
+ */
+public void test0081_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:int>;\n" +
+		"    abstract int\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "int";
+	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:int>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "int";
+	String expectedReplacedSource = "int";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:int>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3280,7 +3662,7 @@ public void test0081(){
 /*
  * Test for 'interface' keyword.
  */
-public void test0082(){
+public void test0082_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -3312,19 +3694,33 @@ public void test0082(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:int>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "int";
-	expectedReplacedSource = "int";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'interface' keyword.
+ */
+public void test0082_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:int>;\n" +
+		"    abstract int Y\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "int";
+	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:int>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "int";
+	String expectedReplacedSource = "int";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:int>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3537,7 +3933,7 @@ public void test0089(){
 /*
  * Test for 'return' keyword.
  */
-public void test0090(){
+public void test0090_Diet(){
 	String str =
 		"public class X {\n" +
 		"  int foo() {\n" +
@@ -3569,19 +3965,33 @@ public void test0090(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ret>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ret";
-	expectedReplacedSource = "ret";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'return' keyword.
+ */
+public void test0090_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  int foo() {\n" +
-		"    <CompleteOnName:ret>;\n" +
+		"    ret\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "ret";
+	int cursorLocation = str.lastIndexOf("ret") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:ret>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ret";
+	String expectedReplacedSource = "ret";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  int foo() {\n" +
+			"    <CompleteOnName:ret>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3596,7 +4006,7 @@ public void test0090(){
 /*
  * Test for 'throw' keyword.
  */
-public void test0091(){
+public void test0091_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -3628,19 +4038,33 @@ public void test0091(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:thr>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "thr";
-	expectedReplacedSource = "thr";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'throw' keyword.
+ */
+public void test0091_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:thr>;\n" +
+		"    thr\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "thr";
+	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:thr>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "thr";
+	String expectedReplacedSource = "thr";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:thr>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3655,7 +4079,7 @@ public void test0091(){
 /*
  * Test for 'try' keyword.
  */
-public void test0092(){
+public void test0092_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -3687,19 +4111,33 @@ public void test0092(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:try>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "try";
-	expectedReplacedSource = "try";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'try' keyword.
+ */
+public void test0092_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:try>;\n" +
+		"    try\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "try";
+	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:try>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "try";
+	String expectedReplacedSource = "try";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:try>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3714,7 +4152,7 @@ public void test0092(){
 /*
  * Test for 'try' keyword.
  */
-public void test0093(){
+public void test0093_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -3746,19 +4184,33 @@ public void test0093(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:try>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "try";
-	expectedReplacedSource = "try";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'try' keyword.
+ */
+public void test0093_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:try>;\n" +
+		"    if(try\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "try";
+	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:try>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "try";
+	String expectedReplacedSource = "try";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:try>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3773,7 +4225,7 @@ public void test0093(){
 /*
  * Test for 'do' keyword.
  */
-public void test0094(){
+public void test0094_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -3805,19 +4257,33 @@ public void test0094(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:do>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "do";
-	expectedReplacedSource = "do";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'do' keyword.
+ */
+public void test0094_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:do>;\n" +
+		"    if(do\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "do";
+	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:do>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "do";
+	String expectedReplacedSource = "do";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:do>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3832,7 +4298,7 @@ public void test0094(){
 /*
  * Test for 'for' keyword.
  */
-public void test0095(){
+public void test0095_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -3864,19 +4330,33 @@ public void test0095(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:for>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "for";
-	expectedReplacedSource = "for";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'for' keyword.
+ */
+public void test0095_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:for>;\n" +
+		"    if(for\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "for";
+	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:for>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "for";
+	String expectedReplacedSource = "for";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:for>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3891,7 +4371,7 @@ public void test0095(){
 /*
  * Test for 'if' keyword.
  */
-public void test0096(){
+public void test0096_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -3923,19 +4403,33 @@ public void test0096(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:if>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "if";
-	expectedReplacedSource = "if";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'if' keyword.
+ */
+public void test0096_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:if>;\n" +
+		"    if(if\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "if";
+	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:if>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "if";
+	String expectedReplacedSource = "if";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:if>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3950,7 +4444,7 @@ public void test0096(){
 /*
  * Test for 'switch' keyword.
  */
-public void test0097(){
+public void test0097_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -3982,19 +4476,33 @@ public void test0097(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:swi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "swi";
-	expectedReplacedSource = "swi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'switch' keyword.
+ */
+public void test0097_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:swi>;\n" +
+		"    if(swi\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "swi";
+	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:swi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "swi";
+	String expectedReplacedSource = "swi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:swi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4009,7 +4517,7 @@ public void test0097(){
 /*
  * Test for 'new' keyword.
  */
-public void test0098(){
+public void test0098_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -4041,19 +4549,33 @@ public void test0098(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:new>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "new";
-	expectedReplacedSource = "new";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'new' keyword.
+ */
+public void test0098_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:new>;\n" +
+		"    new\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "new";
+	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:new>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "new";
+	String expectedReplacedSource = "new";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:new>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4068,7 +4590,7 @@ public void test0098(){
 /*
  * Test for 'new' keyword.
  */
-public void test0099(){
+public void test0099_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -4100,19 +4622,33 @@ public void test0099(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:new>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "new";
-	expectedReplacedSource = "new";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'new' keyword.
+ */
+public void test0099_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:new>;\n" +
+		"    new X\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "new";
+	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:new>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "new";
+	String expectedReplacedSource = "new";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:new>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4127,7 +4663,7 @@ public void test0099(){
 /*
  * Test for 'new' keyword.
  */
-public void test0100(){
+public void test0100_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -4159,19 +4695,33 @@ public void test0100(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:new>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "new";
-	expectedReplacedSource = "new";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'new' keyword.
+ */
+public void test0100_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:new>;\n" +
+		"    new X()\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "new";
+	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:new>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "new";
+	String expectedReplacedSource = "new";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:new>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4394,7 +4944,7 @@ public void test0106(){
 /*
  * Test for 'while' keyword.
  */
-public void test0107(){
+public void test0107_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -4426,19 +4976,33 @@ public void test0107(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:whi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "whi";
-	expectedReplacedSource = "whi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'while' keyword.
+ */
+public void test0107_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:whi>;\n" +
+		"    whi\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "whi";
+	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:whi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "whi";
+	String expectedReplacedSource = "whi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:whi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4453,7 +5017,7 @@ public void test0107(){
 /*
  * Test for 'while' keyword.
  */
-public void test0108(){
+public void test0108_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -4485,19 +5049,33 @@ public void test0108(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:whi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "whi";
-	expectedReplacedSource = "whi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'while' keyword.
+ */
+public void test0108_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:whi>;\n" +
+		"    if(whi\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "whi";
+	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:whi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "whi";
+	String expectedReplacedSource = "whi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:whi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4512,7 +5090,7 @@ public void test0108(){
 /*
  * Test for 'assert' keyword.
  */
-public void test0109(){
+public void test0109_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -4544,19 +5122,33 @@ public void test0109(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ass>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ass";
-	expectedReplacedSource = "ass";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'assert' keyword.
+ */
+public void test0109_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:ass>;\n" +
+		"    ass\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "ass";
+	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:ass>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ass";
+	String expectedReplacedSource = "ass";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:ass>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4571,7 +5163,7 @@ public void test0109(){
 /*
  * Test for 'assert' keyword.
  */
-public void test0110(){
+public void test0110_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -4603,19 +5195,33 @@ public void test0110(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ass>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ass";
-	expectedReplacedSource = "ass";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'assert' keyword.
+ */
+public void test0110_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:ass>;\n" +
+		"    if(ass\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "ass";
+	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:ass>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ass";
+	String expectedReplacedSource = "ass";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:ass>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5786,7 +6392,7 @@ public void test0146(){
 /*
  * Test for 'synchronized' keyword.
  */
-public void test0147(){
+public void test0147_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -5818,19 +6424,33 @@ public void test0147(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:syn>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "syn";
-	expectedReplacedSource = "syn";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'synchronized' keyword.
+ */
+public void test0147_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:syn>;\n" +
+		"    syn\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "syn";
+	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:syn>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "syn";
+	String expectedReplacedSource = "syn";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:syn>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5845,7 +6465,7 @@ public void test0147(){
 /*
  * Test for 'synchronized' keyword.
  */
-public void test0148(){
+public void test0148_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -5877,19 +6497,33 @@ public void test0148(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:syn>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "syn";
-	expectedReplacedSource = "syn";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'synchronized' keyword.
+ */
+public void test0148_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:syn>;\n" +
+		"    if(syn\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "syn";
+	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:syn>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "syn";
+	String expectedReplacedSource = "syn";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:syn>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -6885,7 +7519,7 @@ public void test0180(){
 /*
  * Test for 'super' keyword.
  */
-public void test0181(){
+public void test0181_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -6917,19 +7551,33 @@ public void test0181(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:sup>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "sup";
-	expectedReplacedSource = "sup";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'super' keyword.
+ */
+public void test0181_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:sup>;\n" +
+		"  void foo(){\n" +
+		"     sup\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "sup";
+	int cursorLocation = str.lastIndexOf("sup") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:sup>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "sup";
+	String expectedReplacedSource = "sup";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:sup>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -6944,7 +7592,7 @@ public void test0181(){
 /*
  * Test for 'this' keyword.
  */
-public void test0182(){
+public void test0182_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -6976,19 +7624,33 @@ public void test0182(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:thi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "thi";
-	expectedReplacedSource = "thi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'this' keyword.
+ */
+public void test0182_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:thi>;\n" +
+		"  void foo(){\n" +
+		"     thi\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "thi";
+	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:thi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "thi";
+	String expectedReplacedSource = "thi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:thi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7003,7 +7665,7 @@ public void test0182(){
 /*
  * Test for 'true' keyword.
  */
-public void test0183(){
+public void test0183_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7035,19 +7697,33 @@ public void test0183(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:tru>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "tru";
-	expectedReplacedSource = "tru";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'true' keyword.
+ */
+public void test0183_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:tru>;\n" +
+		"  void foo(){\n" +
+		"     tru\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "tru";
+	int cursorLocation = str.lastIndexOf("tru") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:tru>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "tru";
+	String expectedReplacedSource = "tru";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:tru>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7062,7 +7738,7 @@ public void test0183(){
 /*
  * Test for 'false' keyword.
  */
-public void test0184(){
+public void test0184_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7094,19 +7770,33 @@ public void test0184(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:fal>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "fal";
-	expectedReplacedSource = "fal";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'false' keyword.
+ */
+public void test0184_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:fal>;\n" +
+		"  void foo(){\n" +
+		"     fal\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "fal";
+	int cursorLocation = str.lastIndexOf("fal") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:fal>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "fal";
+	String expectedReplacedSource = "fal";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:fal>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7121,7 +7811,7 @@ public void test0184(){
 /*
  * Test for 'null' keyword.
  */
-public void test0185(){
+public void test0185_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7153,19 +7843,33 @@ public void test0185(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:nul>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "nul";
-	expectedReplacedSource = "nul";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'null' keyword.
+ */
+public void test0185_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:nul>;\n" +
+		"  void foo(){\n" +
+		"     nul\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "nul";
+	int cursorLocation = str.lastIndexOf("nul") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:nul>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "nul";
+	String expectedReplacedSource = "nul";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:nul>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7180,7 +7884,7 @@ public void test0185(){
 /*
  * Test for 'instanceof' keyword.
  */
-public void test0186(){
+public void test0186_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7212,19 +7916,33 @@ public void test0186(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:ins>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ins";
-	expectedReplacedSource = "ins";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'instanceof' keyword.
+ */
+public void test0186_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnKeyword:ins>;\n" +
+		"  void foo(){\n" +
+		"     if(zzz ins\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "ins";
+	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ins>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ins";
+	String expectedReplacedSource = "ins";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnKeyword:ins>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7239,7 +7957,7 @@ public void test0186(){
 /*
  * Test for 'instanceof' keyword.
  */
-public void test0187(){
+public void test0187_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7271,19 +7989,33 @@ public void test0187(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ins>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ins";
-	expectedReplacedSource = "ins";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'instanceof' keyword.
+ */
+public void test0187_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:ins>;\n" +
+		"  void foo(){\n" +
+		"     ins\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "ins";
+	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:ins>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ins";
+	String expectedReplacedSource = "ins";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:ins>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7298,7 +8030,7 @@ public void test0187(){
 /*
  * Test for 'instanceof' keyword.
  */
-public void test0188(){
+public void test0188_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7330,20 +8062,34 @@ public void test0188(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ins>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ins";
-	expectedReplacedSource = "ins";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'instanceof' keyword.
+ */
+public void test0188_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    zzz zzz;\n" +
-		"    <CompleteOnName:ins>;\n" +
+		"  void foo(){\n" +
+		"     if(zzz zzz ins\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "ins";
+	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:ins>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ins";
+	String expectedReplacedSource = "ins";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    zzz zzz;\n" +
+			"    <CompleteOnName:ins>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7358,7 +8104,7 @@ public void test0188(){
 /*
  * Test for 'while' keyword.
  */
-public void test0189(){
+public void test0189_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -7391,19 +8137,34 @@ public void test0189(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:whi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "whi";
-	expectedReplacedSource = "whi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'while' keyword.
+ */
+public void test0189_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnKeyword:whi>;\n" +
+		"    do{\n" +
+		"    } whi\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "whi";
+	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:whi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "whi";
+	String expectedReplacedSource = "whi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnKeyword:whi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7418,7 +8179,7 @@ public void test0189(){
 /*
  * Test for 'catch' keyword.
  */
-public void test0190(){
+public void test0190_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -7454,20 +8215,37 @@ public void test0190(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cat>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cat";
-	expectedReplacedSource = "cat";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'catch' keyword.
+ */
+public void test0190_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:cat>;\n" +
+		"  void foo(){\n" +
+		"    try {\n" +
+		"    } catch(E e) {\n" +
+		"    } cat\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "cat";
+	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cat>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cat";
+	String expectedReplacedSource = "cat";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cat>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7482,7 +8260,7 @@ public void test0190(){
 /*
  * Test for 'finally' keyword.
  */
-public void test0191(){
+public void test0191_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -7518,20 +8296,37 @@ public void test0191(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:fin>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "fin";
-	expectedReplacedSource = "fin";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'finally' keyword.
+ */
+public void test0191_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:fin>;\n" +
+		"  void foo(){\n" +
+		"     try {" +
+		"     } catch(E e) {" +
+		"     } fin" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "fin";
+	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:fin>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "fin";
+	String expectedReplacedSource = "fin";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:fin>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7546,7 +8341,7 @@ public void test0191(){
 /*
  * Test for 'finally' keyword.
  */
-public void test0192(){
+public void test0192_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -7582,20 +8377,37 @@ public void test0192(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:fin>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "fin";
-	expectedReplacedSource = "fin";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'finally' keyword.
+ */
+public void test0192_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:fin>;\n" +
+		"  void foo(){\n" +
+		"     try {" +
+		"     } finally {" +
+		"     } fin" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "fin";
+	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:fin>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "fin";
+	String expectedReplacedSource = "fin";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:fin>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -7610,7 +8422,7 @@ public void test0192(){
 /*
  * Test for 'this' keyword.
  */
-public void test0193(){
+public void test0193_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7642,19 +8454,33 @@ public void test0193(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:X.thi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "thi";
-	expectedReplacedSource = "X.thi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'this' keyword.
+ */
+public void test0193_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:X.thi>;\n" +
+		"  void foo(){\n" +
+		"     X.thi\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "thi";
+	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:X.thi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "thi";
+	String expectedReplacedSource = "X.thi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:X.thi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -8359,7 +9185,7 @@ public void test0213(){
 /*
  * Test for 'abstract' keyword.
  */
-public void test0214(){
+public void test0214_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -8394,20 +9220,36 @@ public void test0214(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:abst>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "abst";
-	expectedReplacedSource = "abst";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'abstract' keyword.
+ */
+public void test0214_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:abst>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    abst\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "abst";
+	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:abst>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "abst";
+	String expectedReplacedSource = "abst";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:abst>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -8422,7 +9264,7 @@ public void test0214(){
 /*
  * Test for 'abstract' keyword.
  */
-public void test0216(){
+public void test0216_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -8457,20 +9299,36 @@ public void test0216(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:abst>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "abst";
-	expectedReplacedSource = "abst";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'abstract' keyword.
+ */
+public void test0216_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:abst>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    abst zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "abst";
+	int cursorLocation = str.lastIndexOf("abst") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:abst>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "abst";
+	String expectedReplacedSource = "abst";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:abst>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -8485,7 +9343,7 @@ public void test0216(){
 /*
  * Test for 'break' keyword.
  */
-public void test0217(){
+public void test0217_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -8520,20 +9378,36 @@ public void test0217(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:bre>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "bre";
-	expectedReplacedSource = "bre";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'break' keyword.
+ */
+public void test0217_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:bre>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    bre\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "bre";
+	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:bre>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "bre";
+	String expectedReplacedSource = "bre";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:bre>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -8548,7 +9422,7 @@ public void test0217(){
 /*
  * Test for 'break' keyword.
  */
-public void test0218(){
+public void test0218_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -8585,23 +9459,41 @@ public void test0218(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:bre>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "bre";
-	expectedReplacedSource = "bre";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'break' keyword.
+ */
+public void test0218_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    {\n" +
-		"      <CompleteOnName:bre>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    for(int i; i < 10; i++) {\n" +
+		"      bre\n" +
 		"    }\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "bre";
+	int cursorLocation = str.lastIndexOf("bre") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:bre>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "bre";
+	String expectedReplacedSource = "bre";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    int i;\n" +
+			"    {\n" +
+			"      <CompleteOnName:bre>;\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -8616,7 +9508,7 @@ public void test0218(){
 /*
  * Test for 'case' keyword.
  */
-public void test0219(){
+public void test0219_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -8651,20 +9543,36 @@ public void test0219(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cas>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cas";
-	expectedReplacedSource = "cas";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'case' keyword.
+ */
+public void test0219_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:cas>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    cas\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "cas";
+	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cas>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cas";
+	String expectedReplacedSource = "cas";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cas>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -8679,7 +9587,7 @@ public void test0219(){
 /*
  * Test for 'case' keyword.
  */
-public void test0220(){
+public void test0220_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -8716,22 +9624,40 @@ public void test0220(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:cas>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cas";
-	expectedReplacedSource = "cas";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'case' keyword.
+ */
+public void test0220_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    {\n" +
-		"      <CompleteOnKeyword:cas>;\n" +
-		"    }\n"+
+		"  void foo(){\n" +
+		"    #\n" +
+		"    switch(0) {\n" +
+		"      cas\n" +
+		"    }\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "cas";
+	int cursorLocation = str.lastIndexOf("cas") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:cas>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cas";
+	String expectedReplacedSource = "cas";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    {\n" +
+			"      <CompleteOnKeyword:cas>;\n" +
+			"    }\n"+
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -8746,7 +9672,7 @@ public void test0220(){
 /*
  * Test for 'catch' keyword.
  */
-public void test0221(){
+public void test0221_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -8781,20 +9707,36 @@ public void test0221(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cat>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cat";
-	expectedReplacedSource = "cat";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'catch' keyword.
+ */
+public void test0221_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:cat>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    cat\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "cat";
+	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cat>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cat";
+	String expectedReplacedSource = "cat";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cat>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -8809,7 +9751,7 @@ public void test0221(){
 /*
  * Test for 'catch' keyword.
  */
-public void test0222(){
+public void test0222_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -8845,20 +9787,37 @@ public void test0222(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:cat>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cat";
-	expectedReplacedSource = "cat";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'catch' keyword.
+ */
+public void test0222_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnKeyword:cat>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    try {\n" +
+		"    } cat\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "cat";
+	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:cat>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cat";
+	String expectedReplacedSource = "cat";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnKeyword:cat>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9121,7 +10080,7 @@ public void test0230(){
 /*
  * Test for 'class' keyword.
  */
-public void test0231(){
+public void test0231_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -9154,19 +10113,34 @@ public void test0231(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cla>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cla";
-	expectedReplacedSource = "cla";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'class' keyword.
+ */
+public void test0231_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:cla>;\n" +
+		"    #\n" +
+		"    cla\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "cla";
+	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cla>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cla";
+	String expectedReplacedSource = "cla";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cla>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9181,7 +10155,7 @@ public void test0231(){
 /*
  * Test for 'class' keyword.
  */
-public void test0232(){
+public void test0232_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -9214,19 +10188,34 @@ public void test0232(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cla>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cla";
-	expectedReplacedSource = "cla";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'class' keyword.
+ */
+public void test0232_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:cla>;\n" +
+		"    #\n" +
+		"    final cla\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "cla";
+	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cla>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cla";
+	String expectedReplacedSource = "cla";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cla>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9241,7 +10230,7 @@ public void test0232(){
 /*
  * Test for 'class' keyword.
  */
-public void test0233(){
+public void test0233_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -9274,19 +10263,34 @@ public void test0233(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cla>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cla";
-	expectedReplacedSource = "cla";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'class' keyword.
+ */
+public void test0233_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:cla>;\n" +
+		"    #\n" +
+		"    final cla Y\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "cla";
+	int cursorLocation = str.lastIndexOf("cla") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cla>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cla";
+	String expectedReplacedSource = "cla";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cla>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9301,7 +10305,7 @@ public void test0233(){
 /*
  * Test for 'continue' keyword.
  */
-public void test0234(){
+public void test0234_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -9336,20 +10340,36 @@ public void test0234(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:con>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "con";
-	expectedReplacedSource = "con";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'continue' keyword.
+ */
+public void test0234_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:con>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    con\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "con";
+	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:con>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "con";
+	String expectedReplacedSource = "con";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:con>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9364,7 +10384,7 @@ public void test0234(){
 /*
  * Test for 'continue' keyword.
  */
-public void test0235(){
+public void test0235_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -9401,23 +10421,41 @@ public void test0235(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:con>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "con";
-	expectedReplacedSource = "con";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'continue' keyword.
+ */
+public void test0235_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    int i;\n" +
-		"    {\n" +
-		"      <CompleteOnName:con>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    for(int i; i < 5; i++) {\n" +
+		"      con\n" +
 		"    }\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "con";
+	int cursorLocation = str.lastIndexOf("con") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:con>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "con";
+	String expectedReplacedSource = "con";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    int i;\n" +
+			"    {\n" +
+			"      <CompleteOnName:con>;\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9432,7 +10470,7 @@ public void test0235(){
 /*
  * Test for 'default' keyword.
  */
-public void test0236(){
+public void test0236_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -9467,20 +10505,36 @@ public void test0236(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:def>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "def";
-	expectedReplacedSource = "def";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'default' keyword.
+ */
+public void test0236_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:def>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    def\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "def";
+	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:def>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "def";
+	String expectedReplacedSource = "def";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:def>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9495,7 +10549,7 @@ public void test0236(){
 /*
  * Test for 'default' keyword.
  */
-public void test0237(){
+public void test0237_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -9533,22 +10587,41 @@ public void test0237(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:def>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "def";
-	expectedReplacedSource = "def";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'default' keyword.
+ */
+public void test0237_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    {\n" +
-		"      <CompleteOnName:def>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    switch(0) {\n" +
+		"      case 1 : break;\n" +
+		"      def\n" +
 		"    }\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "def";
+	int cursorLocation = str.lastIndexOf("def") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:def>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "def";
+	String expectedReplacedSource = "def";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    {\n" +
+			"      <CompleteOnName:def>;\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9563,7 +10636,7 @@ public void test0237(){
 /*
  * Test for 'do' keyword.
  */
-public void test0238(){
+public void test0238_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -9598,20 +10671,36 @@ public void test0238(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:do>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "do";
-	expectedReplacedSource = "do";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'do' keyword.
+ */
+public void test0238_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:do>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    do\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "do";
+	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:do>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "do";
+	String expectedReplacedSource = "do";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:do>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9626,7 +10715,7 @@ public void test0238(){
 /*
  * Test for 'else' keyword.
  */
-public void test0239(){
+public void test0239_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -9661,20 +10750,36 @@ public void test0239(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:els>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "els";
-	expectedReplacedSource = "els";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'else' keyword.
+ */
+public void test0239_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:els>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    els\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "els";
+	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:els>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "els";
+	String expectedReplacedSource = "els";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:els>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9689,7 +10794,7 @@ public void test0239(){
 /*
  * Test for 'else' keyword.
  */
-public void test0240(){
+public void test0240_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -9725,20 +10830,37 @@ public void test0240(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:els>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "els";
-	expectedReplacedSource = "els";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'else' keyword.
+ */
+public void test0240_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:els>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    if(true) {\n" +
+		"    } els\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "els";
+	int cursorLocation = str.lastIndexOf("els") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:els>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "els";
+	String expectedReplacedSource = "els";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:els>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -9994,7 +11116,7 @@ public void test0248(){
 /*
  * Test for 'finally' keyword.
  */
-public void test0249(){
+public void test0249_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -10029,20 +11151,36 @@ public void test0249(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:fin>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "fin";
-	expectedReplacedSource = "fin";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'finally' keyword.
+ */
+public void test0249_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:fin>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    fin" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "fin";
+	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:fin>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "fin";
+	String expectedReplacedSource = "fin";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:fin>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -10057,7 +11195,7 @@ public void test0249(){
 /*
  * Test for 'finally' keyword.
  */
-public void test0250(){
+public void test0250_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -10093,20 +11231,37 @@ public void test0250(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:fin>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "fin";
-	expectedReplacedSource = "fin";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'finally' keyword.
+ */
+public void test0250_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnKeyword:fin>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    try {" +
+		"    } fin" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "fin";
+	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:fin>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "fin";
+	String expectedReplacedSource = "fin";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnKeyword:fin>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -10121,7 +11276,7 @@ public void test0250(){
 /*
  * Test for 'for' keyword.
  */
-public void test0251(){
+public void test0251_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -10156,20 +11311,36 @@ public void test0251(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:for>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "for";
-	expectedReplacedSource = "for";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'for' keyword.
+ */
+public void test0251_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:for>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    for" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "for";
+	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:for>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "for";
+	String expectedReplacedSource = "for";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:for>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -10184,7 +11355,7 @@ public void test0251(){
 /*
  * Test for 'if' keyword.
  */
-public void test0252(){
+public void test0252_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -10219,20 +11390,36 @@ public void test0252(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:if>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "if";
-	expectedReplacedSource = "if";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'if' keyword.
+ */
+public void test0252_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:if>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    if" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "if";
+	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:if>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "if";
+	String expectedReplacedSource = "if";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:if>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -10247,7 +11434,7 @@ public void test0252(){
 /*
  * Test for 'switch' keyword.
  */
-public void test0253(){
+public void test0253_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -10282,20 +11469,36 @@ public void test0253(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:swi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "swi";
-	expectedReplacedSource = "swi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'switch' keyword.
+ */
+public void test0253_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:swi>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    swi" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "swi";
+	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:swi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "swi";
+	String expectedReplacedSource = "swi";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:swi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -10917,7 +12120,7 @@ public void test0273(){
 /*
  * Test for 'interface' keyword.
  */
-public void test0274(){
+public void test0274_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -10950,19 +12153,34 @@ public void test0274(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:int>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "int";
-	expectedReplacedSource = "int";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'interface' keyword.
+ */
+public void test0274_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:int>;\n" +
+		"    #\n" +
+		"    int\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "int";
+	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:int>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "int";
+	String expectedReplacedSource = "int";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:int>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -10977,7 +12195,7 @@ public void test0274(){
 /*
  * Test for 'interface' keyword.
  */
-public void test0275(){
+public void test0275_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11010,19 +12228,34 @@ public void test0275(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:int>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "int";
-	expectedReplacedSource = "int";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'interface' keyword.
+ */
+public void test0275_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:int>;\n" +
+		"    #\n" +
+		"    abstract int\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "int";
+	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:int>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "int";
+	String expectedReplacedSource = "int";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:int>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11037,7 +12270,7 @@ public void test0275(){
 /*
  * Test for 'interface' keyword.
  */
-public void test0276(){
+public void test0276_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11070,19 +12303,34 @@ public void test0276(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:int>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "int";
-	expectedReplacedSource = "int";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'interface' keyword.
+ */
+public void test0276_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:int>;\n" +
+		"    #\n" +
+		"    abstract int Y\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "int";
+	int cursorLocation = str.lastIndexOf("int") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:int>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "int";
+	String expectedReplacedSource = "int";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:int>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11302,7 +12550,7 @@ public void test0283(){
 /*
  * Test for 'return' keyword.
  */
-public void test0284(){
+public void test0284_Diet(){
 	String str =
 		"public class X {\n" +
 		"  int foo() {\n" +
@@ -11335,19 +12583,34 @@ public void test0284(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ret>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ret";
-	expectedReplacedSource = "ret";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'return' keyword.
+ */
+public void test0284_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  int foo() {\n" +
-		"    <CompleteOnName:ret>;\n" +
+		"    #\n" +
+		"    ret\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "ret";
+	int cursorLocation = str.lastIndexOf("ret") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:ret>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ret";
+	String expectedReplacedSource = "ret";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  int foo() {\n" +
+			"    <CompleteOnName:ret>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11362,7 +12625,7 @@ public void test0284(){
 /*
  * Test for 'throw' keyword.
  */
-public void test0285(){
+public void test0285_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11395,19 +12658,34 @@ public void test0285(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:thr>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "thr";
-	expectedReplacedSource = "thr";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'throw' keyword.
+ */
+public void test0285_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:thr>;\n" +
+		"    #\n" +
+		"    thr\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "thr";
+	int cursorLocation = str.lastIndexOf("thr") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:thr>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "thr";
+	String expectedReplacedSource = "thr";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:thr>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11422,7 +12700,7 @@ public void test0285(){
 /*
  * Test for 'try' keyword.
  */
-public void test0286(){
+public void test0286_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11455,19 +12733,34 @@ public void test0286(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:try>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "try";
-	expectedReplacedSource = "try";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'try' keyword.
+ */
+public void test0286_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:try>;\n" +
+		"    #\n" +
+		"    try\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "try";
+	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:try>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "try";
+	String expectedReplacedSource = "try";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:try>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11482,7 +12775,7 @@ public void test0286(){
 /*
  * Test for 'try' keyword.
  */
-public void test0287(){
+public void test0287_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11515,19 +12808,34 @@ public void test0287(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:try>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "try";
-	expectedReplacedSource = "try";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'try' keyword.
+ */
+public void test0287_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:try>;\n" +
+		"    #\n" +
+		"    if(try\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "try";
+	int cursorLocation = str.lastIndexOf("try") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:try>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "try";
+	String expectedReplacedSource = "try";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:try>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11542,7 +12850,7 @@ public void test0287(){
 /*
  * Test for 'do' keyword.
  */
-public void test0288(){
+public void test0288_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11575,19 +12883,34 @@ public void test0288(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:do>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "do";
-	expectedReplacedSource = "do";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'do' keyword.
+ */
+public void test0288_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:do>;\n" +
+		"    #\n" +
+		"    if(do\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "do";
+	int cursorLocation = str.lastIndexOf("do") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:do>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "do";
+	String expectedReplacedSource = "do";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:do>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11602,7 +12925,7 @@ public void test0288(){
 /*
  * Test for 'for' keyword.
  */
-public void test0289(){
+public void test0289_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11635,19 +12958,34 @@ public void test0289(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:for>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "for";
-	expectedReplacedSource = "for";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'for' keyword.
+ */
+public void test0289_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:for>;\n" +
+		"    #\n" +
+		"    if(for\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "for";
+	int cursorLocation = str.lastIndexOf("for") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:for>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "for";
+	String expectedReplacedSource = "for";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:for>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11662,7 +13000,7 @@ public void test0289(){
 /*
  * Test for 'if' keyword.
  */
-public void test0290(){
+public void test0290_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11695,19 +13033,34 @@ public void test0290(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:if>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "if";
-	expectedReplacedSource = "if";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'if' keyword.
+ */
+public void test0290_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:if>;\n" +
+		"    #\n" +
+		"    if(if\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "if";
+	int cursorLocation = str.lastIndexOf("if") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:if>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "if";
+	String expectedReplacedSource = "if";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:if>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11722,7 +13075,7 @@ public void test0290(){
 /*
  * Test for 'switch' keyword.
  */
-public void test0291(){
+public void test0291_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11755,19 +13108,34 @@ public void test0291(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:swi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "swi";
-	expectedReplacedSource = "swi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'switch' keyword.
+ */
+public void test0291_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:swi>;\n" +
+		"    #\n" +
+		"    if(swi\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "swi";
+	int cursorLocation = str.lastIndexOf("swi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:swi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "swi";
+	String expectedReplacedSource = "swi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:swi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11782,7 +13150,7 @@ public void test0291(){
 /*
  * Test for 'new' keyword.
  */
-public void test0292(){
+public void test0292_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11815,19 +13183,34 @@ public void test0292(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:new>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "new";
-	expectedReplacedSource = "new";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'new' keyword.
+ */
+public void test0292_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:new>;\n" +
+		"    #\n" +
+		"    new\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "new";
+	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:new>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "new";
+	String expectedReplacedSource = "new";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:new>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11842,7 +13225,7 @@ public void test0292(){
 /*
  * Test for 'new' keyword.
  */
-public void test0293(){
+public void test0293_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11875,19 +13258,34 @@ public void test0293(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:new>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "new";
-	expectedReplacedSource = "new";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'new' keyword.
+ */
+public void test0293_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:new>;\n" +
+		"    #\n" +
+		"    new X\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "new";
+	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:new>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "new";
+	String expectedReplacedSource = "new";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:new>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -11902,7 +13300,7 @@ public void test0293(){
 /*
  * Test for 'new' keyword.
  */
-public void test0294(){
+public void test0294_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -11935,19 +13333,34 @@ public void test0294(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:new>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "new";
-	expectedReplacedSource = "new";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'new' keyword.
+ */
+public void test0294_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:new>;\n" +
+		"    #\n" +
+		"    new X()\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "new";
+	int cursorLocation = str.lastIndexOf("new") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:new>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "new";
+	String expectedReplacedSource = "new";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:new>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -12176,7 +13589,7 @@ public void test0300(){
 /*
  * Test for 'while' keyword.
  */
-public void test0301(){
+public void test0301_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -12209,19 +13622,34 @@ public void test0301(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:whi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "whi";
-	expectedReplacedSource = "whi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'while' keyword.
+ */
+public void test0301_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:whi>;\n" +
+		"    #\n" +
+		"    whi\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "whi";
+	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:whi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "whi";
+	String expectedReplacedSource = "whi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:whi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -12236,7 +13664,7 @@ public void test0301(){
 /*
  * Test for 'while' keyword.
  */
-public void test0302(){
+public void test0302_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -12269,19 +13697,34 @@ public void test0302(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:whi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "whi";
-	expectedReplacedSource = "whi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'while' keyword.
+ */
+public void test0302_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:whi>;\n" +
+		"    #\n" +
+		"    if(whi\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "whi";
+	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:whi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "whi";
+	String expectedReplacedSource = "whi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:whi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -12296,7 +13739,7 @@ public void test0302(){
 /*
  * Test for 'assert' keyword.
  */
-public void test0303(){
+public void test0303_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -12329,19 +13772,34 @@ public void test0303(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ass>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ass";
-	expectedReplacedSource = "ass";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'assert' keyword.
+ */
+public void test0303_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:ass>;\n" +
+		"    #\n" +
+		"    ass\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "ass";
+	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:ass>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ass";
+	String expectedReplacedSource = "ass";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:ass>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -12356,7 +13814,7 @@ public void test0303(){
 /*
  * Test for 'assert' keyword.
  */
-public void test0304(){
+public void test0304_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -12389,19 +13847,34 @@ public void test0304(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ass>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ass";
-	expectedReplacedSource = "ass";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'assert' keyword.
+ */
+public void test0304_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:ass>;\n" +
+		"    #\n" +
+		"    if(ass\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "ass";
+	int cursorLocation = str.lastIndexOf("ass") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:ass>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ass";
+	String expectedReplacedSource = "ass";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:ass>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -13608,7 +15081,7 @@ public void test0340(){
 /*
  * Test for 'synchronized' keyword.
  */
-public void test0341(){
+public void test0341_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -13641,19 +15114,34 @@ public void test0341(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:syn>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "syn";
-	expectedReplacedSource = "syn";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'synchronized' keyword.
+ */
+public void test0341_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:syn>;\n" +
+		"    #\n" +
+		"    syn\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "syn";
+	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:syn>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "syn";
+	String expectedReplacedSource = "syn";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:syn>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -13668,7 +15156,7 @@ public void test0341(){
 /*
  * Test for 'synchronized' keyword.
  */
-public void test0342(){
+public void test0342_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -13701,19 +15189,34 @@ public void test0342(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:syn>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "syn";
-	expectedReplacedSource = "syn";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'synchronized' keyword.
+ */
+public void test0342_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnName:syn>;\n" +
+		"    #\n" +
+		"    if(syn\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "syn";
+	int cursorLocation = str.lastIndexOf("syn") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:syn>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "syn";
+	String expectedReplacedSource = "syn";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:syn>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -14741,7 +16244,7 @@ public void test0374(){
 /*
  * Test for 'super' keyword.
  */
-public void test0375(){
+public void test0375_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -14774,19 +16277,34 @@ public void test0375(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:sup>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "sup";
-	expectedReplacedSource = "sup";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'super' keyword.
+ */
+public void test0375_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:sup>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    sup\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "sup";
+	int cursorLocation = str.lastIndexOf("sup") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:sup>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "sup";
+	String expectedReplacedSource = "sup";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:sup>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -14801,7 +16319,7 @@ public void test0375(){
 /*
  * Test for 'this' keyword.
  */
-public void test0376(){
+public void test0376_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -14834,19 +16352,34 @@ public void test0376(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:thi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "thi";
-	expectedReplacedSource = "thi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'this' keyword.
+ */
+public void test0376_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:thi>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    thi\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "thi";
+	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:thi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "thi";
+	String expectedReplacedSource = "thi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:thi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -14861,7 +16394,7 @@ public void test0376(){
 /*
  * Test for 'true' keyword.
  */
-public void test0377(){
+public void test0377_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -14894,19 +16427,34 @@ public void test0377(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:tru>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "tru";
-	expectedReplacedSource = "tru";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'true' keyword.
+ */
+public void test0377_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:tru>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    tru\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "tru";
+	int cursorLocation = str.lastIndexOf("tru") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:tru>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "tru";
+	String expectedReplacedSource = "tru";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:tru>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -14921,7 +16469,7 @@ public void test0377(){
 /*
  * Test for 'false' keyword.
  */
-public void test0378(){
+public void test0378_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -14954,19 +16502,34 @@ public void test0378(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:fal>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "fal";
-	expectedReplacedSource = "fal";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'false' keyword.
+ */
+public void test0378_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:fal>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    fal\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "fal";
+	int cursorLocation = str.lastIndexOf("fal") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:fal>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "fal";
+	String expectedReplacedSource = "fal";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:fal>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -14981,7 +16544,7 @@ public void test0378(){
 /*
  * Test for 'null' keyword.
  */
-public void test0379(){
+public void test0379_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -15014,19 +16577,34 @@ public void test0379(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:nul>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "nul";
-	expectedReplacedSource = "nul";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'null' keyword.
+ */
+public void test0379_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:nul>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    nul\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "nul";
+	int cursorLocation = str.lastIndexOf("nul") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:nul>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "nul";
+	String expectedReplacedSource = "nul";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:nul>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -15041,7 +16619,7 @@ public void test0379(){
 /*
  * Test for 'instanceof' keyword.
  */
-public void test0380(){
+public void test0380_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -15074,19 +16652,34 @@ public void test0380(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:ins>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ins";
-	expectedReplacedSource = "ins";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'instanceof' keyword.
+ */
+public void test0380_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnKeyword:ins>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    if(zzz ins\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "ins";
+	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ins>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ins";
+	String expectedReplacedSource = "ins";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnKeyword:ins>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -15101,7 +16694,7 @@ public void test0380(){
 /*
  * Test for 'instanceof' keyword.
  */
-public void test0381(){
+public void test0381_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -15134,19 +16727,34 @@ public void test0381(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ins>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ins";
-	expectedReplacedSource = "ins";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'instanceof' keyword.
+ */
+public void test0381_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:ins>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    ins\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "ins";
+	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:ins>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ins";
+	String expectedReplacedSource = "ins";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:ins>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -15161,7 +16769,7 @@ public void test0381(){
 /*
  * Test for 'instanceof' keyword.
  */
-public void test0382(){
+public void test0382_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -15194,20 +16802,35 @@ public void test0382(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ins>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "ins";
-	expectedReplacedSource = "ins";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'instanceof' keyword.
+ */
+public void test0382_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    zzz zzz;\n" +
-		"    <CompleteOnName:ins>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    if(zzz zzz ins\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "ins";
+	int cursorLocation = str.lastIndexOf("ins") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:ins>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ins";
+	String expectedReplacedSource = "ins";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    zzz zzz;\n" +
+			"    <CompleteOnName:ins>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -15222,7 +16845,7 @@ public void test0382(){
 /*
  * Test for 'while' keyword.
  */
-public void test0384(){
+public void test0384_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo() {\n" +
@@ -15256,19 +16879,35 @@ public void test0384(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:whi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "whi";
-	expectedReplacedSource = "whi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'while' keyword.
+ */
+public void test0384_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
 		"  void foo() {\n" +
-		"    <CompleteOnKeyword:whi>;\n" +
+		"    #\n" +
+		"    do{\n" +
+		"    } whi\n" +
 		"  }\n" +
-		"}\n";
+		"}";
+
+	String completeBehind = "whi";
+	int cursorLocation = str.lastIndexOf("whi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:whi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "whi";
+	String expectedReplacedSource = "whi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnKeyword:whi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -15283,7 +16922,7 @@ public void test0384(){
 /*
  * Test for 'catch' keyword.
  */
-public void test0385(){
+public void test0385_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -15320,20 +16959,38 @@ public void test0385(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:cat>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "cat";
-	expectedReplacedSource = "cat";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'catch' keyword.
+ */
+public void test0385_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:cat>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    try {\n" +
+		"    } catch(E e) {\n" +
+		"    } cat\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "cat";
+	int cursorLocation = str.lastIndexOf("cat") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:cat>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "cat";
+	String expectedReplacedSource = "cat";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:cat>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -15348,7 +17005,7 @@ public void test0385(){
 /*
  * Test for 'finally' keyword.
  */
-public void test0386(){
+public void test0386_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -15385,20 +17042,38 @@ public void test0386(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:fin>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "fin";
-	expectedReplacedSource = "fin";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'finally' keyword.
+ */
+public void test0386_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:fin>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    try {" +
+		"    } catch(E e) {" +
+		"    } fin" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "fin";
+	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:fin>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "fin";
+	String expectedReplacedSource = "fin";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:fin>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -15413,7 +17088,7 @@ public void test0386(){
 /*
  * Test for 'finally' keyword.
  */
-public void test0387(){
+public void test0387_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -15450,20 +17125,38 @@ public void test0387(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:fin>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "fin";
-	expectedReplacedSource = "fin";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'finally' keyword.
+ */
+public void test0387_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:fin>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    try {" +
+		"    } finally {" +
+		"    } fin" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "fin";
+	int cursorLocation = str.lastIndexOf("fin") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:fin>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "fin";
+	String expectedReplacedSource = "fin";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:fin>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -15478,7 +17171,7 @@ public void test0387(){
 /*
  * Test for 'this' keyword.
  */
-public void test0388(){
+public void test0388_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -15511,19 +17204,34 @@ public void test0388(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:X.thi>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "thi";
-	expectedReplacedSource = "X.thi";
-	expectedUnitDisplayString =
+}
+/*
+ * Test for 'this' keyword.
+ */
+public void test0388_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:X.thi>;\n" +
+		"  void foo(){\n" +
+		"    #\n" +
+		"    X.thi\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "thi";
+	int cursorLocation = str.lastIndexOf("thi") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:X.thi>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "thi";
+	String expectedReplacedSource = "X.thi";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:X.thi>;\n" +
+			"  }\n" +
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 

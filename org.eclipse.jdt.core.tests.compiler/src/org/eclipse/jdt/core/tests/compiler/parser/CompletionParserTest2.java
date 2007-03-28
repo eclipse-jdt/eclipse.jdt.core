@@ -51,7 +51,7 @@ public void test0001(){
 		expectedReplacedSource,
 		"diet ast");
 }
-public void test0002(){
+public void test0002_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -85,20 +85,32 @@ public void test0002(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-		
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0002_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object o = <CompleteOnName:zzz>;\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object o = <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(), 
@@ -110,7 +122,7 @@ public void test0002(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0003(){
+public void test0003_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -144,20 +156,32 @@ public void test0003(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = <CompleteOnName:zzz>;\n" + 
+}
+public void test0003_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"}\n";
 		
 	checkMethodParse(
 		str.toCharArray(), 
@@ -202,7 +226,7 @@ public void test0004(){
 		expectedReplacedSource,
 		"diet ast");
 }
-public void test0005(){
+public void test0005_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -237,22 +261,35 @@ public void test0005(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-		
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0005_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      Object o = <CompleteOnName:zzz>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      Object o = <CompleteOnName:zzz>;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -264,7 +301,7 @@ public void test0005(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0006(){
+public void test0006_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -299,21 +336,33 @@ public void test0006(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = <CompleteOnName:zzz>;\n" + 
+}
+public void test0006_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object o = <CompleteOnName:zzz>;";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"}\n";
 	checkMethodParse(
 		str.toCharArray(), 
 		cursorLocation, 
@@ -356,7 +405,7 @@ public void test0007(){
 		expectedReplacedSource,
 		"diet ast"); 
 }
-public void test0008(){
+public void test0008_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -389,21 +438,33 @@ public void test0008(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+		"diet ast"); 
+}
+public void test0008_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object o = new <CompleteOnType:zzz>();\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object o = new zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnType:zzz>";
+	String expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object o = new <CompleteOnType:zzz>();\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -415,7 +476,7 @@ public void test0008(){
 		expectedReplacedSource,
 		"full ast"); 
 }
-public void test0009(){
+public void test0009_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -448,21 +509,33 @@ public void test0009(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = new <CompleteOnType:zzz>();\n" + 
+		"diet ast"); 
+}
+public void test0009_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object o = new zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnType:zzz>";
+	String expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = new <CompleteOnType:zzz>();\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -507,7 +580,7 @@ public void test0010(){
 		expectedReplacedSource,
 		"diet ast"); 
 }
-public void test0011(){
+public void test0011_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -541,23 +614,36 @@ public void test0011(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  {\n" +
-		"    {\n" +
-		"      Object o = new <CompleteOnType:zzz>();\n" +
-		"    }\n" +
-		"  }\n" +
-		"  public X() {\n" + 
+		"diet ast"); 
+}
+public void test0011_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  {\n" + 
+		"    #\n" +
+		"    Object o = new zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnType:zzz>";
+	String expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" +
+			"    {\n" +
+			"      Object o = new <CompleteOnType:zzz>();\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(), 
@@ -569,7 +655,7 @@ public void test0011(){
 		expectedReplacedSource,
 		"full ast"); 
 }
-public void test0012(){
+public void test0012_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -603,21 +689,34 @@ public void test0012(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = new <CompleteOnType:zzz>();\n" + 
+		"diet ast"); 
+}
+public void test0012_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object o = new zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnType:zzz>";
+	String expectedParentNodeToString = "Object o = new <CompleteOnType:zzz>();";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = new <CompleteOnType:zzz>();\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -664,7 +763,7 @@ public void test0013(){
 		"diet ast");
 }
 
-public void test0014(){
+public void test0014_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -698,22 +797,35 @@ public void test0014(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+		"diet ast"); 
+}
+public void test0014_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object o;\n" +
-		"    <CompleteOnName:zzz>;\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object o = yyy;\n" + 
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object o;\n" +
+			"    <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -726,7 +838,7 @@ public void test0014(){
 		"full ast"); 
 }
 
-public void test0015(){
+public void test0015_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -760,22 +872,35 @@ public void test0015(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o;\n" +
-		"    <CompleteOnName:zzz>;\n" + 
+		"diet ast"); 
+}
+public void test0015_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object o = yyy;\n" + 
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -824,7 +949,7 @@ public void test0016(){
 		"diet ast"); 
 }
 
-public void test0017(){
+public void test0017_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -859,24 +984,38 @@ public void test0017(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+		"diet ast"); 
+}
+public void test0017_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      Object o;\n" +
-		"      <CompleteOnName:zzz>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object o = yyy;\n" + 
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      Object o;\n" +
+			"      <CompleteOnName:zzz>;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -889,7 +1028,7 @@ public void test0017(){
 		"full ast"); 
 }
 
-public void test0018(){
+public void test0018_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -924,22 +1063,36 @@ public void test0018(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o;\n" +
-		"    <CompleteOnName:zzz>;\n" + 
+		"diet ast"); 
+}
+public void test0018_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object o = yyy;\n" + 
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -984,7 +1137,7 @@ public void test0019(){
 		"diet ast"); 
 }
 
-public void test0020(){
+public void test0020_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1017,21 +1170,33 @@ public void test0020(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "bar(<CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+		"diet ast"); 
+}
+public void test0020_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object o = bar(<CompleteOnName:zzz>);\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object o = bar(zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "bar(<CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object o = bar(<CompleteOnName:zzz>);\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1044,7 +1209,7 @@ public void test0020(){
 		"full ast"); 
 }
 
-public void test0021(){
+public void test0021_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1077,21 +1242,33 @@ public void test0021(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "bar(<CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = bar(<CompleteOnName:zzz>);\n" + 
+		"diet ast"); 
+}
+public void test0021_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object o = bar(zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "bar(<CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = bar(<CompleteOnName:zzz>);\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1138,7 +1315,7 @@ public void test0022(){
 		"diet ast"); 
 }
 
-public void test0023(){
+public void test0023_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1172,23 +1349,36 @@ public void test0023(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "bar(<CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+		"diet ast"); 
+}
+public void test0023_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      Object o = bar(<CompleteOnName:zzz>);\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object o = bar(zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "bar(<CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      Object o = bar(<CompleteOnName:zzz>);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1201,7 +1391,7 @@ public void test0023(){
 		"full ast"); 
 }
 
-public void test0024(){
+public void test0024_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1235,21 +1425,34 @@ public void test0024(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "bar(<CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = bar(<CompleteOnName:zzz>);\n" + 
+		"diet ast"); 
+}
+public void test0024_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object o = bar(zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "bar(<CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = bar(<CompleteOnName:zzz>);\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1295,7 +1498,7 @@ public void test0025(){
 }
 
 
-public void test0026(){
+public void test0026_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1328,21 +1531,33 @@ public void test0026(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X(<CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+		"diet ast"); 
+}
+public void test0026_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object o = new X(<CompleteOnName:zzz>);\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object o = new X(zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X(<CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object o = new X(<CompleteOnName:zzz>);\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1356,7 +1571,7 @@ public void test0026(){
 }
 
 
-public void test0027(){
+public void test0027_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1389,21 +1604,33 @@ public void test0027(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X(<CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = new X(<CompleteOnName:zzz>);\n" + 
+		"diet ast"); 
+}
+public void test0027_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object o = new X(zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X(<CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = new X(<CompleteOnName:zzz>);\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1452,7 +1679,7 @@ public void test0028(){
 }
 
 
-public void test0029(){
+public void test0029_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1486,23 +1713,36 @@ public void test0029(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X(<CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+		"diet ast"); 
+}
+public void test0029_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      Object o = new X(<CompleteOnName:zzz>);\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object o = new X(zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X(<CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      Object o = new X(<CompleteOnName:zzz>);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1516,7 +1756,7 @@ public void test0029(){
 }
 
 
-public void test0030(){
+public void test0030_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1550,21 +1790,34 @@ public void test0030(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X(<CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = new X(<CompleteOnName:zzz>);\n" + 
+		"diet ast"); 
+}
+public void test0030_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object o = new X(zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X(<CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = new X(<CompleteOnName:zzz>);\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1576,7 +1829,7 @@ public void test0030(){
 		expectedReplacedSource,
 		"full ast"); 
 }
-public void test0031(){
+public void test0031_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1609,21 +1862,31 @@ public void test0031(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  Object o;\n" +
-		"  {\n" +
-		"    <CompleteOnName:zzz>;\n" + 
-		"  }\n" +
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+public void test0031_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  Object o = {zzz;\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  Object o;\n" +
+			"  {\n" +
+			"    <CompleteOnName:zzz>;\n" + 
+			"  }\n" +
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1636,7 +1899,7 @@ public void test0031(){
 		"full ast");
 }
 
-public void test0032(){
+public void test0032_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1670,23 +1933,35 @@ public void test0032(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0032_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object o;\n" +
-		"    {\n" +
-		"      <CompleteOnName:zzz>;\n" + 
-		"    }\n" +
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object o = {zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object o;\n" +
+			"    {\n" +
+			"      <CompleteOnName:zzz>;\n" + 
+			"    }\n" +
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1699,7 +1974,7 @@ public void test0032(){
 		"full ast");
 }
 
-public void test0033(){
+public void test0033_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1736,23 +2011,35 @@ public void test0033(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o;\n" +
-		"    {\n" +
-		"      <CompleteOnName:zzz>;\n" + 
-		"    }\n" +
+}
+public void test0033_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object o = {zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    {\n" +
+			"      <CompleteOnName:zzz>;\n" + 
+			"    }\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1765,7 +2052,7 @@ public void test0033(){
 		"full ast");
 }
 
-public void test0034(){
+public void test0034_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1799,21 +2086,32 @@ public void test0034(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  Object o;\n" +
-		"  {\n" +
-		"    <CompleteOnName:zzz>;\n" + 
-		"  }\n" +
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+public void test0034_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  #\n" + 
+		"  Object o = {zzz;\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  Object o;\n" +
+			"  {\n" +
+			"    <CompleteOnName:zzz>;\n" + 
+			"  }\n" +
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1826,7 +2124,7 @@ public void test0034(){
 		"full ast");
 }
 
-public void test0035(){
+public void test0035_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1861,25 +2159,38 @@ public void test0035(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0035_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      Object o;\n" +
-		"      {\n" +
-		"        <CompleteOnName:zzz>;\n" + 
-		"      }\n" +
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object o = {zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      Object o;\n" +
+			"      {\n" +
+			"        <CompleteOnName:zzz>;\n" + 
+			"      }\n" +
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1892,7 +2203,7 @@ public void test0035(){
 		"full ast");
 }
 
-public void test0036(){
+public void test0036_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -1930,23 +2241,36 @@ public void test0036(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o;\n" +
-		"    {\n" +
-		"      <CompleteOnName:zzz>;\n" + 
-		"    }\n" +
+}
+public void test0036_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object o = {zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    {\n" +
+			"      <CompleteOnName:zzz>;\n" + 
+			"    }\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -1992,7 +2316,7 @@ public void test0037(){
 }
 
 
-public void test0038(){
+public void test0038_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2026,20 +2350,32 @@ public void test0038(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0038_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object[] o = {<CompleteOnName:zzz>};\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object[] o = {zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object[] o = {<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2053,7 +2389,7 @@ public void test0038(){
 }
 
 
-public void test0039(){
+public void test0039_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2090,20 +2426,32 @@ public void test0039(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object[] o = {<CompleteOnName:zzz>};\n" + 
+}
+public void test0039_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object[] o = {zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object[] o = {<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2152,7 +2500,7 @@ public void test0040(){
 }
 
 
-public void test0041(){
+public void test0041_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2187,22 +2535,35 @@ public void test0041(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0041_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      Object[] o = {<CompleteOnName:zzz>};\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object[] o = {zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      Object[] o = {<CompleteOnName:zzz>};\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2216,7 +2577,7 @@ public void test0041(){
 }
 
 
-public void test0042(){
+public void test0042_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2254,20 +2615,33 @@ public void test0042(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object[] o = {<CompleteOnName:zzz>};\n" + 
+}
+public void test0042_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object[] o = {zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object[] o = {<CompleteOnName:zzz>};";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object[] o = {<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2314,7 +2688,7 @@ public void test0043(){
 
 
 
-public void test0044(){
+public void test0044_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2348,20 +2722,32 @@ public void test0044(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  {\n" +
-		"    Object[] o = new X[<CompleteOnName:zzz>];\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+}
+public void test0044_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  {\n" + 
+		"    Object[] o = new X[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" +
+			"    Object[] o = new X[<CompleteOnName:zzz>];\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2376,7 +2762,7 @@ public void test0044(){
 
 
 
-public void test0045(){
+public void test0045_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2409,21 +2795,33 @@ public void test0045(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object[] o = new X[<CompleteOnName:zzz>];\n" + 
+		"diet ast"); 
+}
+public void test0045_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object[] o = new X[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object[] o = new X[<CompleteOnName:zzz>];\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2474,7 +2872,7 @@ public void test0046(){
 
 
 
-public void test0047(){
+public void test0047_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2509,22 +2907,35 @@ public void test0047(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  {\n" +
-		"    {\n" +
-		"      Object[] o = new X[<CompleteOnName:zzz>];\n" + 
-		"    }\n" +
-		"  }\n" + 
-		"  public X() {\n" + 
+}
+public void test0047_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  {\n" + 
+		"    #\n" +
+		"    Object[] o = new X[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" +
+			"    {\n" +
+			"      Object[] o = new X[<CompleteOnName:zzz>];\n" + 
+			"    }\n" +
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2539,7 +2950,7 @@ public void test0047(){
 
 
 
-public void test0048(){
+public void test0048_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2574,20 +2985,33 @@ public void test0048(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object[] o = new X[<CompleteOnName:zzz>];\n" + 
+}
+public void test0048_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object[] o = new X[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object[] o = new X[<CompleteOnName:zzz>];\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2631,7 +3055,7 @@ public void test0049(){
 		expectedReplacedSource,
 		"diet ast");
 }
-public void test0050(){
+public void test0050_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2665,20 +3089,32 @@ public void test0050(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0050_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object[] o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2690,7 +3126,7 @@ public void test0050(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0051(){
+public void test0051_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2726,21 +3162,33 @@ public void test0051(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
+		"diet ast"); 
+}
+public void test0051_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object[] o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2785,7 +3233,7 @@ public void test0052(){
 		expectedReplacedSource,
 		"diet ast");
 }
-public void test0053(){
+public void test0053_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2820,22 +3268,35 @@ public void test0053(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0053_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object[] o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2847,7 +3308,7 @@ public void test0053(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0054(){
+public void test0054_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2885,20 +3346,33 @@ public void test0054(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
+}
+public void test0054_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object[] o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object[] o = new X[]{<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -2944,7 +3418,7 @@ public void test0055(){
 		"diet ast");
 }
 
-public void test0056(){
+public void test0056_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -2978,20 +3452,32 @@ public void test0056(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0056_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object[] o = <CompleteOnName:zzz>;\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object[] o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object[] o = <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3004,7 +3490,7 @@ public void test0056(){
 		"full ast");
 }
 
-public void test0057(){
+public void test0057_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3037,21 +3523,33 @@ public void test0057(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object[] o = <CompleteOnName:zzz>;\n" + 
+		"diet ast"); 
+}
+public void test0057_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object[] o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object[] o = <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3098,7 +3596,7 @@ public void test0058(){
 		"diet ast");
 }
 
-public void test0059(){
+public void test0059_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3133,22 +3631,35 @@ public void test0059(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  {\n" +
-		"    {\n" +
-		"      Object[] o = <CompleteOnName:zzz>;\n" + 
-		"    }\n" +
-		"  }\n" + 
-		"  public X() {\n" + 
+}
+public void test0059_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  {\n" + 
+		"    #\n" +
+		"    Object[] o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" +
+			"    {\n" +
+			"      Object[] o = <CompleteOnName:zzz>;\n" + 
+			"    }\n" +
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3161,7 +3672,7 @@ public void test0059(){
 		"full ast");
 }
 
-public void test0060(){
+public void test0060_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3196,20 +3707,33 @@ public void test0060(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object[] o = <CompleteOnName:zzz>;\n" + 
+}
+public void test0060_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object[] o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "Object[] o = <CompleteOnName:zzz>;";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object[] o = <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3254,7 +3778,7 @@ public void test0061(){
 		"diet ast");
 }
 
-public void test0062(){
+public void test0062_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3288,20 +3812,32 @@ public void test0062(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0062_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object o = new X[<CompleteOnName:zzz>];\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object o = new X[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object o = new X[<CompleteOnName:zzz>];\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3314,7 +3850,7 @@ public void test0062(){
 		"full ast");
 }
 
-public void test0063(){
+public void test0063_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3347,21 +3883,33 @@ public void test0063(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = new X[<CompleteOnName:zzz>];\n" + 
+		"diet ast"); 
+}
+public void test0063_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object o = new X[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = new X[<CompleteOnName:zzz>];\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3408,7 +3956,7 @@ public void test0064(){
 		"diet ast");
 }
 
-public void test0065(){
+public void test0065_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3443,22 +3991,35 @@ public void test0065(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0065_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      Object o = new X[<CompleteOnName:zzz>];\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object o = new X[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      Object o = new X[<CompleteOnName:zzz>];\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3471,7 +4032,7 @@ public void test0065(){
 		"full ast");
 }
 
-public void test0066(){
+public void test0066_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3506,20 +4067,33 @@ public void test0066(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = new X[<CompleteOnName:zzz>];\n" + 
+}
+public void test0066_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object o = new X[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = new X[<CompleteOnName:zzz>];\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3531,7 +4105,7 @@ public void test0066(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0067(){
+public void test0067_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3564,21 +4138,31 @@ public void test0067(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  Object o;\n" +
-		"  {\n" +
-		"    <CompleteOnName:zzz>;\n" +
-		"  }\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+public void test0067_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  Object o = new X[]{zzz;\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  Object o;\n" +
+			"  {\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3591,7 +4175,7 @@ public void test0067(){
 		"full ast");
 }
 
-public void test0068(){
+public void test0068_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3625,20 +4209,32 @@ public void test0068(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0068_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object o = new X[]{<CompleteOnName:zzz>};\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object o = new X[]{<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3650,7 +4246,7 @@ public void test0068(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0069(){
+public void test0069_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3686,21 +4282,33 @@ public void test0069(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o = new X[]{<CompleteOnName:zzz>};\n" + 
+		"diet ast"); 
+}
+public void test0069_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = new X[]{<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3713,7 +4321,7 @@ public void test0069(){
 		"full ast"); 
 }
 
-public void test0070(){
+public void test0070_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3747,21 +4355,32 @@ public void test0070(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  Object o;\n" +
-		"  {\n" +
-		"    <CompleteOnName:zzz>;\n" +
-		"  }\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+public void test0070_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  #\n" + 
+		"  Object o = new X[]{zzz;\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  Object o;\n" +
+			"  {\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3774,7 +4393,7 @@ public void test0070(){
 		"full ast");
 }
 
-public void test0071(){
+public void test0071_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3809,25 +4428,38 @@ public void test0071(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0071_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      Object o;\n" +
-		"      {\n" +
-		"        <CompleteOnName:zzz>;\n" +
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      Object o;\n" +
+			"      {\n" +
+			"        <CompleteOnName:zzz>;\n" +
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3840,7 +4472,7 @@ public void test0071(){
 		"full ast");
 }
 
-public void test0072(){
+public void test0072_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3878,23 +4510,36 @@ public void test0072(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o;\n" +
-		"    {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" + 
+}
+public void test0072_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    Object o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    {\n" +
+			"      <CompleteOnName:zzz>;\n" +
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -3940,7 +4585,7 @@ public void test0073(){
 }
 
 
-public void test0074(){
+public void test0074_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -3974,20 +4619,32 @@ public void test0074(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new int[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0074_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    int o = new int[<CompleteOnName:zzz>];\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    int o = new int[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new int[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    int o = new int[<CompleteOnName:zzz>];\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4001,7 +4658,7 @@ public void test0074(){
 }
 
 
-public void test0075(){
+public void test0075_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4034,21 +4691,33 @@ public void test0075(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new int[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int o = new int[<CompleteOnName:zzz>];\n" +  
+		"diet ast"); 
+}
+public void test0075_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    int o = new int[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new int[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int o = new int[<CompleteOnName:zzz>];\n" +  
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4097,7 +4766,7 @@ public void test0076(){
 }
 
 
-public void test0077(){
+public void test0077_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4132,22 +4801,35 @@ public void test0077(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new int[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0077_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      int o = new int[<CompleteOnName:zzz>];\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    int o = new int[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new int[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      int o = new int[<CompleteOnName:zzz>];\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4161,7 +4843,7 @@ public void test0077(){
 }
 
 
-public void test0078(){
+public void test0078_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4196,20 +4878,33 @@ public void test0078(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new int[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int o = new int[<CompleteOnName:zzz>];\n" + 
+}
+public void test0078_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    int o = new int[zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new int[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int o = new int[<CompleteOnName:zzz>];\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4222,7 +4917,7 @@ public void test0078(){
 		"full ast");
 }
 
-public void test0079(){
+public void test0079_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4255,21 +4950,31 @@ public void test0079(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  int o;\n" +
-		"  {\n" +
-		"    <CompleteOnName:zzz>;\n" +
-		"  }\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+public void test0079_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  int o = new int[]{zzz;\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  int o;\n" +
+			"  {\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 		
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4283,7 +4988,7 @@ public void test0079(){
 }
 
 
-public void test0080(){
+public void test0080_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4317,20 +5022,32 @@ public void test0080(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0080_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    int o = new int[]{<CompleteOnName:zzz>};\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    int o = new int[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    int o = new int[]{<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4344,7 +5061,7 @@ public void test0080(){
 }
 
 
-public void test0081(){
+public void test0081_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4380,21 +5097,33 @@ public void test0081(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int o = new int[]{<CompleteOnName:zzz>};\n" +  
+		"diet ast"); 
+}
+public void test0081_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    int o = new int[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int o = new int[]{<CompleteOnName:zzz>};\n" +  
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4408,7 +5137,7 @@ public void test0081(){
 }
 
 
-public void test0082(){
+public void test0082_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4442,21 +5171,32 @@ public void test0082(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  int o;\n" +
-		"  {\n" +
-		"    <CompleteOnName:zzz>;\n" +
-		"  }\n" +
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+public void test0082_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  #\n" + 
+		"  int o = new int[]{zzz;\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  int o;\n" +
+			"  {\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" +
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4470,7 +5210,7 @@ public void test0082(){
 }
 
 
-public void test0083(){
+public void test0083_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4505,25 +5245,38 @@ public void test0083(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0083_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      int o;\n" +
-		"      {\n" +
-		"        <CompleteOnName:zzz>;\n" +
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    int o = new int[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      int o;\n" +
+			"      {\n" +
+			"        <CompleteOnName:zzz>;\n" +
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4535,7 +5288,7 @@ public void test0083(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0084(){
+public void test0084_Diet(){
 
 
 	String str = 
@@ -4575,23 +5328,38 @@ public void test0084(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int o;\n" +
-		"    {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" + 
+}
+public void test0084_Method(){
+
+
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    int o = new int[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int o;\n" +
+			"    {\n" +
+			"      <CompleteOnName:zzz>;\n" +
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4603,7 +5371,7 @@ public void test0084(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0085(){
+public void test0085_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4636,21 +5404,31 @@ public void test0085(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  X o;\n" +
-		"  {\n" +
-		"    <CompleteOnName:zzz>;\n" +
-		"  }\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+public void test0085_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  X o = new X[]{zzz;\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  X o;\n" +
+			"  {\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4664,7 +5442,7 @@ public void test0085(){
 }
 
 
-public void test0086(){
+public void test0086_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4698,20 +5476,32 @@ public void test0086(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0086_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    X o = new X[]{<CompleteOnName:zzz>};\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    X o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    X o = new X[]{<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4724,7 +5514,7 @@ public void test0086(){
 		"full ast");
 }
 
-public void test0087(){
+public void test0087_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4760,21 +5550,33 @@ public void test0087(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    X o = new X[]{<CompleteOnName:zzz>};\n" + 
+		"diet ast"); 
+}
+public void test0087_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    X o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    X o = new X[]{<CompleteOnName:zzz>};\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4788,7 +5590,7 @@ public void test0087(){
 }
 
 
-public void test0088(){
+public void test0088_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4822,21 +5624,32 @@ public void test0088(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  X o;\n" +
-		"  {\n" +
-		"    <CompleteOnName:zzz>;\n" +
-		"  }\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+public void test0088_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  #\n" + 
+		"  X o = new X[]{zzz;\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  X o;\n" +
+			"  {\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4850,7 +5663,7 @@ public void test0088(){
 }
 
 
-public void test0089(){
+public void test0089_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4885,25 +5698,38 @@ public void test0089(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+}
+public void test0089_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      X o;\n" +
-		"      {\n" +
-		"        <CompleteOnName:zzz>;\n" +
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    X o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      X o;\n" +
+			"      {\n" +
+			"        <CompleteOnName:zzz>;\n" +
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -4917,7 +5743,7 @@ public void test0089(){
 }
 
 
-public void test0090(){
+public void test0090_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -4955,23 +5781,36 @@ public void test0090(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    X o;\n" +
-		"    {\n" +
-		"      <CompleteOnName:zzz>;\n" +
-		"    }\n" + 
+}
+public void test0090_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    #\n" +
+		"    X o = new X[]{zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    X o;\n" +
+			"    {\n" +
+			"      <CompleteOnName:zzz>;\n" +
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5019,7 +5858,7 @@ public void test0091(){
 }
 
 
-public void test0092(){
+public void test0092_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5053,22 +5892,35 @@ public void test0092(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+		"diet ast"); 
+}
+public void test0092_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    Object o;\n" +
-		"    <CompleteOnName:zzz>;\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    Object o = \"yyy;\n" + 
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    Object o;\n" +
+			"    <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5082,7 +5934,7 @@ public void test0092(){
 }
 
 
-public void test0093(){
+public void test0093_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5116,22 +5968,35 @@ public void test0093(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    Object o;\n" +
-		"    <CompleteOnName:zzz>;\n" + 
+		"diet ast"); 
+}
+public void test0093_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    Object o = \"yyy;\n" + 
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    <CompleteOnName:zzz>;\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5182,7 +6047,7 @@ public void test0094(){
 }
 
 
-public void test0095(){
+public void test0095_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5217,24 +6082,38 @@ public void test0095(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+		"diet ast"); 
+}
+public void test0095_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" + 
-		"      Object o;\n" +
-		"      <CompleteOnName:zzz>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object o = \"yyy;\n" + 
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" + 
+			"      Object o;\n" +
+			"      <CompleteOnName:zzz>;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5248,7 +6127,7 @@ public void test0095(){
 }
 
 
-public void test0096(){
+public void test0096_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5283,24 +6162,38 @@ public void test0096(){
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,
-		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
+		"diet ast"); 
+}
+public void test0096_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
 		"  {\n" + 
-		"    {\n" +
-		"      Object o;\n" +
-		"      <CompleteOnName:zzz>;\n" + 
-		"    }\n" +
-		"  }\n" + 
-		"  public X() {\n" + 
+		"    #\n" +
+		"    Object o = \"yyy;\n" + 
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  {\n" + 
+			"    {\n" +
+			"      Object o;\n" +
+			"      <CompleteOnName:zzz>;\n" + 
+			"    }\n" +
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5312,7 +6205,7 @@ public void test0096(){
 		expectedReplacedSource,
 		"full ast"); 
 }
-public void test0097(){
+public void test0097_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5347,21 +6240,34 @@ public void test0097(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "o = <CompleteOnName:zzz>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
+}
+public void test0097_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
 		"    Object o;\n" +
-		"    o = <CompleteOnName:zzz>;\n" +
+		"    o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "o = <CompleteOnName:zzz>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    o = <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5374,7 +6280,7 @@ public void test0097(){
 		"full ast");
 }
 
-public void test0098(){
+public void test0098_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5409,21 +6315,34 @@ public void test0098(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "o = <CompleteOnName:zzz>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
+}
+public void test0098_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
 		"    Object o;\n" +
-		"    o = <CompleteOnName:zzz>;\n" +
+		"    o = zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "o = <CompleteOnName:zzz>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    o = <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5435,7 +6354,7 @@ public void test0098(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0099(){
+public void test0099_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5470,21 +6389,34 @@ public void test0099(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	expectedParentNodeToString = "o = new <CompleteOnType:zzz>()";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
+}
+public void test0099_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
 		"    Object o;\n" +
-		"    o = new <CompleteOnType:zzz>();\n" +
+		"    o = new zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnType:zzz>";
+	String expectedParentNodeToString = "o = new <CompleteOnType:zzz>()";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    o = new <CompleteOnType:zzz>();\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5497,7 +6429,7 @@ public void test0099(){
 		"full ast");
 }
 
-public void test0100(){
+public void test0100_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5532,21 +6464,34 @@ public void test0100(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnType:zzz>";
-	expectedParentNodeToString = "o = new <CompleteOnType:zzz>()";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
+}
+public void test0100_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
 		"    Object o;\n" +
-		"    o = new <CompleteOnType:zzz>();\n" +
+		"    o = new zzz;\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnType:zzz>";
+	String expectedParentNodeToString = "o = new <CompleteOnType:zzz>()";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    o = new <CompleteOnType:zzz>();\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5558,7 +6503,7 @@ public void test0100(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0101(){
+public void test0101_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5594,21 +6539,35 @@ public void test0101(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
+}
+public void test0101_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
 		"    Object o;\n" +
-		"    <CompleteOnName:zzz>;\n" +
+		"    o = yyy;\n" +
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5621,7 +6580,7 @@ public void test0101(){
 		"full ast");
 }
 
-public void test0102(){
+public void test0102_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5657,21 +6616,35 @@ public void test0102(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
+}
+public void test0102_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
 		"    Object o;\n" +
-		"    <CompleteOnName:zzz>;\n" +
+		"    o = yyy;\n" +
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5683,7 +6656,7 @@ public void test0102(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0103(){
+public void test0103_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5719,21 +6692,35 @@ public void test0103(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
+}
+public void test0103_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
 		"    Object o;\n" +
-		"    <CompleteOnName:zzz>;\n" +
+		"    o = \"yyy;\n" +
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5746,7 +6733,7 @@ public void test0103(){
 		"full ast");
 }
 
-public void test0104(){
+public void test0104_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5782,21 +6769,35 @@ public void test0104(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
+}
+public void test0104_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
 		"    Object o;\n" +
-		"    <CompleteOnName:zzz>;\n" +
+		"    o = \"yyy;\n" +
+		"    zzz\n" + 
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o;\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5809,7 +6810,7 @@ public void test0104(){
 		"full ast");
 }
 
-public void test0105(){
+public void test0105_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5843,20 +6844,32 @@ public void test0105(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "(1 + <CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int x = (1 + <CompleteOnName:zzz>);\n" +
+}
+public void test0105_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    int x = 1 + zzz\n" +
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "(1 + <CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int x = (1 + <CompleteOnName:zzz>);\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5868,7 +6881,7 @@ public void test0105(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0106(){
+public void test0106_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5902,20 +6915,32 @@ public void test0106(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "(1 + <CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int x = (1 + <CompleteOnName:zzz>);\n" +
+}
+public void test0106_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    int x = 1 + (zzz\n" +
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "(1 + <CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int x = (1 + <CompleteOnName:zzz>);\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5927,7 +6952,7 @@ public void test0106(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0107(){
+public void test0107_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -5963,22 +6988,36 @@ public void test0107(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int x;\n" +
-		"    int y;\n" +
-		"    <CompleteOnName:zzz>;\n" +
+}
+public void test0107_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    int x = 0;\n" +
+		"    int y = 1 + x;\n" +
+		"    zzz;\n" +
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int x;\n" +
+			"    int y;\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -5990,7 +7029,7 @@ public void test0107(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0108(){
+public void test0108_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -6024,20 +7063,32 @@ public void test0108(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "(- <CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int x = (- <CompleteOnName:zzz>);\n" +
+}
+public void test0108_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    int x = -zzz;\n" +
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "(- <CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int x = (- <CompleteOnName:zzz>);\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -6049,7 +7100,7 @@ public void test0108(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0109(){
+public void test0109_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -6083,20 +7134,32 @@ public void test0109(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "(- <CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int x = (- <CompleteOnName:zzz>);\n" +
+}
+public void test0109_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    int x = -(zzz;\n" +
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "(- <CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int x = (- <CompleteOnName:zzz>);\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -6108,7 +7171,7 @@ public void test0109(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0110(){
+public void test0110_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -6144,22 +7207,36 @@ public void test0110(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    int x;\n" +
-		"    int y;\n" +
-		"    <CompleteOnName:zzz>;\n" +
+}
+public void test0110_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    int x = 0;\n" +
+		"    int y = -x;\n" +
+		"    zzz;\n" +
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    int x;\n" +
+			"    int y;\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -6171,7 +7248,7 @@ public void test0110(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0111(){
+public void test0111_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -6205,20 +7282,32 @@ public void test0111(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "(1 == <CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    (1 == <CompleteOnName:zzz>);\n" +
+}
+public void test0111_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    if(1 == zzz) {}\n" +
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "(1 == <CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    (1 == <CompleteOnName:zzz>);\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -6230,7 +7319,7 @@ public void test0111(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0112(){
+public void test0112_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -6264,20 +7353,32 @@ public void test0112(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "(1 == <CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    (1 == <CompleteOnName:zzz>);\n" +
+}
+public void test0112_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(){\n" + 
+		"    if(1 == (zzz)) {}\n" +
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "(1 == <CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    (1 == <CompleteOnName:zzz>);\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -6289,7 +7390,7 @@ public void test0112(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0113(){
+public void test0113_Diet(){
 	String str = 
 		"package p;\n" +  
 		"public class X {\n" +
@@ -6323,20 +7424,32 @@ public void test0113(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnType:ZZZ>";
-	expectedParentNodeToString = "(x instanceof <CompleteOnType:ZZZ>)";
-	completionIdentifier = "ZZZ";
-	expectedReplacedSource = "ZZZ";
-	expectedUnitDisplayString =
-		"package p;\n" + 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo(Object x) {\n" + 
-		"    (x instanceof <CompleteOnType:ZZZ>);\n" +
+}
+public void test0113_Method(){
+	String str = 
+		"package p;\n" +  
+		"public class X {\n" +
+		"  void foo(Object x){\n" + 
+		"    if(x instanceof ZZZ) {}\n" +
 		"  }\n" + 
 		"}\n";
+
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.indexOf("ZZZ") + completeBehind.length() - 1;
+	
+	String expectedCompletionNodeToString = "<CompleteOnType:ZZZ>";
+	String expectedParentNodeToString = "(x instanceof <CompleteOnType:ZZZ>)";
+	String completionIdentifier = "ZZZ";
+	String expectedReplacedSource = "ZZZ";
+	String expectedUnitDisplayString =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo(Object x) {\n" + 
+			"    (x instanceof <CompleteOnType:ZZZ>);\n" +
+			"  }\n" + 
+			"}\n";
 	
 	checkMethodParse(
 		str.toCharArray(), 
@@ -6348,7 +7461,7 @@ public void test0113(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0114(){
+public void test0114_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -6383,23 +7496,36 @@ public void test0114(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "c = <CompleteOnName:zzz>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0114_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    boolean a;\n" +
-		"    boolean b;\n" +
-		"    boolean c;\n" +
-		"    c = <CompleteOnName:zzz>;\n" +
+		"  void foo(){\n" +
+		"    boolean a, b, c;\n" +
+		"    c = a == b ? zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "c = <CompleteOnName:zzz>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    boolean a;\n" +
+			"    boolean b;\n" +
+			"    boolean c;\n" +
+			"    c = <CompleteOnName:zzz>;\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6411,7 +7537,7 @@ public void test0114(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0115(){
+public void test0115_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -6446,22 +7572,35 @@ public void test0115(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0115_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    boolean a;\n" +
-		"    boolean b;\n" +
-		"    <CompleteOnName:zzz>;\n" +
+		"  void foo(){\n" +
+		"    boolean a, b;\n" +
+		"    a == b ? zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    boolean a;\n" +
+			"    boolean b;\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6473,7 +7612,7 @@ public void test0115(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0116(){
+public void test0116_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -6508,23 +7647,36 @@ public void test0116(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "c = ((a == b) ? a : <CompleteOnName:zzz>)";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0116_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    boolean a;\n" +
-		"    boolean b;\n" +
-		"    boolean c;\n" +
-		"    c = ((a == b) ? a : <CompleteOnName:zzz>);\n" +
+		"  void foo(){\n" +
+		"    boolean a, b, c;\n" +
+		"    c = a == b ? a : zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "c = ((a == b) ? a : <CompleteOnName:zzz>)";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    boolean a;\n" +
+			"    boolean b;\n" +
+			"    boolean c;\n" +
+			"    c = ((a == b) ? a : <CompleteOnName:zzz>);\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6536,7 +7688,7 @@ public void test0116(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0117(){
+public void test0117_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -6571,23 +7723,36 @@ public void test0117(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "c = <CompleteOnName:zzz>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0117_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    boolean a;\n" +
-		"    boolean b;\n" +
-		"    boolean c;\n" +
-		"    c = <CompleteOnName:zzz>;\n" +
+		"  void foo(){\n" +
+		"    boolean a, b, c;\n" +
+		"    c = a == b ? a : (zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "c = <CompleteOnName:zzz>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    boolean a;\n" +
+			"    boolean b;\n" +
+			"    boolean c;\n" +
+			"    c = <CompleteOnName:zzz>;\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6599,7 +7764,7 @@ public void test0117(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0118(){
+public void test0118_Diet(){
 	String str =
 		"package p;\n" +
 		"public class X {\n" +
@@ -6634,23 +7799,36 @@ public void test0118(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0118_Method(){
+	String str =
 		"package p;\n" +
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    boolean a;\n" +
-		"    boolean b;\n" +
-		"    boolean c;\n" +
-		"    <CompleteOnName:zzz>;\n" +
+		"  void foo(){\n" +
+		"    boolean a, b, c;\n" +
+		"    c = a# == b ? a : zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"package p;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    boolean a;\n" +
+			"    boolean b;\n" +
+			"    boolean c;\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6662,7 +7840,7 @@ public void test0118(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0119(){
+public void test0119_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -6696,26 +7874,39 @@ public void test0119(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString =
-		"switch (1) {\n" + 
-		"case <CompleteOnName:zzz> : ;\n" + 
-		"}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    {\n" + 
-		"      switch (1) {\n" + 
-		"      case <CompleteOnName:zzz> : ;\n" + 
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
+}
+public void test0119_Method(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    switch(1) {\n" +
+		"      case zzz\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString =
+			"switch (1) {\n" + 
+			"case <CompleteOnName:zzz> : ;\n" + 
+			"}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    {\n" + 
+			"      switch (1) {\n" + 
+			"      case <CompleteOnName:zzz> : ;\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6727,7 +7918,7 @@ public void test0119(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0120(){
+public void test0120_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -6762,28 +7953,42 @@ public void test0120(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString =
-		"switch (1) {\n" + 
-		"case Something : ;\n" + 
-		"case <CompleteOnName:zzz> : ;\n" + 
-		"}";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    {\n" + 
-		"      switch (1) {\n" + 
-		"      case Something : ;\n" + 
-		"      case <CompleteOnName:zzz> : ;\n" + 
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
+}
+public void test0120_Method(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    switch(1) {\n" +
+		"      case Something :\n" +
+		"      case zzz\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString =
+			"switch (1) {\n" + 
+			"case Something : ;\n" + 
+			"case <CompleteOnName:zzz> : ;\n" + 
+			"}";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    {\n" + 
+			"      switch (1) {\n" + 
+			"      case Something : ;\n" + 
+			"      case <CompleteOnName:zzz> : ;\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6795,7 +8000,7 @@ public void test0120(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0121(){
+public void test0121_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -6827,19 +8032,30 @@ public void test0121(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "tab[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0121_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    tab[<CompleteOnName:zzz>];\n" +
+		"  void foo(){\n" +
+		"    tab[zzz]\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "tab[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    tab[<CompleteOnName:zzz>];\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6851,7 +8067,7 @@ public void test0121(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0122(){
+public void test0122_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -6883,19 +8099,30 @@ public void test0122(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnClassLiteralAccess:tab[].zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "tab[].zzz";
-	expectedUnitDisplayString =
+}
+public void test0122_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnClassLiteralAccess:tab[].zzz>;\n" +
+		"  void foo(){\n" +
+		"    tab[].zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnClassLiteralAccess:tab[].zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "tab[].zzz";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnClassLiteralAccess:tab[].zzz>;\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6907,7 +8134,7 @@ public void test0122(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0123(){
+public void test0123_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -6939,19 +8166,30 @@ public void test0123(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnMemberAccess:tab[0].zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0123_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnMemberAccess:tab[0].zzz>;\n" +
+		"  void foo(){\n" +
+		"    tab[0].zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnMemberAccess:tab[0].zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnMemberAccess:tab[0].zzz>;\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -6963,7 +8201,7 @@ public void test0123(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0124(){
+public void test0124_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -6995,19 +8233,30 @@ public void test0124(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "foo()[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0124_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    foo()[<CompleteOnName:zzz>];\n" +
+		"  void foo(){\n" +
+		"    foo()[zzz]\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "foo()[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    foo()[<CompleteOnName:zzz>];\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7019,7 +8268,7 @@ public void test0124(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0125(){
+public void test0125_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7051,19 +8300,30 @@ public void test0125(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0125_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnName:zzz>;\n" +
+		"  void foo(){\n" +
+		"    foo()[].zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7075,7 +8335,7 @@ public void test0125(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0126(){
+public void test0126_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7107,19 +8367,30 @@ public void test0126(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnMemberAccess:foo()[1].zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0126_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    <CompleteOnMemberAccess:foo()[1].zzz>;\n" +
+		"  void foo(){\n" +
+		"    foo()[1].zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnMemberAccess:foo()[1].zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    <CompleteOnMemberAccess:foo()[1].zzz>;\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7166,7 +8437,7 @@ public void test0127(){
 		expectedReplacedSource,
 		"diet ast");
 }
-public void test0128(){
+public void test0128_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7202,23 +8473,38 @@ public void test0128(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "a[<CompleteOnName:zzz>]";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0128_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
+		"  void foo(){\n" +
 		"    new Object() {\n" +
 		"      void bar() {\n" +
-		"        a[<CompleteOnName:zzz>];\n" +
+		"        a[zzz\n" +
 		"      }\n" +
-		"    };\n" +
+		"    }\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "a[<CompleteOnName:zzz>]";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    new Object() {\n" +
+			"      void bar() {\n" +
+			"        a[<CompleteOnName:zzz>];\n" +
+			"      }\n" +
+			"    };\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7230,7 +8516,7 @@ public void test0128(){
 		expectedReplacedSource,
 		"full ast");
 }
-public void test0129(){
+public void test0129_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7267,21 +8553,37 @@ public void test0129(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "zzz";
-	expectedReplacedSource = "zzz";
-	expectedUnitDisplayString =
+}
+public void test0129_Method(){
+	String str =
 		"public class X {\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
+		"  void foo(){\n" +
 		"    Object local;\n" +
 		"    double bar;\n" +
-		"    <CompleteOnName:zzz>;\n" +
+		"    for(;;) {\n" +
+		"      bar = (double)0;\n" +
+		"    }\n" +
+		"    zzz\n" +
 		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    Object local;\n" +
+			"    double bar;\n" +
+			"    <CompleteOnName:zzz>;\n" +
+			"  }\n" +
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7296,7 +8598,7 @@ public void test0129(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=42856
  */
-public void test0130(){
+public void test0130_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7329,20 +8631,35 @@ public void test0130(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnMessageSend:zzz()>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "";
-	expectedReplacedSource = "zzz(";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    A.B c;\n" + 
-		"    <CompleteOnMessageSend:zzz()>;\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=42856
+ */
+public void test0130_Method(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    A.B c = null;\n" +
+		"    zzz();\n" +
+		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz(";
+	int cursorLocation = str.indexOf("zzz(") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnMessageSend:zzz()>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "zzz(";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    A.B c;\n" + 
+			"    <CompleteOnMessageSend:zzz()>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7357,7 +8674,7 @@ public void test0130(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=42856
  */
-public void test0131(){
+public void test0131_Diet(){
 	String str =
 		"public class X {\n" +
 		"  void foo(){\n" +
@@ -7392,22 +8709,39 @@ public void test0131(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnMessageSend:zzz()>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "";
-	expectedReplacedSource = "zzz(";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    {\n" + 
-		"      A.B e;\n" + 
-		"      <CompleteOnMessageSend:zzz()>;\n" + 
-		"    }\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=42856
+ */
+public void test0131_Method(){
+	String str =
+		"public class X {\n" +
+		"  void foo(){\n" +
+		"    try {\n" +
+		"    } catch(A.B e) {\n" +
+		"      zzz();\n" +
+		"    }\n" +
+		"  }\n" +
 		"}\n";
+
+	String completeBehind = "zzz(";
+	int cursorLocation = str.indexOf("zzz(") + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnMessageSend:zzz()>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "zzz(";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    {\n" + 
+			"      A.B e;\n" + 
+			"      <CompleteOnMessageSend:zzz()>;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7422,7 +8756,7 @@ public void test0131(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44647
  */
-public void test0132(){
+public void test0132_Diet(){
 	String str =
 		"public class A\n" +
 		"{\n" +
@@ -7472,23 +8806,55 @@ public void test0132(){
 		completionIdentifier,
 		expectedReplacedSource,
 		"diet ast");
-
-	expectedCompletionNodeToString = "<CompleteOnName:>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "";
-	expectedReplacedSource = "";
-	expectedUnitDisplayString =
-		"public class A {\n" + 
-		"  public A(final String str1, final String str2) {\n" + 
-		"  }\n" + 
-		"  private A[] methodA(final String str1, final String str2) {\n" + 
-		"    new A(str1, str2) {\n" + 
-		"      {\n" + 
-		"        <CompleteOnName:>;\n" + 
-		"      }\n" + 
-		"    };\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44647
+ */
+public void test0132_Method(){
+	String str =
+		"public class A\n" +
+		"{\n" +
+		"   public A(final String str1, final String str2)\n" +
+		"   {\n" +
+		"      \n" +	
+		"   }\n" +
+		"   \n" +
+		"   private A[] methodA(final String str1, final String str2)\n" +
+		"      {\n" +
+		"         return new A[]\n" +
+		"         {\n" +
+		"            new A(str1, str2)\n" +
+		"            {\n" +
+		"               //initialiser!\n" +
+		"               {\n" +
+		"                  methodA(\"1\", \"2\");\n" +
+		"               }\n" +
+		"            },\n" +
+		"            new A(\"hello\".c) //<--------code complete to \"hello\".concat()\n" +
+		"         };\n" +
+		"      \n" +
+		"      }\n" +
 		"}\n";
+
+
+	String completeBehind = "\"2\");";
+	int cursorLocation = str.indexOf("\"2\");") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+			"public class A {\n" + 
+			"  public A(final String str1, final String str2) {\n" + 
+			"  }\n" + 
+			"  private A[] methodA(final String str1, final String str2) {\n" + 
+			"    new A(str1, str2) {\n" + 
+			"      {\n" + 
+			"        <CompleteOnName:>;\n" + 
+			"      }\n" + 
+			"    };\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 		str.toCharArray(),
@@ -7503,7 +8869,7 @@ public void test0132(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=46470
  */
-public void test0133(){
+public void test0133_Diet(){
 	String str =
 	"public class X {\n" +
 	"   int x;\n" +
@@ -7541,20 +8907,39 @@ public void test0133(){
 			completionIdentifier,
 			expectedReplacedSource,
 			"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=46470
+ */
+public void test0133_Method(){
+	String str =
+	"public class X {\n" +
+	"   int x;\n" +
+	"   void foo() {\n" +
+	"      switch(x){\n" +
+	"         case 0:\n" +
+	"            break;\n" +
+	"      }\n" +
+	"      bar\n" +
+	"   }\n" +
+	"}\n";
 
-	expectedCompletionNodeToString = "<CompleteOnName:bar>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "bar";
-	expectedReplacedSource = "bar";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  int x;\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnName:bar>;\n" + 
-		"  }\n" + 
-		"}\n";
+
+	String completeBehind = "bar";
+	int cursorLocation = str.indexOf("bar") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:bar>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "bar";
+	String expectedReplacedSource = "bar";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  int x;\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    <CompleteOnName:bar>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -7616,7 +9001,7 @@ public void test0134(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43212
  */
-public void test0135(){
+public void test0135_Diet(){
 	String str =
 	"public class X {\n" +
 	"	void bar(){\n" +
@@ -7656,28 +9041,50 @@ public void test0135(){
 			completionIdentifier,
 			expectedReplacedSource,
 			"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43212
+ */
+public void test0135_Method(){
+	String str =
+	"public class X {\n" +
+	"	void bar(){\n" +
+	"		#\n" +
+	"		class Inner {\n" +
+	"			void foo() {\n" +
+	"				try {\n" +
+	"				} catch(Exception e) {\n" +
+	"					e.\n" +
+	"				}\n" +
+	"			}\n" +
+	"		}\n" +
+	"	}\n" +
+	"}\n";
 
-	expectedCompletionNodeToString = "<CompleteOnName:e.>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "";
-	expectedReplacedSource = "e.";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void bar() {\n" + 
-		"    class Inner {\n" + 
-		"      Inner() {\n" + 
-		"      }\n" + 
-		"      void foo() {\n" + 
-		"        {\n" + 
-		"          Exception e;\n" + 
-		"          <CompleteOnName:e.>;\n" + 
-		"        }\n" + 
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"}\n";
+
+	String completeBehind = "e.";
+	int cursorLocation = str.indexOf("e.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:e.>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "e.";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void bar() {\n" + 
+			"    class Inner {\n" + 
+			"      Inner() {\n" + 
+			"      }\n" + 
+			"      void foo() {\n" + 
+			"        {\n" + 
+			"          Exception e;\n" + 
+			"          <CompleteOnName:e.>;\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -7726,7 +9133,7 @@ public void test0136(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=53624
  */
-public void test0137(){
+public void test0137_Diet(){
 	String str =
 		"public class X {\n" +
 		"	void foo(){\n" +
@@ -7762,23 +9169,41 @@ public void test0137(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnMessageSend:super.zzz()>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "";
-	expectedReplacedSource = "zzz(";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    new Object() {\n" + 
-		"      void bar() {\n" + 
-		"        <CompleteOnMessageSend:super.zzz()>;\n" + 
-		"      }\n" + 
-		"    };\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=53624
+ */
+public void test0137_Method(){
+	String str =
+		"public class X {\n" +
+		"	void foo(){\n" +
+		"		new Object(){\n" +
+		"			void bar(){\n" +
+		"				super.zzz();\n" +
+		"			}\n" +
+		"		};\n" +
+		"	}\n" +
 		"}\n";
+
+
+	String completeBehind = "zzz(";
+	int cursorLocation = str.indexOf("zzz(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnMessageSend:super.zzz()>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "zzz(";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    new Object() {\n" + 
+			"      void bar() {\n" + 
+			"        <CompleteOnMessageSend:super.zzz()>;\n" + 
+			"      }\n" + 
+			"    };\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -7793,7 +9218,7 @@ public void test0137(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=41395
  */
-public void test0138(){
+public void test0138_Diet(){
 	String str =
 		"public class X{\n" + 
 		"  public void foo() {\n" + 
@@ -7836,27 +9261,52 @@ public void test0138(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnFieldName:void to>;";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "to";
-	expectedReplacedSource = "toto";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=41395
+ */
+public void test0138_Method(){
+	String str =
+		"public class X{\n" + 
 		"  public void foo() {\n" + 
 		"    new Y() {\n" + 
 		"      public void bar() {\n" + 
+		"        switch (zzz){\n" + 
+		"          case 1 :\n" + 
+    	"          };\n" + 
+		"        }\n" + 
 		"        new Z() {\n" + 
-		"          <CompleteOnFieldName:void to>;\n" + 
-		"          {\n" + 
-		"          }\n" + 
-		"        };\n" + 
-		"      }\n" + 
-		"    };\n" + 
+		"          public void toto() {		\n" + 	
+		"        }\n" + 
+		"      });\n" + 
+		"    });\n" + 
 		"  }\n" + 
-		"}\n";
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "to";
+	int cursorLocation = str.indexOf("to") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnFieldName:void to>;";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "to";
+	String expectedReplacedSource = "toto";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    new Y() {\n" + 
+			"      public void bar() {\n" + 
+			"        new Z() {\n" + 
+			"          <CompleteOnFieldName:void to>;\n" + 
+			"          {\n" + 
+			"          }\n" + 
+			"        };\n" + 
+			"      }\n" + 
+			"    };\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -7992,7 +9442,7 @@ public void test0141(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=39499
  */
-public void test0142(){
+public void test0142_Diet(){
 	String str =
 		"public class X{\n" + 
 		"  public void foo() {\n" + 
@@ -8029,23 +9479,42 @@ public void test0142(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnKeyword:instanceof>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "instanceof";
-	expectedReplacedSource = "instanceof";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=39499
+ */
+public void test0142_Method(){
+	String str =
+		"public class X{\n" + 
 		"  public void foo() {\n" + 
-		"    new Object() {\n" + 
+		"    bar(new Object(){\n" + 
 		"      public void toto() {\n" + 
-		"        <CompleteOnKeyword:instanceof>;\n" + 
+		"        if(a instanceof Object) {}\n" + 
 		"      }\n" + 
-		"    };\n" + 
+    	"    });\n" + 
 		"  }\n" + 
-		"}\n";
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "instanceof";
+	int cursorLocation = str.indexOf("instanceof") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:instanceof>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "instanceof";
+	String expectedReplacedSource = "instanceof";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    new Object() {\n" + 
+			"      public void toto() {\n" + 
+			"        <CompleteOnKeyword:instanceof>;\n" + 
+			"      }\n" + 
+			"    };\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8060,7 +9529,7 @@ public void test0142(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
-public void test0143(){
+public void test0143_Diet(){
 	String str =
 		"public class X{\n" + 
 		"  public void foo() {\n" + 
@@ -8094,20 +9563,36 @@ public void test0143(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:bar>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "bar";
-	expectedReplacedSource = "bar";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
+ */
+public void test0143_Method(){
+	String str =
+		"public class X{\n" + 
 		"  public void foo() {\n" + 
-		"    Object o;\n" + 
-		"    <CompleteOnName:bar>;\n" + 
+		"    Object o =(int) tmp;\n" + 
+		"    bar\n" + 
 		"  }\n" + 
-		"}\n";
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "bar";
+	int cursorLocation = str.indexOf("bar") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:bar>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "bar";
+	String expectedReplacedSource = "bar";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    Object o;\n" + 
+			"    <CompleteOnName:bar>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8122,7 +9607,7 @@ public void test0143(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
-public void test0144(){
+public void test0144_Diet(){
 	String str =
 		"public class X{\n" + 
 		"  public void foo() {\n" + 
@@ -8156,20 +9641,36 @@ public void test0144(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:bar>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "bar";
-	expectedReplacedSource = "bar";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
+ */
+public void test0144_Method(){
+	String str =
+		"public class X{\n" + 
 		"  public void foo() {\n" + 
-		"    Object o;\n" + 
-		"    <CompleteOnName:bar>;\n" + 
+		"    Object o =(int[]) tmp;\n" + 
+		"    bar\n" + 
 		"  }\n" + 
-		"}\n";
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "bar";
+	int cursorLocation = str.indexOf("bar") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:bar>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "bar";
+	String expectedReplacedSource = "bar";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    Object o;\n" + 
+			"    <CompleteOnName:bar>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8184,7 +9685,7 @@ public void test0144(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
-public void test0145(){
+public void test0145_Diet(){
 	String str =
 		"public class X{\n" + 
 		"  public void foo() {\n" + 
@@ -8218,20 +9719,36 @@ public void test0145(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:bar>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "bar";
-	expectedReplacedSource = "bar";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
+ */
+public void test0145_Method(){
+	String str =
+		"public class X{\n" + 
 		"  public void foo() {\n" + 
-		"    Object o;\n" + 
-		"    <CompleteOnName:bar>;\n" + 
+		"    Object o =(X) tmp;\n" + 
+		"    bar\n" + 
 		"  }\n" + 
-		"}\n";
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "bar";
+	int cursorLocation = str.indexOf("bar") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:bar>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "bar";
+	String expectedReplacedSource = "bar";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    Object o;\n" + 
+			"    <CompleteOnName:bar>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8246,7 +9763,7 @@ public void test0145(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
  */
-public void test0146(){
+public void test0146_Diet(){
 	String str =
 		"public class X{\n" + 
 		"  public void foo() {\n" + 
@@ -8280,20 +9797,36 @@ public void test0146(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:bar>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "bar";
-	expectedReplacedSource = "bar";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=71702
+ */
+public void test0146_Method(){
+	String str =
+		"public class X{\n" + 
 		"  public void foo() {\n" + 
-		"    Object o;\n" + 
-		"    <CompleteOnName:bar>;\n" + 
+		"    Object o =(X[]) tmp;\n" + 
+		"    bar\n" + 
 		"  }\n" + 
-		"}\n";
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "bar";
+	int cursorLocation = str.indexOf("bar") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:bar>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "bar";
+	String expectedReplacedSource = "bar";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    Object o;\n" + 
+			"    <CompleteOnName:bar>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8384,7 +9917,7 @@ public void test0148(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=91371
  */
-public void test0149(){
+public void test0149_Diet(){
 	String str =
 		"public class X{\n" + 
 		"  public void foo() {\n" + 
@@ -8418,23 +9951,39 @@ public void test0149(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ZZ>";
-	expectedParentNodeToString = "(titi & <CompleteOnName:ZZ>)";
-	completionIdentifier = "ZZ";
-	expectedReplacedSource = "ZZ";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=91371
+ */
+public void test0149_Method(){
+	String str =
+		"public class X{\n" + 
 		"  public void foo() {\n" + 
-		"    new Object() {\n" + 
-		"      void bar() {\n" + 
-		"        (titi & <CompleteOnName:ZZ>);\n" + 
-		"      }\n" + 
-		"    };\n" + 
-		"  }\n" + 
-		"}\n";
+		"    new Object(){\n" + 
+		"      void bar(){\n" + 
+		"        if((titi & (ZZ\n" + 
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "ZZ";
+	int cursorLocation = str.indexOf("ZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:ZZ>";
+	String expectedParentNodeToString = "(titi & <CompleteOnName:ZZ>)";
+	String completionIdentifier = "ZZ";
+	String expectedReplacedSource = "ZZ";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    new Object() {\n" + 
+			"      void bar() {\n" + 
+			"        (titi & <CompleteOnName:ZZ>);\n" + 
+			"      }\n" + 
+			"    };\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8449,7 +9998,7 @@ public void test0149(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=91371
  */
-public void test0150(){
+public void test0150_Diet(){
 	String str =
 		"public class X{\n" + 
 		"  public void foo() {\n" + 
@@ -8481,19 +10030,33 @@ public void test0150(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:ZZ>";
-	expectedParentNodeToString = "(titi & <CompleteOnName:ZZ>)";
-	completionIdentifier = "ZZ";
-	expectedReplacedSource = "ZZ";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=91371
+ */
+public void test0150_Method(){
+	String str =
+		"public class X{\n" + 
 		"  public void foo() {\n" + 
-		"    (titi & <CompleteOnName:ZZ>);\n" + 
-		"  }\n" + 
-		"}\n";
+		"    if((titi & (ZZ\n" + 
+		"}\n" + 
+		"\n";
+
+
+	String completeBehind = "ZZ";
+	int cursorLocation = str.indexOf("ZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:ZZ>";
+	String expectedParentNodeToString = "(titi & <CompleteOnName:ZZ>)";
+	String completionIdentifier = "ZZ";
+	String expectedReplacedSource = "ZZ";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    (titi & <CompleteOnName:ZZ>);\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8508,7 +10071,7 @@ public void test0150(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92451
  */
-public void test0151(){
+public void test0151_Diet(){
 	String str =
 		"public class X {\n" + 
 		"  public static void main(String[] args) {\n" + 
@@ -8542,20 +10105,36 @@ public void test0151(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "";
-	expectedReplacedSource = "";
-	expectedUnitDisplayString =
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92451
+ */
+public void test0151_Method(){
+	String str =
 		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
 		"  public static void main(String[] args) {\n" + 
-		"    java.util.List elements;\n" + 
-		"    <CompleteOnName:>;\n" + 
+ 		"    java.util.List elements = null;\n" + 
+ 		"    new Test(Test.toStrings((Test[])elements.toArray(new Test[0])));\n" + 
+		"     //code assist fails on this line\n" + 
 		"  }\n" + 
 		"}\n";
+
+
+	String completeBehind = "";
+	int cursorLocation = str.indexOf(" //code assis") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    java.util.List elements;\n" + 
+			"    <CompleteOnName:>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8616,7 +10195,7 @@ public void test0152(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
  */
-public void test0153(){
+public void test0153_Diet(){
 	String str =
 		"public class X {\n" + 
 		"  void foo() {\n" + 
@@ -8650,19 +10229,35 @@ public void test0153(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "break <CompleteOnLabel:lab>;";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "lab";
-	expectedReplacedSource = "lab";
-	expectedUnitDisplayString =
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0153_Method(){
+	String str =
 		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
 		"  void foo() {\n" + 
-		"    break <CompleteOnLabel:lab>;\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      break lab\n" + 
+ 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "break <CompleteOnLabel:lab>;";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "lab";
+	String expectedReplacedSource = "lab";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    break <CompleteOnLabel:lab>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8677,7 +10272,7 @@ public void test0153(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
  */
-public void test0154(){
+public void test0154_Diet(){
 	String str =
 		"public class X {\n" + 
 		"  void foo() {\n" + 
@@ -8712,21 +10307,38 @@ public void test0154(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "break <CompleteOnLabel:lab>;";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "lab";
-	expectedReplacedSource = "lab";
-	expectedUnitDisplayString =
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0154_Method(){
+	String str =
 		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
 		"  void foo() {\n" + 
-		"    {\n" + 
-		"      break <CompleteOnLabel:lab>;\n" + 
-		"    }\n" + 
+		"    #\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      break lab\n" + 
+ 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "break <CompleteOnLabel:lab>;";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "lab";
+	String expectedReplacedSource = "lab";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    {\n" + 
+			"      break <CompleteOnLabel:lab>;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8741,7 +10353,7 @@ public void test0154(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
  */
-public void test0155(){
+public void test0155_Diet(){
 	String str =
 		"public class X {\n" + 
 		"  void foo() {\n" + 
@@ -8775,19 +10387,35 @@ public void test0155(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "lab";
-	expectedReplacedSource = "lab";
-	expectedUnitDisplayString =
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0155_Method(){
+	String str =
 		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
 		"  void foo() {\n" + 
-		"    continue <CompleteOnLabel:lab>;\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      continue lab\n" + 
+ 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "lab";
+	String expectedReplacedSource = "lab";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    continue <CompleteOnLabel:lab>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8802,7 +10430,7 @@ public void test0155(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
  */
-public void test0156(){
+public void test0156_Diet(){
 	String str =
 		"public class X {\n" + 
 		"  void foo() {\n" + 
@@ -8837,21 +10465,38 @@ public void test0156(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "lab";
-	expectedReplacedSource = "lab";
-	expectedUnitDisplayString =
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0156_Method(){
+	String str =
 		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
 		"  void foo() {\n" + 
-		"    {\n" + 
-		"      continue <CompleteOnLabel:lab>;\n" + 
-		"    }\n" + 
+		"    #\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      continue lab\n" + 
+ 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "lab";
+	String expectedReplacedSource = "lab";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    {\n" + 
+			"      continue <CompleteOnLabel:lab>;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8866,7 +10511,7 @@ public void test0156(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
  */
-public void test0157(){
+public void test0157_Diet(){
 	String str =
 		"public class X {\n" + 
 		"  void foo() {\n" + 
@@ -8906,28 +10551,50 @@ public void test0157(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "lab";
-	expectedReplacedSource = "lab";
-	expectedUnitDisplayString =
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0157_Method(){
+	String str =
 		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
 		"  void foo() {\n" + 
-		"    {\n" + 
-		"      class X {\n" + 
-		"        X() {\n" + 
-		"          super();\n" + 
-		"        }\n" + 
-		"        void foo() {\n" + 
-		"        }\n" + 
-		"      }\n" + 
-		"      continue <CompleteOnLabel:lab>;\n" + 
-		"    }\n" + 
+		"    #\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      class X {\n" + 
+ 		"        void foo() {\n" + 
+ 		"          label2 : for(;;) foo();\n" + 
+ 		"        }\n" + 
+ 		"      }\n" + 
+ 		"      continue lab\n" + 
+ 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "lab";
+	String expectedReplacedSource = "lab";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    {\n" + 
+			"      class X {\n" + 
+			"        X() {\n" + 
+			"          super();\n" + 
+			"        }\n" + 
+			"        void foo() {\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"      continue <CompleteOnLabel:lab>;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -8942,7 +10609,7 @@ public void test0157(){
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
  */
-public void test0158(){
+public void test0158_Diet(){
 	String str =
 		"public class X {\n" + 
 		"  void foo() {\n" + 
@@ -8983,29 +10650,52 @@ public void test0158(){
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "lab";
-	expectedReplacedSource = "lab";
-	expectedUnitDisplayString =
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+ */
+public void test0158_Method(){
+	String str =
 		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
 		"  void foo() {\n" + 
-		"    {\n" + 
-		"      class X {\n" + 
-		"        X() {\n" + 
-		"        }\n" + 
-		"        void foo() {\n" + 
-		"          {\n" + 
-		"            continue <CompleteOnLabel:lab>;\n" + 
-		"          }\n" + 
-		"        }\n" + 
-		"      }\n" + 
-		"    }\n" + 
+		"    #\n" + 
+ 		"    label1 : for(;;) {\n" + 
+ 		"      class X {\n" + 
+ 		"        void foo() {\n" + 
+ 		"          label2 : for(;;) {\n" + 
+ 		"            continue lab\n" + 
+ 		"          }\n" + 
+ 		"        }\n" + 
+ 		"      }\n" + 
+ 		"    }\n" + 
 		"  }\n" + 
 		"}\n";
+
+
+	String completeBehind = "lab";
+	int cursorLocation = str.lastIndexOf("lab") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "continue <CompleteOnLabel:lab>;";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "lab";
+	String expectedReplacedSource = "lab";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    {\n" + 
+			"      class X {\n" + 
+			"        X() {\n" + 
+			"        }\n" + 
+			"        void foo() {\n" + 
+			"          {\n" + 
+			"            continue <CompleteOnLabel:lab>;\n" + 
+			"          }\n" + 
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -9191,7 +10881,7 @@ public void test0164() {
 		testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=122755
-public void test0165() {
+public void test0165_Diet() {
 
 	String str = 
 		"public class X {\n" +
@@ -9225,19 +10915,33 @@ public void test0165() {
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnName:>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "";
-	expectedReplacedSource = "";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"    <CompleteOnName:>;\n" + 
-		"  }\n" + 
-		"}\n";
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122755
+public void test0165_Method() {
+
+	String str = 
+		"public class X {\n" +
+		"	void foo() {" +
+		"	/**" +
+		"	 *" +
+		"	 */." +
+		"	}" +
+		"}\n"; 
+
+	String completeBehind = "/.";
+	int cursorLocation = str.lastIndexOf("/.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    <CompleteOnName:>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -9250,7 +10954,7 @@ public void test0165() {
 			"full ast");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=137623
-public void test0166() {
+public void test0166_Diet() {
 
 	String str = 
 		"public class X {\n" +
@@ -9285,19 +10989,34 @@ public void test0166() {
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnClassLiteralAccess:int.>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "";
-	expectedReplacedSource = "int.";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  public boolean foo() {\n" + 
-		"    <CompleteOnClassLiteralAccess:int.>;\n" + 
-		"  }\n" + 
-		"}\n";
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=137623
+public void test0166_Method() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      if(this.equals(null))\n" +
+		"      {\n" +
+		"         (zzz==int.\n" +
+		"      }\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "int.";
+	int cursorLocation = str.lastIndexOf("int.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnClassLiteralAccess:int.>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "int.";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public boolean foo() {\n" + 
+			"    <CompleteOnClassLiteralAccess:int.>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -9310,7 +11029,7 @@ public void test0166() {
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
-public void test0167() {
+public void test0167_Diet() {
 
 	String str = 
 		"public class X {\n" +
@@ -9349,34 +11068,53 @@ public void test0167() {
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
-	expectedParentNodeToString =
-		"try \n" + 
-		"  {\n" + 
-		"    throwing();\n" + 
-		"  }\n" + 
-		"catch (IllegalAccessException e)   {\n" + 
-		"  }\n" + 
-		"catch (<CompleteOnException:IZZ>  )   {\n" + 
-		"  }";
-	completionIdentifier = "IZZ";
-	expectedReplacedSource = "IZZ";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  public boolean foo() {\n" + 
-		"    try \n" + 
-		"      {\n" + 
-		"        throwing();\n" + 
-		"      }\n" + 
-		"    catch (IllegalAccessException e)       {\n" + 
-		"      }\n" + 
-		"    catch (<CompleteOnException:IZZ>  )       {\n" + 
-		"      }\n" + 
-		"  }\n" + 
-		"}\n";
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0167_Method() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IllegalAccessException e) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	String expectedParentNodeToString =
+			"try \n" + 
+			"  {\n" + 
+			"    throwing();\n" + 
+			"  }\n" + 
+			"catch (IllegalAccessException e)   {\n" + 
+			"  }\n" + 
+			"catch (<CompleteOnException:IZZ>  )   {\n" + 
+			"  }";
+	String completionIdentifier = "IZZ";
+	String expectedReplacedSource = "IZZ";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public boolean foo() {\n" + 
+			"    try \n" + 
+			"      {\n" + 
+			"        throwing();\n" + 
+			"      }\n" + 
+			"    catch (IllegalAccessException e)       {\n" + 
+			"      }\n" + 
+			"    catch (<CompleteOnException:IZZ>  )       {\n" + 
+			"      }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -9389,7 +11127,7 @@ public void test0167() {
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
-public void test0168() {
+public void test0168_Diet() {
 
 	String str = 
 		"public class X {\n" +
@@ -9427,34 +11165,52 @@ public void test0168() {
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
-	expectedParentNodeToString =
-		"try \n" + 
-		"  {\n" + 
-		"    throwing();\n" + 
-		"  }\n" + 
-		"catch (IllegalAccessException e)   {\n" + 
-		"  }\n" + 
-		"catch (<CompleteOnException:IZZ>  )   {\n" + 
-		"  }";
-	completionIdentifier = "IZZ";
-	expectedReplacedSource = "IZZ";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  public boolean foo() {\n" + 
-		"    try \n" + 
-		"      {\n" + 
-		"        throwing();\n" + 
-		"      }\n" + 
-		"    catch (IllegalAccessException e)       {\n" + 
-		"      }\n" + 
-		"    catch (<CompleteOnException:IZZ>  )       {\n" + 
-		"      }\n" + 
-		"  }\n" + 
-		"}\n";
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0168_Method() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IllegalAccessException e) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"      catch (IZZ\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	String expectedParentNodeToString =
+			"try \n" + 
+			"  {\n" + 
+			"    throwing();\n" + 
+			"  }\n" + 
+			"catch (IllegalAccessException e)   {\n" + 
+			"  }\n" + 
+			"catch (<CompleteOnException:IZZ>  )   {\n" + 
+			"  }";
+	String completionIdentifier = "IZZ";
+	String expectedReplacedSource = "IZZ";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public boolean foo() {\n" + 
+			"    try \n" + 
+			"      {\n" + 
+			"        throwing();\n" + 
+			"      }\n" + 
+			"    catch (IllegalAccessException e)       {\n" + 
+			"      }\n" + 
+			"    catch (<CompleteOnException:IZZ>  )       {\n" + 
+			"      }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -9467,7 +11223,7 @@ public void test0168() {
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
-public void test0169() {
+public void test0169_Diet() {
 
 	String str = 
 		"public class X {\n" +
@@ -9506,19 +11262,38 @@ public void test0169() {
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "IZZ";
-	expectedReplacedSource = "IZZ";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  public boolean foo() {\n" + 
-		"    <CompleteOnException:IZZ>;\n" + 
-		"  }\n" + 
-		"}\n";
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0169_Method() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IllegalAccessException e) {\n" +
+		"         bar()\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "IZZ";
+	String expectedReplacedSource = "IZZ";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public boolean foo() {\n" + 
+			"    <CompleteOnException:IZZ>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -9531,7 +11306,7 @@ public void test0169() {
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
-public void test0170() {
+public void test0170_Diet() {
 
 	String str = 
 		"public class X {\n" +
@@ -9571,19 +11346,39 @@ public void test0170() {
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
-	expectedParentNodeToString = "<NONE>";
-	completionIdentifier = "IZZ";
-	expectedReplacedSource = "IZZ";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  public boolean foo() {\n" + 
-		"    <CompleteOnException:IZZ>;\n" + 
-		"  }\n" + 
-		"}\n";
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0170_Method() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      #\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IllegalAccessException e) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "IZZ";
+	String expectedReplacedSource = "IZZ";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public boolean foo() {\n" + 
+			"    <CompleteOnException:IZZ>;\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
@@ -9596,7 +11391,7 @@ public void test0170() {
 			"full ast");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
-public void test0171() {
+public void test0171_Diet() {
 
 	String str = 
 		"public class X {\n" +
@@ -9632,31 +11427,47 @@ public void test0171() {
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
-	
-	expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
-	expectedParentNodeToString =
-		"try \n" + 
-		"  {\n" + 
-		"    throwing();\n" + 
-		"  }\n" + 
-		"catch (<CompleteOnException:IZZ>  )   {\n" + 
-		"  }"
-;
-	completionIdentifier = "IZZ";
-	expectedReplacedSource = "IZZ";
-	expectedUnitDisplayString =
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
-		"  public boolean foo() {\n" + 
-		"    try \n" + 
-		"      {\n" + 
-		"        throwing();\n" + 
-		"      }\n" + 
-		"    catch (<CompleteOnException:IZZ>  )       {\n" + 
-		"      }\n" + 
-		"  }\n" + 
-		"}\n";
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
+public void test0171_Method() {
+
+	String str = 
+		"public class X {\n" +
+		"	public boolean foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IZZ) {\n" +
+		"      }\n" +
+		"   }" +
+		"}\n"; 
+
+	String completeBehind = "IZZ";
+	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	String expectedParentNodeToString =
+			"try \n" + 
+			"  {\n" + 
+			"    throwing();\n" + 
+			"  }\n" + 
+			"catch (<CompleteOnException:IZZ>  )   {\n" + 
+			"  }"
+	;
+	String completionIdentifier = "IZZ";
+	String expectedReplacedSource = "IZZ";
+	String expectedUnitDisplayString =
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public boolean foo() {\n" + 
+			"    try \n" + 
+			"      {\n" + 
+			"        throwing();\n" + 
+			"      }\n" + 
+			"    catch (<CompleteOnException:IZZ>  )       {\n" + 
+			"      }\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
