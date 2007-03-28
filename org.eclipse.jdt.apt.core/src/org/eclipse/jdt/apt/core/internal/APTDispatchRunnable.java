@@ -97,10 +97,11 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			reconcileEnv.close();
 		}
 	}
-
+	
 	private static final BuildContext[] NO_FILES_TO_PROCESS = new BuildContext[0];
 	private /*final*/ BuildContext[] _filesWithAnnotation = null;
 	private /*final*/ BuildContext[] _filesWithoutAnnotation = null;
+	private /*final*/ Map<IFile, CategorizedProblem[]> _problemRecorder = null;
 	private final AptProject _aptProject;
 	private final Map<AnnotationProcessorFactory, FactoryPath.Attributes> _factories;
 	/** Batch processor dispatched in the previous rounds */
@@ -113,6 +114,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	public static Set<AnnotationProcessorFactory> runAPTDuringBuild(
 			BuildContext[] filesWithAnnotations, 
 			BuildContext[] filesWithoutAnnotations,
+			Map<IFile, CategorizedProblem[]> problemRecorder,
 			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
@@ -127,6 +129,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			 new APTDispatchRunnable( 
 					 filesWithAnnotations,
 					 filesWithoutAnnotations,
+					 problemRecorder,
 					 aptProject, factories, 
 					 dispatchedBatchFactories, isFullBuild );
 		 IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -155,6 +158,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	private APTDispatchRunnable( 
 			BuildContext[] filesWithAnnotation,
 			BuildContext[] filesWithoutAnnotation,
+			Map<IFile, CategorizedProblem[]> problemRecorder,
 			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
@@ -163,6 +167,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		assert filesWithAnnotation != null : "missing files"; //$NON-NLS-1$
 		_filesWithAnnotation = filesWithAnnotation;
 		_filesWithoutAnnotation = filesWithoutAnnotation;
+		_problemRecorder = problemRecorder;
 		_aptProject = aptProject;
 		_factories = factories;
 		_dispatchedBatchFactories = dispatchedBatchFactories;
@@ -363,6 +368,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		if( numProblems > 0 ){
 			final CategorizedProblem[] catProblemsArray = new CategorizedProblem[numProblems];
 			curResult.recordNewProblems(problems.toArray(catProblemsArray));
+			// Tell compilation participant about the problems, so it can report them
+			// again without reprocessing if a file is resubmitted.
+			_problemRecorder.put(curResult.getFile(), catProblemsArray);
 		}
 		
 		// report dependency

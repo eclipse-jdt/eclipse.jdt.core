@@ -194,7 +194,7 @@ public class AptBuilderTests extends APTTestBase
 	 *  Try running two processors on the same file, and look for interactions.
 	 *  Regression for https://bugs.eclipse.org/bugs/show_bug.cgi?id=175794
 	 */
-	public void disabled_testTwoAnnotations()
+	public void testTwoAnnotations()
 	{
 		String projectName = getProjectName();
 		clearProcessorResult(HelloWorldAnnotationProcessor.class);

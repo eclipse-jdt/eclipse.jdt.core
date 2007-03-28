@@ -12,7 +12,7 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,8 +27,9 @@ import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.BuildContext;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
@@ -55,7 +56,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 	 * because of newly generated types. APT only process each file once during a build and 
 	 * this set will prevent unnecessary/incorrect compilation of already processed files.
 	 */
-	private Set<IFile> _processedFiles = null;
+	private Map<IFile, CategorizedProblem[]> _processedFiles = null;
 	
 	public static AptCompilationParticipant getInstance() {
 		return INSTANCE;
@@ -114,10 +115,18 @@ public class AptCompilationParticipant extends CompilationParticipant
 			int annoFileCount = 0;
 			int noAnnoFileCount = 0;
 			for( int i=0; i<total; i++ ){
-				if( _buildRound > 0 && _processedFiles.contains( allfiles[i].getFile() )){
+				BuildContext bc = allfiles[i];
+				if( _buildRound > 0 && _processedFiles.containsKey( bc.getFile() )){
+					// We've already processed this file; we'll skip reprocessing it, on
+					// the assumption that nothing would change, but we need to re-report
+					// any problems we reported earlier because JDT will have cleared them.
+					CategorizedProblem[] problems = _processedFiles.get(bc.getFile());
+					if (null != problems && problems.length > 0) {
+						bc.recordNewProblems(problems);
+					}
 					continue;
 				}
-				if( allfiles[i].hasAnnotations() )
+				if( bc.hasAnnotations() )
 					annoFileCount ++;
 				else
 					noAnnoFileCount ++;
@@ -138,7 +147,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 			int wIndex = 0; // index for 'withAnnotation' array
 			int woIndex = 0; // index of 'withoutAnnotation' array
 			for( int i=0; i<total; i++ ){		
-				if( _processedFiles.contains( allfiles[i].getFile() ) )
+				if( _processedFiles.containsKey( allfiles[i].getFile() ) )
 					continue;
 				if( allfiles[i].hasAnnotations() )
 					withAnnotation[wIndex ++] = allfiles[i];
@@ -147,7 +156,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 			}
 			
 			for( BuildContext file : allfiles )
-				_processedFiles.add(file.getFile());
+				_processedFiles.put(file.getFile(), null);
 		
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories =
 				AnnotationProcessorFactoryLoader.getLoader().getJava5FactoriesAndAttributesForProject(javaProject);
@@ -157,6 +166,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 				APTDispatchRunnable.runAPTDuringBuild(
 						withAnnotation, 
 						withoutAnnotation,
+						_processedFiles,
 						aptProject, 
 						factories, 
 						_previousRoundsBatchFactories, 
@@ -226,7 +236,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 			AptPlugin.getAptProject(project).compilationStarted();
 		}		
 		_buildRound = 0; // reset
-		_processedFiles = new HashSet<IFile>();
+		_processedFiles = new HashMap<IFile, CategorizedProblem[]>();
 		// TODO: (wharley) if the factory path is different we need a full build
 		return CompilationParticipant.READY_FOR_BUILD;
 	}
