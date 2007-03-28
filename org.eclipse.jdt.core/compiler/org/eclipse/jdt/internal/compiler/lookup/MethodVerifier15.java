@@ -134,9 +134,8 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	if (originalInherited.returnType != currentMethod.returnType) {
 //		if (currentMethod.returnType.needsUncheckedConversion(inheritedMethod.returnType)) {
 //			problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);
-		if (inheritedMethod.returnType.leafComponentType().isParameterizedType()) {
-			if (currentMethod.returnType.leafComponentType().isRawType())
-				problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);
+		if (inheritedMethod.returnType.leafComponentType().isParameterizedType() && currentMethod.returnType.leafComponentType().isRawType()) {
+			problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, originalInherited, this.type);
 		} else if (inheritedMethod.hasSubstitutedReturnType() && originalInherited.returnType.leafComponentType().isTypeVariable()) {
 			if (((TypeVariableBinding) originalInherited.returnType.leafComponentType()).declaringElement == originalInherited) { // see 81618 - type variable from inherited method
 				TypeBinding currentReturnType = currentMethod.returnType.leafComponentType();
@@ -527,7 +526,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 	int inheritedLength = inheritedTypeVariables.length;
 	TypeVariableBinding[] typeVariables = currentMethod.typeVariables;
 	int length = typeVariables.length;
-	if (length > 0 && inheritedLength != length) return inheritedMethod;
+	if (length > 0 && inheritedLength != length) return inheritedMethod; // no match JLS 8.4.2
 	TypeBinding[] arguments = new TypeBinding[inheritedLength];
 	if (inheritedLength <= length) {
 		System.arraycopy(typeVariables, 0, arguments, 0, inheritedLength);

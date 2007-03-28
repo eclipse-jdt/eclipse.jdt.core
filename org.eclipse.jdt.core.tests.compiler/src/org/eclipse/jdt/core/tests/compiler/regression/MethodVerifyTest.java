@@ -7510,4 +7510,38 @@ public void _test126() {
 		"The method bar(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=174445
+public void test127() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  enum Enum1 {\n" + 
+			"    value;\n" + 
+			"  }\n" + 
+			"  enum Enum2 {\n" + 
+			"    value;\n" + 
+			"  }\n" + 
+			"  static abstract class A<T> {\n" + 
+			"    abstract <U extends T> U foo();\n" + 
+			"  }\n" + 
+			"  static class B extends A<Enum<?>> {\n" + 
+			"    @Override\n" + 
+			"    Enum<?> foo() {\n" + 
+			"      return Enum1.value;\n" + 
+			"    }  \n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    A<Enum<?>> a = new B();\n" + 
+			"    Enum2 value = a.foo();\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 13)\n" + 
+		"	Enum<?> foo() {\n" + 
+		"	^^^^\n" + 
+		"Type safety: The return type Enum<?> for foo() from the type X.B needs unchecked conversion to conform to U from the type X.A<T>\n" + 
+		"----------\n");
+}
 }
