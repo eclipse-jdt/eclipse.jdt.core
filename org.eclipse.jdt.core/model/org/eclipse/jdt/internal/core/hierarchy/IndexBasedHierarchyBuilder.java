@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -444,7 +445,7 @@ public static void searchAllPossibleSubTypes(
 	final Map binariesFromIndexMatches,
 	final IPathRequestor pathRequestor,
 	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
-	IProgressMonitor progressMonitor) {
+	final IProgressMonitor progressMonitor) {
 
 	/* embed constructs inside arrays so as to pass them to (inner) collector */
 	final Queue queue = new Queue();
@@ -519,7 +520,16 @@ public static void searchAllPossibleSubTypes(
 
 			// search all index references to a given supertype
 			pattern.superSimpleName = currentTypeName;
-			indexManager.performConcurrentJob(job, waitingPolicy, null); // no sub progress monitor since its too costly for deep hierarchies
+			indexManager.performConcurrentJob(job, waitingPolicy, progressMonitor == null ? null : new NullProgressMonitor() { 
+				// don't report progress since this is too costly for deep hierarchies
+				// just handle isCanceled() (seehttps://bugs.eclipse.org/bugs/show_bug.cgi?id=179511)
+				public void setCanceled(boolean value) {
+					progressMonitor.setCanceled(value);
+				}
+				public boolean isCanceled() {
+					return progressMonitor.isCanceled();
+				}
+			});
 			if (progressMonitor != null && ++ticks <= MAXTICKS)
 				progressMonitor.worked(1);
 

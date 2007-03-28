@@ -620,6 +620,7 @@ public void testEfficiencyMultipleProjects() throws CoreException {
 		createFile("/P3/Y.java", "public class Y extends X {}");
 		createFile("/P3/Z.java", "public class Z extends X {}");
 		createFile("/P2/W.java", "public class W extends X {}");
+		waitUntilIndexesReady();
 		IType type = getCompilationUnit("/P1/X.java").getType("X");
 		class ProgressCounter extends TestProgressMonitor {
 			int count = 0;
@@ -630,7 +631,7 @@ public void testEfficiencyMultipleProjects() throws CoreException {
 		}
 		ProgressCounter counter = new ProgressCounter();
 		type.newTypeHierarchy(counter);
-		assertEquals("Unexpected work count", 18, counter.count);
+		assertEquals("Unexpected work count", 89, counter.count);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
 	}
