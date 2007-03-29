@@ -43,7 +43,8 @@ public static int NEEDS_FULL_BUILD = 2;
 
 /**
  * Notifies this participant that a build is about to start and provides it the opportunity to
- * create missing source folders for generated source files.
+ * create missing source folders for generated source files. Additional source folders
+ * should be marked as optional so the project can be built when the folders do not exist.
  * Only sent to participants interested in the project.
  * <p>
  * Default is to return <code>READY_FOR_BUILD</code>.
