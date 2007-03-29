@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -164,17 +164,22 @@ public CompletionRequestor getCompletionRequestor(final CompletionRequestor orig
 						if (CharOperation.equals(packageName, CodeSnippetToCuMapper.this.snippetPackageName) 
 								&& (CharOperation.equals(className, CodeSnippetToCuMapper.this.snippetClassName)
 									|| CharOperation.equals(className, CodeSnippetToCuMapper.this.snippetVarClassName))) return;
+						
+						if (CharOperation.equals(packageName, PACKAGE_NAME) 
+								&& CharOperation.equals(className, ROOT_CLASS_NAME)) return;
 					}
 					break;
 				case CompletionProposal.METHOD_REF:
 				case CompletionProposal.METHOD_DECLARATION:
 					// Remove completion on generated method
-					char[] declaringTypePackageName = Signature.getSignatureSimpleName(proposal.getDeclarationSignature());
+					char[] declaringTypePackageName = Signature.getSignatureQualifier(proposal.getDeclarationSignature());
 					char[] declaringTypeName = Signature.getSignatureSimpleName(proposal.getDeclarationSignature());
-					char[] selector = proposal.getName();
+					
 					if (CharOperation.equals(declaringTypePackageName, CodeSnippetToCuMapper.this.snippetPackageName) 
-							&& CharOperation.equals(declaringTypeName, CodeSnippetToCuMapper.this.snippetClassName)
-							&& CharOperation.equals(selector, "run".toCharArray())) return; //$NON-NLS-1$
+							&& CharOperation.equals(declaringTypeName, CodeSnippetToCuMapper.this.snippetClassName)) return;
+					
+					if (CharOperation.equals(declaringTypePackageName, PACKAGE_NAME) 
+							&& CharOperation.equals(declaringTypeName, ROOT_CLASS_NAME)) return;
 					break;
 			}
 			originalRequestor.accept(proposal);

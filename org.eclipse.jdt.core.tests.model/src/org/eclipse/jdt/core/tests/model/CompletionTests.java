@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 
 import junit.framework.*;
 
@@ -43,6 +44,10 @@ public void setUpSuite() throws Exception {
 }
 public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
+}
+private String getVarClassSignature(IEvaluationContext context) {
+	char[] varClassName = ((EvaluationContextWrapper)context).getVarClassName();
+	return Signature.createTypeSignature(varClassName, true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=164311
 public void testBug164311() throws JavaModelException {
@@ -14044,6 +14049,42 @@ public void testEvaluationContextCompletion5() throws JavaModelException {
     
 	assertResults(
 			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179000
+public void testEvaluationContextCompletion6() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TestEvaluationContextCompletion6.java",
+		"package test;"+
+		"public class TestEvaluationContextCompletion6 {\n"+
+		"}");
+	
+	String start = "";
+	IJavaProject javaProject = getJavaProject("Completion");
+	IEvaluationContext context = javaProject.newEvaluationContext();
+	
+	context.newVariable( "Object", "someVariable", null );
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false);
+	context.codeComplete(start, start.length(), requestor, this.wcOwner);
+	
+	int startOffset = start.length();
+	int endOffset = startOffset;
+	
+	assertResults(
+			"completion offset="+endOffset+"\n"+
+			"completion range=["+startOffset+", "+(endOffset)+"]\n"+
+			"completion token=\"\"\n"+
+			"completion token kind=TOKEN_KIND_NAME\n"+
+			"expectedTypesSignatures=null\n"+
+			"expectedTypesKeys=null",
+            requestor.getContext());
+	
+	String varClassSignature = getVarClassSignature(context);
+    
+	assertResults(
+			"someVariable[FIELD_REF]{someVariable, "+varClassSignature+", Ljava.lang.Object;, someVariable, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123

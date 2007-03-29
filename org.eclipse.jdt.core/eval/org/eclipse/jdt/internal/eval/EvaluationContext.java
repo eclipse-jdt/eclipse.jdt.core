@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2007 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -513,6 +513,10 @@ IBinaryType getRootCodeSnippetBinary() {
 		this.codeSnippetBinary = new CodeSnippetSkeleton();
 	}
 	return this.codeSnippetBinary;
+}
+public char[] getVarClassName() {
+	if (installedVars == null) return CharOperation.NO_CHAR;
+	return CharOperation.concat(installedVars.packageName, installedVars.className, '.');
 }
 /**
  * Creates a new global variable with the given name, type and initializer.
