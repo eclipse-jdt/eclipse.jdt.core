@@ -48,4 +48,9 @@ public class AnnotationValueImpl implements AnnotationValue {
 		return null;
 	}
 
+	@Override
+	public String toString() {
+		// TODO: use object type determined in c'tor
+		return String.valueOf(getValue());
+	}
 }
