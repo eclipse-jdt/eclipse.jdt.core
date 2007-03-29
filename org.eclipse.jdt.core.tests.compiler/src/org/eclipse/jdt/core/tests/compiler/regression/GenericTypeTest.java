@@ -37108,6 +37108,7 @@ public void test1118() {
 		},
 		"");		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=169728
 public void test1119() {
 	this.runNegativeTest(
 		new String[] {
@@ -37121,18 +37122,35 @@ public void test1119() {
 			"		X<OnlyRunnable> x1 = null; // error\n" + 
 			"		X<OnlyComparable> x2 = null; // error\n" + 
 			"		X<ComparableRunnable> x3 = null; // ok\n" + 
+			"		X<ComparableRunnableThrowable> x4 = null; // ok\n" + 
+			"		\n" + 
+			"		foo1(x1); // ok\n" + 
+			"		foo1(x2); // ok\n" + 
+			"		foo1(x3); // ok\n" + 
+			"		foo1(x4); // ok\n" + 
+			"\n" + 
+			"		foo2(x1); // error\n" + 
+			"		foo2(x2); // error\n" + 
+			"		foo2(x3); // error\n" + 
+			"		foo2(x4); // ok\n" + 
 			"	}\n" + 
 			"	\n" + 
-			"	void foo(X<?> x) {\n" + 
-			"		x.get().run();\n" + 
-			"		x.get().compareTo(null);\n" + 
+			"	static void foo1(X<?> x) {\n" + 
+			"		x.get().run(); // ok\n" + 
+			"		x.get().compareTo(null); // ok\n" + 
 			"		x.get().compareTo(x.get()); // error\n" + 
 			"	}\n" + 
+			"	static void foo2(X<? extends Throwable> x) {\n" + 
+			"		x.get().run(); // ok\n" + 
+			"		x.get().compareTo(null); // ok\n" + 
+			"		x.get().compareTo(x.get()); // error\n" + 
+			"	}	\n" + 
 			"}\n" + 
 			"\n" + 
 			"abstract class OnlyRunnable implements Runnable {}\n" + 
 			"abstract class OnlyComparable implements Comparable<OnlyComparable> {}\n" + 
-			"abstract class ComparableRunnable implements Comparable<ComparableRunnable>, Runnable {}", // =================
+			"abstract class ComparableRunnable implements Comparable<ComparableRunnable>, Runnable {}\n" + 
+			"abstract class ComparableRunnableThrowable extends Throwable implements Comparable<ComparableRunnable>, Runnable {}", // =================		
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
@@ -37145,10 +37163,35 @@ public void test1119() {
 		"	  ^^^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type OnlyComparable is not a valid substitute for the bounded parameter <T extends Comparable<T> & Runnable> of the type X<T>\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 15)\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	X<ComparableRunnableThrowable> x4 = null; // ok\n" + 
+		"	  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ComparableRunnableThrowable is not a valid substitute for the bounded parameter <T extends Comparable<T> & Runnable> of the type X<T>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 17)\n" + 
+		"	foo2(x1); // error\n" + 
+		"	^^^^\n" + 
+		"The method foo2(X<? extends Throwable>) in the type X<T> is not applicable for the arguments (X<OnlyRunnable>)\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 18)\n" + 
+		"	foo2(x2); // error\n" + 
+		"	^^^^\n" + 
+		"The method foo2(X<? extends Throwable>) in the type X<T> is not applicable for the arguments (X<OnlyComparable>)\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 19)\n" + 
+		"	foo2(x3); // error\n" + 
+		"	^^^^\n" + 
+		"The method foo2(X<? extends Throwable>) in the type X<T> is not applicable for the arguments (X<ComparableRunnable>)\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 26)\n" + 
 		"	x.get().compareTo(x.get()); // error\n" + 
 		"	        ^^^^^^^^^\n" + 
 		"The method compareTo(capture#3-of ?) in the type Comparable<capture#3-of ?> is not applicable for the arguments (capture#4-of ?)\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 31)\n" + 
+		"	x.get().compareTo(x.get()); // error\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"The method compareTo(capture#7-of ? extends Throwable) in the type Comparable<capture#7-of ? extends Throwable> is not applicable for the arguments (capture#8-of ? extends Throwable)\n" + 
 		"----------\n");		
 }
 }

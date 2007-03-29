@@ -55,7 +55,7 @@ public class WildcardBinding extends ReferenceBinding {
 	}	
 		
 	/**
-	 * Returns true if the argument type satisfies all bounds of the type parameter
+	 * Returns true if the argument type satisfies the wildcard bound(s)
 	 */
 	public boolean boundCheck(TypeBinding argumentType) {
 	    switch (this.boundKind) {
