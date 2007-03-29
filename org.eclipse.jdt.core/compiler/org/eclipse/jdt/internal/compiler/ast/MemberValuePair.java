@@ -127,7 +127,9 @@ public class MemberValuePair extends ASTNode {
 						final Expression[] expressions = initializer.expressions;
 						if (expressions != null) {
 							for (int i =0, max = expressions.length; i < max; i++) {
-								if (expressions[i].constant == Constant.NotAConstant) {
+								Expression expression = expressions[i];
+								if (expression.resolvedType == null) continue; // fault-tolerance
+								if (expression.constant == Constant.NotAConstant) {
 									scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, expressions[i], false);
 								}
 							}

@@ -7539,4 +7539,41 @@ public void test225() {
 		false  /* do not skip javac for this peculiar test */,
 		true  /* do not perform statements recovery */);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179477 - variation
+public void test226() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public @interface Annot {\n" + 
+			"        float[] value();\n" + 
+			"        Class<X>[] classe();\n" + 
+			"    }\n" + 
+			"    @Annot(value={x}, classe={Zork.class,zork})\n" + 
+			"    class Inner {\n" + 
+			"    }\n" + 
+			"}\n"
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	@Annot(value={x}, classe={Zork.class,zork})\n" + 
+		"	              ^\n" + 
+		"x cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	@Annot(value={x}, classe={Zork.class,zork})\n" + 
+		"	                          ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	@Annot(value={x}, classe={Zork.class,zork})\n" + 
+		"	                                     ^^^^\n" + 
+		"zork cannot be resolved\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	@Annot(value={x}, classe={Zork.class,zork})\n" + 
+		"	                                     ^^^^\n" + 
+		"The value for annotation attribute X.Annot.classe must be a class literal\n" + 
+		"----------\n");
+}
 }
