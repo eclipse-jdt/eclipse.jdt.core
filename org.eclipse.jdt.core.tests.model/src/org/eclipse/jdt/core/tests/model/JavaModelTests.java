@@ -12,8 +12,12 @@ package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.model.ClasspathInitializerTests.DefaultContainerInitializer;
 
 import junit.framework.Test;
 /**
@@ -516,6 +520,54 @@ public void testGetSchedulingRule4() {
 public void testInitializeAfterLoad() throws CoreException {
 	simulateExitRestart();
 	JavaCore.initializeAfterLoad(null);
+}
+
+/*
+ * Ensures that JavaCore#initializeAfterLoad() can be canceled
+ * (regression test for bug 179529 Stop Eclipse takes a lot of time in case of big workspace)
+ */
+public void testInitializeAfterLoad2() throws CoreException {
+	try {
+		createJavaProject(
+				"P1", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		createFile("/P1/lib.jar", "");
+		createJavaProject(
+				"P2", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		createFile("/P2/lib.jar", "");
+		
+		simulateExitRestart();
+		final NullProgressMonitor progressMonitor = new NullProgressMonitor();
+		class CancellingInitializer extends DefaultContainerInitializer {
+			int count = 1;
+			public CancellingInitializer(String[] values) {
+				super(values);
+			}
+			public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+				super.initialize(containerPath, project);
+				if (--count == 0)
+					progressMonitor.setCanceled(true);
+				else
+					assertFalse("Should have canceled initializeAfterLoad()", true);
+					
+			}
+		}
+		CancellingInitializer initializer = new CancellingInitializer(new String[] {"P1", "/P1/lib.jar", "P2", "/P2/lib.jar"});
+		ContainerInitializer.setInitializer(initializer);
+		try {
+			JavaCore.initializeAfterLoad(progressMonitor);
+		} catch (OperationCanceledException e) {
+			// expected
+		}
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
 }
 
 /**

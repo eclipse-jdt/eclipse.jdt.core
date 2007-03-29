@@ -2144,6 +2144,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	IClasspathContainer initializeContainer(IJavaProject project, IPath containerPath) throws JavaModelException {
 
+		IProgressMonitor monitor = (IProgressMonitor) this.batchContainerInitializationsProgress.get();
+		if (monitor != null && monitor.isCanceled())
+			throw new OperationCanceledException();
+		
 		IClasspathContainer container = null;
 		final ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
 		if (initializer != null){
@@ -2159,7 +2163,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			containerPut(project, containerPath, CONTAINER_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 			boolean ok = false;
 			try {
-				IProgressMonitor monitor = (IProgressMonitor) this.batchContainerInitializationsProgress.get();
 				if (monitor != null)
 					monitor.subTask(Messages.bind(Messages.javamodel_configuring, initializer.getDescription(containerPath, project)));
 				
