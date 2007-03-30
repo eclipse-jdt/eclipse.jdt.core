@@ -549,16 +549,18 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		for (int i = 0; i < 2; i++) {
 			ASTParser parser = ASTParser.newParser(astLevel);
 			parser.setSource(unit);
-			parser.setResolveBindings(astLevel!=AST.JLS2);
+			parser.setResolveBindings(false);
 			parser.createAST(null);
 		}
 
 		// Measures
-		for (int i = 0; i < MEASURES_COUNT; i++) {
+		int measures = MEASURES_COUNT * 2;
+		int iterations = ITERATIONS_COUNT >> 1;
+		for (int i = 0; i < measures; i++) {
 			ASTNode result = null;
 			runGc();
 			startMeasuring();
-			for (int j=0; j<ITERATIONS_COUNT; j++) {
+			for (int j=0; j<iterations; j++) {
 				ASTParser parser = ASTParser.newParser(astLevel);
 				parser.setSource(unit);
 				parser.setResolveBindings(false);
@@ -569,7 +571,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 			CompilationUnit compilationUnit = (CompilationUnit) result;
 			CommentMapperASTVisitor visitor = new CommentMapperASTVisitor(compilationUnit);
 			compilationUnit.accept(visitor);
-			nodesCount += visitor.nodes * ITERATIONS_COUNT;
+			nodesCount += visitor.nodes * iterations;
 		}
 
 		// Commit
@@ -711,7 +713,8 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 			null);
 
 		// Measures
-		for (int i = 0; i < MEASURES_COUNT; i++) {
+		int measures = MEASURES_COUNT * 2;
+		for (int i = 0; i < measures; i++) {
 			runGc();
 			startMeasuring();
 			parser.createASTs(compilationUnits, new String[0], new ASTRequestor() {/* do nothing*/}, null);

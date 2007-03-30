@@ -23,11 +23,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.builder.TestingEnvironment;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.performance.util.JdtCorePerformanceMeter;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
@@ -794,15 +796,11 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 					}
 				};
 				IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				if (workspace.isTreeLocked()) {
-					compilation.run(null/*no progress available*/);
-				} else {
-					workspace.run(
-						compilation,
-						null/*don't take any lock*/,
-						IWorkspace.AVOID_UPDATE,
-						null/*no progress available here*/);
-				}
+				workspace.run(
+					compilation,
+					null/*don't take any lock*/,
+					IWorkspace.AVOID_UPDATE,
+					null/*no progress available here*/);
 				stopMeasuring();
 			}
 		}
@@ -967,22 +965,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		for (int i = 0; i < MEASURES_COUNT; i++) {
 			runGc();
 			NullPrintWriter nullPrint= new NullPrintWriter();
+			Main main = new Main(nullPrint, nullPrint, false);
 			startMeasuring();
-			final Main main = new Main(nullPrint, nullPrint, false);
-			IWorkspaceRunnable compilation = new IWorkspaceRunnable() {
-				public void run(IProgressMonitor monitor) throws CoreException {
-					main.compile(Main.tokenize(cmdLine));
-				}
-			};
-			if (workspace.isTreeLocked()) {
-				compilation.run(null/*no progress available*/);
-			} else {
-				workspace.run(
-					compilation,
-					null/*don't take any lock*/,
-					IWorkspace.AVOID_UPDATE,
-					null/*no progress available here*/);
-			}
+			main.compile(Main.tokenize(cmdLine));
 			stopMeasuring();
 			if (!"none".equals(COMPILER_OUTPUT_DIR)) {
 				Util.delete(COMPILER_OUTPUT_DIR);
@@ -1239,6 +1224,29 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			}
 		}		
 		return null;
+	}
+	/*
+	 * Simulate a save/exit of the workspace
+	 */
+	protected void simulateExit() throws CoreException {
+		AbstractJavaModelTests.waitForAutoBuild();
+		ResourcesPlugin.getWorkspace().save(true/*full save*/, null/*no progress*/);
+		JavaModelManager.getJavaModelManager().shutdown();
+	}
+	/*
+	 * Simulate a save/exit/restart of the workspace
+	 */
+	protected void simulateExitRestart() throws CoreException {
+		simulateExit();
+		simulateRestart();
+	}
+	/*
+	 * Simulate a restart of the workspace
+	 */
+	protected void simulateRestart() throws CoreException {
+		JavaModelManager.doNotUse(); // reset the MANAGER singleton
+		JavaModelManager.getJavaModelManager().startup();
+		new JavaCorePreferenceInitializer().initializeDefaultPreferences();
 	}
 
 	/**

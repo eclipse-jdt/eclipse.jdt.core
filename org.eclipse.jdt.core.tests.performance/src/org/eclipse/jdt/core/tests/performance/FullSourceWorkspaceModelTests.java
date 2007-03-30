@@ -39,7 +39,6 @@ public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests impl
 	// Tests counters
 	static int TESTS_COUNT = 0;
 	private final static int WARMUP_COUNT = 1; // 30;
-	private final static int ITERATIONS_COUNT = 1000;
 	private final static int FOLDERS_COUNT = 200;
 	private final static int PACKAGES_COUNT = 200;
 	static int TESTS_LENGTH;
@@ -334,7 +333,7 @@ public void testPerfNameLookupFindKnownType() throws CoreException {
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n=0; n<ITERATIONS_COUNT; n++) {
+		for (int n=0; n<50000; n++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
 			nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
 		}
@@ -375,7 +374,7 @@ public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n=0; n<ITERATIONS_COUNT; n++) {
+		for (int n=0; n<50000; n++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
 			nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
 		}
@@ -414,7 +413,7 @@ public void testPerfNameLookupFindUnknownType() throws CoreException {
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n=0; n<ITERATIONS_COUNT; n++) {
+		for (int n=0; n<50000; n++) {
 			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
 			nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
 		}
@@ -453,7 +452,7 @@ public void testPerfProjectFindKnownType() throws CoreException {
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n=0; n<ITERATIONS_COUNT; n++) {
+		for (int n=0; n<50000; n++) {
 			BIG_PROJECT.findType(fullQualifiedName);
 		}
 		stopMeasuring();
@@ -494,7 +493,7 @@ public void testPerfProjectFindKnownMemberType() throws CoreException {
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n=0; n<ITERATIONS_COUNT; n++) {
+		for (int n=0; n<4000; n++) {
 			BIG_PROJECT.findType(fullQualifiedName);
 		}
 		stopMeasuring();
@@ -531,7 +530,7 @@ public void testPerfProjectFindKnownSecondaryType() throws CoreException {
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n=0; n<ITERATIONS_COUNT; n++) {
+		for (int n=0; n<1000; n++) {
 			BIG_PROJECT.findType(fullQualifiedName);
 		}
 		stopMeasuring();
@@ -569,7 +568,7 @@ public void testPerfProjectFindUnknownType() throws CoreException {
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int n=0; n<ITERATIONS_COUNT; n++) {
+		for (int n=0; n<2000; n++) {
 			BIG_PROJECT.findType(fullQualifiedName);
 		}
 		stopMeasuring();
@@ -795,13 +794,100 @@ public void testPerfSeekPackageFragments() throws CoreException {
 	for (int i = 0; i < MEASURES_COUNT; i++) {
 		runGc();
 		startMeasuring();
-		for (int j = 0; j < ITERATIONS_COUNT; j++) {
+		for (int j = 0; j < 50000; j++) {
 			getNameLookup(BIG_PROJECT).seekPackageFragments("org.eclipse.jdt.core.tests" + j + "0.performance" + j, false/*not partial match*/, requestor);
 		}
 		stopMeasuring();
 	}
 	commitMeasurements();
 	assertPerformance();
+}
+
+public void testCloseProjects() throws JavaModelException {
+	// store current settings
+	long oldSnapInterval = ENV.getWorkspace().getDescription().getSnapshotInterval();
+	boolean oldAutoBuildPolicy = ENV.isAutoBuilding();
+	
+	// prevent snapshots and autobuilds from disturbing our measures
+	ENV.getWorkspace().getDescription().setSnapshotInterval(100000);
+	ENV.getWorkspace().getDescription().setAutoBuilding(false);
+	
+	try {
+		int length=ALL_PROJECTS.length;
+		// Warm-up
+		for (int i=0; i<WARMUP_COUNT; i++) {
+			for (int j=0; j<length; j++) {
+				ENV.closeProject(ALL_PROJECTS[j].getPath());
+			}
+			for (int j=0; j<length; j++) {
+				ENV.openProject(ALL_PROJECTS[j].getPath());
+			}
+		}
+	
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			AbstractJavaModelTests.waitUntilIndexesReady();
+			// should not be autobuilding...
+			if (ENV.isAutoBuilding()) {
+				ENV.waitForAutoBuild();
+			}
+			runGc();
+			startMeasuring();
+			for (int j=0; j<length; j++) {
+				ENV.closeProject(ALL_PROJECTS[j].getPath());
+			}
+			stopMeasuring();
+			for (int j=0; j<length; j++) {
+				ENV.openProject(ALL_PROJECTS[j].getPath());
+			}
+		}
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+	}
+	finally {
+		// restore previous settings
+		ENV.getWorkspace().getDescription().setSnapshotInterval(oldSnapInterval);
+		ENV.getWorkspace().getDescription().setAutoBuilding(oldAutoBuildPolicy);
+	}
+}
+
+public void testStartJDTPlugin() throws JavaModelException {
+	// store current settings
+	long oldSnapInterval = ENV.getWorkspace().getDescription().getSnapshotInterval();	
+	// prevent snapshots and autobuilds from disturbing our measures
+	ENV.getWorkspace().getDescription().setSnapshotInterval(100000);
+	try {
+		// Warm-up
+		for (int i=0; i<WARMUP_COUNT; i++) {
+			simulateExitRestart();
+			JavaCore.initializeAfterLoad(null);
+			AbstractJavaModelTests.waitUntilIndexesReady();
+		}
+	
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			// shutdwon
+			simulateExit();			
+			runGc();
+			startMeasuring();
+			// restart
+			simulateRestart();
+			JavaCore.initializeAfterLoad(null);
+			AbstractJavaModelTests.waitUntilIndexesReady();
+			stopMeasuring();
+		}
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+	}
+	catch (CoreException ex) {
+		// do nothing
+	}
+	finally {
+		// restore previous settings
+		ENV.getWorkspace().getDescription().setSnapshotInterval(oldSnapInterval);
+	}
 }
 
 protected void resetCounters() {

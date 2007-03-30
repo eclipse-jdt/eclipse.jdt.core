@@ -425,7 +425,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws IOException
 	 */
 	public void testFullBuildDefault() throws CoreException, IOException {
-		tagAsSummary("Build entire workspace", true); // put in fingerprint
+		tagAsSummary("Build entire workspace", false); // do NOT put in fingerprint
 		build(null, warningOptions(0/*default warnings*/), false);
 	}
 
