@@ -185,7 +185,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         final Collection<TypeMirror> result = new ArrayList<TypeMirror>(typeArgs.length);
         for( ITypeBinding arg : typeArgs ){
             final TypeMirror mirror = Factory.createTypeMirror(arg, _env);
-            if(arg == null)
+            if (mirror == null)
                 result.add(Factory.createErrorClassType(arg));
             else
                 result.add(mirror);

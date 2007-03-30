@@ -35,7 +35,7 @@ public class MethodDeclarationImpl extends ExecutableDeclarationImpl implements 
         final IMethodBinding methodBinding = getDeclarationBinding();
         final ITypeBinding retType = methodBinding.getReturnType();
         final TypeMirror type = Factory.createTypeMirror(retType, _env);
-        if(retType == null )
+        if(type == null )
             return Factory.createErrorClassType(retType);
         return type;
     }
