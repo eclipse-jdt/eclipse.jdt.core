@@ -150,6 +150,117 @@ public void test003() {
 		},
 		"12");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=151787
+public void test004() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    // correctly passes compilation\n" + 
+			"    static class Test1 {\n" + 
+			"        private final Object o;\n" + 
+			"        \n" + 
+			"        Test1() {\n" + 
+			"            o = new Object();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    // correctly passes compilation\n" + 
+			"    static class Test2 {\n" + 
+			"        private final Object o;\n" + 
+			"        \n" + 
+			"        Test2() {\n" + 
+			"            this.o = new Object();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    // correctly fails compilation\n" + 
+			"    static class Test3 {\n" + 
+			"        private final Object o;\n" + 
+			"        \n" + 
+			"        Test3() {\n" + 
+			"            System.out.println(o); // illegal; o is not definitely assigned\n" + 
+			"            o = new Object();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    // correctly passes compilation\n" + 
+			"    static class Test4 {\n" + 
+			"        private final Object o;\n" + 
+			"        \n" + 
+			"        Test4() {\n" + 
+			"            System.out.println(this.o); // legal\n" + 
+			"            o = new Object();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    // incorrectly passes compilation\n" + 
+			"    static class Test5 {\n" + 
+			"        private final Object o;\n" + 
+			"        \n" + 
+			"        Test5() {\n" + 
+			"            Test5 other = this;\n" + 
+			"            other.o = new Object(); // illegal!  other.o is not assignable\n" + 
+			"        } // error: this.o is not definitely assigned\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    // flags wrong statement as error\n" + 
+			"    static class Test6 {\n" + 
+			"        private final Object o;\n" + 
+			"        static Test6 initing;\n" + 
+			"        \n" + 
+			"       Test6() {\n" + 
+			"           initing = this;\n" + 
+			"           System.out.println(\"greetings\");\n" + 
+			"           Test6 other = initing;\n" + 
+			"           other.o = new Object(); // illegal!  other.o is not assignable\n" + 
+			"           o = new Object(); // legal\n" + 
+			"       }\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	private final Object o;\n" + 
+		"	                     ^\n" + 
+		"The field X.Test1.o is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	private final Object o;\n" + 
+		"	                     ^\n" + 
+		"The field X.Test2.o is never read locally\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 25)\n" + 
+		"	System.out.println(o); // illegal; o is not definitely assigned\n" + 
+		"	                   ^\n" + 
+		"The blank final field o may not have been initialized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 42)\n" + 
+		"	private final Object o;\n" + 
+		"	                     ^\n" + 
+		"The field X.Test5.o is never read locally\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 44)\n" + 
+		"	Test5() {\n" + 
+		"	^^^^^^^\n" + 
+		"The blank final field o may not have been initialized\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 46)\n" + 
+		"	other.o = new Object(); // illegal!  other.o is not assignable\n" + 
+		"	      ^\n" + 
+		"The final field X.Test5.o cannot be assigned\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 52)\n" + 
+		"	private final Object o;\n" + 
+		"	                     ^\n" + 
+		"The field X.Test6.o is never read locally\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 59)\n" + 
+		"	other.o = new Object(); // illegal!  other.o is not assignable\n" + 
+		"	      ^\n" + 
+		"The final field X.Test6.o cannot be assigned\n" + 
+		"----------\n");
+}
 // final multiple assignment
 public void test020() {
 	this.runNegativeTest(
