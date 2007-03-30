@@ -659,7 +659,13 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		if (container != null) {
 			IClasspathEntry[] entries= container.getClasspathEntries();
 			for (int i= 0; i < entries.length; i++) {
-				IClasspathEntry curr= entries[i];
+				IClasspathEntry curr = entries[i];
+				if (curr == null) {
+					if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+						JavaModelManager.getJavaModelManager().verbose_missbehaving_container(jproject, containerPath, entries);
+					}
+					break;
+				}
 				IClasspathEntry resolved= JavaCore.getResolvedClasspathEntry(curr);
 				if (resolved != null && libPath.equals(resolved.getPath())) {
 					return curr; // return the real entry

@@ -2116,6 +2116,12 @@ public class JavaProject
 					// container was bound
 					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
 						IClasspathEntry resolvedEntry = containerEntries[j];
+						if (resolvedEntry == null) {
+							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+								JavaModelManager.getJavaModelManager().verbose_missbehaving_container(this, rawEntry.getPath(), containerEntries);
+							}
+							return false;
+						}
 						if (isOnClasspathEntry(elementPath, isFolderPath, isPackageFragmentRoot, resolvedEntry))
 							return true;
 					}					
@@ -2504,6 +2510,12 @@ public class JavaProject
 					// container was bound
 					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
 						ClasspathEntry cEntry = (ClasspathEntry) containerEntries[j];
+						if (cEntry == null) {
+							if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+								JavaModelManager.getJavaModelManager().verbose_missbehaving_container(this, rawEntry.getPath(), containerEntries);
+							}
+							break;
+						}
 						// if container is exported or restricted, then its nested entries must in turn be exported  (21749) and/or propagate restrictions
 						cEntry = cEntry.combineWith((ClasspathEntry) rawEntry);
 						resolvedEntries.add(cEntry);
@@ -2583,6 +2595,12 @@ public class JavaProject
 						// container was bound
 						for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
 							ClasspathEntry cEntry = (ClasspathEntry) containerEntries[j];
+							if (cEntry == null) {
+								if (JavaModelManager.CP_RESOLVE_VERBOSE) {
+									JavaModelManager.getJavaModelManager().verbose_missbehaving_container(this, rawEntry.getPath(), containerEntries);
+								}
+								break;
+							}
 							// if container is exported or restricted, then its nested entries must in turn be exported  (21749) and/or propagate restrictions
 							cEntry = cEntry.combineWith((ClasspathEntry) rawEntry);
 							if (rawReverseMap != null) {

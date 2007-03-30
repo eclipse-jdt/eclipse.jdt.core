@@ -549,6 +549,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return false;
 		}
 		for (int i = 0, length = newEntries.length; i < length; i++) {
+			if (newEntries[i] == null) {
+				if (CP_RESOLVE_VERBOSE)
+					verbose_missbehaving_container(project, containerPath, newEntries);
+				return false;
+			}
 			if (!newEntries[i].equals(oldEntries[i])) {
 				if (CP_RESOLVE_VERBOSE)
 					verbose_missbehaving_container(containerPath, projects, respectiveContainers, container, newEntries, oldEntries);
@@ -625,6 +630,29 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			"\n	}"); //$NON-NLS-1$
 	}
 	
+	void verbose_missbehaving_container(IJavaProject project, IPath containerPath, IClasspathEntry[] classpathEntries) {
+		Util.verbose(
+			"CPContainer GET - missbehaving container (returning null classpath entry)\n" + //$NON-NLS-1$
+			"	project: " + project.getElementName() + '\n' + //$NON-NLS-1$
+			"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+			"	classpath entries: {\n" + //$NON-NLS-1$
+			org.eclipse.jdt.internal.compiler.util.Util.toString(
+				classpathEntries, 
+				new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+					public String displayString(Object o) { 
+						StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+						if (o == null) {
+							buffer.append("<null>"); //$NON-NLS-1$
+							return buffer.toString();
+						}
+						buffer.append(o);
+						return buffer.toString();
+					}
+				}) +
+			"\n	}" //$NON-NLS-1$
+		);
+	}
+
 	private void containerRemoveInitializationInProgress(IJavaProject project, IPath containerPath) {
 		Map initializations = (Map)this.containerInitializationInProgress.get();
 		if (initializations == null)
@@ -2228,7 +2256,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			buffer.append("	container: "+container.getDescription()+" {\n"); //$NON-NLS-2$//$NON-NLS-1$
 			IClasspathEntry[] entries = container.getClasspathEntries();
 			if (entries != null){
-				for (int i = 0; i < entries.length; i++){
+				for (int i = 0; i < entries.length; i++) {
 					buffer.append("		" + entries[i] + '\n'); //$NON-NLS-1$
 				}
 			}
