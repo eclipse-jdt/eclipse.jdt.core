@@ -41,16 +41,14 @@ public String[] getCommandLine() {
 	commandLine.addElement("-Xbootclasspath/a:" + buildBootClassPath());
 
 	// debug mode
+	commandLine.addElement("-Xdebug");
 	if (this.debugPort != -1) {
-		commandLine.addElement("-Xdebug");
 		commandLine.addElement("-Xnoagent");
 		// commandLine.addElement("-Djava.compiler=NONE");
 		commandLine.addElement(
 			"-Xrunjdwp:transport=dt_socket,address=" +
 			this.debugPort +
 			",server=y,suspend=n");
-	} else {
-		commandLine.addElement("-Xdebug");
 	}
 
 	commandLine.addElement("-Xj9");
