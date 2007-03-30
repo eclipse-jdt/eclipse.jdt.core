@@ -549,16 +549,18 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		for (int i = 0; i < 2; i++) {
 			ASTParser parser = ASTParser.newParser(astLevel);
 			parser.setSource(unit);
-			parser.setResolveBindings(astLevel!=AST.JLS2);
+			parser.setResolveBindings(false);
 			parser.createAST(null);
 		}
 
 		// Measures
-		for (int i = 0; i < MEASURES_COUNT; i++) {
+		int measures = MEASURES_COUNT * 2;
+		int iterations = ITERATIONS_COUNT >> 1;
+		for (int i = 0; i < measures; i++) {
 			ASTNode result = null;
 			runGc();
 			startMeasuring();
-			for (int j=0; j<ITERATIONS_COUNT; j++) {
+			for (int j=0; j<iterations; j++) {
 				ASTParser parser = ASTParser.newParser(astLevel);
 				parser.setSource(unit);
 				parser.setResolveBindings(false);
@@ -569,7 +571,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 			CompilationUnit compilationUnit = (CompilationUnit) result;
 			CommentMapperASTVisitor visitor = new CommentMapperASTVisitor(compilationUnit);
 			compilationUnit.accept(visitor);
-			nodesCount += visitor.nodes * ITERATIONS_COUNT;
+			nodesCount += visitor.nodes * iterations;
 		}
 
 		// Commit
@@ -580,7 +582,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	/**
 	 * @deprecated To reduce deprecated warnings
 	 */
-	public void testDomAstCreationJLS2() throws JavaModelException {
+	public void testPerfDomAstCreationJLS2() throws JavaModelException {
 		tagAsSummary("DOM AST tree for one file using JLS2", true); // put in fingerprint
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
@@ -593,7 +595,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	/**
 	 * Performance DOM/AST creation on the entire workspace using JLS3.
 	 */
-	public void testDomAstCreationJLS3() throws JavaModelException {
+	public void testPerfDomAstCreationJLS3() throws JavaModelException {
 		tagAsSummary("DOM AST tree for one file using JLS3", false); // put in fingerprint
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
@@ -711,7 +713,8 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 			null);
 
 		// Measures
-		for (int i = 0; i < MEASURES_COUNT; i++) {
+		int measures = MEASURES_COUNT * 2;
+		for (int i = 0; i < measures; i++) {
 			runGc();
 			startMeasuring();
 			parser.createASTs(compilationUnits, new String[0], new ASTRequestor() {/* do nothing*/}, null);
