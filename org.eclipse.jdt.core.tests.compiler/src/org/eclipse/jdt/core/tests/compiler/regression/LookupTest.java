@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.Hashtable;
 
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -1514,7 +1515,7 @@ public void test044() {
 		},
 		"SUCCESS");
 	// delete binary file Dumbo$Clyde (i.e. simulate removing it from classpath for subsequent compile)
-	new File(OUTPUT_DIR, "p" + File.separator + "Dumbo$Clyde.class").delete();
+	Util.delete(new File(OUTPUT_DIR, "p" + File.separator + "Dumbo$Clyde.class"));
 	
 	this.runConformTest(
 		new String[] {

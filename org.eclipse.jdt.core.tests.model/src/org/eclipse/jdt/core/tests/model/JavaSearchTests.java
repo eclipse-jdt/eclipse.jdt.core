@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 
@@ -961,7 +962,7 @@ public void testExternalJarScope() throws CoreException, IOException {
 			resultCollector);
 		
 	} finally {
-		externalJar.delete();
+		Util.delete(externalJar);
 		project.setRawClasspath(classpath, null);
 	}
 	

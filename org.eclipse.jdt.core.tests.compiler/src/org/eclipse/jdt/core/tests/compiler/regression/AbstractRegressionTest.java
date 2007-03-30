@@ -496,7 +496,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		File outputDir = new File(OUTPUT_DIR);
 		if (outputDir.exists()) {
 			Util.flushDirectoryContent(outputDir);
-			outputDir.delete();
 		}
 	}
 }

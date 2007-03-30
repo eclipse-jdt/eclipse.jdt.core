@@ -15,10 +15,8 @@ import java.io.File;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.tests.util.Util;
 
 /**
  * Tests the search participant supprt.
@@ -96,7 +94,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 			assertTrue("Should have requested to index document", document.indexingRequested);
 		} finally {
 			deleteProject("P");
-			getIndexLocation().toFile().delete();
+			Util.delete(getIndexLocation().toFile());
 		}
 	}
 
@@ -114,7 +112,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 			assertTrue("Should have requested to index document", document.indexingRequested);
 		} finally {
 			deleteProject("P");
-			getIndexLocation().toFile().delete();
+			Util.delete(getIndexLocation().toFile());
 		}
 	}
 
