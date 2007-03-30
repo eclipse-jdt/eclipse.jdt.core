@@ -126,9 +126,9 @@ public class QualifiedNameReference extends NameReference {
 
 		if (isCompound) {
 			if (otherBindingsCount == 0
-				&& lastFieldBinding.isBlankFinal()
-				&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)
-				&& (!flowInfo.isDefinitelyAssigned(lastFieldBinding))) {
+					&& lastFieldBinding.isBlankFinal()
+					&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)
+					&& (!flowInfo.isDefinitelyAssigned(lastFieldBinding))) {
 				currentScope.problemReporter().uninitializedBlankFinalField(
 					lastFieldBinding,
 					this);
@@ -164,10 +164,11 @@ public class QualifiedNameReference extends NameReference {
 		// the last field access is a write access
 		if (lastFieldBinding.isFinal()) {
 			// in a context where it can be assigned?
-			if (lastFieldBinding.isBlankFinal()
+			if (otherBindingsCount == 0
+					&& this.indexOfFirstFieldBinding == 1
+					&& lastFieldBinding.isBlankFinal()
 					&& !isCompound
-					&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding) 
-					&& indexOfFirstFieldBinding == 1) {
+					&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) {
 				if (flowInfo.isPotentiallyAssigned(lastFieldBinding)) {
 					currentScope.problemReporter().duplicateInitializationOfBlankFinalField(lastFieldBinding, this);
 				} else {
@@ -176,7 +177,7 @@ public class QualifiedNameReference extends NameReference {
 				flowInfo.markAsDefinitelyAssigned(lastFieldBinding);
 			} else {
 				currentScope.problemReporter().cannotAssignToFinalField(lastFieldBinding, this);
-				if (currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) { // pretend it got assigned
+				if (otherBindingsCount == 0 && currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) { // pretend it got assigned
 					flowInfo.markAsDefinitelyAssigned(lastFieldBinding);
 				}
 			}
