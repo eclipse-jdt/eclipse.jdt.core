@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests.ProblemRequestor;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.test.performance.Performance;
 
 /**
  */
@@ -749,6 +750,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
  */
 public void testSeekPackageFragments() throws CoreException {
 	assertNotNull("We should have the 'BigProject' in workspace!", BIG_PROJECT);
+	setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Test has been rewritten and is not stabilized yet...");
 	class PackageRequestor implements IJavaElementRequestor {
 		ArrayList pkgs = new ArrayList();
 		public void acceptField(IField field) {}
