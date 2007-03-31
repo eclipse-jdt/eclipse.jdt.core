@@ -79,33 +79,13 @@ public String[] getCommandLine() {
 	Vector commandLine= new Vector();
 	
 	// VM binary
-	if (System.getProperty("java.vm.version").startsWith("1.4.2")) {
-		commandLine.addElement(
-			this.vmPath + 
-			(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
-			"bin" + 
-			File.separator + 
-			"java");
-	} else {
-		String vmLocation = this.vmPath + 
-			(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
-			"bin" + 
-			File.separator + 
-			"javaw";
-		final String osName = System.getProperty("os.name");
-		if (osName.indexOf("win32") != -1) {
-			vmLocation += ".exe";
-		}
-		if (!new File(vmLocation).exists()) {
-			vmLocation = 
-				this.vmPath + 
-				(this.vmPath.endsWith(File.separator) ? "" : File.separator) + 
-				"bin" + 
-				File.separator + 
-				"java";
-		}
-		commandLine.addElement(vmLocation);
-	}
+	StringBuffer vmLocation = new StringBuffer(this.vmPath);
+	vmLocation
+		.append(this.vmPath.endsWith(File.separator) ? "" : File.separator)
+		.append("bin")
+		.append(File.separator)
+		.append("java");
+	commandLine.addElement(String.valueOf(vmLocation));
 
 	// VM arguments
 	if (this.vmArguments != null) {
@@ -132,7 +112,7 @@ public String[] getCommandLine() {
 	}
 
 	// boot classpath
-	commandLine.addElement("-Xbootclasspath:" + buildBootClassPath());
+	commandLine.addElement("-Xbootclasspath/a:" + buildBootClassPath());
 
 	// regular classpath
 	commandLine.addElement("-classpath");
