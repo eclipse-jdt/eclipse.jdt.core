@@ -32,7 +32,7 @@ public abstract class ElementImpl
 	implements javax.lang.model.element.Element, IElementInfo
 {
 	
-	protected final Binding _binding;
+	public final Binding _binding;
 	
 	protected ElementImpl(Binding binding) {
 		_binding = binding;

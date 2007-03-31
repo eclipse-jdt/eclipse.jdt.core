@@ -28,7 +28,10 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -111,8 +114,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 	}
 
 	@Override
-	public Set<Modifier> getModifiers()
-	{
+	public Set<Modifier> getModifiers() {
 		MethodBinding binding = (MethodBinding)_binding;
 		return Factory.getModifiers(binding.modifiers);
 	}
@@ -120,15 +122,29 @@ public class ExecutableElementImpl extends ElementImpl implements
 	@Override
 	public List<? extends VariableElement> getParameters() {
 		MethodBinding binding = (MethodBinding)_binding;
-		if (0 == binding.parameters.length) {
-			return Collections.emptyList();
+		int length = binding.parameters == null ? 0 : binding.parameters.length;
+		if (0 != length) {
+			AbstractMethodDeclaration methodDeclaration = binding.sourceMethod();
+			List<VariableElement> params = new ArrayList<VariableElement>(length);
+			if (methodDeclaration != null) {
+				for (Argument argument : methodDeclaration.arguments) {
+					VariableElement param = new VariableElementImpl(argument.binding);
+					params.add(param);
+				}
+			} else {
+				// binary method
+				int i = 0;
+				for (TypeBinding typeBinding : binding.parameters) {
+					StringBuilder builder = new StringBuilder("arg");//$NON-NLS-1$
+					builder.append(i);
+					VariableElement param = new VariableElementImpl(new LocalVariableBinding(String.valueOf(builder).toCharArray(), typeBinding, 0, true));
+					params.add(param);
+					i++;
+				}
+			}
+			return Collections.unmodifiableList(params);
 		}
-		List<VariableElement> params = new ArrayList<VariableElement>(binding.parameters.length);
-		for (TypeBinding paramBinding : binding.parameters) {
-			VariableElement param = new VariableElementImpl(paramBinding);
-			params.add(param);
-		}
-		return Collections.unmodifiableList(params);
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -144,11 +160,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 	public Name getSimpleName() {
 		MethodBinding binding = (MethodBinding)_binding;
 		if (_name == null) {
-			if (binding.isConstructor()) {
-				_name = new NameImpl(binding.declaringClass.sourceName());
-			} else {
-				_name = new NameImpl(binding.selector);
-			}
+			_name = new NameImpl(binding.selector);
 		}
 		return _name;
 	}
@@ -175,8 +187,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 
 	@Override
 	public boolean isVarArgs() {
-		// TODO Auto-generated method stub
-		return false;
+		return ((MethodBinding) _binding).isVarargs();
 	}
 
 }
