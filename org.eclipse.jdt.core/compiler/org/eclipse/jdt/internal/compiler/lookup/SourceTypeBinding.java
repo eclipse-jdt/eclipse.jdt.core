@@ -1361,19 +1361,18 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			} else if (parameterType == TypeBinding.VOID) {
 				methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(this, methodDecl, arg);
 				foundArgProblem = true;
-			} else if (parameterType.isArrayType() && ((ArrayBinding) parameterType).leafComponentType == TypeBinding.VOID) {
-				methodDecl.scope.problemReporter().argumentTypeCannotBeVoidArray(arg);
-				foundArgProblem = true;
 			} else {
 				TypeBinding leafType = parameterType.leafComponentType();
-			    if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				newParameters[i] = parameterType;
+				arg.binding = new LocalVariableBinding(arg, parameterType, arg.modifiers, true);
 			}
 		}
 		// only assign parameters if no problems are found
-		if (!foundArgProblem)
+		if (!foundArgProblem) {
 			method.parameters = newParameters;
+		}
 	}
 
 	boolean foundReturnTypeProblem = false;
@@ -1386,7 +1385,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			method.returnType = null;
 			foundReturnTypeProblem = true;
 		} else {
-		    TypeBinding methodType = returnType.resolveType(methodDecl.scope, true /* check bounds*/);
+			TypeBinding methodType = returnType.resolveType(methodDecl.scope, true /* check bounds*/);
 			if (methodType == null) {
 				foundReturnTypeProblem = true;
 			} else if (methodType.isArrayType() && ((ArrayBinding) methodType).leafComponentType == TypeBinding.VOID) {

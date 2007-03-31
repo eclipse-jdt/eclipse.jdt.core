@@ -32,8 +32,6 @@ public class Argument extends LocalDeclaration {
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
 
 		// record the resolved type into the type reference
-		int modifierFlag = this.modifiers;
-
 		Binding existingVariable = scope.getBinding(name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
@@ -54,10 +52,11 @@ public class Argument extends LocalDeclaration {
 			}
 		}
 
-		scope.addLocalVariable(
-			this.binding =
-				new LocalVariableBinding(this, typeBinding, modifierFlag, true));
-		resolveAnnotations(scope, this.annotations, this.binding);		
+		if (this.binding == null) {
+			this.binding = new LocalVariableBinding(this, typeBinding, this.modifiers, true);
+		}
+		scope.addLocalVariable(this.binding);
+		resolveAnnotations(scope, this.annotations, this.binding);
 		//true stand for argument instead of just local
 		this.binding.declaration = this;
 		this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
