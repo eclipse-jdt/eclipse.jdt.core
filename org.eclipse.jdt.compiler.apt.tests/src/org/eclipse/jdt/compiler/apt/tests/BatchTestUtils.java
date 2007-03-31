@@ -119,6 +119,38 @@ public class BatchTestUtils {
 	}
 	
 	/**
+	 * Compile the contents of a directory tree, collecting errors so that they can be
+	 * compared with expected errors.
+	 * @param compiler the system compiler or Eclipse compiler
+	 * @param options will be passed to the compiler
+	 * @param targetFolder the folder to compile
+	 * @param errors a StringWriter into which compiler output will be written
+	 * @return true if the compilation was successful
+	 */
+	public static boolean compileTreeWithErrors(JavaCompiler compiler, List<String> options, File targetFolder, StringWriter errors) {
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		// create new list containing inputfile
+		List<File> files = new ArrayList<File>();
+		findFilesUnder(targetFolder, files);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		PrintWriter printWriter = new PrintWriter(errors);
+
+		options.add("-d");
+		options.add(_tmpBinFolderName);
+		options.add("-s");
+		options.add(_tmpGenFolderName);
+		options.add("-cp");
+		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarPath);
+		options.add("-processorpath");
+		options.add(_processorJarPath);
+		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
+		Boolean result = task.call();
+
+		return result.booleanValue();
+	}
+	
+	/**
 	 * Recursively collect all the files under some root.  Ignore directories named "CVS".
 	 * Used when compiling multiple source files.
 	 * @param files a List<File> to which all the files found will be added
