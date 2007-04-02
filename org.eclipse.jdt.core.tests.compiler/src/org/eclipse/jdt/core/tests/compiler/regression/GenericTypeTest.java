@@ -37194,4 +37194,50 @@ public void test1119() {
 		"The method compareTo(capture#7-of ? extends Throwable) in the type Comparable<capture#7-of ? extends Throwable> is not applicable for the arguments (capture#8-of ? extends Throwable)\n" + 
 		"----------\n");		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=166963
+public void test1120() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public X() {\n" + 
+			"		System.out.println();\n" + 
+			"		this(zork);\n" + 
+			"		Zork.this.this();\n" + 
+			"		<Zork>this();\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	this(zork);\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Constructor call must be the first statement in a constructor\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	this(zork);\n" + 
+		"	     ^^^^\n" + 
+		"zork cannot be resolved\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Zork.this.this();\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Constructor call must be the first statement in a constructor\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	Zork.this.this();\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 6)\n" + 
+		"	<Zork>this();\n" + 
+		"	 ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 6)\n" + 
+		"	<Zork>this();\n" + 
+		"	      ^^^^^^^\n" + 
+		"Constructor call must be the first statement in a constructor\n" + 
+		"----------\n");		
+}
 }

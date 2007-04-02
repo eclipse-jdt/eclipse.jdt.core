@@ -256,6 +256,20 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 					|| !methodDeclaration.isConstructor()
 					|| ((ConstructorDeclaration) methodDeclaration).constructorCall != this) {
 				scope.problemReporter().invalidExplicitConstructorCall(this);
+				// fault-tolerance
+				if (this.qualification != null) {
+					this.qualification.resolveType(scope);
+				}
+				if (this.typeArguments != null) {
+					for (int i = 0, max = this.typeArguments.length; i < max; i++) {
+						this.typeArguments[i].resolveType(scope, true /* check bounds*/);
+					}
+				}
+				if (this.arguments != null) {
+					for (int i = 0, max = this.arguments.length; i < max; i++) {
+						this.arguments[i].resolveType(scope);
+					}
+				}
 				return;
 			}
 			methodScope.isConstructorCall = true;
