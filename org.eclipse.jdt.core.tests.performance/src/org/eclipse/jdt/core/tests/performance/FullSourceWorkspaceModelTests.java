@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests.ProblemRequestor;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.test.performance.Performance;
 
 /**
  */
@@ -312,7 +313,7 @@ private NameLookup getNameLookup(JavaProject project) throws JavaModelException 
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
-public void testPerfNameLookupFindKnownType() throws CoreException {
+public void testNameLookupFindKnownType() throws CoreException {
 
 	// Wait for indexing end
 	AbstractJavaModelTests.waitUntilIndexesReady();
@@ -351,7 +352,7 @@ public void testPerfNameLookupFindKnownType() throws CoreException {
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
-public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
+public void testNameLookupFindKnownSecondaryType() throws CoreException {
 
 	// Wait for indexing end
 	AbstractJavaModelTests.waitUntilIndexesReady();
@@ -392,7 +393,7 @@ public void testPerfNameLookupFindKnownSecondaryType() throws CoreException {
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
-public void testPerfNameLookupFindUnknownType() throws CoreException {
+public void testNameLookupFindUnknownType() throws CoreException {
 
 	// Wait for indexing end
 	AbstractJavaModelTests.waitUntilIndexesReady();
@@ -431,7 +432,7 @@ public void testPerfNameLookupFindUnknownType() throws CoreException {
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
-public void testPerfProjectFindKnownType() throws CoreException {
+public void testProjectFindKnownType() throws CoreException {
 	tagAsSummary("Find known type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
@@ -469,7 +470,7 @@ public void testPerfProjectFindKnownType() throws CoreException {
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
-public void testPerfProjectFindKnownMemberType() throws CoreException {
+public void testProjectFindKnownMemberType() throws CoreException {
 	tagAsSummary("Find known member type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
@@ -510,7 +511,7 @@ public void testPerfProjectFindKnownMemberType() throws CoreException {
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
-public void testPerfProjectFindKnownSecondaryType() throws CoreException {
+public void testProjectFindKnownSecondaryType() throws CoreException {
 	tagAsSummary("Find known secondary type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
@@ -547,7 +548,7 @@ public void testPerfProjectFindKnownSecondaryType() throws CoreException {
  * First wait that already started indexing jobs end before perform test.
  * Perform one find before measure performance for warm-up.
  */
-public void testPerfProjectFindUnknownType() throws CoreException {
+public void testProjectFindUnknownType() throws CoreException {
 	tagAsSummary("Find unknown type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
@@ -758,8 +759,9 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
  * Performance test for looking up package fragments
  * (see bug 72683 Slow code assist in Display view)
  */
-public void testPerfSeekPackageFragments() throws CoreException {
+public void testSeekPackageFragments() throws CoreException {
 	assertNotNull("We should have the 'BigProject' in workspace!", BIG_PROJECT);
+	setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Test has been rewritten and is not stabilized yet...");
 	class PackageRequestor implements IJavaElementRequestor {
 		ArrayList pkgs = new ArrayList();
 		public void acceptField(IField field) {}

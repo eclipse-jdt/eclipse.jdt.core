@@ -320,9 +320,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Performance tests for search: Search All Types Names.
 	 */
 	public void testNewSearchAllTypeNames() throws CoreException {
-		// TODO (frederic) put this test in global summary when be sure of its number.
-		//tagAsGlobalSummary("Search all type names", true); // put in global fingerprint
-		tagAsSummary("New search all type names", true);
+		tagAsSummary("Cold search all type names", true); // put in fingerprint
 		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 
 		// Wait for indexing end
