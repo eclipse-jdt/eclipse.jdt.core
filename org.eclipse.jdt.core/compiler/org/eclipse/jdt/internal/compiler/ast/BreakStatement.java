@@ -59,6 +59,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		}
 		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
+		traversedContext.recordBreakTo(targetContext);
 		
 		if (traversedContext instanceof InsideSubRoutineFlowContext) {
 			ASTNode node = traversedContext.associatedNode;

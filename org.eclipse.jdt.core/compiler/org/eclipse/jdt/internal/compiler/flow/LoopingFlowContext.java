@@ -31,7 +31,9 @@ public class LoopingFlowContext extends SwitchFlowContext {
 	private UnconditionalFlowInfo upstreamNullFlowInfo;
 	private LoopingFlowContext innerFlowContexts[] = null;
 	private UnconditionalFlowInfo innerFlowInfos[] = null;
-	private int innerFlowContextsNb = 0;
+	private int innerFlowContextsCount = 0;
+	private LabelFlowContext breakTargetContexts[] = null;
+	private int breakTargetsCount = 0;
 	
 	Reference finalAssignments[];
 	VariableBinding finalVariables[];
@@ -101,19 +103,18 @@ public void complainOnDeferredFinalChecks(BlockScope scope, FlowInfo flowInfo) {
 /**
  * Perform deferred checks relative to the null status of local variables.
  * @param scope the scope to which this context is associated
- * @param flowInfo the flow info against which checks must be performed
+ * @param callerFlowInfo the flow info against which checks must be performed
  */
-public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo flowInfo) {
-	for (int i = 0 ; i < this.innerFlowContextsNb ; i++) {
+public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowInfo) {
+	for (int i = 0 ; i < this.innerFlowContextsCount ; i++) {
 		this.upstreamNullFlowInfo.
 			addPotentialNullInfoFrom(
 				this.innerFlowContexts[i].upstreamNullFlowInfo).
 			addPotentialNullInfoFrom(this.innerFlowInfos[i]);
 	}
-	this.innerFlowContextsNb = 0;
-	flowInfo = this.upstreamNullFlowInfo.
-		addPotentialNullInfoFrom(
-			flowInfo.unconditionalInitsWithoutSideEffect());
+	this.innerFlowContextsCount = 0;
+	UnconditionalFlowInfo flowInfo = this.upstreamNullFlowInfo.
+		addPotentialNullInfoFrom(callerFlowInfo.unconditionalInitsWithoutSideEffect());
 	if (this.deferNullDiagnostic) {
 		// check only immutable null checks on innermost looping context
 		for (int i = 0; i < this.nullCount; i++) {
@@ -247,6 +248,10 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo flowInfo) {
 			}
 		}
 	}
+	// propagate breaks
+	for (int i = 0; i < this.breakTargetsCount; i++) {
+		this.breakTargetContexts[i].initsOnBreak.addPotentialNullInfoFrom(flowInfo);
+	}
 }
 	
 	public BranchLabel continueLabel() {
@@ -269,6 +274,18 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo flowInfo) {
 	public boolean isContinuedTo() {
 		return initsOnContinue != FlowInfo.DEAD_END;
 	}
+
+public void recordBreakTo(FlowContext targetContext) {
+	if (targetContext instanceof LabelFlowContext) {
+		int current;
+		if ((current = this.breakTargetsCount++) == 0) {
+			this.breakTargetContexts = new LabelFlowContext[2];
+		} else if (current == this.breakTargetContexts.length) {
+			System.arraycopy(this.breakTargetContexts, 0, this.breakTargetContexts = new LabelFlowContext[current + 2], 0, current);
+		}
+		this.breakTargetContexts[current] = (LabelFlowContext) targetContext;
+	}
+}
 
 public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) {
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
@@ -294,7 +311,7 @@ public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) 
 			this.innerFlowContexts = new LoopingFlowContext[5];
 			this.innerFlowInfos = new UnconditionalFlowInfo[5];
 		}
-		else if (this.innerFlowContextsNb == 
+		else if (this.innerFlowContextsCount == 
 				(length = this.innerFlowContexts.length) - 1) {
 			System.arraycopy(this.innerFlowContexts, 0, 
 				(this.innerFlowContexts = new LoopingFlowContext[length + 5]), 
@@ -303,8 +320,8 @@ public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) 
 				(this.innerFlowInfos= new UnconditionalFlowInfo[length + 5]), 
 				0, length);
 		}
-		this.innerFlowContexts[this.innerFlowContextsNb] = (LoopingFlowContext) inner;
-		this.innerFlowInfos[this.innerFlowContextsNb++] = 
+		this.innerFlowContexts[this.innerFlowContextsCount] = (LoopingFlowContext) inner;
+		this.innerFlowInfos[this.innerFlowContextsCount++] = 
 			flowInfo.unconditionalInitsWithoutSideEffect();
 	}
 	}

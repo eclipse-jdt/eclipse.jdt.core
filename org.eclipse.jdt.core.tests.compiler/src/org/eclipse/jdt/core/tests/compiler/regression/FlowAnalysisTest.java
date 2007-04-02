@@ -1343,6 +1343,24 @@ public void test046() {
 		},
 		"1");
 }
+// do while and named labels
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
+// variant
+public void test047() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void foo() {\n" + 
+			"    done: do\n" + 
+			"      break done;\n" + 
+			"    while (false);\n" +
+			"    System.out.println();\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }

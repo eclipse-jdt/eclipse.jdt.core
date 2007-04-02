@@ -422,6 +422,10 @@ public void recordBreakFrom(FlowInfo flowInfo) {
 	// default implementation: do nothing
 }
 
+public void recordBreakTo(FlowContext targetContext) {
+	// default implementation: do nothing
+}
+
 public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) {
 	// default implementation: do nothing
 }

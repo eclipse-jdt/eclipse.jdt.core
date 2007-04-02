@@ -3874,7 +3874,7 @@ public void test0459_while_nested() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // extraneous error in case of a labeled while(true) statement
-public void _test0460_while_explicit_label() {
+public void test0460_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -3900,17 +3900,55 @@ public void _test0460_while_explicit_label() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
 // extraneous error in case of a labeled while(true) statement
-public void _test0461_while_explicit_label() {
+public void test0461_while_explicit_label() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"  void foo(boolean b) {\n" + 
+			"public class X {\n" +
+			"  boolean test() {\n" +
+			"    return true;\n" +
+			"  }\n" + 
+			"  void foo() {\n" + 
 			"    Object o = null;\n" + 
 			"    done: while (true) {\n" + 
-			"      if (b) {\n" + 
+			"      if (test()) {\n" + 
 			"        break done;\n" + 
-			"      }\n" + 
+			"      }\n" +
+			"      o = new Object();\n" + 
+			"    }\n" + 
+			"    if (o == null) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+} 
+
+// null analysis - while
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
+// variant
+public void test0462_while_explicit_label() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  boolean test() {\n" +
+			"    return true;\n" +
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    done: while (true) {\n" +
+			"      try {\n" + 
+			"        while (true) {\n" + 
+			"          if (test()) {\n" + 
+			"            break done;\n" + 
+			"          }\n" +
+			"        }\n" +
+			"      }\n" +
+			"      finally {\n" +
+			"        if (test()) {\n" + 
+			"          o = new Object();\n" + 
+			"        }\n" +
+			"      }\n" +
 			"    }\n" + 
 			"    if (o == null) {\n" + 
 			"    }\n" + 
@@ -5698,6 +5736,58 @@ public void _test0615_do_while() {
 	);
 }
 
+// null analysis - do while
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
+// variant
+public void test0616_do_while_explicit_label() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(int i) {\n" + 
+			"    Object o = null;\n" + 
+			"    done: do {\n" + 
+			"      switch (i) {\n" + 
+			"        case 0:\n" + 
+			"          o = new Object();\n" + 
+			"          break;\n" + 
+			"        case 1:\n" + 
+			"          break done;\n" + 
+			"      }\n" + 
+			"    } while (true);\n" + 
+			"    if (o == null) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+} 
+
+// null analysis - do while
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
+// variant
+public void test0617_do_while_explicit_label() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  boolean test() {\n" +
+			"    return true;\n" +
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    done: do {\n" + 
+			"      if (test()) {\n" + 
+			"        break done;\n" + 
+			"      }\n" +
+			"      o = new Object();\n" + 
+			"    } while (true);\n" + 
+			"    if (o == null) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+} 
+
 // null analysis -- for
 public void test0701_for() {
 	this.runNegativeTest(
@@ -6539,6 +6629,87 @@ public void test0739_for() {
 			"");
 	}
 }
+
+// null analysis - for
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
+// variant
+public void test0740_for_explicit_label() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(int i) {\n" + 
+			"    Object o = null;\n" + 
+			"    done: for (;;) {\n" + 
+			"      switch (i) {\n" + 
+			"        case 0:\n" + 
+			"          o = new Object();\n" + 
+			"          break;\n" + 
+			"        case 1:\n" + 
+			"          break done;\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    if (o == null) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+} 
+
+// null analysis - for
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
+// variant
+public void test0741_for_explicit_label() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  boolean test() {\n" +
+			"    return true;\n" +
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    Object o = null;\n" + 
+			"    done: for (;;) {\n" + 
+			"      if (test()) {\n" + 
+			"        break done;\n" + 
+			"      }\n" +
+			"      o = new Object();\n" + 
+			"    }\n" + 
+			"    if (o == null) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"");
+} 
+
+// null analysis - for
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=176472
+// variant
+public void test0742_for_explicit_label() {
+	if (COMPLIANCE_1_5.compareTo(this.complianceLevel) <= 0) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"public class X {\n" + 
+				"  void foo(int i, List<Object> l) {\n" + 
+				"    Object o = null;\n" + 
+				"    done: for (Object j: l) {\n" + 
+				"      switch (i) {\n" + 
+				"        case 0:\n" + 
+				"          o = new Object();\n" + 
+				"          break;\n" + 
+				"        case 1:\n" + 
+				"          break done;\n" + 
+				"      }\n" + 
+				"    }\n" + 
+				"    if (o == null) {\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"}\n"},
+			"");
+	}
+} 
 
 // null analysis -- switch
 public void test0800_switch() {
