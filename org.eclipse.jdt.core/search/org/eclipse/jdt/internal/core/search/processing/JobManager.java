@@ -205,16 +205,13 @@ public abstract class JobManager implements Runnable {
 						throw new OperationCanceledException();
 	
 					case IJob.WaitUntilReady :
-						int awaitingWork;
-						IJob previousJob = null;
-						IJob currentJob;
 						IProgressMonitor subProgress = null;
 						try {
-							int totalWork = this.awaitingJobsCount();
-							if (progress != null && totalWork > 0) {
-								subProgress = new SubProgressMonitor(progress, concurrentJobWork / 2);
+							int totalWork = 1000;
+							if (progress != null) {
+								subProgress = new SubProgressMonitor(progress, concurrentJobWork * 8 / 10);
 								subProgress.beginTask("", totalWork); //$NON-NLS-1$
-								concurrentJobWork = concurrentJobWork / 2;
+								concurrentJobWork = concurrentJobWork * 2 / 10;
 							}
 							// use local variable to avoid potential NPE (see bug 20435 NPE when searching java method
 							// and bug 42760 NullPointerException in JobManager when searching)
@@ -226,18 +223,35 @@ public abstract class JobManager implements Runnable {
 								synchronized(this) {
 									this.awaitingClients++;
 								}
-								while ((awaitingWork = awaitingJobsCount()) > 0) {
+								IJob previousJob = null;
+								int awaitingJobsCount;
+								int lastJobsCount = totalWork;
+								float lastWorked = 0;
+								float totalWorked = 0;
+								while ((awaitingJobsCount = awaitingJobsCount()) > 0) {
 									if (subProgress != null && subProgress.isCanceled())
 										throw new OperationCanceledException();
-									currentJob = currentJob();
+									IJob currentJob = currentJob();
 									// currentJob can be null when jobs have been added to the queue but job manager is not enabled
 									if (currentJob != null && currentJob != previousJob) {
 										if (VERBOSE)
 											Util.verbose("-> NOT READY - waiting until ready - " + searchJob);//$NON-NLS-1$
 										if (subProgress != null) {
 											subProgress.subTask(
-												Messages.bind(Messages.manager_filesToIndex, Integer.toString(awaitingWork))); 
-											subProgress.worked(1);
+												Messages.bind(Messages.manager_filesToIndex, Integer.toString(awaitingJobsCount)));
+											// ratio of the amount of work relative to the total work
+											float ratio = awaitingJobsCount < totalWork ? 1 : ((float) totalWork) / awaitingJobsCount;
+											if (lastJobsCount > awaitingJobsCount) {
+												totalWorked += (lastJobsCount - awaitingJobsCount) * ratio;
+											} else {
+												// more jobs were added, just increment by the ratio
+												totalWorked += ratio;
+											}
+											if (totalWorked - lastWorked >= 1) {
+												subProgress.worked((int) (totalWorked - lastWorked));
+												lastWorked = totalWorked;
+											}
+											lastJobsCount = awaitingJobsCount;
 										}
 										previousJob = currentJob;
 									}
