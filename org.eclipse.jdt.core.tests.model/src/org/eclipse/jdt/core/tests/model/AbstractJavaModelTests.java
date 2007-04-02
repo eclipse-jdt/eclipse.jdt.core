@@ -979,29 +979,12 @@ protected void assertDeltas(String message, String expected) {
 		return project;
 	}
 	public void deleteFile(File file) {
-		file = file.getAbsoluteFile();
-		if (!file.exists())
-			return;
-		if (file.isDirectory()) {
-			String[] files = file.list();
-			//file.list() can return null
-			if (files != null) {
-				for (int i = 0; i < files.length; ++i) {
-					deleteFile(new File(file, files[i]));
-				}
+		int retryCount = 0;
+		while (++retryCount <= 60) { // wait 1 minute at most
+			if (org.eclipse.jdt.core.tests.util.Util.delete(file)) {
+				break;
 			}
 		}
-		boolean success = file.delete();
-		int retryCount = 60; // wait 1 minute at most
-		while (!success && --retryCount >= 0) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
-			success = file.delete();
-		}
-		if (success) return;
-		System.err.println("Failed to delete " + file.getPath());
 	}
 	protected void deleteFolder(IPath folderPath) throws CoreException {
 		deleteResource(getFolder(folderPath));

@@ -122,7 +122,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		if (fileNames != null) {
 			for (int i = 0, max = fileNames.length; i < max; i++) {
 				if (fileNames[i].indexOf(className) != -1) {
-					new File(SOURCE_DIRECTORY + File.separator + fileNames[i]).delete();
+					Util.delete(SOURCE_DIRECTORY + File.separator + fileNames[i]);
 				}
 			}
 		}
@@ -132,7 +132,7 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 		if (fileNames != null) {
 			for (int i = 0, max = fileNames.length; i < max; i++) {
 				if (fileNames[i].indexOf(className) != -1) {
-					new File(EVAL_DIRECTORY + File.separator + fileNames[i]).delete();
+					Util.delete(EVAL_DIRECTORY + File.separator + fileNames[i]);
 				}
 			}
 		}

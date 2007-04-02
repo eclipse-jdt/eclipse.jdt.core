@@ -519,7 +519,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				}
 				errorsCount = main.globalErrorsCount;
 			}
-			cleanupDirectory(new File(bins));
+			Util.delete(bins);
 			warnings = main.globalWarningsCount;
 		}
 		
@@ -538,28 +538,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 		this.scenarioComment.append("warn=");
 		this.scenarioComment.append(warnings);
-	}
-
-	/**
-	 * Delete a directory from file system.
-	 * @param directory
-	 */
-	protected void cleanupDirectory(File directory) {
-		if (!directory.isDirectory() || !directory.exists()) {
-			return;
-		}
-		String[] fileNames = directory.list();
-		for (int i = 0; i < fileNames.length; i++) {
-			File file = new File(directory, fileNames[i]);
-			if (file.isDirectory()) {
-				cleanupDirectory(file);
-			} else {
-				if (!file.delete())
-					System.out.println("Could not delete file " + file.getPath()); //$NON-NLS-1$
-			}
-		}
-		if (!directory.delete())
-			System.out.println("Could not delete directory " + directory.getPath()); //$NON-NLS-1$
 	}
 
 	private void collectAllFiles(File root, ArrayList collector, FileFilter fileFilter) {
