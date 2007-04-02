@@ -86,7 +86,7 @@ public class JavaSearchParticipant extends SearchParticipant {
 				pattern, 
 				requestor, 
 				scope,
-				monitor == null ? null : new SubProgressMonitor(monitor, 95)
+				monitor
 		);
 
 		/* eliminating false matches and locating them */
