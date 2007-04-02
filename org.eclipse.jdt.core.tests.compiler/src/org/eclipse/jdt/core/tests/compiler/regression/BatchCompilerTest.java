@@ -155,24 +155,33 @@ public static Test suite() {
 		String outFileName = printerWritersNameRoot + "out.txt", 
 			   errFileName = printerWritersNameRoot + "err.txt";
 		Main batchCompiler;
-		try {
-			batchCompiler = new Main(new PrintWriter(new FileOutputStream(
-					outFileName)), new PrintWriter(new FileOutputStream(
-					errFileName)), false);
-		} catch (FileNotFoundException e) {
-			System.out.println(getClass().getName() + '#' + getName());
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
+		PrintWriter out = null; 
+		PrintWriter err = null; 
 		boolean compileOK;
 		try {
-			final String[] tokenizeCommandLine = Main.tokenize(commandLine);
-			compileOK = batchCompiler.compile(tokenizeCommandLine);
-		} catch (RuntimeException e) {
-			compileOK = false;
-			System.out.println(getClass().getName() + '#' + getName());
-			e.printStackTrace();
-			throw e;
+			try {
+				out = new PrintWriter(new FileOutputStream(outFileName));
+				err = new PrintWriter(new FileOutputStream(errFileName));
+				batchCompiler = new Main(out, err, false);
+			} catch (FileNotFoundException e) {
+				System.out.println(getClass().getName() + '#' + getName());
+				e.printStackTrace();
+				throw new RuntimeException(e);
+			}
+			try {
+				final String[] tokenizeCommandLine = Main.tokenize(commandLine);
+				compileOK = batchCompiler.compile(tokenizeCommandLine);
+			} catch (RuntimeException e) {
+				compileOK = false;
+				System.out.println(getClass().getName() + '#' + getName());
+				e.printStackTrace();
+				throw e;
+			}
+		} finally {
+			if (out != null)
+				out.close();
+			if (err != null)
+				err.close();
 		}
 		String outOutputString = Util.fileContent(outFileName), 
 		       errOutputString = Util.fileContent(errFileName);

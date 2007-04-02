@@ -133,29 +133,6 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	 * Specific method to let tests Sun javac compilation available...
 	 #######################################*/
 	/*
-	 * Cleans up the given directory by removing all the files it contains as well
-	 * but leaving the directory.
-	 * @throws TargetException if the target path could not be cleaned up
-	 */
-	protected void cleanupDirectory(File directory) {
-		if (!directory.exists()) {
-			return;
-		}
-		String[] fileNames = directory.list();
-		for (int i = 0; i < fileNames.length; i++) {
-			File file = new File(directory, fileNames[i]);
-			if (file.isDirectory()) {
-				cleanupDirectory(file);
-			} else {
-				if (!file.delete())
-					System.out.println("Could not delete file " + file.getPath());
-			}
-		}
-		if (!directory.delete())
-			System.out.println("Could not delete directory " + directory.getPath());
-	}
-
-	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
 	 */
@@ -200,7 +177,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	protected void runJavac(String[] testFiles, final String expectedProblemLog, final String expectedSuccessOutputString, boolean shouldFlushOutputDirectory) {
 		try {
 			if (shouldFlushOutputDirectory)
-				cleanupDirectory(new File(JAVAC_OUTPUT_DIR));
+				Util.delete(JAVAC_OUTPUT_DIR);
 
 			// Write files in dir
 			IPath dirFilePath = writeFiles(testFiles);
@@ -333,7 +310,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 		} finally {
 			// Clean up written file(s)
 			IPath testDir =  new Path(Util.getOutputDirectory()).append(testName());
-			cleanupDirectory(testDir.toFile());
+			Util.delete(testDir.toFile());
 		}
 	}
 
