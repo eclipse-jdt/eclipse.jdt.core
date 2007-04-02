@@ -1734,53 +1734,53 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"     2  iconst_0\n" + 
 			"     3  istore_2 [n]\n" + 
 			"     4  invokestatic X.values() : X[] [46]\n" + 
-			"     7  astore 6\n" + 
-			"     9  iconst_0\n" + 
-			"    10  istore 4\n" + 
-			"    12  aload 6\n" + 
-			"    14  arraylength\n" + 
-			"    15  istore 5\n" + 
-			"    17  goto 49\n" + 
-			"    20  aload 6\n" + 
-			"    22  iload 4\n" + 
-			"    24  aaload\n" + 
-			"    25  astore_3 [e]\n" + 
-			"    26  iload_2 [n]\n" + 
-			"    27  iconst_1\n" + 
-			"    28  if_icmpne 34\n" + 
-			"    31  goto 46\n" + 
-			"    34  aload_3 [e]\n" + 
-			"    35  invokevirtual X.value() : int [50]\n" + 
-			"    38  istore_0 [val]\n" + 
-			"    39  getstatic java.lang.System.out : java.io.PrintStream [52]\n" + 
-			"    42  iload_0 [val]\n" + 
-			"    43  invokevirtual java.io.PrintStream.println(int) : void [58]\n" + 
-			"    46  iinc 4 1\n" + 
-			"    49  iload 4\n" + 
-			"    51  iload 5\n" + 
-			"    53  if_icmplt 20\n" + 
-			"    56  iload_1 [res]\n" + 
-			"    57  ireturn\n" + 
+			"     7  dup\n" + 
+			"     8  astore 6\n" + 
+			"    10  arraylength\n" + 
+			"    11  istore 5\n" + 
+			"    13  iconst_0\n" + 
+			"    14  istore 4\n" + 
+			"    16  goto 48\n" + 
+			"    19  aload 6\n" + 
+			"    21  iload 4\n" + 
+			"    23  aaload\n" + 
+			"    24  astore_3 [e]\n" + 
+			"    25  iload_2 [n]\n" + 
+			"    26  iconst_1\n" + 
+			"    27  if_icmpne 33\n" + 
+			"    30  goto 45\n" + 
+			"    33  aload_3 [e]\n" + 
+			"    34  invokevirtual X.value() : int [50]\n" + 
+			"    37  istore_0 [val]\n" + 
+			"    38  getstatic java.lang.System.out : java.io.PrintStream [52]\n" + 
+			"    41  iload_0 [val]\n" + 
+			"    42  invokevirtual java.io.PrintStream.println(int) : void [58]\n" + 
+			"    45  iinc 4 1\n" + 
+			"    48  iload 4\n" + 
+			"    50  iload 5\n" + 
+			"    52  if_icmplt 19\n" + 
+			"    55  iload_1 [res]\n" + 
+			"    56  ireturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 14]\n" + 
 			"        [pc: 2, line: 15]\n" + 
 			"        [pc: 4, line: 16]\n" + 
-			"        [pc: 26, line: 17]\n" + 
-			"        [pc: 31, line: 18]\n" + 
-			"        [pc: 34, line: 20]\n" + 
-			"        [pc: 39, line: 21]\n" + 
-			"        [pc: 46, line: 16]\n" + 
-			"        [pc: 56, line: 23]\n" + 
+			"        [pc: 25, line: 17]\n" + 
+			"        [pc: 30, line: 18]\n" + 
+			"        [pc: 33, line: 20]\n" + 
+			"        [pc: 38, line: 21]\n" + 
+			"        [pc: 45, line: 16]\n" + 
+			"        [pc: 55, line: 23]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 39, pc: 46] local: val index: 0 type: int\n" + 
-			"        [pc: 2, pc: 58] local: res index: 1 type: int\n" + 
-			"        [pc: 4, pc: 58] local: n index: 2 type: int\n" + 
-			"        [pc: 26, pc: 46] local: e index: 3 type: X\n" + 
+			"        [pc: 38, pc: 45] local: val index: 0 type: int\n" + 
+			"        [pc: 2, pc: 57] local: res index: 1 type: int\n" + 
+			"        [pc: 4, pc: 57] local: n index: 2 type: int\n" + 
+			"        [pc: 25, pc: 45] local: e index: 3 type: X\n" + 
 			"      Stack map table: number of frames 4\n" + 
-			"        [pc: 20, full, stack: {}, locals: {_, int, int, _, int, int, X[]}]\n" + 
-			"        [pc: 34, full, stack: {}, locals: {_, int, int, X, int, int, X[]}]\n" + 
-			"        [pc: 46, full, stack: {}, locals: {_, int, int, _, int, int, X[]}]\n" + 
-			"        [pc: 49, same]\n";
+			"        [pc: 19, full, stack: {}, locals: {_, int, int, _, int, int, X[]}]\n" + 
+			"        [pc: 33, full, stack: {}, locals: {_, int, int, X, int, int, X[]}]\n" + 
+			"        [pc: 45, full, stack: {}, locals: {_, int, int, _, int, int, X[]}]\n" + 
+			"        [pc: 48, same]\n";
 
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {

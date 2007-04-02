@@ -134,8 +134,10 @@ public class ForeachStatement extends Statement {
 				if (!hasEmptyAction
 						|| this.elementVariable.binding.resolvedPosition != -1) {				
 					this.collectionVariable.useFlag = LocalVariableBinding.USED;
-					this.indexVariable.useFlag = LocalVariableBinding.USED;
-					this.maxVariable.useFlag = LocalVariableBinding.USED;
+					if (this.continueLabel != null) {
+						this.indexVariable.useFlag = LocalVariableBinding.USED;
+						this.maxVariable.useFlag = LocalVariableBinding.USED;
+					}
 				}
 				break;
 			case RAW_ITERABLE :
@@ -192,12 +194,16 @@ public class ForeachStatement extends Statement {
 		switch(this.kind) {
 			case ARRAY :
 				collection.generateCode(scope, codeStream, true);
-				codeStream.store(this.collectionVariable, false);
-				codeStream.iconst_0();
-				codeStream.store(this.indexVariable, false);
-				codeStream.load(this.collectionVariable);
-				codeStream.arraylength();
-				codeStream.store(this.maxVariable, false);
+				codeStream.store(this.collectionVariable, true); 
+				if (this.continueLabel != null) {
+					// int length = (collectionVariable = [collection]).length;
+					codeStream.arraylength();
+					codeStream.store(this.maxVariable, false);
+					codeStream.iconst_0();
+					codeStream.store(this.indexVariable, false);
+				} else {
+					// leave collectionVariable on execution stack (will be consumed when swapping condition further down)
+				}
 				break;
 			case RAW_ITERABLE :
 			case GENERIC_ITERABLE :
@@ -225,12 +231,31 @@ public class ForeachStatement extends Statement {
 		BranchLabel conditionLabel = new BranchLabel(codeStream);
 		conditionLabel.tagBits |= BranchLabel.USED;
 		breakLabel.initialize(codeStream);
-		if (this.continueLabel != null) {
+		if (this.continueLabel == null) {
+			// generate the condition (swapped for optimizing)
+			conditionLabel.place();
+			int conditionPC = codeStream.position;
+			switch(this.kind) {
+				case ARRAY :
+					// inline the arraylength call
+					// collectionVariable is already on execution stack
+					codeStream.arraylength();					
+					codeStream.ifeq(breakLabel);
+					break;
+				case RAW_ITERABLE :
+				case GENERIC_ITERABLE :
+					codeStream.load(this.indexVariable);
+					codeStream.invokeJavaUtilIteratorHasNext();
+					codeStream.ifeq(breakLabel);
+					break;
+			}
+			codeStream.recordPositionsFrom(conditionPC, this.elementVariable.sourceStart);			
+		} else {
 			this.continueLabel.initialize(codeStream);
 			this.continueLabel.tagBits |= BranchLabel.USED;
+			// jump over the actionBlock
+			codeStream.goto_(conditionLabel);
 		}
-		// jump over the actionBlock
-		codeStream.goto_(conditionLabel);
 
 		// generate the loop action
 		actionLabel.place();
@@ -240,7 +265,11 @@ public class ForeachStatement extends Statement {
 			case ARRAY :
 				if (this.elementVariable.binding.resolvedPosition != -1) {
 					codeStream.load(this.collectionVariable);
-					codeStream.load(this.indexVariable);
+					if (this.continueLabel == null) {
+						codeStream.iconst_0(); // no continue, thus simply hardcode offset 0
+					} else {
+						codeStream.load(this.indexVariable);
+					}
 					codeStream.arrayAt(this.collectionElementType.id);
 					if (this.elementVariableImplicitWidening != -1) {
 						codeStream.generateImplicitConversion(this.elementVariableImplicitWidening);
@@ -294,33 +323,26 @@ public class ForeachStatement extends Statement {
 			// generate the increments for next iteration
 			switch(this.kind) {
 				case ARRAY :
-					if (hasEmptyAction && this.elementVariable.binding.resolvedPosition == -1) break;
-					codeStream.iinc(this.indexVariable.resolvedPosition, 1);
+					if (!hasEmptyAction || this.elementVariable.binding.resolvedPosition >= 0) {
+						codeStream.iinc(this.indexVariable.resolvedPosition, 1);
+					}
+					// generate the condition
+					conditionLabel.place();
+					codeStream.load(this.indexVariable);
+					codeStream.load(this.maxVariable);
+					codeStream.if_icmplt(actionLabel);
 					break;
 				case RAW_ITERABLE :
 				case GENERIC_ITERABLE :
+					// generate the condition
+					conditionLabel.place();
+					codeStream.load(this.indexVariable);
+					codeStream.invokeJavaUtilIteratorHasNext();
+					codeStream.ifne(actionLabel);
 					break;
 			}
 			codeStream.recordPositionsFrom(continuationPC, this.elementVariable.sourceStart);
 		}
-		// generate the condition
-		conditionLabel.place();
-		int conditionPC = codeStream.position;
-		switch(this.kind) {
-			case ARRAY :
-				codeStream.load(this.indexVariable);
-				codeStream.load(this.maxVariable);
-				codeStream.if_icmplt(actionLabel);
-				break;
-			case RAW_ITERABLE :
-			case GENERIC_ITERABLE :
-				codeStream.load(this.indexVariable);
-				codeStream.invokeJavaUtilIteratorHasNext();
-				codeStream.ifne(actionLabel);
-				break;
-		}
-		codeStream.recordPositionsFrom(conditionPC, this.elementVariable.sourceStart);
-
 		codeStream.exitUserScope(scope);
 		if (mergedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);

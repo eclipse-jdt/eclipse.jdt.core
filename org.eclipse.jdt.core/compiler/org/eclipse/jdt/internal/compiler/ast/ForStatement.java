@@ -248,18 +248,24 @@ public class ForStatement extends Statement {
 		actionLabel.tagBits |= BranchLabel.USED;
 		BranchLabel conditionLabel = new BranchLabel(codeStream);
 		breakLabel.initialize(codeStream);
-		if (this.continueLabel != null) {
+		if (this.continueLabel == null) {
+			conditionLabel.place();
+			if ((condition != null) && (condition.constant == Constant.NotAConstant)) {
+				condition.generateOptimizedBoolean(scope, codeStream, null, breakLabel, true);
+			}
+		} else {
 			this.continueLabel.initialize(codeStream);
+			// jump over the actionBlock
+			if ((condition != null)
+				&& (condition.constant == Constant.NotAConstant)
+				&& !((action == null || action.isEmptyBlock()) && (increments == null))) {
+				conditionLabel.tagBits |= BranchLabel.USED;
+				int jumpPC = codeStream.position;
+				codeStream.goto_(conditionLabel);
+				codeStream.recordPositionsFrom(jumpPC, condition.sourceStart);
+			}
 		}
-		// jump over the actionBlock
-		if ((condition != null)
-			&& (condition.constant == Constant.NotAConstant)
-			&& !((action == null || action.isEmptyBlock()) && (increments == null))) {
-			conditionLabel.tagBits |= BranchLabel.USED;
-			int jumpPC = codeStream.position;
-			codeStream.goto_(conditionLabel);
-			codeStream.recordPositionsFrom(jumpPC, condition.sourceStart);
-		}
+
 		// generate the loop action
 		if (action != null) {
 			// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
@@ -287,22 +293,25 @@ public class ForStatement extends Statement {
 					increments[i].generateCode(scope, codeStream);
 				}
 			}
-		}
-
-		// May loose some local variable initializations : affecting the local variable attributes
-		if (preCondInitStateIndex != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(currentScope, preCondInitStateIndex);
-		}
-
-		// generate the condition
-		conditionLabel.place();
-		if ((condition != null) && (condition.constant == Constant.NotAConstant)) {
-			condition.generateOptimizedBoolean(scope, codeStream, actionLabel, null, true);
-		} else {
-			if (continueLabel != null) {
+			// May loose some local variable initializations : affecting the local variable attributes
+			if (preCondInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, preCondInitStateIndex);
+			}		
+			// generate the condition
+			conditionLabel.place();
+			if ((condition != null) && (condition.constant == Constant.NotAConstant)) {
+				condition.generateOptimizedBoolean(scope, codeStream, actionLabel, null, true);
+			} else {
 				codeStream.goto_(actionLabel);
 			}
+			
+		} else {
+			// May loose some local variable initializations : affecting the local variable attributes
+			if (preCondInitStateIndex != -1) {
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, preCondInitStateIndex);
+			}
 		}
+
 
 		// May loose some local variable initializations : affecting the local variable attributes
 		if (neededScope) {
