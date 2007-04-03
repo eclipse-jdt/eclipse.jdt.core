@@ -179,29 +179,5 @@ public class BatchMessagerImpl implements Messager {
 				}
 				break;
 		}
-		StringBuilder sb = new StringBuilder();
-		final String space = " "; //$NON-NLS-1$
-		sb.append("APT says:"); //$NON-NLS-1$
-		if (kind != null) {
-			sb.append(space);
-			sb.append(kind);
-		}
-		if (msg != null) {
-			sb.append(space);
-			sb.append(msg);
-		}
-		if (e != null) {
-			sb.append(" on element "); //$NON-NLS-1$
-			sb.append(e);
-		}
-		if (a != null) {
-			sb.append(" at annotation "); //$NON-NLS-1$
-			sb.append(a);
-		}
-		if (v != null) {
-			sb.append(" on value "); //$NON-NLS-1$
-			sb.append(v);
-		}
-		System.err.println(sb.toString());
 	}
 }
