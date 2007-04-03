@@ -9009,7 +9009,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=180524
 	 */
-	public void _test0674() throws JavaModelException {
+	public void test0674() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =

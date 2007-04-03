@@ -538,7 +538,7 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 */
 public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimensionCount) {
 	if (leafComponentType instanceof LocalTypeBinding) // cache local type arrays with the local type itself
-		return ((LocalTypeBinding) leafComponentType).createArrayType(dimensionCount);
+		return ((LocalTypeBinding) leafComponentType).createArrayType(dimensionCount, this);
 
 	// find the array binding cache for this dimension
 	int dimIndex = dimensionCount - 1;
