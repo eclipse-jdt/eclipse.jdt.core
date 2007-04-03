@@ -18,15 +18,20 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic.Kind;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.apt.model.ExecutableElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.TypeElementImpl;
+import org.eclipse.jdt.internal.compiler.apt.model.VariableElementImpl;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -36,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  */
 public class BatchMessagerImpl implements Messager {
 
+	private static final String[] NO_ARGUMENTS = new String[0];
 	private final Main _compiler;
 
 	public BatchMessagerImpl(Main compiler) {
@@ -77,6 +83,7 @@ public class BatchMessagerImpl implements Messager {
 		ReferenceContext referenceContext = null;
 		int startPosition = 0;
 		int endPosition = 0;
+		CategorizedProblem problem = null;
 		if (e != null) {
 			switch(e.getKind()) {
 				case ANNOTATION_TYPE :
@@ -115,6 +122,22 @@ public class BatchMessagerImpl implements Messager {
 				case EXCEPTION_PARAMETER :
 					break;
 				case FIELD :
+					VariableElementImpl variableElementImpl = (VariableElementImpl) e;
+					binding = variableElementImpl._binding;
+					if (binding instanceof FieldBinding) {
+						FieldBinding fieldBinding = (FieldBinding) binding;
+						FieldDeclaration fieldDeclaration = fieldBinding.sourceField();
+						if (fieldDeclaration != null) {
+							ReferenceBinding declaringClass = fieldBinding.declaringClass;
+							if (declaringClass instanceof SourceTypeBinding) {
+								SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) declaringClass;
+								TypeDeclaration typeDeclaration = (TypeDeclaration) sourceTypeBinding.scope.referenceContext();
+								referenceContext = typeDeclaration;
+							}
+							startPosition = fieldDeclaration.sourceStart;
+							endPosition = fieldDeclaration.sourceEnd;
+						}
+					}
 					break;
 				case INSTANCE_INIT :
 				case STATIC_INIT :
@@ -137,23 +160,33 @@ public class BatchMessagerImpl implements Messager {
 					int columnNumber = startPosition >= 0
 							? Util.searchColumnNumber(result.getLineSeparatorPositions(), lineNumber,startPosition)
 							: 0;
-					result.record(new BatchAptProblem(
-							result.fileName, 
+					problem = new BatchAptProblem(
+							result.fileName,
 							String.valueOf(builder),
 							0,
-							new String[0],
+							NO_ARGUMENTS,
 							ProblemSeverities.Error,
 							startPosition,
 							endPosition,
 							lineNumber,
-							columnNumber),
-						referenceContext);
+							columnNumber);
 				} else {
-					// TODO (olivier) need a way to find a context to report the error
-					_compiler.globalErrorsCount++;
+					problem = new BatchAptProblem(
+							null,
+							String.valueOf(builder),
+							0,
+							NO_ARGUMENTS,
+							ProblemSeverities.Error,
+							startPosition,
+							endPosition,
+							0,
+							1);
 				}
 				break;
+			case MANDATORY_WARNING :
 			case WARNING :
+			case NOTE :
+			case OTHER :
 				if (referenceContext != null) {
 					CompilationResult result = referenceContext.compilationResult();
 					int lineNumber = startPosition >= 0
@@ -162,22 +195,32 @@ public class BatchMessagerImpl implements Messager {
 					int columnNumber = startPosition >= 0
 							? Util.searchColumnNumber(result.getLineSeparatorPositions(), lineNumber,startPosition)
 							: 0;
-					result.record(new BatchAptProblem(
-							result.fileName, 
+					problem = new BatchAptProblem(
+							result.fileName,
 							String.valueOf(builder),
 							0,
-							new String[0],
+							NO_ARGUMENTS,
 							ProblemSeverities.Warning,
 							startPosition,
 							endPosition,
 							lineNumber,
-							columnNumber),
-						referenceContext);
+							columnNumber);
 				} else {
-					// TODO (olivier) need a way to find a context to report the warning
-					_compiler.globalWarningsCount++;
+					problem = new BatchAptProblem(
+							null,
+							String.valueOf(builder),
+							0,
+							NO_ARGUMENTS,
+							ProblemSeverities.Warning,
+							startPosition,
+							endPosition,
+							0,
+							1);
 				}
 				break;
+		}
+		if (problem != null) {
+			this._compiler.addExtraProblems(problem);
 		}
 	}
 }

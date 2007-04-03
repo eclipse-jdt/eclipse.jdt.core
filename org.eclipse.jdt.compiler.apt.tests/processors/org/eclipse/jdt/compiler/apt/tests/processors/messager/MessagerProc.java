@@ -102,6 +102,9 @@ public class MessagerProc extends AbstractProcessor {
 	private ExecutableElement _methodElement;
 
 	// Initialized in collectElements()
+	private VariableElement _variableElement;
+	
+	// Initialized in collectElements()
 	private TypeElement _elementF;
 
 	/* (non-Javadoc)
@@ -172,17 +175,23 @@ public class MessagerProc extends AbstractProcessor {
 		}
 //		printVariableElements(_elementF);
 		
-/*		List<? extends Element> enclosedElements = _elementE.getEnclosedElements();
-		loop : for (Element element : enclosedElements) {
+		List<? extends Element> enclosedElements = _elementE.getEnclosedElements();
+		for (Element element : enclosedElements) {
 			switch(element.getKind()) {
 				case METHOD :
 					ExecutableElement executableElement = (ExecutableElement) element;
-					if (element == null) continue loop;
 					StringBuilder builder = new StringBuilder(executableElement.getSimpleName());
 					String name = String.valueOf(builder);
-					if ("foo".equals(name)) {
+					if ("foo".equals(name) && _methodElement == null) {
 						_methodElement = executableElement;
-						break loop;
+					}
+					break;
+				case FIELD :
+					VariableElement variableElement = (VariableElement) element;
+					builder = new StringBuilder(variableElement.getSimpleName());
+					name = String.valueOf(builder);
+					if ("j".equals(name) && _variableElement == null) {
+						_variableElement = variableElement;
 					}
 			}
 		}
@@ -190,7 +199,12 @@ public class MessagerProc extends AbstractProcessor {
 		if (_methodElement == null) {
 			reportError("Element for method foo could not be found");
 			return false;
-		}*/
+		}
+		
+		if (_variableElement == null) {
+			reportError("Element for field j could not be found");
+			return false;
+		}
 
 		List<? extends AnnotationMirror> annotationMirrors = _elementD.getAnnotationMirrors();
 		for (AnnotationMirror mirror : annotationMirrors) {
@@ -277,6 +291,7 @@ public class MessagerProc extends AbstractProcessor {
 		_messager.printMessage(Kind.ERROR, "Error on element D", _elementD, _annotationMirror, _annotationValue);
 		_messager.printMessage(Kind.ERROR, "Error on element java.lang.String", _element2);
 		_messager.printMessage(Kind.WARNING, "Warning on method foo", _methodElement);
+		_messager.printMessage(Kind.NOTE, "Note for field j", _variableElement);
 		return true;
 	}
 }
