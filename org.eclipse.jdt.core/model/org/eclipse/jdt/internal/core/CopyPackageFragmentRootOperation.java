@@ -124,7 +124,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 				throw new JavaModelException(e);
 			}
 		}
-		this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
+		setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 	}
 	protected void addEntryToClasspath(IClasspathEntry rootEntry, IWorkspaceRoot workspaceRoot) throws JavaModelException {
 		

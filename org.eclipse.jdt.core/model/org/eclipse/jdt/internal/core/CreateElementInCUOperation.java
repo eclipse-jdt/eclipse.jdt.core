@@ -142,7 +142,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 				unit.save(null, false);
 				boolean isWorkingCopy = unit.isWorkingCopy();
 				if (!isWorkingCopy)
-					this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
+					setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
 				worked(1);
 				resultElements = generateResultHandles();
 				if (!isWorkingCopy // if unit is working copy, then save will have already fired the delta

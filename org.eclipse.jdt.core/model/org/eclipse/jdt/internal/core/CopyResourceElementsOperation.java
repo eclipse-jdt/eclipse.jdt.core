@@ -268,7 +268,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 						if (rewrite != null) flags |= IResource.KEEP_HISTORY;
 						sourceResource.copy(destFile.getFullPath(), flags, getSubProgressMonitor(1));
 					}
-					this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
+					setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 				} else {
 					destCU.getBuffer().setContents(source.getBuffer().getContents());
 				}
@@ -404,7 +404,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				if (sourceIsReadOnly) {
 					Util.setReadOnly(srcFolder, true);
 				}
-				this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
+				setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 			} else {
 				// process the leaf resources
 				if (resources.length > 0) {

@@ -224,7 +224,7 @@ public class MovePackageFragmentRootOperation extends CopyPackageFragmentRootOpe
 				throw new JavaModelException(e);
 			}
 		}
-		this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
+		setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 	}
 	/*
 	 * Renames the classpath entries equal to the given path in all Java projects.

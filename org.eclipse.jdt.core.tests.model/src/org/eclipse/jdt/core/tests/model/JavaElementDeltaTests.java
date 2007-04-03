@@ -1048,6 +1048,50 @@ public void testDiscardWorkingCopy2() throws CoreException { // renamed from tes
 		deleteProject("P");
 	}
 }
+
+/*
+ * Ensures that the correct delta is reported when discarding a working copy after a checkpoint()
+ * in a batch operation.
+ * (regression test for bug 178213 Compilation Unit not shown in Package Explorer after a rename
+ */
+public void testDiscardWorkingCopy3() throws CoreException {
+	ICompilationUnit copy = null;
+	try {
+		createJavaProject("P", new String[] {""}, "");
+		createFile("/P/X.java",
+			"public class X {\n" +
+			"}");
+		ICompilationUnit unit = getCompilationUnit("/P/X.java");
+		copy = unit.getWorkingCopy(new WorkingCopyOwner() {}, null);
+		startDeltas();
+		final ICompilationUnit copyToDiscard = copy;
+		JavaCore.run(new IWorkspaceRunnable(){
+			public void run(IProgressMonitor monitor) throws CoreException {
+				getPackage("/P").createCompilationUnit("Y.java", "public class Y {}", false/*don't force*/, monitor);
+				getWorkspace().checkpoint(false/*don't build*/);
+				copyToDiscard.discardWorkingCopy();		
+			}
+		
+		}, null/*no progress*/);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
+			"			Y.java[+]: {}\n" + 
+			"\n" + 
+			"P[*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
+			"			[Working copy] X.java[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		if (copy != null)
+			copy.discardWorkingCopy();
+		deleteProject("P");
+	}
+}
 /*
  * Ensures that a delta listener that asks for POST_CHANGE events gets those events 
  * and no others.

@@ -1368,6 +1368,9 @@ public class DeltaProcessor {
 			// flush now so as to keep listener reactions to post their own deltas for subsequent iteration
 			this.flush();
 			
+			// mark the operation stack has not modifying resources since resource deltas are being fired
+			JavaModelOperation.setAttribute(JavaModelOperation.HAS_MODIFIED_RESOURCE_ATTR, null);
+			
 			notifyListeners(deltaToNotify, ElementChangedEvent.POST_CHANGE, listeners, listenerMask, listenerCount);
 		} 
 	}		

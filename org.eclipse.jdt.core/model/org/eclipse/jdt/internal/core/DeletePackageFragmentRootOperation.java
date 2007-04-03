@@ -95,7 +95,7 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 				throw new JavaModelException(e);
 			}
 		}
-		this.setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
+		setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE); 
 	}
 
 
