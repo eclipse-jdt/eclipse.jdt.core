@@ -582,7 +582,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	/**
 	 * @deprecated To reduce deprecated warnings
 	 */
-	public void testDomAstCreationJLS2() throws JavaModelException {
+	public void testPerfDomAstCreationJLS2() throws JavaModelException {
 		tagAsSummary("DOM AST tree for one file using JLS2", true); // put in fingerprint
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
@@ -595,7 +595,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	/**
 	 * Performance DOM/AST creation on the entire workspace using JLS3.
 	 */
-	public void testDomAstCreationJLS3() throws JavaModelException {
+	public void testPerfDomAstCreationJLS3() throws JavaModelException {
 		tagAsSummary("DOM AST tree for one file using JLS3", false); // put in fingerprint
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
