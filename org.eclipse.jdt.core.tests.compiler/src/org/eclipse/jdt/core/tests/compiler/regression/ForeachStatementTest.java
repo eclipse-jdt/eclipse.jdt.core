@@ -40,7 +40,7 @@ protected Map getCompilerOptions() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 45, 46 };
+//	TESTS_NUMBERS = new int[] { 48, 49 };
 //	TESTS_RANGE = new int[] { 34, 38 };
 }
 public static Test suite() {
@@ -2749,30 +2749,34 @@ public void test048() {
 		"");
 
 	String expectedOutput =
-		"  // Method descriptor #15 ([I)V\n" + 
+		"  // Method descriptor #15 (Ljava/util/List;)V\n" + 
+		"  // Signature: (Ljava/util/List<Ljava/lang/String;>;)V\n" + 
 		"  // Stack: 2, Locals: 4\n" + 
-		"  void foo3(int[] array);\n" + 
-		"     0  aload_1 [array]\n" + 
-		"     1  dup\n" + 
-		"     2  astore_3\n" + 
-		"     3  arraylength\n" + 
-		"     4  ifeq 18\n" + 
+		"  void foo3(java.util.List ls);\n" + 
+		"     0  aload_1 [ls]\n" + 
+		"     1  invokeinterface java.util.List.iterator() : java.util.Iterator [18] [nargs: 1]\n" + 
+		"     6  astore_3\n" + 
 		"     7  aload_3\n" + 
-		"     8  iconst_0\n" + 
-		"     9  iaload\n" + 
-		"    10  istore_2 [i]\n" + 
-		"    11  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-		"    14  iload_2 [i]\n" + 
-		"    15  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
-		"    18  return\n" + 
+		"     8  invokeinterface java.util.Iterator.hasNext() : boolean [24] [nargs: 1]\n" + 
+		"    13  ifeq 33\n" + 
+		"    16  aload_3\n" + 
+		"    17  invokeinterface java.util.Iterator.next() : java.lang.Object [30] [nargs: 1]\n" + 
+		"    22  checkcast java.lang.String [34]\n" + 
+		"    25  astore_2 [s]\n" + 
+		"    26  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
+		"    29  aload_2 [s]\n" + 
+		"    30  invokevirtual java.io.PrintStream.println(java.lang.String) : void [42]\n" + 
+		"    33  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
-		"        [pc: 11, line: 4]\n" + 
-		"        [pc: 18, line: 7]\n" + 
+		"        [pc: 26, line: 4]\n" + 
+		"        [pc: 33, line: 7]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 19] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 19] local: array index: 1 type: int[]\n" + 
-		"        [pc: 11, pc: 18] local: i index: 2 type: int\n";
+		"        [pc: 0, pc: 34] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 34] local: ls index: 1 type: java.util.List\n" + 
+		"        [pc: 26, pc: 33] local: s index: 2 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 34] local: ls index: 1 type: java.util.List<java.lang.String>\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -2798,43 +2802,41 @@ public void test049() {
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
-			"	void foo3(int[] array) {\n" + 
 			"	void foo3(java.util.List l) {\n" + 
 			"		for (Object o : l) {\n" + 
 			"			System.out.println(o);\n" + 
 			"			break;\n" + 
 			"		}\n" + 
 			"	}\n" + 
-			"	}\n" + 
 			"}\n", // =================
 		},
 		"");
 
 	String expectedOutput =
-		"  // Method descriptor #15 ([I)V\n" + 
+		"  // Method descriptor #15 (Ljava/util/List;)V\n" + 
 		"  // Stack: 2, Locals: 4\n" + 
-		"  void foo3(int[] array);\n" + 
-		"     0  aload_1 [array]\n" + 
-		"     1  dup\n" + 
-		"     2  astore_3\n" + 
-		"     3  arraylength\n" + 
-		"     4  ifeq 18\n" + 
+		"  void foo3(java.util.List l);\n" + 
+		"     0  aload_1 [l]\n" + 
+		"     1  invokeinterface java.util.List.iterator() : java.util.Iterator [16] [nargs: 1]\n" + 
+		"     6  astore_3\n" + 
 		"     7  aload_3\n" + 
-		"     8  iconst_0\n" + 
-		"     9  iaload\n" + 
-		"    10  istore_2 [i]\n" + 
-		"    11  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-		"    14  iload_2 [i]\n" + 
-		"    15  invokevirtual java.io.PrintStream.println(int) : void [22]\n" + 
-		"    18  return\n" + 
+		"     8  invokeinterface java.util.Iterator.hasNext() : boolean [22] [nargs: 1]\n" + 
+		"    13  ifeq 30\n" + 
+		"    16  aload_3\n" + 
+		"    17  invokeinterface java.util.Iterator.next() : java.lang.Object [28] [nargs: 1]\n" + 
+		"    22  astore_2 [o]\n" + 
+		"    23  getstatic java.lang.System.out : java.io.PrintStream [32]\n" + 
+		"    26  aload_2 [o]\n" + 
+		"    27  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [38]\n" + 
+		"    30  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
-		"        [pc: 11, line: 4]\n" + 
-		"        [pc: 18, line: 7]\n" + 
+		"        [pc: 23, line: 4]\n" + 
+		"        [pc: 30, line: 7]\n" + 
 		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 19] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 19] local: array index: 1 type: int[]\n" + 
-		"        [pc: 11, pc: 18] local: i index: 2 type: int\n";
+		"        [pc: 0, pc: 31] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 31] local: l index: 1 type: java.util.List\n" + 
+		"        [pc: 23, pc: 30] local: o index: 2 type: java.lang.Object\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
