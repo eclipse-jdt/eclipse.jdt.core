@@ -25,7 +25,7 @@ public class TryStatementTest extends AbstractRegressionTest {
 	
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 54 };
+//	TESTS_NUMBERS = new int[] { 58 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public TryStatementTest(String name) {
@@ -5309,7 +5309,141 @@ public void test057() {
 			"SUCCESS");
 	}
 }
-
+//https://bugs.eclpse.org/bugs/show_bug.cgi?id=3184
+public void test058() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\r\n" + 
+				"	public static void main(String args[]) {\r\n" + 
+				"		try {\r\n" + 
+				"			try {\r\n" + 
+				"				System.out.print(\"SU\");\r\n" + 
+				"			} finally {\r\n" + 
+				"				System.out.print(\"CC\");\r\n" + 
+				"			}\r\n" + 
+				"		} finally {\r\n" + 
+				"			System.out.println(\"ESS\");\r\n" + 
+				"		}\r\n" + 
+				"	}\r\n" + 
+				"}\r\n" + 
+				"",
+			},
+			"SUCCESS");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).complianceLevel <= ClassFileConstants.JDK1_4
+		?	"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 5\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     3  ldc <String \"SU\"> [22]\n" + 
+			"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+			"     8  goto 28\n" + 
+			"    11  astore_2\n" + 
+			"    12  jsr 17\n" + 
+			"    15  aload_2\n" + 
+			"    16  athrow\n" + 
+			"    17  astore_1\n" + 
+			"    18  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    21  ldc <String \"CC\"> [30]\n" + 
+			"    23  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+			"    26  ret 1\n" + 
+			"    28  jsr 17\n" + 
+			"    31  goto 53\n" + 
+			"    34  astore 4\n" + 
+			"    36  jsr 42\n" + 
+			"    39  aload 4\n" + 
+			"    41  athrow\n" + 
+			"    42  astore_3\n" + 
+			"    43  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    46  ldc <String \"ESS\"> [32]\n" + 
+			"    48  invokevirtual java.io.PrintStream.println(java.lang.String) : void [34]\n" + 
+			"    51  ret 3\n" + 
+			"    53  jsr 42\n" + 
+			"    56  return\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 11] -> 11 when : any\n" + 
+			"        [pc: 28, pc: 31] -> 11 when : any\n" + 
+			"        [pc: 0, pc: 34] -> 34 when : any\n" + 
+			"        [pc: 53, pc: 56] -> 34 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"        [pc: 11, line: 6]\n" + 
+			"        [pc: 15, line: 8]\n" + 
+			"        [pc: 17, line: 6]\n" + 
+			"        [pc: 18, line: 7]\n" + 
+			"        [pc: 26, line: 8]\n" + 
+			"        [pc: 34, line: 9]\n" + 
+			"        [pc: 39, line: 11]\n" + 
+			"        [pc: 42, line: 9]\n" + 
+			"        [pc: 43, line: 10]\n" + 
+			"        [pc: 51, line: 11]\n" + 
+			"        [pc: 56, line: 12]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 57] local: args index: 0 type: java.lang.String[]\n"
+		:	
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 3\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"     3  ldc <String \"SU\"> [22]\n" + 
+			"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+			"     8  goto 22\n" + 
+			"    11  astore_1\n" + 
+			"    12  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    15  ldc <String \"CC\"> [30]\n" + 
+			"    17  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+			"    20  aload_1\n" + 
+			"    21  athrow\n" + 
+			"    22  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    25  ldc <String \"CC\"> [30]\n" + 
+			"    27  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+			"    30  goto 44\n" + 
+			"    33  astore_2\n" + 
+			"    34  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    37  ldc <String \"ESS\"> [32]\n" + 
+			"    39  invokevirtual java.io.PrintStream.println(java.lang.String) : void [34]\n" + 
+			"    42  aload_2\n" + 
+			"    43  athrow\n" + 
+			"    44  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    47  ldc <String \"ESS\"> [32]\n" + 
+			"    49  invokevirtual java.io.PrintStream.println(java.lang.String) : void [34]\n" + 
+			"    52  return\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 11] -> 11 when : any\n" + 
+			"        [pc: 0, pc: 33] -> 33 when : any\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"        [pc: 11, line: 6]\n" + 
+			"        [pc: 12, line: 7]\n" + 
+			"        [pc: 20, line: 8]\n" + 
+			"        [pc: 22, line: 7]\n" + 
+			"        [pc: 33, line: 9]\n" + 
+			"        [pc: 34, line: 10]\n" + 
+			"        [pc: 42, line: 11]\n" + 
+			"        [pc: 44, line: 10]\n" + 
+			"        [pc: 52, line: 12]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 53] local: args index: 0 type: java.lang.String[]\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }
