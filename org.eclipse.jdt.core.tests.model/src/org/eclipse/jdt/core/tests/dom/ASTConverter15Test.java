@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 261 };
+//		TESTS_NUMBERS = new int[] { 262 };
 //		TESTS_RANGE = new int[] { 253, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -8609,5 +8609,47 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("not a IBinding", defaultValue instanceof IBinding);
 		assertTrue("Same values", annotationBinding2.isEqualTo((IBinding) defaultValue));
 		assertTrue("Not deprecated", pairBinding.isDeprecated());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=166963
+	 */
+	public void test0262() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" + 
+			"	public X(String s) {\n" + 
+			"	}\n" +
+			"	public X() {\n" + 
+			"		String s = \"\";\n" +
+			"		System.out.println();\n" + 
+			"		this(zork);\n" + 
+			"		Zork.this.this();\n" + 
+			"		<Zork>this(s);\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				0);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedErrors = "Constructor call must be the first statement in a constructor\n" + 
+		"zork cannot be resolved\n" + 
+		"Constructor call must be the first statement in a constructor\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"Constructor call must be the first statement in a constructor";
+		assertProblemsSize(unit, 6, expectedErrors);
+		node = getASTNode(unit, 0, 1, 4);
+		assertEquals("Not a constructor invocation", ASTNode.CONSTRUCTOR_INVOCATION, node.getNodeType());
+		ConstructorInvocation constructorInvocation = (ConstructorInvocation) node;
+		assertNull("Got a binding", constructorInvocation.resolveConstructorBinding());
+		List arguments = constructorInvocation.arguments();
+		assertEquals("wrong size", 1, arguments.size());
+		Expression expression = (Expression) arguments.get(0);
+		ITypeBinding typeBinding = expression.resolveTypeBinding();
+		assertNotNull("No binding", typeBinding);
+		assertEquals("Wrong type", "java.lang.String", typeBinding.getQualifiedName());
 	}
 }

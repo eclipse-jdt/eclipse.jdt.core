@@ -116,7 +116,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 670, 671, 672 };
+//		TESTS_NUMBERS =  new int[] { 675 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9001,6 +9001,80 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertTrue("Not a recovered binding", typeBinding.isRecovered());
 			IMethodBinding methodBinding = methodDeclaration.resolveBinding();
 			assertNull("Got a method binding", methodBinding);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=180524
+	 */
+	public void _test0674() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	Object foo() {\n" +
+				"		return new Object() {/*anon*/};\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			workingCopy.getBuffer().setContents(contents);
+			ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement statement = (ReturnStatement) node;
+			Expression expression = statement.getExpression();
+			assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+			ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+			ITypeBinding binding = classInstanceCreation.resolveTypeBinding();
+			assertTrue("not an anonymous type", binding.isAnonymous());
+			try {
+				assertNotNull(binding.createArrayType(2));
+			} catch (IllegalArgumentException e) {
+				assertTrue("Should not be rejected", false);
+			}
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=166963
+	 */
+	public void test0675() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	public X(String label) {}\n" + 
+				"	public X() {\n" + 
+				"		String s= \"foo\";\n" + 
+				"		System.out.println(s);\n" + 
+				"		this(s);\n" + 
+				"		System.out.println(s);\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			workingCopy.getBuffer().setContents(contents);
+			ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			String expectedError = "Constructor call must be the first statement in a constructor";
+			assertProblemsSize(unit, 1, expectedError);
+			node = getASTNode(unit, 0, 1, 2);
+			assertEquals("Not a constructor invocation", ASTNode.CONSTRUCTOR_INVOCATION, node.getNodeType());
+			ConstructorInvocation constructorInvocation = (ConstructorInvocation) node;
+			assertNull("Got a binding", constructorInvocation.resolveConstructorBinding());
+			List arguments = constructorInvocation.arguments();
+			assertEquals("wrong size", 1, arguments.size());
+			Expression expression = (Expression) arguments.get(0);
+			ITypeBinding typeBinding = expression.resolveTypeBinding();
+			assertNotNull("No binding", typeBinding);
+			assertEquals("Wrong type", "java.lang.String", typeBinding.getQualifiedName());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
