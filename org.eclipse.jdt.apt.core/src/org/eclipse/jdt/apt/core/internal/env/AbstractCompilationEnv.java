@@ -125,7 +125,9 @@ public abstract class AbstractCompilationEnv
 	{
 		if( _listeners == null )
 			return Collections.emptySet();
-		return Collections.unmodifiableSet(_listeners);
+		// Return a copy, to avoid ConcurrentModificationException if a listener
+		// removes itself in response to the callback.
+		return new HashSet<AnnotationProcessorListener>(_listeners);
 	}
 	
 	public Map<String, String> getOptions()
