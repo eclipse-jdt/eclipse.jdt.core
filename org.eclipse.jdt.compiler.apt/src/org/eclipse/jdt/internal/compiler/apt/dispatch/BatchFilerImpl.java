@@ -67,8 +67,8 @@ public class BatchFilerImpl implements Filer {
 			CharSequence relativeName, Element... originatingElements)
 			throws IOException {
 		//TODO: do we need to check validity of 'name', or can we trust the filemanager to handle that?
-		JavaFileObject jfo = _fileManager.getJavaFileForOutput(
-				StandardLocation.SOURCE_OUTPUT, relativeName.toString(), JavaFileObject.Kind.OTHER, null);
+		FileObject jfo = _fileManager.getFileForOutput(
+				StandardLocation.SOURCE_OUTPUT, pkg.toString(), relativeName.toString(), null);
 		return jfo;
 	}
 

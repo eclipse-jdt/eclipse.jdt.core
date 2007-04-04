@@ -3276,6 +3276,7 @@ public void performCompilation() throws InvalidInputException {
 
 	if (this.extraProblems != null) {
 		this.logger.loggingExtraProblems(this);
+		this.extraProblems = null;
 	}
 	this.logger.printStats();
 
