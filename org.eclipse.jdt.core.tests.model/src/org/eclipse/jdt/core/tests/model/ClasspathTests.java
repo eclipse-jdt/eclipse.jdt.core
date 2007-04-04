@@ -2332,6 +2332,8 @@ public void testHasClasspathCycle() throws CoreException {
 public void testInvalidClasspath1() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, "bin");
+		// see 180769 Fatal error in log for java tests N20070403-0010
+		System.err.println("ClasspathTests#testInvalidClasspath1() may generate an expected Fatal Error...");
 		this.editFile(
 			"/P/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
