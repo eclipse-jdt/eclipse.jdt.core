@@ -42,10 +42,10 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class BatchMessagerImpl implements Messager {
 
 	private static final String[] NO_ARGUMENTS = new String[0];
-	private final Main _compiler;
+	//private final Main _compiler;
 
 	public BatchMessagerImpl(Main compiler) {
-		_compiler = compiler;
+		//_compiler = compiler;
 	}
 
 	/* (non-Javadoc)
@@ -220,7 +220,7 @@ public class BatchMessagerImpl implements Messager {
 				break;
 		}
 		if (problem != null) {
-			this._compiler.addExtraProblems(problem);
+			//this._compiler.addExtraProblems(problem);
 		}
 	}
 }
