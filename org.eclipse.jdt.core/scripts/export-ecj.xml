@@ -13,13 +13,9 @@
 	</target>
 	
 	<target name="extract-batch-compiler" depends="init">
-		<property name="target.folder" value="bin"/>
+		<property name="target.folder" value="${basedir}/bin"/>
 		<echo message="Extract .class file and properties for the batch compiler" />
 		<copy todir="${ecj-temp-folder}">
-			<fileset dir="scripts">
-				<include name="META-INF/**" />
-				<include name="about.html" />
-			</fileset>
 			<fileset dir="${target.folder}">
 				<include name="org/eclipse/jdt/internal/compiler/**"/>
 				<include name="org/eclipse/jdt/core/compiler/**"/>
@@ -37,6 +33,23 @@
 				<exclude name="org/eclipse/jdt/internal/compiler/SourceJavadocParser*.class"/>
 				<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
 			</fileset>
+		</copy>		
+	</target>
+
+	<target name="extract-_jsr199" depends="init">
+		<property name="target.folder" value="${basedir}/../org.eclipse.jdt.compiler.tool/bin"/>
+		<echo message="Extract .class file and properties for the jsr199" />
+		<copy todir="${ecj-temp-folder}" failonerror="false">
+			<fileset dir="${target.folder}"/>
+		</copy>		
+	</target>
+	
+	<target name="extract-_jsr269" depends="init">
+		<property name="jsr_project" value="org.eclipse.jdt.compiler.apt"/>
+		<property name="target.folder" value="${basedir}/../org.eclipse.jdt.compiler.apt/bin"/>
+		<echo message="Extract .class file and properties for the jsr269" />
+		<copy todir="${ecj-temp-folder}" failonerror="false">
+			<fileset dir="${target.folder}"/>
 		</copy>		
 	</target>
 
@@ -110,6 +123,8 @@
 	<target name="export-all" depends="init">
 		<antcall target="extract-batch-compiler"/>
 		<antcall target="extract-ant-adapter-compiler"/>
+		<antcall target="extract-_jsr199"/>
+		<antcall target="extract-_jsr269"/>
 		<antcall target="export"/>
 		<antcall target="export_src_bin"/>
 		<antcall target="cleanup"/>

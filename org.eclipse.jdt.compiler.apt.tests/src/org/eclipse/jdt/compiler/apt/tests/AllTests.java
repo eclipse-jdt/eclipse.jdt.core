@@ -24,7 +24,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite();
 		suite.addTestSuite(BatchDispatchTests.class);
 		suite.addTestSuite(ModelTests.class);
-		//suite.addTestSuite(MessagerTests.class);
+		suite.addTestSuite(MessagerTests.class);
 		return suite;
 	}
 }

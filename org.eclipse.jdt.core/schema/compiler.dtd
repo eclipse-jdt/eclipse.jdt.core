@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!ELEMENT compiler (error*,command_line?,options?,classpaths?,error*,sources*,stats?,exception*)>
+<!ELEMENT compiler (error*,command_line?,options?,classpaths?,error*,sources*,extra_problems?,stats?,exception*)>
 <!ELEMENT command_line (argument*)>
 <!ELEMENT options (option*)>
 <!ELEMENT classpaths (classpath+)>
@@ -23,6 +23,8 @@
 <!ELEMENT source_context (#PCDATA)>
 <!ELEMENT problem_summary (#PCDATA)>
 <!ELEMENT exception (#PCDATA)>
+<!ELEMENT extra_problems (extra_problem+)>
+<!ELEMENT extra_problem (message,source_context)>
 <!ATTLIST argument value CDATA #REQUIRED>
 <!ATTLIST option key   CDATA #REQUIRED
 				 value CDATA #REQUIRED
@@ -46,6 +48,13 @@
 				  problemID  CDATA #IMPLIED
 				  optionKey  CDATA #IMPLIED
 				  categoryID CDATA #IMPLIED
+>
+<!ATTLIST extra_problem charEnd   CDATA #REQUIRED
+				        charStart CDATA #REQUIRED
+				        severity  CDATA #REQUIRED
+				        line      CDATA #REQUIRED
+>
+<!ATTLIST extra_problems problems CDATA #REQUIRED
 >
 <!ATTLIST message value CDATA #REQUIRED>
 <!ATTLIST source_context value       CDATA #REQUIRED
