@@ -32,8 +32,7 @@ public class AnnotationValueImpl implements AnnotationValue {
 
 	@Override
 	public <R, P> R accept(AnnotationValueVisitor<R, P> v, P p) {
-		// TODO Auto-generated method stub
-		return null;
+		return v.visit(this, p);
 	}
 
 	@Override

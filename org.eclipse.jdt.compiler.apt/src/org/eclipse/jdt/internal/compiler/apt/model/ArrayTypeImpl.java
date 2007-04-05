@@ -40,8 +40,7 @@ public class ArrayTypeImpl extends TypeMirrorImpl implements ArrayType {
 	 */
 	@Override
 	public <R, P> R accept(TypeVisitor<R, P> v, P p) {
-		// TODO Auto-generated method stub
-		return null;
+		return v.visitArray(this, p);
 	}
 
 }
