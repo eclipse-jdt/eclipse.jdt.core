@@ -33,7 +33,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1105 };
+//		TESTS_NUMBERS = new int[] { 1121, 1122 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -37238,6 +37238,42 @@ public void test1120() {
 		"	<Zork>this();\n" + 
 		"	      ^^^^^^^\n" + 
 		"Constructor call must be the first statement in a constructor\n" + 
-		"----------\n");		
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=181270
+public void test1121() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	void foo() {\r\n" + 
+			"		System.out.println(T[].class);\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(T[].class);\n" + 
+		"	                   ^^^^^^^^^\n" + 
+		"Illegal class literal for the type parameter T\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=181270
+public void test1122() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<T> void foo() {\r\n" + 
+			"		System.out.println(T[].class);\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(T[].class);\n" + 
+		"	                   ^^^^^^^^^\n" + 
+		"Illegal class literal for the type parameter T\n" + 
+		"----------\n");
 }
 }
