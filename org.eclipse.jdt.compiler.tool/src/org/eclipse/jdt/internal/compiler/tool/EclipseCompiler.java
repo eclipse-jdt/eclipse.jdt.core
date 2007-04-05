@@ -120,6 +120,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	private void cleanup() {
 		this.logger.flush();
 		this.logger.close();
+		this.processors = null;
 		try {
 			if (this.fileManager != null) {
 				this.fileManager.flush();
