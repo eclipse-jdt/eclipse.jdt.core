@@ -1124,6 +1124,50 @@ public void testUnicode() throws JavaModelException {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180683
+public void testUnicode2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/B.java",
+		"package test;\n"+
+		"public class \\u0042 {\n" + 
+		"  void foo() {\n" + 
+		"    \\u0042 var = null;\n" + 
+		"  }\n" + 
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("42");
+	int length = "".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"B [in [Working copy] B.java [in test [in src [in Resolve]]]]",
+			elements
+		);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180683
+public void testUnicode3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/B.java",
+		"package test;\n"+
+		"public class \\u0042 {\n" + 
+		"  void foo() {\n" + 
+		"    \\u004");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("4");
+	int length = "".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"",
+			elements
+		);
+}
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47177
  */
