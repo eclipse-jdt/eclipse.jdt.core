@@ -37276,4 +37276,37 @@ public void test1122() {
 		"Illegal class literal for the type parameter T\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=181270 - variation
+public void test1123() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		Class<Integer> c1 = int.class;\n" + 
+			"		Class<Integer> c2 = Integer.class;\n" + 
+			"		Class<Integer[]> c3 = int[].class;\n" + 
+			"		Class<int[]> c4 = int[].class;\n" + 
+			"		Class<Void> c5 = void.class;\n" + 
+			"		Class<void[]> c6 = void[].class;\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Class<Integer[]> c3 = int[].class;\n" + 
+		"	                      ^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<int[]> to Class<Integer[]>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Class<void[]> c6 = void[].class;\n" + 
+		"	      ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	Class<void[]> c6 = void[].class;\n" + 
+		"	                   ^^^^^^\n" + 
+		"void[] is an invalid type\n" + 
+		"----------\n");
+}
 }
