@@ -239,6 +239,9 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(LineComment node) {
 		return visitNode(node);
 	}
+	public boolean visit(MarkerAnnotation node) {
+		return visitNode(node);
+	}
 	public boolean visit(MemberRef node) {
 		return visitNode(node);
 	}
@@ -453,6 +456,9 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	public void endVisit(LineComment node) {
+		endVisitNode(node);
+	}
+	public void endVisit(MarkerAnnotation node) {
 		endVisitNode(node);
 	}
 	public void endVisit(MemberRef node) {

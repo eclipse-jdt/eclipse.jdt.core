@@ -248,6 +248,28 @@ public class Util implements SuffixConstants {
 		return contents;
 	}
 	
+	public static int getLineNumber(int position, int[] lineEnds, int g, int d) {
+		if (lineEnds == null)
+			return 1;
+		if (d == -1)
+			return 1;
+		int m = g, start;
+		while (g <= d) {
+			m = g + (d - g) /2;
+			if (position < (start = lineEnds[m])) {
+				d = m-1;
+			} else if (position > start) {
+				g = m+1;
+			} else {
+				return m + 1;
+			}
+		}
+		if (position < lineEnds[m]) {
+			return m+1;
+		}
+		return m+2;
+	}
+
 	/**
 	 * Returns the contents of the given zip entry as a byte array.
 	 * @throws IOException if a problem occured reading the zip entry.
@@ -423,31 +445,6 @@ public class Util implements SuffixConstants {
 	    		}
 	    		return position - startLineIndexes[line];
 		}
-	}
-	/**
-	 * INTERNAL USE-ONLY
-	 * Search the line number corresponding to a specific position
-	 */
-	public static final int searchLineNumber(int[] startLineIndexes, int position) {
-		int length = startLineIndexes.length;
-		if (length == 0)
-			return 1;
-		int g = 0, d = length - 1;
-		int m = 0, start;
-		while (g <= d) {
-			m = d + (g - d) / 2;
-			if (position < (start = startLineIndexes[m])) {
-				d = m - 1;
-			} else if (position > start) {
-				g = m + 1;
-			} else {
-				return m + 1;
-			}
-		}
-		if (position < startLineIndexes[m]) {
-			return m + 1;
-		}
-		return m + 2;
 	}
 	/**
 	 * Converts a boolean value into Boolean.

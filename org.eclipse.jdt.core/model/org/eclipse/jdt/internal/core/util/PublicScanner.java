@@ -65,7 +65,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public boolean scanningFloatLiteral = false;
 
 	//support for /** comments
-	public static int COMMENT_ARRAYS_SIZE = 30;
+	public final static int COMMENT_ARRAYS_SIZE = 30;
 	public int[] commentStops = new int[COMMENT_ARRAYS_SIZE];
 	public int[] commentStarts = new int[COMMENT_ARRAYS_SIZE];
 	public int[] commentTagStarts = new int[COMMENT_ARRAYS_SIZE];
@@ -3540,34 +3540,14 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 
 	return floating ? TokenNameDoubleLiteral : TokenNameIntegerLiteral;
 }
+
 /**
  * Search the line number corresponding to a specific position
  * @param position int
  * @return int
  */
 public final int getLineNumber(int position) {
-
-	if (this.lineEnds == null)
-		return 1;
-	int length = this.linePtr+1;
-	if (length == 0)
-		return 1;
-	int g = 0, d = length - 1;
-	int m = 0;
-	while (g <= d) {
-		m = g + (d - g) /2;
-		if (position < this.lineEnds[m]) {
-			d = m-1;
-		} else if (position > this.lineEnds[m]) {
-			g = m+1;
-		} else {
-			return m + 1;
-		}
-	}
-	if (position < this.lineEnds[m]) {
-		return m+1;
-	}
-	return m+2;
+	return Util.getLineNumber(position, this.lineEnds, 0, this.linePtr);
 }
 public final void setSource(char[] sourceString){
 	//the source-buffer is set to sourceString

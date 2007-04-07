@@ -5765,7 +5765,7 @@ public void recordPositionsFrom(int startPC, int sourcePos, boolean widen) {
 		// resize the array pcToSourceMap
 		System.arraycopy(pcToSourceMap, 0, pcToSourceMap = new int[pcToSourceMapSize << 1], 0, pcToSourceMapSize);
 	}
-	int lineNumber = Util.searchLineNumber(lineSeparatorPositions, sourcePos);
+	int lineNumber = Util.getLineNumber(sourcePos, lineSeparatorPositions, 0, lineSeparatorPositions.length-1);
 	// lastEntryPC represents the endPC of the lastEntry.
 	if (pcToSourceMapSize > 0) {
 		// in this case there is already an entry in the table

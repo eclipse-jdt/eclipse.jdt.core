@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	private static final int MAX_LINE_COUNT = 100;
@@ -111,7 +112,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		
 		int maxEnd =
 			this.completionScanner.getLineEnd(
-					this.completionScanner.getLineNumber(from) + maxLineCount);
+					Util.getLineNumber(from, this.completionScanner.lineEnds, 0, this.completionScanner.linePtr) + maxLineCount);
 		
 		int end;
 		if (maxEnd < 0) {
@@ -160,7 +161,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		
 		int minStart =
 			this.completionScanner.getLineStart(
-					this.completionScanner.getLineNumber(to) - maxLineCount);
+					Util.getLineNumber(to, this.completionScanner.lineEnds, 0, this.completionScanner.linePtr) - maxLineCount);
 		
 		int start;
 		int fakeBlocksCount;

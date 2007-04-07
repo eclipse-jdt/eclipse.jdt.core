@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
-import java.util.HashMap;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Internal class for associating comments with AST nodes.
@@ -132,6 +131,19 @@ class DefaultCommentMapper {
 			}
 		}
 		return node.getStartPosition();
+	}
+
+	/*
+	 * Search the line number corresponding to a specific position
+	 * between the given line range (inclusive)
+	 * @param position int
+	 * @parem lineRange size-2 int[]
+	 * @return int
+	 */
+	public final int getLineNumber(int position, int[] lineRange) {
+		int[] lineEnds = this.scanner.lineEnds;
+		int length = lineEnds.length;
+		return Util.getLineNumber(position, lineEnds, (lineRange[0] > length ? length : lineRange[0]) -1, (lineRange[1] > length ? length : lineRange[1]) - 1);
 	}
 
 	/*
@@ -285,14 +297,14 @@ class DefaultCommentMapper {
 	 * If finally there's leading still comments, then stores indexes of the first and last one
 	 * in leading comments table.
 	 */
-	int storeLeadingComments(ASTNode node, int previousEnd) {
+	int storeLeadingComments(ASTNode node, int previousEnd, int[] parentLineRange) {
 		// Init extended position
 		int nodeStart = node.getStartPosition();
 		int extended = nodeStart;
 		
 		// Get line of node start position
-		int previousEndLine = this.scanner.getLineNumber(previousEnd);
-		int nodeStartLine = this.scanner.getLineNumber(nodeStart);
+		int previousEndLine = getLineNumber(previousEnd, parentLineRange);
+		int nodeStartLine = getLineNumber(nodeStart, parentLineRange);
 		
 		// Find first comment index
 		int idx = getCommentIndex(0, nodeStart, -1);
@@ -309,7 +321,7 @@ class DefaultCommentMapper {
 			Comment comment = this.comments[idx];
 			int commentStart = comment.getStartPosition();
 			int end = commentStart+comment.getLength()-1;
-			int commentLine = this.scanner.getLineNumber(commentStart);
+			int commentLine = getLineNumber(commentStart, parentLineRange);
 			if (end <= previousEnd || (commentLine == previousEndLine && commentLine != nodeStartLine)) {
 				// stop search on condition 1) and 2)
 				break;
@@ -360,9 +372,9 @@ class DefaultCommentMapper {
 				} catch (InvalidInputException e) {
 					// do nothing
 				}
-				int lastTokenLine = this.scanner.getLineNumber(lastTokenEnd);
+				int lastTokenLine = getLineNumber(lastTokenEnd, parentLineRange);
 				int length = this.comments.length;
-				while (startIdx<length && lastTokenLine == this.scanner.getLineNumber(this.comments[startIdx].getStartPosition()) && nodeStartLine != lastTokenLine) {
+				while (startIdx<length && lastTokenLine == getLineNumber(this.comments[startIdx].getStartPosition(), parentLineRange) && nodeStartLine != lastTokenLine) {
 					startIdx++;
 				}
 			}
@@ -405,7 +417,7 @@ class DefaultCommentMapper {
 	 * If finally there's still trailing comments, then stores indexes of the first and last one
 	 * in trailing comments table.
 	 */
-	int storeTrailingComments(ASTNode node, int nextStart,  boolean lastChild) {
+	int storeTrailingComments(ASTNode node, int nextStart,  boolean lastChild, int[] parentLineRange) {
 
 		// Init extended position
 		int nodeEnd = node.getStartPosition()+node.getLength()-1;
@@ -427,7 +439,7 @@ class DefaultCommentMapper {
 		int extended = nodeEnd;
 		
 		// Get line number
-		int nodeEndLine = this.scanner.getLineNumber(nodeEnd);
+		int nodeEndLine = getLineNumber(nodeEnd, parentLineRange);
 		
 		// Find comments range index
 		int idx = getCommentIndex(0, nodeEnd, 1);
@@ -480,7 +492,7 @@ class DefaultCommentMapper {
 				}
 			}
 			// Store index if we're on the same line than node end
-			int commentLine = this.scanner.getLineNumber(commentStart);
+			int commentLine = getLineNumber(commentStart, parentLineRange);
 			if (commentLine == nodeEndLine) {
 				sameLineIdx = idx;
 			}
@@ -491,8 +503,8 @@ class DefaultCommentMapper {
 		if (endIdx != -1) {
 			// Verify that following node start is separated
 			if (!lastChild) {
-				int nextLine = this.scanner.getLineNumber(nextStart);
-				int previousLine = this.scanner.getLineNumber(previousEnd);
+				int nextLine = getLineNumber(nextStart, parentLineRange);
+				int previousLine = getLineNumber(previousEnd, parentLineRange);
 				if((nextLine - previousLine) <= 1) {
 					if (sameLineIdx == -1) return nodeEnd;
 					endIdx = sameLineIdx;
@@ -541,20 +553,23 @@ class DefaultCommentMapper {
 
 	class CommentMapperVisitor extends DefaultASTVisitor {
 
-		HashMap waitingSiblings = new HashMap(10);
+		ASTNode topSiblingParent = null;
+		ASTNode[] siblings = new ASTNode[10];
+		int[][] parentLineRange = new int[10][];
+		int siblingPtr = -1;
 
 		protected boolean visitNode(ASTNode node) {
 
 			// Get default previous end
 			ASTNode parent = node.getParent();
 			int previousEnd = parent.getStartPosition();
-
+			
 			// Look for sibling node
-			ASTNode sibling = (ASTNode) this.waitingSiblings.get(parent);
+ 			ASTNode sibling = parent == this.topSiblingParent ? (ASTNode) this.siblings[this.siblingPtr] : null;
 			if (sibling != null) {
 				// Found one previous sibling, so compute its trailing comments using current node start position
 				try {
-					previousEnd = storeTrailingComments(sibling, node.getStartPosition(), false);
+					previousEnd = storeTrailingComments(sibling, node.getStartPosition(), false, this.parentLineRange[this.siblingPtr]);
 				} catch (Exception ex) {
 					// Give up extended ranges at this level if unexpected exception happens...
 				}
@@ -566,14 +581,37 @@ class DefaultCommentMapper {
 			}
 
 			// Compute leading comments for current node
+			int[] previousLineRange = this.siblingPtr > -1 ? this.parentLineRange[this.siblingPtr] : new int[] {1, DefaultCommentMapper.this.scanner.linePtr+1};
 			try {
-				storeLeadingComments(node, previousEnd);
+				storeLeadingComments(node, previousEnd, previousLineRange);
 			} catch (Exception ex) {
 				// Give up extended ranges at this level if unexpected exception happens...
 			}
 			
 			// Store current node as waiting sibling for its parent
-			this.waitingSiblings.put(parent, node);
+			if (this.topSiblingParent != parent) {
+				if (this.siblings.length == ++this.siblingPtr) {
+					System.arraycopy(this.siblings, 0, this.siblings = new ASTNode[this.siblingPtr*2], 0, this.siblingPtr);
+					System.arraycopy(this.parentLineRange, 0, this.parentLineRange = new int[this.siblingPtr*2][], 0, this.siblingPtr);
+				}
+				if (this.topSiblingParent == null) {
+					// node is a CompilationUnit
+					this.parentLineRange[this.siblingPtr] = previousLineRange;
+				} else {
+					int parentStart = parent.getStartPosition();
+					int firstLine = getLineNumber(parentStart, previousLineRange);
+					int lastLine = getLineNumber(parentStart + parent.getLength() - 1, previousLineRange);
+					if (this.parentLineRange[this.siblingPtr] == null) {
+						this.parentLineRange[this.siblingPtr] = new int[] {firstLine, lastLine};
+					} else {
+						int[] lineRange = this.parentLineRange[this.siblingPtr];
+						lineRange[0] = firstLine;
+						lineRange[1] = lastLine;
+					}
+				}
+				this.topSiblingParent = parent;
+			}
+			this.siblings[this.siblingPtr] = node;
 
 			// We're always ok to visit sub-levels
 			return true;
@@ -582,13 +620,19 @@ class DefaultCommentMapper {
 		protected void endVisitNode(ASTNode node) {
 
 			// Look if a child node is waiting for trailing comments computing
-			ASTNode sibling = (ASTNode) this.waitingSiblings.get(node);
+			ASTNode sibling = this.topSiblingParent == node ? (ASTNode) this.siblings[this.siblingPtr] : null;
 			if (sibling != null) {
 				try {
-					storeTrailingComments(sibling, node.getStartPosition()+node.getLength()-1, true);
+					storeTrailingComments(sibling, node.getStartPosition()+node.getLength()-1, true, this.parentLineRange[this.siblingPtr]);
 				} catch (Exception ex) {
 					// Give up extended ranges at this level if unexpected exception happens...
 				}
+			}
+			// Remove sibling if needed
+			if (this.topSiblingParent != null /*not a CompilationUnit*/
+					&& this.topSiblingParent == node) {
+				this.siblingPtr--;
+				this.topSiblingParent = node.getParent();
 			}
 		}
 

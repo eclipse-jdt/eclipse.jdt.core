@@ -3270,7 +3270,7 @@ public class ClassFile
 			this.contents[localContentsOffset++] = 0;
 			this.contents[localContentsOffset++] = 1;
 			if (problemLine == 0) {
-				problemLine = Util.searchLineNumber(startLineIndexes, binding.sourceStart());
+				problemLine = Util.getLineNumber(binding.sourceStart(), startLineIndexes, 0, startLineIndexes.length-1);
 			}
 			// first entry at pc = 0
 			this.contents[localContentsOffset++] = 0;
@@ -3712,7 +3712,7 @@ public class ClassFile
 			this.contents[localContentsOffset++] = 0;
 			this.contents[localContentsOffset++] = 1;
 			if (problemLine == 0) {
-				problemLine = Util.searchLineNumber(startLineIndexes, binding.sourceStart());
+				problemLine = Util.getLineNumber(binding.sourceStart(), startLineIndexes, 0, startLineIndexes.length-1);
 			}
 			// first entry at pc = 0
 			this.contents[localContentsOffset++] = 0;
@@ -4431,7 +4431,7 @@ public class ClassFile
 			localContentsOffset += 6;
 			// leave space for attribute_length and line_number_table_length
 			// Seems like do would be better, but this preserves the existing behavior.
-			index = Util.searchLineNumber(startLineIndexes, binding.sourceStart);
+			index = Util.getLineNumber(binding.sourceStart, startLineIndexes, 0, startLineIndexes.length-1);
 			contents[localContentsOffset++] = 0;
 			contents[localContentsOffset++] = 0;
 			contents[localContentsOffset++] = (byte) (index >> 8);

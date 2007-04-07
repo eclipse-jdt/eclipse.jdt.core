@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class SourceTypeConverter {
 	
@@ -128,7 +129,7 @@ public class SourceTypeConverter {
 		int end = topLevelTypeInfo.getNameSourceEnd();
 
 		/* convert package and imports */
-		char[] packageName = cuHandle.getParent().getElementName().toCharArray();
+		String[] packageName = ((PackageFragment) cuHandle.getParent()).names;
 		if (packageName.length > 0)
 			// if its null then it is defined in the default package
 			this.unit.currentPackage =
@@ -139,8 +140,9 @@ public class SourceTypeConverter {
 		for (int i = 0; i < importCount; i++) {
 			ImportDeclaration importDeclaration = (ImportDeclaration) importDeclarations[i];
 			ISourceImport sourceImport = (ISourceImport) importDeclaration.getElementInfo();
+			String nameWithoutStar = importDeclaration.getNameWithoutStar();
 			this.unit.imports[i] = createImportReference(
-				importDeclaration.getNameWithoutStar().toCharArray(), 
+				Util.splitOn('.', nameWithoutStar, 0, nameWithoutStar.length()), 
 				sourceImport.getDeclarationSourceStart(),
 				sourceImport.getDeclarationSourceEnd(),
 				importDeclaration.isOnDemand(),
@@ -627,16 +629,18 @@ public class SourceTypeConverter {
 	 * Build an import reference from an import name, e.g. java.lang.*
 	 */
 	private ImportReference createImportReference(
-		char[] importName,
+		String[] importName,
 		int start,
 		int end, 
 		boolean onDemand,
 		int modifiers) {
 	
-		char[][] qImportName = CharOperation.splitOn('.', importName);
-		long[] positions = new long[qImportName.length];
+		int length = importName.length;
+		long[] positions = new long[length];
 		long position = ((long) start << 32) + end;
-		for (int i = 0; i < qImportName.length; i++) {
+		char[][] qImportName = new char[length][];
+		for (int i = 0; i < length; i++) {
+			qImportName[i] = importName[i].toCharArray();
 			positions[i] = position; // dummy positions
 		}
 		return new ImportReference(

@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class RecoveredElement {
 
@@ -210,7 +211,7 @@ public int previousAvailableLineEnd(int position){
 	Scanner scanner = parser.scanner;
 	if (scanner.lineEnds == null) return position;
 	
-	int index = scanner.getLineNumber(position);
+	int index = Util.getLineNumber(position, scanner.lineEnds, 0, scanner.linePtr);
 	if (index < 2) return position;
 	int previousLineEnd = scanner.lineEnds[index-2];
 

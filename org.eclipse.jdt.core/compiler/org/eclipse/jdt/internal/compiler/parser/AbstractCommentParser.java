@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Parser specialized for decoding javadoc comments
@@ -358,29 +359,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	private int getLineNumber(int position) {
 	
 		if (this.scanner.linePtr != -1) {
-			return this.scanner.getLineNumber(position);
+			return Util.getLineNumber(position, this.scanner.lineEnds, 0, this.scanner.linePtr);
 		}
 		if (this.lineEnds == null)
 			return 1;
-		int length = this.lineEnds.length;
-		if (length == 0)
-			return 1;
-		int g = 0, d = length - 1;
-		int m = 0;
-		while (g <= d) {
-			m = g + (d - g) /2;
-			if (position < this.lineEnds[m]) {
-				d = m-1;
-			} else if (position > this.lineEnds[m]) {
-				g = m+1;
-			} else {
-				return m + 1;
-			}
-		}
-		if (position < this.lineEnds[m]) {
-			return m+1;
-		}
-		return m+2;
+		return Util.getLineNumber(position, this.lineEnds, 0, this.lineEnds.length-1);
 	}
 
 	private int getTokenEndPosition() {

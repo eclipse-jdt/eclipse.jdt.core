@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class LexStream implements TerminalTokens {
 	public static final int IS_AFTER_JUMP = 1;
@@ -89,7 +90,7 @@ public class LexStream implements TerminalTokens {
 						token.name = scanner.getCurrentTokenSource();
 						token.start = start;
 						token.end = end;
-						token.line = scanner.getLineNumber(end);
+						token.line = Util.getLineNumber(end, scanner.lineEnds, 0, scanner.linePtr);
 						
 						if(currentInterval != previousInterval && (intervalFlagsToSkip[currentInterval] & RangeUtil.IGNORE) == 0){
 							token.flags = IS_AFTER_JUMP;
@@ -113,7 +114,7 @@ public class LexStream implements TerminalTokens {
 					token.name = CharOperation.NO_CHAR;
 					token.start = start;
 					token.end = end;
-					token.line = scanner.getLineNumber(end);
+					token.line = Util.getLineNumber(end, scanner.lineEnds, 0, scanner.linePtr);
 					
 					tokenCache[++tokenCacheIndex % length] = token;
 					

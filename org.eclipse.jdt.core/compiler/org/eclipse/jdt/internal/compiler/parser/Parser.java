@@ -3030,8 +3030,8 @@ protected void consumeEnterVariable() {
 		if (!(this.currentElement instanceof RecoveredType)
 			&& (this.currentToken == TokenNameDOT
 				//|| declaration.modifiers != 0
-				|| (this.scanner.getLineNumber(declaration.type.sourceStart)
-						!= this.scanner.getLineNumber((int) (namePosition >>> 32))))){
+				|| (Util.getLineNumber(declaration.type.sourceStart, this.scanner.lineEnds, 0, this.scanner.linePtr)
+						!= Util.getLineNumber((int) (namePosition >>> 32), this.scanner.lineEnds, 0, this.scanner.linePtr)))){
 			this.lastCheckPoint = (int) (namePosition >>> 32);
 			this.restartRecovery = true;
 			return;
@@ -4267,8 +4267,8 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 	if (this.currentElement != null){
 		if (this.currentElement instanceof RecoveredType 
 			//|| md.modifiers != 0
-			|| (this.scanner.getLineNumber(md.returnType.sourceStart)
-					== this.scanner.getLineNumber(md.sourceStart))){
+			|| (Util.getLineNumber(md.returnType.sourceStart, this.scanner.lineEnds, 0, this.scanner.linePtr)
+					== Util.getLineNumber(md.sourceStart, this.scanner.lineEnds, 0, this.scanner.linePtr))){
 			this.lastCheckPoint = md.bodyStart;
 			this.currentElement = this.currentElement.add(md, 0);
 			this.lastIgnoredToken = -1;
@@ -4330,8 +4330,8 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 		boolean isType;
 		if ((isType = this.currentElement instanceof RecoveredType) 
 			//|| md.modifiers != 0
-			|| (this.scanner.getLineNumber(md.returnType.sourceStart)
-					== this.scanner.getLineNumber(md.sourceStart))){
+			|| (Util.getLineNumber(md.returnType.sourceStart, this.scanner.lineEnds, 0, this.scanner.linePtr)
+					== Util.getLineNumber(md.sourceStart, this.scanner.lineEnds, 0, this.scanner.linePtr))){
 			if(isType) {
 				((RecoveredType) this.currentElement).pendingTypeParameters = null;
 			}
@@ -7256,7 +7256,7 @@ protected void consumeToken(int type) {
 					this.scanner.getCurrentTokenSourceString(), 
 					this.scanner.startPosition, 
 					this.scanner.currentPosition - 1,
-					this.scanner.getLineNumber(this.scanner.startPosition));
+					Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr));
 				this.compilationUnit.recordStringLiteral(stringLiteral);
 			} else {
 				stringLiteral = this.createStringLiteral(
@@ -8091,7 +8091,8 @@ public int flushCommentsDefinedPriorTo(int position) {
 		if (immediateCommentEnd > 0){ // only tolerating non-javadoc comments
 			// is there any line break until the end of the immediate comment ? (thus only tolerating line comment)
 			immediateCommentEnd--; // comment end in one char too far
-			if (this.scanner.getLineNumber(position) == this.scanner.getLineNumber(immediateCommentEnd)){
+			if (Util.getLineNumber(position, this.scanner.lineEnds, 0, this.scanner.linePtr) 
+					== Util.getLineNumber(immediateCommentEnd, this.scanner.lineEnds, 0, this.scanner.linePtr)){
 				position = immediateCommentEnd;
 				validCount--; // flush this comment
 				index++;

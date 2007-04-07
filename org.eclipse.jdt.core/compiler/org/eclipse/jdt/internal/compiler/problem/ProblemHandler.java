@@ -100,8 +100,9 @@ public void handle(
 		}
 	}
 
+	int[] lineEnds;
 	int lineNumber = problemStartPosition >= 0
-			? Util.searchLineNumber(unitResult.getLineSeparatorPositions(), problemStartPosition)
+			? Util.getLineNumber(problemStartPosition, lineEnds = unitResult.getLineSeparatorPositions(), 0, lineEnds.length-1)
 			: 0;
 	int columnNumber = problemStartPosition >= 0
 			? Util.searchColumnNumber(unitResult.getLineSeparatorPositions(), lineNumber, problemStartPosition)

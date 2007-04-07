@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.codeassist.impl.*;
@@ -264,7 +265,8 @@ protected void attachOrphanCompletionNode(){
 			if (method != null){
 				AbstractMethodDeclaration methodDecl = method.methodDeclaration;
 				if ((methodDecl.bodyStart == methodDecl.sourceEnd+1) // was missing opening brace
-					&& (scanner.getLineNumber(orphan.sourceStart) == scanner.getLineNumber(methodDecl.sourceEnd))){
+					&& (Util.getLineNumber(orphan.sourceStart, scanner.lineEnds, 0, scanner.linePtr) 
+							== Util.getLineNumber(methodDecl.sourceEnd, scanner.lineEnds, 0, scanner.linePtr))){
 					return;
 				}
 			}
@@ -440,7 +442,8 @@ protected void attachOrphanCompletionNode(){
 			if (method != null){
 				AbstractMethodDeclaration methodDecl = method.methodDeclaration;
 				if ((methodDecl.bodyStart == methodDecl.sourceEnd+1) // was missing opening brace
-					&& (this.scanner.getLineNumber(node.sourceStart) == this.scanner.getLineNumber(methodDecl.sourceEnd))){
+					&& (Util.getLineNumber(node.sourceStart, this.scanner.lineEnds, 0, this.scanner.linePtr) 
+						== Util.getLineNumber(methodDecl.sourceEnd, this.scanner.lineEnds, 0, this.scanner.linePtr))){
 					return;
 				}
 			}
@@ -463,7 +466,8 @@ protected void attachOrphanCompletionNode(){
 			if (method != null){
 				AbstractMethodDeclaration methodDecl = method.methodDeclaration;
 				if ((methodDecl.bodyStart == methodDecl.sourceEnd+1) // was missing opening brace
-					&& (scanner.getLineNumber(expression.sourceStart) == scanner.getLineNumber(methodDecl.sourceEnd))){
+					&& (Util.getLineNumber(expression.sourceStart, scanner.lineEnds, 0, scanner.linePtr) 
+						== Util.getLineNumber(methodDecl.sourceEnd, scanner.lineEnds, 0, scanner.linePtr))){
 					return;
 				}
 			}
@@ -1540,8 +1544,8 @@ private boolean checkRecoveredMethod() {
 		/* check if on line with an error already - to avoid completing inside
 			illegal type names e.g.  int[<cursor> */
 		if (lastErrorEndPosition <= cursorLocation+1
-			&& scanner.getLineNumber(lastErrorEndPosition)
-				== scanner.getLineNumber(((CompletionScanner)scanner).completedIdentifierStart)){
+			&& Util.getLineNumber(lastErrorEndPosition, scanner.lineEnds, 0, scanner.linePtr)
+					== Util.getLineNumber(((CompletionScanner)scanner).completedIdentifierStart, scanner.lineEnds, 0, scanner.linePtr)){
 			return false;
 		}
  		RecoveredMethod recoveredMethod = (RecoveredMethod)currentElement;
@@ -1593,8 +1597,8 @@ private boolean checkRecoveredType() {
 		/* check if on line with an error already - to avoid completing inside
 			illegal type names e.g.  int[<cursor> */
 		if ((lastErrorEndPosition <= cursorLocation+1)
-			&& scanner.getLineNumber(lastErrorEndPosition)
-				== scanner.getLineNumber(((CompletionScanner)scanner).completedIdentifierStart)){
+			&& Util.getLineNumber(lastErrorEndPosition, scanner.lineEnds, 0, scanner.linePtr)
+					== Util.getLineNumber(((CompletionScanner)scanner).completedIdentifierStart, scanner.lineEnds, 0, scanner.linePtr)){
 			return false;
 		}
 		RecoveredType recoveredType = (RecoveredType)currentElement;
@@ -2030,8 +2034,8 @@ protected void consumeEnterVariable() {
 
 				if (!(currentElement instanceof RecoveredType)
 					&& (currentToken == TokenNameDOT
-						|| (scanner.getLineNumber(type.sourceStart)
-								!= scanner.getLineNumber(nameSourceStart)))){
+						|| (Util.getLineNumber(type.sourceStart, scanner.lineEnds, 0, scanner.linePtr)
+								!= Util.getLineNumber(nameSourceStart, scanner.lineEnds, 0, scanner.linePtr)))){
 					lastCheckPoint = nameSourceStart;
 					restartRecovery = true;
 					return;
@@ -2296,7 +2300,8 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 				int declarationSourceStart = intStack[intPtr--];
 				int mod = intStack[intPtr--];
 
-				if(scanner.getLineNumber(type.sourceStart) != scanner.getLineNumber((int) (selectorSource >>> 32))) {
+				if(Util.getLineNumber(type.sourceStart, scanner.lineEnds, 0, scanner.linePtr) 
+						!= Util.getLineNumber((int) (selectorSource >>> 32), scanner.lineEnds, 0, scanner.linePtr)) {
 					FieldDeclaration completionFieldDecl = new CompletionOnFieldType(type, false);
 					// consume annotations
 					int length;
@@ -2381,8 +2386,8 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 		if (currentElement != null){
 			if (currentElement instanceof RecoveredType
 				//|| md.modifiers != 0
-				|| (scanner.getLineNumber(md.returnType.sourceStart)
-						== scanner.getLineNumber(md.sourceStart))){
+				|| (Util.getLineNumber(md.returnType.sourceStart, scanner.lineEnds, 0, scanner.linePtr)
+						== Util.getLineNumber(md.sourceStart, scanner.lineEnds, 0, scanner.linePtr))){
 				lastCheckPoint = md.bodyStart;
 				currentElement = currentElement.add(md, 0);
 				lastIgnoredToken = -1;

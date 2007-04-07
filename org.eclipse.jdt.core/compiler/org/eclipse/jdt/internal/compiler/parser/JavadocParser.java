@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Parser specialized for decoding javadoc comments
@@ -82,8 +83,9 @@ public class JavadocParser extends AbstractCommentParser {
 			} else {
 				
 				// Parse comment
-				int firstLineNumber = this.sourceParser.scanner.getLineNumber(javadocStart);
-				int lastLineNumber = this.sourceParser.scanner.getLineNumber(javadocEnd);
+				Scanner sourceScanner = this.sourceParser.scanner;
+				int firstLineNumber = Util.getLineNumber(javadocStart, sourceScanner.lineEnds, 0, sourceScanner.linePtr);
+				int lastLineNumber = Util.getLineNumber(javadocEnd, sourceScanner.lineEnds, 0, sourceScanner.linePtr);
 				this.index = javadocStart +3;
 	
 				// scan line per line, since tags must be at beginning of lines only

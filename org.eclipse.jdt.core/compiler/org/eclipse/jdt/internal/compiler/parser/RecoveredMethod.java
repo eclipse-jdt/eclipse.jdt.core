@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Internal method structure for parsing recovery 
@@ -502,8 +503,9 @@ void attach(TypeParameter[] parameters, int startPos) {
 	int lastParameterEnd = parameters[parameters.length - 1].sourceEnd;
 	
 	Parser parser = this.parser();
-	if(parser.scanner.getLineNumber(methodDeclaration.declarationSourceStart)
-			!= parser.scanner.getLineNumber(lastParameterEnd)) return;
+	Scanner scanner = parser.scanner;
+	if(Util.getLineNumber(methodDeclaration.declarationSourceStart, scanner.lineEnds, 0, scanner.linePtr)
+			!= Util.getLineNumber(lastParameterEnd, scanner.lineEnds, 0, scanner.linePtr)) return;
 	
 	if(parser.modifiersSourceStart > lastParameterEnd
 			&& parser.modifiersSourceStart < methodDeclaration.declarationSourceStart) return;
