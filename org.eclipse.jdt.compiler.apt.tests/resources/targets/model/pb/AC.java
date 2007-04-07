@@ -5,10 +5,10 @@ import targets.model.pa.IA;
 
 public class AC<T1 extends String & Iterator, T2> implements IC, IA {
 	
-	private List<String> _fieldListString = null;
+	private List<String> _fieldListString = new ArrayList<String>();
 	
 	public String methodIAString(int int1) {
-		return null;
+		return _fieldListString.iterator().next();
 	}
 	
 	public T1 methodGetT1(T2 paramT2) {

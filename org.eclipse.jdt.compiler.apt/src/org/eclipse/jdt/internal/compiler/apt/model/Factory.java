@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
@@ -92,13 +92,13 @@ public class Factory {
 		case Binding.METHOD:
 			return new ExecutableElementImpl((MethodBinding)binding);
 		case Binding.RAW_TYPE:
-			return new TypeElementImpl(((RawTypeBinding)binding).type);
+		case Binding.PARAMETERIZED_TYPE:
+			return new TypeElementImpl(((ParameterizedTypeBinding)binding).type);
 		// TODO: fill in the rest of these
 		case Binding.PACKAGE:
 		case Binding.IMPORT:
 		case Binding.ARRAY_TYPE:
 		case Binding.BASE_TYPE:
-		case Binding.PARAMETERIZED_TYPE:
 		case Binding.WILDCARD_TYPE:
 		case Binding.TYPE_PARAMETER:
 			throw new UnsupportedOperationException("NYI: binding type " + binding.kind()); //$NON-NLS-1$

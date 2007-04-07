@@ -28,7 +28,6 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -153,8 +152,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	@Override
 	public Name getQualifiedName() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
-		//TODO: what is the right way to get this (including member types, parameterized types, ...?
-		return new NameImpl(CharOperation.concatWith(binding.compoundName, '.'));
+		return new NameImpl(binding.readableName());
 	}
 
 	/*

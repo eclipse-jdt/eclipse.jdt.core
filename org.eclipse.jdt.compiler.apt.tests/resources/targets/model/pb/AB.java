@@ -10,5 +10,5 @@ public class AB implements IB, IA {
 	
 	protected List<IA> _fieldListIA;
 	
-	public String methodIAString(int int1) { return null; }
+	public String methodIAString(int int1) { return (new E()).toString(); }
 }
