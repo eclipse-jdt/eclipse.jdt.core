@@ -154,8 +154,9 @@ public class BatchMessagerImpl implements Messager {
 			case ERROR :
 				if (referenceContext != null) {
 					CompilationResult result = referenceContext.compilationResult();
+					int[] lineEnds = null;
 					int lineNumber = startPosition >= 0
-							? Util.searchLineNumber(result.getLineSeparatorPositions(), startPosition)
+							? Util.getLineNumber(startPosition, lineEnds = result.getLineSeparatorPositions(), 0, lineEnds.length-1)
 							: 0;
 					int columnNumber = startPosition >= 0
 							? Util.searchColumnNumber(result.getLineSeparatorPositions(), lineNumber,startPosition)
@@ -189,8 +190,9 @@ public class BatchMessagerImpl implements Messager {
 			case OTHER :
 				if (referenceContext != null) {
 					CompilationResult result = referenceContext.compilationResult();
+					int[] lineEnds = null;
 					int lineNumber = startPosition >= 0
-							? Util.searchLineNumber(result.getLineSeparatorPositions(), startPosition)
+							? Util.getLineNumber(startPosition, lineEnds = result.getLineSeparatorPositions(), 0, lineEnds.length-1)
 							: 0;
 					int columnNumber = startPosition >= 0
 							? Util.searchColumnNumber(result.getLineSeparatorPositions(), lineNumber,startPosition)
