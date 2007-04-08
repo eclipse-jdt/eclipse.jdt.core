@@ -54,7 +54,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		if (_binding instanceof VariableBinding) {
 			AnnotationBinding[] annotations = ((VariableBinding)_binding).getAnnotations();
-			return getAnnotationMirrors(annotations);
+			return Factory.getAnnotationMirrors(annotations);
 		}
 		else {
 			// TODO: how to get annotations from parameters?

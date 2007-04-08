@@ -12,10 +12,13 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeParameterElement;
@@ -23,6 +26,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -36,6 +40,21 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
  * Creates javax.lang.model wrappers around JDT internal compiler bindings.
  */
 public class Factory {
+
+	/**
+	 * Convert an array of compiler annotation bindings into a list of AnnotationMirror
+	 * @return a non-null, possibly empty, unmodifiable list.
+	 */
+	public static List<? extends AnnotationMirror> getAnnotationMirrors(AnnotationBinding[] annotations) {
+		if (null == annotations || 0 == annotations.length) {
+			return Collections.emptyList();
+		}
+		List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.length);
+		for (AnnotationBinding annotation : annotations) {
+			list.add(AnnotationMirrorImpl.getAnnotationMirror(annotation));
+		}
+		return Collections.unmodifiableList(list);
+	}
 
 	/**
 	 * Convert from the JDT's ClassFileConstants flags to the Modifier enum.

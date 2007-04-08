@@ -50,7 +50,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		AnnotationBinding[] annotations = ((ReferenceBinding)_binding).getAnnotations();
-		return getAnnotationMirrors(annotations);
+		return Factory.getAnnotationMirrors(annotations);
 	}
 
 	@Override

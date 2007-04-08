@@ -25,18 +25,22 @@ import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
 /**
  * Utilities for working with language elements.
@@ -54,13 +58,39 @@ public class ElementsImpl implements Elements {
 		_env = env;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Elements#getAllAnnotationMirrors(javax.lang.model.element.Element)
+	/**
+	 * Return all the annotation mirrors on this element, including inherited annotations.
+	 * Annotations are inherited only if the annotation type is meta-annotated with @Inherited,
+	 * and the annotation is on a class: e.g., annotations are not inherited for interfaces, methods,
+	 * or fields.
 	 */
 	@Override
 	public List<? extends AnnotationMirror> getAllAnnotationMirrors(Element e) {
-		// TODO Auto-generated method stub
-		return null;
+		// if e is a class, walk up its superclass hierarchy looking for @Inherited annotations not already in the list
+		if (e.getKind() == ElementKind.CLASS && e instanceof TypeElementImpl) {
+			List<AnnotationBinding> annotations = new ArrayList<AnnotationBinding>();
+			// A class can only have one annotation of a particular annotation type.
+			Set<ReferenceBinding> annotationTypes = new HashSet<ReferenceBinding>();
+			ReferenceBinding binding = (ReferenceBinding)((TypeElementImpl)e)._binding;
+			while (null != binding) {
+				for (AnnotationBinding annotation : binding.getAnnotations()) {
+					ReferenceBinding annotationType = annotation.getAnnotationType(); 
+					if (!annotationTypes.contains(annotationType)) {
+						annotationTypes.add(annotationType);
+						annotations.add(annotation);
+					}
+				}
+				binding = binding.superclass();
+			}
+			List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.size());
+			for (AnnotationBinding annotation : annotations) {
+				list.add(AnnotationMirrorImpl.getAnnotationMirror(annotation));
+			}
+			return Collections.unmodifiableList(list);
+		}
+		else {
+			return e.getAnnotationMirrors();
+		}
 	}
 
 	/**
@@ -266,16 +296,32 @@ public class ElementsImpl implements Elements {
 	@Override
 	public TypeElement getTypeElement(CharSequence name) {
 		LookupEnvironment le = _env.getLookupEnvironment();
-		//TODO: do this the right way - this is a hack to test if it works
-		String qname = name.toString();
-		String parts[] = qname.split("\\."); //$NON-NLS-1$
-		int length = parts.length;
-		char[][] compoundName = new char[length][];
-		for (int i = 0; i < length; i++) {
-			compoundName[i] = parts[i].toCharArray();
-		}
+		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
 		ReferenceBinding binding = le.getType(compoundName);
-		if (binding == null) {
+		// If we didn't find the binding, maybe it's a nested type;
+		// try finding the top-level type and then working downwards.
+		if (null == binding) {
+			ReferenceBinding topLevelBinding = null;
+			int topLevelSegments = compoundName.length; 
+			while (--topLevelSegments > 0) {
+				char[][] topLevelName = new char[topLevelSegments][];
+				for (int i = 0; i < topLevelSegments; ++i) {
+					topLevelName[i] = compoundName[i];
+				}
+				topLevelBinding = le.getType(topLevelName);
+				if (null != topLevelBinding) {
+					break;
+				}
+			}
+			if (null == topLevelBinding) {
+				return null;
+			}
+			binding = topLevelBinding;
+			for (int i = topLevelSegments; null != binding && i < compoundName.length; ++i) {
+				binding = binding.getMemberType(compoundName[i]);
+			}
+		}
+		if (null == binding) {
 			return null;
 		}
 		return new TypeElementImpl(binding);
@@ -295,8 +341,10 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public boolean isDeprecated(Element e) {
-		// TODO Auto-generated method stub
-		return false;
+		if (!(e instanceof ElementImpl)) {
+			return false;
+		}
+		return (((ElementImpl)e)._binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0;
 	}
 
 	/* (non-Javadoc)

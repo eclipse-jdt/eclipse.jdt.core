@@ -57,14 +57,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		AnnotationBinding[] annotations = ((MethodBinding)_binding).getAnnotations();
-		if (0 == annotations.length) {
-			return Collections.emptyList();
-		}
-		List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.length);
-		for (AnnotationBinding annotation : annotations) {
-			list.add(AnnotationMirrorImpl.getAnnotationMirror(annotation));
-		}
-		return Collections.unmodifiableList(list);
+		return Factory.getAnnotationMirrors(annotations);
 	}
 
 	@Override

@@ -19,12 +19,15 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
@@ -40,6 +43,11 @@ public class ElementUtilsProc extends BaseProcessor
 	// Initialized in collectElements()
 	private TypeElement _elementF;
 	private TypeElement _elementG;
+	private TypeElement _elementH;
+	private TypeElement _elementAnnoX;
+	private ExecutableElement _annoXValue;
+	private TypeElement _elementAnnoY;
+	private ExecutableElement _annoYValue;
 
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
@@ -60,7 +68,15 @@ public class ElementUtilsProc extends BaseProcessor
 			return false;
 		}
 		
+		if (!examineGetAllAnnotations()) {
+			return false;
+		}
+		
 		if (!examineGetAllMembers()) {
+			return false;
+		}
+		
+		if (!examineIsDeprecated()) {
 			return false;
 		}
 		
@@ -84,9 +100,99 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("element G was not found or was not a class");
 			return false;
 		}
+		_elementH = _elementUtils.getTypeElement("targets.model.pc.H");
+		if (_elementH == null || _elementH.getKind() != ElementKind.CLASS) {
+			reportError("element H was not found or was not a class");
+			return false;
+		}
+		
+		_elementAnnoX = _elementUtils.getTypeElement("targets.model.pc.AnnoX");
+		if (null == _elementAnnoX || _elementAnnoX.getKind() != ElementKind.ANNOTATION_TYPE) {
+			reportError("annotation type annoX was not found or was not an annotation");
+			return false;
+		}
+		for (ExecutableElement method : ElementFilter.methodsIn(_elementAnnoX.getEnclosedElements())) {
+			if ("value".equals(method.getSimpleName().toString())) {
+				_annoXValue = method;
+			}
+		}
+		if (null == _annoXValue) {
+			reportError("Could not find value() method in annotation type AnnoX");
+			return false;
+		}
+		
+		_elementAnnoY = _elementUtils.getTypeElement("targets.model.pc.AnnoY");
+		if (null == _elementAnnoY || _elementAnnoY.getKind() != ElementKind.ANNOTATION_TYPE) {
+			reportError("annotation type annoY was not found or was not an annotation");
+			return false;
+		}
+		for (ExecutableElement method : ElementFilter.methodsIn(_elementAnnoY.getEnclosedElements())) {
+			if ("value".equals(method.getSimpleName().toString())) {
+				_annoYValue = method;
+			}
+		}
+		if (null == _annoYValue) {
+			reportError("Could not find value() method in annotation type AnnoY");
+			return false;
+		}
+		
 		return true;
 	}
 	
+	/**
+	 * Test the {@link Elements#getAllAnnotationMirrors()} method
+	 * @return true if all tests passed
+	 */
+	private boolean examineGetAllAnnotations()
+	{
+		List<? extends AnnotationMirror> annotationsH = _elementUtils.getAllAnnotationMirrors(_elementH);
+		if (null == annotationsH) {
+			reportError("getAllAnnotationMirrors(_elementH) returned null");
+			return false;
+		}
+		// H has AnnoY("on H"), G has AnnoX("on G"), and F has hidden AnnoY("on F").
+		int foundF = 0;
+		int foundG = 0;
+		int foundH = 0;
+		for (AnnotationMirror anno : annotationsH) {
+			Map<? extends ExecutableElement, ? extends AnnotationValue> values = anno.getElementValues();
+			AnnotationValue valueY = values.get(_annoYValue);
+			if (null != valueY) {
+				if ("on F".equals(valueY.getValue())) {
+					foundF++;
+				}
+				else if ("on H".equals(valueY.getValue())) {
+					foundH++;
+				}
+				else {
+					reportError("unexpected value for annotation AnnoY");
+					return false;
+				}
+			}
+			else {
+				AnnotationValue valueX = values.get(_annoXValue);
+				if (null != valueX) {
+					if ("on G".equals(valueX.getValue())) {
+						foundG++;
+					}
+					else {
+						reportError("unexpected value for annotation AnnoX");
+						return false;
+					}
+				}
+				else {
+					reportError("getAllAnnotationMirrors(_elementH) returned a mirror with no value()");
+					return false;
+				}
+			}
+		}
+		if (0 != foundF || 1 != foundG || 1 != foundH) {
+			reportError("getAllAnnotationMirrors() found wrong number of annotations on H");
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Test the {@link Elements#getAllMembers()} method
 	 * @return true if all tests passed
@@ -179,6 +285,91 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("getAllMembers(_elementG) did not include G's method_T1(String)");
 			return false;
 		}
+		return true;
+	}
+
+	/**
+	 * Test the {@link Elements#isDeprecated()} method
+	 * @return true if all tests passed
+	 */
+	private boolean examineIsDeprecated()
+	{
+		Element _deprecatedElem = _elementUtils.getTypeElement("targets.model.pc.Deprecation");
+		if (null == _deprecatedElem) {
+			reportError("Couldn't find targets.model.pc.Deprecation");
+			return false;
+		}
+		ExecutableElement methodDeprecated = null;
+		ExecutableElement methodNotDeprecated = null;
+		for (ExecutableElement method : ElementFilter.methodsIn(_deprecatedElem.getEnclosedElements())) {
+			if ("deprecatedMethod".equals(method.getSimpleName().toString())) {
+				methodDeprecated = method;
+			}
+			else if ("nonDeprecatedMethod".equals(method.getSimpleName().toString())) {
+				methodNotDeprecated = method;
+			}
+		}
+		if (null == methodDeprecated || null == methodNotDeprecated) {
+			reportError("Could not find methods Deprecation.deprecatedMethod() or Deprecation.nonDeprecatedMethod()");
+			return false;
+		}
+		if (_elementUtils.isDeprecated(methodNotDeprecated)) {
+			reportError("ElementUtils.isDeprecated(Deprecation.nonDeprecatedMethod()) is true");
+			return false;
+		}
+		if (!_elementUtils.isDeprecated(methodDeprecated)) {
+			reportError("ElementUtils.isDeprecated(Deprecation.deprecatedMethod()) is false");
+			return false;
+		}
+		TypeElement classDeprecated = null;
+		TypeElement classNotDeprecated = null;
+		TypeElement interfaceDeprecated = null;
+		TypeElement interfaceNotDeprecated = null;
+		for (TypeElement type : ElementFilter.typesIn(_deprecatedElem.getEnclosedElements())) {
+			if ("deprecatedClass".equals(type.getSimpleName().toString())) {
+				classDeprecated = type;
+			}
+			else if ("nonDeprecatedClass".equals(type.getSimpleName().toString())) {
+				classNotDeprecated = type;
+			}
+			else if ("deprecatedInterface".equals(type.getSimpleName().toString())) {
+				interfaceDeprecated = type;
+			}
+			else if ("nonDeprecatedInterface".equals(type.getSimpleName().toString())) {
+				interfaceNotDeprecated = type;
+			}
+		}
+		if (null == classDeprecated || null == classNotDeprecated) {
+			reportError("Could not find methods Deprecation.deprecatedClass() or Deprecation.nonDeprecatedClass()");
+			return false;
+		}
+		if (null == interfaceDeprecated || null == interfaceNotDeprecated) {
+			reportError("Could not find methods Deprecation.deprecatedInterface() or Deprecation.nonDeprecatedInterface()");
+			return false;
+		}
+		if (_elementUtils.isDeprecated(classNotDeprecated)) {
+			reportError("ElementUtils.isDeprecated(Deprecation.nonDeprecatedClass()) is true");
+			return false;
+		}
+		if (!_elementUtils.isDeprecated(classDeprecated)) {
+			reportError("ElementUtils.isDeprecated(Deprecation.deprecatedClass()) is false");
+			return false;
+		}
+		if (_elementUtils.isDeprecated(interfaceNotDeprecated)) {
+			reportError("ElementUtils.isDeprecated(Deprecation.nonDeprecatedInterface()) is true");
+			return false;
+		}
+		if (!_elementUtils.isDeprecated(interfaceDeprecated)) {
+			reportError("ElementUtils.isDeprecated(Deprecation.deprecatedInterface()) is false");
+			return false;
+		}
+		
+		TypeElement deprecatedInnerClass = _elementUtils.getTypeElement("targets.model.pc.Deprecation.deprecatedClass");
+		if (null == deprecatedInnerClass) {
+			reportError("Couldn't find class Deprecation.deprecatedClass");
+			return false;
+		}
+
 		return true;
 	}
 

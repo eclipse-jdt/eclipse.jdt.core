@@ -11,17 +11,13 @@
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.type.TypeMirror;
 
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 
 /**
@@ -47,17 +43,6 @@ public abstract class ElementImpl
 	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	protected List<? extends AnnotationMirror> getAnnotationMirrors(AnnotationBinding[] annotations) {
-		if (null == annotations || 0 == annotations.length) {
-			return Collections.emptyList();
-		}
-		List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.length);
-		for (AnnotationBinding annotation : annotations) {
-			list.add(AnnotationMirrorImpl.getAnnotationMirror(annotation));
-		}
-		return Collections.unmodifiableList(list);
 	}
 
 	@Override
