@@ -28,6 +28,10 @@ import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Types;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
  * Utilities for working with types (as opposed to elements).
@@ -35,14 +39,14 @@ import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
  */
 public class TypesImpl implements Types {
 	
-	//private final BaseProcessingEnvImpl _env;
+	private final BaseProcessingEnvImpl _env;
 
 	/*
 	 * The processing env creates and caches a TypesImpl.  Other clients should
 	 * not create their own; they should ask the env for it.
 	 */
 	public TypesImpl(BaseProcessingEnvImpl env) {
-		//_env = env;
+		_env = env;
 	}
 
 	/* (non-Javadoc)
@@ -138,13 +142,15 @@ public class TypesImpl implements Types {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#getNoType(javax.lang.model.type.TypeKind)
-	 */
 	@Override
 	public NoType getNoType(TypeKind kind) {
-		// TODO Auto-generated method stub
-		return null;
+		switch (kind) {
+		case NONE:
+		case VOID:
+			return Factory.getPrimitiveType(kind);
+		default:
+			throw new IllegalArgumentException();
+		}
 	}
 
 	/* (non-Javadoc)
@@ -152,8 +158,7 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public NullType getNullType() {
-		// TODO Auto-generated method stub
-		return null;
+		return Factory.getPrimitiveType(TypeKind.NULL);
 	}
 
 	/* (non-Javadoc)
@@ -161,8 +166,7 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public PrimitiveType getPrimitiveType(TypeKind kind) {
-		// TODO Auto-generated method stub
-		return null;
+		return Factory.getPrimitiveType(kind);
 	}
 
 	/* (non-Javadoc)
@@ -174,13 +178,21 @@ public class TypesImpl implements Types {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#isAssignable(javax.lang.model.type.TypeMirror, javax.lang.model.type.TypeMirror)
+	/**
+	 * @return true if a value of type t1 can be assigned to a variable of type t2, i.e., t2 = t1.
 	 */
 	@Override
 	public boolean isAssignable(TypeMirror t1, TypeMirror t2) {
-		// TODO Auto-generated method stub
-		return false;
+		if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
+			return false; 
+		}
+		Binding b1 = ((TypeMirrorImpl)t1).binding();
+		Binding b2 = ((TypeMirrorImpl)t2).binding();
+		if (!(b1 instanceof TypeBinding) || !(b2 instanceof TypeBinding)) {
+			// package, method, import, etc.
+			throw new IllegalArgumentException();
+		}
+		return ((TypeBinding)b1).isCompatibleWith((TypeBinding)b2);
 	}
 
 	/* (non-Javadoc)
@@ -188,8 +200,16 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public boolean isSameType(TypeMirror t1, TypeMirror t2) {
-		// TODO Auto-generated method stub
-		return false;
+		if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
+			return false;
+		}
+		if (t1 == t2) {
+			return true;
+		}
+		Binding b1 = ((TypeMirrorImpl)t1).binding();
+		Binding b2 = ((TypeMirrorImpl)t2).binding();
+		// Wildcard types are never equal, according to the spec of this method
+		return (b1 == b2 && b1.kind() != Binding.WILDCARD_TYPE);
 	}
 
 	/* (non-Javadoc)
@@ -201,22 +221,52 @@ public class TypesImpl implements Types {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#isSubtype(javax.lang.model.type.TypeMirror, javax.lang.model.type.TypeMirror)
+	/**
+	 * @return true if t1 is a subtype of t2, or if t1 == t2.
 	 */
 	@Override
 	public boolean isSubtype(TypeMirror t1, TypeMirror t2) {
-		// TODO Auto-generated method stub
-		return false;
+		if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
+			return false;
+		}
+		if (t1 == t2) {
+			return true;
+		}
+		Binding b1 = ((TypeMirrorImpl)t1).binding();
+		Binding b2 = ((TypeMirrorImpl)t2).binding();
+		if (b1 == b2) {
+			return true;
+		}
+		if (!(b1 instanceof TypeBinding) || !(b2 instanceof TypeBinding)) {
+			// package, method, import, etc.
+			return false;
+		}
+		if (b1.kind() == Binding.BASE_TYPE || b2.kind() == Binding.BASE_TYPE) {
+			if (b1.kind() != b2.kind()) {
+				return false;
+			}
+			else {
+				// for primitives, compatibility implies subtype
+				return ((TypeBinding)b1).isCompatibleWith((TypeBinding)b2);
+			}
+		}
+		// TODO: array types and reference types
+		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#unboxedType(javax.lang.model.type.TypeMirror)
-	 */
 	@Override
 	public PrimitiveType unboxedType(TypeMirror t) {
-		// TODO Auto-generated method stub
-		return null;
+		if (!(((TypeMirrorImpl)t)._binding instanceof ReferenceBinding)) {
+			// Not an unboxable type - could be primitive, array, not a type at all, etc.
+			throw new IllegalArgumentException();
+		}
+		ReferenceBinding boxed = (ReferenceBinding)((TypeMirrorImpl)t)._binding;
+		TypeBinding unboxed = _env.getLookupEnvironment().computeBoxingType(boxed);
+		if (unboxed.kind() != Binding.BASE_TYPE) {
+			// No boxing conversion was found
+			throw new IllegalArgumentException();
+		}
+		return Factory.getPrimitiveType((BaseTypeBinding)unboxed);
 	}
 
 }

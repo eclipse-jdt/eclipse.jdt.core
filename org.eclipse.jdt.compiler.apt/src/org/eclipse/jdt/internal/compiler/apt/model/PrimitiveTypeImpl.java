@@ -13,28 +13,49 @@
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import javax.lang.model.type.NoType;
+import javax.lang.model.type.NullType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 /**
  * 
  * @since 3.3
  */
-public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType, NoType {
-
-	PrimitiveTypeImpl(BaseTypeBinding binding) {
+public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType, NoType, NullType {
+	
+	public final static PrimitiveTypeImpl BOOLEAN = new PrimitiveTypeImpl(TypeBinding.BOOLEAN);
+	public final static PrimitiveTypeImpl BYTE = new PrimitiveTypeImpl(TypeBinding.BYTE);
+	public final static PrimitiveTypeImpl CHAR = new PrimitiveTypeImpl(TypeBinding.CHAR);
+	public final static PrimitiveTypeImpl DOUBLE = new PrimitiveTypeImpl(TypeBinding.DOUBLE);
+	public final static PrimitiveTypeImpl FLOAT = new PrimitiveTypeImpl(TypeBinding.FLOAT);
+	public final static PrimitiveTypeImpl INT = new PrimitiveTypeImpl(TypeBinding.INT);
+	public final static PrimitiveTypeImpl LONG = new PrimitiveTypeImpl(TypeBinding.LONG);
+	public final static PrimitiveTypeImpl SHORT = new PrimitiveTypeImpl(TypeBinding.SHORT);
+	public final static PrimitiveTypeImpl VOID = new PrimitiveTypeImpl(TypeBinding.VOID);
+	public final static PrimitiveTypeImpl NULL = new PrimitiveTypeImpl(TypeBinding.NULL);
+	
+	/**
+	 * Clients should call {@link Factory#getPrimitiveType(TypeKind)},
+	 * rather than creating new objects.
+	 */
+	private PrimitiveTypeImpl(BaseTypeBinding binding) {
 		super(binding);
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.apt.model.TypeMirrorImpl#getKind()
 	 */
 	@Override
 	public TypeKind getKind() {
-		switch (((BaseTypeBinding)_binding).id) {
+		return getKind((BaseTypeBinding)_binding);
+	}
+
+	public static TypeKind getKind(BaseTypeBinding binding) {
+		switch (binding.id) {
 		case TypeIds.T_boolean:
 			return TypeKind.BOOLEAN;
 		case TypeIds.T_byte:
@@ -56,8 +77,8 @@ public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType, 
 		case TypeIds.T_undefined:
 			return TypeKind.NONE;
 		default:
-			throw new IllegalArgumentException("BaseTypeBinding of unexpected id " + ((BaseTypeBinding)_binding).id); //$NON-NLS-1$
+			throw new IllegalArgumentException("BaseTypeBinding of unexpected id " + binding.id); //$NON-NLS-1$
 		}
 	}
-
+	
 }

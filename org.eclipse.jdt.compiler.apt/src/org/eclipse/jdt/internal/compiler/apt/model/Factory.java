@@ -23,6 +23,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -133,6 +134,49 @@ public class Factory {
 		return new DeclaredTypeImpl(binding);
 	}
 
+	/**
+	 * Get a type mirror object representing the specified primitive type kind.
+	 * This is used for VoidType, NoType and NullType as well as the usual int, float, etc. 
+	 * @throw IllegalArgumentException if a non-primitive TypeKind is requested
+	 */
+	public static PrimitiveTypeImpl getPrimitiveType(TypeKind kind)
+	{
+		switch (kind) {
+		case BOOLEAN:
+			return PrimitiveTypeImpl.BOOLEAN;
+		case BYTE:
+			return PrimitiveTypeImpl.BYTE;
+		case CHAR:
+			return PrimitiveTypeImpl.CHAR;
+		case DOUBLE:
+			return PrimitiveTypeImpl.DOUBLE;
+		case FLOAT:
+			return PrimitiveTypeImpl.FLOAT;
+		case INT:
+			return PrimitiveTypeImpl.INT;
+		case LONG:
+			return PrimitiveTypeImpl.LONG;
+		case NONE:
+			// TODO: how can we represent the NONE type?
+			throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		case NULL:
+			return PrimitiveTypeImpl.NULL;
+		case SHORT:
+			return PrimitiveTypeImpl.SHORT;
+		case VOID:
+			return PrimitiveTypeImpl.VOID;
+		default:
+			throw new IllegalStateException();
+		}
+	}
+	
+	/**
+	 * Convenience method to get the PrimitiveTypeImpl corresponding to a particular BaseTypeBinding.
+	 */
+	public static PrimitiveTypeImpl getPrimitiveType(BaseTypeBinding binding) {
+		return getPrimitiveType(PrimitiveTypeImpl.getKind(binding));
+	}
+
 	public static TypeMirror newTypeMirror(Binding binding) {
 		switch (binding.kind()) {
 		case Binding.FIELD:
@@ -154,8 +198,7 @@ public class Factory {
 			return new ArrayTypeImpl((ArrayBinding)binding);
 			
 		case Binding.BASE_TYPE:
-			// PrimitiveTypeImpl implements both PrimitiveType and NoType
-			return new PrimitiveTypeImpl((BaseTypeBinding)binding);
+			return getPrimitiveType(PrimitiveTypeImpl.getKind((BaseTypeBinding)binding));
 			
 			// TODO: fill in the rest of these
 		case Binding.PARAMETERIZED_TYPE:

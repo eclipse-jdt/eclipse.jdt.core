@@ -81,7 +81,7 @@ public class ElementUtilsProc extends BaseProcessor
 		}
 		
 		reportSuccess();
-		return true;
+		return false;
 	}
 
 	/**

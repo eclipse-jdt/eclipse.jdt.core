@@ -28,6 +28,7 @@ public class ModelUtilTests extends TestCase
 {
 	// Processor class names; see corresponding usage in the processor classes.
 	private static final String ELEMENTUTILSPROC = "org.eclipse.jdt.compiler.apt.tests.processors.elementutils.ElementUtilsProc";
+	private static final String TYPEUTILSPROC = "org.eclipse.jdt.compiler.apt.tests.processors.typeutils.TypeUtilsProc";
 
 	@Override
 	protected void setUp() throws Exception {
@@ -36,21 +37,39 @@ public class ModelUtilTests extends TestCase
 	}
 
 	/**
-	 * Validate the testElement test against the javac compiler.
+	 * Validate the testElements test against the javac compiler.
 	 * @throws IOException 
 	 */
-	public void testElementWithSystemCompiler() throws IOException {
+	public void testElementsWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, ELEMENTUTILSPROC);
 	}
 
 	/**
-	 * Attempt to read various elements of the Element hierarchy.
+	 * Test the Elements utility implementation.
 	 * @throws IOException 
 	 */
-	public void testElementWithEclipseCompiler() throws IOException {
+	public void testElementsWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, ELEMENTUTILSPROC);
+	}
+
+	/**
+	 * Validate the testTypes test against the javac compiler.
+	 * @throws IOException 
+	 */
+	public void testTypesWithSystemCompiler() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, TYPEUTILSPROC);
+	}
+
+	/**
+	 * Test the Types utility implementation.
+	 * @throws IOException 
+	 */
+	public void testTypesWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, TYPEUTILSPROC);
 	}
 
 	/**

@@ -5,3 +5,4 @@ org.eclipse.jdt.compiler.apt.tests.processors.messager.MessagerProc
 org.eclipse.jdt.compiler.apt.tests.processors.generics.GenericsProc
 org.eclipse.jdt.compiler.apt.tests.processors.visitors.VisitorProc
 org.eclipse.jdt.compiler.apt.tests.processors.elementutils.ElementUtilsProc
+org.eclipse.jdt.compiler.apt.tests.processors.typeutils.TypeUtilsProc
