@@ -5,6 +5,10 @@ import targets.model.pa.IA;
 
 public class AC<T1 extends String & Iterator, T2> implements IC, IA {
 	
+	protected class ACInner<T3> {
+		
+	}
+	
 	private List<String> _fieldListString = new ArrayList<String>();
 	
 	public String methodIAString(int int1) {

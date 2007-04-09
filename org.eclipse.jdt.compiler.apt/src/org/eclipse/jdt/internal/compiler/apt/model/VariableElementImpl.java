@@ -22,11 +22,13 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.VariableElement;
 
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 /**
@@ -99,6 +101,19 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		return Collections.emptySet();
 	}
 
+	@Override
+	PackageElement getPackage()
+	{
+		if (_binding instanceof FieldBinding) {
+			PackageBinding pkgBinding = ((FieldBinding)_binding).declaringClass.fPackage;
+			return Factory.newPackageElement(pkgBinding);
+		}
+		else {
+			// TODO: what is the package of a method parameter?
+			return null;
+		}
+	}
+	
 	@Override
 	public Name getSimpleName() {
 		if (_binding instanceof VariableBinding) {

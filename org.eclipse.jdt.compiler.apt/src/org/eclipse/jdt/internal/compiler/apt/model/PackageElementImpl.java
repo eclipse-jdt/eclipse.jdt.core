@@ -62,6 +62,12 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 	}
 
 	@Override
+	PackageElement getPackage()
+	{
+		return this;
+	}
+
+	@Override
 	public Name getQualifiedName() {
 		return new NameImpl(CharOperation.concatWith(((PackageBinding)_binding).compoundName, '.'));
 	}

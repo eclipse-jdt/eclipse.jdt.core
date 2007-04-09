@@ -277,17 +277,13 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public PackageElement getPackageElement(CharSequence name) {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO: how do we get a package by name?  How can we get a Scope to find it with?
+		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Elements#getPackageOf(javax.lang.model.element.Element)
-	 */
 	@Override
 	public PackageElement getPackageOf(Element type) {
-		// TODO Auto-generated method stub
-		return null;
+		return ((ElementImpl)type).getPackage();
 	}
 
 	/* (non-Javadoc)

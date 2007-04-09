@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -91,4 +92,10 @@ public abstract class ElementImpl
 		// Subclasses should override and return something of value
 		return null;
 	}
+
+	/**
+	 * @return the package containing this element.  The package of a PackageElement is itself.
+	 * @see javax.lang.model.util.Elements#getPackageOf(javax.lang.model.element.Element)
+	 */
+	abstract /* package */ PackageElement getPackage();
 }

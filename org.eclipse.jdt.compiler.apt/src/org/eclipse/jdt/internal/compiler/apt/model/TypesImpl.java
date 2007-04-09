@@ -192,7 +192,12 @@ public class TypesImpl implements Types {
 			// package, method, import, etc.
 			throw new IllegalArgumentException();
 		}
-		return ((TypeBinding)b1).isCompatibleWith((TypeBinding)b2);
+		if (((TypeBinding)b1).isCompatibleWith((TypeBinding)b2)) {
+			return true;
+		}
+		
+		TypeBinding convertedType = _env.getLookupEnvironment().computeBoxingType((TypeBinding)b1);
+		return null != convertedType && convertedType.isCompatibleWith((TypeBinding)b2);
 	}
 
 	/* (non-Javadoc)

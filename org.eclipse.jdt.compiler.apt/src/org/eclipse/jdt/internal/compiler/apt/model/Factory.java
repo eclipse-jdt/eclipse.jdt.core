@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -32,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -114,8 +116,9 @@ public class Factory {
 		case Binding.RAW_TYPE:
 		case Binding.PARAMETERIZED_TYPE:
 			return new TypeElementImpl(((ParameterizedTypeBinding)binding).type);
-		// TODO: fill in the rest of these
 		case Binding.PACKAGE:
+			return new PackageElementImpl((PackageBinding)binding);
+		// TODO: fill in the rest of these
 		case Binding.IMPORT:
 		case Binding.ARRAY_TYPE:
 		case Binding.BASE_TYPE:
@@ -132,6 +135,14 @@ public class Factory {
 			throw new IllegalArgumentException("A wildcard binding can't be turned into a DeclaredType"); //$NON-NLS-1$
 		}
 		return new DeclaredTypeImpl(binding);
+	}
+
+	/**
+	 * Convenience method - equivalent to {@code (PackageElement)Factory.newElement(binding)}
+	 */
+	public static PackageElement newPackageElement(PackageBinding binding)
+	{
+		return new PackageElementImpl(binding);
 	}
 
 	/**

@@ -27,7 +27,6 @@ public class AnnotationValueImpl implements AnnotationValue {
 	 */
 	public AnnotationValueImpl(Object value) {
 		_value = value;
-		//TODO: determine object type
 	}
 
 	@Override
@@ -37,7 +36,7 @@ public class AnnotationValueImpl implements AnnotationValue {
 
 	@Override
 	public Object getValue() {
-		// TODO: use object type determined in c'tor
+		//TODO: determine and cache object type
 		if (_value instanceof StringConstant) {
 			return ((StringConstant)_value).stringValue();
 		}

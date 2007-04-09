@@ -23,22 +23,29 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.NestingKind;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypeElementImpl extends ElementImpl implements TypeElement {
 	
-	/* package */ TypeElementImpl(ReferenceBinding binding) {
+	/**
+	 * In general, clients should call {@link Factory#newDeclaredType(ReferenceBinding)} or
+	 * {@link Factory#newElement(org.eclipse.jdt.internal.compiler.lookup.Binding)} to
+	 * create new instances.
+	 */
+	TypeElementImpl(ReferenceBinding binding) {
 		super(binding);
-		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
@@ -78,7 +85,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		ReferenceBinding enclosingType = binding.enclosingType();
 		if (null == enclosingType) {
 			// this is a top level type; get its package
-			return new PackageElementImpl(binding.fPackage);
+			return Factory.newPackageElement(binding.fPackage);
 		}
 		else {
 			return Factory.newElement(binding.enclosingType());
@@ -150,9 +157,22 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	}
 
 	@Override
+	PackageElement getPackage()
+	{
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		return Factory.newPackageElement((PackageBinding)binding.fPackage);
+	}
+
+	@Override
 	public Name getQualifiedName() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
-		return new NameImpl(binding.readableName());
+		char[] qName;
+		if (binding.isMemberType()) {
+			qName = CharOperation.concatWith(binding.enclosingType().compoundName, binding.sourceName, '.');
+		} else {
+			qName = CharOperation.concatWith(binding.compoundName, '.');
+		}
+		return new NameImpl(qName);
 	}
 
 	/*

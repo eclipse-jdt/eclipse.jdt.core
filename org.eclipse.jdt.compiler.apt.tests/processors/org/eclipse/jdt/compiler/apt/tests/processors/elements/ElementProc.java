@@ -122,6 +122,10 @@ public class ElementProc extends BaseProcessor {
 			return false;
 		}
 		
+		if (!examineAMethodThrowables()) {
+			return false;
+		}
+		
 		if (!examineDMethods()) {
 			return false;
 		}
@@ -348,6 +352,71 @@ public class ElementProc extends BaseProcessor {
 		}
 		if (fieldAint.getKind() != ElementKind.FIELD) {
 			reportError("A._fieldAint is not an ElementKind.FIELD");
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Examine the methods of A which have throws clauses
+	 * @return true if all tests passed
+	 */
+	private boolean examineAMethodThrowables() {
+		List<ExecutableElement> methodsA = ElementFilter.methodsIn(_elementA.getEnclosedElements());
+		ExecutableElement methodIAString = null; // no throws clauses
+		ExecutableElement methodThrows1 = null;
+		ExecutableElement methodThrows2 = null;
+		for (ExecutableElement method : methodsA) {
+			String methodName = method.getSimpleName().toString();
+			if ("methodIAString".equals(methodName)) {
+				methodIAString = method;
+			}
+			if ("methodThrows1".equals(methodName)) {
+				methodThrows1 = method;
+			}
+			else if ("methodThrows2".equals(methodName)) {
+				methodThrows2 = method;
+			}
+		}
+		if (null == methodIAString || null == methodThrows1 || null == methodThrows2) {
+			reportError("element A did not contain methodIAString(), methodThrows1(), or methodThrows2()");
+			return false;
+		}
+		List<? extends TypeMirror> thrownTypes0 = methodIAString.getThrownTypes();
+		List<? extends TypeMirror> thrownTypes1 = methodThrows1.getThrownTypes();
+		List<? extends TypeMirror> thrownTypes2 = methodThrows2.getThrownTypes();
+		if (null == thrownTypes0 || null == thrownTypes1 || null == thrownTypes2) {
+			reportError("getThrownTypes() on A.methodIAString(), methodThrows1(), or methodThrows2() returned null");
+			return false;
+		}
+		if (!thrownTypes0.isEmpty()) {
+			reportError("A.methodIAString unexpectedly reports having a throws clause");
+			return false;
+		}
+		boolean foundEA = false;
+		for (TypeMirror type : thrownTypes1) {
+			Element element = _typeUtils.asElement(type);
+			if ("ExceptionA".equals(element.getSimpleName().toString())) {
+				foundEA = true;
+			}
+		}
+		if (thrownTypes1.size() != 1 || !foundEA) {
+			reportError("A.methodThrows1() reported unexpected throwables");
+			return false;
+		}
+		foundEA = false;
+		boolean foundUOE = false;
+		for (TypeMirror type : thrownTypes2) {
+			Element element = _typeUtils.asElement(type);
+			if ("UnsupportedOperationException".equals(element.getSimpleName().toString())) {
+				foundUOE = true;
+			}
+			else if ("ExceptionA".equals(element.getSimpleName().toString())) {
+				foundEA = true;
+			}
+		}
+		if (thrownTypes2.size() != 2 || !foundEA || !foundUOE) {
+			reportError("A.methodThrows2() reported unexpected throwables");
 			return false;
 		}
 		return true;

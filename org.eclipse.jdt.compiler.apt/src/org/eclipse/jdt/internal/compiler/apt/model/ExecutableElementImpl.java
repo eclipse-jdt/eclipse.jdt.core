@@ -23,6 +23,7 @@ import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -45,7 +46,6 @@ public class ExecutableElementImpl extends ElementImpl implements
 	
 	/* package */ ExecutableElementImpl(MethodBinding binding) {
 		super(binding);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -62,8 +62,8 @@ public class ExecutableElementImpl extends ElementImpl implements
 
 	@Override
 	public AnnotationValue getDefaultValue() {
-		// TODO Auto-generated method stub
-		return null;
+		MethodBinding binding = (MethodBinding)_binding;
+		return new AnnotationValueImpl(binding.getDefaultValue());
 	}
 	
 	@Override
@@ -110,6 +110,16 @@ public class ExecutableElementImpl extends ElementImpl implements
 	public Set<Modifier> getModifiers() {
 		MethodBinding binding = (MethodBinding)_binding;
 		return Factory.getModifiers(binding.modifiers);
+	}
+
+	@Override
+	PackageElement getPackage()
+	{
+		MethodBinding binding = (MethodBinding)_binding;
+		if (null == binding.declaringClass) {
+			return null;
+		}
+		return Factory.newPackageElement(binding.declaringClass.fPackage);
 	}
 
 	@Override
@@ -160,8 +170,15 @@ public class ExecutableElementImpl extends ElementImpl implements
 	
 	@Override
 	public List<? extends TypeMirror> getThrownTypes() {
-		// TODO Auto-generated method stub
-		return null;
+		MethodBinding binding = (MethodBinding)_binding;
+		if (binding.thrownExceptions.length == 0) {
+			return Collections.emptyList();
+		}
+		List<TypeMirror> list = new ArrayList<TypeMirror>(binding.thrownExceptions.length);
+		for (ReferenceBinding exception : binding.thrownExceptions) {
+			list.add(Factory.newTypeMirror(exception));
+		}
+		return list;
 	}
 
 	@Override

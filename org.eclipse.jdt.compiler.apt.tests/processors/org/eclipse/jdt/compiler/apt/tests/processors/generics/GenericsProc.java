@@ -26,6 +26,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
@@ -64,6 +65,10 @@ public class GenericsProc extends BaseProcessor
 			return false;
 		}
 		
+		if (!examineACNames()) {
+			return false;
+		}
+		
 		if (!examineACTypeParams()) {
 			return false;
 		}
@@ -90,7 +95,42 @@ public class GenericsProc extends BaseProcessor
 		_elementIterator = _elementUtils.getTypeElement("java.util.Iterator");
 		return true;
 	}
-	
+
+	/**
+	 * Examine the qualified and simple names of element AC and subelements
+	 * @return true if all tests passed
+	 */
+	private boolean examineACNames()
+	{
+		String qnameAC = _elementAC.getQualifiedName().toString();
+		if (!"targets.model.pb.AC".equals(qnameAC)) {
+			reportError("AC's qualified name is unexpected: " + qnameAC);
+			return false;
+		}
+		String snameAC = _elementAC.getSimpleName().toString();
+		if (!"AC".equals(snameAC)) {
+			reportError("AC's simple name is unexpected: " + snameAC);
+			return false;
+		}
+		List<TypeElement> childElements = ElementFilter.typesIn(_elementAC.getEnclosedElements());
+		if (childElements == null || childElements.size() != 1) {
+			reportError("AC should contain one child type");
+			return false;
+		}
+		TypeElement elementACInner = childElements.iterator().next();
+		String qnameInner = elementACInner.getQualifiedName().toString();
+		if (!"targets.model.pb.AC.ACInner".equals(qnameInner)) {
+			reportError("AC.ACInner's qualified name is unexpected: " + qnameInner);
+			return false;
+		}
+		String snameInner = elementACInner.getSimpleName().toString();
+		if (!"ACInner".equals(snameInner)) {
+			reportError("AC.ACInner's simple name is unexpected: " + snameInner);
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Examine the type parameters of element AC
 	 * @return true if all tests passed

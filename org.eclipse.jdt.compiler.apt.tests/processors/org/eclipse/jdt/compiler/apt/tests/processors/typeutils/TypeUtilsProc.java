@@ -119,17 +119,23 @@ public class TypeUtilsProc extends BaseProcessor
 			return false;
 		}
 		
-		// TODO: BOXING
-		/*
+		// BOXING
 		if (!_typeUtils.isAssignable(intType, integerType)) {
 			reportError("isAssignable(int, java.lang.Integer) should be true");
 			return false;
 		}
 		if (!_typeUtils.isAssignable(integerType, intType)) {
-			reportError("isAssignable(java.lang.Integer, int) should be false");
+			reportError("isAssignable(java.lang.Integer, int) should be true");
 			return false;
 		}
-		*/
+		if (!_typeUtils.isAssignable(integerType, floatType)) {
+			reportError("isAssignable(java.lang.Integer, float) should be true");
+			return false;
+		}
+		if (_typeUtils.isAssignable(floatType, integerType)) {
+			reportError("isAssignable(float, java.lang.Integer) should be false");
+			return false;
+		}
 		
 		return true;
 	}
