@@ -233,7 +233,7 @@ public class ElementsImpl implements Elements {
 	@Override
 	public Name getBinaryName(TypeElement type) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -242,7 +242,7 @@ public class ElementsImpl implements Elements {
 	@Override
 	public String getConstantExpression(Object value) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -251,17 +251,20 @@ public class ElementsImpl implements Elements {
 	@Override
 	public String getDocComment(Element e) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return all the annotation instance's explicitly set values, plus default values
+	 *         for all the annotation members that are not explicitly set but that have
+	 *         defaults. By comparison, {@link AnnotationMirror#getElementValues()} only
+	 *         returns the explicitly set values.
 	 * @see javax.lang.model.util.Elements#getElementValuesWithDefaults(javax.lang.model.element.AnnotationMirror)
 	 */
 	@Override
 	public Map<? extends ExecutableElement, ? extends AnnotationValue> getElementValuesWithDefaults(
 			AnnotationMirror a) {
-		// TODO Auto-generated method stub
-		return null;
+		return ((AnnotationMirrorImpl)a).getElementValuesWithDefaults();
 	}
 
 	/* (non-Javadoc)

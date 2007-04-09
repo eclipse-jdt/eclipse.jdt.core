@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import javax.lang.model.type.DeclaredType;
 
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 public class AnnotationMirrorImpl implements AnnotationMirror {
@@ -40,6 +42,10 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 		return Factory.newDeclaredType(annoType);
 	}
 
+	/**
+	 * @return all the members of this annotation mirror that have explicit values.
+	 * Default values are not included.
+	 */
 	public Map<? extends ExecutableElement, ? extends AnnotationValue> getElementValues() {
 		ElementValuePair[] pairs = _binding.getElementValuePairs();
 		Map<ExecutableElement, AnnotationValue> valueMap =
@@ -49,7 +55,44 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 			AnnotationValue v = new AnnotationValueImpl(pair.getValue());
 			valueMap.put(e, v);
 		}
-		return valueMap;
+		return Collections.unmodifiableMap(valueMap);
+	}
+
+	/**
+	 * TODO: this does not actually work yet; MethodBinding.getDefaultValue() not working.
+	 * {@see Elements#getElementValuesWithDefaults()}
+	 * @return all the members of this annotation mirror that have explicit or default
+	 * values.
+	 */
+	public Map<? extends ExecutableElement, ? extends AnnotationValue> getElementValuesWithDefaults() {
+		ElementValuePair[] pairs = _binding.getElementValuePairs();
+		ReferenceBinding annoType = _binding.getAnnotationType();
+		Map<ExecutableElement, AnnotationValue> valueMap =
+			new HashMap<ExecutableElement, AnnotationValue>();
+		for (MethodBinding method : annoType.methods()) {
+			// if binding is in ElementValuePair list, then get value from there
+			boolean foundExplicitValue = false;
+			for (int i = 0; i < pairs.length; ++i) {
+				MethodBinding explicitBinding = pairs[i].getMethodBinding();
+				if (method == explicitBinding) {
+					ExecutableElement e = new ExecutableElementImpl(explicitBinding);
+					AnnotationValue v = new AnnotationValueImpl(pairs[i].getValue());
+					valueMap.put(e, v);
+					foundExplicitValue = true;
+					break;
+				}
+			}
+			// else get default value if one exists
+			if (!foundExplicitValue) {
+				Object defaultVal = method.getDefaultValue();
+				if (null != defaultVal) {
+					ExecutableElement e = new ExecutableElementImpl(method);
+					AnnotationValue v = new AnnotationValueImpl(defaultVal);
+					valueMap.put(e, v);
+				}
+			}
+		}
+		return Collections.unmodifiableMap(valueMap);
 	}
 
 	/*
@@ -61,5 +104,5 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 	public String toString() {
 		return "@" + _binding.getAnnotationType().debugName(); //$NON-NLS-1$
 	}
-
+	
 }

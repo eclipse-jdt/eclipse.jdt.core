@@ -555,6 +555,34 @@ public class ElementProc extends BaseProcessor {
 				reportError("Failed to find method annoZString on @AnnoZ on element D");
 				return false;
 			}
+			
+			// Check Elements.getElementValuesWithDefaults()
+			Map<? extends ExecutableElement, ? extends AnnotationValue> defaults = 
+				_elementUtils.getElementValuesWithDefaults(annotD);
+			if (null == defaults) {
+				reportError("Element.getElementValuesWithDefaults(annotD) returned null");
+				return false;
+			}
+			for (Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : defaults.entrySet()) {
+				String methodName = entry.getKey().getSimpleName().toString();
+				if ("annoZString".equals(methodName)) {
+					foundStringMethod = true;
+					Object value = entry.getValue().getValue();
+					if (!"annoZOnD".equals(value)) {
+						reportError("Explicit value of AnnoZ.annoZString is not \"annoZOnD\"");
+						return false;
+					}
+				}
+				else if ("annoZint".equals(methodName)) {
+					foundStringMethod = true;
+					// TODO: this doesn't work because we are not getting default values resolved.
+/*					Object value = entry.getValue().getValue();
+					if (null == value || !value.equals(17)) {
+						reportError("Default value of AnnoZ.annoZint() is not 17");
+						return false;
+					}
+*/				}
+			}
 		}
 		
 		List<? extends AnnotationMirror> annotsMethodDvoid = _methodDvoid.getAnnotationMirrors();
