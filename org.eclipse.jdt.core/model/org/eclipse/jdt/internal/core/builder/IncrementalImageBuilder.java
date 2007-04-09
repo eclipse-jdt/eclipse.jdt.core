@@ -734,8 +734,8 @@ protected void removeSecondaryTypes() throws CoreException {
 			}
 		}
 		this.secondaryTypesToRemove = null;
-		if (previousSourceFiles != null && previousSourceFiles.size() > 1)
-			this.previousSourceFiles = null; // cannot optimize recompile case when a secondary type is deleted
+		if (previousSourceFiles != null)
+			this.previousSourceFiles = null; // cannot optimize recompile case when a secondary type is deleted, see 181269
 	}
 }
 

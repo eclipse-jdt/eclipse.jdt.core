@@ -882,6 +882,35 @@ public class DependencyTests extends BuilderTests {
 		expectingNoProblems();
 	}
 
+	// 181269
+	public void testSecondaryTypeDeleting() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+	
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A extends Secondary {}\n"+ //$NON-NLS-1$
+			"class Secondary {}\n" //$NON-NLS-1$
+		);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		IPath typePath = env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A extends Secondary {}\n" //$NON-NLS-1$
+		);
+
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(typePath, new Problem("A", "Secondary cannot be resolved to a type", typePath, 35, 44, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	// 72468
 	public void testTypeDeleting() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
