@@ -1062,11 +1062,46 @@ public void testProjectOpen() throws CoreException {
 	}
 }
 /**
- * Tests that closing and opening a project triggers the correct deltas.
+ * Tests that opening a project triggers the correct deltas.
+ */
+public void testProjectOpen2() throws JavaModelException, CoreException {
+	IJavaProject jproject= getJavaProject("JavaProjectTests");
+	IProject project= jproject.getProject();
+	project.close(null);
+
+	try {
+		startDeltas();
+		project.open(null);
+		assertDeltas(
+			"Unexpected delta 2",
+			"JavaProjectTests[*]: {OPENED}\n" + 
+			"ResourceDelta(/JavaProjectTests)"
+		);
+	} finally {
+		stopDeltas();
+	}
+}
+/**
+ * Tests that opening a project keeps the same roots.
+ */
+public void testProjectOpen3() throws JavaModelException, CoreException {
+	IJavaProject jproject= getJavaProject("JavaProjectTests");
+	IPackageFragmentRoot[] originalRoots = jproject.getPackageFragmentRoots();
+	IProject project= jproject.getProject();
+	project.close(null);
+
+	project.open(null);
+	IPackageFragmentRoot[] openRoots = jproject.getPackageFragmentRoots();
+	assertTrue("should have same number of roots", openRoots.length == originalRoots.length);
+	for (int i = 0; i < openRoots.length; i++) {
+		assertTrue("root not the same", openRoots[i].equals(originalRoots[i]));
+	}
+}
+/**
+ * Tests that closing a project triggers the correct deltas.
  */
 public void testProjectClose() throws JavaModelException, CoreException {
 	IJavaProject jproject= getJavaProject("JavaProjectTests");
-	IPackageFragmentRoot[] originalRoots = jproject.getPackageFragmentRoots();
 	IProject project= jproject.getProject();
 
 	try {
@@ -1078,24 +1113,8 @@ public void testProjectClose() throws JavaModelException, CoreException {
 			"ResourceDelta(/JavaProjectTests)"
 		);
 	} finally {
-		try {
-			clearDeltas();
-			
-			project.open(null);
-			assertDeltas(
-				"Unexpected delta 2",
-				"JavaProjectTests[*]: {OPENED}\n" + 
-				"ResourceDelta(/JavaProjectTests)"
-			);
-
-			IPackageFragmentRoot[] openRoots = jproject.getPackageFragmentRoots();
-			assertTrue("should have same number of roots", openRoots.length == originalRoots.length);
-			for (int i = 0; i < openRoots.length; i++) {
-				assertTrue("root not the same", openRoots[i].equals(originalRoots[i]));
-			}
-		} finally {
-			stopDeltas();
-		}
+		stopDeltas();
+		project.open(null);
 	}
 }
 /**
