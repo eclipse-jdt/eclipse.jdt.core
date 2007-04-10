@@ -1002,7 +1002,7 @@ public class ClassScope extends Scope {
 			// abstract class X<K,V> implements java.util.Map<K,V>
 			//    static abstract class M<K,V> implements Entry<K,V>
 			if (superType.isParameterizedType())
-				superType = ((ParameterizedTypeBinding) superType).type;
+				superType = ((ParameterizedTypeBinding) superType).genericType();
 			compilationUnitScope().recordSuperTypeReference(superType); // to record supertypes
 			return detectHierarchyCycle(referenceContext.binding, (ReferenceBinding) superType, reference);
 		}
@@ -1016,7 +1016,7 @@ public class ClassScope extends Scope {
 	// Answer whether a cycle was found between the sourceType & the superType
 	private boolean detectHierarchyCycle(SourceTypeBinding sourceType, ReferenceBinding superType, TypeReference reference) {
 		if (superType.isRawType())
-			superType = ((RawTypeBinding) superType).type;
+			superType = ((RawTypeBinding) superType).genericType();
 		// by this point the superType must be a binary or source type
 
 		if (sourceType == superType) {
@@ -1052,7 +1052,7 @@ public class ClassScope extends Scope {
 					return true;
 				}
 				if (parentType.isParameterizedType())
-					parentType = ((ParameterizedTypeBinding) parentType).type;
+					parentType = ((ParameterizedTypeBinding) parentType).genericType();
 				hasCycle |= detectHierarchyCycle(sourceType, parentType, reference);
 				if ((parentType.tagBits & TagBits.HierarchyHasProblems) != 0) {
 					sourceType.tagBits |= TagBits.HierarchyHasProblems;
@@ -1071,7 +1071,7 @@ public class ClassScope extends Scope {
 						return true;
 					}
 					if (anInterface.isParameterizedType())
-						anInterface = ((ParameterizedTypeBinding) anInterface).type;
+						anInterface = ((ParameterizedTypeBinding) anInterface).genericType();
 					hasCycle |= detectHierarchyCycle(sourceType, anInterface, reference);
 					if ((anInterface.tagBits & TagBits.HierarchyHasProblems) != 0) {
 						sourceType.tagBits |= TagBits.HierarchyHasProblems;

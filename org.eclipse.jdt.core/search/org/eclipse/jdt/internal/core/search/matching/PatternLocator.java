@@ -442,7 +442,7 @@ protected void updateMatch(ParameterizedTypeBinding parameterizedBinding, char[]
 	// Set match raw flag
 	boolean endPattern = patternTypeArguments==null  ? true  : depth>=patternTypeArguments.length;
 	TypeBinding[] argumentsBindings = parameterizedBinding.arguments;
-	boolean isRaw = parameterizedBinding.isRawType()|| (argumentsBindings==null && parameterizedBinding.type.isGenericType());
+	boolean isRaw = parameterizedBinding.isRawType()|| (argumentsBindings==null && parameterizedBinding.genericType().isGenericType());
 	if (isRaw && !match.isRaw()) {
 		match.setRaw(isRaw);
 	}
@@ -452,7 +452,7 @@ protected void updateMatch(ParameterizedTypeBinding parameterizedBinding, char[]
 		// verify if this is a reference to the generic type itself
 		if (!isRaw && patternHasTypeParameters && argumentsBindings != null) {
 			boolean needUpdate = false;
-			TypeVariableBinding[] typeVariables = parameterizedBinding.type.typeVariables();
+			TypeVariableBinding[] typeVariables = parameterizedBinding.genericType().typeVariables();
 			for (int i=0, l=argumentsBindings.length; i<l; i++) {
 				if (argumentsBindings[i] != typeVariables[i]) {
 					needUpdate = true;

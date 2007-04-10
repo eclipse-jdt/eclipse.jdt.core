@@ -87,7 +87,7 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		if (isTypeUseDeprecated(this.resolvedType, scope))
 			reportDeprecatedType(this.resolvedType, scope);
 		if (this.resolvedType instanceof ParameterizedTypeBinding) {
-			this.resolvedType = ((ParameterizedTypeBinding)this.resolvedType).type;
+			this.resolvedType = ((ParameterizedTypeBinding)this.resolvedType).genericType();
 		}
 		return this.resolvedType;
 	}

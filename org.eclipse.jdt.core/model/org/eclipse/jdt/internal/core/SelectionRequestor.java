@@ -281,7 +281,7 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 public void acceptLocalField(FieldBinding fieldBinding) {
 	IJavaElement res;
 	if(fieldBinding.declaringClass instanceof ParameterizedTypeBinding) {
-		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)fieldBinding.declaringClass).type;
+		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)fieldBinding.declaringClass).genericType();
 		res = findLocalElement(localTypeBinding.sourceStart());
 	} else {
 		SourceTypeBinding typeBinding = (SourceTypeBinding)fieldBinding.declaringClass;
@@ -361,7 +361,7 @@ public void acceptLocalMethod(MethodBinding methodBinding) {
 public void acceptLocalType(TypeBinding typeBinding) {
 	IJavaElement res =  null;
 	if(typeBinding instanceof ParameterizedTypeBinding) {
-		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)typeBinding).type;
+		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)typeBinding).genericType();
 		res = findLocalElement(localTypeBinding.sourceStart());
 	} else if(typeBinding instanceof SourceTypeBinding) {
 		res = findLocalElement(((SourceTypeBinding)typeBinding).sourceStart());
@@ -379,7 +379,7 @@ public void acceptLocalType(TypeBinding typeBinding) {
 public void acceptLocalTypeParameter(TypeVariableBinding typeVariableBinding) {
 	IJavaElement res;
 	if(typeVariableBinding.declaringElement instanceof ParameterizedTypeBinding) {
-		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)typeVariableBinding.declaringElement).type;
+		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)typeVariableBinding.declaringElement).genericType();
 		res = findLocalElement(localTypeBinding.sourceStart());
 	} else {
 		SourceTypeBinding typeBinding = (SourceTypeBinding)typeVariableBinding.declaringElement;

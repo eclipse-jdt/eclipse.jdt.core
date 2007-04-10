@@ -34,7 +34,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 
 		if (this.resolvedType.leafComponentType() instanceof ParameterizedTypeBinding) {
 			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this.resolvedType.leafComponentType();
-			ReferenceBinding currentType = parameterizedType.type;
+			ReferenceBinding currentType = parameterizedType.genericType();
 			TypeVariableBinding[] typeVariables = currentType.typeVariables();
 			TypeBinding[] argTypes = parameterizedType.arguments;
 			if (argTypes != null && typeVariables != null) { // may be null in error cases

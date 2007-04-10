@@ -37,7 +37,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 		    sig.append('.').append(sourceName()).append('<').append('>').append(';');
 		} else {
-		     sig.append(this.type.computeUniqueKey(false/*not a leaf*/));
+		     sig.append(genericType().computeUniqueKey(false/*not a leaf*/));
 		     sig.insert(sig.length()-1, "<>"); //$NON-NLS-1$
 		}
 
@@ -66,7 +66,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	 */
 	public String debugName() {
 	    StringBuffer nameBuffer = new StringBuffer(10);
-		nameBuffer.append(this.type.sourceName()).append("#RAW"); //$NON-NLS-1$
+		nameBuffer.append(type().sourceName()).append("#RAW"); //$NON-NLS-1$
 	    return nameBuffer.toString();		
 	}	
 
@@ -86,7 +86,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 				this.genericTypeSignature = new char[sigLength];
 				sig.getChars(0, sigLength, this.genericTypeSignature, 0);						    
 			} else {
-			     this.genericTypeSignature = this.type.signature(); // erasure
+			     this.genericTypeSignature = genericType().signature(); // erasure
 			}
 	    }
 	   return this.genericTypeSignature;
@@ -137,7 +137,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	}	
 	
 	protected void initializeArguments() {
-		TypeVariableBinding[] typeVariables = this.type.typeVariables();
+		TypeVariableBinding[] typeVariables = genericType().typeVariables();
 		int length = typeVariables.length;
 		TypeBinding[] typeArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
@@ -154,7 +154,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		if (isMemberType()) {
 			readableName = CharOperation.concat(enclosingType().readableName(), sourceName, '.');
 		} else {
-			readableName = CharOperation.concatWith(this.type.compoundName, '.');
+			readableName = CharOperation.concatWith(type().compoundName, '.');
 		}
 		return readableName;
 	}
@@ -167,7 +167,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		if (isMemberType()) {
 			shortReadableName = CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
 		} else {
-			shortReadableName = this.type.sourceName;
+			shortReadableName = type().sourceName;
 		}
 		return shortReadableName;
 	}

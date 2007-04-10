@@ -495,7 +495,7 @@ public boolean isProvablyDistinctFrom(TypeBinding otherType, int depth) {
 
 	case Binding.PARAMETERIZED_TYPE:
 		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this;
-		if (parameterizedType.type.isProvablyDistinctFrom(otherType.erasure(), depth))
+		if (parameterizedType.genericType().isProvablyDistinctFrom(otherType.erasure(), depth))
 			return true;
 		switch (otherType.kind()) {
 		case Binding.GENERIC_TYPE:
@@ -649,7 +649,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 			return false;
 		ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) this;
 		ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
-		if (paramType.type != otherParamType.type)
+		if (paramType.type() != otherParamType.type())
 			return false;
 		if (!paramType.isStatic()) { // static member types do not compare their enclosing
 			ReferenceBinding enclosing = enclosingType();

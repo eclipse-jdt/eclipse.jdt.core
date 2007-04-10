@@ -366,7 +366,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 								return false; // not enough characters to decode an unicode
 							}
 						}
-						
+
 						if ((c1 = ScannerHelper.getNumericValue(source[pos++])) > 15
 							|| c1 < 0
 							|| (c2 = ScannerHelper.getNumericValue(source[pos++])) > 15
@@ -560,7 +560,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	 */
 	private boolean isLocal(ReferenceBinding binding) {
 		if(binding instanceof ParameterizedTypeBinding) {
-			return isLocal(((ParameterizedTypeBinding)binding).type);
+			return isLocal(((ParameterizedTypeBinding)binding).genericType());
 		}
 		if (!(binding instanceof SourceTypeBinding)) return false;
 		if (binding instanceof LocalTypeBinding) return true;

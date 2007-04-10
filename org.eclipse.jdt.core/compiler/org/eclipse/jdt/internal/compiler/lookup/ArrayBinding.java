@@ -31,7 +31,7 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
 	this.dimensions = dimensions;
 	this.environment = environment;
 	if (type instanceof UnresolvedReferenceBinding)
-		((UnresolvedReferenceBinding) type).addWrapper(this);
+		((UnresolvedReferenceBinding) type).addWrapper(this, environment);
 	else
     	this.tagBits |= type.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard);
 }

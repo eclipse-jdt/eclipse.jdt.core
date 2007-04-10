@@ -241,7 +241,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				TypeBinding[] substitutedArguments = originalArguments;
 				if (originalArguments != null) {
 					if (substitution.isRawSubstitution()) {
-						return originalParameterizedType.environment.createRawType(originalParameterizedType.type, substitutedEnclosing);
+						return originalParameterizedType.environment.createRawType(originalParameterizedType.genericType(), substitutedEnclosing);
 					}
 					substitutedArguments = substitute(substitution, originalArguments);
 				}
@@ -259,7 +259,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 //						return originalParameterizedType.type;
 //					}
 					return originalParameterizedType.environment.createParameterizedType(
-							originalParameterizedType.type, substitutedArguments, substitutedEnclosing);
+							originalParameterizedType.genericType(), substitutedArguments, substitutedEnclosing);
 				}
 				break;
 				
@@ -951,7 +951,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces == null) { // needed for statically imported types which don't know their hierarchy yet
 				ReferenceBinding sourceType = currentType.isParameterizedType()
-					? ((ParameterizedTypeBinding) enclosingType).type
+					? ((ParameterizedTypeBinding) enclosingType).genericType()
 					: currentType;
 				if (sourceType.isHierarchyBeingConnected())
 					return null; // looking for an undefined member type in its own superclass ref

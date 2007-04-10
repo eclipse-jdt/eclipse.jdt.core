@@ -59,7 +59,81 @@ public class Java50Tests extends BuilderTests {
 			"Problem : The annotation @Ann is disallowed for this location [ resource : </Project/p/Use.java> range : <11,17> category : <40> severity : <2>]"
 		);
 	}
-	
+
+	public void testParameterizedMemberType() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); 
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "");
+
+		IPath xPath = env.addClass(projectPath, "", "X",
+			"class X<T> extends A<T> {}"
+		);
+
+		IPath aPath = env.addClass(projectPath, "", "A",
+			"class A<T> extends B<B<T>.M> {}\n" + 
+			"class B<T> extends Missing<T> {\n" + 
+			"	class M{}\n" + 
+			"}\n" + 
+			"class Missing<T> {}"
+		); 
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(projectPath, "", "A",
+			"class A<T> extends B<B<T>.M> {}\n" + 
+			"class B<T> extends Missing<T> {\n" + 
+			"	class M{}\n" + 
+			"}"
+		); 
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+			new IPath[] {aPath, xPath},
+			"Problem : The hierarchy of the type A is inconsistent [ resource : </Project/A.java> range : <6,7> category : <40> severity : <2>]\n" + 
+			"Problem : Missing cannot be resolved to a type [ resource : </Project/A.java> range : <51,58> category : <40> severity : <2>]\n" + 
+			"Problem : The hierarchy of the type X is inconsistent [ resource : </Project/X.java> range : <6,7> category : <40> severity : <2>]"
+		);
+
+		env.addClass(projectPath, "", "X",
+			"class X<T> extends A<T> {}"
+		);
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+			new IPath[] {aPath, xPath},
+			"Problem : The hierarchy of the type A is inconsistent [ resource : </Project/A.java> range : <6,7> category : <40> severity : <2>]\n" + 
+			"Problem : Missing cannot be resolved to a type [ resource : </Project/A.java> range : <51,58> category : <40> severity : <2>]\n" + 
+			"Problem : The hierarchy of the type X is inconsistent [ resource : </Project/X.java> range : <6,7> category : <40> severity : <2>]"
+		);
+
+		env.addClass(projectPath, "", "A",
+			"class A<T> extends B<B<T>.M> {}\n" + 
+			"class B<T> extends Missing<T> {\n" + 
+			"	class M{}\n" + 
+			"}"
+		); 
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+			new IPath[] {aPath, xPath},
+			"Problem : The hierarchy of the type A is inconsistent [ resource : </Project/A.java> range : <6,7> category : <40> severity : <2>]\n" + 
+			"Problem : Missing cannot be resolved to a type [ resource : </Project/A.java> range : <51,58> category : <40> severity : <2>]\n" + 
+			"Problem : The hierarchy of the type X is inconsistent [ resource : </Project/X.java> range : <6,7> category : <40> severity : <2>]"
+		);
+
+		env.addClass(projectPath, "", "A",
+			"class A<T> extends B<B<T>.M> {}\n" + 
+			"class B<T> extends Missing<T> {\n" + 
+			"	class M{}\n" + 
+			"}\n" + 
+			"class Missing<T> {}"
+		); 
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+
 	public void testParameterizedType1() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.5"); 
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());

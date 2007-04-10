@@ -438,7 +438,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public ITypeBinding getTypeDeclaration() {
 		if (this.binding instanceof ParameterizedTypeBinding)
-			return this.resolver.getTypeBinding(((ParameterizedTypeBinding)this.binding).type);
+			return this.resolver.getTypeBinding(((ParameterizedTypeBinding)this.binding).genericType());
 		return this;
 	}
 
@@ -1175,7 +1175,7 @@ class TypeBinding implements ITypeBinding {
 		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			if (referenceBinding.isRawType()) {
-				return !((RawTypeBinding) referenceBinding).type.isBinaryBinding();
+				return !((RawTypeBinding) referenceBinding).genericType().isBinaryBinding();
 			} else if (referenceBinding.isParameterizedType()) {
 				ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) referenceBinding;
 				org.eclipse.jdt.internal.compiler.lookup.TypeBinding erasure = parameterizedTypeBinding.erasure();

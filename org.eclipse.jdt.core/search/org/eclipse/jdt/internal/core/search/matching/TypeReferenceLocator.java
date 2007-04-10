@@ -600,7 +600,7 @@ protected void reportDeclaration(ReferenceBinding typeBinding, int maxType, Matc
 				locator.reportBinaryMemberDeclaration(resource, type, typeBinding, info, SearchMatch.A_ACCURATE);
 			} else {
 				if (typeBinding instanceof ParameterizedTypeBinding)
-					typeBinding = ((ParameterizedTypeBinding) typeBinding).type;
+					typeBinding = ((ParameterizedTypeBinding) typeBinding).genericType();
 				ClassScope scope = ((SourceTypeBinding) typeBinding).scope;
 				if (scope != null) {
 					TypeDeclaration typeDecl = scope.referenceContext;

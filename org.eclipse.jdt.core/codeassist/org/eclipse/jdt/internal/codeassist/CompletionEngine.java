@@ -5768,7 +5768,7 @@ public final class CompletionEngine
 				completion.append('.');
 				completion.append(parameterizedType.sourceName);
 			} else {
-				completion.append(CharOperation.concatWith(parameterizedType.type.compoundName, '.'));
+				completion.append(CharOperation.concatWith(parameterizedType.genericType().compoundName, '.'));
 			}	    
 			if (parameterizedType.arguments != null) {
 				completion.append('<');
@@ -6082,7 +6082,7 @@ public final class CompletionEngine
 				hasPotentialDefaultAbstractMethods = false;
 			}
 			if(currentType.isParameterizedType()) {
-				currentType = ((ParameterizedTypeBinding)currentType).type.superclass();
+				currentType = ((ParameterizedTypeBinding)currentType).genericType().superclass();
 			} else {
 				currentType = currentType.superclass();
 			}

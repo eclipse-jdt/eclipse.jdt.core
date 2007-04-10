@@ -44,9 +44,9 @@ public class WildcardBinding extends ReferenceBinding {
 		initialize(genericType, bound, otherBounds);
 
 		if (genericType instanceof UnresolvedReferenceBinding)
-			((UnresolvedReferenceBinding) genericType).addWrapper(this);
+			((UnresolvedReferenceBinding) genericType).addWrapper(this, environment);
 		if (bound instanceof UnresolvedReferenceBinding)
-			((UnresolvedReferenceBinding) bound).addWrapper(this);
+			((UnresolvedReferenceBinding) bound).addWrapper(this, environment);
 		this.tagBits |=  TagBits.HasUnresolvedTypeVariables; // cleared in resolve()
 	}
 

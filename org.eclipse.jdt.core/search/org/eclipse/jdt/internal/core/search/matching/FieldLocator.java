@@ -266,7 +266,7 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 		locator.reportBinaryMemberDeclaration(resource, field, fieldBinding, info, SearchMatch.A_ACCURATE);
 	} else {
 		if (declaringClass instanceof ParameterizedTypeBinding)
-			declaringClass = ((ParameterizedTypeBinding) declaringClass).type;
+			declaringClass = ((ParameterizedTypeBinding) declaringClass).genericType();
 		ClassScope scope = ((SourceTypeBinding) declaringClass).scope;
 		if (scope != null) {
 			TypeDeclaration typeDecl = scope.referenceContext;

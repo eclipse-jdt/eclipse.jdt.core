@@ -442,7 +442,7 @@ public TypeBinding convertToRawType(TypeBinding type) {
 			break;
 		case Binding.PARAMETERIZED_TYPE :
 			ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) originalType;
-			needToConvert = paramType.type.isGenericType(); // only recursive call to enclosing type can find parameterizedType with arguments
+			needToConvert = paramType.genericType().isGenericType(); // only recursive call to enclosing type can find parameterizedType with arguments
 			break;
 		default :
 			needToConvert = false;
@@ -505,7 +505,7 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 			break;
 		case Binding.PARAMETERIZED_TYPE :
 			ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) originalType;
-			needToConvert = paramType.type.isGenericType(); // only recursive call to enclosing type can find parameterizedType with arguments
+			needToConvert = paramType.genericType().isGenericType(); // only recursive call to enclosing type can find parameterizedType with arguments
 			break;
 		default :
 			needToConvert = false;
@@ -722,7 +722,7 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 			for (int max = cachedInfo.length; index < max; index++){
 			    ParameterizedTypeBinding cachedType = cachedInfo[index];
 			    if (cachedType == null) break nextCachedType;
-			    if (cachedType.type != genericType) continue nextCachedType; // remain of unresolved type
+			    if (cachedType.type() != genericType) continue nextCachedType; // remain of unresolved type
 			    if (cachedType.enclosingType() != enclosingType) continue nextCachedType;
 				TypeBinding[] cachedArguments = cachedType.arguments;
 				int cachedArgLength = cachedArguments == null ? 0 : cachedArguments.length;
@@ -761,7 +761,7 @@ public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBindi
 			for (int max = cachedInfo.length; index < max; index++){
 			    RawTypeBinding cachedType = cachedInfo[index];
 			    if (cachedType == null) break nextCachedType;
-			    if (cachedType.type != genericType) continue nextCachedType; // remain of unresolved type
+			    if (cachedType.type() != genericType) continue nextCachedType; // remain of unresolved type
 			    if (cachedType.enclosingType() != enclosingType) continue nextCachedType;
 				// all enclosing type match, reuse current
 				return cachedType;
@@ -1108,7 +1108,7 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 		wrapper.start++; // skip '.'
 		char[] memberName = wrapper.nextWord();
 		BinaryTypeBinding.resolveType(parameterizedType, this, false);
-		ReferenceBinding memberType = parameterizedType.type.getMemberType(memberName);
+		ReferenceBinding memberType = parameterizedType.genericType().getMemberType(memberName);
 		if (wrapper.signature[wrapper.start] == '<') {
 			wrapper.start++; // skip '<'
 			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, memberType);

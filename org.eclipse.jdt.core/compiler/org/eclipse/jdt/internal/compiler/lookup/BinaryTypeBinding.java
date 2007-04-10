@@ -162,6 +162,9 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 
 	this.sourceName = binaryType.getSourceName();
 	this.modifiers = binaryType.getModifiers();
+
+	if ((binaryType.getTagBits() & TagBits.HasInconsistentHierarchy) != 0)
+		this.tagBits |= TagBits.HierarchyHasProblems;
 		
 	if (binaryType.isAnonymous()) {
 		this.tagBits |= TagBits.AnonymousTypeMask;

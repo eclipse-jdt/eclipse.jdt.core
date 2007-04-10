@@ -79,7 +79,7 @@ class MethodBinding implements IMethodBinding {
 		final ReferenceBinding declaringClassBinding = this.binding.declaringClass;
 		if (declaringClassBinding.isRawType()) {
 			RawTypeBinding rawTypeBinding = (RawTypeBinding) declaringClassBinding;
-			if (rawTypeBinding.type.isBinaryBinding()) {
+			if (rawTypeBinding.genericType().isBinaryBinding()) {
 				return false;
 			}
 			return (this.binding.modifiers & ExtraCompilerModifiers.AccIsDefaultConstructor) != 0;

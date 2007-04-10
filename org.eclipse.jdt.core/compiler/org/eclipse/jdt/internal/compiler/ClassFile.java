@@ -255,6 +255,12 @@ public class ClassFile
 		ClassFile classFile = ClassFile.getNewInstance(typeBinding);
 		classFile.initialize(typeBinding, null, true);
 	
+		if (typeBinding.hasMemberTypes()) {
+			// see bug 180109
+			ReferenceBinding[] members = typeBinding.memberTypes;
+			for (int i = 0, l = members.length; i < l; i++)
+				classFile.recordInnerClasses(members[i]);
+		}
 		// TODO (olivier) handle cases where a field cannot be generated (name too long)
 		// TODO (olivier) handle too many methods
 		// inner attributes

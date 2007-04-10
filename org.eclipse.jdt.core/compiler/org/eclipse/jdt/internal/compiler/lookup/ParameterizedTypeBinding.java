@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  */
 public class ParameterizedTypeBinding extends ReferenceBinding implements Substitution {
 
-	public ReferenceBinding type; 
+	private ReferenceBinding type; // must ensure the type is resolved 
 	public TypeBinding[] arguments;
 	public LookupEnvironment environment; 
 	public char[] genericTypeSignature;
@@ -41,11 +41,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 //		}
 		initialize(type, arguments);
 		if (type instanceof UnresolvedReferenceBinding)
-			((UnresolvedReferenceBinding) type).addWrapper(this);
+			((UnresolvedReferenceBinding) type).addWrapper(this, environment);
 		if (arguments != null) {
 			for (int i = 0, l = arguments.length; i < l; i++)
 				if (arguments[i] instanceof UnresolvedReferenceBinding)
-					((UnresolvedReferenceBinding) arguments[i]).addWrapper(this);
+					((UnresolvedReferenceBinding) arguments[i]).addWrapper(this, environment);
 		}
 		this.tagBits |=  TagBits.HasUnresolvedTypeVariables; // cleared in resolve()
 	}
@@ -778,7 +778,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}		
 		return this.methods;
 	}
-	
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#qualifiedPackageName()
+	 */
+	public char[] qualifiedPackageName() {
+		return this.type.qualifiedPackageName();
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#qualifiedSourceName()
 	 */
@@ -838,6 +845,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 //			}
 		}
 		return this;
+	}
+
+	public ReferenceBinding genericType() {
+		if (this.type instanceof UnresolvedReferenceBinding)
+			((UnresolvedReferenceBinding) this.type).resolve(this.environment, false);
+		return this.type;
 	}
 
 	/**
@@ -970,13 +983,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#qualifiedPackageName()
-	 */
-	public char[] qualifiedPackageName() {
-		return this.type.qualifiedPackageName();
-	}
-
-	/**
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
@@ -1049,6 +1055,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		buffer.append("\n\n"); //$NON-NLS-1$
 		return buffer.toString();
 		
+	}
+
+	protected ReferenceBinding type() {
+		// can be an UnresolvedReferenceBinding
+		// most clients should call resolveType()
+		return this.type; 
 	}
 
 	public TypeVariableBinding[] typeVariables() {
