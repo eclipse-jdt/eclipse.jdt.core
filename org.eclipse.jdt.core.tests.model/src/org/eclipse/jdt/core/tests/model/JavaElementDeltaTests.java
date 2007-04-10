@@ -356,6 +356,38 @@ public void testAddJavaNature() throws CoreException {
 }
 
 /*
+ * Ensures that adding a folder and a jar file (on the classpath) in this folder 
+ * inside an IWorkspaceRunnable reports the correct delta
+ * (the folder and jar file being in a source folder)
+ * (regression test for bug 177819 Jar files added to a plugin are ignored)
+ */
+public void testAddJarAndFolderInSource() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {""}, new String[] {"/P/lib-1/test.jar"}, "");
+
+		startDeltas();
+		ResourcesPlugin.getWorkspace().run(
+			new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					createFolder("/P/lib-1");
+					createFile("/P/lib-1/test.jar", "");
+				}
+			},
+			null
+		);
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN | CONTENT}\n" + 
+			"	lib-1/test.jar[+]: {}\n" + 
+			"	ResourceDelta(/P/lib-1)[+]"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+
+/*
  * Add the java nature to an existing project and set the classpath in an IWorkspaceRunnable.
  * Ensures that adding a non-java resource reports the correct delta.
  * (regression test for bug 44066 Package Explorer doesn't show new file)
