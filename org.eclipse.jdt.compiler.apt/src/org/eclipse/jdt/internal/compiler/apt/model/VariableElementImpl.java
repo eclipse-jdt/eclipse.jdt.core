@@ -93,7 +93,12 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	@Override
 	public ElementKind getKind() {
 		if (_binding instanceof FieldBinding) {
-			return ElementKind.FIELD;
+			if (((FieldBinding)_binding).declaringClass.isEnum()) {
+				return ElementKind.ENUM_CONSTANT;
+			}
+			else {
+				return ElementKind.FIELD;
+			}
 		}
 		else {
 			return ElementKind.PARAMETER;

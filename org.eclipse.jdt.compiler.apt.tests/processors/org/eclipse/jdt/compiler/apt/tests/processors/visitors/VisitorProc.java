@@ -24,6 +24,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -139,16 +140,14 @@ public class VisitorProc extends BaseProcessor
 			asExpected &= _visited.contains(Visited.ANNOTATION);
 			asExpected &= _visited.contains(Visited.ARRAY);
 			asExpected &= _visited.contains(Visited.BOOLEAN);
-// TODO: we get a T_int binding even if the annotation's value type is byte.
-//			asExpected &= _visited.contains(Visited.BYTE);
+			asExpected &= _visited.contains(Visited.BYTE);
 			asExpected &= _visited.contains(Visited.CHAR);
 			asExpected &= _visited.contains(Visited.DOUBLE);
 			asExpected &= _visited.contains(Visited.ENUMCONSTANT);
 			asExpected &= _visited.contains(Visited.FLOAT);
 			asExpected &= _visited.contains(Visited.INT);
 			asExpected &= _visited.contains(Visited.LONG);
-// TODO: here also, we get a T_int instead of a T_short.
-//			asExpected &= _visited.contains(Visited.SHORT);
+			asExpected &= _visited.contains(Visited.SHORT);
 			asExpected &= _visited.contains(Visited.STRING);
 			asExpected &= _visited.contains(Visited.TYPE);
 			return asExpected;
@@ -215,7 +214,11 @@ public class VisitorProc extends BaseProcessor
 		@Override
 		public Void visitEnumConstant(VariableElement c, Void p)
 		{
-			_visited.add(Visited.ENUMCONSTANT);
+			if (c.getKind() == ElementKind.ENUM_CONSTANT) {
+				if ("A".equals(c.getSimpleName().toString())) {
+					_visited.add(Visited.ENUMCONSTANT);
+				}
+			}
 			return null;
 		}
 

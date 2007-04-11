@@ -20,17 +20,10 @@ import javax.lang.model.element.AnnotationValueVisitor;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
-import org.eclipse.jdt.internal.compiler.impl.ByteConstant;
-import org.eclipse.jdt.internal.compiler.impl.CharConstant;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.impl.DoubleConstant;
-import org.eclipse.jdt.internal.compiler.impl.FloatConstant;
-import org.eclipse.jdt.internal.compiler.impl.IntConstant;
-import org.eclipse.jdt.internal.compiler.impl.LongConstant;
-import org.eclipse.jdt.internal.compiler.impl.ShortConstant;
-import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -74,20 +67,31 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	 *            <li><code>Object[]</code> for a member value of array type, where the
 	 *            array entries are one of the above</li>
 	 *            </ul>
+	 * @param type
+	 *            The JDT representation of the type of the constant, as determined
+	 *            by the return type of the element.  This is needed because the type
+	 *            of the value may have been widened (e.g., byte to int) by the compiler
+	 *            and we need to call the proper visitor.  This is used only for base types.
+	 *            If it is null or not a BaseTypeBinding, it is ignored and the type is
+	 *            determined from the type of the value.
 	 */
-	public AnnotationValueImpl(Object value) {
+	public AnnotationValueImpl(Object value, TypeBinding type) {
 		int kind[] = new int[1];
 		if (value instanceof Object[]) {
 			Object[] values = (Object[])value;
 			List<AnnotationValue> convertedValues = new ArrayList<AnnotationValue>(values.length);
 			for (Object oneValue : values) {
-				convertedValues.add(new AnnotationValueImpl(oneValue));
+				TypeBinding valueType = null;
+				if (type instanceof ArrayBinding) {
+					valueType = ((ArrayBinding)type).elementsType();
+				}
+				convertedValues.add(new AnnotationValueImpl(oneValue, valueType));
 			}
 			_value = Collections.unmodifiableList(convertedValues);
 			_kind = T_ArrayType;
 		}
 		else {
-			_value = convertToJavaType(value, kind);
+			_value = convertToJavaType(value, type, kind);
 			_kind = kind[0];
 		}
 	}
@@ -98,32 +102,39 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	 * a FieldBinding into a VariableElement.  This does not handle the case where
 	 * value is an Object[].
 	 * @param value the JDT object
+	 * @param type the return type of the annotation member.  If null or not a
+	 * BaseTypeBinding, this is ignored and the value is inspected to determine type.
 	 * @param kind an int array whose first element will be set to the type of the
 	 * converted object, represented with T_* values from TypeIds or from this class.
 	 * @return
 	 */
-	private Object convertToJavaType(Object value, int kind[]) {
+	private Object convertToJavaType(Object value, TypeBinding type, int kind[]) {
 		if (value instanceof Constant) {
-			kind[0] = ((Constant) value).typeID();
+			if (type instanceof BaseTypeBinding) {
+				kind[0] = ((BaseTypeBinding)type).id;
+			}
+			else {
+				kind[0] = ((Constant)value).typeID();
+			}
 			switch (kind[0]) {
 			case T_boolean:
-				return ((BooleanConstant) value).booleanValue();
+				return ((Constant)value).booleanValue();
 			case T_byte:
-				return ((ByteConstant) value).byteValue();
+				return ((Constant)value).byteValue();
 			case T_char:
-				return ((CharConstant) value).charValue();
+				return ((Constant)value).charValue();
 			case T_double:
-				return ((DoubleConstant) value).doubleValue();
+				return ((Constant)value).doubleValue();
 			case T_float:
-				return ((FloatConstant) value).floatValue();
+				return ((Constant)value).floatValue();
 			case T_int:
-				return ((IntConstant) value).intValue();
+				return ((Constant)value).intValue();
 			case T_JavaLangString:
-				return ((StringConstant) value).stringValue();
+				return ((Constant)value).stringValue();
 			case T_long:
-				return ((LongConstant) value).longValue();
+				return ((Constant)value).longValue();
 			case T_short:
-				return ((ShortConstant) value).shortValue();
+				return ((Constant)value).shortValue();
 			}
 		} else if (value instanceof FieldBinding) {
 			kind[0] = T_EnumConstant;

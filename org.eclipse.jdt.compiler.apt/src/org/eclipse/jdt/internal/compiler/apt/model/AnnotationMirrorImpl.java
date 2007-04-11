@@ -46,8 +46,9 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 		Map<ExecutableElement, AnnotationValue> valueMap =
 			new HashMap<ExecutableElement, AnnotationValue>(pairs.length);
 		for (ElementValuePair pair : pairs) {
-			ExecutableElement e = new ExecutableElementImpl(pair.getMethodBinding());
-			AnnotationValue v = new AnnotationValueImpl(pair.getValue());
+			MethodBinding method = pair.getMethodBinding();
+			ExecutableElement e = new ExecutableElementImpl(method);
+			AnnotationValue v = new AnnotationValueImpl(pair.getValue(), method.returnType);
 			valueMap.put(e, v);
 		}
 		return Collections.unmodifiableMap(valueMap);
@@ -71,7 +72,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 				MethodBinding explicitBinding = pairs[i].getMethodBinding();
 				if (method == explicitBinding) {
 					ExecutableElement e = new ExecutableElementImpl(explicitBinding);
-					AnnotationValue v = new AnnotationValueImpl(pairs[i].getValue());
+					AnnotationValue v = new AnnotationValueImpl(pairs[i].getValue(), explicitBinding.returnType);
 					valueMap.put(e, v);
 					foundExplicitValue = true;
 					break;
@@ -82,7 +83,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 				Object defaultVal = method.getDefaultValue();
 				if (null != defaultVal) {
 					ExecutableElement e = new ExecutableElementImpl(method);
-					AnnotationValue v = new AnnotationValueImpl(defaultVal);
+					AnnotationValue v = new AnnotationValueImpl(defaultVal, method.returnType);
 					valueMap.put(e, v);
 				}
 			}
