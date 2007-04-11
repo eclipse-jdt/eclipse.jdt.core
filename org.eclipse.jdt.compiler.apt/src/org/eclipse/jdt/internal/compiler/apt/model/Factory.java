@@ -120,7 +120,7 @@ public class Factory {
 			return new ExecutableElementImpl((MethodBinding)binding);
 		case Binding.RAW_TYPE:
 		case Binding.PARAMETERIZED_TYPE:
-			return new TypeElementImpl(((ParameterizedTypeBinding)binding).type);
+			return new TypeElementImpl(((ParameterizedTypeBinding)binding).genericType());
 		case Binding.PACKAGE:
 			return new PackageElementImpl((PackageBinding)binding);
 		// TODO: fill in the rest of these
