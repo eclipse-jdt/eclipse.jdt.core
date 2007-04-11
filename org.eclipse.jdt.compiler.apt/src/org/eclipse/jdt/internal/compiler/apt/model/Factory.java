@@ -54,7 +54,7 @@ public class Factory {
 		}
 		List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.length);
 		for (AnnotationBinding annotation : annotations) {
-			list.add(AnnotationMirrorImpl.getAnnotationMirror(annotation));
+			list.add(newAnnotationMirror(annotation));
 		}
 		return Collections.unmodifiableList(list);
 	}
@@ -102,6 +102,11 @@ public class Factory {
 		return Collections.unmodifiableSet(result);
 	}
 
+	public static AnnotationMirror newAnnotationMirror(AnnotationBinding binding)
+	{
+		return new AnnotationMirrorImpl(binding);
+	}
+	
 	public static Element newElement(Binding binding) {
 		switch (binding.kind()) {
 		case Binding.FIELD:

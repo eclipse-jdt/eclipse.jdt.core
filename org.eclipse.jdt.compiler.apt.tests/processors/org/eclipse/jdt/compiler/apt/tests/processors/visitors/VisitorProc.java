@@ -12,6 +12,7 @@
 package org.eclipse.jdt.compiler.apt.tests.processors.visitors;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,12 +21,16 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.AbstractAnnotationValueVisitor6;
 import javax.lang.model.util.ElementScanner6;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
@@ -120,6 +125,156 @@ public class VisitorProc extends BaseProcessor
         
 	}
 	
+	/*
+	 * The specific values checked by this visitor correspond to values in targets.model.pc.TypedAnnos.java
+	 */
+	private static class AnnotationVisitorTester extends AbstractAnnotationValueVisitor6<Void, Void> {
+
+		public enum Visited { ANNOTATION, ARRAY, BOOLEAN, BYTE, CHAR, DOUBLE, ENUMCONSTANT, FLOAT, INT, LONG, SHORT, STRING, TYPE }
+		
+		private EnumSet<Visited> _visited = EnumSet.noneOf(Visited.class);
+		
+		public boolean checkVisits() {
+			boolean asExpected = true;
+			asExpected &= _visited.contains(Visited.ANNOTATION);
+			asExpected &= _visited.contains(Visited.ARRAY);
+			asExpected &= _visited.contains(Visited.BOOLEAN);
+// TODO: we get a T_int binding even if the annotation's value type is byte.
+//			asExpected &= _visited.contains(Visited.BYTE);
+			asExpected &= _visited.contains(Visited.CHAR);
+			asExpected &= _visited.contains(Visited.DOUBLE);
+			asExpected &= _visited.contains(Visited.ENUMCONSTANT);
+			asExpected &= _visited.contains(Visited.FLOAT);
+			asExpected &= _visited.contains(Visited.INT);
+			asExpected &= _visited.contains(Visited.LONG);
+// TODO: here also, we get a T_int instead of a T_short.
+//			asExpected &= _visited.contains(Visited.SHORT);
+			asExpected &= _visited.contains(Visited.STRING);
+			asExpected &= _visited.contains(Visited.TYPE);
+			return asExpected;
+		}
+		
+		@Override
+		public Void visitAnnotation(AnnotationMirror a, Void p)
+		{
+			if (a != null && a.getElementValues() != null) {
+				_visited.add(Visited.ANNOTATION);
+			}
+			// we could scan the values of the nested annotation here, but that doesn't help our test case
+			return null;
+		}
+
+		@Override
+		public Void visitArray(List<? extends AnnotationValue> vals, Void p)
+		{
+			if ( null != vals && vals.size() == 2 ) {
+				if ( vals.iterator().next().getValue() instanceof TypeMirror) {
+					_visited.add(Visited.ARRAY);
+				}
+			}
+			// we could scan the array values here, but that doesn't help our test case
+			return null;
+		}
+
+		@Override
+		public Void visitBoolean(boolean b, Void p)
+		{
+			if (b) {
+				_visited.add(Visited.BOOLEAN);
+			}
+			return null;
+		}
+
+		@Override
+		public Void visitByte(byte b, Void p)
+		{
+			if (b == 3) {
+				_visited.add(Visited.BYTE);
+			}
+			return null;
+		}
+
+		@Override
+		public Void visitChar(char c, Void p)
+		{
+			if (c == 'c') { 
+				_visited.add(Visited.CHAR);
+			}
+			return null;
+		}
+
+		@Override
+		public Void visitDouble(double d, Void p)
+		{
+			if (d == 6.3) {
+				_visited.add(Visited.DOUBLE);
+			}
+			return null;
+		}
+
+		@Override
+		public Void visitEnumConstant(VariableElement c, Void p)
+		{
+			_visited.add(Visited.ENUMCONSTANT);
+			return null;
+		}
+
+		@Override
+		public Void visitFloat(float f, Void p)
+		{
+			if (f == 26.7F) {
+				_visited.add(Visited.FLOAT);
+			}
+			return null;
+		}
+
+		@Override
+		public Void visitInt(int i, Void p)
+		{
+			if (i == 19) {
+				_visited.add(Visited.INT);
+			}
+			return null;
+		}
+
+		@Override
+		public Void visitLong(long i, Void p)
+		{
+			if (i == 300L) {
+				_visited.add(Visited.LONG);
+			}
+			return null;
+		}
+
+		@Override
+		public Void visitShort(short s, Void p)
+		{
+			if (s == 289) {
+				_visited.add(Visited.SHORT);
+			}
+			return null;
+		}
+
+		@Override
+		public Void visitString(String s, Void p)
+		{
+			if ("foo".equals(s)) {
+				_visited.add(Visited.STRING);
+			}
+			return null;
+		}
+
+		@Override
+		public Void visitType(TypeMirror t, Void p)
+		{
+			if ("java.lang.Exception".equals(t.toString())) {
+				_visited.add(Visited.TYPE);
+			}
+			return null;
+		}
+		
+	}
+	
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv)
 	{
@@ -143,6 +298,32 @@ public class VisitorProc extends BaseProcessor
 			reportError("Element visitor was not visited as expected");
 			return false;
 		}
+		
+		AnnotationVisitorTester annoValVisitor = new AnnotationVisitorTester();
+		TypeElement typedAnnosDecl = _elementUtils.getTypeElement("targets.model.pc.TypedAnnos");
+		if (null == typedAnnosDecl) {
+			reportError("Couldn't find targets.model.pc.TypedAnnos");
+			return false;
+		}
+		for (TypeElement anno : annotations) {
+			if (typedAnnosDecl.equals(anno.getEnclosingElement())) {
+				for (Element elem : roundEnv.getElementsAnnotatedWith(anno)) {
+					for (AnnotationMirror annoMirror : elem.getAnnotationMirrors()) {
+						if (anno.equals(annoMirror.getAnnotationType().asElement())) {
+							Map<? extends ExecutableElement, ? extends AnnotationValue> values = annoMirror.getElementValues();
+							for (AnnotationValue val : values.values()) {
+								val.accept(annoValVisitor, null);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (!annoValVisitor.checkVisits()) {
+			reportError("Annotation value visitor was not visited as expected");
+			return false;
+		}
+
 		reportSuccess();
 		return false;
 	}

@@ -84,7 +84,7 @@ public class ElementsImpl implements Elements {
 			}
 			List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.size());
 			for (AnnotationBinding annotation : annotations) {
-				list.add(AnnotationMirrorImpl.getAnnotationMirror(annotation));
+				list.add(Factory.newAnnotationMirror(annotation));
 			}
 			return Collections.unmodifiableList(list);
 		}
@@ -327,12 +327,14 @@ public class ElementsImpl implements Elements {
 	}
 
 	/* (non-Javadoc)
+	 * Element A hides element B if: A and B are both fields, both nested types, or both methods; and
+	 * the enclosing element of B is a superclass or superinterface of the enclosing element of A.
 	 * @see javax.lang.model.util.Elements#hides(javax.lang.model.element.Element, javax.lang.model.element.Element)
 	 */
 	@Override
 	public boolean hides(Element hider, Element hidden) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		// return ((ElementImpl)hider).hides(hidden);
 	}
 
 	/* (non-Javadoc)

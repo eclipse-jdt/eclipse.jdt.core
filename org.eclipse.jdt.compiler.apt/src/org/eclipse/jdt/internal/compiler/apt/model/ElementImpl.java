@@ -14,6 +14,7 @@ import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
@@ -98,4 +99,15 @@ public abstract class ElementImpl
 	 * @see javax.lang.model.util.Elements#getPackageOf(javax.lang.model.element.Element)
 	 */
 	abstract /* package */ PackageElement getPackage();
+
+	/**
+	 * Subclassed by VariableElementImpl, TypeElementImpl, and ExecutableElementImpl.
+	 * This base implementation suffices for other types.
+	 * @see Elements#hides()
+	 * @return true if this element hides {@code hidden}
+	 */
+	public boolean hides(Element hidden)
+	{
+		throw new IllegalArgumentException();
+	}
 }

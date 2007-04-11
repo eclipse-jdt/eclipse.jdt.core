@@ -28,11 +28,6 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 	
 	AnnotationBinding _binding;
 	
-	public static AnnotationMirror getAnnotationMirror(AnnotationBinding binding)
-	{
-		return new AnnotationMirrorImpl(binding);
-	}
-	
 	/* package */ AnnotationMirrorImpl(AnnotationBinding binding) {
 		_binding = binding;
 	}

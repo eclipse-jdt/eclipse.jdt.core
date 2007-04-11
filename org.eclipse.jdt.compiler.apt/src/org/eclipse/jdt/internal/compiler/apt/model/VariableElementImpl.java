@@ -25,6 +25,7 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.VariableElement;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -36,6 +37,9 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
  * method or constructor parameter, local variable, or exception parameter.
  * In the JDT internal typesystem, this does not correspond to a unitary type:
  * fields are FieldBindings, but parameters are TypeBindings.
+ * 
+ * TODO: this class should be separated into two, one corresponding to field
+ * bindings and one corresponding to type bindings (e.g., parameters). 
  */
 public class VariableElementImpl extends ElementImpl implements VariableElement {
 
@@ -77,8 +81,13 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 
 	@Override
 	public Element getEnclosingElement() {
-		// TODO Auto-generated method stub
-		return null;
+		if (_binding instanceof FieldBinding) {
+			return Factory.newElement(((FieldBinding)_binding).declaringClass);
+		}
+		else {
+			//TODO: handle the other cases, e.g., method parameters
+			throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		}
 	}
 
 	@Override
@@ -121,6 +130,26 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		}
 		// TODO: how can we get the name of a parameter?
 		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+	}
+
+	@Override
+	public boolean hides(Element target)
+	{
+		if (_binding instanceof FieldBinding) {
+			if (!(((ElementImpl)target)._binding instanceof FieldBinding)) {
+				return false;
+			}
+			FieldBinding hider = (FieldBinding)_binding;
+			FieldBinding hidden = (FieldBinding)((ElementImpl)target)._binding;
+			if (!CharOperation.equals(hider.name, hidden.name)) {
+				return false;
+			}
+			if (hidden.declaringClass.isSuperclassOf(hider.declaringClass)) {
+				return true;
+			}
+			// TODO: check superinterfaces
+		}
+		return false;
 	}
 
 }
