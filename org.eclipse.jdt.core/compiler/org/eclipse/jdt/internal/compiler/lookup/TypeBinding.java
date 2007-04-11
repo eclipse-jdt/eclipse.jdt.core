@@ -649,7 +649,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 			return false;
 		ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) this;
 		ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
-		if (paramType.type() != otherParamType.type())
+		if (paramType.actualType() != otherParamType.actualType())
 			return false;
 		if (!paramType.isStatic()) { // static member types do not compare their enclosing
 			ReferenceBinding enclosing = enclosingType();

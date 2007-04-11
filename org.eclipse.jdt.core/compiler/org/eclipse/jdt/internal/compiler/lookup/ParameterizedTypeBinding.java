@@ -50,6 +50,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		this.tagBits |=  TagBits.HasUnresolvedTypeVariables; // cleared in resolve()
 	}
 
+	protected ReferenceBinding actualType() {
+		// can be an UnresolvedReferenceBinding
+		// most clients should call genericType()
+		return this.type; 
+	}
+
 	/**
 	 * Iterate type arguments, and validate them according to corresponding variable bounds.
 	 */
@@ -1055,12 +1061,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		buffer.append("\n\n"); //$NON-NLS-1$
 		return buffer.toString();
 		
-	}
-
-	protected ReferenceBinding type() {
-		// can be an UnresolvedReferenceBinding
-		// most clients should call resolveType()
-		return this.type; 
 	}
 
 	public TypeVariableBinding[] typeVariables() {

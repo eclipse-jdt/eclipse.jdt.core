@@ -1005,7 +1005,7 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 			if ((otherType.tagBits & TagBits.HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
 				return false; // should have been identical
 			ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
-			if (this != otherParamType.type()) 
+			if (this != otherParamType.genericType()) 
 				return false;
 			if (!isStatic()) { // static member types do not compare their enclosing
             	ReferenceBinding enclosing = enclosingType();

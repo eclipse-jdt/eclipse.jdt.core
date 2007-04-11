@@ -675,7 +675,7 @@ boolean isReturnTypeSubstituable(MethodBinding substituteMethod, MethodBinding e
 		}
 		ParameterizedTypeBinding substituteReturnType = (ParameterizedTypeBinding) substituteMethod.returnType,
 			existingReturnType = (ParameterizedTypeBinding) existingMethod.returnType;
-		if (substituteReturnType.type() != existingReturnType.type())
+		if (substituteReturnType.actualType() != existingReturnType.actualType())
 			return false;
 		for (int i = 0; i < substituteReturnType.arguments.length; i++) {
 			TypeBinding substituteArgumentType, existingArgumentType;

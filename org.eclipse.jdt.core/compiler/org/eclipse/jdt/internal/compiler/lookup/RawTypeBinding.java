@@ -66,7 +66,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	 */
 	public String debugName() {
 	    StringBuffer nameBuffer = new StringBuffer(10);
-		nameBuffer.append(type().sourceName()).append("#RAW"); //$NON-NLS-1$
+		nameBuffer.append(actualType().sourceName()).append("#RAW"); //$NON-NLS-1$
 	    return nameBuffer.toString();		
 	}	
 
@@ -154,7 +154,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		if (isMemberType()) {
 			readableName = CharOperation.concat(enclosingType().readableName(), sourceName, '.');
 		} else {
-			readableName = CharOperation.concatWith(type().compoundName, '.');
+			readableName = CharOperation.concatWith(actualType().compoundName, '.');
 		}
 		return readableName;
 	}
@@ -167,7 +167,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		if (isMemberType()) {
 			shortReadableName = CharOperation.concat(enclosingType().shortReadableName(), sourceName, '.');
 		} else {
-			shortReadableName = type().sourceName;
+			shortReadableName = actualType().sourceName;
 		}
 		return shortReadableName;
 	}
