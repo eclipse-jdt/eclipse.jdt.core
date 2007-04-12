@@ -26,10 +26,13 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.VariableElement;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 /**
@@ -70,7 +73,30 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 
 	@Override
 	public Object getConstantValue() {
-		// TODO Auto-generated method stub
+		VariableBinding variableBinding = (VariableBinding) _binding;
+		Constant constant = variableBinding.constant();
+		if (constant == null || constant == Constant.NotAConstant) return null;
+		TypeBinding type = variableBinding.type;
+		switch (type.id) {
+			case TypeIds.T_boolean:
+				return constant.booleanValue();
+			case TypeIds.T_byte:
+				return constant.byteValue();
+			case TypeIds.T_char:
+				return constant.charValue();
+			case TypeIds.T_double:
+				return constant.doubleValue();
+			case TypeIds.T_float:
+				return constant.floatValue();
+			case TypeIds.T_int:
+				return constant.intValue();
+			case TypeIds.T_JavaLangString:
+				return constant.stringValue();
+			case TypeIds.T_long:
+				return constant.longValue();
+			case TypeIds.T_short:
+				return constant.shortValue();
+		}
 		return null;
 	}
 	
