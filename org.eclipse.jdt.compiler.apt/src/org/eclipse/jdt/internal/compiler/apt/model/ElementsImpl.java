@@ -240,8 +240,9 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public Name getBinaryName(TypeElement type) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		TypeElementImpl typeElementImpl = (TypeElementImpl) type;
+		ReferenceBinding referenceBinding = (ReferenceBinding) typeElementImpl._binding;
+		return new NameImpl(referenceBinding.constantPoolName());
 	}
 
 	/* (non-Javadoc)
