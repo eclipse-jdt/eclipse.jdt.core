@@ -640,13 +640,12 @@ public class ElementProc extends BaseProcessor {
 				}
 				else if ("annoZint".equals(methodName)) {
 					foundStringMethod = true;
-					// TODO: this doesn't work because we are not getting default values resolved.
-/*					Object value = entry.getValue().getValue();
+					Object value = entry.getValue().getValue();
 					if (null == value || !value.equals(17)) {
 						reportError("Default value of AnnoZ.annoZint() is not 17");
 						return false;
 					}
-*/				}
+				}
 			}
 		}
 		
