@@ -11,8 +11,10 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import junit.framework.Test;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class Java50Tests extends BuilderTests {
@@ -70,65 +72,56 @@ public class Java50Tests extends BuilderTests {
 		);
 
 		IPath aPath = env.addClass(projectPath, "", "A",
-			"class A<T> extends B<B<T>.M> {}\n" + 
+			"class A<T> extends B<B<T>.M> {}"
+		);
+
+		IPath bPath = env.addClass(projectPath, "", "B",
 			"class B<T> extends Missing<T> {\n" + 
 			"	class M{}\n" + 
 			"}\n" + 
 			"class Missing<T> {}"
-		); 
+		);
 
 		fullBuild(projectPath);
 		expectingNoProblems();
 
-		env.addClass(projectPath, "", "A",
-			"class A<T> extends B<B<T>.M> {}\n" + 
+		env.addClass(projectPath, "", "B",
 			"class B<T> extends Missing<T> {\n" + 
 			"	class M{}\n" + 
 			"}"
-		); 
+		);
 
 		incrementalBuild(projectPath);
-		expectingProblemsFor(
-			new IPath[] {aPath, xPath},
-			"Problem : The hierarchy of the type A is inconsistent [ resource : </Project/A.java> range : <6,7> category : <40> severity : <2>]\n" + 
-			"Problem : Missing cannot be resolved to a type [ resource : </Project/A.java> range : <51,58> category : <40> severity : <2>]\n" + 
-			"Problem : The hierarchy of the type X is inconsistent [ resource : </Project/X.java> range : <6,7> category : <40> severity : <2>]"
-		);
+		expectingSpecificProblemFor(xPath, new Problem("X", "The hierarchy of the type X is inconsistent", xPath, 6, 7, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(aPath, new Problem("A", "The hierarchy of the type A is inconsistent", aPath, 6, 7, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "Missing cannot be resolved to a type", bPath, 19, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(projectPath, "", "X",
 			"class X<T> extends A<T> {}"
 		);
 
 		incrementalBuild(projectPath);
-		expectingProblemsFor(
-			new IPath[] {aPath, xPath},
-			"Problem : The hierarchy of the type A is inconsistent [ resource : </Project/A.java> range : <6,7> category : <40> severity : <2>]\n" + 
-			"Problem : Missing cannot be resolved to a type [ resource : </Project/A.java> range : <51,58> category : <40> severity : <2>]\n" + 
-			"Problem : The hierarchy of the type X is inconsistent [ resource : </Project/X.java> range : <6,7> category : <40> severity : <2>]"
-		);
+		expectingSpecificProblemFor(xPath, new Problem("X", "The hierarchy of the type X is inconsistent", xPath, 6, 7, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(aPath, new Problem("A", "The hierarchy of the type A is inconsistent", aPath, 6, 7, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "Missing cannot be resolved to a type", bPath, 19, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
-		env.addClass(projectPath, "", "A",
-			"class A<T> extends B<B<T>.M> {}\n" + 
+		env.addClass(projectPath, "", "B",
 			"class B<T> extends Missing<T> {\n" + 
 			"	class M{}\n" + 
 			"}"
-		); 
-
-		incrementalBuild(projectPath);
-		expectingProblemsFor(
-			new IPath[] {aPath, xPath},
-			"Problem : The hierarchy of the type A is inconsistent [ resource : </Project/A.java> range : <6,7> category : <40> severity : <2>]\n" + 
-			"Problem : Missing cannot be resolved to a type [ resource : </Project/A.java> range : <51,58> category : <40> severity : <2>]\n" + 
-			"Problem : The hierarchy of the type X is inconsistent [ resource : </Project/X.java> range : <6,7> category : <40> severity : <2>]"
 		);
 
-		env.addClass(projectPath, "", "A",
-			"class A<T> extends B<B<T>.M> {}\n" + 
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(xPath, new Problem("X", "The hierarchy of the type X is inconsistent", xPath, 6, 7, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(aPath, new Problem("A", "The hierarchy of the type A is inconsistent", aPath, 6, 7, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "Missing cannot be resolved to a type", bPath, 19, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.addClass(projectPath, "", "B",
 			"class B<T> extends Missing<T> {\n" + 
 			"	class M{}\n" + 
 			"}\n" + 
 			"class Missing<T> {}"
-		); 
+		);
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
