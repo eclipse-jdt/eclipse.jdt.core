@@ -359,6 +359,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 			}
 			public void setProcessors(Iterable<? extends Processor> processors) {
 				EclipseCompiler.this.options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+				EclipseCompiler.this.options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 				ArrayList<Processor> temp = new ArrayList<Processor>();
 				for (Processor processor : processors) {
 					temp.add(processor);
