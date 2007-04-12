@@ -63,7 +63,9 @@ public class ExecutableElementImpl extends ElementImpl implements
 	@Override
 	public AnnotationValue getDefaultValue() {
 		MethodBinding binding = (MethodBinding)_binding;
-		return new AnnotationValueImpl(binding.getDefaultValue(), binding.returnType);
+		Object defaultValue = binding.getDefaultValue();
+		if (defaultValue != null) return new AnnotationValueImpl(defaultValue, binding.returnType);
+		return null;
 	}
 	
 	@Override

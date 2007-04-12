@@ -476,8 +476,9 @@ public Object getDefaultValue() {
 			SourceTypeBinding sourceType = (SourceTypeBinding) originalMethod.declaringClass;
 			if (sourceType.scope != null) {
 				AbstractMethodDeclaration methodDeclaration = originalMethod.sourceMethod();
-				if (methodDeclaration != null)
+				if (methodDeclaration != null && methodDeclaration.isAnnotationMethod()) {
 					methodDeclaration.resolve(sourceType.scope);
+				}
 			}
 		}
 		originalMethod.tagBits |= TagBits.DefaultValueResolved;
