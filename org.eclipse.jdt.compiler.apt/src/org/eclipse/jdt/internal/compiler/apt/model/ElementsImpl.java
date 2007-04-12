@@ -34,6 +34,11 @@ import javax.lang.model.util.Elements;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Javadoc;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -42,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
 /**
@@ -252,8 +258,54 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public String getDocComment(Element e) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		Javadoc javadoc = null;
+		ReferenceContext referenceContext = null;
+		switch(e.getKind()) {
+			case ANNOTATION_TYPE :
+			case CLASS :
+			case ENUM :
+			case INTERFACE :
+				TypeElementImpl typeElementImpl = (TypeElementImpl) e;
+				ReferenceBinding referenceBinding = (ReferenceBinding)typeElementImpl._binding;
+				if (referenceBinding instanceof SourceTypeBinding) {
+					SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) referenceBinding;
+					referenceContext = sourceTypeBinding.scope.referenceContext;
+					javadoc = ((TypeDeclaration) referenceContext).javadoc;
+				}
+				break;
+			case PACKAGE :
+				// might need to handle javadoc of package-info.java file
+				return null;
+			case CONSTRUCTOR :
+			case METHOD :
+				ExecutableElementImpl executableElementImpl = (ExecutableElementImpl) e;
+				MethodBinding methodBinding = (MethodBinding) executableElementImpl._binding;
+				AbstractMethodDeclaration sourceMethod = methodBinding.sourceMethod();
+				if (sourceMethod != null) {
+					javadoc = sourceMethod.javadoc;
+					referenceContext = sourceMethod;
+				}
+				break;
+			case ENUM_CONSTANT :
+			case FIELD :
+				VariableElementImpl variableElementImpl = (VariableElementImpl) e;
+				FieldBinding fieldBinding = (FieldBinding) variableElementImpl._binding;
+				FieldDeclaration sourceField = fieldBinding.sourceField();
+				if (sourceField != null) {
+					javadoc = sourceField.javadoc;
+					if (fieldBinding.declaringClass instanceof SourceTypeBinding) {
+						SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) fieldBinding.declaringClass;
+						referenceContext = sourceTypeBinding.scope.referenceContext;
+					}
+				}
+		}
+		if (javadoc != null && referenceContext != null) {
+			char[] contents = referenceContext.compilationResult().getCompilationUnit().getContents();
+			if (contents != null) {
+				return new String(CharOperation.subarray(contents, javadoc.sourceStart, javadoc.sourceEnd));
+			}
+		}
+		return null;
 	}
 
 	/**

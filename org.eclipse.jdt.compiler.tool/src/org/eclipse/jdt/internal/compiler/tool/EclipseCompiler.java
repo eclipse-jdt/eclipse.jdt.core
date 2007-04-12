@@ -306,6 +306,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 			if ("-processorpath".equals(option) //$NON-NLS-1$
 					|| ("-processor".equals(option))) { //$NON-NLS-1$
 				this.options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+				this.options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 				break;
 			}
 		}
