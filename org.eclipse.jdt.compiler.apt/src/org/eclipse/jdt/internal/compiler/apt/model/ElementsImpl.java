@@ -36,9 +36,11 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
@@ -275,18 +277,52 @@ public class ElementsImpl implements Elements {
 		return new NameImpl(cs);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Elements#getPackageElement(java.lang.CharSequence)
-	 */
 	@Override
 	public PackageElement getPackageElement(CharSequence name) {
-		//TODO: how do we get a package by name?  How can we get a Scope to find it with?
-		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		LookupEnvironment le = _env.getLookupEnvironment();
+		PackageBinding packageBinding = le.getTopLevelPackage(name.toString().toCharArray());
+		if (packageBinding == null) {
+			return null;
+		}
+		return new PackageElementImpl(packageBinding);
 	}
 
 	@Override
 	public PackageElement getPackageOf(Element type) {
-		return ((ElementImpl)type).getPackage();
+		switch(type.getKind()) {
+			case ANNOTATION_TYPE :
+			case CLASS :
+			case ENUM :
+			case INTERFACE :
+				TypeElementImpl typeElementImpl = (TypeElementImpl) type;
+				ReferenceBinding referenceBinding = (ReferenceBinding)typeElementImpl._binding;
+				return (PackageElement) Factory.newElement(referenceBinding.fPackage);
+			case PACKAGE :
+				return (PackageElement) type;
+			case CONSTRUCTOR :
+			case METHOD :
+				ExecutableElementImpl executableElementImpl = (ExecutableElementImpl) type;
+				MethodBinding methodBinding = (MethodBinding) executableElementImpl._binding;
+				return (PackageElement) Factory.newElement(methodBinding.declaringClass.fPackage);
+			case ENUM_CONSTANT :
+			case FIELD :
+				VariableElementImpl variableElementImpl = (VariableElementImpl) type;
+				FieldBinding fieldBinding = (FieldBinding) variableElementImpl._binding;
+				return (PackageElement) Factory.newElement(fieldBinding.declaringClass.fPackage);
+			case PARAMETER :
+				variableElementImpl = (VariableElementImpl) type;
+				LocalVariableBinding localVariableBinding = (LocalVariableBinding) variableElementImpl._binding;
+				return (PackageElement) Factory.newElement(localVariableBinding.declaringScope.classScope().referenceContext.binding.fPackage);
+			case EXCEPTION_PARAMETER :
+			case INSTANCE_INIT :
+			case OTHER :
+			case STATIC_INIT :
+			case TYPE_PARAMETER :
+			case LOCAL_VARIABLE :
+				return null;
+		}
+		// unreachable
+		return null;
 	}
 
 	/* (non-Javadoc)

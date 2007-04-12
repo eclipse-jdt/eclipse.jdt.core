@@ -891,7 +891,7 @@ public ReferenceBinding getResolvedType(char[][] compoundName, Scope scope) {
 * Answer null if the package cannot be found.
 */
 
-PackageBinding getTopLevelPackage(char[] name) {
+public PackageBinding getTopLevelPackage(char[] name) {
 	PackageBinding packageBinding = getPackage0(name);
 	if (packageBinding != null) {
 		if (packageBinding == TheNotFoundPackage)
