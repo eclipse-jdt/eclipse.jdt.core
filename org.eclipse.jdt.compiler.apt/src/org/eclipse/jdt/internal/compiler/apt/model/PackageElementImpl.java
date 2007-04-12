@@ -75,7 +75,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 	@Override
 	public boolean isUnnamed() {
 		PackageBinding binding = (PackageBinding)_binding;
-		return binding.compoundName.length == 0;
+		return binding.compoundName == CharOperation.NO_CHAR_CHAR;
 	}
 
 }
