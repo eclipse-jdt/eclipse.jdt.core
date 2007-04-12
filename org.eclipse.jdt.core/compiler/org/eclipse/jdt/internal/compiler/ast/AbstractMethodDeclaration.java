@@ -137,7 +137,7 @@ public abstract class AbstractMethodDeclaration
 						if (CharOperation.equals(thrownException.getTypeName(), bindingCompoundName)) {
 							thrownException.resolvedType = thrownExceptionBinding;
 							bindingIndex++;
-						}						
+						}
 					}
 				}
 			}
