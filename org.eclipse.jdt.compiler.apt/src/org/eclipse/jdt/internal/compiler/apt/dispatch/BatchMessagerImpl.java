@@ -43,9 +43,11 @@ public class BatchMessagerImpl implements Messager {
 
 	private static final String[] NO_ARGUMENTS = new String[0];
 	private final Main _compiler;
+	private final BaseProcessingEnvImpl _processingEnv;
 
-	public BatchMessagerImpl(Main compiler) {
+	public BatchMessagerImpl(BaseProcessingEnvImpl processingEnv, Main compiler) {
 		_compiler = compiler;
+		_processingEnv = processingEnv;
 	}
 
 	/* (non-Javadoc)
@@ -152,6 +154,7 @@ public class BatchMessagerImpl implements Messager {
 		StringBuilder builder = new StringBuilder(msg);
 		switch(kind) {
 			case ERROR :
+				_processingEnv.setErrorRaised(true);
 				if (referenceContext != null) {
 					CompilationResult result = referenceContext.compilationResult();
 					int[] lineEnds = null;

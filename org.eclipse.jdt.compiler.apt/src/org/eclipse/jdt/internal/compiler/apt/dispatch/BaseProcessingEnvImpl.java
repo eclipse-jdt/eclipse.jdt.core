@@ -45,12 +45,14 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	protected Types _typeUtils;
 	private List<ICompilationUnit> _addedUnits;
 	private List<ICompilationUnit> _deletedUnits;
+	private boolean _errorRaised;
 
 	public BaseProcessingEnvImpl() {
 		_addedUnits = new ArrayList<ICompilationUnit>();
 		_deletedUnits = new ArrayList<ICompilationUnit>();
 		_elementUtils = new ElementsImpl(this);
 		_typeUtils = new TypesImpl(this);
+		_errorRaised = false;
 	}
 
 	public void addNewUnit(ICompilationUnit unit) {
@@ -109,11 +111,29 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 
 	/**
 	 * Called when AnnotationProcessorManager has retrieved the list of 
-	 * newly generated compilation units.
+	 * newly generated compilation units (ie, once per round)
 	 */
 	public void reset() {
 		_addedUnits.clear();
 		_deletedUnits.clear();
+	}
+
+	/**
+	 * Has an error been raised in any of the rounds of processing in this build?
+	 * @return
+	 */
+	public boolean errorRaised()
+	{
+		return _errorRaised;
+	}
+
+	/**
+	 * Set or clear the errorRaised flag.  Typically this will be set by the Messager
+	 * when an error has been raised, and it will never be cleared.
+	 */
+	public void setErrorRaised(boolean b)
+	{
+		_errorRaised = true;
 	}
 
 }

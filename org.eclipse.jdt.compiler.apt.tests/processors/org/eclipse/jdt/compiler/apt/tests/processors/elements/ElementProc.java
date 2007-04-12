@@ -53,14 +53,17 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class ElementProc extends BaseProcessor {
 	
-	// The set of elements we expect getRootElements to return
-	private static final String[] ROOT_ELEMENT_NAMES = new String[] {"AnnoZ", "A", "IA", "AB", "AC", "D", "IB", "IC"};
+	// The set of elements we expect getRootElements to return in package pa
+	private static final String[] ROOT_ELEMENT_NAMES = new String[] {
+		"targets.model.pa.AnnoZ", "targets.model.pa.A", "targets.model.pa.IA", "targets.model.pa.ExceptionA"};
 	
 	// Initialized in collectElements()
 	private TypeElement _elementIA;
 	private TypeElement _elementAB;
 	private TypeElement _elementA;
 	private TypeElement _elementD;
+	private TypeElement _elementDChild;
+	private TypeElement _elementAnnoZ;
 	private TypeElement _elementString;
 
 	// Initialized in examineDMethods()
@@ -81,28 +84,11 @@ public class ElementProc extends BaseProcessor {
 			return false;
 		}
 		
-		// Verify that we get the root elements we expect
-		Set<String> expectedRootElementNames = new HashSet<String>(ROOT_ELEMENT_NAMES.length);
-		for (String name : ROOT_ELEMENT_NAMES) {
-			expectedRootElementNames.add(name);
-		}
-		Set<? extends Element> actualRootElements = roundEnv.getRootElements();
-		if (null == actualRootElements) {
-			reportError("getRootElements() returned null");
-			return false;
-		}
-		for (Element e : actualRootElements) {
-			String name = e.getSimpleName().toString();
-			if (!expectedRootElementNames.remove(name)) {
-				reportError("Missing root element " + name);
-			}
-		}
-		if (!expectedRootElementNames.isEmpty()) {
-			reportError("Found extra root elements including " + expectedRootElementNames.iterator().next());
+		if (!collectElements()) {
 			return false;
 		}
 		
-		if (!collectElements()) {
+		if (!examineRoundEnv(roundEnv)) {
 			return false;
 		}
 		
@@ -164,6 +150,7 @@ public class ElementProc extends BaseProcessor {
 			reportError("NestingKind of element IA is not TOP_LEVEL");
 			return false;
 		}
+		
 		_elementA = _elementUtils.getTypeElement("targets.model.pa.A");
 		if (_elementA == null) {
 			reportError("element A was not found");
@@ -173,6 +160,17 @@ public class ElementProc extends BaseProcessor {
 			reportError("A claims to not be a class");
 			return false;
 		}
+		
+		_elementAnnoZ = _elementUtils.getTypeElement("targets.model.pa.AnnoZ");
+		if (_elementAnnoZ == null) {
+			reportError("element AnnoZ was not found");
+			return false;
+		}
+		if (_elementAnnoZ.getKind() != ElementKind.ANNOTATION_TYPE) {
+			reportError("AnnoZ claims to not be an annotation type");
+			return false;
+		}
+		
 		_elementAB = _elementUtils.getTypeElement("targets.model.pb.AB");
 		if (_elementAB == null) {
 			reportError("element AB was not found");
@@ -182,6 +180,7 @@ public class ElementProc extends BaseProcessor {
 			reportError("AB claims to not be a class");
 			return false;
 		}
+		
 		_elementD = _elementUtils.getTypeElement("targets.model.pb.D");
 		if (_elementD == null) {
 			reportError("element D was not found");
@@ -191,7 +190,73 @@ public class ElementProc extends BaseProcessor {
 			reportError("D claims to not be a class");
 			return false;
 		}
+		
+		_elementDChild = _elementUtils.getTypeElement("targets.model.pb.DChild");
+		if (_elementDChild == null) {
+			reportError("secondary element DChild was not found");
+			return false;
+		}
+		if (_elementDChild.getKind() != ElementKind.CLASS) {
+			reportError("DChild claims to not be a class");
+			return false;
+		}
 		_elementString = _elementUtils.getTypeElement("java.lang.String");
+		return true;
+	}
+	
+	/**
+	 * Check the methods on RoundEnvironment method
+	 * @return true if all tests passed
+	 */
+	private boolean examineRoundEnv(RoundEnvironment roundEnv) {
+		// Verify that we get the root elements we expect
+		Set<String> expectedRootElementNames = new HashSet<String>(ROOT_ELEMENT_NAMES.length);
+		for (String name : ROOT_ELEMENT_NAMES) {
+			expectedRootElementNames.add(name);
+		}
+		Set<? extends Element> actualRootElements = roundEnv.getRootElements();
+		if (null == actualRootElements) {
+			reportError("getRootElements() returned null");
+			return false;
+		}
+		for (Element e : actualRootElements) {
+			if (e instanceof TypeElement) {
+				String name = ((TypeElement)e).getQualifiedName().toString();
+				if (name.startsWith("targets.model.pa.") && !expectedRootElementNames.remove(name)) {
+					reportError("Missing root element " + name);
+					return false;
+				}
+			}
+		}
+		if (!expectedRootElementNames.isEmpty()) {
+			reportError("Found extra root elements including " + expectedRootElementNames.iterator().next());
+			return false;
+		}
+		
+		// Verify that we get the annotations we expect
+		Set<? extends Element> annotatedWithAnnoZ = roundEnv.getElementsAnnotatedWith(_elementAnnoZ);
+		if (null == annotatedWithAnnoZ || !annotatedWithAnnoZ.contains(_elementD)) {
+			reportError("Elements annotated with AnnoZ does not include D");
+			return false;
+		}
+		
+		// targets.model.pc.Deprecation contains @Deprecated annotations
+		Set<? extends Element> annotatedWithDeprecated = roundEnv.getElementsAnnotatedWith(Deprecated.class);
+		if (null == annotatedWithDeprecated) {
+			reportError("getElementsAnnotatedWith(@Deprecated) returned null");
+			return false;
+		}
+		boolean foundDeprecation = false;
+		for (TypeElement deprecatedElement : ElementFilter.typesIn(annotatedWithDeprecated)) {
+			if ("targets.model.pc.Deprecation".equals(deprecatedElement.getQualifiedName().toString())) {
+				foundDeprecation = true;
+				break;
+			}
+		}
+		if (!foundDeprecation) {
+			reportError("getElementsAnnotatedWith(@Deprecation) did not find targets.model.pc.Deprecation");
+		}
+
 		return true;
 	}
 	
@@ -530,7 +595,7 @@ public class ElementProc extends BaseProcessor {
 			}
 			Element annotDElem = annotDType.asElement();
 			if (!(annotDElem instanceof TypeElement) || 
-					"targets.model.pa.AnnoZ".equals(((TypeElement)annotDElem).getQualifiedName().toString())) {
+					!"targets.model.pa.AnnoZ".equals(((TypeElement)annotDElem).getQualifiedName().toString())) {
 				reportError("annotation on element D is not TypeElement targets.model.pa.AnnoZ");
 				return false;
 			}
@@ -598,7 +663,7 @@ public class ElementProc extends BaseProcessor {
 			}
 			Element annotDElem = annotDType.asElement();
 			if (!(annotDElem instanceof TypeElement) || 
-					"targets.model.pa.AnnoZ".equals(((TypeElement)annotDElem).getQualifiedName().toString())) {
+					!"targets.model.pa.AnnoZ".equals(((TypeElement)annotDElem).getQualifiedName().toString())) {
 				reportError("annotation on D.methodDvoid() is not TypeElement targets.model.pa.AnnoZ");
 				return false;
 			}

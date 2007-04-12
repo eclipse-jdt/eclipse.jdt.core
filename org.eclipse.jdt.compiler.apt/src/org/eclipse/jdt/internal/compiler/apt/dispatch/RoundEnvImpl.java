@@ -26,14 +26,13 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 
 public class RoundEnvImpl implements RoundEnvironment
 {
-	//private final BaseProcessingEnvImpl _processingEnv;
-	private boolean _errorRaised = false;
+	private final BaseProcessingEnvImpl _processingEnv;
 	private final boolean _isLastRound;
 	private final CompilationUnitDeclaration[] _units;
 	private final ManyToMany<TypeElement, Element> _annoToUnit;
 
 	public RoundEnvImpl(CompilationUnitDeclaration[] units, boolean isLastRound, BaseProcessingEnvImpl env) {
-		//_processingEnv = env;
+		_processingEnv = env;
 		_isLastRound = isLastRound;
 		_units = units;
 		
@@ -58,7 +57,7 @@ public class RoundEnvImpl implements RoundEnvironment
 	@Override
 	public boolean errorRaised()
 	{
-		return _errorRaised;
+		return _processingEnv.errorRaised();
 	}
 
 	@Override
@@ -70,8 +69,8 @@ public class RoundEnvImpl implements RoundEnvironment
 	@Override
 	public Set<? extends Element> getElementsAnnotatedWith(Class<? extends Annotation> a)
 	{
-		// TODO get the annotation type corresponding to "a".
-		return null;
+		TypeElement annoType = _processingEnv.getElementUtils().getTypeElement(a.getCanonicalName());
+		return _annoToUnit.getValues(annoType);
 	}
 
 	@Override

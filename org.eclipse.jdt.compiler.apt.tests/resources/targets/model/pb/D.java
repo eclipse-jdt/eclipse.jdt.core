@@ -1,6 +1,6 @@
 package targets.model.pb;
 
-import pa.AnnoZ;
+import targets.model.pa.AnnoZ;
 
 @AnnoZ(annoZString = "annoZOnD")
 public class D extends AB {
@@ -9,3 +9,6 @@ public class D extends AB {
 	@AnnoZ(annoZString = "annoZOnDMethod", annoZint = 31)
 	public void methodDvoid(DEnum dEnum1) {}
 }
+
+// Should inherit AnnoZ
+class DChild extends D {}

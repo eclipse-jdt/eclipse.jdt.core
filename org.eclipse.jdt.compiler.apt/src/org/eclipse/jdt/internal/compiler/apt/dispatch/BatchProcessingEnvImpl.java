@@ -91,7 +91,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 		}
 		_processorOptions = Collections.unmodifiableMap(parseProcessorOptions(commandLineArguments));
 		_filer = new BatchFilerImpl(_dispatchManager, this);
-		_messager = new BatchMessagerImpl(_compilerOwner);
+		_messager = new BatchMessagerImpl(this, _compilerOwner);
 	}
 
 	/**
