@@ -220,6 +220,11 @@ public final class CompletionEngine
 	private final static char[] ON_DEMAND = ".*".toCharArray();  //$NON-NLS-1$
 	private final static char[] IMPORT_END = ";\n".toCharArray();  //$NON-NLS-1$
 	
+	private final static char[] JAVA_LANG_OBJECT_SIGNATURE = 
+		createTypeSignature(CharOperation.concatWith(JAVA_LANG, '.'), OBJECT);
+	private final static char[] JAVA_LANG_NAME =
+		CharOperation.concatWith(JAVA_LANG, '.');
+	
 	private final static int NONE = 0;
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
@@ -629,6 +634,31 @@ public final class CompletionEngine
 		}
 		this.acceptedTypes = null; // reset
 	}
+	
+	public void acceptUnresolvedName(char[] name) {
+		int relevance = computeBaseRelevance();
+		relevance += computeRelevanceForResolution(false);
+		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForCaseMatching(completionToken, name);
+		relevance += computeRelevanceForQualification(false);
+		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for local variable
+		CompletionEngine.this.noProposal = false;
+		if(!CompletionEngine.this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
+			CompletionProposal proposal = CompletionEngine.this.createProposal(CompletionProposal.LOCAL_VARIABLE_REF, CompletionEngine.this.actualCompletionPosition);
+			proposal.setSignature(JAVA_LANG_OBJECT_SIGNATURE);
+			proposal.setPackageName(JAVA_LANG_NAME);
+			proposal.setTypeName(OBJECT);
+			proposal.setName(name);
+			proposal.setCompletion(name);
+			proposal.setFlags(Flags.AccDefault);
+			proposal.setReplaceRange(CompletionEngine.this.startPosition - CompletionEngine.this.offset, CompletionEngine.this.endPosition - CompletionEngine.this.offset);
+			proposal.setRelevance(relevance);
+			CompletionEngine.this.requestor.accept(proposal);
+			if(DEBUG) {
+				CompletionEngine.this.printDebug(proposal);
+			}
+		}
+	}
 
 	// this code is derived from MethodBinding#areParametersCompatibleWith(TypeBinding[])
 	private final boolean areParametersCompatibleWith(TypeBinding[] parameters, TypeBinding[] arguments, boolean isVarargs) {
@@ -892,7 +922,7 @@ public final class CompletionEngine
 					char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, singleNameReference);
 					
 					findUnresolvedReference(
-							singleNameReference.sourceStart - 1,
+							singleNameReference.sourceStart,
 							singleNameReference.sourceEnd,
 							(BlockScope)scope,
 							alreadyDefinedName);
@@ -1449,7 +1479,7 @@ public final class CompletionEngine
 							char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, FakeInvocationSite);
 							
 							findUnresolvedReference(
-									memberValuePair.sourceStart - 1,
+									memberValuePair.sourceStart,
 									memberValuePair.sourceEnd,
 									(BlockScope)scope,
 									alreadyDefinedName);
@@ -7111,16 +7141,11 @@ public final class CompletionEngine
 				type.resolvedType != null &&
 				type.resolvedType.problemId() == ProblemReasons.NoError){
 			
-			final int discouragedNamesCount = discouragedNames == null ? 0 : discouragedNames.length;
 			final ArrayList proposedNames = new ArrayList();
 			
 			UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor nameRequestor = 
 				new UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor() {
 					public void acceptName(char[] name) {
-						for (int i = 0; i < discouragedNamesCount; i++) {
-							if (CharOperation.equals(discouragedNames[i], name, false)) return;
-						}
-						
 						int relevance = computeBaseRelevance();
 						relevance += computeRelevanceForInterestingProposal();
 						relevance += computeRelevanceForCaseMatching(completionToken, name);
@@ -7159,6 +7184,7 @@ public final class CompletionEngine
 						completionToken,
 						md,
 						variable.declarationSourceEnd + 1,
+						discouragedNames,
 						nameRequestor);
 			} else if (referenceContext instanceof TypeDeclaration) {
 				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
@@ -7175,6 +7201,7 @@ public final class CompletionEngine
 										initializer,
 										typeDeclaration.scope,
 										variable.declarationSourceEnd + 1,
+										discouragedNames,
 										nameRequestor);
 								break done;
 							}
@@ -7193,42 +7220,12 @@ public final class CompletionEngine
 	}
 	
 	private char[][] findUnresolvedReferenceAfter(int from, BlockScope scope, final char[][] discouragedNames) {
-		final int discouragedNamesCount = discouragedNames == null ? 0 : discouragedNames.length;
 		final ArrayList proposedNames = new ArrayList();
 		
 		UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor nameRequestor = 
 			new UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor() {
 				public void acceptName(char[] name) {
-					for (int i = 0; i < discouragedNamesCount; i++) {
-						if (CharOperation.equals(discouragedNames[i], name, false)) return;
-					}
-					
-					int relevance = computeBaseRelevance();
-					relevance += computeRelevanceForResolution(false);
-					relevance += computeRelevanceForInterestingProposal();
-					relevance += computeRelevanceForCaseMatching(completionToken, name);
-					relevance += computeRelevanceForQualification(false);
-					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for local variable
-					CompletionEngine.this.noProposal = false;
-					if(!CompletionEngine.this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
-						CompletionProposal proposal = CompletionEngine.this.createProposal(CompletionProposal.LOCAL_VARIABLE_REF, CompletionEngine.this.actualCompletionPosition);
-						proposal.setSignature(
-							createTypeSignature(
-									CharOperation.concatWith(JAVA_LANG, '.'),
-									OBJECT));
-						proposal.setPackageName(CharOperation.concatWith(JAVA_LANG, '.'));
-						proposal.setTypeName(OBJECT);
-						proposal.setName(name);
-						proposal.setCompletion(name);
-						proposal.setFlags(Flags.AccDefault);
-						proposal.setReplaceRange(CompletionEngine.this.startPosition - CompletionEngine.this.offset, CompletionEngine.this.endPosition - CompletionEngine.this.offset);
-						proposal.setRelevance(relevance);
-						CompletionEngine.this.requestor.accept(proposal);
-						if(DEBUG) {
-							CompletionEngine.this.printDebug(proposal);
-						}
-					}
-					
+					CompletionEngine.this.acceptUnresolvedName(name);
 					proposedNames.add(name);
 				}
 			};
@@ -7244,6 +7241,7 @@ public final class CompletionEngine
 					md.scope.classScope(),
 					from,
 					md.bodyEnd,
+					discouragedNames,
 					nameRequestor);
 		} else if (referenceContext instanceof TypeDeclaration) {
 			TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
@@ -7261,6 +7259,7 @@ public final class CompletionEngine
 										typeDeclaration.scope,
 										from,
 										initializer.bodyEnd,
+										discouragedNames,
 										nameRequestor);
 							break done;
 						}
@@ -7277,8 +7276,8 @@ public final class CompletionEngine
 		return null;
 	}
 	
-	private void findUnresolvedReference(int beforeIndex, int afterIndex, BlockScope scope, char[][] discouragedNames) {
-		char[][] foundNames = findUnresolvedReferenceBefore(beforeIndex, scope, discouragedNames);
+	private void findUnresolvedReference(int completedNameStart, int completedNameEnd, BlockScope scope, char[][] discouragedNames) {
+		char[][] foundNames = findUnresolvedReferenceBefore(completedNameStart - 1, completedNameEnd, scope, discouragedNames);
 		if (foundNames != null && foundNames.length > 1) {
 			int discouragedNamesLength = discouragedNames.length;
 			int foundNamesLength = foundNames.length;
@@ -7286,46 +7285,16 @@ public final class CompletionEngine
 			System.arraycopy(discouragedNames, 0, discouragedNames = new char[newLength][], 0, discouragedNamesLength);
 			System.arraycopy(foundNames, 0, discouragedNames, discouragedNamesLength, foundNamesLength);
 		}
-		findUnresolvedReferenceAfter(afterIndex, scope, discouragedNames);
+		findUnresolvedReferenceAfter(completedNameEnd + 1, scope, discouragedNames);
 	}
 	
-	private char[][] findUnresolvedReferenceBefore(int to, BlockScope scope, final char[][] discouragedNames) {
-		final int discouragedNamesCount = discouragedNames == null ? 0 : discouragedNames.length;
+	private char[][] findUnresolvedReferenceBefore(int recordTo, int parseTo, BlockScope scope, final char[][] discouragedNames) {
 		final ArrayList proposedNames = new ArrayList();
 		
 		UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor nameRequestor = 
 			new UnresolvedReferenceNameFinder.UnresolvedReferenceNameRequestor() {
 				public void acceptName(char[] name) {
-					for (int i = 0; i < discouragedNamesCount; i++) {
-						if (CharOperation.equals(discouragedNames[i], name, false)) return;
-					}
-					
-					int relevance = computeBaseRelevance();
-					relevance += computeRelevanceForResolution(false);
-					relevance += computeRelevanceForInterestingProposal();
-					relevance += computeRelevanceForCaseMatching(completionToken, name);
-					relevance += computeRelevanceForQualification(false);
-					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for local variable
-					CompletionEngine.this.noProposal = false;
-					if(!CompletionEngine.this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
-						CompletionProposal proposal = CompletionEngine.this.createProposal(CompletionProposal.LOCAL_VARIABLE_REF, CompletionEngine.this.actualCompletionPosition);
-						proposal.setSignature(
-							createTypeSignature(
-									CharOperation.concatWith(JAVA_LANG, '.'),
-									OBJECT));
-						proposal.setPackageName(CharOperation.concatWith(JAVA_LANG, '.'));
-						proposal.setTypeName(OBJECT);
-						proposal.setName(name);
-						proposal.setCompletion(name);
-						proposal.setFlags(Flags.AccDefault);
-						proposal.setReplaceRange(CompletionEngine.this.startPosition - CompletionEngine.this.offset, CompletionEngine.this.endPosition - CompletionEngine.this.offset);
-						proposal.setRelevance(relevance);
-						CompletionEngine.this.requestor.accept(proposal);
-						if(DEBUG) {
-							CompletionEngine.this.printDebug(proposal);
-						}
-					}
-					
+					CompletionEngine.this.acceptUnresolvedName(name);
 					proposedNames.add(name);
 				}
 			};
@@ -7345,7 +7314,9 @@ public final class CompletionEngine
 					md.scope,
 					md.scope.classScope(),
 					md.bodyStart,
-					to,
+					recordTo,
+					parseTo,
+					discouragedNames,
 					nameRequestor);
 		} else if (referenceContext instanceof TypeDeclaration) {
 			TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
@@ -7357,8 +7328,8 @@ public final class CompletionEngine
 					for (int i = 0; i < fields.length; i++) {
 						if (fields[i] instanceof Initializer) {
 							Initializer initializer = (Initializer) fields[i];
-							if (initializer.block.sourceStart <= to &&
-									to < initializer.bodyEnd) {
+							if (initializer.block.sourceStart <= recordTo &&
+									recordTo < initializer.bodyEnd) {
 					
 								UnresolvedReferenceNameFinder nameFinder = new UnresolvedReferenceNameFinder(this);
 								nameFinder.findBefore(
@@ -7366,7 +7337,9 @@ public final class CompletionEngine
 										typeDeclaration.scope,
 										typeDeclaration.scope,
 										initializer.block.sourceStart,
-										to,
+										recordTo,
+										parseTo,
+										discouragedNames,
 										nameRequestor);
 								break done;
 							}

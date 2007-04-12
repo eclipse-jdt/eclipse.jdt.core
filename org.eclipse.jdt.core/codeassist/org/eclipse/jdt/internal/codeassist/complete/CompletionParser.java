@@ -28,7 +28,6 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 
 public class CompletionParser extends AssistParser {
@@ -141,11 +140,61 @@ public class CompletionParser extends AssistParser {
 	int labelPtr = -1;
 
 	boolean isAlreadyAttached;
+	
+	public boolean record = false;
+	public boolean skipRecord = false;
+	public int recordFrom;
+	public int recordTo;
+	public int potentialVariableNamesPtr; 
+	public char[][] potentialVariableNames;
+	public int[] potentialVariableNameStarts;
+	public int[] potentialVariableNameEnds;
+	
 public CompletionParser(ProblemReporter problemReporter) {
 	super(problemReporter);
 	this.reportSyntaxErrorIsRequired = false;
-	this.javadocParser = new CompletionJavadocParser(this);
 	this.javadocParser.checkDocComment = true;
+}
+private void addPotentialName(char[] potentialVariableName, int start, int end) {
+	int length = this.potentialVariableNames.length;
+	if (this.potentialVariableNamesPtr >= length - 1) {
+		System.arraycopy(
+				this.potentialVariableNames, 
+				0,
+				this.potentialVariableNames = new char[length * 2][],
+				0,
+				length);
+		System.arraycopy(
+				this.potentialVariableNameStarts,
+				0,
+				this.potentialVariableNameStarts = new int[length * 2],
+				0,
+				length);
+		System.arraycopy(
+				this.potentialVariableNameEnds,
+				0,
+				this.potentialVariableNameEnds = new int[length * 2],
+				0,
+				length);
+	}
+	this.potentialVariableNames[++this.potentialVariableNamesPtr] = potentialVariableName;
+	this.potentialVariableNameStarts[this.potentialVariableNamesPtr] = start;
+	this.potentialVariableNameEnds[this.potentialVariableNamesPtr] = end;
+}
+public void startRecordingIdentifiers(int from, int to) {
+	this.record = true;
+	this.skipRecord = false;
+	this.recordFrom = from;
+	this.recordTo = to;
+	
+	this.potentialVariableNamesPtr = -1; 
+	this.potentialVariableNames = new char[10][];
+	this.potentialVariableNameStarts = new int[10];
+	this.potentialVariableNameEnds = new int[10];
+}
+public void stopRecordingIdentifiers() {
+	this.record = true;
+	this.skipRecord = false;
 }
 public char[] assistIdentifier(){
 	return ((CompletionScanner)scanner).completionIdentifier;
@@ -2193,7 +2242,23 @@ protected void consumeInsideCastExpressionLL1() {
 	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST) {
 		popElement(K_PARAMETERIZED_CAST);
 	}
-	super.consumeInsideCastExpressionLL1();
+	if (!this.record) {
+		super.consumeInsideCastExpressionLL1();
+	} else {
+		boolean temp = this.skipRecord;
+		try {
+			this.skipRecord = true;
+			super.consumeInsideCastExpressionLL1();
+			if (this.record) {
+				Expression typeReference = this.expressionStack[this.expressionPtr];
+				if (!isAlreadyPotentialName(typeReference.sourceStart)) {
+					this.addPotentialName(null, typeReference.sourceStart, typeReference.sourceEnd);
+				}
+			}
+		} finally {
+			this.skipRecord = temp;
+		}
+	}
 	pushOnElementStack(K_CAST_STATEMENT);
 }
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
@@ -2593,6 +2658,16 @@ protected void consumeRestoreDiet() {
 protected void consumeSingleMemberAnnotation() {
 	this.popElement(K_BETWEEN_ANNOTATION_NAME_AND_RPAREN);
 	super.consumeSingleMemberAnnotation();
+}
+protected void consumeStatementBreakWithLabel() {
+	super.consumeStatementBreakWithLabel();
+	if (this.record) {
+		ASTNode breakStatement = this.astStack[this.astPtr];
+		if (!isAlreadyPotentialName(breakStatement.sourceStart)) {
+			this.addPotentialName(null, breakStatement.sourceStart, breakStatement.sourceEnd);
+		}
+	}
+	
 }
 protected void consumeStatementLabel() {
 	this.popElement(K_LABEL);
@@ -3622,13 +3697,33 @@ protected TypeReference getTypeReferenceForGenericType(int dim,	int identifierLe
 
 	return ref;
 }
+protected NameReference getUnspecifiedReference() {
+	NameReference nameReference = super.getUnspecifiedReference();
+	if (this.record) {
+		recordReference(nameReference);
+	}
+	return nameReference;
+}
 protected NameReference getUnspecifiedReferenceOptimized() {
 	if (this.identifierLengthStack[this.identifierLengthPtr] > 1) { // reducing a qualified name
 		// potential receiver is being poped, so reset potential receiver
 		this.invocationType = NO_RECEIVER;
 		this.qualifier = -1;
 	}
-	return super.getUnspecifiedReferenceOptimized();
+	NameReference nameReference = super.getUnspecifiedReferenceOptimized();
+	if (this.record) {
+		recordReference(nameReference);
+	}
+	return nameReference;
+}
+private boolean isAlreadyPotentialName(int identifierStart) {
+	if (this.potentialVariableNamesPtr < 0) return false;
+	
+	return identifierStart <= this.potentialVariableNameEnds[this.potentialVariableNamesPtr];
+}
+protected int indexOfAssistIdentifier(boolean useGenericsStack) {
+	if (this.record) return -1; // when names are recorded there is no assist identifier
+	return super.indexOfAssistIdentifier(useGenericsStack);
 }
 public void initialize() {
 	super.initialize();
@@ -3868,73 +3963,6 @@ private void pushCompletionOnMemberAccessOnExpressionStack(boolean isSuperAccess
 		expressionStack[expressionPtr] = fr;
 	}
 }
-protected boolean moveRecoveryCheckpoint() {
-	CompletionScanner completionScanner = (CompletionScanner) this.scanner;
-	boolean recordIdentifers = completionScanner.record;
-	if (!recordIdentifers) {
-		return super.moveRecoveryCheckpoint();
-	}
-
-	completionScanner.record = false;
-
-	int pos = this.lastCheckPoint;
-	int curTok = completionScanner.lastUsedToken;
-	int curTokStart = completionScanner.lastUsedTokenStart;
-
-	/* reset this.scanner, and move checkpoint by one token */
-	this.scanner.startPosition = pos;
-	this.scanner.currentPosition = pos;
-	this.scanner.diet = false; // quit jumping over method bodies
-
-	completionScanner.currentToken = curTok;
-	completionScanner.currentTokenStart = curTokStart;
-
-	/* if about to restart, then no need to shift token */
-	if (this.restartRecovery){
-		this.lastIgnoredToken = -1;
-		this.scanner.insideRecovery = true;
-		completionScanner.record = true;
-		return true;
-	}
-
-	/* protect against shifting on an invalid token */
-	this.lastIgnoredToken = this.nextIgnoredToken;
-	this.nextIgnoredToken = -1;
-	do {
-		try {
-			this.nextIgnoredToken = this.scanner.getNextToken();
-			if(this.scanner.currentPosition == this.scanner.startPosition){
-				this.scanner.currentPosition++; // on fake completion identifier
-				this.nextIgnoredToken = -1;
-			}
-
-		} catch(InvalidInputException e){
-			pos = this.scanner.currentPosition;
-		}
-	} while (this.nextIgnoredToken < 0);
-
-	if (this.nextIgnoredToken == TokenNameEOF) { // no more recovery after this point
-		if (this.currentToken == TokenNameEOF) { // already tried one iteration on EOF
-			completionScanner.record = true;
-			return false;
-		}
-	}
-	this.lastCheckPoint = this.scanner.currentPosition;
-	completionScanner.lastUsedToken = this.nextIgnoredToken;
-	completionScanner.lastUsedTokenStart = this.lastCheckPoint;
-
-	/* reset this.scanner again to previous checkpoint location*/
-	this.scanner.startPosition = pos;
-	this.scanner.currentPosition = pos;
-	this.scanner.commentPtr = -1;
-	this.scanner.foundTaskCount = 0;
-
-	completionScanner.currentToken = curTok;
-	completionScanner.currentTokenStart = curTokStart;
-	completionScanner.record = true;
-
-	return true;
-}
 public void recordCompletionOnReference(){
 
 	if (currentElement instanceof RecoveredType){
@@ -3950,6 +3978,25 @@ public void recordCompletionOnReference(){
 	}
 	if (!diet) return; // only record references attached to types
 
+}
+private void recordReference(NameReference nameReference) {
+	if (!this.skipRecord &&
+			this.recordFrom <= nameReference.sourceStart &&
+			nameReference.sourceEnd <= this.recordTo &&
+			!isAlreadyPotentialName(nameReference.sourceStart)) {
+		char[] token;
+		if (nameReference instanceof SingleNameReference) {
+			token = ((SingleNameReference) nameReference).token;
+		} else {
+			token = ((QualifiedNameReference) nameReference).tokens[0];
+		}
+		
+		// Most of the time a name which start with an uppercase is a type name.
+		// As we don't want to resolve names to avoid to slow down performances then this name will be ignored
+		if (Character.isUpperCase(token[0])) return;
+		
+		addPotentialName(token, nameReference.sourceStart, nameReference.sourceEnd);
+	}
 }
 public void recoveryExitFromVariable() {
 	if(currentElement != null && currentElement instanceof RecoveredLocalVariable) {
@@ -4121,6 +4168,10 @@ protected LocalDeclaration createLocalDeclaration(char[] assistName, int sourceS
 		this.lastCheckPoint = sourceEnd + 1;
 		return local;
 	}
+}
+
+protected JavadocParser createJavadocParser() {
+	return new CompletionJavadocParser(this);
 }
 
 protected FieldDeclaration createFieldDeclaration(char[] assistName, int sourceStart, int sourceEnd) {

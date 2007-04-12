@@ -34,7 +34,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	private static final int MAX_LINE_COUNT = 100;
-	private static final int FAKE_BLOCKS_COUNT = 50;
+	private static final int FAKE_BLOCKS_COUNT = 20;
 	
 	public static interface UnresolvedReferenceNameRequestor {
 		public void acceptName(char[] name);
@@ -42,6 +42,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	
 	private UnresolvedReferenceNameRequestor requestor;
 	
+	private CompletionEngine completionEngine;
 	private CompletionParser parser;
 	private CompletionScanner completionScanner;
 	
@@ -55,6 +56,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	private SimpleSetOfCharArray acceptedNames = new SimpleSetOfCharArray();
 	
 	public UnresolvedReferenceNameFinder(CompletionEngine completionEngine) {
+		this.completionEngine = completionEngine;
 		this.parser = completionEngine.parser;
 		this.completionScanner = (CompletionScanner) parser.scanner;
 	} 
@@ -62,6 +64,9 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	private void acceptName(char[] name) {
 		// the null check is added to fix bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=166570
 		if (name == null) return;
+						
+		if (!CharOperation.prefixEquals(this.completionEngine.completionToken, name, false /* ignore case */)
+				&& !(this.completionEngine.options.camelCaseMatch && CharOperation.camelCaseMatch(this.completionEngine.completionToken, name))) return;
 		
 		if (acceptedNames.includes(name)) return;
 		
@@ -71,18 +76,39 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		this.requestor.acceptName(name);
 	}
 	
-	public void find(char[] startWith, Initializer initializer, ClassScope scope, int from, UnresolvedReferenceNameRequestor nameRequestor) {
-		MethodDeclaration fakeMethod = this.findAfter(startWith, scope, from, initializer.bodyEnd, MAX_LINE_COUNT, false, nameRequestor);
+	public void find(
+			char[] startWith,
+			Initializer initializer,
+			ClassScope scope,
+			int from,
+			char[][] discouragedNames,
+			UnresolvedReferenceNameRequestor nameRequestor) {
+		MethodDeclaration fakeMethod = 
+			this.findAfter(startWith, scope, from, initializer.bodyEnd, MAX_LINE_COUNT, false, discouragedNames, nameRequestor);
 		if (fakeMethod != null) fakeMethod.traverse(this, scope);
 	}
 	
-	public void find(char[] startWith, AbstractMethodDeclaration methodDeclaration, int from, UnresolvedReferenceNameRequestor nameRequestor) {
-		MethodDeclaration fakeMethod = this.findAfter(startWith, methodDeclaration.scope, from, methodDeclaration.bodyEnd, MAX_LINE_COUNT, false, nameRequestor);
+	public void find(
+			char[] startWith,
+			AbstractMethodDeclaration methodDeclaration,
+			int from,
+			char[][] discouragedNames,
+			UnresolvedReferenceNameRequestor nameRequestor) {
+		MethodDeclaration fakeMethod = 
+			this.findAfter(startWith, methodDeclaration.scope, from, methodDeclaration.bodyEnd, MAX_LINE_COUNT, false, discouragedNames, nameRequestor);
 		if (fakeMethod != null) fakeMethod.traverse(this, methodDeclaration.scope.classScope());
 	}
 	
-	public void findAfter(char[] startWith, Scope scope, ClassScope classScope, int from, int to, UnresolvedReferenceNameRequestor nameRequestor) {
-		MethodDeclaration fakeMethod = this.findAfter(startWith, scope, from, to, MAX_LINE_COUNT / 2, true, nameRequestor);
+	public void findAfter(
+			char[] startWith,
+			Scope scope,
+			ClassScope classScope,
+			int from,
+			int to,
+			char[][] discouragedNames,
+			UnresolvedReferenceNameRequestor nameRequestor) {
+		MethodDeclaration fakeMethod =
+			this.findAfter(startWith, scope, from, to, MAX_LINE_COUNT / 2, true, discouragedNames, nameRequestor);
 		if (fakeMethod != null) fakeMethod.traverse(this, classScope);
 	}
 	
@@ -93,14 +119,12 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 			int to,
 			int maxLineCount,
 			boolean outsideEnclosingBlock,
+			char[][] discouragedNames,
 			UnresolvedReferenceNameRequestor nameRequestor) {
 		this.requestor = nameRequestor;
 		
 		// reinitialize completion scanner to be usable as a normal scanner
 		this.completionScanner.cursorLocation = 0;
-		
-		// reinitialize completionIdentifier
-		this.completionScanner.prefix = startWith;
 		
 		if (!outsideEnclosingBlock) {
 			// compute location of the end of the current block
@@ -121,7 +145,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 			end = maxEnd < to ? maxEnd : to;
 		}
 		
-		this.completionScanner.startRecordingIdentifiers();
+		this.parser.startRecordingIdentifiers(from, end);
 		
 		MethodDeclaration fakeMethod = this.parser.parseSomeStatements(
 				from,
@@ -129,9 +153,9 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 				outsideEnclosingBlock ? FAKE_BLOCKS_COUNT : 0,
 				s.compilationUnitScope().referenceContext);
 		
-		this.completionScanner.stopRecordingIdentifiers();
+		this.parser.stopRecordingIdentifiers();
 		
-		if(!this.initPotentialNamesTables()) return null;
+		if(!this.initPotentialNamesTables(discouragedNames)) return null;
 		
 		this.parentsPtr = -1;
 		this.parents = new ASTNode[10];
@@ -139,8 +163,17 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		return fakeMethod;
 	}
 	
-	public void findBefore(char[] startWith, Scope scope, ClassScope classScope, int from, int to, UnresolvedReferenceNameRequestor nameRequestor) {
-		MethodDeclaration fakeMethod = this.findBefore(startWith, scope, from, to, MAX_LINE_COUNT / 2, nameRequestor);
+	public void findBefore(
+			char[] startWith,
+			Scope scope,
+			ClassScope classScope,
+			int from,
+			int recordTo,
+			int parseTo,
+			char[][] discouragedNames,
+			UnresolvedReferenceNameRequestor nameRequestor) {
+		MethodDeclaration fakeMethod =
+			this.findBefore(startWith, scope, from, recordTo, parseTo, MAX_LINE_COUNT / 2, discouragedNames, nameRequestor);
 		if (fakeMethod != null) fakeMethod.traverse(this, classScope);
 	}
 	
@@ -148,20 +181,19 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 			char[] startWith,
 			Scope s,
 			int from,
-			int to,
+			int recordTo,
+			int parseTo,
 			int maxLineCount,
+			char[][] discouragedNames,
 			UnresolvedReferenceNameRequestor nameRequestor) {
 		this.requestor = nameRequestor;
 		
 		// reinitialize completion scanner to be usable as a normal scanner
 		this.completionScanner.cursorLocation = 0;
 		
-		// reinitialize completionIdentifier
-		this.completionScanner.prefix = startWith;
-		
 		int minStart =
 			this.completionScanner.getLineStart(
-					Util.getLineNumber(to, this.completionScanner.lineEnds, 0, this.completionScanner.linePtr) - maxLineCount);
+					Util.getLineNumber(recordTo, this.completionScanner.lineEnds, 0, this.completionScanner.linePtr) - maxLineCount);
 		
 		int start;
 		int fakeBlocksCount;
@@ -173,17 +205,17 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 			fakeBlocksCount = FAKE_BLOCKS_COUNT;
 		}
 		
-		this.completionScanner.startRecordingIdentifiers();
+		this.parser.startRecordingIdentifiers(start, recordTo);
 		
 		MethodDeclaration fakeMethod = this.parser.parseSomeStatements(
 				start,
-				to,
+				parseTo,
 				fakeBlocksCount,
 				s.compilationUnitScope().referenceContext);
 		
-		this.completionScanner.stopRecordingIdentifiers();
+		this.parser.stopRecordingIdentifiers();
 		
-		if(!this.initPotentialNamesTables()) return null;
+		if(!this.initPotentialNamesTables(discouragedNames)) return null;
 		
 		this.parentsPtr = -1;
 		this.parents = new ASTNode[10];
@@ -191,85 +223,40 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 		return fakeMethod;
 	}
 	
-	private boolean initPotentialNamesTables() {
-		char[][] pvns = this.completionScanner.potentialVariableNames;
-		int[] pvnss = this.completionScanner.potentialVariableNameStarts;
-		int pvnsPtr = this.completionScanner.potentialVariableNamesPtr;
+	private boolean initPotentialNamesTables(char[][] discouragedNames) {
+		char[][] pvns = this.parser.potentialVariableNames;
+		int[] pvnss = this.parser.potentialVariableNameStarts;
+		int pvnsPtr = this.parser.potentialVariableNamesPtr;
 		
 		if (pvnsPtr < 0) return false; // there is no potential names
 		
-		// remove null
+		// remove null and discouragedNames
+		int discouragedNamesCount = discouragedNames == null ? 0 : discouragedNames.length;
 		int j = -1;
-		for (int i = 0; i <= pvnsPtr; i++) {
-			if (pvns[i] != null) {
-				char[] temp = pvns[i];
-				pvns[i] = null;
-				pvns[++j] = temp;
-				pvnss[j] = pvnss[i];
-				
+		next : for (int i = 0; i <= pvnsPtr; i++) {
+			char[] temp = pvns[i];
+			
+			if (temp == null) continue next;
+			
+			for (int k = 0; k < discouragedNamesCount; k++) {
+				if (CharOperation.equals(temp, discouragedNames[k], false)) {
+					continue next;
+				}
 			}
+			
+			pvns[i] = null;
+			pvns[++j] = temp;
+			pvnss[j] = pvnss[i];
 		}
 		pvnsPtr = j;
 		
 		if (pvnsPtr < 0) return false; // there is no potential names
-		
-		if (pvnsPtr > 0) {
-			// sort by position
-			quickSort(pvnss, pvns, 0, pvnsPtr);
-			
-			// remove double
-			j = 0;
-			for (int i = 1; i <= pvnsPtr; i++) {
-				if (pvnss[i] != pvnss[j]) {
-					char[] temp = pvns[i];
-					pvns[i] = null;
-					pvns[++j] = temp;
-					pvnss[j] = pvnss[i];
-				} else {
-					pvns[i] = null;
-				}
-			}
-			
-			pvnsPtr = j;
-		}
 		
 		this.potentialVariableNames = pvns;
 		this.potentialVariableNameStarts = pvnss;
 		this.potentialVariableNamesPtr = pvnsPtr;
 		
 		return true;
-	}
-	
-	private static void quickSort(int[] list1, char[][] list2, int left, int right) {
-		int original_left= left;
-		int original_right= right;
-		int mid= list1[left + (right - left) / 2];
-		do {
-			while (list1[left] < mid) {
-				left++;
-			}
-			while (mid < list1[right]) {
-				right--;
-			}
-			if (left <= right) {
-				int tmp1= list1[left];
-				list1[left]= list1[right];
-				list1[right]= tmp1;
-				
-				char[] tmp2= list2[left];
-				list2[left]= list2[right];
-				list2[right]= tmp2;
-				
-				left++;
-				right--;
-			}
-		} while (left <= right);
-		if (original_left < right) {
-			quickSort(list1, list2, original_left, right);
-		}
-		if (left < original_right) {
-			quickSort(list1, list2, left, original_right);
-		}
 	}
 	
 	private void popParent() {
@@ -302,11 +289,23 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	} 
 	
 	public boolean visit(Block block, BlockScope blockScope) {
+		ASTNode enclosingDeclaration = getEnclosingDeclaration();
+		removeLocals(block.statements, enclosingDeclaration.sourceStart, block.sourceEnd);
 		pushParent(block);
 		return true;
 	}
 	
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope classScope) {
+		if (!constructorDeclaration.isDefaultConstructor && !constructorDeclaration.isClinit()) {
+			removeLocals(
+					constructorDeclaration.arguments,
+					constructorDeclaration.declarationSourceStart,
+					constructorDeclaration.declarationSourceEnd);
+			removeLocals(
+					constructorDeclaration.statements,
+					constructorDeclaration.declarationSourceStart,
+					constructorDeclaration.declarationSourceEnd);
+		}
 		pushParent(constructorDeclaration);
 		return true;
 	}
@@ -322,6 +321,14 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	}
 	
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope classScope) {
+		removeLocals(
+				methodDeclaration.arguments,
+				methodDeclaration.declarationSourceStart,
+				methodDeclaration.declarationSourceEnd);
+		removeLocals(
+				methodDeclaration.statements,
+				methodDeclaration.declarationSourceStart,
+				methodDeclaration.declarationSourceEnd);
 		pushParent(methodDeclaration);
 		return true;
 	}
@@ -339,8 +346,6 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	}
 	
 	public void endVisit(Block block, BlockScope blockScope) {
-		ASTNode enclosingDeclaration = getEnclosingDeclaration();
-		removeLocals(block.statements, enclosingDeclaration.sourceStart, block.sourceEnd);
 		popParent();
 	}
 	
@@ -375,14 +380,6 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	}
 	
 	public void endVisit(MethodDeclaration methodDeclaration, ClassScope classScope) {
-		removeLocals(
-				methodDeclaration.arguments,
-				methodDeclaration.declarationSourceStart,
-				methodDeclaration.declarationSourceEnd);
-		removeLocals(
-				methodDeclaration.statements,
-				methodDeclaration.declarationSourceStart,
-				methodDeclaration.declarationSourceEnd);
 		endVisitPreserved(
 				methodDeclaration.bodyStart,
 				methodDeclaration.bodyEnd);
@@ -390,7 +387,6 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	}
 	
 	public void endVisit(TypeDeclaration typeDeclaration, BlockScope blockScope) {
-		removeFields(typeDeclaration);
 		endVisitRemoved(typeDeclaration.sourceStart, typeDeclaration.declarationSourceEnd);
 		popParent();
 	}

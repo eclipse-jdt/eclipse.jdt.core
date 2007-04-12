@@ -2512,59 +2512,95 @@ public void testCompletionCaseInsensitivePackage() throws JavaModelException {
 
 
 public void testCompletionCastIsParent1() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionCastIsParent1.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionCastIsParent1.java.java",
+		"public class CompletionCastIsParent1 {\n"+
+		"	Object zzOb;\n"+
+		"	XX00 zz00;\n"+
+		"	XX01 zz01;\n"+
+		"	XX02 zz02;\n"+
+		"	XX10 zz10;\n"+
+		"	XX11 zz11;\n"+
+		"	XX12 zz12;\n"+
+		"	XX20 zz20;\n"+
+		"	XX21 zz21;\n"+
+		"	XX22 zz22;\n"+
+		"	\n"+
+		"	Object zzObM(){}\n"+
+		"	XX00 zz00M(){}\n"+
+		"	XX01 zz01M(){}\n"+
+		"	XX02 zz02M(){}\n"+
+		"	XX10 zz10M(){}\n"+
+		"	XX11 zz11M(){}\n"+
+		"	XX12 zz12M(){}\n"+
+		"	XX20 zz20M(){}\n"+
+		"	XX21 zz21M(){}\n"+
+		"	XX22 zz22M(){}\n"+
+		"	\n"+
+		"	XX11 foo() {\n"+
+		"		return (XX11)zz\n"+
+		"	}\n"+
+		"}\n");
 
-	String str = cu.getSource();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "zz";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	assertEquals(
-		"element:zz00    completion:zz00    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz00M    completion:zz00M()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz01    completion:zz01    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz01M    completion:zz01M()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz02    completion:zz02    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz02M    completion:zz02M()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz10    completion:zz10    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz10M    completion:zz10M()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz11    completion:zz11    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz11M    completion:zz11M()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz12    completion:zz12    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz12M    completion:zz12M()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz20    completion:zz20    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz20M    completion:zz20M()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz21    completion:zz21    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz21M    completion:zz21M()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz22    completion:zz22    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zz22M    completion:zz22M()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zzOb    completion:zzOb    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:zzObM    completion:zzObM()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED+ R_NON_RESTRICTED),
-		requestor.getResults());
+	assertResults(
+			"zz00[FIELD_REF]{zz00, LCompletionCastIsParent1;, LXX00;, zz00, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz00M[METHOD_REF]{zz00M(), LCompletionCastIsParent1;, ()LXX00;, zz00M, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz02[FIELD_REF]{zz02, LCompletionCastIsParent1;, LXX02;, zz02, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz02M[METHOD_REF]{zz02M(), LCompletionCastIsParent1;, ()LXX02;, zz02M, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz10[FIELD_REF]{zz10, LCompletionCastIsParent1;, LXX10;, zz10, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz10M[METHOD_REF]{zz10M(), LCompletionCastIsParent1;, ()LXX10;, zz10M, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz12[FIELD_REF]{zz12, LCompletionCastIsParent1;, LXX12;, zz12, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz12M[METHOD_REF]{zz12M(), LCompletionCastIsParent1;, ()LXX12;, zz12M, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz20[FIELD_REF]{zz20, LCompletionCastIsParent1;, LXX20;, zz20, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz20M[METHOD_REF]{zz20M(), LCompletionCastIsParent1;, ()LXX20;, zz20M, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz22[FIELD_REF]{zz22, LCompletionCastIsParent1;, LXX22;, zz22, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz22M[METHOD_REF]{zz22M(), LCompletionCastIsParent1;, ()LXX22;, zz22M, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz01[FIELD_REF]{zz01, LCompletionCastIsParent1;, LXX01;, zz01, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz01M[METHOD_REF]{zz01M(), LCompletionCastIsParent1;, ()LXX01;, zz01M, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz21[FIELD_REF]{zz21, LCompletionCastIsParent1;, LXX21;, zz21, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz21M[METHOD_REF]{zz21M(), LCompletionCastIsParent1;, ()LXX21;, zz21M, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zzOb[FIELD_REF]{zzOb, LCompletionCastIsParent1;, Ljava.lang.Object;, zzOb, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zzObM[METHOD_REF]{zzObM(), LCompletionCastIsParent1;, ()Ljava.lang.Object;, zzObM, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz11[FIELD_REF]{zz11, LCompletionCastIsParent1;, LXX11;, zz11, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"zz11M[METHOD_REF]{zz11M(), LCompletionCastIsParent1;, ()LXX11;, zz11M, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
 }
 
 
 public void testCompletionCastIsParent2() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionCastIsParent2.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionCastIsParent2.java.java",
+		"public class CompletionCastIsParent2 {\n"+
+		"	XX11 foo() {\n"+
+		"		return (XX11)xx\n"+
+		"	}\n"+
+		"}\n");
 
-	String str = cu.getSource();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "xx";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	assertEquals(
-		"element:XX00    completion:XX00    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:XX01    completion:XX01    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:XX02    completion:XX02    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:XX10    completion:XX10    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:XX11    completion:XX11    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:XX12    completion:XX12    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:XX20    completion:XX20    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:XX21    completion:XX21    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:XX22    completion:XX22    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED+ R_NON_RESTRICTED),
-		requestor.getResults());
+	assertResults(
+			"XX00[TYPE_REF]{XX00, , LXX00;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"XX01[TYPE_REF]{XX01, , LXX01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"XX02[TYPE_REF]{XX02, , LXX02;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"XX10[TYPE_REF]{XX10, , LXX10;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"XX12[TYPE_REF]{XX12, , LXX12;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"XX20[TYPE_REF]{XX20, , LXX20;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"XX21[TYPE_REF]{XX21, , LXX21;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"XX22[TYPE_REF]{XX22, , LXX22;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"XX11[TYPE_REF]{XX11, , LXX11;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
 }
 
 public void testCompletionCatchArgumentName() throws JavaModelException {
@@ -15667,6 +15703,177 @@ public void testNameWithUnresolvedReferences011() throws JavaModelException {
 	
 	assertResults(
 			"zzz1[LOCAL_VARIABLE_REF]{zzz1, null, Ljava.lang.Object;, zzz1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177174
+public void testNameWithUnresolvedReferences012() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"   void foo() {\n" +
+			"      zzzlala = 0;\n" +
+			"      zzzlabel : {\n" +
+			"        /**/zzzla\n" +
+			"      }\n" +
+			"   }\n" +
+			"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/**/zzzla";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"zzzlala[LOCAL_VARIABLE_REF]{zzzlala, null, Ljava.lang.Object;, zzzlala, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177174
+public void testNameWithUnresolvedReferences013() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"   void foo() {\n" +
+			"      zzzlala = 0;\n" +
+			"      zzzlabel1 : {\n" +
+			"        /**/zzzla\n" +
+			"        {\n" +
+			"          break zzzlabel2;\n" +
+			"        }\n" +
+			"      }\n" +
+			"   }\n" +
+			"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/**/zzzla";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"zzzlala[LOCAL_VARIABLE_REF]{zzzlala, null, Ljava.lang.Object;, zzzlala, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177174
+public void testNameWithUnresolvedReferences014() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"   void foo() {\n" +
+			"      {\n" +
+			"        break;\n" +
+			"      }\n" +
+			"      zzznotlabel = 25;\n" +
+			"      {\n" +
+			"        /**/zzznotla\n" +
+			"      }\n" +
+			"   }\n" +
+			"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/**/zzznotla";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"zzznotlabel[LOCAL_VARIABLE_REF]{zzznotlabel, null, Ljava.lang.Object;, zzznotlabel, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177174
+public void testNameWithUnresolvedReferences015() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"   int foo() {\n" +
+			"      zzz1 = 0;\n" +
+			"      if (false) return (ZZZ2) var;\n" +
+			"      zz\n" +
+			"   }\n" +
+			"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"zzz1[LOCAL_VARIABLE_REF]{zzz1, null, Ljava.lang.Object;, zzz1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177174
+public void testNameWithUnresolvedReferences016() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"   int foo() {\n" +
+			"      zzz1 = 0;\n" +
+			"      return (zzz2) zz;\n" +
+			"   }\n" +
+			"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"zzz1[LOCAL_VARIABLE_REF]{zzz1, null, Ljava.lang.Object;, zzz1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=177174
+public void testNameWithUnresolvedReferences017() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"   void foo() {\n" +
+			"      {\n" +
+			"         final int zzz1 = 0;\n" +
+			"         class Local {\n" +
+			"            void bar() {n" +
+			"               zzz1 = 24;\n" +
+			"               zzz2 = 24;\n" +
+			"            }\n" +
+			"         }\n" +
+			"      }\n" +
+			"      zz\n" +
+			"   }\n" +
+			"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"zzz2[LOCAL_VARIABLE_REF]{zzz2, null, Ljava.lang.Object;, zzz2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testParameterNames1() throws CoreException, IOException {

@@ -52,7 +52,6 @@ public class SelectionParser extends AssistParser {
 	
 public SelectionParser(ProblemReporter problemReporter) {
 	super(problemReporter);
-	this.javadocParser = new SelectionJavadocParser(this);
 	this.javadocParser.checkDocComment = true;
 }
 public char[] assistIdentifier(){
@@ -967,6 +966,9 @@ public ImportReference createAssistImportReference(char[][] tokens, long[] posit
 }
 public ImportReference createAssistPackageReference(char[][] tokens, long[] positions){
 	return new SelectionOnPackageReference(tokens, positions);
+}
+protected JavadocParser createJavadocParser() {
+	return new SelectionJavadocParser(this);
 }
 protected LocalDeclaration createLocalDeclaration(char[] assistName,int sourceStart,int sourceEnd) {
 	if (this.indexOfAssistIdentifier() < 0) {

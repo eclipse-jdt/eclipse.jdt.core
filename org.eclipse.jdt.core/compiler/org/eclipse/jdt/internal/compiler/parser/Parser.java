@@ -879,7 +879,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.variablesCounter = new int[30];
 	
 	// javadoc support
-	this.javadocParser = new JavadocParser(this);
+	this.javadocParser = createJavadocParser();
 }
 protected void annotationRecoveryCheckPoint(int start, int end) {
 	if(this.lastCheckPoint > start && this.lastCheckPoint < end) {
@@ -7808,7 +7808,9 @@ protected TypeReference copyDims(TypeReference typeRef, int dim) {
 protected FieldDeclaration createFieldDeclaration(char[] fieldDeclarationName, int sourceStart, int sourceEnd) {
 	return new FieldDeclaration(fieldDeclarationName, sourceStart, sourceEnd);
 }
-
+protected JavadocParser createJavadocParser() {
+	return new JavadocParser(this);
+}
 protected LocalDeclaration createLocalDeclaration(char[] localDeclarationName, int sourceStart, int sourceEnd) {
 	return new LocalDeclaration(localDeclarationName, sourceStart, sourceEnd);
 }
