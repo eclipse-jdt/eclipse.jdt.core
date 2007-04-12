@@ -32,7 +32,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 	public final static int This = 3;
 
 	public VariableBinding[][] implicitArguments;
-	boolean discardEnclosingInstance;
+//	boolean discardEnclosingInstance;
 	
 	// TODO Remove once DOMParser is activated
 	public int typeArgumentsSourceStart;
@@ -117,7 +117,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				codeStream.generateSyntheticEnclosingInstanceValues(
 					currentScope,
 					targetType,
-					discardEnclosingInstance ? null : qualification,
+					(this.bits & ASTNode.DiscardEnclosingInstance) != 0 ? null : qualification,
 					this);
 			}
 			// generate arguments
@@ -296,7 +296,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 					scope.problemReporter().unnecessaryEnclosingInstanceSpecification(
 						qualification,
 						receiverType);
-					discardEnclosingInstance = true;
+					this.bits |= ASTNode.DiscardEnclosingInstance;
 				} else {
 					TypeBinding qTb = qualification.resolveTypeExpecting(scope, enclosingType);
 					qualification.computeConversion(scope, qTb, qTb);

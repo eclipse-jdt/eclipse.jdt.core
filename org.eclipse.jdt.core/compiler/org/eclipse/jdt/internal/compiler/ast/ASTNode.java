@@ -27,7 +27,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit2 = 0x2; 						// return type (operator) | name reference kind (name ref) | has local type (type, method, field decl)
 	public final static int Bit3 = 0x4; 						// return type (operator) | name reference kind (name ref) | implicit this (this ref)
 	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (name ref,local decl) | undocumented empty block (block, type and method decl)
-	public final static int Bit5 = 0x10; 						// value for return (expression) | has all method bodies (unit) | supertype ref (type ref)
+	public final static int Bit5 = 0x10; 						// value for return (expression) | has all method bodies (unit) | supertype ref (type ref) | resolved (field decl)
 	public final static int Bit6 = 0x20; 						// depth (name ref, msg) | ignore need cast check (cast expression)
 	public final static int Bit7 = 0x40; 						// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression) | label used (labelStatement)
 	public final static int Bit8 = 0x80; 						// depth (name ref, msg) | operator (operator) | unsafe cast (cast expression)
@@ -36,7 +36,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit11 = 0x400; 					// depth (name ref, msg) | operator (operator) | is member type (type decl)
 	public final static int Bit12 = 0x800; 					// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
 	public final static int Bit13 = 0x1000; 				// depth (name ref, msg) | is secondary type (type decl)
-	public final static int Bit14 = 0x2000; 				// strictly assigned (reference lhs)
+	public final static int Bit14 = 0x2000; 				// strictly assigned (reference lhs) | discard enclosing instance (explicit constr call)
 	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression) | is varargs (type ref) | isSubRoutineEscaping (try statement)
 	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000; 				// compound assigned (reference lhs)
@@ -141,6 +141,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	// for type, method and field declarations
 	public static final int HasLocalType = Bit2; // cannot conflict with AddAssertionMASK
+	public static final int HasBeenResolved = Bit5; // field decl only (to handle forward references)
 
 	// for expression
 	public static final int ParenthesizedSHIFT = 21; // Bit22 -> Bit29
@@ -151,6 +152,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones
 	public static final int IsCompoundAssigned = Bit17; // set only for compound assignments, as opposed to other ones
 
+	// for explicit constructor call
+	public static final int DiscardEnclosingInstance = Bit14; // used for codegen
+	
 	// for empty statement
 	public static final int IsUsefulEmptyStatement = Bit1;
 
