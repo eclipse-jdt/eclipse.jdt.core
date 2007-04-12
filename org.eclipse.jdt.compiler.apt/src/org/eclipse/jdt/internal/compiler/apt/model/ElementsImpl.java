@@ -242,7 +242,8 @@ public class ElementsImpl implements Elements {
 	public Name getBinaryName(TypeElement type) {
 		TypeElementImpl typeElementImpl = (TypeElementImpl) type;
 		ReferenceBinding referenceBinding = (ReferenceBinding) typeElementImpl._binding;
-		return new NameImpl(referenceBinding.constantPoolName());
+		return new NameImpl(
+			CharOperation.replaceOnCopy(referenceBinding.constantPoolName(), '/', '.'));
 	}
 
 	/* (non-Javadoc)
@@ -250,8 +251,12 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public String getConstantExpression(Object value) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		if (value instanceof Character) {
+			StringBuilder builder = new StringBuilder();
+			builder.append('\'').append(value).append('\'');
+			return String.valueOf(builder);
+		}
+		return String.valueOf(value);
 	}
 
 	/* (non-Javadoc)
