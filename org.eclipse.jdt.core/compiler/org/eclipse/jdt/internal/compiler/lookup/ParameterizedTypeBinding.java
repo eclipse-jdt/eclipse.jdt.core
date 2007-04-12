@@ -50,12 +50,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		this.tagBits |=  TagBits.HasUnresolvedTypeVariables; // cleared in resolve()
 	}
 
+	/**
+	 * May return an UnresolvedReferenceBinding.
+	 * @see ParameterizedTypeBinding#genericType()
+	 */
 	protected ReferenceBinding actualType() {
-		// can be an UnresolvedReferenceBinding
-		// most clients should call genericType()
 		return this.type; 
 	}
-
+	
 	/**
 	 * Iterate type arguments, and validate them according to corresponding variable bounds.
 	 */
@@ -74,15 +76,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (!hasErrors) this.tagBits |= TagBits.PassedBoundCheck; // no need to recheck it in the future
 		}
 	}
-	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#canBeInstantiated()
 	 */
 	public boolean canBeInstantiated() {
 		return ((this.tagBits & TagBits.HasDirectWildcard) == 0) && super.canBeInstantiated(); // cannot instantiate param type with wildcard arguments
-	}
-	public int kind() {
-		return PARAMETERIZED_TYPE;
 	}	
 	/**
 	 * Perform capture conversion for a parameterized type with wildcard arguments
@@ -349,6 +347,17 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	/**
+	 * Return the original generic type from which the parameterized type got instantiated from.
+	 * This will perform lazy resolution automatically if needed.
+	 * @see ParameterizedTypeBinding#actualType() if no resolution is required (unlikely)
+	 */
+	public ReferenceBinding genericType() {
+		if (this.type instanceof UnresolvedReferenceBinding)
+			((UnresolvedReferenceBinding) this.type).resolve(this.environment, false);
+		return this.type;
+	}	
+
+	/**
 	 * Ltype<param1 ... paramN>;
 	 * LY<TT;>;
 	 */
@@ -376,15 +385,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			sig.getChars(0, sigLength, this.genericTypeSignature, 0);			
 	    }
 		return this.genericTypeSignature;	    
-	}	
-
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getAnnotationTagBits()
 	 */
 	public long getAnnotationTagBits() {
 		return this.type.getAnnotationTagBits();
 	}
-	
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getExactConstructor(TypeBinding[])
 	 */
@@ -605,11 +614,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		this.tagBits |= someType.tagBits & (TagBits.IsLocalType| TagBits.IsMemberType | TagBits.IsNestedType);
 		this.tagBits &= ~(TagBits.AreFieldsComplete|TagBits.AreMethodsComplete);
 	}
-
+	
 	protected void initializeArguments() {
 	    // do nothing for true parameterized types (only for raw types)
 	}
-	
+
 	public boolean isEquivalentTo(TypeBinding otherType) {
 		if (this == otherType) 
 		    return true;
@@ -653,7 +662,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    }
         return false;
 	}
-
+	
 	public boolean isIntersectingWith(TypeBinding otherType) {
 		if (this == otherType) 
 		    return true;
@@ -734,7 +743,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public boolean isRawSubstitution() {
 		return isRawType();
 	}
-	
+
+	public int kind() {
+		return PARAMETERIZED_TYPE;
+	}
+
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#memberTypes()
 	 */
@@ -853,12 +866,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this;
 	}
 
-	public ReferenceBinding genericType() {
-		if (this.type instanceof UnresolvedReferenceBinding)
-			((UnresolvedReferenceBinding) this.type).resolve(this.environment, false);
-		return this.type;
-	}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
 	 */
@@ -898,7 +905,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public char[] sourceName() {
 		return this.type.sourceName();
-	}
+	}	
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Substitution#substitute(org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding)
@@ -925,7 +932,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			currentType = (ParameterizedTypeBinding) enclosing;
 		}
 		return originalVariable;
-	}	
+	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superclass()
