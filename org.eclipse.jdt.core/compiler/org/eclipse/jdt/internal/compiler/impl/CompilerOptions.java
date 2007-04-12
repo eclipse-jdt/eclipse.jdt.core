@@ -909,6 +909,8 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_Process_Annotations)) != null) {
 			if (ENABLED.equals(optionValue)) {
 				this.processAnnotations = true;
+				// annotation processing requires annotation to be stored
+				this.storeAnnotations = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.processAnnotations = false;
 			}

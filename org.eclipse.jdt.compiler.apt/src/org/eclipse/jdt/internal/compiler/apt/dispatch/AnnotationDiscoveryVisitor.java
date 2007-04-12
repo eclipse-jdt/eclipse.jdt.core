@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -43,15 +42,8 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	 */
 	ManyToMany<TypeElement, Element> _annoToElement;
 
-	boolean storeAnnotations;
-
 	public AnnotationDiscoveryVisitor() {
 		this._annoToElement = new ManyToMany<TypeElement, Element>();
-	}
-
-	@Override
-	public void endVisit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope) {
-		scope.compilerOptions().storeAnnotations = this.storeAnnotations;
 	}
 
 	@Override
@@ -64,13 +56,6 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 					argument.binding);
 		}
 		return false;
-	}
-
-	@Override
-	public boolean visit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope) {
-		this.storeAnnotations = scope.compilerOptions().storeAnnotations;
-		scope.compilerOptions().storeAnnotations = true;
-		return true;
 	}
 
 	@Override
