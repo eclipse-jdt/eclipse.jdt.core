@@ -602,7 +602,7 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 /* Used to create packages from the package statement.
 */
 
-PackageBinding createPackage(char[][] compoundName) {
+public PackageBinding createPackage(char[][] compoundName) {
 	PackageBinding packageBinding = getPackage0(compoundName[0]);
 	if (packageBinding == null || packageBinding == TheNotFoundPackage) {
 		packageBinding = new PackageBinding(compoundName[0], this);
@@ -891,7 +891,7 @@ public ReferenceBinding getResolvedType(char[][] compoundName, Scope scope) {
 * Answer null if the package cannot be found.
 */
 
-public PackageBinding getTopLevelPackage(char[] name) {
+PackageBinding getTopLevelPackage(char[] name) {
 	PackageBinding packageBinding = getPackage0(name);
 	if (packageBinding != null) {
 		if (packageBinding == TheNotFoundPackage)

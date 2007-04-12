@@ -333,7 +333,8 @@ public class ElementsImpl implements Elements {
 	@Override
 	public PackageElement getPackageElement(CharSequence name) {
 		LookupEnvironment le = _env.getLookupEnvironment();
-		PackageBinding packageBinding = le.getTopLevelPackage(name.toString().toCharArray());
+		char[] packageName = name.toString().toCharArray();
+		PackageBinding packageBinding = le.createPackage(CharOperation.splitOn('.', packageName));
 		if (packageBinding == null) {
 			return null;
 		}
