@@ -26,236 +26,12 @@ class DefaultASTVisitor extends ASTVisitor {
 		super(visitDocTags);
 	}
 	
-	protected boolean visitNode(ASTNode node) {
-		return true;
+	public void endVisit(AnnotationTypeDeclaration node) {
+		endVisitNode(node);
 	}
 	
-	protected void endVisitNode(ASTNode node) {
-		// do nothing
-	}
-
-	public boolean visit(AnonymousClassDeclaration node) {
-		return visitNode(node);
-	}
-	public boolean visit(ArrayAccess node) {
-		return visitNode(node);
-	}
-	public boolean visit(ArrayCreation node) {
-		return visitNode(node);
-	}
-	public boolean visit(ArrayInitializer node) {
-		return visitNode(node);
-	}
-	public boolean visit(ArrayType node) {
-		visitNode(node);
-		return false;
-	}
-	public boolean visit(AssertStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(Assignment node) {
-		return visitNode(node);
-	}
-	public boolean visit(Block node) {
-		return visitNode(node);
-	}
-	public boolean visit(BooleanLiteral node) {
-		return visitNode(node);
-	}
-	public boolean visit(BreakStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(CastExpression node) {
-		return visitNode(node);
-	}
-	public boolean visit(CatchClause node) {
-		return visitNode(node);
-	}
-	public boolean visit(CharacterLiteral node) {
-		return visitNode(node);
-	}
-	public boolean visit(ClassInstanceCreation node) {
-		return visitNode(node);
-	}
-	public boolean visit(CompilationUnit node) {
-		return visitNode(node);
-	}
-	public boolean visit(ConditionalExpression node) {
-		return visitNode(node);
-	}
-	public boolean visit(ConstructorInvocation node) {
-		return visitNode(node);
-	}
-	public boolean visit(ContinueStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(DoStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(EmptyStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(EnumConstantDeclaration node) {
-		return visitNode(node);
-	}
-	public boolean visit(EnumDeclaration node) {
-		return visitNode(node);
-	}
-	public boolean visit(ExpressionStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(FieldAccess node) {
-		return visitNode(node);
-	}
-	public boolean visit(FieldDeclaration node) {
-		return visitNode(node);
-	}
-	public boolean visit(ForStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(IfStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(ImportDeclaration node) {
-		return visitNode(node);
-	}
-	public boolean visit(InfixExpression node) {
-		return visitNode(node);
-	}
-	public boolean visit(InstanceofExpression node) {
-		return visitNode(node);
-	}
-	public boolean visit(Initializer node) {
-		return visitNode(node);
-	}
-	public boolean visit(Javadoc node) {
-		//	do not visit Javadoc tags by default. Use constructor with boolean to enable.
-		if (super.visit(node)) { 
-			return visitNode(node);
-		}
-		return false;
-	}
-	public boolean visit(LabeledStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(MethodDeclaration node) {
-		return visitNode(node);
-	}
-	public boolean visit(MethodInvocation node) {
-		return visitNode(node);
-	}
-	public boolean visit(NullLiteral node) {
-		return visitNode(node);
-	}
-	public boolean visit(NumberLiteral node) {
-		return visitNode(node);
-	}
-	public boolean visit(PackageDeclaration node) {
-		return visitNode(node);
-	}
-	public boolean visit(ParenthesizedExpression node) {
-		return visitNode(node);
-	}
-	public boolean visit(PostfixExpression node) {
-		return visitNode(node);
-	}
-	public boolean visit(PrefixExpression node) {
-		return visitNode(node);
-	}
-	public boolean visit(PrimitiveType node) {
-		return visitNode(node);
-	}
-	public boolean visit(QualifiedName node) {
-		return visitNode(node);
-	}
-	public boolean visit(ReturnStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(SimpleName node) {
-		return visitNode(node);
-	}
-	public boolean visit(SimpleType node) {
-		return visitNode(node);
-	}
-	public boolean visit(StringLiteral node) {
-		return visitNode(node);
-	}
-	public boolean visit(SuperConstructorInvocation node) {
-		return visitNode(node);
-	}
-	public boolean visit(SuperFieldAccess node) {
-		return visitNode(node);
-	}
-	public boolean visit(SuperMethodInvocation node) {
-		return visitNode(node);
-	}
-	public boolean visit(SwitchCase node) {
-		return visitNode(node);
-	}
-	public boolean visit(SwitchStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(SynchronizedStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(ThisExpression node) {
-		return visitNode(node);
-	}
-	public boolean visit(ThrowStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(TryStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(TypeDeclaration node) {
-		return visitNode(node);
-	}
-	public boolean visit(TypeDeclarationStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(TypeLiteral node) {
-		return visitNode(node);
-	}
-	public boolean visit(SingleVariableDeclaration node) {
-		return visitNode(node);
-	}
-	public boolean visit(VariableDeclarationExpression node) {
-		return visitNode(node);
-	}
-	public boolean visit(VariableDeclarationStatement node) {
-		return visitNode(node);
-	}
-	public boolean visit(VariableDeclarationFragment node) {
-		return visitNode(node);
-	}
-	public boolean visit(WhileStatement node) {
-		return visitNode(node);
-	}
-
-	/* since 3.0 */
-	public boolean visit(BlockComment node) {
-		return visitNode(node);
-	}
-	public boolean visit(LineComment node) {
-		return visitNode(node);
-	}
-	public boolean visit(MarkerAnnotation node) {
-		return visitNode(node);
-	}
-	public boolean visit(MemberRef node) {
-		return visitNode(node);
-	}
-	public boolean visit(MethodRef node) {
-		return visitNode(node);
-	}
-	public boolean visit(MethodRefParameter node) {
-		return visitNode(node);
-	}
-	public boolean visit(TagElement node) {
-		return visitNode(node);
-	}
-	public boolean visit(TextElement node) {
-		return visitNode(node);
+	public void endVisit(AnnotationTypeMemberDeclaration node) {
+		endVisitNode(node);
 	}
 
 	public void endVisit(AnonymousClassDeclaration node) {
@@ -280,6 +56,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	public void endVisit(Block node) {
+		endVisitNode(node);
+	}
+	/* since 3.0 */
+	public void endVisit(BlockComment node) {
 		endVisitNode(node);
 	}
 	public void endVisit(BooleanLiteral node) {
@@ -318,6 +98,9 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(EmptyStatement node) {
 		endVisitNode(node);
 	}
+	public void endVisit(EnhancedForStatement node) {
+		endVisitNode(node);
+	}
 	public void endVisit(EnumConstantDeclaration node) {
 		endVisitNode(node);
 	}
@@ -345,10 +128,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(InfixExpression node) {
 		endVisitNode(node);
 	}
-	public void endVisit(InstanceofExpression node) {
+	public void endVisit(Initializer node) {
 		endVisitNode(node);
 	}
-	public void endVisit(Initializer node) {
+	public void endVisit(InstanceofExpression node) {
 		endVisitNode(node);
 	}
 	public void endVisit(Javadoc node) {
@@ -357,10 +140,31 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(LabeledStatement node) {
 		endVisitNode(node);
 	}
+	public void endVisit(LineComment node) {
+		endVisitNode(node);
+	}
+	public void endVisit(MarkerAnnotation node) {
+		endVisitNode(node);
+	}
+	public void endVisit(MemberRef node) {
+		endVisitNode(node);
+	}
+	public void endVisit(MemberValuePair node) {
+		endVisitNode(node);
+	}
 	public void endVisit(MethodDeclaration node) {
 		endVisitNode(node);
 	}
 	public void endVisit(MethodInvocation node) {
+		endVisitNode(node);
+	}
+	public void endVisit(MethodRef node) {
+		endVisitNode(node);
+	}
+	public void endVisit(MethodRefParameter node) {
+		endVisitNode(node);
+	}
+	public void endVisit(NormalAnnotation node) {
 		endVisitNode(node);
 	}
 	public void endVisit(NullLiteral node) {
@@ -370,6 +174,9 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	public void endVisit(PackageDeclaration node) {
+		endVisitNode(node);
+	}
+	public void endVisit(ParameterizedType node) {
 		endVisitNode(node);
 	}
 	public void endVisit(ParenthesizedExpression node) {
@@ -387,6 +194,9 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(QualifiedName node) {
 		endVisitNode(node);
 	}
+	public void endVisit(QualifiedType node) {
+		endVisitNode(node);
+	}
 	public void endVisit(ReturnStatement node) {
 		endVisitNode(node);
 	}
@@ -394,6 +204,12 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	public void endVisit(SimpleType node) {
+		endVisitNode(node);
+	}
+	public void endVisit(SingleMemberAnnotation node) {
+		endVisitNode(node);
+	}
+	public void endVisit(SingleVariableDeclaration node) {
 		endVisitNode(node);
 	}
 	public void endVisit(StringLiteral node) {
@@ -408,6 +224,7 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(SuperMethodInvocation node) {
 		endVisitNode(node);
 	}
+
 	public void endVisit(SwitchCase node) {
 		endVisitNode(node);
 	}
@@ -415,6 +232,12 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	public void endVisit(SynchronizedStatement node) {
+		endVisitNode(node);
+	}
+	public void endVisit(TagElement node) {
+		endVisitNode(node);
+	}
+	public void endVisit(TextElement node) {
 		endVisitNode(node);
 	}
 	public void endVisit(ThisExpression node) {
@@ -426,6 +249,7 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(TryStatement node) {
 		endVisitNode(node);
 	}
+
 	public void endVisit(TypeDeclaration node) {
 		endVisitNode(node);
 	}
@@ -435,46 +259,304 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(TypeLiteral node) {
 		endVisitNode(node);
 	}
-	public void endVisit(SingleVariableDeclaration node) {
+	public void endVisit(TypeParameter node) {
 		endVisitNode(node);
 	}
 	public void endVisit(VariableDeclarationExpression node) {
 		endVisitNode(node);
 	}
-	public void endVisit(VariableDeclarationStatement node) {
+	public void endVisit(VariableDeclarationFragment node) {
 		endVisitNode(node);
 	}
-	public void endVisit(VariableDeclarationFragment node) {
+	public void endVisit(VariableDeclarationStatement node) {
 		endVisitNode(node);
 	}
 	public void endVisit(WhileStatement node) {
 		endVisitNode(node);
 	}
-	
+	public void endVisit(WildcardType node) {
+		endVisitNode(node);
+	}
+	protected void endVisitNode(ASTNode node) {
+		// do nothing
+	}
+	public boolean visit(AnnotationTypeDeclaration node) {
+		return visitNode(node);
+	}
+	public boolean visit(AnnotationTypeMemberDeclaration node) {
+		return visitNode(node);
+	}
+	public boolean visit(AnonymousClassDeclaration node) {
+		return visitNode(node);
+	}
+	public boolean visit(ArrayAccess node) {
+		return visitNode(node);
+	}
+	public boolean visit(ArrayCreation node) {
+		return visitNode(node);
+	}
+	public boolean visit(ArrayInitializer node) {
+		return visitNode(node);
+	}
+	public boolean visit(ArrayType node) {
+		visitNode(node);
+		return false;
+	}
+	public boolean visit(AssertStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(Assignment node) {
+		return visitNode(node);
+	}
+	public boolean visit(Block node) {
+		return visitNode(node);
+	}
 	/* since 3.0 */
-	public void endVisit(BlockComment node) {
-		endVisitNode(node);
+	public boolean visit(BlockComment node) {
+		return visitNode(node);
 	}
-	public void endVisit(LineComment node) {
-		endVisitNode(node);
+	public boolean visit(BooleanLiteral node) {
+		return visitNode(node);
 	}
-	public void endVisit(MarkerAnnotation node) {
-		endVisitNode(node);
+	public boolean visit(BreakStatement node) {
+		return visitNode(node);
 	}
-	public void endVisit(MemberRef node) {
-		endVisitNode(node);
+	public boolean visit(CastExpression node) {
+		return visitNode(node);
 	}
-	public void endVisit(MethodRef node) {
-		endVisitNode(node);
+	public boolean visit(CatchClause node) {
+		return visitNode(node);
 	}
-	public void endVisit(MethodRefParameter node) {
-		endVisitNode(node);
+	public boolean visit(CharacterLiteral node) {
+		return visitNode(node);
 	}
-	public void endVisit(TagElement node) {
-		endVisitNode(node);
+	public boolean visit(ClassInstanceCreation node) {
+		return visitNode(node);
 	}
-	public void endVisit(TextElement node) {
-		endVisitNode(node);
+	public boolean visit(CompilationUnit node) {
+		return visitNode(node);
+	}
+	public boolean visit(ConditionalExpression node) {
+		return visitNode(node);
+	}
+	public boolean visit(ConstructorInvocation node) {
+		return visitNode(node);
+	}
+	public boolean visit(ContinueStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(DoStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(EmptyStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(EnhancedForStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(EnumConstantDeclaration node) {
+		return visitNode(node);
+	}
+	public boolean visit(EnumDeclaration node) {
+		return visitNode(node);
+	}
+	public boolean visit(ExpressionStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(FieldAccess node) {
+		return visitNode(node);
+	}
+	public boolean visit(FieldDeclaration node) {
+		return visitNode(node);
+	}
+	public boolean visit(ForStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(IfStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(ImportDeclaration node) {
+		return visitNode(node);
+	}
+	public boolean visit(InfixExpression node) {
+		return visitNode(node);
+	}
+	public boolean visit(Initializer node) {
+		return visitNode(node);
+	}
+	public boolean visit(InstanceofExpression node) {
+		return visitNode(node);
+	}
+	public boolean visit(Javadoc node) {
+		//	do not visit Javadoc tags by default. Use constructor with boolean to enable.
+		if (super.visit(node)) { 
+			return visitNode(node);
+		}
+		return false;
+	}
+	public boolean visit(LabeledStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(LineComment node) {
+		return visitNode(node);
+	}
+	public boolean visit(MarkerAnnotation node) {
+		return visitNode(node);
+	}
+	public boolean visit(MemberRef node) {
+		return visitNode(node);
+	}
+	public boolean visit(MemberValuePair node) {
+		return visitNode(node);
+	}
+	public boolean visit(MethodDeclaration node) {
+		return visitNode(node);
+	}
+	public boolean visit(MethodInvocation node) {
+		return visitNode(node);
+	}
+	public boolean visit(MethodRef node) {
+		return visitNode(node);
+	}
+	public boolean visit(MethodRefParameter node) {
+		return visitNode(node);
+	}
+	public boolean visit(NormalAnnotation node) {
+		return visitNode(node);
+	}
+	public boolean visit(NullLiteral node) {
+		return visitNode(node);
+	}
+	public boolean visit(NumberLiteral node) {
+		return visitNode(node);
+	}
+	public boolean visit(PackageDeclaration node) {
+		return visitNode(node);
+	}
+	public boolean visit(ParameterizedType node) {
+		return visitNode(node);
+	}
+	public boolean visit(ParenthesizedExpression node) {
+		return visitNode(node);
+	}
+	public boolean visit(PostfixExpression node) {
+		return visitNode(node);
+	}
+	public boolean visit(PrefixExpression node) {
+		return visitNode(node);
+	}
+	
+	public boolean visit(PrimitiveType node) {
+		return visitNode(node);
+	}
+	public boolean visit(QualifiedName node) {
+		return visitNode(node);
+	}
+	public boolean visit(QualifiedType node) {
+		return visitNode(node);
+	}
+	public boolean visit(ReturnStatement node) {
+		return visitNode(node);
+	}
+	public boolean visit(SimpleName node) {
+		return visitNode(node);
+	}
+	public boolean visit(SimpleType node) {
+		return visitNode(node);
+	}
+	public boolean visit(SingleMemberAnnotation node) {
+		return visitNode(node);
+	}
+	public boolean visit(SingleVariableDeclaration node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(StringLiteral node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(SuperConstructorInvocation node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(SuperFieldAccess node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(SuperMethodInvocation node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(SwitchCase node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(SwitchStatement node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(SynchronizedStatement node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(TagElement node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(TextElement node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(ThisExpression node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(ThrowStatement node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(TryStatement node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(TypeDeclaration node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(TypeDeclarationStatement node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(TypeLiteral node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(TypeParameter node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(VariableDeclarationExpression node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(VariableDeclarationFragment node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(VariableDeclarationStatement node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(WhileStatement node) {
+		return visitNode(node);
+	}
+
+	public boolean visit(WildcardType node) {
+		return visitNode(node);
+	}
+
+	protected boolean visitNode(ASTNode node) {
+		return true;
 	}
 
 }
