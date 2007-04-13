@@ -488,7 +488,7 @@ public final class ImportRewrite {
 	 * when an import could be added or was already known. It is fully qualified, if an import conflict prevented the import.
 	 */
 	public String addImport(ITypeBinding binding, ImportRewriteContext context) {
-		if (binding.isPrimitive() || binding.isTypeVariable()) {
+		if (binding.isPrimitive() || binding.isTypeVariable() || binding.isRecovered()) {
 			return binding.getName();
 		}
 		
