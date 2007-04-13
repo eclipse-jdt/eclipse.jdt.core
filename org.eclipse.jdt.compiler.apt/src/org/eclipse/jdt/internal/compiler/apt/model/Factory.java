@@ -24,6 +24,8 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
@@ -36,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
@@ -149,10 +152,27 @@ public class Factory {
 	{
 		return new PackageElementImpl(binding);
 	}
+	
+	public static NullType getNullType() {
+		return NoTypeImpl.NULL_TYPE;
+	}
+
+	public static NoType getNoType(TypeKind kind)
+	{
+		switch (kind) {
+		case NONE:
+			return NoTypeImpl.NO_TYPE_NONE;
+		case VOID:
+			return NoTypeImpl.NO_TYPE_VOID;
+		case PACKAGE:
+			return NoTypeImpl.NO_TYPE_PACKAGE;
+		default:
+			throw new IllegalArgumentException();
+		}
+	}
 
 	/**
 	 * Get a type mirror object representing the specified primitive type kind.
-	 * This is used for VoidType, NoType and NullType as well as the usual int, float, etc. 
 	 * @throw IllegalArgumentException if a non-primitive TypeKind is requested
 	 */
 	public static PrimitiveTypeImpl getPrimitiveType(TypeKind kind)
@@ -172,15 +192,8 @@ public class Factory {
 			return PrimitiveTypeImpl.INT;
 		case LONG:
 			return PrimitiveTypeImpl.LONG;
-		case NONE:
-			// TODO: how can we represent the NONE type?
-			throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
-		case NULL:
-			return PrimitiveTypeImpl.NULL;
 		case SHORT:
 			return PrimitiveTypeImpl.SHORT;
-		case VOID:
-			return PrimitiveTypeImpl.VOID;
 		default:
 			throw new IllegalStateException();
 		}
@@ -193,6 +206,9 @@ public class Factory {
 		return getPrimitiveType(PrimitiveTypeImpl.getKind(binding));
 	}
 
+	/**
+	 * Given a binding of uncertain type, try to create the right sort of TypeMirror for it.
+	 */
 	public static TypeMirror newTypeMirror(Binding binding) {
 		switch (binding.kind()) {
 		case Binding.FIELD:
@@ -201,8 +217,10 @@ public class Factory {
 			// For variables, return the type of the variable
 			return newTypeMirror(((VariableBinding)binding).type);
 			
-		case Binding.METHOD:
 		case Binding.PACKAGE:
+			return getNoType(TypeKind.PACKAGE);
+			
+		case Binding.METHOD:
 		case Binding.IMPORT:
 			throw new IllegalArgumentException("Invalid binding kind: " + binding.kind()); //$NON-NLS-1$
 			
@@ -214,7 +232,15 @@ public class Factory {
 			return new ArrayTypeImpl((ArrayBinding)binding);
 			
 		case Binding.BASE_TYPE:
-			return getPrimitiveType(PrimitiveTypeImpl.getKind((BaseTypeBinding)binding));
+			BaseTypeBinding btb = (BaseTypeBinding)binding;
+			switch (btb.id) {
+			case TypeIds.T_void:
+				return getNoType(TypeKind.VOID);
+			case TypeIds.T_null:
+				return getNullType();
+			default:
+				return getPrimitiveType(PrimitiveTypeImpl.getKind((BaseTypeBinding)binding));
+			}
 			
 			// TODO: fill in the rest of these
 		case Binding.PARAMETERIZED_TYPE:

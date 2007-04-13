@@ -12,10 +12,9 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
-import javax.lang.model.type.NoType;
-import javax.lang.model.type.NullType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeVisitor;
 
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -25,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
  * 
  * @since 3.3
  */
-public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType, NoType, NullType {
+public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType {
 	
 	public final static PrimitiveTypeImpl BOOLEAN = new PrimitiveTypeImpl(TypeBinding.BOOLEAN);
 	public final static PrimitiveTypeImpl BYTE = new PrimitiveTypeImpl(TypeBinding.BYTE);
@@ -35,8 +34,6 @@ public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType, 
 	public final static PrimitiveTypeImpl INT = new PrimitiveTypeImpl(TypeBinding.INT);
 	public final static PrimitiveTypeImpl LONG = new PrimitiveTypeImpl(TypeBinding.LONG);
 	public final static PrimitiveTypeImpl SHORT = new PrimitiveTypeImpl(TypeBinding.SHORT);
-	public final static PrimitiveTypeImpl VOID = new PrimitiveTypeImpl(TypeBinding.VOID);
-	public final static PrimitiveTypeImpl NULL = new PrimitiveTypeImpl(TypeBinding.NULL);
 	
 	/**
 	 * Clients should call {@link Factory#getPrimitiveType(TypeKind)},
@@ -46,6 +43,12 @@ public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType, 
 		super(binding);
 	}
 	
+	@Override
+	public <R, P> R accept(TypeVisitor<R, P> v, P p)
+	{
+		return v.visitPrimitive(this, p);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.apt.model.TypeMirrorImpl#getKind()
 	 */
@@ -72,10 +75,6 @@ public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType, 
 			return TypeKind.LONG;
 		case TypeIds.T_short:
 			return TypeKind.SHORT;
-		case TypeIds.T_void:
-			return TypeKind.VOID;
-		case TypeIds.T_undefined:
-			return TypeKind.NONE;
 		default:
 			throw new IllegalArgumentException("BaseTypeBinding of unexpected id " + binding.id); //$NON-NLS-1$
 		}

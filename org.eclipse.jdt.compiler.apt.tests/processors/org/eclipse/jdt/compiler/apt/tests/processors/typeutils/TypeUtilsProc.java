@@ -19,6 +19,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
@@ -50,6 +51,10 @@ public class TypeUtilsProc extends BaseProcessor
 		}
 		
 		if (!examinePrimitives()) {
+			return false;
+		}
+		
+		if (!examineNoType()) {
 			return false;
 		}
 		
@@ -139,4 +144,22 @@ public class TypeUtilsProc extends BaseProcessor
 		
 		return true;
 	}
+	
+	/**
+	 * Test the implementation of NoType and the getNoType() method
+	 * @return true if tests passed
+	 */
+	private boolean examineNoType() {
+		NoType noType = _typeUtils.getNoType(TypeKind.NONE);
+		if (null == noType || noType.getKind() != TypeKind.NONE) {
+			reportError("getNoType() didn't return a TypeKind.NONE type");
+			return false;
+		}
+		if (!"<none>".equals(noType.toString())) {
+			reportError("NoType has the wrong name: " + noType.toString());
+			return false;
+		}
+		return true;
+	}
+		
 }

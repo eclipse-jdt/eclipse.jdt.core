@@ -144,13 +144,7 @@ public class TypesImpl implements Types {
 
 	@Override
 	public NoType getNoType(TypeKind kind) {
-		switch (kind) {
-		case NONE:
-		case VOID:
-			return Factory.getPrimitiveType(kind);
-		default:
-			throw new IllegalArgumentException();
-		}
+		return Factory.getNoType(kind);
 	}
 
 	/* (non-Javadoc)
@@ -158,7 +152,7 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public NullType getNullType() {
-		return Factory.getPrimitiveType(TypeKind.NULL);
+		return Factory.getNullType();
 	}
 
 	/* (non-Javadoc)
@@ -205,11 +199,11 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public boolean isSameType(TypeMirror t1, TypeMirror t2) {
-		if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
-			return false;
-		}
 		if (t1 == t2) {
 			return true;
+		}
+		if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
+			return false;
 		}
 		Binding b1 = ((TypeMirrorImpl)t1).binding();
 		Binding b2 = ((TypeMirrorImpl)t2).binding();
