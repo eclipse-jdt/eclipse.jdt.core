@@ -232,7 +232,7 @@ public class AptConfig {
     				IJavaProject otherJavaProject = JavaCore.create(otherProject);
     				
     				// If it doesn't exist, ignore it
-    				if (otherJavaProject != null) {
+    				if (otherJavaProject != null && otherJavaProject.isOpen()) {
     					addProjectClasspath(root, otherJavaProject, projectsProcessed, classpath);
     				}
     			}
