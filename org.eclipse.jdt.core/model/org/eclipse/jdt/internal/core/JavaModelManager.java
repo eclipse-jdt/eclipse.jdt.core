@@ -123,6 +123,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Extension used to construct Java 6 annotation processor managers
 	 */
 	private IConfigurationElement annotationProcessorManagerFactory = null;
+	
+	/* 
+	 * Map from a package fragment root's path to a source attachment property (source path + ATTACHMENT_PROPERTY_DELIMITER + source root path)
+	 */
+	public Map rootPathToAttachments = new HashMap();
 
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
@@ -862,13 +867,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// Create a jar package fragment root only if on the classpath
 		IPath resourcePath = file.getFullPath();
 		try {
-			IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath();
-			for (int i = 0, length = entries.length; i < length; i++) {
-				IClasspathEntry entry = entries[i];
-				IPath rootPath = entry.getPath();
-				if (rootPath.equals(resourcePath)) {
-					return project.getPackageFragmentRoot(file);
-				}
+			IClasspathEntry entry = ((JavaProject)project).getClasspathEntryFor(resourcePath);
+			if (entry != null) {
+				return project.getPackageFragmentRoot(file);
 			}
 		} catch (JavaModelException e) {
 			// project doesn't exist: return null
@@ -984,7 +985,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public IJavaModelStatus rawClasspathStatus;
 		public IClasspathEntry[] resolvedClasspath;
 		public IJavaModelStatus unresolvedEntryStatus;
-		public Map resolvedPathToRawEntries; // reverse map from resolved path to raw entries
+		public Map rootPathToRawEntries; // reverse map from a package fragment root's path to the raw entry
+		public Map rootPathToResolvedEntries; // map from a package fragment root's path to the resolved entry
 		public IPath outputLocation;
 		
 		public IEclipsePreferences preferences;
@@ -1022,10 +1024,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		
 		public synchronized void resetResolvedClasspath() {
 			// null out resolved information
-			setClasspath(this.rawClasspath, this.outputLocation, this.rawClasspathStatus, null, null, null);
+			setClasspath(this.rawClasspath, this.outputLocation, this.rawClasspathStatus, null, null, null, null);
 		}
 		
-		public synchronized void setClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newResolvedPathToRawEntries, IJavaModelStatus newUnresolvedEntryStatus) {
+		public synchronized void setClasspath(IClasspathEntry[] newRawClasspath, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus) {
 			// remember old info
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			DeltaProcessor deltaProcessor = manager.deltaState.getDeltaProcessor();
@@ -1035,7 +1037,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.outputLocation = newOutputLocation;
 			this.rawClasspathStatus = newRawClasspathStatus;
 			this.resolvedClasspath = newResolvedClasspath;
-			this.resolvedPathToRawEntries = newResolvedPathToRawEntries;
+			this.rootPathToRawEntries = newRootPathToRawEntries;
+			this.rootPathToResolvedEntries = newRootPathToResolvedEntries;
 			this.unresolvedEntryStatus = newUnresolvedEntryStatus;
 			this.javadocCache = new LRUCache(JAVADOC_CACHE_INITIAL_SIZE);
 		}
@@ -1090,7 +1093,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 			
 			// store new raw classpath, new output and new status, and null out resolved info
-			setClasspath(classpath, output, status, null, null, null);
+			setClasspath(classpath, output, status, null, null, null, null);
 			
 			return classpath;
 		}

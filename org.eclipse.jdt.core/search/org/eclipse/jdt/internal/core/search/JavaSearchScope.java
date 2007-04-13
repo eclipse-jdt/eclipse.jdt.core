@@ -129,9 +129,9 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 		switch (entry.getEntryKind()) {
 			case IClasspathEntry.CPE_LIBRARY:
 				IClasspathEntry rawEntry = null;
-				Map resolvedPathToRawEntries = perProjectInfo.resolvedPathToRawEntries;
-				if (resolvedPathToRawEntries != null) {
-					rawEntry = (IClasspathEntry) resolvedPathToRawEntries.get(entry.getPath());
+				Map rootPathToRawEntries = perProjectInfo.rootPathToRawEntries;
+				if (rootPathToRawEntries != null) {
+					rawEntry = (IClasspathEntry) rootPathToRawEntries.get(entry.getPath());
 				}
 				if (rawEntry == null) break;
 				switch (rawEntry.getEntryKind()) {

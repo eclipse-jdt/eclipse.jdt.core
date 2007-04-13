@@ -27,7 +27,7 @@ public class ExternalJavaProject extends JavaProject {
 	public ExternalJavaProject(IClasspathEntry[] rawClasspath) {
 		super(ResourcesPlugin.getWorkspace().getRoot().getProject(EXTERNAL_PROJECT_NAME), JavaModelManager.getJavaModelManager().getJavaModel());
 		try {
-			getPerProjectInfo().setClasspath(rawClasspath, defaultOutputLocation(), JavaModelStatus.VERIFIED_OK/*no .classpath format problem*/, null/*no resolved claspath*/, null/*no reverse map*/, null/*no resolved status*/);
+			getPerProjectInfo().setClasspath(rawClasspath, defaultOutputLocation(), JavaModelStatus.VERIFIED_OK/*no .classpath format problem*/, null/*no resolved claspath*/, null/*no reverse map*/, null/*no resolve entry map*/, null/*no resolved status*/);
 		} catch (JavaModelException e) {
 			// getPerProjectInfo() never throws JavaModelException for an ExternalJavaProject
 		}

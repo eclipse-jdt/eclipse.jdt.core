@@ -402,20 +402,6 @@ public class JavaProject
 		return true;
 	}
 
-	protected void closing(Object info) {
-		
-		// forget source attachment recommendations
-		Object[] children = ((JavaElementInfo)info).children;
-		for (int i = 0, length = children.length; i < length; i++) {
-			Object child = children[i];
-			if (child instanceof JarPackageFragmentRoot){
-				((JarPackageFragmentRoot)child).setSourceAttachmentProperty(null); 
-			}
-		}
-		
-		super.closing(info);
-	}
-
 	/**
 	 * Computes the collection of package fragment roots (local ones) and set it on the given info.
 	 * Need to check *all* package fragment roots in order to reset NameLookup
@@ -1354,16 +1340,15 @@ public class JavaProject
 	 * @return IClasspathEntry
 	 * @throws JavaModelException
 	 */
-	public IClasspathEntry getClasspathEntryFor(IPath path)
-		throws JavaModelException {
-
-		IClasspathEntry[] entries = getExpandedClasspath();
-		for (int i = 0; i < entries.length; i++) {
-			if (entries[i].getPath().equals(path)) {
-				return entries[i];
-			}
-		}
-		return null;
+	public IClasspathEntry getClasspathEntryFor(IPath path) throws JavaModelException {
+		getResolvedClasspath(); // force resolution
+		PerProjectInfo perProjectInfo = getPerProjectInfo();
+		if (perProjectInfo == null)
+			return null;
+		Map rootPathToResolvedEntries = perProjectInfo.rootPathToResolvedEntries;
+		if (rootPathToResolvedEntries == null)
+			return null;
+		return (IClasspathEntry) rootPathToResolvedEntries.get(path);
 	}
 	
 	/*
@@ -2552,6 +2537,7 @@ public class JavaProject
 			 			
 			IJavaModelStatus unresolvedEntryStatus = JavaModelStatus.VERIFIED_OK;
 			HashMap rawReverseMap = new HashMap();
+			Map rootPathToResolvedEntries = new HashMap();
 			
 			ArrayList resolvedEntries = new ArrayList();
 			int length = rawClasspath.length;
@@ -2575,8 +2561,9 @@ public class JavaProject
 						if (resolvedEntry == null) {
 							unresolvedEntryStatus = new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, this, rawEntry.getPath());
 						} else {
-							if (rawReverseMap != null) {
-								if (rawReverseMap.get(resolvedPath = resolvedEntry.getPath()) == null) rawReverseMap.put(resolvedPath , rawEntry);
+							if (rawReverseMap.get(resolvedPath = resolvedEntry.getPath()) == null) {
+								rawReverseMap.put(resolvedPath , rawEntry);
+								rootPathToResolvedEntries.put(resolvedPath, resolvedEntry);
 							}
 							resolvedEntries.add(resolvedEntry);
 						}
@@ -2603,25 +2590,28 @@ public class JavaProject
 							}
 							// if container is exported or restricted, then its nested entries must in turn be exported  (21749) and/or propagate restrictions
 							cEntry = cEntry.combineWith((ClasspathEntry) rawEntry);
-							if (rawReverseMap != null) {
-								if (rawReverseMap.get(resolvedPath = cEntry.getPath()) == null) rawReverseMap.put(resolvedPath , rawEntry);
+							if (rawReverseMap.get(resolvedPath = cEntry.getPath()) == null) {
+								rawReverseMap.put(resolvedPath , rawEntry);
+								rootPathToResolvedEntries.put(resolvedPath, cEntry);
 							}
 							resolvedEntries.add(cEntry);
 						}
 						break;
 											
 					default :
-						if (rawReverseMap != null) {
-							if (rawReverseMap.get(resolvedPath = rawEntry.getPath()) == null) rawReverseMap.put(resolvedPath , rawEntry);
+						if (rawReverseMap.get(resolvedPath = rawEntry.getPath()) == null) {
+							rawReverseMap.put(resolvedPath , rawEntry);
+							rootPathToResolvedEntries.put(resolvedPath, rawEntry);
 						}
 						resolvedEntries.add(rawEntry);
+
 				}					
 			}
 	
 			// store resolved info along with the raw info to ensure consistency
 			IClasspathEntry[] resolvedClasspath = new IClasspathEntry[resolvedEntries.size()];
 			resolvedEntries.toArray(resolvedClasspath);
-			perProjectInfo.setClasspath(rawClasspath, outputLocation, rawClasspathStatus, resolvedClasspath, rawReverseMap, unresolvedEntryStatus);
+			perProjectInfo.setClasspath(rawClasspath, outputLocation, rawClasspathStatus, resolvedClasspath, rawReverseMap, rootPathToResolvedEntries, unresolvedEntryStatus);
 		} finally {
 			manager.setClasspathBeingResolved(this, false);
 		}

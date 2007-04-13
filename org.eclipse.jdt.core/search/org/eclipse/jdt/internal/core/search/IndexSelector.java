@@ -64,13 +64,11 @@ public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearc
 		IJavaProject[] allProjects = model.getJavaProjects();
 		for (int i = 0, length = allProjects.length; i < length; i++) {
 			JavaProject otherProject = (JavaProject) allProjects[i];
-			IClasspathEntry[] entries = otherProject.getResolvedClasspath();
-			for (int j = 0, length2 = entries.length; j < length2; j++) {
-				IClasspathEntry entry = entries[j];
-				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && entry.getPath().equals(projectOrJarPath))
-					if (canSeeFocus(focus, otherProject, focusEntries))
-						return true;
-			}
+			IClasspathEntry entry = otherProject.getClasspathEntryFor(projectOrJarPath);
+			if (entry != null 
+					&& entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY 
+					&& canSeeFocus(focus, otherProject, focusEntries))
+				return true;
 		}
 		return false;
 	} catch (JavaModelException e) {

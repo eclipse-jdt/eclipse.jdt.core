@@ -61,8 +61,6 @@ public class ClasspathChange {
 				} catch (JavaModelException e) {
 					// ignore
 				}
-				// force detach source on jar package fragment roots (source will be lazily computed when needed)
-				((PackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
 			}
 		}
 	}
@@ -335,7 +333,6 @@ public class ClasspathChange {
 							} catch (JavaModelException e) {
 								// ignore
 							}
-							((PackageFragmentRoot) root).setSourceAttachmentProperty(null);// loose info - will be recomputed
 						}
 					}
 				}

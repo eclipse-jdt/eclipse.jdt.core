@@ -1081,6 +1081,43 @@ public class Util {
 	}
 	
 	/*
+	 * Returns the source attachment property for this package fragment root's path
+	 */
+	public static String getSourceAttachmentProperty(IPath path) throws JavaModelException {
+		Map rootPathToAttachments = JavaModelManager.getJavaModelManager().rootPathToAttachments;
+		String property = (String) rootPathToAttachments.get(path);
+		if (property == null) {
+			try {
+				property = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(getSourceAttachmentPropertyName(path));
+				if (property == null) {
+					rootPathToAttachments.put(path, PackageFragmentRoot.NO_SOURCE_ATTACHMENT);
+					return null;
+				}
+				rootPathToAttachments.put(path, property);
+				return property;
+			} catch (CoreException e)  {
+				throw new JavaModelException(e);
+			}
+		} else if (property.equals(PackageFragmentRoot.NO_SOURCE_ATTACHMENT)) {
+			return null;
+		} else
+			return property;
+	}
+	
+	private static QualifiedName getSourceAttachmentPropertyName(IPath path) {
+		return new QualifiedName(JavaCore.PLUGIN_ID, "sourceattachment: " + path.toOSString()); //$NON-NLS-1$
+	}
+
+	public static void setSourceAttachmentProperty(IPath path, String property) {
+		JavaModelManager.getJavaModelManager().rootPathToAttachments.put(path, property);
+		try {
+			ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(getSourceAttachmentPropertyName(path), property);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*
 	 * Returns the declaring type signature of the element represented by the given binding key.
 	 * Returns the signature of the element if it is a type.
 	 * 

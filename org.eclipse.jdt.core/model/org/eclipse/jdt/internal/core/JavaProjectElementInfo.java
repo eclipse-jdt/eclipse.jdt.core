@@ -100,19 +100,14 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		boolean binIsProject = false;
 		char[][] inclusionPatterns = null;
 		char[][] exclusionPatterns = null;
-		IClasspathEntry[] classpath = null;
 		IPath projectOutput = null;
 		boolean isClasspathResolved = true;
 		try {
-			classpath = project.getResolvedClasspath();
-			for (int i = 0; i < classpath.length; i++) {
-				IClasspathEntry entry = classpath[i];
-				if (projectPath.equals(entry.getPath())) {
-					srcIsProject = true;
-					inclusionPatterns = ((ClasspathEntry)entry).fullInclusionPatternChars();
-					exclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
-					break;
-				}
+			IClasspathEntry entry = project.getClasspathEntryFor(projectPath);
+			if (entry != null) {
+				srcIsProject = true;
+				inclusionPatterns = ((ClasspathEntry)entry).fullInclusionPatternChars();
+				exclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
 			}
 			projectOutput = project.getOutputLocation();
 			binIsProject = projectPath.equals(projectOutput);
@@ -128,6 +123,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 			if (length > 0) {
 				String sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
 				String complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+				IClasspathEntry[] classpath = project.getResolvedClasspath();
 				for (int i = 0; i < length; i++) {
 					IResource res = members[i];
 					switch (res.getType()) {

@@ -162,22 +162,19 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 			HashSet visited = new HashSet();
 			for (int i = 0; i < projects.length; i++) {
 				JavaProject project = (JavaProject) projects[i];
-				IClasspathEntry[] classpath = project.getResolvedClasspath();
-				for (int j = 0; j < classpath.length; j++) {
-					if (rootPath.equals(classpath[j].getPath())) {
-						// add the project and its binary pkg fragment roots
-						IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
-						set.add(project.getPath());
-						for (int k = 0; k < roots.length; k++) {
-							IPackageFragmentRoot pkgFragmentRoot = roots[k];
-							if (pkgFragmentRoot.getKind() == IPackageFragmentRoot.K_BINARY) {
-								set.add(pkgFragmentRoot.getPath());
-							}
+				IClasspathEntry entry = project.getClasspathEntryFor(rootPath);
+				if (entry != null) {
+					// add the project and its binary pkg fragment roots
+					IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
+					set.add(project.getPath());
+					for (int k = 0; k < roots.length; k++) {
+						IPackageFragmentRoot pkgFragmentRoot = roots[k];
+						if (pkgFragmentRoot.getKind() == IPackageFragmentRoot.K_BINARY) {
+							set.add(pkgFragmentRoot.getPath());
 						}
-						// add the dependent projects
-						this.computeDependents(project, set, visited);
-						break;
 					}
+					// add the dependent projects
+					this.computeDependents(project, set, visited);
 				}
 			}
 		} else {

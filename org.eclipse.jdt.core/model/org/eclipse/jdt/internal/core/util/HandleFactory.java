@@ -258,13 +258,10 @@ public class HandleFactory {
 			//        is NOT on the classpath of org.eclipse.swt.win32
 			IFile jarFile = (IFile)target;
 			JavaProject javaProject = (JavaProject) this.javaModel.getJavaProject(jarFile);
-			IClasspathEntry[] classpathEntries;
 			try {
-				classpathEntries = javaProject.getResolvedClasspath();
-				for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
-					if (classpathEntries[j].getPath().equals(jarPath)) {
-						return javaProject.getPackageFragmentRoot(jarFile);
-					}
+				IClasspathEntry entry = javaProject.getClasspathEntryFor(jarPath);
+				if (entry != null) {
+					return javaProject.getPackageFragmentRoot(jarFile);
 				}
 			} catch (JavaModelException e) {
 				// ignore and try to find another project
@@ -310,16 +307,14 @@ public class HandleFactory {
 		for (int i= 0, projectCount= projects.length; i < projectCount; i++) {
 			try {
 				JavaProject javaProject= (JavaProject)projects[i];
-				IClasspathEntry[] classpathEntries= javaProject.getResolvedClasspath();
-				for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
-					if (classpathEntries[j].getPath().equals(jarPath)) {
-						if (target instanceof IFile) {
-							// internal jar
-							return javaProject.getPackageFragmentRoot((IFile)target);
-						} else {
-							// external jar
-							return javaProject.getPackageFragmentRoot0(jarPath);
-						}
+				IClasspathEntry classpathEnty = javaProject.getClasspathEntryFor(jarPath);
+				if (classpathEnty != null) {
+					if (target instanceof IFile) {
+						// internal jar
+						return javaProject.getPackageFragmentRoot((IFile)target);
+					} else {
+						// external jar
+						return javaProject.getPackageFragmentRoot0(jarPath);
 					}
 				}
 			} catch (JavaModelException e) {

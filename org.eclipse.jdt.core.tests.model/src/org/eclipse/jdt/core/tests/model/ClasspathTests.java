@@ -261,7 +261,7 @@ public void testClasspathCorruption() throws CoreException {
 */
 		p1.close();
 		JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(p1.getProject(), true/*create if missing*/);
-		perProjectInfo.setClasspath(null, null, null, null, null, null);
+		perProjectInfo.setClasspath(null, null, null, null, null, null, null);
 
 		// shouldn't fail 
 		p1.getExpandedClasspath();
