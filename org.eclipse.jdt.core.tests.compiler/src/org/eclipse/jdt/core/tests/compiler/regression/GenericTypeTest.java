@@ -37309,4 +37309,73 @@ public void test1123() {
 		"void[] is an invalid type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=182192
+public void test1124() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.HashMap;\n" + 
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"\n" + 
+			"	static protected final Map<String, String> myMap = new HashMap<String, String>();\n" + 
+			"	private final T theGenericThing;\n" + 
+			"\n" + 
+			"	private X(T something) {\n" + 
+			"		this.theGenericThing = something;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static class InnerClassThatShowsBug extends X {\n" + 
+			"		public InnerClassThatShowsBug() {\n" + 
+			"			super(null);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		public void printMap() {\n" + 
+			"			for (Map.Entry<String, String> entry : myMap().entrySet()) {\n" + 
+			"				System.out.println(entry.getKey() + \" => \" + entry.getValue());\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		protected Map<String, String> myMap2() {\n" + 
+			"			return myMap;\n" + 
+			"		}\n" + 
+			"		public void printMap2() {\n" + 
+			"			for (Map.Entry<String, String> entry : myMap2().entrySet()) {\n" + 
+			"				System.out.println(entry.getKey() + \" => \" + entry.getValue());\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected Map<String, String> myMap() {\n" + 
+			"		return myMap;\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	private final T theGenericThing;\n" + 
+		"	                ^^^^^^^^^^^^^^^\n" + 
+		"The field X<T>.theGenericThing is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	public static class InnerClassThatShowsBug extends X {\n" + 
+		"	                                                   ^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 15)\n" + 
+		"	super(null);\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 15)\n" + 
+		"	super(null);\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"Access to enclosing constructor X<T>(T) is emulated by a synthetic accessor method. Increasing its visibility will improve your performance\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 19)\n" + 
+		"	for (Map.Entry<String, String> entry : myMap().entrySet()) {\n" + 
+		"	                                       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from element type Object to Map.Entry<String,String>\n" + 
+		"----------\n");
+}
 }
