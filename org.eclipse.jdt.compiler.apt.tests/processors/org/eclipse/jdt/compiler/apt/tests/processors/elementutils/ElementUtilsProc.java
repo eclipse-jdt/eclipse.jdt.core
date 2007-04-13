@@ -42,6 +42,8 @@ public class ElementUtilsProc extends BaseProcessor
 {
 	// Initialized in collectElements()
 	private TypeElement _elementF;
+	private TypeElement _elementFChild;
+	private TypeElement _elementFEnum;
 	private TypeElement _elementG;
 	private TypeElement _elementH;
 	private TypeElement _elementAnnoX;
@@ -80,6 +82,10 @@ public class ElementUtilsProc extends BaseProcessor
 			return false;
 		}
 		
+		if (!examineBinaryName()) {
+			return false;
+		}
+		
 		reportSuccess();
 		return false;
 	}
@@ -93,6 +99,16 @@ public class ElementUtilsProc extends BaseProcessor
 		_elementF = _elementUtils.getTypeElement("targets.model.pc.F");
 		if (_elementF == null || _elementF.getKind() != ElementKind.CLASS) {
 			reportError("element F was not found or was not a class");
+			return false;
+		}
+		_elementFChild = _elementUtils.getTypeElement("targets.model.pc.F.FChild");
+		if (_elementFChild == null || _elementFChild.getKind() != ElementKind.CLASS) {
+			reportError("element FChild was not found or was not a class");
+			return false;
+		}
+		_elementFEnum = _elementUtils.getTypeElement("targets.model.pc.F.FEnum");
+		if (_elementFEnum == null || _elementFEnum.getKind() != ElementKind.ENUM) {
+			reportError("enum F.FEnum was not found or was not an enum");
 			return false;
 		}
 		_elementG = _elementUtils.getTypeElement("targets.model.pc.G");
@@ -221,7 +237,7 @@ public class ElementUtilsProc extends BaseProcessor
 		// G member list should contain F's nested FChild class
 		boolean foundFChild = false;
 		for (TypeElement type : ElementFilter.typesIn(members)) {
-			if ("FChild".equals(type.getSimpleName().toString())) {
+			if (type.equals(_elementFChild)) {
 				foundFChild = true;
 				break;
 			}
@@ -373,4 +389,29 @@ public class ElementUtilsProc extends BaseProcessor
 		return true;
 	}
 
+	/**
+	 * Test the {@link Elements#getBinaryName(TypeElement)} method
+	 * @return true if all tests passed
+	 */
+	private boolean examineBinaryName() {
+		final String refNameF = "targets.model.pc.F";
+		final String refBNameFChild = "targets.model.pc.F$FChild";
+		final String refBNameFEnum = "targets.model.pc.F$FEnum";
+		String bnameF = _elementUtils.getBinaryName(_elementF).toString();
+		if (!refNameF.equals(bnameF)) {
+			reportError("getBinaryName(F) should be " + refNameF + ", was: " + bnameF);
+			return false;
+		}
+		String bnameFChild = _elementUtils.getBinaryName(_elementFChild).toString();
+		if (!refBNameFChild.equals(bnameFChild)) {
+			reportError("getBinaryName(F) should be " + refBNameFChild + ", was: " + bnameF);
+			return false;
+		}
+		String bnameFEnum = _elementUtils.getBinaryName(_elementFEnum).toString();
+		if (!refBNameFEnum.equals(bnameFEnum)) {
+			reportError("getBinaryName(F) should be " + refBNameFEnum + ", was: " + bnameF);
+			return false;
+		}
+		return true;
+	}
 }
