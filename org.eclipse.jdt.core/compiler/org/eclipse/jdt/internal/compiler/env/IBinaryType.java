@@ -19,7 +19,7 @@ public interface IBinaryType extends IGenericType {
 	IBinaryField[] NoField = new IBinaryField[0];
 	IBinaryMethod[] NoMethod = new IBinaryMethod[0];
 /**
- * Answer the runtime visible and invisible annoations for this type or null if none.
+ * Answer the runtime visible and invisible annotations for this type or null if none.
  */
 
 IBinaryAnnotation[] getAnnotations();
