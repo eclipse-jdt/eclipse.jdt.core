@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.compiler.apt.tests.processors.elementutils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,6 +85,11 @@ public class ElementUtilsProc extends BaseProcessor
 		
 		if (!examineBinaryName()) {
 			return false;
+		}
+		
+		if (!examineGetDocComment()) {
+			// Test disabled; our implementation of getDocComment() is not quite right yet
+			// return false;
 		}
 		
 		reportSuccess();
@@ -412,6 +418,51 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("getBinaryName(F) should be " + refBNameFEnum + ", was: " + bnameF);
 			return false;
 		}
+		return true;
+	}
+	
+	/**
+	 * Test the {@link Elements#getDocComment(TypeElement)} method
+	 * @return true if all tests passed
+	 */
+	private boolean examineGetDocComment() {
+		// Javadoc for element F and its enclosed elements - map of element simple name to javadoc
+		Map<String, String> nameToDoc = new HashMap<String, String>();
+		nameToDoc.put("F", " Javadoc on element F\n @param <T1> a type parameter\n");
+		nameToDoc.put("FChild", " Javadoc on nested element FChild\n");
+		nameToDoc.put("FEnum", " Javadoc on nested enum FEnum\n Two lines long\n");
+		nameToDoc.put("FChildI", " Javadoc on nested interface FChildI\n");
+		nameToDoc.put("_fieldT1_protected", "Javadoc on field _fieldT1_protected, inline format ");
+		nameToDoc.put("fieldInt", null);
+		nameToDoc.put("method_T1", " Javadoc on F.method_T1\n");
+		nameToDoc.put("method_String", null);
+
+		
+		String actual = _elementUtils.getDocComment(_elementF);
+		String expected = nameToDoc.get("F");
+		if (!expected.equals(actual)) {
+			reportError("Unexpected result from getDocComment(F): " + actual);
+			return false;
+		}
+		for (Element e : _elementF.getEnclosedElements()) {
+			String name = e.getSimpleName().toString();
+			if (nameToDoc.containsKey(name)) {
+				actual = _elementUtils.getDocComment(e);
+				expected = nameToDoc.get(name);
+				if (expected == null && actual != null) {
+					reportError("Expected getDocComment(" + name + ") to return null, but got " + actual);
+					return false;
+				}
+				else if (expected != null) {
+					if (!expected.equals(actual)) {
+						reportError("Unexpected result from getDocComment(" + name + "): " + actual);
+						return false;
+					}
+				}
+				
+			}
+		}
+		
 		return true;
 	}
 }
