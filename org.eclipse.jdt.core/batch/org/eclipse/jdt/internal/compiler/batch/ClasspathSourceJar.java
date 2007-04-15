@@ -28,7 +28,7 @@ public class ClasspathSourceJar extends ClasspathJar {
 		this.encoding = encoding;
 	}
 
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 		if (!isPackage(qualifiedPackageName)) 
 			return null; // most common case
 
@@ -47,5 +47,8 @@ public class ClasspathSourceJar extends ClasspathJar {
 			}
 		}
 		return null;
+	}
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
 	}
 }

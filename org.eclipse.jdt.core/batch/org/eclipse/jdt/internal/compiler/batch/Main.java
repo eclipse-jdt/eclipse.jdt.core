@@ -55,8 +55,9 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -1211,10 +1212,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			return errorBuffer.toString();
 		}
 	}
-	public final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.messages"; 	//$NON-NLS-1$
+	public final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.messages"; //$NON-NLS-1$
 
 	// two uses: recognize 'none' in options; code the singleton none
-		// for the '-d none' option (wherever it may be found)
+	// for the '-d none' option (wherever it may be found)
 	public static final int DEFAULT_SIZE_CLASSPATH = 4;
 	public static final String NONE = "none"; //$NON-NLS-1$
 
@@ -1317,13 +1318,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public String destinationPath;
 	public String[] destinationPaths;
 	// destination path for compilation units that get no more specific
-		// one (through directory arguments or various classpath options);
-		// coding is:
-		// == null: unspecified, write class files close to their respective
-		//          source files;
-		// == Main.NONE: absorbent element, do not output class files;
-		// else: use as the path of the directory into which class files must
-		//       be written.
+	// one (through directory arguments or various classpath options);
+	// coding is:
+	// == null: unspecified, write class files close to their respective
+	//          source files;
+	// == Main.NONE: absorbent element, do not output class files;
+	// else: use as the path of the directory into which class files must
+	//       be written.
 	private boolean didSpecifySource;
 	private boolean didSpecifyTarget;
 
@@ -1331,6 +1332,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	public int exportedClassFilesCounter;
 	public String[] filenames;
+
+	public String[] classNames;
 
 	// overrides of destinationPath on a directory argument basis
 	public int globalErrorsCount;
@@ -1352,7 +1355,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public int repetitions;
 
 	public boolean showProgress = false;
-		public long startTime;
+	public long startTime;
 
 public boolean systemExitWhenFinished = true;
 
@@ -2169,6 +2172,7 @@ public void configure(String[] argv) throws InvalidInputException {
 	final int INSIDE_PROCESSOR_PATH_start = 17;
 	final int INSIDE_PROCESSOR_start = 18;
 	final int INSIDE_S_start = 19;
+	final int INSIDE_CLASS_NAMES = 20;
 
 	final int DEFAULT = 0;
 	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
@@ -2178,7 +2182,10 @@ public void configure(String[] argv) throws InvalidInputException {
 	ArrayList extdirsClasspaths = null;
 	ArrayList endorsedDirClasspaths = null;
 
-	int index = -1, filesCount = 0, argCount = argv.length;
+	int index = -1;
+	int filesCount = 0;
+	int classCount = 0;
+	int argCount = argv.length;
 	int mode = DEFAULT;
 	this.repetitions = 0;
 	boolean printUsageRequired = false;
@@ -2727,6 +2734,10 @@ public void configure(String[] argv) throws InvalidInputException {
 					mode = DEFAULT;
 					continue;
 				}
+				if (currentArg.equals("-classNames")) { //$NON-NLS-1$
+					mode = INSIDE_CLASS_NAMES;
+					continue;
+				}
 				break;
 			case INSIDE_TARGET :
 				if (this.didSpecifyTarget) {
@@ -2881,6 +2892,25 @@ public void configure(String[] argv) throws InvalidInputException {
 				// nothing to do here. This is consumed again by the AnnotationProcessorManager
 				mode = DEFAULT;
 				continue;
+			case INSIDE_CLASS_NAMES :
+				tokenizer = new StringTokenizer(currentArg, ","); //$NON-NLS-1$
+				if (this.classNames == null) {
+					this.classNames = new String[DEFAULT_SIZE_CLASSPATH];
+				}
+				while (tokenizer.hasMoreTokens()) {
+					if (this.classNames.length == classCount) {
+						// resize
+						System.arraycopy(
+							this.classNames,
+							0,
+							(this.classNames = new String[classCount * 2]),
+							0,
+							classCount);
+					}
+					this.classNames[classCount++] = tokenizer.nextToken();
+				}
+				mode = DEFAULT;
+				continue;
 		}
 
 		// default is input directory, if no custom destination path exists
@@ -2900,7 +2930,7 @@ public void configure(String[] argv) throws InvalidInputException {
 		File dir = new File(currentSourceDirectory);
 		if (!dir.isDirectory()) {
 			throw new InvalidInputException(
-				this.bind("configure.directoryNotExist", currentSourceDirectory)); //$NON-NLS-1$
+				this.bind("configure.unrecognizedOption", currentSourceDirectory)); //$NON-NLS-1$
 		}
 		String[] result = FileFinder.find(dir, SuffixConstants.SUFFIX_STRING_JAVA);
 		if (NONE.equals(customDestinationPath)) {
@@ -2953,7 +2983,7 @@ public void configure(String[] argv) throws InvalidInputException {
 		continue;
 	}
 
-	if (printUsageRequired || filesCount == 0) {
+	if (printUsageRequired || (filesCount == 0 && classCount == 0)) {
 		if (usageSection ==  null) {
 			printUsage(); // default
 		} else {
@@ -2991,6 +3021,15 @@ public void configure(String[] argv) throws InvalidInputException {
 			filesCount);
 	}
 
+	if (classCount != 0) {
+		System.arraycopy(
+			this.classNames,
+			0,
+			(this.classNames = new String[classCount]),
+			0,
+			classCount);
+	}
+	
 	setPaths(bootclasspaths,
 			sourcepathClasspathArg,
 			sourcepathClasspaths,
@@ -3177,6 +3216,7 @@ protected void initialize(PrintWriter outWriter,
 		this.didSpecifySource = false;
 		this.didSpecifyTarget = false;
 	}
+	this.classNames = null;
 }
 // Dump classfiles onto disk for all compilation units that where successful
 // and do not carry a -d none spec, either directly or inherited from Main.
@@ -3246,7 +3286,7 @@ public void performCompilation() throws InvalidInputException {
 
 	this.startTime = System.currentTimeMillis();
 
-	INameEnvironment environment = getLibraryAccess();
+	FileSystem environment = getLibraryAccess();
 	this.compilerOptions = new CompilerOptions(this.options);
 	this.compilerOptions.performMethodsFullRecovery = false;
 	this.compilerOptions.performStatementsRecovery = false;
@@ -3262,6 +3302,9 @@ public void performCompilation() throws InvalidInputException {
 	if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
 			&& this.compilerOptions.processAnnotations) {
 		initializeAnnotationProcessorManager();
+		if (this.classNames != null) {
+			this.batchCompiler.setBinaryTypes(processClassNames(environment));
+		}
 	}
 
 	// set the non-externally configurable options.
@@ -3282,6 +3325,30 @@ public void performCompilation() throws InvalidInputException {
 
 	// cleanup
 	environment.cleanup();
+}
+private IBinaryType[] processClassNames(FileSystem environment) throws InvalidInputException {
+	// check for .class file presence in case of apt processing
+	int length = this.classNames.length;
+	IBinaryType[] binaryTypes = new IBinaryType[length];
+	for (int i = 0; i < length; i++) {
+		String currentName = this.classNames[i];
+		char[][] compoundName = null;
+		if (currentName.indexOf('.') != -1) {
+			// consider names with '.' as fully qualified names
+			char[] typeName = currentName.toCharArray();
+			compoundName = CharOperation.splitOn('.', typeName);
+		} else {
+			compoundName = new char[][] { currentName.toCharArray() };
+		}
+		NameEnvironmentAnswer type = environment.findType(compoundName, true);
+		if (type != null) {
+			binaryTypes[i] = type.getBinaryType();
+		} else {
+			throw new InvalidInputException(
+				this.bind("configure.invalidClassName", currentName));//$NON-NLS-1$
+		}
+	}
+	return binaryTypes;
 }
 protected void initializeAnnotationProcessorManager() {
 	try {

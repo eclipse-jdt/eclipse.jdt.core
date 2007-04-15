@@ -61,6 +61,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
  */
 public class EclipseCompiler extends Main implements JavaCompiler {
 
+	private static final CompilationUnit[] NO_UNITS = new CompilationUnit[0];
 	private HashMap<CompilationUnit, JavaFileObject> javaFileObjectMap;
 	private static Set<SourceVersion> SupportedSourceVersions;
 	static {
@@ -131,6 +132,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	}
 
 	public CompilationUnit[] getCompilationUnits() {
+		if (this.compilationUnits == null) return NO_UNITS;
 		ArrayList<CompilationUnit> units = new ArrayList<CompilationUnit>();
 		for (final JavaFileObject javaFileObject : this.compilationUnits) {
 			if (javaFileObject.getKind() != JavaFileObject.Kind.SOURCE) {
@@ -320,10 +322,25 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 				allOptions.add(option);
 			}
 		}
+
 		if (compilationUnits != null) {
 			for (JavaFileObject javaFileObject : compilationUnits) {
 				allOptions.add(new File(javaFileObject.toUri()).getAbsolutePath());
 			}
+		}
+
+		if (classes != null) {
+			allOptions.add("-classNames"); //$NON-NLS-1$
+			StringBuilder builder = new StringBuilder();
+			int i = 0;
+			for (String className : classes) {
+				if (i != 0) {
+					builder.append(',');
+				}
+				builder.append(className);
+				i++;
+			}
+			allOptions.add(String.valueOf(builder));
 		}
 
 		final String[] optionsToProcess = new String[allOptions.size()];
@@ -381,8 +398,7 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 	@Override
 	protected void initializeAnnotationProcessorManager() {
 		super.initializeAnnotationProcessorManager();
-		if (this.batchCompiler.annotationProcessorManager != null &&
-				this.processors != null) {
+		if (this.batchCompiler.annotationProcessorManager != null && this.processors != null) {
 			this.batchCompiler.annotationProcessorManager.setProcessors(this.processors);
 		} else if (this.processors != null) {
 			throw new UnsupportedOperationException("Cannot handle annotation processing"); //$NON-NLS-1$

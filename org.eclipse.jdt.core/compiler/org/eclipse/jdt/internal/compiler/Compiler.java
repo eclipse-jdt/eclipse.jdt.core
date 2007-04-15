@@ -42,6 +42,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public int parseThreshold = -1;
 	
 	public AbstractAnnotationProcessorManager annotationProcessorManager;
+	public BinaryTypeBinding[] binaryTypeBindings;
 
 	// number of initial units parsed at once (-1: none)
 
@@ -425,6 +426,16 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			}
 		}
 	}
+	
+	public void setBinaryTypes(IBinaryType[] binaryTypes) {
+		final int length = binaryTypes.length;
+		BinaryTypeBinding[] temp = new BinaryTypeBinding[length];
+		for (int i = 0; i < length; i++) {
+			temp[i] = this.lookupEnvironment.cacheBinaryType(binaryTypes[i], null);
+		}
+		// TODO should I reset the lookup environment ?
+		this.binaryTypeBindings = temp;
+	}
 	/*
 	 * Compiler crash recovery in case of unexpected runtime exceptions
 	 */
@@ -637,7 +648,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		int newUnitSize = 0;
 		int bottom = 0;
 		int top = this.unitsToProcess.length;
-		if (top == 0) return;
+		BinaryTypeBinding[] binaryTypeBindingsTemp = this.binaryTypeBindings;
+		if (top == 0 && binaryTypeBindingsTemp == null) return;
+		this.binaryTypeBindings = null;
 		do {
 			// extract units to process
 			int length = top - bottom + 1;
@@ -652,7 +665,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			if (index != length) {
 				System.arraycopy(currentUnits, 0, (currentUnits = new CompilationUnitDeclaration[index]), 0, index);
 			}
-			this.annotationProcessorManager.processAnnotations(currentUnits, false);
+			this.annotationProcessorManager.processAnnotations(currentUnits, binaryTypeBindingsTemp, false);
 			ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
 			newUnitSize = newUnits.length;
 			if (newUnitSize != 0) {
@@ -665,7 +678,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		} while (newUnitSize != 0);
 		// one more loop to create possible resources
 		// this loop cannot create any java source files
-		this.annotationProcessorManager.processAnnotations(unitsToProcess, true);
+		this.annotationProcessorManager.processAnnotations(unitsToProcess, binaryTypeBindingsTemp, true);
 		// TODO we might want to check if this loop created new units
 	}
 

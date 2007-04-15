@@ -39,6 +39,9 @@ public ClasspathJar(File file, boolean closeZipFileAtEnd,
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
 }
 public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
+}
+public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 	if (!isPackage(qualifiedPackageName)) 
 		return null; // most common case
 

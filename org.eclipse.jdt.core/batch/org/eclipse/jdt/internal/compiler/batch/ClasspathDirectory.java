@@ -81,12 +81,15 @@ boolean doesFileExist(String fileName, String qualifiedPackageName) {
 	return false;
 }
 public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
+}
+public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 	String fileName = new String(typeName);
 	boolean binaryExists = ((this.mode & BINARY) != 0) && doesFileExist(fileName + SUFFIX_STRING_class, qualifiedPackageName);
 	boolean sourceExists = ((this.mode & SOURCE) != 0) && doesFileExist(fileName + SUFFIX_STRING_java, qualifiedPackageName);
-	if (sourceExists) {
+	if (sourceExists && !asBinaryOnly) {
 		String fullSourcePath = this.path + qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java;
 		if (!binaryExists)
 			return new NameEnvironmentAnswer(new CompilationUnit(null,

@@ -68,7 +68,7 @@ public class BatchFilerImpl implements Filer {
 			throws IOException {
 		//TODO: do we need to check validity of 'name', or can we trust the filemanager to handle that?
 		FileObject jfo = _fileManager.getFileForOutput(
-				StandardLocation.SOURCE_OUTPUT, pkg.toString(), relativeName.toString(), null);
+				location, pkg.toString(), relativeName.toString(), null);
 		return jfo;
 	}
 
@@ -94,7 +94,7 @@ public class BatchFilerImpl implements Filer {
 			CharSequence relativeName) throws IOException {
 		//TODO: do we need to check validity of 'name', or can we trust the filemanager to handle that?
 		FileObject fo = _fileManager.getFileForInput(
-				StandardLocation.SOURCE_PATH, pkg.toString(), relativeName.toString());
+				location, pkg.toString(), relativeName.toString());
 		return fo;
 	}
 

@@ -1019,6 +1019,9 @@ public void test012(){
         "    -XprintProcessorInfo print information about which annotations and which\n" +
         "                         elements a processor is asked to process\n" +
         "    -XprintRounds        print information about annotation processing rounds.\n" +
+        "    -classNames <className1[,className2,...]>\n" + 
+        "                         Qualified names of the classes that need\n" + 
+        "                         to be processed\n" + 
         " \n" +
         " Advanced options:\n" +
         "    @<file>            read command line arguments from file\n" +

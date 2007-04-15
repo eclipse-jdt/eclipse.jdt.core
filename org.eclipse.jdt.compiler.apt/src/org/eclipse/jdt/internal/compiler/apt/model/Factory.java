@@ -220,9 +220,11 @@ public class Factory {
 		case Binding.PACKAGE:
 			return getNoType(TypeKind.PACKAGE);
 			
-		case Binding.METHOD:
 		case Binding.IMPORT:
-			throw new IllegalArgumentException("Invalid binding kind: " + binding.kind()); //$NON-NLS-1$
+			throw new UnsupportedOperationException("NYI: import type " + binding.kind()); //$NON-NLS-1$
+
+		case Binding.METHOD:
+			return new ExecutableTypeImpl((MethodBinding) binding);
 			
 		case Binding.TYPE:
 		case Binding.RAW_TYPE:

@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class FileSystem implements INameEnvironment, SuffixConstants {
 	public interface Classpath {
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName);
+		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly);
 		boolean isPackage(String qualifiedPackageName);
 		/**
 		 * This method resets the environment. The resulting state is equivalent to
@@ -163,6 +164,10 @@ static Classpath getClasspath(String classpathName, String encoding,
 	return result;
 }
 private void initializeKnownFileNames(String[] initialFileNames) {
+	if (initialFileNames == null) {
+		this.knownFileNames = new HashSet(0);
+		return;
+	}
 	this.knownFileNames = new HashSet(initialFileNames.length * 2);
 	for (int i = initialFileNames.length; --i >= 0;) {
 		char[] fileName = initialFileNames[i].toCharArray();
@@ -197,7 +202,7 @@ private static String convertPathSeparators(String path) {
 		? path.replace('\\', '/')
 		 : path.replace('/', '\\');
 }
-private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName){
+private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, boolean asBinaryOnly){
 	if (this.knownFileNames.contains(qualifiedTypeName)) return null; // looking for a file which we know was provided at the beginning of the compilation
 
 	String qualifiedBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
@@ -209,7 +214,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	NameEnvironmentAnswer suggestedAnswer = null;
 	if (qualifiedPackageName == qp2) {
 		for (int i = 0, length = this.classpaths.length; i < length; i++) {
-			NameEnvironmentAnswer answer = this.classpaths[i].findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
+			NameEnvironmentAnswer answer = this.classpaths[i].findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly);
 			if (answer != null) {
 				if (!answer.ignoreIfBetter()) {
 					if (answer.isBetter(suggestedAnswer))
@@ -224,8 +229,8 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		for (int i = 0, length = this.classpaths.length; i < length; i++) {
 			Classpath p = this.classpaths[i];
 			NameEnvironmentAnswer answer = (p instanceof ClasspathJar)
-				? p.findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName)
-				: p.findClass(typeName, qp2, qb2);
+				? p.findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly)
+				: p.findClass(typeName, qp2, qb2, asBinaryOnly);
 			if (answer != null) {
 				if (!answer.ignoreIfBetter()) {
 					if (answer.isBetter(suggestedAnswer))
@@ -245,14 +250,24 @@ public NameEnvironmentAnswer findType(char[][] compoundName) {
 	if (compoundName != null)
 		return findClass(
 			new String(CharOperation.concatWith(compoundName, '/')),
-			compoundName[compoundName.length - 1]);
+			compoundName[compoundName.length - 1],
+			false);
+	return null;
+}
+public NameEnvironmentAnswer findType(char[][] compoundName, boolean asBinaryOnly) {
+	if (compoundName != null)
+		return findClass(
+			new String(CharOperation.concatWith(compoundName, '/')),
+			compoundName[compoundName.length - 1],
+			asBinaryOnly);
 	return null;
 }
 public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	if (typeName != null)
 		return findClass(
 			new String(CharOperation.concatWith(packageName, typeName, '/')),
-			typeName);
+			typeName,
+			false);
 	return null;
 }
 public boolean isPackage(char[][] compoundName, char[] packageName) {
