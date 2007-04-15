@@ -357,6 +357,336 @@ public void test015() {
 			options,
 			null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=118217
+public void test016() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Parent implements Doable {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void foo(int value) { // X#foo(...)\n" + 
+				"	}\n" + 
+				"	void bar(int value) { // X#bar(...)\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void top(int value) { /* X#top(...)*/}\n" + 
+				"	void parent(int value) { /* X#parent(...) */}\n" + 
+				"	public void doit(int value) { /* X#doit(...) */}\n" + 
+				"}\n" + 
+				"abstract class Top {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	abstract void top(int value); // Top#top(...)\n" + 
+				"}\n" + 
+				"abstract class Parent extends Top {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void parent(int value) { /* Parent#parent(...) */}\n" + 
+				"}\n" + 
+				"interface Doable {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void doit (int value); // Doable#doit(...)\n" + 
+				"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	void bar(int value) { // X#bar(...)\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n",
+			null /* classLib */,
+			true /* shouldFlushOutputDirectory */,
+			options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=118217 - variation
+public void test017() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.DISABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Parent implements Doable {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void foo(int value) { // X#foo(...)\n" + 
+				"	}\n" + 
+				"	void bar(int value) { // X#bar(...)\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void top(int value) { /* X#top(...)*/}\n" + 
+				"	void parent(int value) { /* X#parent(...) */}\n" + 
+				"	public void doit(int value) { /* X#doit(...) */}\n" + 
+				"}\n" + 
+				"abstract class Top {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	abstract void top(int value); // Top#top(...)\n" + 
+				"}\n" + 
+				"abstract class Parent extends Top {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void parent(int value) { /* Parent#parent(...) */}\n" + 
+				"}\n" + 
+				"interface Doable {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void doit (int value); // Doable#doit(...)\n" + 
+				"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	void foo(int value) { // X#foo(...)\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	void bar(int value) { // X#bar(...)\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 24)\n" + 
+			"	void parent(int value) { /* Parent#parent(...) */}\n" + 
+			"	                ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n",
+			null /* classLib */,
+			true /* shouldFlushOutputDirectory */,
+			options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=118217 - variation
+public void test018() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference, CompilerOptions.DISABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Parent implements Doable {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void foo(int value) { // X#foo(...)\n" + 
+				"	}\n" + 
+				"	void bar(int value) { // X#bar(...)\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void top(int value) { /* X#top(...)*/}\n" + 
+				"	void parent(int value) { /* X#parent(...) */}\n" + 
+				"	public void doit(int value) { /* X#doit(...) */}\n" + 
+				"}\n" + 
+				"abstract class Top {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	abstract void top(int value); // Top#top(...)\n" + 
+				"}\n" + 
+				"abstract class Parent extends Top {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void parent(int value) { /* Parent#parent(...) */}\n" + 
+				"}\n" + 
+				"interface Doable {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void doit (int value); // Doable#doit(...)\n" + 
+				"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	void foo(int value) { // X#foo(...)\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	void bar(int value) { // X#bar(...)\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 24)\n" + 
+			"	void parent(int value) { /* Parent#parent(...) */}\n" + 
+			"	                ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n",
+			null /* classLib */,
+			true /* shouldFlushOutputDirectory */,
+			options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=118217 - variation
+public void test019() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference, CompilerOptions.DISABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Parent implements Doable {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void foo(int value) { // X#foo(...)\n" + 
+				"	}\n" + 
+				"	void bar(int value) { // X#bar(...)\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void top(int value) { /* X#top(...)*/}\n" + 
+				"	void parent(int value) { /* X#parent(...) */}\n" + 
+				"	public void doit(int value) { /* X#doit(...) */}\n" + 
+				"}\n" + 
+				"abstract class Top {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	abstract void top(int value); // Top#top(...)\n" + 
+				"}\n" + 
+				"abstract class Parent extends Top {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void parent(int value) { /* Parent#parent(...) */}\n" + 
+				"}\n" + 
+				"interface Doable {\n" + 
+				"	/**\n" + 
+				"	 * @param value\n" + 
+				"	 */\n" + 
+				"	void doit (int value); // Doable#doit(...)\n" + 
+				"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	void foo(int value) { // X#foo(...)\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	void bar(int value) { // X#bar(...)\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	void top(int value) { /* X#top(...)*/}\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 11)\n" + 
+			"	void parent(int value) { /* X#parent(...) */}\n" + 
+			"	                ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 12)\n" + 
+			"	public void doit(int value) { /* X#doit(...) */}\n" + 
+			"	                     ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 24)\n" + 
+			"	void parent(int value) { /* Parent#parent(...) */}\n" + 
+			"	                ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n",
+			null /* classLib */,
+			true /* shouldFlushOutputDirectory */,
+			options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=118217 - variation
+public void test020() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference, CompilerOptions.DISABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends Parent implements Doable {\n" + 
+				"	/** @param value */\n" + 
+				"	void foo(int value) { // X#foo(...)\n" + 
+				"	}\n" + 
+				"	void bar(int value) { // X#bar(...)\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	/** @param value */\n" + 
+				"	void top(int value) { /* X#top(...)*/}\n" + 
+				"	/** @param value */\n" + 
+				"	void parent(int value) { /* X#parent(...) */}\n" + 
+				"	/** @param value */\n" + 
+				"	public void doit(int value) { /* X#doit(...) */}\n" + 
+				"}\n" + 
+				"abstract class Top {\n" + 
+				"	/** @param value */\n" + 
+				"	abstract void top(int value); // Top#top(...)\n" + 
+				"}\n" + 
+				"abstract class Parent extends Top {\n" + 
+				"	/** @param value */\n" + 
+				"	void parent(int value) { /* Parent#parent(...) */}\n" + 
+				"}\n" + 
+				"interface Doable {\n" + 
+				"	/** @param value */\n" + 
+				"	void doit (int value); // Doable#doit(...)\n" + 
+				"}", // =================
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	void foo(int value) { // X#foo(...)\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	void bar(int value) { // X#bar(...)\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	void top(int value) { /* X#top(...)*/}\n" + 
+			"	             ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 11)\n" + 
+			"	void parent(int value) { /* X#parent(...) */}\n" + 
+			"	                ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 13)\n" + 
+			"	public void doit(int value) { /* X#doit(...) */}\n" + 
+			"	                     ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 21)\n" + 
+			"	void parent(int value) { /* Parent#parent(...) */}\n" + 
+			"	                ^^^^^\n" + 
+			"The parameter value is never read\n" + 
+			"----------\n",
+			null /* classLib */,
+			true /* shouldFlushOutputDirectory */,
+			options);
+}
 public static Class testClass() {
 	return LocalVariableTest.class;
 }

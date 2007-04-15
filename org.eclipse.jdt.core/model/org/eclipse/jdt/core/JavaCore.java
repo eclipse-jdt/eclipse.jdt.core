@@ -66,6 +66,8 @@
  *     IBM Corporation - added the following constants:
  *                                 COMPILER_PB_POTENTIAL_NULL_REFERENCE
  *                                 COMPILER_PB_REDUNDANT_NULL_CHECK
+ *     IBM Corporation - added the following constants:
+ *                                 COMPILER_PB_UNUSED_PARAMETER_INCLUDE_DOC_COMMENT_REFERENCE
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -284,6 +286,12 @@ public final class JavaCore extends Plugin {
 	 * @since 2.1
 	 */
 	public static final String COMPILER_PB_UNUSED_PARAMETER_WHEN_OVERRIDING_CONCRETE = PLUGIN_ID + ".compiler.problem.unusedParameterWhenOverridingConcrete"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
+	 * @since 3.3
+	 */
+	public static final String COMPILER_PB_UNUSED_PARAMETER_INCLUDE_DOC_COMMENT_REFERENCE = PLUGIN_ID + ".compiler.problem.unusedParameterIncludeDocCommentReference"; //$NON-NLS-1$
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
@@ -1997,6 +2005,16 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
+	 *
+	 * COMPILER / Consider Reference in Doc Comment for Unused Parameter Check
+	 *    When enabled, the compiler will consider doc comment references to parameters (i.e. @param clauses) for the unused
+	 *    parameter check. Thus, documented parameters will be considered as mandated as per doc contract.
+	 *    The severity of the unused parameter problem is controlled with option "org.eclipse.jdt.core.compiler.problem.unusedParameter".
+	 *    Note: this option has no effect until the doc comment support is enabled according to the 
+	 *    option "org.eclipse.jdt.core.compiler.doc.comment.support".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocReference"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
 	 *
 	 * COMPILER / Reporting Unused Import
 	 *    When enabled, the compiler will issue an error or a warning for unused import

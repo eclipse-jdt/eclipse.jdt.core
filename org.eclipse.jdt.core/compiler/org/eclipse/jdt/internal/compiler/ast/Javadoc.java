@@ -309,7 +309,8 @@ public class Javadoc extends ASTNode {
 		}
 
 		// @param tags
-		resolveParamTags(methScope, reportMissing);
+		boolean considerParamRefAsUsage = methScope.compilerOptions().reportUnusedParameterIncludeDocCommentReference;
+		resolveParamTags(methScope, reportMissing, considerParamRefAsUsage);
 		resolveTypeParameterTags(methScope, reportMissing);
 
 		// @return tags
@@ -339,7 +340,7 @@ public class Javadoc extends ASTNode {
 		// Resolve param tags with invalid syntax
 		int length = this.invalidParameters == null ? 0 : this.invalidParameters.length;
 		for (int i = 0; i < length; i++) {
-			this.invalidParameters[i].resolve(methScope, false);
+			this.invalidParameters[i].resolve(methScope, false, false);
 		}
 	}
 	
@@ -445,26 +446,26 @@ public class Javadoc extends ASTNode {
 	/*
 	 * Resolve @param tags while method scope
 	 */
-	private void resolveParamTags(MethodScope methScope, boolean reportMissing) {
-		AbstractMethodDeclaration md = methScope.referenceMethod();
+	private void resolveParamTags(MethodScope scope, boolean reportMissing, boolean considerParamRefAsUsage) {
+		AbstractMethodDeclaration methodDecl = scope.referenceMethod();
 		int paramTagsSize = this.paramReferences == null ? 0 : this.paramReferences.length;
 
 		// If no referenced method (field initializer for example) then report a problem for each param tag
-		if (md == null) {
+		if (methodDecl == null) {
 			for (int i = 0; i < paramTagsSize; i++) {
 				JavadocSingleNameReference param = this.paramReferences[i];
-				methScope.problemReporter().javadocUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
+				scope.problemReporter().javadocUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
 			}
 			return;
 		}
 		
 		// If no param tags then report a problem for each method argument
-		int argumentsSize = md.arguments == null ? 0 : md.arguments.length;
+		int argumentsSize = methodDecl.arguments == null ? 0 : methodDecl.arguments.length;
 		if (paramTagsSize == 0) {
 			if (reportMissing) {
 				for (int i = 0; i < argumentsSize; i++) {
-					Argument arg = md.arguments[i];
-					methScope.problemReporter().javadocMissingParamTag(arg.name, arg.sourceStart, arg.sourceEnd, md.binding.modifiers);
+					Argument arg = methodDecl.arguments[i];
+					scope.problemReporter().javadocMissingParamTag(arg.name, arg.sourceStart, arg.sourceEnd, methodDecl.binding.modifiers);
 				}
 			}
 		} else {
@@ -474,13 +475,13 @@ public class Javadoc extends ASTNode {
 			// Scan all @param tags
 			for (int i = 0; i < paramTagsSize; i++) {
 				JavadocSingleNameReference param = this.paramReferences[i];
-				param.resolve(methScope);
+				param.resolve(scope, true, considerParamRefAsUsage);
 				if (param.binding != null && param.binding.isValidBinding()) {
 					// Verify duplicated tags
 					boolean found = false;
 					for (int j = 0; j < maxBindings && !found; j++) {
 						if (bindings[j] == param.binding) {
-							methScope.problemReporter().javadocDuplicatedParamTag(param.token, param.sourceStart, param.sourceEnd, md.binding.modifiers);
+							scope.problemReporter().javadocDuplicatedParamTag(param.token, param.sourceStart, param.sourceEnd, methodDecl.binding.modifiers);
 							found = true;
 						}
 					}
@@ -493,7 +494,7 @@ public class Javadoc extends ASTNode {
 			// Look for undocumented arguments
 			if (reportMissing) {
 				for (int i = 0; i < argumentsSize; i++) {
-					Argument arg = md.arguments[i];
+					Argument arg = methodDecl.arguments[i];
 					boolean found = false;
 					for (int j = 0; j < maxBindings && !found; j++) {
 						LocalVariableBinding binding = bindings[j];
@@ -502,7 +503,7 @@ public class Javadoc extends ASTNode {
 						}
 					}
 					if (!found) {
-						methScope.problemReporter().javadocMissingParamTag(arg.name, arg.sourceStart, arg.sourceEnd, md.binding.modifiers);
+						scope.problemReporter().javadocMissingParamTag(arg.name, arg.sourceStart, arg.sourceEnd, methodDecl.binding.modifiers);
 					}
 				}
 			}

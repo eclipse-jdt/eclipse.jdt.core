@@ -44,6 +44,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportUnusedParameter = "org.eclipse.jdt.core.compiler.problem.unusedParameter"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameterWhenImplementingAbstract = "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameterWhenOverridingConcrete = "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedParameterIncludeDocCommentReference = "org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocCommentReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedImport = "org.eclipse.jdt.core.compiler.problem.unusedImport"; //$NON-NLS-1$
 	public static final String OPTION_ReportSyntheticAccessEmulation = "org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
 	public static final String OPTION_ReportNoEffectAssignment = "org.eclipse.jdt.core.compiler.problem.noEffectAssignment"; //$NON-NLS-1$
@@ -270,6 +271,7 @@ public class CompilerOptions {
 	// unused parameters report
 	public boolean reportUnusedParameterWhenImplementingAbstract = false;
 	public boolean reportUnusedParameterWhenOverridingConcrete = false;
+	public boolean reportUnusedParameterIncludeDocCommentReference = true;
 
 	// unused declaration of thrown exception
 	public boolean reportUnusedDeclaredThrownExceptionWhenOverriding = false;
@@ -418,6 +420,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_TaskCaseSensitive, this.isTaskCaseSensitive ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnusedParameterWhenImplementingAbstract, this.reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnusedParameterWhenOverridingConcrete, this.reportUnusedParameterWhenOverridingConcrete ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportUnusedParameterIncludeDocCommentReference, this.reportUnusedParameterIncludeDocCommentReference ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportSpecialParameterHidingField, this.reportSpecialParameterHidingField ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_MaxProblemPerUnit, String.valueOf(this.maxProblemsPerUnit));
 		optionsMap.put(OPTION_InlineJsr, this.inlineJsrBytecode ? ENABLED : DISABLED);
@@ -697,6 +700,13 @@ public class CompilerOptions {
 				this.reportUnusedParameterWhenOverridingConcrete = false;
 			}
 		}
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedParameterIncludeDocCommentReference)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportUnusedParameterIncludeDocCommentReference = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportUnusedParameterIncludeDocCommentReference = false;
+			}
+		}		
 		if ((optionValue = optionsMap.get(OPTION_ReportSpecialParameterHidingField)) != null) {
 			if (ENABLED.equals(optionValue)) {
 				this.reportSpecialParameterHidingField = true;
@@ -909,10 +919,10 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_Process_Annotations)) != null) {
 			if (ENABLED.equals(optionValue)) {
 				this.processAnnotations = true;
-				// annotation processing requires annotation to be stored
-				this.storeAnnotations = true;
+				this.storeAnnotations = true; // annotation processing requires annotation to be stored
 			} else if (DISABLED.equals(optionValue)) {
 				this.processAnnotations = false;
+				this.storeAnnotations = false;
 			}
 		}
 	}
@@ -974,6 +984,7 @@ public class CompilerOptions {
 		buf.append("\n\t- report deprecation when overriding deprecated method : ").append(this.reportDeprecationWhenOverridingDeprecatedMethod ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report unused parameter when implementing abstract method : ").append(this.reportUnusedParameterWhenImplementingAbstract ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report unused parameter when overriding concrete method : ").append(this.reportUnusedParameterWhenOverridingConcrete ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- report unused parameter include doc comment reference : ").append(this.reportUnusedParameterIncludeDocCommentReference ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report constructor/setter parameter hiding existing field : ").append(this.reportSpecialParameterHidingField ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- inline JSR bytecode : ").append(this.inlineJsrBytecode ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unsafe type operation: ").append(getSeverityString(UncheckedTypeOperation)); //$NON-NLS-1$

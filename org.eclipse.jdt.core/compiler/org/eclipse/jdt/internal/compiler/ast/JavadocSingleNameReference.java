@@ -25,17 +25,20 @@ public class JavadocSingleNameReference extends SingleNameReference {
 	}
 
 	public void resolve(BlockScope scope) {
-		resolve(scope, true);
+		resolve(scope, true, scope.compilerOptions().reportUnusedParameterIncludeDocCommentReference);
 	}
 
 	/**
 	 * Resolve without warnings
 	 */
-	public void resolve(BlockScope scope, boolean warn) {
+	public void resolve(BlockScope scope, boolean warn, boolean considerParamRefAsUsage) {
 		
 		LocalVariableBinding variableBinding = scope.findVariable(this.token);
 		if (variableBinding != null && variableBinding.isValidBinding() && ((variableBinding.tagBits & TagBits.IsArgument) != 0)) {
 			this.binding = variableBinding;
+			if (considerParamRefAsUsage) {
+				variableBinding.useFlag = LocalVariableBinding.USED;
+			}
 			return;
 		}
 		if (warn) {
