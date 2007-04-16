@@ -40,7 +40,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private Map accessRestrictions;
 	ImportBinding[] defaultImports;
 
-	PackageBinding defaultPackage;
+	public PackageBinding defaultPackage;
 	HashtableOfPackage knownPackages;
 	private int lastCompletedUnitIndex = -1;
 	private int lastUnitIndex = -1;
