@@ -653,7 +653,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		this.binaryTypeBindings = null;
 		do {
 			// extract units to process
-			int length = top - bottom + 1;
+			int length = top - bottom;
 			CompilationUnitDeclaration[] currentUnits = new CompilationUnitDeclaration[length];
 			int index = 0;
 			for (int i = bottom; i < top; i++) {
@@ -666,19 +666,21 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				System.arraycopy(currentUnits, 0, (currentUnits = new CompilationUnitDeclaration[index]), 0, index);
 			}
 			this.annotationProcessorManager.processAnnotations(currentUnits, binaryTypeBindingsTemp, false);
+			binaryTypeBindingsTemp = null;
 			ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
 			newUnitSize = newUnits.length;
 			if (newUnitSize != 0) {
 				// we reset the compiler in order to restart with the new units
 				internalBeginToCompile(newUnits, newUnitSize);
-				bottom = top + 1;
+				bottom = top;
 				top = this.unitsToProcess.length;
 				this.annotationProcessorManager.reset();
 			}
 		} while (newUnitSize != 0);
 		// one more loop to create possible resources
 		// this loop cannot create any java source files
-		this.annotationProcessorManager.processAnnotations(unitsToProcess, binaryTypeBindingsTemp, true);
+		// TODO (olivier) we should check if we should pass any unit at all for the last round
+		this.annotationProcessorManager.processAnnotations(unitsToProcess, this.binaryTypeBindings, true);
 		// TODO we might want to check if this loop created new units
 	}
 
