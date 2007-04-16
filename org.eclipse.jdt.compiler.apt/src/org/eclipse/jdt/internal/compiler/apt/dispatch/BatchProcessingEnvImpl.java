@@ -120,15 +120,11 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 			}
 			if (equals == arg.length() - 1) {
 				// option ends with "=" - not valid
-				Exception e = new IllegalArgumentException("-A option must not end with an equals sign"); //$NON-NLS-1$
-				throw new AbortCompilation(null, e);
-			}
-
-			if (equals == -1) {
+				options.put(arg.substring(2, equals), null);
+			} else if (equals == -1) {
 				// no value
 				options.put(arg.substring(2), null);
-			}
-			else {
+			} else {
 				// value and key
 				options.put(arg.substring(2, equals), arg.substring(equals + 1));
 			}

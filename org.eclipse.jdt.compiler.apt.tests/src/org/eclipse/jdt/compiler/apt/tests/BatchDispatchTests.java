@@ -129,6 +129,7 @@ public class BatchDispatchTests extends TestCase {
 		// Processor will throw IllegalStateException if it detects a mismatch.
 		options.add("-Afoo=bar");
 		options.add("-Anovalue");
+		options.add("-Abar2=");
 		BatchTestUtils.compileOneClass(BatchTestUtils.getEclipseCompiler(), options, inputFile);
 
 		// check that the src and class files were generated
@@ -173,6 +174,7 @@ public class BatchDispatchTests extends TestCase {
 		// Processor will throw IllegalStateException if it detects a mismatch.
 		options.add("-Afoo=bar");
 		options.add("-Anovalue");
+		options.add("-Abar2=");
 		BatchTestUtils.compileOneClass(compiler, options, inputFile);
 	}
 

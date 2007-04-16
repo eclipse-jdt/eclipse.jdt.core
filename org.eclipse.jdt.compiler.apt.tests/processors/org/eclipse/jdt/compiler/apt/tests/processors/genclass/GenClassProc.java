@@ -105,7 +105,7 @@ public class GenClassProc extends AbstractProcessor {
 				}
 			}
 			
-			if (null != clazz && null != method)
+			if (null != clazz && null != method && !roundEnv.processingOver())
 				createSourceFile(d, clazz, method);
 		}
 		return true;

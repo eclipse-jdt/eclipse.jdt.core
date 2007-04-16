@@ -33,7 +33,8 @@ public class CheckArgsProc extends AbstractProcessor {
 	private final static String[] _expected =
 	{
 		"foo", "bar",
-		"novalue", null
+		"novalue", null,
+		"bar2", null
 	};
 	
 	/* (non-Javadoc)
