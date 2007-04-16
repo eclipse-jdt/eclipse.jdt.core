@@ -24,6 +24,7 @@ import javax.lang.model.type.TypeVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
  * @author OThomann
@@ -54,7 +55,7 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 	 */
 	@Override
 	public TypeMirror getReturnType() {
-		return Factory.newTypeMirror(this._binding);
+		return Factory.newTypeMirror(((MethodBinding) this._binding).returnType);
 	}
 
 	/* (non-Javadoc)
@@ -77,7 +78,14 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 	 */
 	@Override
 	public List<? extends TypeVariable> getTypeVariables() {
-		throw new UnsupportedOperationException("NYI: org.eclipse.jdt.internal.compiler.apt.model.ExecutableTypeImpl.getTypeVariables()"); //$NON-NLS-1$
+		ArrayList<TypeVariable> list = new ArrayList<TypeVariable>();
+		TypeVariableBinding[] typeVariables = ((MethodBinding) this._binding).typeVariables();
+		if (typeVariables.length != 0) {
+			for (TypeVariableBinding typeVariableBinding : typeVariables) {
+				list.add((TypeVariable) Factory.newTypeMirror(typeVariableBinding));
+			}
+		}
+		return Collections.unmodifiableList(list);
 	}
 
 	/* (non-Javadoc)

@@ -248,8 +248,9 @@ public class Factory {
 			
 			// TODO: fill in the rest of these
 		case Binding.WILDCARD_TYPE:
-		case Binding.TYPE_PARAMETER:
 			throw new UnsupportedOperationException("NYI: binding type " + binding.kind()); //$NON-NLS-1$
+		case Binding.TYPE_PARAMETER:
+			return new TypeVariableImpl((TypeVariableBinding) binding);
 		}
 		return null;
 	}
