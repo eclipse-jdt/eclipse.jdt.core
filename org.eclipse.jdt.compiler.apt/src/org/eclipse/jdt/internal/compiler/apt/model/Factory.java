@@ -228,6 +228,8 @@ public class Factory {
 			
 		case Binding.TYPE:
 		case Binding.RAW_TYPE:
+		case Binding.GENERIC_TYPE:
+		case Binding.PARAMETERIZED_TYPE:
 			return new DeclaredTypeImpl((ReferenceBinding)binding);
 			
 		case Binding.ARRAY_TYPE:
@@ -245,9 +247,7 @@ public class Factory {
 			}
 			
 			// TODO: fill in the rest of these
-		case Binding.PARAMETERIZED_TYPE:
 		case Binding.WILDCARD_TYPE:
-		case Binding.GENERIC_TYPE:
 		case Binding.TYPE_PARAMETER:
 			throw new UnsupportedOperationException("NYI: binding type " + binding.kind()); //$NON-NLS-1$
 		}

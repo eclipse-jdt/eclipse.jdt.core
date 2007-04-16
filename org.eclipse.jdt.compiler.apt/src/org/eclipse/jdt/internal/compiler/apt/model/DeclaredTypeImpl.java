@@ -12,15 +12,20 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
  * Implementation of DeclaredType, which refers to a particular usage or instance of a type.
@@ -33,31 +38,37 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 		super(binding);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.type.DeclaredType#asElement()
-	 */
 	@Override
 	public Element asElement() {
 		// The JDT compiler does not distinguish between type elements and declared types
 		return Factory.newElement((ReferenceBinding)_binding);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.type.DeclaredType#getEnclosingType()
-	 */
 	@Override
 	public TypeMirror getEnclosingType() {
-		// TODO Auto-generated method stub
-		return null;
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		return Factory.newDeclaredType(binding.enclosingType());
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see javax.lang.model.type.DeclaredType#getTypeArguments()
+	 * @see javax.lang.model.element.TypeElement#getTypeParameters().
 	 */
 	@Override
 	public List<? extends TypeMirror> getTypeArguments() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO: what should this method do for generic types, as opposed to parameterized types?
+		//E.g., class <T1> Foo {}, get the class as a type, what are its type arguments?
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		if (!binding.isParameterizedType()) {
+			return Collections.emptyList();
+		}
+		ParameterizedTypeBinding ptb = (ParameterizedTypeBinding)_binding;
+		List<TypeMirror> args = new ArrayList<TypeMirror>(ptb.arguments.length);
+		for (TypeBinding arg : ptb.arguments) {
+			args.add(Factory.newTypeMirror(arg));
+		}
+		return Collections.unmodifiableList(args);
 	}
 
 	/* (non-Javadoc)
@@ -69,9 +80,6 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.type.TypeMirror#getKind()
-	 */
 	@Override
 	public TypeKind getKind() {
 		return TypeKind.DECLARED;

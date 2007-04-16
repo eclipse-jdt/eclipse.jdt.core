@@ -11,6 +11,10 @@ public class AC<T1 extends String & Iterator, T2> implements IC, IA {
 	
 	private List<String> _fieldListString = new ArrayList<String>();
 	
+	public Map<String, Number> _fieldMapStringNumber = null; 
+	
+	public List _fieldRawList = null;
+	
 	public String methodIAString(int int1) {
 		return _fieldListString.iterator().next();
 	}
@@ -25,6 +29,10 @@ public class AC<T1 extends String & Iterator, T2> implements IC, IA {
 	
 	public Map<T1, List<T2>> methodGetMapT1ListT2( Iterator<T2> paramIterT2 ) {
 		return null;
+	}
+	
+	public Map<String, Number> methodGetMapStringNumber() {
+		return _fieldMapStringNumber;
 	}
 	
 	public List<? extends T1> methodGetQExtendsT1() {

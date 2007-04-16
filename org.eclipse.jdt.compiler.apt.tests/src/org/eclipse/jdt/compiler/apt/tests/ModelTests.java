@@ -31,6 +31,7 @@ public class ModelTests extends TestCase {
 	// Processor class names; see corresponding usage in the processor classes.
 	private static final String ELEMENTPROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.ElementProc";
 	private static final String GENERICSPROC = "org.eclipse.jdt.compiler.apt.tests.processors.generics.GenericsProc";
+	private static final String TYPEMIRRORPROC = "org.eclipse.jdt.compiler.apt.tests.processors.typemirror.TypeMirrorProc";
 	private static final String VISITORPROC = "org.eclipse.jdt.compiler.apt.tests.processors.visitors.VisitorProc";
 
 	@Override
@@ -55,6 +56,24 @@ public class ModelTests extends TestCase {
 	public void testElementWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, ELEMENTPROC);
+	}
+
+	/**
+	 * Validate the testTypeMirror test against the javac compiler.
+	 * @throws IOException 
+	 */
+	public void testTypeMirrorWithSystemCompiler() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, TYPEMIRRORPROC);
+	}
+
+	/**
+	 * Attempt to read various elements of the TypeMirror hierarchy.
+	 * @throws IOException 
+	 */
+	public void testTypeMirrorWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, TYPEMIRRORPROC);
 	}
 
 	/**
