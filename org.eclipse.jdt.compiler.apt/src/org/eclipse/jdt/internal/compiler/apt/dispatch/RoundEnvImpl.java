@@ -17,6 +17,7 @@ import java.util.Set;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 
 import org.eclipse.jdt.internal.compiler.apt.model.Factory;
@@ -109,7 +110,15 @@ public class RoundEnvImpl implements RoundEnvironment
 	@Override
 	public Set<? extends Element> getElementsAnnotatedWith(Class<? extends Annotation> a)
 	{
-		TypeElement annoType = _processingEnv.getElementUtils().getTypeElement(a.getCanonicalName());
+		String canonicalName = a.getCanonicalName();
+		if (canonicalName == null) {
+			// null for anonymous and local classes or an array of those
+			throw new IllegalArgumentException("Only annotation type are expected"); //$NON-NLS-1$
+		}
+		TypeElement annoType = _processingEnv.getElementUtils().getTypeElement(canonicalName);
+		if (annoType.getKind() != ElementKind.ANNOTATION_TYPE) {
+			throw new IllegalArgumentException("Only annotation type are expected"); //$NON-NLS-1$
+		}
 		return _annoToUnit.getValues(annoType);
 	}
 
