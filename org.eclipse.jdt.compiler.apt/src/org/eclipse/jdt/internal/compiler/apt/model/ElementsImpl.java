@@ -21,6 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -55,6 +57,12 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
  * There is one of these for every ProcessingEnvironment.
  */
 public class ElementsImpl implements Elements {
+
+	// Used for parsing Javadoc comments: matches initial delimiter, followed by whitespace
+	private static final Pattern INITIAL_DELIMITER = Pattern.compile("^\\s*/\\*\\*\\s*"); //$NON-NLS-1$
+	// Used for parsing Javadoc comments: matches initial whitespace followed by one or more stars
+	private static final Pattern INITIAL_WHITESPACE_STARS = Pattern.compile("^\\s*\\*+"); //$NON-NLS-1$
+
 	
 	private final BaseProcessingEnvImpl _env;
 	
@@ -264,6 +272,17 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public String getDocComment(Element e) {
+		char[] unparsed = getUnparsedDocComment(e);
+		return formatJavadoc(unparsed);
+	}
+
+	/**
+	 * Return the entire javadoc comment on e, including the comment characters and whitespace
+	 * @param e an Element of any sort, possibly with a javadoc comment.
+	 * @return a String, or null if the comment is not available
+	 */
+	private char[] getUnparsedDocComment(Element e)
+	{
 		Javadoc javadoc = null;
 		ReferenceContext referenceContext = null;
 		switch(e.getKind()) {
@@ -308,12 +327,69 @@ public class ElementsImpl implements Elements {
 		if (javadoc != null && referenceContext != null) {
 			char[] contents = referenceContext.compilationResult().getCompilationUnit().getContents();
 			if (contents != null) {
-				return new String(CharOperation.subarray(contents, javadoc.sourceStart, javadoc.sourceEnd));
+				return CharOperation.subarray(contents, javadoc.sourceStart, javadoc.sourceEnd - 1);
 			}
 		}
 		return null;
 	}
 
+	/**
+	 * Strip the comment characters from a javadoc comment. Assume the comment is already
+	 * missing its closing delimiter.
+	 * 
+	 * We mainly do not attempt to emulate the baroque behavior of javac with respect to
+	 * treatment of whitespace. The rules here are simpler: eliminate the opening and
+	 * closing delimiter, and eliminate [whitespace plus stars] at the beginning of each
+	 * line. If the first or last line then contain only whitespace, discard them
+	 * entirely.  Javac also does things like: expand tabs at the beginning of the line if
+	 * the first non-whitespace char is not a star; if the first line contains whitespace
+	 * after the delimiter, but no non-whitespace chars, then delete the whitespace but
+	 * preserve the newline; and so forth.
+	 */
+	public static String formatJavadoc(char[] unparsed)
+	{
+		if (unparsed == null || unparsed.length < 5) { // delimiters take 5 chars
+			return null;
+		}
+		
+		String[] lines = new String(unparsed).split("\n"); //$NON-NLS-1$
+		Matcher delimiterMatcher = INITIAL_DELIMITER.matcher(lines[0]);
+		if (!delimiterMatcher.find()) {
+			return null;
+		}
+		int iOpener = delimiterMatcher.end();
+		lines[0] = lines[0].substring(iOpener);
+		if (lines.length == 1) {
+			// single-line comment.  Should trim(), but javac doesn't.
+			return lines[0];
+		}
+		
+		int firstLine = lines[0].trim().length() > 0 ? 0 : 1;
+		
+		// for each line after the first, including the last, if it starts with whitespace
+		// followed by stars, skip all that. 
+		for (int line = 1; line < lines.length; ++line) {
+			Matcher whitespaceMatcher = INITIAL_WHITESPACE_STARS.matcher(lines[line]);
+			if (whitespaceMatcher.find()) {
+				int firstAfterStars = whitespaceMatcher.end();
+				lines[line] = lines[line].substring(firstAfterStars);
+			}
+		}
+		
+		// If the last line is now empty, skip it
+		int lastLine = lines[lines.length - 1].trim().length() > 0 ? lines.length - 1 : lines.length - 2;
+		
+		StringBuilder sb = new StringBuilder();
+		for (int line = firstLine; line <= lastLine; ++line) {
+			sb.append(lines[line]);
+			// append a newline at the end of each line except the last, even if we skipped the last entirely
+			if (line < lines.length - 1) {
+				sb.append('\n');
+			}
+		}
+		return sb.toString();
+	}
+	
 	/**
 	 * @return all the annotation instance's explicitly set values, plus default values
 	 *         for all the annotation members that are not explicitly set but that have

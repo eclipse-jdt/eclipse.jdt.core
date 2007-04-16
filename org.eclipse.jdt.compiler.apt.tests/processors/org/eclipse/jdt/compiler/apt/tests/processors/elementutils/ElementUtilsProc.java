@@ -88,8 +88,7 @@ public class ElementUtilsProc extends BaseProcessor
 		}
 		
 		if (!examineGetDocComment()) {
-			// Test disabled; our implementation of getDocComment() is not quite right yet
-			// return false;
+			return false;
 		}
 		
 		reportSuccess();

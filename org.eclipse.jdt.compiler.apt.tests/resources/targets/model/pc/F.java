@@ -8,7 +8,7 @@ package targets.model.pc;
 public class F<T1> {
 	/**
 	 * Javadoc on nested element FChild
-	 */
+	 */  
 	public class FChild {
 	}
 	
@@ -25,6 +25,7 @@ public class F<T1> {
 	
 	/** Javadoc on field _fieldT1_protected, inline format */
 	protected T1 _fieldT1_protected;
+	
 	private T1 _fieldT1_private;
 	
 	int fieldInt;
