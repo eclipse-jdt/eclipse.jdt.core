@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
@@ -535,10 +536,13 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		}
 		if (location != null) {
 			for (File file : location) {
-				fileSystemClasspaths.add(FileSystem.getClasspath(
+				Classpath classpath = FileSystem.getClasspath(
 					file.getAbsolutePath(),
 					null,
-					null));
+					null);
+				if (classpath != null) {
+					fileSystemClasspaths.add(classpath);
+				}
 			}
 		}
 		if (javaFileManager != null) {
@@ -567,10 +571,13 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		}
 		if (location != null) {
 			for (File file : location) {
-				fileSystemClasspaths.add(FileSystem.getClasspath(
+				Classpath classpath = FileSystem.getClasspath(
 					file.getAbsolutePath(),
 					null,
-					null));
+					null);
+				if (classpath != null) {
+					fileSystemClasspaths.add(classpath);
+				}
 			}
 		}
 		if (this.checkedClasspaths == null) {
