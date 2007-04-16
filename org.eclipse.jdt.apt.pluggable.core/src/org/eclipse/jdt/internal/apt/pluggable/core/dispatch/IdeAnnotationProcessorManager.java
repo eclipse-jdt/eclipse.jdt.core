@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseAnnotationProcessorMan
 import org.eclipse.jdt.internal.compiler.apt.dispatch.ProcessorInfo;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.core.CompilationUnitProblemFinder;
 import org.eclipse.jdt.internal.core.builder.ICompilationUnitLocator;
 
@@ -123,13 +124,13 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 	 * @see BaseAnnotationProcessorManager#processAnnotations(CompilationUnitDeclaration[], boolean)
 	 */
 	@Override
-	public void processAnnotations(CompilationUnitDeclaration[] units, boolean isLastRound) {
+	public void processAnnotations(CompilationUnitDeclaration[] units, BinaryTypeBinding[] binaryTypeBindings, boolean isLastRound) {
 		if (null == _processors ) {
 			_processors = AnnotationProcessorFactoryLoader.getLoader().getJava6FactoriesAndAttributesForProject(_javaProject);
 			_processorIter = _processors.entrySet().iterator();
 		}
 		if (!_processors.isEmpty()) {
-			super.processAnnotations(units, isLastRound);
+			super.processAnnotations(units, binaryTypeBindings, isLastRound);
 		}
 	}
 
