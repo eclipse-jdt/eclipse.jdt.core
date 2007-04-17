@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
 /**
  * Creates javax.lang.model wrappers around JDT internal compiler bindings.
@@ -245,10 +246,10 @@ public class Factory {
 			default:
 				return getPrimitiveType(PrimitiveTypeImpl.getKind((BaseTypeBinding)binding));
 			}
-			
-			// TODO: fill in the rest of these
+
 		case Binding.WILDCARD_TYPE:
-			throw new UnsupportedOperationException("NYI: binding type " + binding.kind()); //$NON-NLS-1$
+			return new WildcardTypeImpl((WildcardBinding) binding);
+
 		case Binding.TYPE_PARAMETER:
 			return new TypeVariableImpl((TypeVariableBinding) binding);
 		}

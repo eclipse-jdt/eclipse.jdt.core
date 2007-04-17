@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
+import javax.lang.model.type.TypeVisitor;
 
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
@@ -51,5 +52,13 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	public TypeMirror getUpperBound() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see javax.lang.model.type.TypeMirror#accept(javax.lang.model.type.TypeVisitor, java.lang.Object)
+	 */
+	@Override
+	public <R, P> R accept(TypeVisitor<R, P> v, P p) {
+		return v.visitTypeVariable(this, p);
 	}
 }

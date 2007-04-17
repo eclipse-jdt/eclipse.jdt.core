@@ -28,6 +28,7 @@ import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Types;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -119,8 +120,11 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public ArrayType getArrayType(TypeMirror componentType) {
-		// TODO Auto-generated method stub
-		return null;
+		TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) componentType;
+		TypeBinding typeBinding = (TypeBinding) typeMirrorImpl._binding;
+		return new ArrayTypeImpl(this._env.getLookupEnvironment().createArrayType(
+				typeBinding.leafComponentType(),
+				typeBinding.dimensions() + 1));
 	}
 
 	/* (non-Javadoc)
@@ -168,8 +172,35 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public WildcardType getWildcardType(TypeMirror extendsBound, TypeMirror superBound) {
-		// TODO Auto-generated method stub
-		return null;
+		if (extendsBound != null && superBound != null) {
+			throw new IllegalArgumentException("Extends and super bounds cannot be set at the same time"); //$NON-NLS-1$
+		}
+		if (extendsBound != null) {
+			TypeMirrorImpl extendsBoundMirrorType = (TypeMirrorImpl) extendsBound;
+			TypeBinding typeBinding = (TypeBinding) extendsBoundMirrorType._binding;
+			return new WildcardTypeImpl(this._env.getLookupEnvironment().createWildcard(
+					null,
+					0,
+					typeBinding,
+					null,
+					Wildcard.EXTENDS));
+		}
+		if (superBound != null) {
+			TypeMirrorImpl superBoundMirrorType = (TypeMirrorImpl) superBound;
+			TypeBinding typeBinding = (TypeBinding) superBoundMirrorType._binding;
+			return new WildcardTypeImpl(this._env.getLookupEnvironment().createWildcard(
+					null,
+					0,
+					typeBinding,
+					null,
+					Wildcard.SUPER));
+		}
+		return new WildcardTypeImpl(this._env.getLookupEnvironment().createWildcard(
+				null,
+				0,
+				null,
+				null,
+				Wildcard.UNBOUND));
 	}
 
 	/**

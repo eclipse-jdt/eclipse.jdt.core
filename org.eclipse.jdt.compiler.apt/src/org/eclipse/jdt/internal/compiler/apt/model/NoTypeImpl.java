@@ -36,7 +36,13 @@ public class NoTypeImpl implements NoType, NullType
 	@Override
 	public <R, P> R accept(TypeVisitor<R, P> v, P p)
 	{
-		return v.visitNoType(this, p);
+		switch(this.getKind())
+		{
+			case NULL :
+				return v.visitNull(this, p);
+			default: 
+				return v.visitNoType(this, p);
+		}
 	}
 
 	@Override

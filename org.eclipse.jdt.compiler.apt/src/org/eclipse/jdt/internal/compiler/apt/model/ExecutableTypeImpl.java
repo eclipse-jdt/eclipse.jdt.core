@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
- * @author OThomann
+ * Implementation of the ExecutableType
  *
  */
 public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType {

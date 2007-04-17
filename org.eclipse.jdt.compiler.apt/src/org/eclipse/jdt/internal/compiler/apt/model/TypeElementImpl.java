@@ -27,6 +27,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -192,7 +193,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		ReferenceBinding superBinding = binding.superclass();
 		if (null == superBinding) {
-			return null;
+			return Factory.getNoType(TypeKind.NONE);
 		}
 		// superclass of a type must be a DeclaredType
 		return Factory.newDeclaredType(superBinding);
