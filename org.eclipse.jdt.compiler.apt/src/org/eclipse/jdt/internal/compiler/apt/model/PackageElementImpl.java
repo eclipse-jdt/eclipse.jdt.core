@@ -25,6 +25,7 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -36,8 +37,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
  */
 public class PackageElementImpl extends ElementImpl implements PackageElement {
 
-	PackageElementImpl(PackageBinding binding) {
-		super(binding);
+	PackageElementImpl(BaseProcessingEnvImpl env, PackageBinding binding) {
+		super(env, binding);
 	}
 	
 	@Override
@@ -65,7 +66,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 			for (char[][] typeName : typeNames) {
 				ReferenceBinding type = environment.getType(typeName);
 				if (type != null && type.isValidBinding()) {
-					set.add(Factory.newElement(type));
+					set.add(_env.getFactory().newElement(type));
 				}
 			}
 		}

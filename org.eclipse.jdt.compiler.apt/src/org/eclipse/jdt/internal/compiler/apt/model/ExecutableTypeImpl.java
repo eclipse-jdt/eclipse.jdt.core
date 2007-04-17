@@ -21,6 +21,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.TypeVisitor;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -32,8 +33,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
  */
 public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType {
 	
-	public ExecutableTypeImpl(MethodBinding binding) {
-		super(binding);
+	public ExecutableTypeImpl(BaseProcessingEnvImpl env, MethodBinding binding) {
+		super(env, binding);
 	}
 	/* (non-Javadoc)
 	 * @see javax.lang.model.type.ExecutableType#getParameterTypes()
@@ -44,7 +45,7 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 		TypeBinding[] parameters = ((MethodBinding) this._binding).parameters;
 		if (parameters.length != 0) {
 			for (TypeBinding typeBinding : parameters) {
-				list.add(Factory.newTypeMirror(typeBinding));
+				list.add(_env.getFactory().newTypeMirror(typeBinding));
 			}
 		}
 		return Collections.unmodifiableList(list);
@@ -55,7 +56,7 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 	 */
 	@Override
 	public TypeMirror getReturnType() {
-		return Factory.newTypeMirror(((MethodBinding) this._binding).returnType);
+		return _env.getFactory().newTypeMirror(((MethodBinding) this._binding).returnType);
 	}
 
 	/* (non-Javadoc)
@@ -67,7 +68,7 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 		ReferenceBinding[] thrownExceptions = ((MethodBinding) this._binding).thrownExceptions;
 		if (thrownExceptions.length != 0) {
 			for (ReferenceBinding referenceBinding : thrownExceptions) {
-				list.add(Factory.newTypeMirror(referenceBinding));
+				list.add(_env.getFactory().newTypeMirror(referenceBinding));
 			}
 		}
 		return Collections.unmodifiableList(list);
@@ -82,7 +83,7 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 		TypeVariableBinding[] typeVariables = ((MethodBinding) this._binding).typeVariables();
 		if (typeVariables.length != 0) {
 			for (TypeVariableBinding typeVariableBinding : typeVariables) {
-				list.add((TypeVariable) Factory.newTypeMirror(typeVariableBinding));
+				list.add((TypeVariable) _env.getFactory().newTypeMirror(typeVariableBinding));
 			}
 		}
 		return Collections.unmodifiableList(list);

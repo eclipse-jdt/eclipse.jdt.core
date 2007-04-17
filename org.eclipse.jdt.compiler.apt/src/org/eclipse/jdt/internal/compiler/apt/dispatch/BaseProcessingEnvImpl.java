@@ -25,6 +25,7 @@ import javax.lang.model.util.Types;
 
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.apt.model.ElementsImpl;
+import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.model.TypesImpl;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -46,12 +47,14 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	private List<ICompilationUnit> _addedUnits;
 	private List<ICompilationUnit> _deletedUnits;
 	private boolean _errorRaised;
+	private Factory _factory;
 
 	public BaseProcessingEnvImpl() {
 		_addedUnits = new ArrayList<ICompilationUnit>();
 		_deletedUnits = new ArrayList<ICompilationUnit>();
 		_elementUtils = new ElementsImpl(this);
 		_typeUtils = new TypesImpl(this);
+		_factory = new Factory(this);
 		_errorRaised = false;
 	}
 
@@ -134,6 +137,11 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	public void setErrorRaised(boolean b)
 	{
 		_errorRaised = true;
+	}
+
+	public Factory getFactory()
+	{
+		return _factory;
 	}
 
 }

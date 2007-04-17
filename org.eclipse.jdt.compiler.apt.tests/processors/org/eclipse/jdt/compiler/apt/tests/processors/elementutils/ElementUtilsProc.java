@@ -47,6 +47,7 @@ public class ElementUtilsProc extends BaseProcessor
 	private TypeElement _elementFEnum;
 	private TypeElement _elementG;
 	private TypeElement _elementH;
+	private TypeElement _elementJ;
 	private TypeElement _elementAnnoX;
 	private ExecutableElement _annoXValue;
 	private TypeElement _elementAnnoY;
@@ -91,6 +92,18 @@ public class ElementUtilsProc extends BaseProcessor
 			return false;
 		}
 		
+		if (!examineHidesField()) {
+			return false;
+		}
+		
+		if (!examineHidesClass()) {
+			return false;
+		}
+		
+		if (!examineHidesMethod()) {
+			return false;
+		}
+		
 		reportSuccess();
 		return false;
 	}
@@ -124,6 +137,11 @@ public class ElementUtilsProc extends BaseProcessor
 		_elementH = _elementUtils.getTypeElement("targets.model.pc.H");
 		if (_elementH == null || _elementH.getKind() != ElementKind.CLASS) {
 			reportError("element H was not found or was not a class");
+			return false;
+		}
+		_elementJ = _elementUtils.getTypeElement("targets.model.pc.J");
+		if (_elementJ == null || _elementJ.getKind() != ElementKind.CLASS) {
+			reportError("element J was not found or was not a class");
 			return false;
 		}
 		
@@ -462,6 +480,252 @@ public class ElementUtilsProc extends BaseProcessor
 			}
 		}
 		
+		return true;
+	}
+	
+	/**
+	 * Test the {@link Elements#hides(Element, Element)} method for fields
+	 * @return true if all tests passed
+	 */
+	private boolean examineHidesField() {
+		VariableElement fieldIntJ = null;
+		VariableElement fieldIntH = null;
+		VariableElement fieldIntG = null;
+		VariableElement fieldIntF = null;
+		ExecutableElement methodFieldIntJ = null;
+		for (VariableElement field : ElementFilter.fieldsIn(_elementF.getEnclosedElements())) {
+			if ("fieldInt".equals(field.getSimpleName().toString())) {
+				fieldIntF = field;
+				break;
+			}
+		}
+		for (VariableElement field : ElementFilter.fieldsIn(_elementG.getEnclosedElements())) {
+			if ("fieldInt".equals(field.getSimpleName().toString())) {
+				fieldIntG = field;
+				break;
+			}
+		}
+		for (VariableElement field : ElementFilter.fieldsIn(_elementH.getEnclosedElements())) {
+			if ("fieldInt".equals(field.getSimpleName().toString())) {
+				fieldIntH = field;
+				break;
+			}
+		}
+		for (VariableElement field : ElementFilter.fieldsIn(_elementJ.getEnclosedElements())) {
+			if ("fieldInt".equals(field.getSimpleName().toString())) {
+				fieldIntJ = field;
+				break;
+			}
+		}
+		for (ExecutableElement method : ElementFilter.methodsIn(_elementJ.getEnclosedElements())) {
+			if ("fieldInt".equals(method.getSimpleName().toString())) {
+				methodFieldIntJ = method;
+				break;
+			}
+		}
+		if (null == fieldIntJ || null == fieldIntH || null == fieldIntG || null == fieldIntF) {
+			reportError("Failed to find field \"fieldInt\" in either F, G, H, or J");
+			return false;
+		}
+		if (null == methodFieldIntJ) {
+			reportError("Failed to find method \"fieldInt()\" in J");
+			return false;
+		}
+		if (_elementUtils.hides(fieldIntF, fieldIntG)) {
+			reportError("F.fieldInt should not hide G.fieldInt");
+			return false;
+		}
+		if (!_elementUtils.hides(fieldIntG, fieldIntF)) {
+			reportError("G.fieldInt should hide F.fieldInt");
+			return false;
+		}
+		if (!_elementUtils.hides(fieldIntH, fieldIntF)) {
+			reportError("H.fieldInt should hide F.fieldInt");
+			return false;
+		}
+		if (_elementUtils.hides(fieldIntJ, fieldIntG)) {
+			reportError("J.fieldInt should not hide G.fieldInt");
+			return false;
+		}
+		if (_elementUtils.hides(fieldIntJ, methodFieldIntJ)) {
+			reportError("field J.fieldInt should not hide method J.fieldInt()");
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Test the {@link Elements#hides(Element, Element)} method for nested classes
+	 * @return true if all tests passed
+	 */
+	private boolean examineHidesClass() {
+		TypeElement elementFChildOnF = null;
+		TypeElement elementFChildOnH = null;
+		TypeElement elementFOnJ = null;
+		TypeElement elementFChildOnJ = null;
+		TypeElement elementIFChildOnIF = null;
+		TypeElement elementIFChildOnH = null;
+		TypeElement elementIF = _elementUtils.getTypeElement("targets.model.pc.IF");
+		for (TypeElement element : ElementFilter.typesIn(elementIF.getEnclosedElements())) {
+			String name = element.getSimpleName().toString();
+			if ("IFChild".equals(name)) {
+				elementIFChildOnIF = element;
+				break;
+			}
+		}
+		for (TypeElement element : ElementFilter.typesIn(_elementF.getEnclosedElements())) {
+			String name = element.getSimpleName().toString();
+			if ("FChild".equals(name)) {
+				elementFChildOnF = element;
+				break;
+			}
+		}
+		for (TypeElement element : ElementFilter.typesIn(_elementH.getEnclosedElements())) {
+			String name = element.getSimpleName().toString();
+			if ("FChild".equals(name)) {
+				elementFChildOnH = element;
+			}
+			else if ("IFChild".equals(name)) {
+				elementIFChildOnH = element;
+			}
+		}
+		for (TypeElement element : ElementFilter.typesIn(_elementJ.getEnclosedElements())) {
+			String name = element.getSimpleName().toString();
+			if ("FChild".equals(name)) {
+				elementFChildOnJ = element;
+			}
+			else if ("F".equals(name)) {
+				elementFOnJ = element;
+			}
+		}
+		
+		if (!_elementUtils.hides(elementFChildOnH, elementFChildOnF)) {
+			reportError("H.FChild should hide F.FChild");
+			return false;
+		}
+		if (!_elementUtils.hides(elementIFChildOnH, elementIFChildOnIF)) {
+			reportError("H.IFChild should hide IF.IFChild");
+			return false;
+		}
+		if (_elementUtils.hides(elementIFChildOnH, elementFChildOnF)) {
+			reportError("H.IFChild should not hide F.FChild");
+			return false;
+		}
+		if (_elementUtils.hides(elementFChildOnF, elementFChildOnH)) {
+			reportError("F.FChild should not hide H.FChild");
+			return false;
+		}
+		if (_elementUtils.hides(elementFChildOnJ, elementFChildOnF)) {
+			reportError("J.FChild should not hide F.FChild");
+			return false;
+		}
+		if (_elementUtils.hides(_elementF, elementFOnJ)) {
+			reportError("J.F should not hide F");
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Test the {@link Elements#hides(Element, Element)} method for methods
+	 * @return true if all tests passed
+	 */
+	private boolean examineHidesMethod() {
+		ExecutableElement methodStaticOnF = null;
+		ExecutableElement methodStatic2OnF = null;
+		ExecutableElement methodT1OnF = null;
+		ExecutableElement methodStaticOnG = null;
+		ExecutableElement methodT1OnG = null;
+		ExecutableElement methodStaticOnH = null;
+		ExecutableElement methodStaticIntOnH = null;
+		ExecutableElement methodStaticOnJ = null;
+		for (ExecutableElement method : ElementFilter.methodsIn(_elementF.getEnclosedElements())) {
+			String name = method.getSimpleName().toString();
+			if ("staticMethod".equals(name)) {
+				methodStaticOnF = method;
+			}
+			else if ("staticMethod2".equals(name)) {
+				methodStatic2OnF = method;
+			}
+			else if ("method_T1".equals(name)) {
+				methodT1OnF = method;
+			}
+		}
+		for (ExecutableElement method : ElementFilter.methodsIn(_elementG.getEnclosedElements())) {
+			String name = method.getSimpleName().toString();
+			if ("staticMethod".equals(name)) {
+				methodStaticOnG = method;
+			}
+			else if ("method_T1".equals(name)) {
+				methodT1OnG = method;
+			}
+		}
+		for (ExecutableElement method : ElementFilter.methodsIn(_elementH.getEnclosedElements())) {
+			String name = method.getSimpleName().toString();
+			if ("staticMethod".equals(name)) {
+				if (method.getParameters().isEmpty()) {
+					methodStaticOnH = method;
+				}
+				else {
+					methodStaticIntOnH = method;
+				}
+			}
+		}
+		for (ExecutableElement method : ElementFilter.methodsIn(_elementJ.getEnclosedElements())) {
+			String name = method.getSimpleName().toString();
+			if ("staticMethod".equals(name)) {
+				methodStaticOnJ = method;
+				break;
+			}
+		}
+		if (methodStaticOnF == null || methodStatic2OnF == null || methodT1OnF == null) {
+			reportError("Failed to find an expected method on F");
+			return false;
+		}
+		if (methodStaticOnG == null || methodT1OnG == null) {
+			reportError("Failed to find an expected method on G");
+			return false;
+		}
+		if (methodStaticOnH == null || methodStaticIntOnH == null) {
+			reportError("Failed to find an expected method on H");
+			return false;
+		}
+		if (methodStaticOnJ == null) {
+			reportError("Failed to find an expected method on J");
+			return false;
+		}
+		
+		// The should-not-hide cases
+		if (_elementUtils.hides(methodStaticOnF, methodStaticOnG)) {
+			reportError("F.staticMethod() should not hide G.staticMethod()");
+			return false;
+		}
+		if (_elementUtils.hides(methodStaticOnG, methodStatic2OnF)) {
+			reportError("G.staticMethod() should not hide F.staticMethod2()");
+			return false;
+		}
+		if (_elementUtils.hides(methodStaticOnJ, methodStaticOnF)) {
+			reportError("J.staticMethod() should not hide F.staticMethod()");
+			return false;
+		}
+		if (_elementUtils.hides(methodStaticIntOnH, methodStaticOnG)) {
+			reportError("H.staticMethod(int) should not hide G.staticMethod()");
+			return false;
+		}
+		if (_elementUtils.hides(methodT1OnG, methodT1OnF)) {
+			reportError("G.methodT1() should not hide F.methodT1(), because they aren't static (JLS 8.4.8.2)");
+			return false;
+		}
+		
+		// The should-hide cases
+		if (!_elementUtils.hides(methodStaticOnG, methodStaticOnF)) {
+			reportError("G.staticMethod() should hide F.staticMethod()");
+			return false;
+		}
+		if (!_elementUtils.hides(methodStaticOnH, methodStaticOnF)) {
+			reportError("H.staticMethod() should hide F.staticMethod()");
+			return false;
+		}
 		return true;
 	}
 }

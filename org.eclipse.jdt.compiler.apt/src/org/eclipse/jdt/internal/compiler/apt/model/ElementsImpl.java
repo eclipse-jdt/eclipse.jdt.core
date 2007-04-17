@@ -101,7 +101,7 @@ public class ElementsImpl implements Elements {
 			}
 			List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.size());
 			for (AnnotationBinding annotation : annotations) {
-				list.add(Factory.newAnnotationMirror(annotation));
+				list.add(_env.getFactory().newAnnotationMirror(annotation));
 			}
 			return Collections.unmodifiableList(list);
 		}
@@ -155,14 +155,14 @@ public class ElementsImpl implements Elements {
 		}
 		List<Element> allMembers = new ArrayList<Element>();
 		for (ReferenceBinding nestedType : types.values()) {
-			allMembers.add(Factory.newElement(nestedType));
+			allMembers.add(_env.getFactory().newElement(nestedType));
 		}
 		for (FieldBinding field : fields) {
-			allMembers.add(Factory.newElement(field));
+			allMembers.add(_env.getFactory().newElement(field));
 		}
 		for (Set<MethodBinding> sameNamedMethods : methods.values()) {
 			for (MethodBinding method : sameNamedMethods) {
-				allMembers.add(Factory.newElement(method));
+				allMembers.add(_env.getFactory().newElement(method));
 			}
 		}
 		return allMembers;
@@ -416,14 +416,14 @@ public class ElementsImpl implements Elements {
 	public PackageElement getPackageElement(CharSequence name) {
 		LookupEnvironment le = _env.getLookupEnvironment();
 		if (name.length() == 0) {
-			return new PackageElementImpl(le.defaultPackage);
+			return new PackageElementImpl(_env, le.defaultPackage);
 		}
 		char[] packageName = name.toString().toCharArray();
 		PackageBinding packageBinding = le.createPackage(CharOperation.splitOn('.', packageName));
 		if (packageBinding == null) {
 			return null;
 		}
-		return new PackageElementImpl(packageBinding);
+		return new PackageElementImpl(_env, packageBinding);
 	}
 
 	@Override
@@ -435,23 +435,23 @@ public class ElementsImpl implements Elements {
 			case INTERFACE :
 				TypeElementImpl typeElementImpl = (TypeElementImpl) type;
 				ReferenceBinding referenceBinding = (ReferenceBinding)typeElementImpl._binding;
-				return (PackageElement) Factory.newElement(referenceBinding.fPackage);
+				return (PackageElement) _env.getFactory().newElement(referenceBinding.fPackage);
 			case PACKAGE :
 				return (PackageElement) type;
 			case CONSTRUCTOR :
 			case METHOD :
 				ExecutableElementImpl executableElementImpl = (ExecutableElementImpl) type;
 				MethodBinding methodBinding = (MethodBinding) executableElementImpl._binding;
-				return (PackageElement) Factory.newElement(methodBinding.declaringClass.fPackage);
+				return (PackageElement) _env.getFactory().newElement(methodBinding.declaringClass.fPackage);
 			case ENUM_CONSTANT :
 			case FIELD :
 				VariableElementImpl variableElementImpl = (VariableElementImpl) type;
 				FieldBinding fieldBinding = (FieldBinding) variableElementImpl._binding;
-				return (PackageElement) Factory.newElement(fieldBinding.declaringClass.fPackage);
+				return (PackageElement) _env.getFactory().newElement(fieldBinding.declaringClass.fPackage);
 			case PARAMETER :
 				variableElementImpl = (VariableElementImpl) type;
 				LocalVariableBinding localVariableBinding = (LocalVariableBinding) variableElementImpl._binding;
-				return (PackageElement) Factory.newElement(localVariableBinding.declaringScope.classScope().referenceContext.binding.fPackage);
+				return (PackageElement) _env.getFactory().newElement(localVariableBinding.declaringScope.classScope().referenceContext.binding.fPackage);
 			case EXCEPTION_PARAMETER :
 			case INSTANCE_INIT :
 			case OTHER :
@@ -498,18 +498,22 @@ public class ElementsImpl implements Elements {
 		if (null == binding) {
 			return null;
 		}
-		return new TypeElementImpl(binding);
+		return new TypeElementImpl(_env, binding);
 	}
 
 	/* (non-Javadoc)
 	 * Element A hides element B if: A and B are both fields, both nested types, or both methods; and
 	 * the enclosing element of B is a superclass or superinterface of the enclosing element of A.
+	 * See JLS 8.3 (for hiding of fields), 8.4.8.2 (hiding of class methods), and 8.5 (for hiding of member types).
 	 * @see javax.lang.model.util.Elements#hides(javax.lang.model.element.Element, javax.lang.model.element.Element)
 	 */
 	@Override
 	public boolean hides(Element hider, Element hidden) {
-		throw new UnsupportedOperationException("NYI: ElementsImpl.hides(Element, Element)"); //$NON-NLS-1$
-		// return ((ElementImpl)hider).hides(hidden);
+		if (hidden == null) {
+			// required by API spec
+			throw new NullPointerException();
+		}
+		return ((ElementImpl)hider).hides(hidden);
 	}
 
 	/* (non-Javadoc)
@@ -524,6 +528,7 @@ public class ElementsImpl implements Elements {
 	}
 
 	/* (non-Javadoc)
+	 * See JLS 8.4.8.1 for discussion of hiding of methods
 	 * @see javax.lang.model.util.Elements#overrides(javax.lang.model.element.ExecutableElement, javax.lang.model.element.ExecutableElement, javax.lang.model.element.TypeElement)
 	 */
 	@Override

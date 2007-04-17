@@ -19,6 +19,7 @@ import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.DeclaredType;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -26,15 +27,17 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 public class AnnotationMirrorImpl implements AnnotationMirror {
 	
-	AnnotationBinding _binding;
+	public final BaseProcessingEnvImpl _env;
+	public final AnnotationBinding _binding;
 	
-	/* package */ AnnotationMirrorImpl(AnnotationBinding binding) {
+	/* package */ AnnotationMirrorImpl(BaseProcessingEnvImpl env, AnnotationBinding binding) {
+		_env = env;
 		_binding = binding;
 	}
 
 	public DeclaredType getAnnotationType() {
 		ReferenceBinding annoType = _binding.getAnnotationType();
-		return Factory.newDeclaredType(annoType);
+		return _env.getFactory().newDeclaredType(annoType);
 	}
 
 	/**
@@ -47,8 +50,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 			new HashMap<ExecutableElement, AnnotationValue>(pairs.length);
 		for (ElementValuePair pair : pairs) {
 			MethodBinding method = pair.getMethodBinding();
-			ExecutableElement e = new ExecutableElementImpl(method);
-			AnnotationValue v = new AnnotationValueImpl(pair.getValue(), method.returnType);
+			ExecutableElement e = new ExecutableElementImpl(_env, method);
+			AnnotationValue v = new AnnotationValueImpl(_env, pair.getValue(), method.returnType);
 			valueMap.put(e, v);
 		}
 		return Collections.unmodifiableMap(valueMap);
@@ -70,8 +73,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 			for (int i = 0; i < pairs.length; ++i) {
 				MethodBinding explicitBinding = pairs[i].getMethodBinding();
 				if (method == explicitBinding) {
-					ExecutableElement e = new ExecutableElementImpl(explicitBinding);
-					AnnotationValue v = new AnnotationValueImpl(pairs[i].getValue(), explicitBinding.returnType);
+					ExecutableElement e = new ExecutableElementImpl(_env, explicitBinding);
+					AnnotationValue v = new AnnotationValueImpl(_env, pairs[i].getValue(), explicitBinding.returnType);
 					valueMap.put(e, v);
 					foundExplicitValue = true;
 					break;
@@ -81,8 +84,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 			if (!foundExplicitValue) {
 				Object defaultVal = method.getDefaultValue();
 				if (null != defaultVal) {
-					ExecutableElement e = new ExecutableElementImpl(method);
-					AnnotationValue v = new AnnotationValueImpl(defaultVal, method.returnType);
+					ExecutableElement e = new ExecutableElementImpl(_env, method);
+					AnnotationValue v = new AnnotationValueImpl(_env, defaultVal, method.returnType);
 					valueMap.put(e, v);
 				}
 			}

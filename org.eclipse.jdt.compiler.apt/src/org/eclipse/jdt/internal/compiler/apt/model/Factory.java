@@ -29,6 +29,7 @@ import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -47,12 +48,21 @@ import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
  * Creates javax.lang.model wrappers around JDT internal compiler bindings.
  */
 public class Factory {
+	
+	private final BaseProcessingEnvImpl _env;
+	
+	/**
+	 * This object should only be constructed by the BaseProcessingEnvImpl.
+	 */
+	public Factory(BaseProcessingEnvImpl env) {
+		_env = env;
+	}
 
 	/**
 	 * Convert an array of compiler annotation bindings into a list of AnnotationMirror
 	 * @return a non-null, possibly empty, unmodifiable list.
 	 */
-	public static List<? extends AnnotationMirror> getAnnotationMirrors(AnnotationBinding[] annotations) {
+	public List<? extends AnnotationMirror> getAnnotationMirrors(AnnotationBinding[] annotations) {
 		if (null == annotations || 0 == annotations.length) {
 			return Collections.emptyList();
 		}
@@ -106,29 +116,29 @@ public class Factory {
 		return Collections.unmodifiableSet(result);
 	}
 
-	public static AnnotationMirror newAnnotationMirror(AnnotationBinding binding)
+	public AnnotationMirror newAnnotationMirror(AnnotationBinding binding)
 	{
-		return new AnnotationMirrorImpl(binding);
+		return new AnnotationMirrorImpl(_env, binding);
 	}
 	
-	public static Element newElement(Binding binding) {
+	public Element newElement(Binding binding) {
 		switch (binding.kind()) {
 		case Binding.FIELD:
 		case Binding.LOCAL:
 		case Binding.VARIABLE:
-			return new VariableElementImpl(binding);
+			return new VariableElementImpl(_env, binding);
 		case Binding.TYPE:
 		case Binding.GENERIC_TYPE:
-			return new TypeElementImpl((ReferenceBinding)binding);
+			return new TypeElementImpl(_env, (ReferenceBinding)binding);
 		case Binding.METHOD:
-			return new ExecutableElementImpl((MethodBinding)binding);
+			return new ExecutableElementImpl(_env, (MethodBinding)binding);
 		case Binding.RAW_TYPE:
 		case Binding.PARAMETERIZED_TYPE:
-			return new TypeElementImpl(((ParameterizedTypeBinding)binding).genericType());
+			return new TypeElementImpl(_env, ((ParameterizedTypeBinding)binding).genericType());
 		case Binding.PACKAGE:
-			return new PackageElementImpl((PackageBinding)binding);
+			return new PackageElementImpl(_env, (PackageBinding)binding);
 		case Binding.TYPE_PARAMETER:
-			return new TypeParameterElementImpl((TypeVariableBinding)binding);
+			return new TypeParameterElementImpl(_env, (TypeVariableBinding)binding);
 		// TODO: fill in the rest of these
 		case Binding.IMPORT:
 		case Binding.ARRAY_TYPE:
@@ -139,27 +149,27 @@ public class Factory {
 		return null;
 	}
 	
-	public static DeclaredType newDeclaredType(ReferenceBinding binding) {
+	public DeclaredType newDeclaredType(ReferenceBinding binding) {
 		if (binding.kind() == Binding.WILDCARD_TYPE) {
 			// JDT wildcard binding is a subclass of reference binding, but in JSR269 they're siblings
 			throw new IllegalArgumentException("A wildcard binding can't be turned into a DeclaredType"); //$NON-NLS-1$
 		}
-		return new DeclaredTypeImpl(binding);
+		return new DeclaredTypeImpl(_env, binding);
 	}
 
 	/**
 	 * Convenience method - equivalent to {@code (PackageElement)Factory.newElement(binding)}
 	 */
-	public static PackageElement newPackageElement(PackageBinding binding)
+	public PackageElement newPackageElement(PackageBinding binding)
 	{
-		return new PackageElementImpl(binding);
+		return new PackageElementImpl(_env, binding);
 	}
 	
-	public static NullType getNullType() {
+	public NullType getNullType() {
 		return NoTypeImpl.NULL_TYPE;
 	}
 
-	public static NoType getNoType(TypeKind kind)
+	public NoType getNoType(TypeKind kind)
 	{
 		switch (kind) {
 		case NONE:
@@ -177,7 +187,7 @@ public class Factory {
 	 * Get a type mirror object representing the specified primitive type kind.
 	 * @throw IllegalArgumentException if a non-primitive TypeKind is requested
 	 */
-	public static PrimitiveTypeImpl getPrimitiveType(TypeKind kind)
+	public PrimitiveTypeImpl getPrimitiveType(TypeKind kind)
 	{
 		switch (kind) {
 		case BOOLEAN:
@@ -204,14 +214,14 @@ public class Factory {
 	/**
 	 * Convenience method to get the PrimitiveTypeImpl corresponding to a particular BaseTypeBinding.
 	 */
-	public static PrimitiveTypeImpl getPrimitiveType(BaseTypeBinding binding) {
+	public PrimitiveTypeImpl getPrimitiveType(BaseTypeBinding binding) {
 		return getPrimitiveType(PrimitiveTypeImpl.getKind(binding));
 	}
 
 	/**
 	 * Given a binding of uncertain type, try to create the right sort of TypeMirror for it.
 	 */
-	public static TypeMirror newTypeMirror(Binding binding) {
+	public TypeMirror newTypeMirror(Binding binding) {
 		switch (binding.kind()) {
 		case Binding.FIELD:
 		case Binding.LOCAL:
@@ -226,16 +236,16 @@ public class Factory {
 			throw new UnsupportedOperationException("NYI: import type " + binding.kind()); //$NON-NLS-1$
 
 		case Binding.METHOD:
-			return new ExecutableTypeImpl((MethodBinding) binding);
+			return new ExecutableTypeImpl(_env, (MethodBinding) binding);
 			
 		case Binding.TYPE:
 		case Binding.RAW_TYPE:
 		case Binding.GENERIC_TYPE:
 		case Binding.PARAMETERIZED_TYPE:
-			return new DeclaredTypeImpl((ReferenceBinding)binding);
+			return new DeclaredTypeImpl(_env, (ReferenceBinding)binding);
 			
 		case Binding.ARRAY_TYPE:
-			return new ArrayTypeImpl((ArrayBinding)binding);
+			return new ArrayTypeImpl(_env, (ArrayBinding)binding);
 			
 		case Binding.BASE_TYPE:
 			BaseTypeBinding btb = (BaseTypeBinding)binding;
@@ -249,10 +259,10 @@ public class Factory {
 			}
 
 		case Binding.WILDCARD_TYPE:
-			return new WildcardTypeImpl((WildcardBinding) binding);
+			return new WildcardTypeImpl(_env, (WildcardBinding) binding);
 
 		case Binding.TYPE_PARAMETER:
-			return new TypeVariableImpl((TypeVariableBinding) binding);
+			return new TypeVariableImpl(_env, (TypeVariableBinding) binding);
 		}
 		return null;
 	}
@@ -260,9 +270,9 @@ public class Factory {
 	/**
 	 * @param declaringElement the class, method, etc. that is parameterized by this parameter.
 	 */
-	public static TypeParameterElement newTypeParameterElement(TypeVariableBinding variable, Element declaringElement)
+	public TypeParameterElement newTypeParameterElement(TypeVariableBinding variable, Element declaringElement)
 	{
-		return new TypeParameterElementImpl(variable, declaringElement);
+		return new TypeParameterElementImpl(_env, variable, declaringElement);
 	}
 
 }

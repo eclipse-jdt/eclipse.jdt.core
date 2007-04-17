@@ -44,6 +44,16 @@ public class F<T1> {
 		_fieldT1_private = param1;
 		return _fieldT1_private.toString();
 	}
+	
+	// hidden by G.staticMethod()
+	public static void staticMethod()
+	{
+	}
+
+	// not hidden by G.staticMethod - different name
+	public static void staticMethod2()
+	{
+	}
 
 	@SuppressWarnings("deprecation")
 	@Deprecated

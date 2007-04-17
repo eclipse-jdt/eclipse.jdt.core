@@ -20,6 +20,7 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.type.TypeMirror;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 
 /**
@@ -29,16 +30,17 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 public abstract class ElementImpl 
 	implements javax.lang.model.element.Element, IElementInfo
 {
-	
+	public final BaseProcessingEnvImpl _env;
 	public final Binding _binding;
 	
-	protected ElementImpl(Binding binding) {
+	protected ElementImpl(BaseProcessingEnvImpl env, Binding binding) {
+		_env = env;
 		_binding = binding;
 	}
 
 	@Override
 	public TypeMirror asType() {
-		return Factory.newTypeMirror(_binding);
+		return _env.getFactory().newTypeMirror(_binding);
 	}
 
 	@Override

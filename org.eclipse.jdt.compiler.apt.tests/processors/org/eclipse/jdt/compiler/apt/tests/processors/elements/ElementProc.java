@@ -395,12 +395,10 @@ public class ElementProc extends BaseProcessor {
 			reportError("The first parameter of A.methodIAString() is not of int type");
 			return false;
 		}
-		/* TODO: can't do this, because our implementation doesn't have access to the names of primitive-typed parameters
 		if (!("int1".equals(int1.getSimpleName().toString()))) {
 			reportError("The first parameter of A.methodIAString() is not named int1");
 			return false;
 		}
-		*/
 		
 		// FIELDS
 		List<VariableElement> fieldsA = ElementFilter.fieldsIn(enclosedA);

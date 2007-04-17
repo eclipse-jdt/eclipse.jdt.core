@@ -16,6 +16,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.TypeVisitor;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
@@ -24,15 +25,15 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
  */
 public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	
-	public TypeVariableImpl(TypeVariableBinding binding) {
-		super(binding);
+	public TypeVariableImpl(BaseProcessingEnvImpl env, TypeVariableBinding binding) {
+		super(env, binding);
 	}
 	/* (non-Javadoc)
 	 * @see javax.lang.model.type.TypeVariable#asElement()
 	 */
 	@Override
 	public Element asElement() {
-		return Factory.newElement(this._binding);
+		return _env.getFactory().newElement(this._binding);
 	}
 
 	/* (non-Javadoc)

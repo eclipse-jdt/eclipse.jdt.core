@@ -23,6 +23,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -34,22 +35,22 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  */
 public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 	
-	/* package */ DeclaredTypeImpl(ReferenceBinding binding) {
-		super(binding);
+	/* package */ DeclaredTypeImpl(BaseProcessingEnvImpl env, ReferenceBinding binding) {
+		super(env, binding);
 	}
 
 	@Override
 	public Element asElement() {
 		// The JDT compiler does not distinguish between type elements and declared types
-		return Factory.newElement((ReferenceBinding)_binding);
+		return _env.getFactory().newElement((ReferenceBinding)_binding);
 	}
 
 	@Override
 	public TypeMirror getEnclosingType() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		ReferenceBinding enclosingType = binding.enclosingType();
-		if (enclosingType != null) return Factory.newDeclaredType(enclosingType);
-		return Factory.getNoType(TypeKind.NONE);
+		if (enclosingType != null) return _env.getFactory().newDeclaredType(enclosingType);
+		return _env.getFactory().getNoType(TypeKind.NONE);
 	}
 
 	/*
@@ -68,7 +69,7 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 		ParameterizedTypeBinding ptb = (ParameterizedTypeBinding)_binding;
 		List<TypeMirror> args = new ArrayList<TypeMirror>(ptb.arguments.length);
 		for (TypeBinding arg : ptb.arguments) {
-			args.add(Factory.newTypeMirror(arg));
+			args.add(_env.getFactory().newTypeMirror(arg));
 		}
 		return Collections.unmodifiableList(args);
 	}

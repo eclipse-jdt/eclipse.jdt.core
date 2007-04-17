@@ -31,6 +31,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -45,8 +46,8 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	 * {@link Factory#newElement(org.eclipse.jdt.internal.compiler.lookup.Binding)} to
 	 * create new instances.
 	 */
-	TypeElementImpl(ReferenceBinding binding) {
-		super(binding);
+	TypeElementImpl(BaseProcessingEnvImpl env, ReferenceBinding binding) {
+		super(env, binding);
 	}
 	
 	@Override
@@ -58,7 +59,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		AnnotationBinding[] annotations = ((ReferenceBinding)_binding).getAnnotations();
-		return Factory.getAnnotationMirrors(annotations);
+		return _env.getFactory().getAnnotationMirrors(annotations);
 	}
 
 	@Override
@@ -66,15 +67,15 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		List<Element> enclosed = new ArrayList<Element>(binding.fieldCount() + binding.methods().length);
 		for (MethodBinding method : binding.methods()) {
-			ExecutableElement executable = new ExecutableElementImpl(method);
+			ExecutableElement executable = new ExecutableElementImpl(_env, method);
 			enclosed.add(executable);
 		}
 		for (FieldBinding field : binding.fields()) {
-			 VariableElement variable = new VariableElementImpl(field);
+			 VariableElement variable = new VariableElementImpl(_env, field);
 			 enclosed.add(variable);
 		}
 		for (ReferenceBinding memberType : binding.memberTypes()) {
-			TypeElement type = new TypeElementImpl(memberType);
+			TypeElement type = new TypeElementImpl(_env, memberType);
 			enclosed.add(type);
 		}
 		return Collections.unmodifiableList(enclosed);
@@ -86,10 +87,10 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		ReferenceBinding enclosingType = binding.enclosingType();
 		if (null == enclosingType) {
 			// this is a top level type; get its package
-			return Factory.newPackageElement(binding.fPackage);
+			return _env.getFactory().newPackageElement(binding.fPackage);
 		}
 		else {
-			return Factory.newElement(binding.enclosingType());
+			return _env.getFactory().newElement(binding.enclosingType());
 		}
 	}
 
@@ -109,7 +110,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		}
 		List<TypeMirror> interfaces = new ArrayList<TypeMirror>(binding.superInterfaces().length);
 		for (ReferenceBinding interfaceBinding : binding.superInterfaces()) {
-			TypeMirror interfaceType = Factory.newTypeMirror(interfaceBinding);
+			TypeMirror interfaceType = _env.getFactory().newTypeMirror(interfaceBinding);
 			interfaces.add(interfaceType);
 		}
 		return Collections.unmodifiableList(interfaces);
@@ -161,7 +162,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	PackageElement getPackage()
 	{
 		ReferenceBinding binding = (ReferenceBinding)_binding;
-		return Factory.newPackageElement((PackageBinding)binding.fPackage);
+		return _env.getFactory().newPackageElement((PackageBinding)binding.fPackage);
 	}
 
 	@Override
@@ -193,10 +194,10 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		ReferenceBinding superBinding = binding.superclass();
 		if (null == superBinding) {
-			return Factory.getNoType(TypeKind.NONE);
+			return _env.getFactory().getNoType(TypeKind.NONE);
 		}
 		// superclass of a type must be a DeclaredType
-		return Factory.newDeclaredType(superBinding);
+		return _env.getFactory().newDeclaredType(superBinding);
 	}
 	
 	@Override
@@ -208,9 +209,26 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		}
 		List<TypeParameterElement> params = new ArrayList<TypeParameterElement>(variables.length); 
 		for (TypeVariableBinding variable : variables) {
-			params.add(Factory.newTypeParameterElement(variable, this));
+			params.add(_env.getFactory().newTypeParameterElement(variable, this));
 		}
 		return Collections.unmodifiableList(params);
+	}
+
+	@Override
+	public boolean hides(Element hidden)
+	{
+		if (!(hidden instanceof TypeElementImpl)) {
+			return false;
+		}
+		ReferenceBinding hiddenBinding = (ReferenceBinding)((TypeElementImpl)hidden)._binding;
+		ReferenceBinding hiderBinding = (ReferenceBinding)_binding;
+		if (!hiddenBinding.isMemberType() || !hiderBinding.isMemberType()) {
+			return false;
+		}
+		if (!CharOperation.equals(hiddenBinding.sourceName, hiderBinding.sourceName)) {
+			return false;
+		}
+		return null != hiderBinding.enclosingType().findSuperTypeWithSameErasure(hiddenBinding.enclosingType()); 
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -37,14 +38,14 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 	// Cache the bounds, because they're expensive to compute
 	private List<? extends TypeMirror> _bounds = null;
 	
-	/* package */ TypeParameterElementImpl(TypeVariableBinding binding, Element declaringElement) {
-		super(binding);
+	/* package */ TypeParameterElementImpl(BaseProcessingEnvImpl env, TypeVariableBinding binding, Element declaringElement) {
+		super(env, binding);
 		_declaringElement = declaringElement;
 	}
 
-	/* package */ TypeParameterElementImpl(TypeVariableBinding binding) {
-		super(binding);
-		_declaringElement = Factory.newElement(binding.declaringElement);
+	/* package */ TypeParameterElementImpl(BaseProcessingEnvImpl env, TypeVariableBinding binding) {
+		super(env, binding);
+		_declaringElement = _env.getFactory().newElement(binding.declaringElement);
 	}
 
 	@Override
@@ -80,7 +81,7 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 		if (boundsLength != 0) {
 			List<TypeMirror> typeBounds = new ArrayList<TypeMirror>(boundsLength);
 			if (firstClassOrArrayBound != null) {
-				TypeMirror typeBinding = Factory.newTypeMirror(firstClassOrArrayBound);
+				TypeMirror typeBinding = _env.getFactory().newTypeMirror(firstClassOrArrayBound);
 				if (typeBinding == null) {
 					return Collections.emptyList();
 				}
@@ -88,7 +89,7 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 			}
 			if (superinterfaces != null) {
 				for (int i = 0; i < superinterfacesLength; i++) {
-					TypeMirror typeBinding = Factory.newTypeMirror(superinterfaces[i]);
+					TypeMirror typeBinding = _env.getFactory().newTypeMirror(superinterfaces[i]);
 					if (typeBinding == null) {
 						return Collections.emptyList();
 					}

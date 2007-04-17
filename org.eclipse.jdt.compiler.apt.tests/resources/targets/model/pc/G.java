@@ -20,6 +20,11 @@ public abstract class G extends F<String> implements IA, IF {
 		return null;
 	}
 	
+	// hides F.staticMethod()
+	public static void staticMethod()
+	{
+	}
+
 	// Method declared in an interface but not implemented:
 	//public String methodIAString(int int1)
 	//{

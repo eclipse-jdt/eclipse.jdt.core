@@ -20,6 +20,7 @@ import javax.lang.model.element.AnnotationValueVisitor;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -38,6 +39,8 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	private static final int T_EnumConstant = -2;
 	private static final int T_ClassObject = -3;
 	private static final int T_ArrayType = -4;
+	
+	private final BaseProcessingEnvImpl _env;
 	
 	/**
 	 * The annotation value, as it would be returned by
@@ -75,7 +78,8 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	 *            If it is null or not a BaseTypeBinding, it is ignored and the type is
 	 *            determined from the type of the value.
 	 */
-	public AnnotationValueImpl(Object value, TypeBinding type) {
+	public AnnotationValueImpl(BaseProcessingEnvImpl env, Object value, TypeBinding type) {
+		_env = env;
 		int kind[] = new int[1];
 		if (value instanceof Object[]) {
 			Object[] values = (Object[])value;
@@ -85,7 +89,7 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 				if (type instanceof ArrayBinding) {
 					valueType = ((ArrayBinding)type).elementsType();
 				}
-				convertedValues.add(new AnnotationValueImpl(oneValue, valueType));
+				convertedValues.add(new AnnotationValueImpl(_env, oneValue, valueType));
 			}
 			_value = Collections.unmodifiableList(convertedValues);
 			_kind = T_ArrayType;
@@ -138,13 +142,13 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 			}
 		} else if (value instanceof FieldBinding) {
 			kind[0] = T_EnumConstant;
-			return (VariableElement) Factory.newElement((FieldBinding) value);
+			return (VariableElement) _env.getFactory().newElement((FieldBinding) value);
 		} else if (value instanceof TypeBinding) {
 			kind[0] = T_ClassObject;
-			return Factory.newTypeMirror((TypeBinding) value);
+			return _env.getFactory().newTypeMirror((TypeBinding) value);
 		} else if (value instanceof AnnotationBinding) {
 			kind[0] = T_AnnotationMirror;
-			return Factory.newAnnotationMirror((AnnotationBinding) value);
+			return _env.getFactory().newAnnotationMirror((AnnotationBinding) value);
 		} 
 		throw new IllegalArgumentException("Unexpected type for annotation value: " + value); //$NON-NLS-1$
 	}

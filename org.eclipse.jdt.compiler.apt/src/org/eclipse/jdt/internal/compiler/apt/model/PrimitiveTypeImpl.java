@@ -40,7 +40,8 @@ public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType {
 	 * rather than creating new objects.
 	 */
 	private PrimitiveTypeImpl(BaseTypeBinding binding) {
-		super(binding);
+		// Primitive types do not need an environment!
+		super(null, binding);
 	}
 	
 	@Override

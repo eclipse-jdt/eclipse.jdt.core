@@ -35,14 +35,17 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
  * in the course of dispatching to annotation processors.
  */
 public class AnnotationDiscoveryVisitor extends ASTVisitor {
-
+	final BaseProcessingEnvImpl _env;
+	final Factory _factory;
 	/**
 	 * Collects a many-to-many map of annotation types to
 	 * the elements they appear on.
 	 */
 	ManyToMany<TypeElement, Element> _annoToElement;
 
-	public AnnotationDiscoveryVisitor() {
+	public AnnotationDiscoveryVisitor(BaseProcessingEnvImpl env) {
+		_env = env;
+		_factory = env.getFactory();
 		this._annoToElement = new ManyToMany<TypeElement, Element>();
 	}
 
@@ -139,8 +142,8 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		for (Annotation annotation : annotations) {
 			AnnotationBinding binding = annotation.getCompilerAnnotation();
 			if (binding != null) { // binding should be resolved, but in case it's not, ignore it
-				TypeElement anno = (TypeElement)Factory.newElement(binding.getAnnotationType()); 
-				Element element = Factory.newElement(currentBinding);
+				TypeElement anno = (TypeElement)_factory.newElement(binding.getAnnotationType()); 
+				Element element = _factory.newElement(currentBinding);
 				_annoToElement.put(anno, element);
 			}
 		}

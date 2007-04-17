@@ -29,6 +29,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -44,8 +45,8 @@ public class ExecutableElementImpl extends ElementImpl implements
 	
 	private Name _name = null;
 	
-	/* package */ ExecutableElementImpl(MethodBinding binding) {
-		super(binding);
+	/* package */ ExecutableElementImpl(BaseProcessingEnvImpl env, MethodBinding binding) {
+		super(env, binding);
 	}
 
 	@Override
@@ -57,14 +58,14 @@ public class ExecutableElementImpl extends ElementImpl implements
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		AnnotationBinding[] annotations = ((MethodBinding)_binding).getAnnotations();
-		return Factory.getAnnotationMirrors(annotations);
+		return _env.getFactory().getAnnotationMirrors(annotations);
 	}
 
 	@Override
 	public AnnotationValue getDefaultValue() {
 		MethodBinding binding = (MethodBinding)_binding;
 		Object defaultValue = binding.getDefaultValue();
-		if (defaultValue != null) return new AnnotationValueImpl(defaultValue, binding.returnType);
+		if (defaultValue != null) return new AnnotationValueImpl(_env, defaultValue, binding.returnType);
 		return null;
 	}
 	
@@ -79,7 +80,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (null == binding.declaringClass) {
 			return null;
 		}
-		return Factory.newElement(binding.declaringClass);
+		return _env.getFactory().newElement(binding.declaringClass);
 	}
 
 	@Override
@@ -121,7 +122,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (null == binding.declaringClass) {
 			return null;
 		}
-		return Factory.newPackageElement(binding.declaringClass.fPackage);
+		return _env.getFactory().newPackageElement(binding.declaringClass.fPackage);
 	}
 
 	@Override
@@ -133,7 +134,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 			List<VariableElement> params = new ArrayList<VariableElement>(length);
 			if (methodDeclaration != null) {
 				for (Argument argument : methodDeclaration.arguments) {
-					VariableElement param = new VariableElementImpl(argument.binding);
+					VariableElement param = new VariableElementImpl(_env, argument.binding);
 					params.add(param);
 				}
 			} else {
@@ -142,7 +143,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 				for (TypeBinding typeBinding : binding.parameters) {
 					StringBuilder builder = new StringBuilder("arg");//$NON-NLS-1$
 					builder.append(i);
-					VariableElement param = new VariableElementImpl(new LocalVariableBinding(String.valueOf(builder).toCharArray(), typeBinding, 0, true));
+					VariableElement param = new VariableElementImpl(_env, new LocalVariableBinding(String.valueOf(builder).toCharArray(), typeBinding, 0, true));
 					params.add(param);
 					i++;
 				}
@@ -158,7 +159,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (binding.returnType == null) {
 			return null;
 		}
-		else return Factory.newTypeMirror(binding.returnType);
+		else return _env.getFactory().newTypeMirror(binding.returnType);
 	}
 
 	@Override
@@ -178,7 +179,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		}
 		List<TypeMirror> list = new ArrayList<TypeMirror>(binding.thrownExceptions.length);
 		for (ReferenceBinding exception : binding.thrownExceptions) {
-			list.add(Factory.newTypeMirror(exception));
+			list.add(_env.getFactory().newTypeMirror(exception));
 		}
 		return list;
 	}
@@ -192,9 +193,36 @@ public class ExecutableElementImpl extends ElementImpl implements
 		}
 		List<TypeParameterElement> params = new ArrayList<TypeParameterElement>(variables.length); 
 		for (TypeVariableBinding variable : variables) {
-			params.add(Factory.newTypeParameterElement(variable, this));
+			params.add(_env.getFactory().newTypeParameterElement(variable, this));
 		}
 		return Collections.unmodifiableList(params);
+	}
+
+	@Override
+	public boolean hides(Element hidden)
+	{
+		if (!(hidden instanceof ExecutableElementImpl)) {
+			return false;
+		}
+		MethodBinding hiderBinding = (MethodBinding)_binding;
+		MethodBinding hiddenBinding = (MethodBinding)((ExecutableElementImpl)hidden)._binding;
+		// See JLS 8.4.8: hiding only applies to static methods
+		if (!hiderBinding.isStatic() || !hiddenBinding.isStatic()) {
+			return false;
+		}
+		
+		// check names
+		if (!CharOperation.equals(hiddenBinding.selector, hiderBinding.selector)) {
+			return false;
+		}
+
+		
+		// check parameters
+		if (!_env.getLookupEnvironment().methodVerifier().doesMethodOverride(hiderBinding, hiddenBinding)) {
+			return false;
+		}
+		
+		return null != hiderBinding.declaringClass.findSuperTypeWithSameErasure(hiddenBinding.declaringClass); 
 	}
 
 	@Override

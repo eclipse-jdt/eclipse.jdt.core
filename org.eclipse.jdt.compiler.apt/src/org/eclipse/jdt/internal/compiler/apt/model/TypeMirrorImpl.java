@@ -16,6 +16,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 
 /**
@@ -25,9 +26,12 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
  */
 public class TypeMirrorImpl implements TypeMirror {
 
+	// Caution: _env will be NULL for PrimitiveTypeImpl.
+	protected final BaseProcessingEnvImpl _env;
 	protected final Binding _binding;
 	
-	/* package */ TypeMirrorImpl(Binding binding) {
+	/* package */ TypeMirrorImpl(BaseProcessingEnvImpl env, Binding binding) {
+		_env = env;
 		_binding = binding;
 	}
 	

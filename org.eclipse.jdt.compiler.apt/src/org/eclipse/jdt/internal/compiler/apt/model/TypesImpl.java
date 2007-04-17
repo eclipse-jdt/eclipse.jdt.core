@@ -59,7 +59,7 @@ public class TypesImpl implements Types {
 		if (!(t instanceof TypeMirrorImpl)) {
 			return null;
 		}
-		return Factory.newElement(((TypeMirrorImpl)t).binding());
+		return _env.getFactory().newElement(((TypeMirrorImpl)t).binding());
 	}
 
 	/* (non-Javadoc)
@@ -77,9 +77,9 @@ public class TypesImpl implements Types {
 	@Override
 	public TypeElement boxedClass(PrimitiveType p) {
 		PrimitiveTypeImpl primitiveTypeImpl = (PrimitiveTypeImpl) p;
-		BaseTypeBinding baseTypeBinding = (BaseTypeBinding) primitiveTypeImpl._binding;
+		BaseTypeBinding baseTypeBinding = (BaseTypeBinding)primitiveTypeImpl._binding;
 		TypeBinding boxed = _env.getLookupEnvironment().computeBoxingType(baseTypeBinding);
-		return (TypeElement) Factory.newElement(boxed);
+		return (TypeElement) _env.getFactory().newElement(boxed);
 	}
 
 	/* (non-Javadoc)
@@ -117,7 +117,7 @@ public class TypesImpl implements Types {
 		TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
 		Binding binding = typeMirrorImpl._binding;
 		if (binding instanceof ReferenceBinding) {
-			return Factory.newTypeMirror(((ReferenceBinding) binding).erasure());
+			return _env.getFactory().newTypeMirror(((ReferenceBinding) binding).erasure());
 		}
 		// TODO should we return null or NoType ?
 		throw new UnsupportedOperationException("NYI: TypesImpl.erasure(...) when not a reference binding"); //$NON-NLS-1$
@@ -130,7 +130,7 @@ public class TypesImpl implements Types {
 	public ArrayType getArrayType(TypeMirror componentType) {
 		TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) componentType;
 		TypeBinding typeBinding = (TypeBinding) typeMirrorImpl._binding;
-		return new ArrayTypeImpl(this._env.getLookupEnvironment().createArrayType(
+		return new ArrayTypeImpl(_env, this._env.getLookupEnvironment().createArrayType(
 				typeBinding.leafComponentType(),
 				typeBinding.dimensions() + 1));
 	}
@@ -148,7 +148,7 @@ public class TypesImpl implements Types {
 		if (typeArgsLength == 0) {
 			if (referenceBinding.isGenericType()) {
 				// must return a raw type
-				return Factory.newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, null));
+				return _env.getFactory().newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, null));
 			}
 			return (DeclaredType)typeElem.asType();
 		} else if (typeArgsLength != typeVariablesLength) {
@@ -163,7 +163,7 @@ public class TypesImpl implements Types {
 			}
 			typeArguments[i] = (ReferenceBinding) binding;
 		}
-		return Factory.newDeclaredType(
+		return _env.getFactory().newDeclaredType(
 				this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, null));
 	}
 
@@ -183,7 +183,7 @@ public class TypesImpl implements Types {
 		if (typeArgsLength == 0) {
 			if (referenceBinding.isGenericType()) {
 				// must return a raw type
-				return Factory.newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, enclosingType));
+				return _env.getFactory().newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, enclosingType));
 			}
 			// TODO (see how to create a member type binding
 			throw new UnsupportedOperationException("NYI: TypesImpl.getDeclaredType(...) for member types"); //$NON-NLS-1$
@@ -199,13 +199,13 @@ public class TypesImpl implements Types {
 			}
 			typeArguments[i] = (ReferenceBinding) binding;
 		}
-		return Factory.newDeclaredType(
+		return _env.getFactory().newDeclaredType(
 				this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, enclosingType));
 	}
 
 	@Override
 	public NoType getNoType(TypeKind kind) {
-		return Factory.getNoType(kind);
+		return _env.getFactory().getNoType(kind);
 	}
 
 	/* (non-Javadoc)
@@ -213,7 +213,7 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public NullType getNullType() {
-		return Factory.getNullType();
+		return _env.getFactory().getNullType();
 	}
 
 	/* (non-Javadoc)
@@ -221,7 +221,7 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public PrimitiveType getPrimitiveType(TypeKind kind) {
-		return Factory.getPrimitiveType(kind);
+		return _env.getFactory().getPrimitiveType(kind);
 	}
 
 	/* (non-Javadoc)
@@ -235,7 +235,7 @@ public class TypesImpl implements Types {
 		if (extendsBound != null) {
 			TypeMirrorImpl extendsBoundMirrorType = (TypeMirrorImpl) extendsBound;
 			TypeBinding typeBinding = (TypeBinding) extendsBoundMirrorType._binding;
-			return new WildcardTypeImpl(this._env.getLookupEnvironment().createWildcard(
+			return new WildcardTypeImpl(_env, this._env.getLookupEnvironment().createWildcard(
 					null,
 					0,
 					typeBinding,
@@ -245,14 +245,14 @@ public class TypesImpl implements Types {
 		if (superBound != null) {
 			TypeMirrorImpl superBoundMirrorType = (TypeMirrorImpl) superBound;
 			TypeBinding typeBinding = (TypeBinding) superBoundMirrorType._binding;
-			return new WildcardTypeImpl(this._env.getLookupEnvironment().createWildcard(
+			return new WildcardTypeImpl(_env, this._env.getLookupEnvironment().createWildcard(
 					null,
 					0,
 					typeBinding,
 					null,
 					Wildcard.SUPER));
 		}
-		return new WildcardTypeImpl(this._env.getLookupEnvironment().createWildcard(
+		return new WildcardTypeImpl(_env, this._env.getLookupEnvironment().createWildcard(
 				null,
 				0,
 				null,
@@ -353,7 +353,7 @@ public class TypesImpl implements Types {
 			// No boxing conversion was found
 			throw new IllegalArgumentException();
 		}
-		return Factory.getPrimitiveType((BaseTypeBinding)unboxed);
+		return _env.getFactory().getPrimitiveType((BaseTypeBinding)unboxed);
 	}
 
 }

@@ -37,16 +37,18 @@ public class RoundEnvImpl implements RoundEnvironment
 	private final CompilationUnitDeclaration[] _units;
 	private final ManyToMany<TypeElement, Element> _annoToUnit;
 	private final BinaryTypeBinding[] _binaryTypes;
+	private final Factory _factory;
 
 	public RoundEnvImpl(CompilationUnitDeclaration[] units, BinaryTypeBinding[] binaryTypeBindings, boolean isLastRound, BaseProcessingEnvImpl env) {
 		_processingEnv = env;
 		_isLastRound = isLastRound;
 		_units = units;
+		_factory = _processingEnv.getFactory();
 		
 		// TODO: deal with inherited annotations (esp. annotations inherited from binary supertypes)
 		
 		// Discover the annotations that will be passed to Processor.process()
-		AnnotationDiscoveryVisitor visitor = new AnnotationDiscoveryVisitor();
+		AnnotationDiscoveryVisitor visitor = new AnnotationDiscoveryVisitor(_processingEnv);
 		for (CompilationUnitDeclaration unit : _units) {
 			unit.traverse(visitor, unit.scope);
 		}
@@ -60,16 +62,16 @@ public class RoundEnvImpl implements RoundEnvironment
 			// collect all annotations from the binary types
 			AnnotationBinding[] annotationBindings = referenceBinding.getAnnotations();
 			for (AnnotationBinding annotationBinding : annotationBindings) {
-				TypeElement anno = (TypeElement)Factory.newElement(annotationBinding.getAnnotationType()); 
-				Element element = Factory.newElement(referenceBinding);
+				TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType()); 
+				Element element = _factory.newElement(referenceBinding);
 				_annoToUnit.put(anno, element);
 			}
 			FieldBinding[] fieldBindings = referenceBinding.fields();
 			for (FieldBinding fieldBinding : fieldBindings) {
 				annotationBindings = fieldBinding.getAnnotations();
 				for (AnnotationBinding annotationBinding : annotationBindings) {
-					TypeElement anno = (TypeElement)Factory.newElement(annotationBinding.getAnnotationType()); 
-					Element element = Factory.newElement(fieldBinding);
+					TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType()); 
+					Element element = _factory.newElement(fieldBinding);
 					_annoToUnit.put(anno, element);
 				}
 			}
@@ -77,8 +79,8 @@ public class RoundEnvImpl implements RoundEnvironment
 			for (MethodBinding methodBinding : methodBindings) {
 				annotationBindings = methodBinding.getAnnotations();
 				for (AnnotationBinding annotationBinding : annotationBindings) {
-					TypeElement anno = (TypeElement)Factory.newElement(annotationBinding.getAnnotationType()); 
-					Element element = Factory.newElement(methodBinding);
+					TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType()); 
+					Element element = _factory.newElement(methodBinding);
 					_annoToUnit.put(anno, element);
 				}
 			}
@@ -130,7 +132,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			if (null == unit.scope || null == unit.scope.topLevelTypes)
 				continue;
 			for (SourceTypeBinding binding : unit.scope.topLevelTypes) {
-				TypeElement element = (TypeElement)Factory.newElement(binding);
+				TypeElement element = (TypeElement)_factory.newElement(binding);
 				if (null == element) {
 					throw new IllegalArgumentException("Top-level type binding could not be converted to element: " + binding); //$NON-NLS-1$
 				}
@@ -139,7 +141,7 @@ public class RoundEnvImpl implements RoundEnvironment
 		}
 		if (this._binaryTypes != null) {
 			for (BinaryTypeBinding typeBinding : _binaryTypes) {
-				TypeElement element = (TypeElement)Factory.newElement(typeBinding);
+				TypeElement element = (TypeElement)_factory.newElement(typeBinding);
 				if (null == element) {
 					throw new IllegalArgumentException("Top-level type binding could not be converted to element: " + typeBinding); //$NON-NLS-1$
 				}

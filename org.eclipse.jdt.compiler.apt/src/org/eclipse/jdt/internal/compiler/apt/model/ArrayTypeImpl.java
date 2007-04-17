@@ -17,15 +17,16 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 
 /**
  * Implementation of ArrayType, which represents an array of some type.
  */
 public class ArrayTypeImpl extends TypeMirrorImpl implements ArrayType {
-
-	ArrayTypeImpl(ArrayBinding binding) {
-		super(binding);
+	
+	ArrayTypeImpl(BaseProcessingEnvImpl env, ArrayBinding binding) {
+		super(env, binding);
 	}
 
 	/* (non-Javadoc)
@@ -33,7 +34,7 @@ public class ArrayTypeImpl extends TypeMirrorImpl implements ArrayType {
 	 */
 	@Override
 	public TypeMirror getComponentType() {
-		return Factory.newTypeMirror(((ArrayBinding)_binding).elementsType());
+		return _env.getFactory().newTypeMirror(((ArrayBinding)_binding).elementsType());
 	}
 
 	/* (non-Javadoc)

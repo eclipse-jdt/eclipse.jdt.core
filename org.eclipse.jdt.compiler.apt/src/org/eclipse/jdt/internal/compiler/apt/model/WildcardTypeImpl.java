@@ -16,6 +16,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 import javax.lang.model.type.WildcardType;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
@@ -25,8 +26,8 @@ import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
  */
 public class WildcardTypeImpl extends TypeMirrorImpl implements WildcardType {
 	
-	public WildcardTypeImpl(WildcardBinding binding) {
-		super(binding);
+	public WildcardTypeImpl(BaseProcessingEnvImpl env, WildcardBinding binding) {
+		super(env, binding);
 	}
 
 	/* (non-Javadoc)
@@ -38,7 +39,7 @@ public class WildcardTypeImpl extends TypeMirrorImpl implements WildcardType {
 		if (wildcardBinding.boundKind != Wildcard.EXTENDS) return null;
 		TypeBinding bound = wildcardBinding.bound;
 		if (bound == null) return null;
-		return Factory.newTypeMirror(bound);
+		return _env.getFactory().newTypeMirror(bound);
 	}
 
 	/* (non-Javadoc)
@@ -57,7 +58,7 @@ public class WildcardTypeImpl extends TypeMirrorImpl implements WildcardType {
 		if (wildcardBinding.boundKind != Wildcard.SUPER) return null;
 		TypeBinding bound = wildcardBinding.bound;
 		if (bound == null) return null;
-		return Factory.newTypeMirror(bound);
+		return _env.getFactory().newTypeMirror(bound);
 	}
 	
 	@Override

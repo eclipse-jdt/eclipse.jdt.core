@@ -26,6 +26,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.VariableElement;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -50,8 +51,8 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	/**
 	 * @param binding might be a VariableBinding (for a field) or a TypeBinding (for a method param)
 	 */
-	VariableElementImpl(Binding binding) {
-		super(binding);
+	VariableElementImpl(BaseProcessingEnvImpl env, Binding binding) {
+		super(env, binding);
 	}
 	
 	@Override
@@ -64,7 +65,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		if (_binding instanceof VariableBinding) {
 			AnnotationBinding[] annotations = ((VariableBinding)_binding).getAnnotations();
-			return Factory.getAnnotationMirrors(annotations);
+			return _env.getFactory().getAnnotationMirrors(annotations);
 		}
 		else {
 			// TODO: how to get annotations from parameters?
@@ -109,7 +110,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	@Override
 	public Element getEnclosingElement() {
 		if (_binding instanceof FieldBinding) {
-			return Factory.newElement(((FieldBinding)_binding).declaringClass);
+			return _env.getFactory().newElement(((FieldBinding)_binding).declaringClass);
 		}
 		else if (_binding instanceof LocalVariableBinding){
 			//TODO: handle the other cases, e.g., method parameters
@@ -147,7 +148,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	{
 		if (_binding instanceof FieldBinding) {
 			PackageBinding pkgBinding = ((FieldBinding)_binding).declaringClass.fPackage;
-			return Factory.newPackageElement(pkgBinding);
+			return _env.getFactory().newPackageElement(pkgBinding);
 		}
 		else {
 			// TODO: what is the package of a method parameter?
@@ -176,10 +177,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 			if (!CharOperation.equals(hider.name, hidden.name)) {
 				return false;
 			}
-			if (hidden.declaringClass.isSuperclassOf(hider.declaringClass)) {
-				return true;
-			}
-			// TODO: check superinterfaces
+			return null != hider.declaringClass.findSuperTypeWithSameErasure(hidden.declaringClass);
 		}
 		return false;
 	}
