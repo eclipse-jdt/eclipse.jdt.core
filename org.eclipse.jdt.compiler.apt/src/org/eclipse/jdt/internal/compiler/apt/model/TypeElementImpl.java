@@ -221,6 +221,9 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			return false;
 		}
 		ReferenceBinding hiddenBinding = (ReferenceBinding)((TypeElementImpl)hidden)._binding;
+		if (hiddenBinding.isPrivate()) {
+			return false;
+		}
 		ReferenceBinding hiderBinding = (ReferenceBinding)_binding;
 		if (!hiddenBinding.isMemberType() || !hiderBinding.isMemberType()) {
 			return false;

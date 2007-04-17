@@ -45,8 +45,8 @@ public class F<T1> {
 		return _fieldT1_private.toString();
 	}
 	
-	// hidden by G.staticMethod()
-	public static void staticMethod()
+	// not hidden by G.staticMethod() - private
+	private static void staticMethod()
 	{
 	}
 

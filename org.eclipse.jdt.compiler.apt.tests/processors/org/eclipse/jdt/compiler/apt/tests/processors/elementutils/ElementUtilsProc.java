@@ -695,17 +695,27 @@ public class ElementUtilsProc extends BaseProcessor
 			return false;
 		}
 		
+		// The should-hide cases
+		if (!_elementUtils.hides(methodStaticOnH, methodStaticOnG)) {
+			reportError("H.staticMethod() should hide G.staticMethod()");
+			return false;
+		}
+		
 		// The should-not-hide cases
-		if (_elementUtils.hides(methodStaticOnF, methodStaticOnG)) {
-			reportError("F.staticMethod() should not hide G.staticMethod()");
+		if (_elementUtils.hides(methodStaticOnG, methodStaticOnF)) {
+			reportError("G.staticMethod() should not hide (private) F.staticMethod()");
+			return false;
+		}
+		if (_elementUtils.hides(methodStaticOnG, methodStaticOnH)) {
+			reportError("G.staticMethod() should not hide H.staticMethod()");
 			return false;
 		}
 		if (_elementUtils.hides(methodStaticOnG, methodStatic2OnF)) {
 			reportError("G.staticMethod() should not hide F.staticMethod2()");
 			return false;
 		}
-		if (_elementUtils.hides(methodStaticOnJ, methodStaticOnF)) {
-			reportError("J.staticMethod() should not hide F.staticMethod()");
+		if (_elementUtils.hides(methodStaticOnJ, methodStaticOnG)) {
+			reportError("J.staticMethod() should not hide G.staticMethod()");
 			return false;
 		}
 		if (_elementUtils.hides(methodStaticIntOnH, methodStaticOnG)) {
@@ -714,16 +724,6 @@ public class ElementUtilsProc extends BaseProcessor
 		}
 		if (_elementUtils.hides(methodT1OnG, methodT1OnF)) {
 			reportError("G.methodT1() should not hide F.methodT1(), because they aren't static (JLS 8.4.8.2)");
-			return false;
-		}
-		
-		// The should-hide cases
-		if (!_elementUtils.hides(methodStaticOnG, methodStaticOnF)) {
-			reportError("G.staticMethod() should hide F.staticMethod()");
-			return false;
-		}
-		if (!_elementUtils.hides(methodStaticOnH, methodStaticOnF)) {
-			reportError("H.staticMethod() should hide F.staticMethod()");
 			return false;
 		}
 		return true;

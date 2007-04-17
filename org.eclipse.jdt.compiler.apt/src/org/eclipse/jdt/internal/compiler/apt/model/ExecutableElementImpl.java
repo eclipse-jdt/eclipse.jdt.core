@@ -206,22 +206,21 @@ public class ExecutableElementImpl extends ElementImpl implements
 		}
 		MethodBinding hiderBinding = (MethodBinding)_binding;
 		MethodBinding hiddenBinding = (MethodBinding)((ExecutableElementImpl)hidden)._binding;
+		if (hiddenBinding.isPrivate()) {
+			return false;
+		}
 		// See JLS 8.4.8: hiding only applies to static methods
 		if (!hiderBinding.isStatic() || !hiddenBinding.isStatic()) {
 			return false;
 		}
-		
 		// check names
 		if (!CharOperation.equals(hiddenBinding.selector, hiderBinding.selector)) {
 			return false;
 		}
-
-		
 		// check parameters
 		if (!_env.getLookupEnvironment().methodVerifier().doesMethodOverride(hiderBinding, hiddenBinding)) {
 			return false;
 		}
-		
 		return null != hiderBinding.declaringClass.findSuperTypeWithSameErasure(hiddenBinding.declaringClass); 
 	}
 

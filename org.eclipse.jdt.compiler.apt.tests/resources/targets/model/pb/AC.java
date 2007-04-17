@@ -3,6 +3,7 @@ package targets.model.pb;
 import java.util.*;
 import targets.model.pa.IA;
 
+@SuppressWarnings("unchecked") // contains some raw types
 public class AC<T1 extends String & Iterator, T2> implements IC, IA {
 	
 	protected class ACInner<T3> {

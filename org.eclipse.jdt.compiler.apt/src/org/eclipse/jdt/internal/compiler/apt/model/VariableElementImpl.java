@@ -172,8 +172,11 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 			if (!(((ElementImpl)target)._binding instanceof FieldBinding)) {
 				return false;
 			}
-			FieldBinding hider = (FieldBinding)_binding;
 			FieldBinding hidden = (FieldBinding)((ElementImpl)target)._binding;
+			if (hidden.isPrivate()) {
+				return false;
+			}
+			FieldBinding hider = (FieldBinding)_binding;
 			if (!CharOperation.equals(hider.name, hidden.name)) {
 				return false;
 			}
