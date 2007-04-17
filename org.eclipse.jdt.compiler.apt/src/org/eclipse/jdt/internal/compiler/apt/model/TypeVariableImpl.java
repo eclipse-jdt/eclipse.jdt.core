@@ -32,8 +32,7 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	 */
 	@Override
 	public Element asElement() {
-		// TODO Auto-generated method stub
-		return null;
+		return Factory.newElement(this._binding);
 	}
 
 	/* (non-Javadoc)
@@ -53,7 +52,7 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see javax.lang.model.type.TypeMirror#accept(javax.lang.model.type.TypeVisitor, java.lang.Object)
 	 */

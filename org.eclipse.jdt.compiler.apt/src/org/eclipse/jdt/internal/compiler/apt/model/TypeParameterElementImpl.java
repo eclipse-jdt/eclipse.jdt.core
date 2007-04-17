@@ -42,6 +42,11 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 		_declaringElement = declaringElement;
 	}
 
+	/* package */ TypeParameterElementImpl(TypeVariableBinding binding) {
+		super(binding);
+		_declaringElement = Factory.newElement(binding.declaringElement);
+	}
+
 	@Override
 	public List<? extends TypeMirror> getBounds()
 	{

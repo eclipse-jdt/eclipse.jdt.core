@@ -40,8 +40,7 @@ public class TypeMirrorImpl implements TypeMirror {
 	 */
 	@Override
 	public <R, P> R accept(TypeVisitor<R, P> v, P p) {
-		// TODO Auto-generated method stub
-		return null;
+		return v.visit(this, p);
 	}
 
 	/* (non-Javadoc)
@@ -56,22 +55,17 @@ public class TypeMirrorImpl implements TypeMirror {
 		// case Binding.PARAMETERIZED_TYPE:
 		// handled by DeclaredTypeImpl, etc.
 		// case Binding.BASE_TYPE: handled by PrimitiveTypeImpl
-		
+		// case Binding.METHOD: handled by ExecutableTypeImpl
+		// case Binding.PACKAGE: handled by NoTypeImpl
+		// case Binding.WILDCARD_TYPE: handled by WildcardTypeImpl
+		// case Binding.ARRAY_TYPE: handled by ArrayTypeImpl
 		// TODO: fill in the rest of these
 		case Binding.FIELD:
 		case Binding.LOCAL:
 		case Binding.VARIABLE:
-		case Binding.METHOD:
 		case Binding.IMPORT:
-			throw new IllegalArgumentException("Invalid binding kind: " + _binding.kind()); //$NON-NLS-1$
-		case Binding.PACKAGE:
-			return TypeKind.PACKAGE;
-		case Binding.ARRAY_TYPE:
-			return TypeKind.ARRAY;
-		case Binding.WILDCARD_TYPE:
-			return TypeKind.WILDCARD;
 		case Binding.TYPE_PARAMETER:
-			throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+			throw new IllegalArgumentException("Invalid binding kind: " + _binding.kind()); //$NON-NLS-1$
 		}
 		return null;
 	}

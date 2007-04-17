@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
  * Utilities for working with types (as opposed to elements).
@@ -75,8 +76,10 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public TypeElement boxedClass(PrimitiveType p) {
-		// TODO Auto-generated method stub
-		return null;
+		PrimitiveTypeImpl primitiveTypeImpl = (PrimitiveTypeImpl) p;
+		BaseTypeBinding baseTypeBinding = (BaseTypeBinding) primitiveTypeImpl._binding;
+		TypeBinding boxed = _env.getLookupEnvironment().computeBoxingType(baseTypeBinding);
+		return (TypeElement) Factory.newElement(boxed);
 	}
 
 	/* (non-Javadoc)
@@ -111,7 +114,12 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public TypeMirror erasure(TypeMirror t) {
-		// TODO Auto-generated method stub
+		TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
+		Binding binding = typeMirrorImpl._binding;
+		if (binding instanceof ReferenceBinding) {
+			return Factory.newTypeMirror(((ReferenceBinding) binding).erasure());
+		}
+		// TODO should we return null or NoType ?
 		return null;
 	}
 
@@ -132,8 +140,31 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public DeclaredType getDeclaredType(TypeElement typeElem, TypeMirror... typeArgs) {
-		//TODO: create parameterized and raw types, i.e., handle typeArgs
-		return (DeclaredType)typeElem.asType();
+		int typeArgsLength = typeArgs.length;
+		TypeElementImpl typeElementImpl = (TypeElementImpl) typeElem;
+		ReferenceBinding referenceBinding = (ReferenceBinding) typeElementImpl._binding;
+		TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
+		int typeVariablesLength = typeVariables.length;
+		if (typeArgsLength == 0) {
+			if (referenceBinding.isGenericType()) {
+				// must return a raw type
+				return Factory.newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, null));
+			}
+			return (DeclaredType)typeElem.asType();
+		} else if (typeArgsLength != typeVariablesLength) {
+			throw new IllegalArgumentException("Number of typeArguments doesn't match the number of formal parameters of typeElem"); //$NON-NLS-1$
+		}
+		TypeBinding[] typeArguments = new TypeBinding[typeArgsLength];
+		for (int i = 0; i < typeArgsLength; i++) {
+			TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) typeArgs[i];
+			Binding binding = typeMirrorImpl._binding;
+			if (!(binding instanceof ReferenceBinding)) {
+				throw new IllegalArgumentException("Invalid type for a type arguments : " + typeMirrorImpl); //$NON-NLS-1$
+			}
+			typeArguments[i] = (ReferenceBinding) binding;
+		}
+		return Factory.newDeclaredType(
+				this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, null));
 	}
 
 	/* (non-Javadoc)
@@ -142,8 +173,34 @@ public class TypesImpl implements Types {
 	@Override
 	public DeclaredType getDeclaredType(DeclaredType containing, TypeElement typeElem,
 			TypeMirror... typeArgs) {
-		// TODO Auto-generated method stub
-		return null;
+		int typeArgsLength = typeArgs.length;
+		TypeElementImpl typeElementImpl = (TypeElementImpl) typeElem;
+		ReferenceBinding referenceBinding = (ReferenceBinding) typeElementImpl._binding;
+		TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
+		int typeVariablesLength = typeVariables.length;
+		DeclaredTypeImpl declaredTypeImpl = (DeclaredTypeImpl) containing;
+		ReferenceBinding enclosingType = (ReferenceBinding) declaredTypeImpl._binding;
+		if (typeArgsLength == 0) {
+			if (referenceBinding.isGenericType()) {
+				// must return a raw type
+				return Factory.newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, enclosingType));
+			}
+			// TODO (see how to create a member type binding
+			return null;
+		} else if (typeArgsLength != typeVariablesLength) {
+			throw new IllegalArgumentException("Number of typeArguments doesn't match the number of formal parameters of typeElem"); //$NON-NLS-1$
+		}
+		TypeBinding[] typeArguments = new TypeBinding[typeArgsLength];
+		for (int i = 0; i < typeArgsLength; i++) {
+			TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) typeArgs[i];
+			Binding binding = typeMirrorImpl._binding;
+			if (!(binding instanceof ReferenceBinding)) {
+				throw new IllegalArgumentException("Invalid type for a type arguments : " + typeMirrorImpl); //$NON-NLS-1$
+			}
+			typeArguments[i] = (ReferenceBinding) binding;
+		}
+		return Factory.newDeclaredType(
+				this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, enclosingType));
 	}
 
 	@Override

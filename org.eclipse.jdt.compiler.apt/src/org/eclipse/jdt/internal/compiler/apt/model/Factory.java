@@ -127,12 +127,13 @@ public class Factory {
 			return new TypeElementImpl(((ParameterizedTypeBinding)binding).genericType());
 		case Binding.PACKAGE:
 			return new PackageElementImpl((PackageBinding)binding);
+		case Binding.TYPE_PARAMETER:
+			return new TypeParameterElementImpl((TypeVariableBinding)binding);
 		// TODO: fill in the rest of these
 		case Binding.IMPORT:
 		case Binding.ARRAY_TYPE:
 		case Binding.BASE_TYPE:
 		case Binding.WILDCARD_TYPE:
-		case Binding.TYPE_PARAMETER:
 			throw new UnsupportedOperationException("NYI: binding type " + binding.kind()); //$NON-NLS-1$
 		}
 		return null;

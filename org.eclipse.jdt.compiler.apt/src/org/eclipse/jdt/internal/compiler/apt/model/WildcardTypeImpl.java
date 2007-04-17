@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 import javax.lang.model.type.WildcardType;
@@ -40,6 +41,13 @@ public class WildcardTypeImpl extends TypeMirrorImpl implements WildcardType {
 		return Factory.newTypeMirror(bound);
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.lang.model.type.TypeMirror#getKind()
+	 */
+	@Override
+	public TypeKind getKind() {
+		return TypeKind.WILDCARD;
+	}
 	/* (non-Javadoc)
 	 * @see javax.lang.model.type.WildcardType#getSuperBound()
 	 */

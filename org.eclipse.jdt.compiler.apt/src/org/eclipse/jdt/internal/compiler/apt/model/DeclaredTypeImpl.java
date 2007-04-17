@@ -76,8 +76,7 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 	 */
 	@Override
 	public <R, P> R accept(TypeVisitor<R, P> v, P p) {
-		// TODO Auto-generated method stub
-		return null;
+		return v.visitDeclared(this, p);
 	}
 
 	@Override
