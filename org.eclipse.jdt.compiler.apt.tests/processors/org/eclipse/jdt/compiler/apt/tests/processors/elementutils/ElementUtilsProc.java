@@ -598,7 +598,9 @@ public class ElementUtilsProc extends BaseProcessor
 				elementFOnJ = element;
 			}
 		}
+		Element elementFPackage = _elementF.getEnclosingElement();
 		
+		// Should hide:
 		if (!_elementUtils.hides(elementFChildOnH, elementFChildOnF)) {
 			reportError("H.FChild should hide F.FChild");
 			return false;
@@ -607,6 +609,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("H.IFChild should hide IF.IFChild");
 			return false;
 		}
+		// Should not hide:
 		if (_elementUtils.hides(elementIFChildOnH, elementFChildOnF)) {
 			reportError("H.IFChild should not hide F.FChild");
 			return false;
@@ -621,6 +624,10 @@ public class ElementUtilsProc extends BaseProcessor
 		}
 		if (_elementUtils.hides(_elementF, elementFOnJ)) {
 			reportError("J.F should not hide F");
+			return false;
+		}
+		if (_elementUtils.hides(_elementF, elementFPackage) || _elementUtils.hides(elementFPackage, _elementF)) {
+			reportError("F should not hide its enclosing package, and vice versa");
 			return false;
 		}
 		return true;

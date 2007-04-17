@@ -110,6 +110,6 @@ public abstract class ElementImpl
 	 */
 	public boolean hides(Element hidden)
 	{
-		throw new IllegalArgumentException();
+		return false;
 	}
 }
