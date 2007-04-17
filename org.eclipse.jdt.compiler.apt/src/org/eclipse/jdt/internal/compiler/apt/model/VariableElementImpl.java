@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -110,10 +111,11 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		if (_binding instanceof FieldBinding) {
 			return Factory.newElement(((FieldBinding)_binding).declaringClass);
 		}
-		else {
+		else if (_binding instanceof LocalVariableBinding){
 			//TODO: handle the other cases, e.g., method parameters
-			throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+			throw new UnsupportedOperationException("NYI: VariableElementImpl.getEnclosingElement()"); //$NON-NLS-1$
 		}
+		return null;
 	}
 
 	@Override
@@ -137,7 +139,6 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		if (_binding instanceof VariableBinding) {
 			return Factory.getModifiers(((VariableBinding)_binding).modifiers);
 		}
-		// TODO: for method params, we might want to know about "final".
 		return Collections.emptySet();
 	}
 
@@ -150,7 +151,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		}
 		else {
 			// TODO: what is the package of a method parameter?
-			return null;
+			throw new UnsupportedOperationException("NYI: VariableElmentImpl.getPackage() for method parameter"); //$NON-NLS-1$
 		}
 	}
 	
@@ -160,7 +161,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 			return new NameImpl(((VariableBinding)_binding).name);
 		}
 		// TODO: how can we get the name of a parameter?
-		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		throw new UnsupportedOperationException("NYI: VariableElmentImpl.getSimpleName()"); //$NON-NLS-1$
 	}
 
 	@Override

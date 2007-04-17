@@ -68,7 +68,7 @@ public class TypesImpl implements Types {
 	@Override
 	public TypeMirror asMemberOf(DeclaredType containing, Element element) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("NYI: TypesImpl.asMemberOf(...)"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -88,7 +88,7 @@ public class TypesImpl implements Types {
 	@Override
 	public TypeMirror capture(TypeMirror t) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("NYI: TypesImpl.capture(...)"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -97,7 +97,7 @@ public class TypesImpl implements Types {
 	@Override
 	public boolean contains(TypeMirror t1, TypeMirror t2) {
 		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("NYI: TypesImpl.contains(...)"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -106,7 +106,7 @@ public class TypesImpl implements Types {
 	@Override
 	public List<? extends TypeMirror> directSupertypes(TypeMirror t) {
 		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("NYI: TypesImpl.directSupertypes(...)"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -120,7 +120,7 @@ public class TypesImpl implements Types {
 			return Factory.newTypeMirror(((ReferenceBinding) binding).erasure());
 		}
 		// TODO should we return null or NoType ?
-		return null;
+		throw new UnsupportedOperationException("NYI: TypesImpl.erasure(...) when not a reference binding"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -186,7 +186,7 @@ public class TypesImpl implements Types {
 				return Factory.newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, enclosingType));
 			}
 			// TODO (see how to create a member type binding
-			return null;
+			throw new UnsupportedOperationException("NYI: TypesImpl.getDeclaredType(...) for member types"); //$NON-NLS-1$
 		} else if (typeArgsLength != typeVariablesLength) {
 			throw new IllegalArgumentException("Number of typeArguments doesn't match the number of formal parameters of typeElem"); //$NON-NLS-1$
 		}
@@ -305,7 +305,7 @@ public class TypesImpl implements Types {
 	@Override
 	public boolean isSubsignature(ExecutableType m1, ExecutableType m2) {
 		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("NYI: TypesImpl.isSubsignature(...)"); //$NON-NLS-1$
 	}
 
 	/**
@@ -338,14 +338,14 @@ public class TypesImpl implements Types {
 			}
 		}
 		// TODO: array types and reference types
-		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		throw new UnsupportedOperationException("NYI: TypesImpl.isSubtype(TypeMirror, TypeMirror) for array and reference types"); //$NON-NLS-1$
 	}
 
 	@Override
 	public PrimitiveType unboxedType(TypeMirror t) {
 		if (!(((TypeMirrorImpl)t)._binding instanceof ReferenceBinding)) {
 			// Not an unboxable type - could be primitive, array, not a type at all, etc.
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Given type mirror cannot be unboxed"); //$NON-NLS-1$
 		}
 		ReferenceBinding boxed = (ReferenceBinding)((TypeMirrorImpl)t)._binding;
 		TypeBinding unboxed = _env.getLookupEnvironment().computeBoxingType(boxed);

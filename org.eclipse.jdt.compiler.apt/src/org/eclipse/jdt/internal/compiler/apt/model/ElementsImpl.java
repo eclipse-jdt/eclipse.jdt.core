@@ -12,6 +12,7 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -507,7 +508,7 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public boolean hides(Element hider, Element hidden) {
-		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		throw new UnsupportedOperationException("NYI: ElementsImpl.hides(Element, Element)"); //$NON-NLS-1$
 		// return ((ElementImpl)hider).hides(hidden);
 	}
 
@@ -529,7 +530,7 @@ public class ElementsImpl implements Elements {
 	public boolean overrides(ExecutableElement overrider, ExecutableElement overridden,
 			TypeElement type) {
 		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException("NYI: ElementsImpl.overrides(...)"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -537,8 +538,20 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public void printElements(Writer w, Element... elements) {
-		// TODO Auto-generated method stub
-
+		String lineSeparator = System.getProperty("line.separator"); //$NON-NLS-1$
+		for (Element element : elements) {
+			try {
+				w.write(element.toString());
+				w.write(lineSeparator);
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+		try {
+			w.flush();
+		} catch (IOException e) {
+			// ignore
+		}
 	}
 
 }

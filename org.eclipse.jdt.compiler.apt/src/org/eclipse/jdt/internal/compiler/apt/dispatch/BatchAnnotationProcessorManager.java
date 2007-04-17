@@ -57,12 +57,12 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 	}
 
 	@Override
-	public void configure(Main batchCompiler, String[] commandLineArguments) {
+	public void configure(Object batchCompiler, String[] commandLineArguments) {
 		if (null != _processingEnv) {
 			throw new IllegalStateException(
 					"Calling configure() more than once on an AnnotationProcessorManager is not supported"); //$NON-NLS-1$
 		}
-		BatchProcessingEnvImpl processingEnv = new BatchProcessingEnvImpl(this, batchCompiler, commandLineArguments);
+		BatchProcessingEnvImpl processingEnv = new BatchProcessingEnvImpl(this, (Main) batchCompiler, commandLineArguments);
 		_processingEnv = processingEnv;
 		_procLoader = processingEnv.getFileManager().getClassLoader(StandardLocation.ANNOTATION_PROCESSOR_PATH);
 		_commandLineProcessors = parseCommandLineProcessors(commandLineArguments);

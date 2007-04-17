@@ -12,6 +12,9 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.lang.model.element.AnnotationMirror;
@@ -22,7 +25,11 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * Implementation of PackageElement, which represents a package
@@ -41,13 +48,30 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
-		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		throw new UnsupportedOperationException("NYI: PackageElementImpl.getAnnotationMirrors()"); //$NON-NLS-1$
 	}
 
 	@Override
 	public List<? extends Element> getEnclosedElements() {
-		//PackageBinding binding = (PackageBinding)_binding;
-		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+		PackageBinding binding = (PackageBinding)_binding;
+		LookupEnvironment environment = binding.environment;
+		char[][][] typeNames = null;
+		INameEnvironment nameEnvironment = binding.environment.nameEnvironment;
+		if (nameEnvironment instanceof FileSystem) {
+			typeNames = ((FileSystem) nameEnvironment).findTypeNames(binding.compoundName);
+		}
+		HashSet<Element> set = new HashSet<Element>(); 
+		if (typeNames != null) {
+			for (char[][] typeName : typeNames) {
+				ReferenceBinding type = environment.getType(typeName);
+				if (type != null && type.isValidBinding()) {
+					set.add(Factory.newElement(type));
+				}
+			}
+		}
+		ArrayList<Element> list = new ArrayList<Element>(set.size());
+		list.addAll(set);
+		return Collections.unmodifiableList(list);
 	}
 
 	@Override

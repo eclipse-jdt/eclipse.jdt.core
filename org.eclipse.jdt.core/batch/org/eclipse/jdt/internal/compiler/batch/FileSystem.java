@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class FileSystem implements INameEnvironment, SuffixConstants {
 	public interface Classpath {
+		char[][][] findTypeNames(String qualifiedPackageName);
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName);
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly);
 		boolean isPackage(String qualifiedPackageName);
@@ -253,6 +254,48 @@ public NameEnvironmentAnswer findType(char[][] compoundName) {
 			compoundName[compoundName.length - 1],
 			false);
 	return null;
+}
+public char[][][] findTypeNames(char[][] packageName) {
+	char[][][] result = null;
+	if (packageName != null) {
+		String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
+		String qualifiedPackageName2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
+		if (qualifiedPackageName == qualifiedPackageName2) {
+			for (int i = 0, length = this.classpaths.length; i < length; i++) {
+				char[][][] answers = this.classpaths[i].findTypeNames(qualifiedPackageName);
+				if (answers != null) {
+					// concat with previous answers
+					if (result == null) {
+						result = answers;
+					} else {
+						int resultLength = result.length;
+						int answersLength = answers.length;
+						System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0, resultLength);
+						System.arraycopy(answers, 0, result, resultLength, answersLength);
+					}
+				}
+			}
+		} else {
+			for (int i = 0, length = this.classpaths.length; i < length; i++) {
+				Classpath p = this.classpaths[i];
+				char[][][] answers = (p instanceof ClasspathJar)
+					? p.findTypeNames(qualifiedPackageName)
+					: p.findTypeNames(qualifiedPackageName2);
+				if (answers != null) {
+					// concat with previous answers
+					if (result == null) {
+						result = answers;
+					} else {
+						int resultLength = result.length;
+						int answersLength = answers.length;
+						System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0, resultLength);
+						System.arraycopy(answers, 0, result, resultLength, answersLength);
+					}
+				}
+			}
+		}
+	}
+	return result;
 }
 public NameEnvironmentAnswer findType(char[][] compoundName, boolean asBinaryOnly) {
 	if (compoundName != null)

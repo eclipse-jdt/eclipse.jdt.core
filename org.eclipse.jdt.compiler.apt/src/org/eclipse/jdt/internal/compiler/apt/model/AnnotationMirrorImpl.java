@@ -55,7 +55,6 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 	}
 
 	/**
-	 * TODO: this does not actually work yet; MethodBinding.getDefaultValue() not working.
 	 * {@see Elements#getElementValuesWithDefaults()}
 	 * @return all the members of this annotation mirror that have explicit or default
 	 * values.

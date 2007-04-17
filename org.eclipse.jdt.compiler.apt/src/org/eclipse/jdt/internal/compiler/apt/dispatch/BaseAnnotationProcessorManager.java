@@ -19,7 +19,6 @@ import java.util.List;
 import org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 
@@ -56,7 +55,7 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 	 * @see org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager#configure(org.eclipse.jdt.internal.compiler.batch.Main, java.lang.String[])
 	 */
 	@Override
-	public void configure(Main batchCompiler, String[] options) {
+	public void configure(Object batchCompiler, String[] options) {
 		// Implemented by BatchAnnotationProcessorManager.
 		throw new UnsupportedOperationException();
 	}

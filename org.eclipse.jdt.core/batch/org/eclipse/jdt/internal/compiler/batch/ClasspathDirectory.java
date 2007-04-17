@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -115,6 +116,33 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 		}
 	}
 	return null;
+}
+public char[][][] findTypeNames(String qualifiedPackageName) {
+	if (!isPackage(qualifiedPackageName)) {
+		return null; // most common case
+	}
+	File dir = new File(this.path + qualifiedPackageName);
+	if (!dir.exists() || !dir.isDirectory()) {
+		return null;
+	}
+	String[] listFiles = dir.list(new FilenameFilter() {
+		public boolean accept(File directory, String name) {
+			String fileName = name.toLowerCase();
+			return fileName.endsWith(".class") || fileName.endsWith(".java"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	});
+	int length = listFiles.length;
+	if (listFiles == null || length == 0) {
+		return null;
+	}
+	char[][][] result = new char[length][][];
+	char[][] packageName = CharOperation.splitOn(File.separatorChar, qualifiedPackageName.toCharArray());
+	for (int i = 0; i < length; i++) {
+		String fileName = listFiles[i];
+		int indexOfLastDot = fileName.indexOf('.');
+		result[i] = CharOperation.arrayConcat(packageName, fileName.substring(0, indexOfLastDot).toCharArray());
+	}
+	return result;
 }
 public void initialize() throws IOException {
 	// nothing to do

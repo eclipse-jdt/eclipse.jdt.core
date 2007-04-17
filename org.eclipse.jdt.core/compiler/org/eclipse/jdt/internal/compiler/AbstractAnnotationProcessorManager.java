@@ -14,12 +14,11 @@ package org.eclipse.jdt.internal.compiler;
 import java.io.PrintWriter;
 
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 
 public abstract class AbstractAnnotationProcessorManager {
-	public abstract void configure(Main batchCompiler, String[] options);
+	public abstract void configure(Object batchCompiler, String[] options);
 	
 	public abstract void configureFromPlatform(Compiler compiler, Object compilationUnitLocator, Object javaProject);
 	
