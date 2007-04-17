@@ -132,8 +132,8 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public DeclaredType getDeclaredType(TypeElement typeElem, TypeMirror... typeArgs) {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO: create parameterized and raw types, i.e., handle typeArgs
+		return (DeclaredType)typeElem.asType();
 	}
 
 	/* (non-Javadoc)

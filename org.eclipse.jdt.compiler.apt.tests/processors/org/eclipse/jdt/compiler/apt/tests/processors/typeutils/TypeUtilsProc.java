@@ -19,6 +19,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -55,6 +56,10 @@ public class TypeUtilsProc extends BaseProcessor
 		}
 		
 		if (!examineNoType()) {
+			return false;
+		}
+		
+		if (!examineGetDeclaredType()) {
 			return false;
 		}
 		
@@ -159,6 +164,27 @@ public class TypeUtilsProc extends BaseProcessor
 			reportError("NoType has the wrong name: " + noType.toString());
 			return false;
 		}
+		return true;
+	}
+	
+	/**
+	 * Test the implementation of {@link javax.lang.model.util.Types#getDeclaredType()}
+	 * @return
+	 */
+	private boolean examineGetDeclaredType() {
+		TypeElement elementD = _elementUtils.getTypeElement("targets.model.pb.D");
+		TypeElement elementAB = _elementUtils.getTypeElement("targets.model.pb.AB");
+		TypeMirror typeAB = _typeUtils.getDeclaredType(elementAB);
+		if (!(typeAB instanceof DeclaredType) || typeAB.getKind() != TypeKind.DECLARED) {
+			reportError("Types.getDeclaredType(elementAB) returned bad value: " + typeAB);
+			return false;
+		}
+		TypeMirror typeDSuper = elementD.getSuperclass();
+		if (typeDSuper == null || !_typeUtils.isSameType(typeAB, typeDSuper)) {
+			reportError("Type of AB and superclass of D are not same type");
+			return false;
+		}
+		// TODO: check getDeclaredType for generic types and for contained types
 		return true;
 	}
 		
