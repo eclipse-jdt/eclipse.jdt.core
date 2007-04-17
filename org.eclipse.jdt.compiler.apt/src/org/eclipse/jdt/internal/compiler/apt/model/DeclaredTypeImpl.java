@@ -47,7 +47,9 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 	@Override
 	public TypeMirror getEnclosingType() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
-		return Factory.newDeclaredType(binding.enclosingType());
+		ReferenceBinding enclosingType = binding.enclosingType();
+		if (enclosingType != null) return Factory.newDeclaredType(enclosingType);
+		return Factory.getNoType(TypeKind.NONE);
 	}
 
 	/*
