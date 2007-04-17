@@ -19,9 +19,9 @@ class MethodVerifier15 extends MethodVerifier {
 MethodVerifier15(LookupEnvironment environment) {
 	super(environment);
 }
-boolean areMethodsEqual(MethodBinding one, MethodBinding two) {
+boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
 	MethodBinding sub = computeSubstituteMethod(two, one);
-	return sub != null && doesSubstituteMethodOverride(one, sub) && areReturnTypesEqual(one, sub);
+	return sub != null && doesSubstituteMethodOverride(one, sub) && areReturnTypesCompatible(one, sub);
 }
 boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	TypeBinding[] oneArgs = one.parameters;
@@ -69,8 +69,9 @@ boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	}
 	return true;
 }
-boolean areReturnTypesEqual(MethodBinding one, MethodBinding substituteTwo) {
-	return areReturnTypesCompatible(one, substituteTwo);
+boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
+	if (one.returnType == two.returnType) return true;
+	return areReturnTypesCompatible0(one, two);
 }
 boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	if (one == two) return true;
@@ -293,7 +294,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 		MethodBinding[] duplicates = null;
 		for (int j = i + 1; j <= l; j++) {
 			MethodBinding method2 = methods[j];
-			if (method.declaringClass == method2.declaringClass && areMethodsEqual(method, method2)) {
+			if (method.declaringClass == method2.declaringClass && areMethodsCompatible(method, method2)) {
 				skip[j] = -1;
 				if (duplicates == null)
 					duplicates = new MethodBinding[length];
@@ -388,7 +389,7 @@ boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
 	for (int i = 0, l = length - 1; i < l;) {
 		MethodBinding method = methods[i++];
 		for (int j = i; j <= l; j++) {
-			if (!areReturnTypesEqual(method, methods[j])) {
+			if (!areReturnTypesCompatible(method, methods[j])) {
 				if (this.type.isInterface())
 					for (int m = length; --m >= 0;)
 						if (methods[m].declaringClass.id == TypeIds.T_JavaLangObject)
@@ -502,7 +503,7 @@ void checkTypeVariableMethods(TypeParameter typeParameter) {
 			if (index > 0) {
 				MethodBinding first = matchingInherited[0];
 				int count = index + 1;
-				while (--count > 0 && areReturnTypesEqual(first, matchingInherited[count])){/*empty*/}
+				while (--count > 0 && areReturnTypesCompatible(first, matchingInherited[count])){/*empty*/}
 				if (count > 0) {  // All inherited methods do NOT have the same vmSignature
 					problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(typeParameter, matchingInherited, index + 1);
 					continue nextSelector;
