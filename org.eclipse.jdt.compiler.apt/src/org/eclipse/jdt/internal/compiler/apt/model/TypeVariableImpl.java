@@ -50,6 +50,11 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	 */
 	@Override
 	public TypeMirror getUpperBound() {
+		TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this._binding;
+		if (typeVariableBinding.firstBound == null
+				|| typeVariableBinding.superInterfaces.length == 0) {
+			return _env.getFactory().newTypeMirror(typeVariableBinding.upperBound());
+		}
 		return this._env.getFactory().newDeclaredType((TypeVariableBinding) this._binding);
 	}
 
