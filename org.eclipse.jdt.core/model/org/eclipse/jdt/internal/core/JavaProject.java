@@ -1731,26 +1731,6 @@ public class JavaProject
 	}
 	
 	/**
-	 * Returns the package fragment root prefixed by the given path, or
-	 * an empty collection if there are no such elements in the model.
-	 */
-	protected IPackageFragmentRoot[] getPackageFragmentRoots(IPath path)
-
-		throws JavaModelException {
-		IPackageFragmentRoot[] roots = getAllPackageFragmentRoots();
-		ArrayList matches = new ArrayList();
-
-		for (int i = 0; i < roots.length; ++i) {
-			if (path.isPrefixOf(roots[i].getPath())) {
-				matches.add(roots[i]);
-			}
-		}
-		IPackageFragmentRoot[] copy = new IPackageFragmentRoot[matches.size()];
-		matches.toArray(copy);
-		return copy;
-	}
-	
-	/**
 	 * @see IJavaProject
 	 */
 	public IPackageFragment[] getPackageFragments() throws JavaModelException {
