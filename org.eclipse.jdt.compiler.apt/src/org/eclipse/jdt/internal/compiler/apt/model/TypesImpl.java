@@ -56,10 +56,12 @@ public class TypesImpl implements Types {
 	 */
 	@Override
 	public Element asElement(TypeMirror t) {
-		if (!(t instanceof TypeMirrorImpl)) {
-			return null;
+		switch(t.getKind()) {
+			case DECLARED :
+			case TYPEVAR :
+				return _env.getFactory().newElement(((TypeMirrorImpl)t).binding());
 		}
-		return _env.getFactory().newElement(((TypeMirrorImpl)t).binding());
+		return null;
 	}
 
 	/* (non-Javadoc)
