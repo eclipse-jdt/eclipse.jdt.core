@@ -2818,7 +2818,7 @@ public final class JavaCore extends Plugin {
 			if (element.getElementType() == IJavaElement.JAVA_PROJECT) {
 				IPackageFragmentRoot[] roots = null;
 				try {
-					roots = javaProject.getAllPackageFragmentRoots();
+					roots = javaProject.getPackageFragmentRoots();
 				} catch (JavaModelException e) {
 					// ignore
 				}
