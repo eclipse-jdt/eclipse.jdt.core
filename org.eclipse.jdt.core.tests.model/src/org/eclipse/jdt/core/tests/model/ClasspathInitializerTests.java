@@ -830,13 +830,12 @@ public void testContainerInitializer17() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
-		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar", "P3", "/P1/lib.jar"}));
 		IJavaProject p2 = createJavaProject(
 				"P2", 
 				new String[] {}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 				"");
-		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P3", "/P1/lib.jar"}));
 		createJavaProject(
 				"P3", 
 				new String[] {}, 
@@ -849,7 +848,7 @@ public void testContainerInitializer17() throws CoreException {
 		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
 		
 		// initialize to the same value
-		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}) {
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar", "P3", "/P1/lib.jar"}) {
 	        public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 	        	// simulate concurrency (another thread is initializing all containers in parallel and thus this flag is set to true)
 	        	JavaModelManager.getJavaModelManager().batchContainerInitializations = true;
@@ -868,6 +867,32 @@ public void testContainerInitializer17() throws CoreException {
 		deleteProject("P1");
 		deleteProject("P2");
 		deleteProject("P3");
+	}
+}
+/*
+ * Ensures that an unbound container marker is created if container is reset to null
+ * (regression test for 182204 Deleting a JRE referenced by container does not result in unbound container problem)
+ */
+public void testContainerInitializer18() throws CoreException {
+	try {
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}));
+		IJavaProject p1 = createJavaProject(
+				"P1", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		createFile("/P1/lib.jar", "");
+		p1.getResolvedClasspath(true);
+		waitForAutoBuild();
+		
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[0]));
+		JavaCore.setClasspathContainer(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"), new IJavaProject[] {p1}, new IClasspathContainer[] {null}, null);
+		assertMarkers(
+			"Unexpected markers", 
+			"Unbound classpath container: \'org.eclipse.jdt.core.tests.model.TEST_CONTAINER\' in project \'P1\'",
+			p1);
+	} finally {
+		deleteProject("P1");
 	}
 }
 

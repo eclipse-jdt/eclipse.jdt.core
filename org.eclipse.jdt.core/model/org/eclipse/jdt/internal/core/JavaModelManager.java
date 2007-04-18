@@ -530,13 +530,18 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (projectLength != 1) 
 			return false;
 		final IClasspathContainer container = respectiveContainers[0];
-		if (container == null)
-			return false;
 		IJavaProject project = projects[0];
 		// optimize only if initializing, otherwise we are in a regular setContainer(...) call
 		if (!containerIsInitializationInProgress(project, containerPath)) 
 			return false;
 		IClasspathContainer previousContainer = containerGetDefaultToPreviousSession(project, containerPath);
+		if (container == null) {
+			if (previousContainer == null) {
+				containerPut(project, containerPath, null);
+				return true;
+			}
+			return false;
+		}
 		final IClasspathEntry[] newEntries = container.getClasspathEntries();
 		if (previousContainer == null) 
 			if (newEntries.length == 0) {
@@ -1528,21 +1533,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			} else {
 				container = initializeContainer(project, containerPath);
 			}
-			if (container == null) { // initializer failed to do its job: redirect to the failure container
-				ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(containerPath.segment(0));
-				if (initializer == null) {
-					// create a dummy initializer and get the default failure container
-					container = (new ClasspathContainerInitializer() {
-						public void initialize(IPath path, IJavaProject javaProject) throws CoreException {
-							// not used
-						}
-					}).getFailureContainer(containerPath, project);
-				} else {
-					container = initializer.getFailureContainer(containerPath, project);
-				}
-				if (container != null)
-					containerPut(project, containerPath, container);
-			}
 		}
 		return container;			
 	}
@@ -2206,7 +2196,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				
 				// retrieve value (if initialization was successful)
 				container = containerGet(project, containerPath);
-				if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) return null; // break cycle
+				if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
+					// initializer failed to do its job: redirect to the failure container
+					container = initializer.getFailureContainer(containerPath, project);
+					if (container == null)
+						return null; // break cycle
+					containerPut(project, containerPath, container);
+				}
 				ok = true;
 			} catch (CoreException e) {
 				if (e instanceof JavaModelException) {
@@ -2237,6 +2233,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (CP_RESOLVE_VERBOSE_ADVANCED)
 				verbose_container_value_after_initialization(project, containerPath, container);
 		} else {
+			// create a dummy initializer and get the default failure container
+			container = (new ClasspathContainerInitializer() {
+				public void initialize(IPath path, IJavaProject javaProject) throws CoreException {
+					// not used
+				}
+			}).getFailureContainer(containerPath, project);
 			if (CP_RESOLVE_VERBOSE_ADVANCED)
 				verbose_no_container_initializer_found(project, containerPath);
 		}
