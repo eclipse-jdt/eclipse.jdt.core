@@ -41,8 +41,8 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	 */
 	@Override
 	public TypeMirror getLowerBound() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI: TypeVariableImpl.getLowerBound()"); //$NON-NLS-1$
+		// TODO might be more complex than this
+		return this._env.getFactory().getNullType();
 	}
 
 	/* (non-Javadoc)
@@ -50,8 +50,7 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	 */
 	@Override
 	public TypeMirror getUpperBound() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI: TypeVariableImpl.getUpperBound()"); //$NON-NLS-1$
+		return this._env.getFactory().newDeclaredType((TypeVariableBinding) this._binding);
 	}
 
 	/* (non-Javadoc)

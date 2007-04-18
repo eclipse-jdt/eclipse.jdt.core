@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,11 +7,13 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.lang.model.element.Element;
@@ -40,322 +42,340 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
  * There is one of these for every ProcessingEnvironment.
  */
 public class TypesImpl implements Types {
-	
-	private final BaseProcessingEnvImpl _env;
 
-	/*
-	 * The processing env creates and caches a TypesImpl.  Other clients should
-	 * not create their own; they should ask the env for it.
-	 */
-	public TypesImpl(BaseProcessingEnvImpl env) {
-		_env = env;
-	}
+    private final BaseProcessingEnvImpl _env;
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#asElement(javax.lang.model.type.TypeMirror)
-	 */
-	@Override
-	public Element asElement(TypeMirror t) {
-		switch(t.getKind()) {
-			case DECLARED :
-			case TYPEVAR :
-				return _env.getFactory().newElement(((TypeMirrorImpl)t).binding());
-		}
-		return null;
-	}
+    /*
+     * The processing env creates and caches a TypesImpl.  Other clients should
+     * not create their own; they should ask the env for it.
+     */
+    public TypesImpl(BaseProcessingEnvImpl env) {
+        _env = env;
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#asMemberOf(javax.lang.model.type.DeclaredType, javax.lang.model.element.Element)
-	 */
-	@Override
-	public TypeMirror asMemberOf(DeclaredType containing, Element element) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI: TypesImpl.asMemberOf(...)"); //$NON-NLS-1$
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#asElement(javax.lang.model.type.TypeMirror)
+     */
+    @Override
+    public Element asElement(TypeMirror t) {
+        switch(t.getKind()) {
+            case DECLARED :
+            case TYPEVAR :
+                return _env.getFactory().newElement(((TypeMirrorImpl)t).binding());
+        }
+        return null;
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#boxedClass(javax.lang.model.type.PrimitiveType)
-	 */
-	@Override
-	public TypeElement boxedClass(PrimitiveType p) {
-		PrimitiveTypeImpl primitiveTypeImpl = (PrimitiveTypeImpl) p;
-		BaseTypeBinding baseTypeBinding = (BaseTypeBinding)primitiveTypeImpl._binding;
-		TypeBinding boxed = _env.getLookupEnvironment().computeBoxingType(baseTypeBinding);
-		return (TypeElement) _env.getFactory().newElement(boxed);
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#asMemberOf(javax.lang.model.type.DeclaredType, javax.lang.model.element.Element)
+     */
+    @Override
+    public TypeMirror asMemberOf(DeclaredType containing, Element element) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("NYI: TypesImpl.asMemberOf(...)"); //$NON-NLS-1$
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#capture(javax.lang.model.type.TypeMirror)
-	 */
-	@Override
-	public TypeMirror capture(TypeMirror t) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI: TypesImpl.capture(...)"); //$NON-NLS-1$
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#boxedClass(javax.lang.model.type.PrimitiveType)
+     */
+    @Override
+    public TypeElement boxedClass(PrimitiveType p) {
+        PrimitiveTypeImpl primitiveTypeImpl = (PrimitiveTypeImpl) p;
+        BaseTypeBinding baseTypeBinding = (BaseTypeBinding)primitiveTypeImpl._binding;
+        TypeBinding boxed = _env.getLookupEnvironment().computeBoxingType(baseTypeBinding);
+        return (TypeElement) _env.getFactory().newElement(boxed);
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#contains(javax.lang.model.type.TypeMirror, javax.lang.model.type.TypeMirror)
-	 */
-	@Override
-	public boolean contains(TypeMirror t1, TypeMirror t2) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI: TypesImpl.contains(...)"); //$NON-NLS-1$
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#capture(javax.lang.model.type.TypeMirror)
+     */
+    @Override
+    public TypeMirror capture(TypeMirror t) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("NYI: TypesImpl.capture(...)"); //$NON-NLS-1$
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#directSupertypes(javax.lang.model.type.TypeMirror)
-	 */
-	@Override
-	public List<? extends TypeMirror> directSupertypes(TypeMirror t) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI: TypesImpl.directSupertypes(...)"); //$NON-NLS-1$
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#contains(javax.lang.model.type.TypeMirror, javax.lang.model.type.TypeMirror)
+     */
+    @Override
+    public boolean contains(TypeMirror t1, TypeMirror t2) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("NYI: TypesImpl.contains(...)"); //$NON-NLS-1$
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#erasure(javax.lang.model.type.TypeMirror)
-	 */
-	@Override
-	public TypeMirror erasure(TypeMirror t) {
-		TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
-		Binding binding = typeMirrorImpl._binding;
-		if (binding instanceof ReferenceBinding) {
-			return _env.getFactory().newTypeMirror(((ReferenceBinding) binding).erasure());
-		}
-		// TODO should we return null or NoType ?
-		throw new UnsupportedOperationException("NYI: TypesImpl.erasure(...) when not a reference binding"); //$NON-NLS-1$
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#getArrayType(javax.lang.model.type.TypeMirror)
-	 */
-	@Override
-	public ArrayType getArrayType(TypeMirror componentType) {
-		TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) componentType;
-		TypeBinding typeBinding = (TypeBinding) typeMirrorImpl._binding;
-		return new ArrayTypeImpl(_env, this._env.getLookupEnvironment().createArrayType(
-				typeBinding.leafComponentType(),
-				typeBinding.dimensions() + 1));
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#getDeclaredType(javax.lang.model.element.TypeElement, javax.lang.model.type.TypeMirror[])
-	 */
-	@Override
-	public DeclaredType getDeclaredType(TypeElement typeElem, TypeMirror... typeArgs) {
-		int typeArgsLength = typeArgs.length;
-		TypeElementImpl typeElementImpl = (TypeElementImpl) typeElem;
-		ReferenceBinding referenceBinding = (ReferenceBinding) typeElementImpl._binding;
-		TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
-		int typeVariablesLength = typeVariables.length;
-		if (typeArgsLength == 0) {
-			if (referenceBinding.isGenericType()) {
-				// must return a raw type
-				return _env.getFactory().newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, null));
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#directSupertypes(javax.lang.model.type.TypeMirror)
+     */
+    @Override
+    public List<? extends TypeMirror> directSupertypes(TypeMirror t) {
+        switch(t.getKind()) {
+            case PACKAGE :
+            case EXECUTABLE :
+                throw new IllegalArgumentException("Invalid type mirror for directSypertypes"); //$NON-NLS-1$
+        }
+        TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
+        Binding binding = typeMirrorImpl._binding;
+        if (binding instanceof ReferenceBinding) {
+        	ReferenceBinding referenceBinding = (ReferenceBinding) binding;
+        	ArrayList<TypeMirror> list = new ArrayList<TypeMirror>();
+        	ReferenceBinding superclass = referenceBinding.superclass();
+			if (superclass != null) {
+        		list.add(this._env.getFactory().newTypeMirror(superclass));
+        	}
+			for (ReferenceBinding interfaceBinding : referenceBinding.superInterfaces()) {
+        		list.add(this._env.getFactory().newTypeMirror(interfaceBinding));
 			}
-			return (DeclaredType)typeElem.asType();
-		} else if (typeArgsLength != typeVariablesLength) {
-			throw new IllegalArgumentException("Number of typeArguments doesn't match the number of formal parameters of typeElem"); //$NON-NLS-1$
-		}
-		TypeBinding[] typeArguments = new TypeBinding[typeArgsLength];
-		for (int i = 0; i < typeArgsLength; i++) {
-			TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) typeArgs[i];
-			Binding binding = typeMirrorImpl._binding;
-			if (!(binding instanceof ReferenceBinding)) {
-				throw new IllegalArgumentException("Invalid type for a type arguments : " + typeMirrorImpl); //$NON-NLS-1$
-			}
-			typeArguments[i] = (ReferenceBinding) binding;
-		}
-		return _env.getFactory().newDeclaredType(
-				this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, null));
-	}
+			return Collections.unmodifiableList(list);
+        }
+        return Collections.emptyList();
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#getDeclaredType(javax.lang.model.type.DeclaredType, javax.lang.model.element.TypeElement, javax.lang.model.type.TypeMirror[])
-	 */
-	@Override
-	public DeclaredType getDeclaredType(DeclaredType containing, TypeElement typeElem,
-			TypeMirror... typeArgs) {
-		int typeArgsLength = typeArgs.length;
-		TypeElementImpl typeElementImpl = (TypeElementImpl) typeElem;
-		ReferenceBinding referenceBinding = (ReferenceBinding) typeElementImpl._binding;
-		TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
-		int typeVariablesLength = typeVariables.length;
-		DeclaredTypeImpl declaredTypeImpl = (DeclaredTypeImpl) containing;
-		ReferenceBinding enclosingType = (ReferenceBinding) declaredTypeImpl._binding;
-		if (typeArgsLength == 0) {
-			if (referenceBinding.isGenericType()) {
-				// must return a raw type
-				return _env.getFactory().newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, enclosingType));
-			}
-			// TODO (see how to create a member type binding
-			throw new UnsupportedOperationException("NYI: TypesImpl.getDeclaredType(...) for member types"); //$NON-NLS-1$
-		} else if (typeArgsLength != typeVariablesLength) {
-			throw new IllegalArgumentException("Number of typeArguments doesn't match the number of formal parameters of typeElem"); //$NON-NLS-1$
-		}
-		TypeBinding[] typeArguments = new TypeBinding[typeArgsLength];
-		for (int i = 0; i < typeArgsLength; i++) {
-			TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) typeArgs[i];
-			Binding binding = typeMirrorImpl._binding;
-			if (!(binding instanceof ReferenceBinding)) {
-				throw new IllegalArgumentException("Invalid type for a type arguments : " + typeMirrorImpl); //$NON-NLS-1$
-			}
-			typeArguments[i] = (ReferenceBinding) binding;
-		}
-		return _env.getFactory().newDeclaredType(
-				this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, enclosingType));
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#erasure(javax.lang.model.type.TypeMirror)
+     */
+    @Override
+    public TypeMirror erasure(TypeMirror t) {
+        TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
+        Binding binding = typeMirrorImpl._binding;
+        if (binding instanceof ReferenceBinding) {
+            return _env.getFactory().newTypeMirror(((ReferenceBinding) binding).erasure());
+        }
+        // TODO should we return null or NoType ?
+        throw new UnsupportedOperationException("NYI: TypesImpl.erasure(...) when not a reference binding"); //$NON-NLS-1$
+    }
 
-	@Override
-	public NoType getNoType(TypeKind kind) {
-		return _env.getFactory().getNoType(kind);
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#getArrayType(javax.lang.model.type.TypeMirror)
+     */
+    @Override
+    public ArrayType getArrayType(TypeMirror componentType) {
+        TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) componentType;
+        TypeBinding typeBinding = (TypeBinding) typeMirrorImpl._binding;
+        return new ArrayTypeImpl(_env, this._env.getLookupEnvironment().createArrayType(
+                typeBinding.leafComponentType(),
+                typeBinding.dimensions() + 1));
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#getNullType()
-	 */
-	@Override
-	public NullType getNullType() {
-		return _env.getFactory().getNullType();
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#getDeclaredType(javax.lang.model.element.TypeElement, javax.lang.model.type.TypeMirror[])
+     */
+    @Override
+    public DeclaredType getDeclaredType(TypeElement typeElem, TypeMirror... typeArgs) {
+        int typeArgsLength = typeArgs.length;
+        TypeElementImpl typeElementImpl = (TypeElementImpl) typeElem;
+        ReferenceBinding referenceBinding = (ReferenceBinding) typeElementImpl._binding;
+        TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
+        int typeVariablesLength = typeVariables.length;
+        if (typeArgsLength == 0) {
+            if (referenceBinding.isGenericType()) {
+                // must return a raw type
+                return _env.getFactory().newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, null));
+            }
+            return (DeclaredType)typeElem.asType();
+        } else if (typeArgsLength != typeVariablesLength) {
+            throw new IllegalArgumentException("Number of typeArguments doesn't match the number of formal parameters of typeElem"); //$NON-NLS-1$
+        }
+        TypeBinding[] typeArguments = new TypeBinding[typeArgsLength];
+        for (int i = 0; i < typeArgsLength; i++) {
+            TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) typeArgs[i];
+            Binding binding = typeMirrorImpl._binding;
+            if (!(binding instanceof ReferenceBinding)) {
+                throw new IllegalArgumentException("Invalid type for a type arguments : " + typeMirrorImpl); //$NON-NLS-1$
+            }
+            typeArguments[i] = (ReferenceBinding) binding;
+        }
+        return _env.getFactory().newDeclaredType(
+                this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, null));
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#getPrimitiveType(javax.lang.model.type.TypeKind)
-	 */
-	@Override
-	public PrimitiveType getPrimitiveType(TypeKind kind) {
-		return _env.getFactory().getPrimitiveType(kind);
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#getDeclaredType(javax.lang.model.type.DeclaredType, javax.lang.model.element.TypeElement, javax.lang.model.type.TypeMirror[])
+     */
+    @Override
+    public DeclaredType getDeclaredType(DeclaredType containing, TypeElement typeElem,
+            TypeMirror... typeArgs) {
+        int typeArgsLength = typeArgs.length;
+        TypeElementImpl typeElementImpl = (TypeElementImpl) typeElem;
+        ReferenceBinding referenceBinding = (ReferenceBinding) typeElementImpl._binding;
+        TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
+        int typeVariablesLength = typeVariables.length;
+        DeclaredTypeImpl declaredTypeImpl = (DeclaredTypeImpl) containing;
+        ReferenceBinding enclosingType = (ReferenceBinding) declaredTypeImpl._binding;
+        if (typeArgsLength == 0) {
+            if (referenceBinding.isGenericType()) {
+                // must return a raw type
+                return _env.getFactory().newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, enclosingType));
+            }
+            // TODO (see how to create a member type binding
+            throw new UnsupportedOperationException("NYI: TypesImpl.getDeclaredType(...) for member types"); //$NON-NLS-1$
+        } else if (typeArgsLength != typeVariablesLength) {
+            throw new IllegalArgumentException("Number of typeArguments doesn't match the number of formal parameters of typeElem"); //$NON-NLS-1$
+        }
+        TypeBinding[] typeArguments = new TypeBinding[typeArgsLength];
+        for (int i = 0; i < typeArgsLength; i++) {
+            TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) typeArgs[i];
+            Binding binding = typeMirrorImpl._binding;
+            if (!(binding instanceof ReferenceBinding)) {
+                throw new IllegalArgumentException("Invalid type for a type arguments : " + typeMirrorImpl); //$NON-NLS-1$
+            }
+            typeArguments[i] = (ReferenceBinding) binding;
+        }
+        return _env.getFactory().newDeclaredType(
+                this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, enclosingType));
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#getWildcardType(javax.lang.model.type.TypeMirror, javax.lang.model.type.TypeMirror)
-	 */
-	@Override
-	public WildcardType getWildcardType(TypeMirror extendsBound, TypeMirror superBound) {
-		if (extendsBound != null && superBound != null) {
-			throw new IllegalArgumentException("Extends and super bounds cannot be set at the same time"); //$NON-NLS-1$
-		}
-		if (extendsBound != null) {
-			TypeMirrorImpl extendsBoundMirrorType = (TypeMirrorImpl) extendsBound;
-			TypeBinding typeBinding = (TypeBinding) extendsBoundMirrorType._binding;
-			return new WildcardTypeImpl(_env, this._env.getLookupEnvironment().createWildcard(
-					null,
-					0,
-					typeBinding,
-					null,
-					Wildcard.EXTENDS));
-		}
-		if (superBound != null) {
-			TypeMirrorImpl superBoundMirrorType = (TypeMirrorImpl) superBound;
-			TypeBinding typeBinding = (TypeBinding) superBoundMirrorType._binding;
-			return new WildcardTypeImpl(_env, this._env.getLookupEnvironment().createWildcard(
-					null,
-					0,
-					typeBinding,
-					null,
-					Wildcard.SUPER));
-		}
-		return new WildcardTypeImpl(_env, this._env.getLookupEnvironment().createWildcard(
-				null,
-				0,
-				null,
-				null,
-				Wildcard.UNBOUND));
-	}
+    @Override
+    public NoType getNoType(TypeKind kind) {
+        return _env.getFactory().getNoType(kind);
+    }
 
-	/**
-	 * @return true if a value of type t1 can be assigned to a variable of type t2, i.e., t2 = t1.
-	 */
-	@Override
-	public boolean isAssignable(TypeMirror t1, TypeMirror t2) {
-		if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
-			return false; 
-		}
-		Binding b1 = ((TypeMirrorImpl)t1).binding();
-		Binding b2 = ((TypeMirrorImpl)t2).binding();
-		if (!(b1 instanceof TypeBinding) || !(b2 instanceof TypeBinding)) {
-			// package, method, import, etc.
-			throw new IllegalArgumentException();
-		}
-		if (((TypeBinding)b1).isCompatibleWith((TypeBinding)b2)) {
-			return true;
-		}
-		
-		TypeBinding convertedType = _env.getLookupEnvironment().computeBoxingType((TypeBinding)b1);
-		return null != convertedType && convertedType.isCompatibleWith((TypeBinding)b2);
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#getNullType()
+     */
+    @Override
+    public NullType getNullType() {
+        return _env.getFactory().getNullType();
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#isSameType(javax.lang.model.type.TypeMirror, javax.lang.model.type.TypeMirror)
-	 */
-	@Override
-	public boolean isSameType(TypeMirror t1, TypeMirror t2) {
-		if (t1 == t2) {
-			return true;
-		}
-		if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
-			return false;
-		}
-		Binding b1 = ((TypeMirrorImpl)t1).binding();
-		Binding b2 = ((TypeMirrorImpl)t2).binding();
-		// Wildcard types are never equal, according to the spec of this method
-		return (b1 == b2 && b1.kind() != Binding.WILDCARD_TYPE);
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#getPrimitiveType(javax.lang.model.type.TypeKind)
+     */
+    @Override
+    public PrimitiveType getPrimitiveType(TypeKind kind) {
+        return _env.getFactory().getPrimitiveType(kind);
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.lang.model.util.Types#isSubsignature(javax.lang.model.type.ExecutableType, javax.lang.model.type.ExecutableType)
-	 */
-	@Override
-	public boolean isSubsignature(ExecutableType m1, ExecutableType m2) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI: TypesImpl.isSubsignature(...)"); //$NON-NLS-1$
-	}
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#getWildcardType(javax.lang.model.type.TypeMirror, javax.lang.model.type.TypeMirror)
+     */
+    @Override
+    public WildcardType getWildcardType(TypeMirror extendsBound, TypeMirror superBound) {
+        if (extendsBound != null && superBound != null) {
+            throw new IllegalArgumentException("Extends and super bounds cannot be set at the same time"); //$NON-NLS-1$
+        }
+        if (extendsBound != null) {
+            TypeMirrorImpl extendsBoundMirrorType = (TypeMirrorImpl) extendsBound;
+            TypeBinding typeBinding = (TypeBinding) extendsBoundMirrorType._binding;
+            return new WildcardTypeImpl(_env, this._env.getLookupEnvironment().createWildcard(
+                    null,
+                    0,
+                    typeBinding,
+                    null,
+                    Wildcard.EXTENDS));
+        }
+        if (superBound != null) {
+            TypeMirrorImpl superBoundMirrorType = (TypeMirrorImpl) superBound;
+            TypeBinding typeBinding = (TypeBinding) superBoundMirrorType._binding;
+            return new WildcardTypeImpl(_env, this._env.getLookupEnvironment().createWildcard(
+                    null,
+                    0,
+                    typeBinding,
+                    null,
+                    Wildcard.SUPER));
+        }
+        return new WildcardTypeImpl(_env, this._env.getLookupEnvironment().createWildcard(
+                null,
+                0,
+                null,
+                null,
+                Wildcard.UNBOUND));
+    }
 
-	/**
-	 * @return true if t1 is a subtype of t2, or if t1 == t2.
-	 */
-	@Override
-	public boolean isSubtype(TypeMirror t1, TypeMirror t2) {
-		if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
-			return false;
-		}
-		if (t1 == t2) {
-			return true;
-		}
-		Binding b1 = ((TypeMirrorImpl)t1).binding();
-		Binding b2 = ((TypeMirrorImpl)t2).binding();
-		if (b1 == b2) {
-			return true;
-		}
-		if (!(b1 instanceof TypeBinding) || !(b2 instanceof TypeBinding)) {
-			// package, method, import, etc.
-			return false;
-		}
-		if (b1.kind() == Binding.BASE_TYPE || b2.kind() == Binding.BASE_TYPE) {
-			if (b1.kind() != b2.kind()) {
-				return false;
-			}
-			else {
-				// for primitives, compatibility implies subtype
-				return ((TypeBinding)b1).isCompatibleWith((TypeBinding)b2);
-			}
-		}
-		// TODO: array types and reference types
-		throw new UnsupportedOperationException("NYI: TypesImpl.isSubtype(TypeMirror, TypeMirror) for array and reference types"); //$NON-NLS-1$
-	}
+    /**
+     * @return true if a value of type t1 can be assigned to a variable of type t2, i.e., t2 = t1.
+     */
+    @Override
+    public boolean isAssignable(TypeMirror t1, TypeMirror t2) {
+        if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
+            return false;
+        }
+        Binding b1 = ((TypeMirrorImpl)t1).binding();
+        Binding b2 = ((TypeMirrorImpl)t2).binding();
+        if (!(b1 instanceof TypeBinding) || !(b2 instanceof TypeBinding)) {
+            // package, method, import, etc.
+            throw new IllegalArgumentException();
+        }
+        if (((TypeBinding)b1).isCompatibleWith((TypeBinding)b2)) {
+            return true;
+        }
 
-	@Override
-	public PrimitiveType unboxedType(TypeMirror t) {
-		if (!(((TypeMirrorImpl)t)._binding instanceof ReferenceBinding)) {
-			// Not an unboxable type - could be primitive, array, not a type at all, etc.
-			throw new IllegalArgumentException("Given type mirror cannot be unboxed"); //$NON-NLS-1$
-		}
-		ReferenceBinding boxed = (ReferenceBinding)((TypeMirrorImpl)t)._binding;
-		TypeBinding unboxed = _env.getLookupEnvironment().computeBoxingType(boxed);
-		if (unboxed.kind() != Binding.BASE_TYPE) {
-			// No boxing conversion was found
-			throw new IllegalArgumentException();
-		}
-		return _env.getFactory().getPrimitiveType((BaseTypeBinding)unboxed);
-	}
+        TypeBinding convertedType = _env.getLookupEnvironment().computeBoxingType((TypeBinding)b1);
+        return null != convertedType && convertedType.isCompatibleWith((TypeBinding)b2);
+    }
+
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#isSameType(javax.lang.model.type.TypeMirror, javax.lang.model.type.TypeMirror)
+     */
+    @Override
+    public boolean isSameType(TypeMirror t1, TypeMirror t2) {
+        if (t1 == t2) {
+            return true;
+        }
+        if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
+            return false;
+        }
+        Binding b1 = ((TypeMirrorImpl)t1).binding();
+        Binding b2 = ((TypeMirrorImpl)t2).binding();
+        // Wildcard types are never equal, according to the spec of this method
+        return (b1 == b2 && b1.kind() != Binding.WILDCARD_TYPE);
+    }
+
+    /* (non-Javadoc)
+     * @see javax.lang.model.util.Types#isSubsignature(javax.lang.model.type.ExecutableType, javax.lang.model.type.ExecutableType)
+     */
+    @Override
+    public boolean isSubsignature(ExecutableType m1, ExecutableType m2) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("NYI: TypesImpl.isSubsignature(...)"); //$NON-NLS-1$
+    }
+
+    /**
+     * @return true if t1 is a subtype of t2, or if t1 == t2.
+     */
+    @Override
+    public boolean isSubtype(TypeMirror t1, TypeMirror t2) {
+        if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
+            return false;
+        }
+        if (t1 == t2) {
+            return true;
+        }
+        Binding b1 = ((TypeMirrorImpl)t1).binding();
+        Binding b2 = ((TypeMirrorImpl)t2).binding();
+        if (b1 == b2) {
+            return true;
+        }
+        if (!(b1 instanceof TypeBinding) || !(b2 instanceof TypeBinding)) {
+            // package, method, import, etc.
+            return false;
+        }
+        if (b1.kind() == Binding.BASE_TYPE || b2.kind() == Binding.BASE_TYPE) {
+            if (b1.kind() != b2.kind()) {
+                return false;
+            }
+            else {
+                // for primitives, compatibility implies subtype
+                return ((TypeBinding)b1).isCompatibleWith((TypeBinding)b2);
+            }
+        }
+        // TODO: array types and reference types
+        throw new UnsupportedOperationException("NYI: TypesImpl.isSubtype(TypeMirror, TypeMirror) for array and reference types"); //$NON-NLS-1$
+    }
+
+    @Override
+    public PrimitiveType unboxedType(TypeMirror t) {
+        if (!(((TypeMirrorImpl)t)._binding instanceof ReferenceBinding)) {
+            // Not an unboxable type - could be primitive, array, not a type at all, etc.
+            throw new IllegalArgumentException("Given type mirror cannot be unboxed"); //$NON-NLS-1$
+        }
+        ReferenceBinding boxed = (ReferenceBinding)((TypeMirrorImpl)t)._binding;
+        TypeBinding unboxed = _env.getLookupEnvironment().computeBoxingType(boxed);
+        if (unboxed.kind() != Binding.BASE_TYPE) {
+            // No boxing conversion was found
+            throw new IllegalArgumentException();
+        }
+        return _env.getFactory().getPrimitiveType((BaseTypeBinding)unboxed);
+    }
 
 }
