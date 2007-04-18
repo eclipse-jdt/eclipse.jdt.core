@@ -86,7 +86,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		if ((fPackage = environment.createPackage(currentPackageName)) == null) {
 			problemReporter().packageCollidesWithType(referenceContext);
 			return;
-		} else if (referenceContext.isPackageInfo() && referenceContext.currentPackage.annotations != null) {
+		} else if (referenceContext.isPackageInfo()) {
 			// resolve package annotations now if this is "package-info.java".				
 			if (referenceContext.types == null || referenceContext.types.length == 0) {
 				referenceContext.types = new TypeDeclaration[1];

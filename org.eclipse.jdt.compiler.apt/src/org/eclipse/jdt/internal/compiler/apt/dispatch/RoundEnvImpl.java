@@ -49,8 +49,10 @@ public class RoundEnvImpl implements RoundEnvironment
 		
 		// Discover the annotations that will be passed to Processor.process()
 		AnnotationDiscoveryVisitor visitor = new AnnotationDiscoveryVisitor(_processingEnv);
-		for (CompilationUnitDeclaration unit : _units) {
-			unit.traverse(visitor, unit.scope);
+		if (_units != null) {
+			for (CompilationUnitDeclaration unit : _units) {
+				unit.traverse(visitor, unit.scope);
+			}
 		}
 		_annoToUnit = visitor._annoToElement;
 		if (binaryTypeBindings != null) collectAnnotations(binaryTypeBindings);
@@ -127,12 +129,12 @@ public class RoundEnvImpl implements RoundEnvironment
 	@Override
 	public Set<? extends Element> getRootElements()
 	{
-		Set<TypeElement> elements = new HashSet<TypeElement>(_units.length);
+		Set<Element> elements = new HashSet<Element>(_units.length);
 		for (CompilationUnitDeclaration unit : _units) {
 			if (null == unit.scope || null == unit.scope.topLevelTypes)
 				continue;
 			for (SourceTypeBinding binding : unit.scope.topLevelTypes) {
-				TypeElement element = (TypeElement)_factory.newElement(binding);
+				Element element = _factory.newElement(binding);
 				if (null == element) {
 					throw new IllegalArgumentException("Top-level type binding could not be converted to element: " + binding); //$NON-NLS-1$
 				}

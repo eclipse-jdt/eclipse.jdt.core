@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
  * Implementation of DeclaredType, which refers to a particular usage or instance of a type.
@@ -60,18 +61,24 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 	 */
 	@Override
 	public List<? extends TypeMirror> getTypeArguments() {
-		//TODO: what should this method do for generic types, as opposed to parameterized types?
-		//E.g., class <T1> Foo {}, get the class as a type, what are its type arguments?
 		ReferenceBinding binding = (ReferenceBinding)_binding;
-		if (!binding.isParameterizedType()) {
-			return Collections.emptyList();
+		if (binding.isParameterizedType()) {
+			ParameterizedTypeBinding ptb = (ParameterizedTypeBinding)_binding;
+			List<TypeMirror> args = new ArrayList<TypeMirror>(ptb.arguments.length);
+			for (TypeBinding arg : ptb.arguments) {
+				args.add(_env.getFactory().newTypeMirror(arg));
+			}
+			return Collections.unmodifiableList(args);
 		}
-		ParameterizedTypeBinding ptb = (ParameterizedTypeBinding)_binding;
-		List<TypeMirror> args = new ArrayList<TypeMirror>(ptb.arguments.length);
-		for (TypeBinding arg : ptb.arguments) {
-			args.add(_env.getFactory().newTypeMirror(arg));
+		if (binding.isGenericType()) {
+			TypeVariableBinding[] typeVariables = binding.typeVariables();
+			List<TypeMirror> args = new ArrayList<TypeMirror>(typeVariables.length);
+			for (TypeBinding arg : typeVariables) {
+				args.add(_env.getFactory().newTypeMirror(arg));
+			}
+			return Collections.unmodifiableList(args);
 		}
-		return Collections.unmodifiableList(args);
+		return Collections.emptyList();
 	}
 
 	/* (non-Javadoc)

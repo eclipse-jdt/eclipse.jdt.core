@@ -206,7 +206,7 @@ public class CompilationUnitDeclaration
 			}
 			return;
 		}
-		if (this.isPackageInfo() && this.types != null && this.currentPackage.annotations != null) {
+		if (this.isPackageInfo() && this.types != null && this.currentPackage!= null && this.currentPackage.annotations != null) {
 			types[0].annotations = this.currentPackage.annotations;
 		}
 		try {
@@ -249,9 +249,7 @@ public class CompilationUnitDeclaration
 	}
 
 	public boolean isPackageInfo() {
-		return CharOperation.equals(this.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME)
-			&& this.currentPackage != null
-			&& (this.currentPackage.annotations != null || this.javadoc != null);
+		return CharOperation.equals(this.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME);
 	}
 
 	public boolean hasErrors() {
@@ -333,13 +331,18 @@ public class CompilationUnitDeclaration
 			// resolve synthetic type declaration
 			final TypeDeclaration syntheticTypeDeclaration = types[0];
 			// set empty javadoc to avoid missing warning (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=95286)
-			syntheticTypeDeclaration.javadoc = new Javadoc(syntheticTypeDeclaration.declarationSourceStart, syntheticTypeDeclaration.declarationSourceStart);
+			if (syntheticTypeDeclaration.javadoc == null) {
+				syntheticTypeDeclaration.javadoc = new Javadoc(syntheticTypeDeclaration.declarationSourceStart, syntheticTypeDeclaration.declarationSourceStart);
+			}
 			syntheticTypeDeclaration.resolve(this.scope);
 			// resolve annotations if any
-			if (this.currentPackage.annotations != null) {
+			if (this.currentPackage!= null && this.currentPackage.annotations != null) {
 				resolveAnnotations(syntheticTypeDeclaration.staticInitializerScope, this.currentPackage.annotations, this.scope.fPackage);
 			}
-			// resolve javadoc package if any
+			/*
+			 * resolve javadoc package if any
+			 * we do it now and the javadoc in the fake type won't be resolved
+			 */
 			if (this.javadoc != null) {
 				this.javadoc.resolve(syntheticTypeDeclaration.staticInitializerScope);
 			}
@@ -478,8 +481,7 @@ public class CompilationUnitDeclaration
 			return;
 		try {
 			if (visitor.visit(this, this.scope)) {
-				boolean isPackageInfo = isPackageInfo();
-				if (this.types != null && isPackageInfo) {
+				if (this.types != null && isPackageInfo()) {
 		            // resolve synthetic type declaration
 					final TypeDeclaration syntheticTypeDeclaration = types[0];
 					// resolve javadoc package if any
@@ -487,16 +489,18 @@ public class CompilationUnitDeclaration
 					if (this.javadoc != null) {
 						this.javadoc.traverse(visitor, methodScope);
 					}
-					final Annotation[] annotations = this.currentPackage.annotations;
-					if (annotations != null) {
-						int annotationsLength = annotations.length;
-						for (int i = 0; i < annotationsLength; i++) {
-							annotations[i].traverse(visitor, methodScope);
+					if (this.currentPackage != null) {
+						final Annotation[] annotations = this.currentPackage.annotations;
+						if (annotations != null) {
+							int annotationsLength = annotations.length;
+							for (int i = 0; i < annotationsLength; i++) {
+								annotations[i].traverse(visitor, methodScope);
+							}
 						}
 					}
 				}
-				if (currentPackage != null) {
-					currentPackage.traverse(visitor, this.scope);
+				if (this.currentPackage != null) {
+					this.currentPackage.traverse(visitor, this.scope);
 				}
 				if (imports != null) {
 					int importLength = imports.length;

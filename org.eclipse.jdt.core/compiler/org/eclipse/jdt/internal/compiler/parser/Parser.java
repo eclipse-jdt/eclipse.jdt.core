@@ -2745,6 +2745,15 @@ protected void consumeEmptyInterfaceMemberDeclarationsopt() {
 protected void consumeEmptyInternalCompilationUnit() {
 	// InternalCompilationUnit ::= $empty
 	// nothing to do by default
+	if (this.compilationUnit.isPackageInfo()) {
+		this.compilationUnit.types = new TypeDeclaration[1];
+		// create a fake interface declaration
+		TypeDeclaration declaration = new TypeDeclaration(compilationUnit.compilationResult);
+		declaration.name = TypeConstants.PACKAGE_INFO_NAME;
+		declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
+		this.compilationUnit.types[0] = declaration;
+		declaration.javadoc = this.compilationUnit.javadoc;
+	}
 }
 protected void consumeEmptyMemberValuePairsopt() {
 	// MemberValuePairsopt ::= $empty
@@ -3860,6 +3869,7 @@ protected void consumeInternalCompilationUnit() {
 		declaration.name = TypeConstants.PACKAGE_INFO_NAME;
 		declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
 		this.compilationUnit.types[0] = declaration;
+		declaration.javadoc = this.compilationUnit.javadoc;
 	}
 }
 protected void consumeInternalCompilationUnitWithTypes() {
@@ -3879,6 +3889,7 @@ protected void consumeInternalCompilationUnitWithTypes() {
 			declaration.name = TypeConstants.PACKAGE_INFO_NAME;
 			declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
 			this.compilationUnit.types[0] = declaration;
+			declaration.javadoc = this.compilationUnit.javadoc;
 		} else {
 			this.compilationUnit.types = new TypeDeclaration[length];
 			this.astPtr -= length;

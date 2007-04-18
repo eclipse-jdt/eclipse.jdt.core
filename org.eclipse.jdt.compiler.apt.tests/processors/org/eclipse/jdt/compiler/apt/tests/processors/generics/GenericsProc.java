@@ -39,7 +39,9 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 public class GenericsProc extends BaseProcessor
 {
 	// Initialized in collectElements()
+	private TypeElement _elementA;
 	private TypeElement _elementAC;
+	private TypeElement _elementObject;
 	private TypeElement _elementString;
 	private TypeElement _elementIterator;
 
@@ -64,12 +66,16 @@ public class GenericsProc extends BaseProcessor
 		if (!collectElements()) {
 			return false;
 		}
-		
 		if (!examineACNames()) {
 			return false;
 		}
-		
 		if (!examineACTypeParams()) {
+			return false;
+		}
+		if (!examineATypeParams()) {
+			return false;
+		}
+		if (!examineFTypeParams()) {
 			return false;
 		}
 		
@@ -91,6 +97,12 @@ public class GenericsProc extends BaseProcessor
 			reportError("AC claims to not be a class");
 			return false;
 		}
+		_elementA = _elementUtils.getTypeElement("targets.model.pa.A");
+		if (_elementA == null || _elementA.getKind() != ElementKind.CLASS) {
+			reportError("element A was not found or was not a class");
+			return false;
+		}
+		_elementObject = _elementUtils.getTypeElement("java.lang.Object");
 		_elementString = _elementUtils.getTypeElement("java.lang.String");
 		_elementIterator = _elementUtils.getTypeElement("java.util.Iterator");
 		return true;
@@ -176,4 +188,47 @@ public class GenericsProc extends BaseProcessor
 		return true;
 	}
 
+	/**
+	 * Examine the type parameters of element A
+	 * @return true if all tests passed
+	 */
+	private boolean examineATypeParams()
+	{
+		List<? extends TypeParameterElement> params = _elementA.getTypeParameters();
+		if (null == params || !params.isEmpty()) {
+			reportError("element A reports an unexpected number of type parameters: " + params);
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * Examine the type parameters of element F
+	 * @return true if all tests passed
+	 */
+	private boolean examineFTypeParams()
+	{
+		TypeElement elementF = _elementUtils.getTypeElement("targets.model.pc.F");
+		if (null == elementF || elementF.getKind() != ElementKind.CLASS) {
+			reportError("examineFTypeParams: couldn't load element F");
+			return false;
+		}
+		List<? extends TypeParameterElement> params = elementF.getTypeParameters();
+		if (null == params || params.size() != 1) {
+			reportError("examineFTypeParams: F reports an unexpected number of type parameters: " + params);
+			return false;
+		}
+		TypeParameterElement param = params.iterator().next();
+		List<? extends TypeMirror> bounds = param.getBounds();
+		if (null == bounds || bounds.size() != 1) {
+			reportError("examineFTypeParams: F's type parameter has an unexpected number of bounds: " + bounds);
+			return false;
+		}
+		TypeMirror elementType = _elementObject.asType();
+		if (!elementType.equals(bounds.iterator().next())) {
+			reportError("examineFTypeParams: F's type bounds should only contain Object");
+			return false;
+		}
+		return true;
+	}
 }

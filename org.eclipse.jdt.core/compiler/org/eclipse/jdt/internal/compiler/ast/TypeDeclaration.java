@@ -1088,7 +1088,8 @@ public void resolve() {
 		}
 		// Resolve javadoc
 		if (this.javadoc != null) {
-			if (this.scope != null) {
+			if (this.scope != null && (this.name != TypeConstants.PACKAGE_INFO_NAME)) {
+				// if the type is package-info, the javadoc was resolved as part of the compilation unit javadoc
 				this.javadoc.resolve(this.scope);
 			}
 		} else if (sourceType != null && !sourceType.isLocalType()) {

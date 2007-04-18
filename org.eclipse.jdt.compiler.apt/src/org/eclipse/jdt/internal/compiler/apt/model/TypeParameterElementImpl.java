@@ -24,6 +24,7 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -78,8 +79,8 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 			superinterfacesLength = superinterfaces.length;
 			boundsLength += superinterfacesLength;
 		}
+		List<TypeMirror> typeBounds = new ArrayList<TypeMirror>(boundsLength);
 		if (boundsLength != 0) {
-			List<TypeMirror> typeBounds = new ArrayList<TypeMirror>(boundsLength);
 			if (firstClassOrArrayBound != null) {
 				TypeMirror typeBinding = _env.getFactory().newTypeMirror(firstClassOrArrayBound);
 				if (typeBinding == null) {
@@ -96,9 +97,11 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 					typeBounds.add(typeBinding);
 				}
 			}
-			return Collections.unmodifiableList(typeBounds);
+		} else {
+			// at least we must add java.lang.Object
+			typeBounds.add(_env.getFactory().newTypeMirror(_env.getLookupEnvironment().getType(LookupEnvironment.JAVA_LANG_OBJECT)));
 		}
-		return Collections.emptyList();
+		return Collections.unmodifiableList(typeBounds);
 	}
 
 	@Override

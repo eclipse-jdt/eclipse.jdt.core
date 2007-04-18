@@ -28,9 +28,11 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 /**
  * Implementation of PackageElement, which represents a package
@@ -49,7 +51,14 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
-		throw new UnsupportedOperationException("NYI: PackageElementImpl.getAnnotationMirrors()"); //$NON-NLS-1$
+		PackageBinding packageBinding = (PackageBinding) this._binding;
+		char[][] compoundName = CharOperation.arrayConcat(packageBinding.compoundName, TypeConstants.PACKAGE_INFO_NAME);
+		ReferenceBinding type = this._env.getLookupEnvironment().getType(compoundName);
+		AnnotationBinding[] annotations = null;
+		if (type != null && type.isValidBinding()) {
+			annotations = type.getAnnotations();
+		}
+		return _env.getFactory().getAnnotationMirrors(annotations);
 	}
 
 	@Override
@@ -90,6 +99,16 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 	PackageElement getPackage()
 	{
 		return this;
+	}
+
+	@Override
+	public Name getSimpleName() {
+		char[][] compoundName = ((PackageBinding)_binding).compoundName;
+		int length = compoundName.length;
+		if (length == 0) {
+			return new NameImpl(CharOperation.NO_CHAR);
+		}
+		return new NameImpl(compoundName[length - 1]);
 	}
 
 	@Override

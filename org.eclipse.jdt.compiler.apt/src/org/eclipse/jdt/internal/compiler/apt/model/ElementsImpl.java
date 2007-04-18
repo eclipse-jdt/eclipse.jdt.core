@@ -52,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 /**
  * Utilities for working with language elements.
@@ -91,6 +92,7 @@ public class ElementsImpl implements Elements {
 			ReferenceBinding binding = (ReferenceBinding)((TypeElementImpl)e)._binding;
 			while (null != binding) {
 				for (AnnotationBinding annotation : binding.getAnnotations()) {
+					if (annotation == null) continue;
 					ReferenceBinding annotationType = annotation.getAnnotationType(); 
 					if (!annotationTypes.contains(annotationType)) {
 						annotationTypes.add(annotationType);
@@ -301,7 +303,16 @@ public class ElementsImpl implements Elements {
 				break;
 			case PACKAGE :
 				// might need to handle javadoc of package-info.java file
-				return null;
+				PackageElementImpl packageElementImpl = (PackageElementImpl) e;
+				PackageBinding packageBinding = (PackageBinding) packageElementImpl._binding;
+				char[][] compoundName = CharOperation.arrayConcat(packageBinding.compoundName, TypeConstants.PACKAGE_INFO_NAME);
+				ReferenceBinding type = this._env.getLookupEnvironment().getType(compoundName);
+				if (type != null && type.isValidBinding() && (type instanceof SourceTypeBinding)) {
+					SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) type;
+					referenceContext = sourceTypeBinding.scope.referenceContext;
+					javadoc = ((TypeDeclaration) referenceContext).javadoc;
+				}
+				break;
 			case CONSTRUCTOR :
 			case METHOD :
 				ExecutableElementImpl executableElementImpl = (ExecutableElementImpl) e;

@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
@@ -68,6 +69,7 @@ public class Factory {
 		}
 		List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.length);
 		for (AnnotationBinding annotation : annotations) {
+			if (annotation == null) continue;
 			list.add(newAnnotationMirror(annotation));
 		}
 		return Collections.unmodifiableList(list);
@@ -129,7 +131,11 @@ public class Factory {
 			return new VariableElementImpl(_env, binding);
 		case Binding.TYPE:
 		case Binding.GENERIC_TYPE:
-			return new TypeElementImpl(_env, (ReferenceBinding)binding);
+			ReferenceBinding referenceBinding = (ReferenceBinding)binding;
+			if (referenceBinding.sourceName == TypeConstants.PACKAGE_INFO_NAME) {
+				return new PackageElementImpl(_env, referenceBinding.fPackage);
+			}
+			return new TypeElementImpl(_env, referenceBinding);
 		case Binding.METHOD:
 			return new ExecutableElementImpl(_env, (MethodBinding)binding);
 		case Binding.RAW_TYPE:
