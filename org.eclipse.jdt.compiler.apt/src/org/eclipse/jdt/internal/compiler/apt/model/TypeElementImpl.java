@@ -225,6 +225,9 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			return false;
 		}
 		ReferenceBinding hiderBinding = (ReferenceBinding)_binding;
+		if (hiddenBinding == hiderBinding) {
+			return false;
+		}
 		if (!hiddenBinding.isMemberType() || !hiderBinding.isMemberType()) {
 			return false;
 		}

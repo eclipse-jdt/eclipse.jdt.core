@@ -24,6 +24,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -206,6 +207,9 @@ public class ExecutableElementImpl extends ElementImpl implements
 		}
 		MethodBinding hiderBinding = (MethodBinding)_binding;
 		MethodBinding hiddenBinding = (MethodBinding)((ExecutableElementImpl)hidden)._binding;
+		if (hiderBinding == hiddenBinding) {
+			return false;
+		}
 		if (hiddenBinding.isPrivate()) {
 			return false;
 		}
@@ -227,6 +231,31 @@ public class ExecutableElementImpl extends ElementImpl implements
 	@Override
 	public boolean isVarArgs() {
 		return ((MethodBinding) _binding).isVarargs();
+	}
+
+	/**
+	 * Return true if this method overrides {@code overridden} in the context of {@code type}.  For
+	 * instance, consider 
+	 * <pre>
+	 *   interface A { void f(); }
+	 *   class B { void f() {} }
+	 *   class D extends B implements I { }
+	 * </pre> 
+	 * In the context of B, B.f() does not override A.f(); they are unrelated.  But in the context of
+	 * D, B.f() does override A.f().  That is, the copy of B.f() that D inherits overrides A.f().
+	 * This is equivalent to considering two questions: first, does D inherit B.f(); if so, does
+	 * the inherited D.f() override A.f().  If B.f() were private, for instance, then in the context
+	 * of D it would still not override A.f().  Similarly, if an intervening type C extends B and
+	 * provides a definition of C.f(), then B.f() does not override A.f() in the context of D, because
+	 * it is hidden by C.f().
+	 * 
+	 * @see javax.lang.model.util.Elements#overrides(ExecutableElement, ExecutableElement, TypeElement)
+     * @jls3 8.4.8 Inheritance, Overriding, and Hiding
+     * @jls3 9.4.1 Inheritance and Overriding
+	 */
+	public boolean overrides(ExecutableElement overridden, TypeElement type)
+	{
+		throw new UnsupportedOperationException("NYI: overrides(...)"); //$NON-NLS-1$
 	}
 
 }

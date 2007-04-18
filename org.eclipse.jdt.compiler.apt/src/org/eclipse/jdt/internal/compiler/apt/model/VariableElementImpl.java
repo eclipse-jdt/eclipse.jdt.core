@@ -166,17 +166,20 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	}
 
 	@Override
-	public boolean hides(Element target)
+	public boolean hides(Element hiddenElement)
 	{
 		if (_binding instanceof FieldBinding) {
-			if (!(((ElementImpl)target)._binding instanceof FieldBinding)) {
+			if (!(((ElementImpl)hiddenElement)._binding instanceof FieldBinding)) {
 				return false;
 			}
-			FieldBinding hidden = (FieldBinding)((ElementImpl)target)._binding;
+			FieldBinding hidden = (FieldBinding)((ElementImpl)hiddenElement)._binding;
 			if (hidden.isPrivate()) {
 				return false;
 			}
 			FieldBinding hider = (FieldBinding)_binding;
+			if (hidden == hider) {
+				return false;
+			}
 			if (!CharOperation.equals(hider.name, hidden.name)) {
 				return false;
 			}

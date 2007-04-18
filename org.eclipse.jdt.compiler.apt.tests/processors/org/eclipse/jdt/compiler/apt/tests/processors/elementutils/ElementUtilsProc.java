@@ -104,6 +104,11 @@ public class ElementUtilsProc extends BaseProcessor
 			return false;
 		}
 		
+		// TODO: temporarily disabled
+		if (false && !examineOverrides()) {
+			return false;
+		}
+		
 		reportSuccess();
 		return false;
 	}
@@ -186,7 +191,7 @@ public class ElementUtilsProc extends BaseProcessor
 	{
 		List<? extends AnnotationMirror> annotationsH = _elementUtils.getAllAnnotationMirrors(_elementH);
 		if (null == annotationsH) {
-			reportError("getAllAnnotationMirrors(_elementH) returned null");
+			reportError("examineGetAllAnnotations: getAllAnnotationMirrors(_elementH) returned null");
 			return false;
 		}
 		// H has AnnoY("on H"), G has AnnoX("on G"), and F has hidden AnnoY("on F").
@@ -204,7 +209,7 @@ public class ElementUtilsProc extends BaseProcessor
 					foundH++;
 				}
 				else {
-					reportError("unexpected value for annotation AnnoY");
+					reportError("examineGetAllAnnotations: unexpected value for annotation AnnoY");
 					return false;
 				}
 			}
@@ -215,18 +220,18 @@ public class ElementUtilsProc extends BaseProcessor
 						foundG++;
 					}
 					else {
-						reportError("unexpected value for annotation AnnoX");
+						reportError("examineGetAllAnnotations: unexpected value for annotation AnnoX");
 						return false;
 					}
 				}
 				else {
-					reportError("getAllAnnotationMirrors(_elementH) returned a mirror with no value()");
+					reportError("examineGetAllAnnotations: getAllAnnotationMirrors(_elementH) returned a mirror with no value()");
 					return false;
 				}
 			}
 		}
 		if (0 != foundF || 1 != foundG || 1 != foundH) {
-			reportError("getAllAnnotationMirrors() found wrong number of annotations on H");
+			reportError("examineGetAllAnnotations: getAllAnnotationMirrors() found wrong number of annotations on H");
 			return false;
 		}
 		return true;
@@ -240,7 +245,7 @@ public class ElementUtilsProc extends BaseProcessor
 	{
 		List<? extends Element> members = _elementUtils.getAllMembers(_elementG);
 		if (null == members) {
-			reportError("getAllMembers(_elementG) returned null");
+			reportError("examineGetAllMembers: getAllMembers(_elementG) returned null");
 			return false;
 		}
 		
@@ -253,7 +258,7 @@ public class ElementUtilsProc extends BaseProcessor
 			}
 		}
 		if (!foundHashCode) {
-			reportError("getAllMembers(_elementG) did not include method hashCode()");
+			reportError("examineGetAllMembers: getAllMembers(_elementG) did not include method hashCode()");
 			return false;
 		}
 		
@@ -266,7 +271,7 @@ public class ElementUtilsProc extends BaseProcessor
 			}
 		}
 		if (!foundFChild) {
-			reportError("getAllMembers(_elementG) did not include class FChild");
+			reportError("examineGetAllMembers: getAllMembers(_elementG) did not include class FChild");
 			return false;
 		}
 		
@@ -278,12 +283,12 @@ public class ElementUtilsProc extends BaseProcessor
 				foundFProtectedField = true;
 			}
 			else if ("_fieldT1_private".equals(field.getSimpleName().toString())) {
-				reportError("getAllMembers(_elementG) included the private inherited field _fieldT1_private");
+				reportError("examineGetAllMembers: getAllMembers(_elementG) included the private inherited field _fieldT1_private");
 				return false;
 			}
 		}
 		if (!foundFProtectedField) {
-			reportError("getAllMembers(_elementG) did not return the protected inherited field _fieldT1_protected");
+			reportError("examineGetAllMembers: getAllMembers(_elementG) did not return the protected inherited field _fieldT1_protected");
 			return false;
 		}
 		
@@ -296,12 +301,12 @@ public class ElementUtilsProc extends BaseProcessor
 				foundGConstructor = true;
 			}
 			else {
-				reportError("getAllMembers(_elementG) returned a constructor for an element other than G");
+				reportError("examineGetAllMembers: getAllMembers(_elementG) returned a constructor for an element other than G");
 				return false;
 			}
 		}
 		if (!foundGConstructor) {
-			reportError("getAllMembers(_elementG) did not include G's constructor");
+			reportError("examineGetAllMembers: getAllMembers(_elementG) did not include G's constructor");
 			return false;
 		}
 
@@ -315,13 +320,13 @@ public class ElementUtilsProc extends BaseProcessor
 					foundGMethodT1 = true;
 				}
 				else {
-					reportError("getAllMembers(_elementG) included an overridden version of method_T1()");
+					reportError("examineGetAllMembers: getAllMembers(_elementG) included an overridden version of method_T1()");
 					return false;
 				}
 			}
 		}
 		if (!foundGMethodT1) {
-			reportError("getAllMembers(_elementG) did not include G's method_T1(String)");
+			reportError("examineGetAllMembers: getAllMembers(_elementG) did not include G's method_T1(String)");
 			return false;
 		}
 		return true;
@@ -335,7 +340,7 @@ public class ElementUtilsProc extends BaseProcessor
 	{
 		Element _deprecatedElem = _elementUtils.getTypeElement("targets.model.pc.Deprecation");
 		if (null == _deprecatedElem) {
-			reportError("Couldn't find targets.model.pc.Deprecation");
+			reportError("examineIsDeprecated: Couldn't find targets.model.pc.Deprecation");
 			return false;
 		}
 		ExecutableElement methodDeprecated = null;
@@ -349,15 +354,15 @@ public class ElementUtilsProc extends BaseProcessor
 			}
 		}
 		if (null == methodDeprecated || null == methodNotDeprecated) {
-			reportError("Could not find methods Deprecation.deprecatedMethod() or Deprecation.nonDeprecatedMethod()");
+			reportError("examineIsDeprecated: Could not find methods Deprecation.deprecatedMethod() or Deprecation.nonDeprecatedMethod()");
 			return false;
 		}
 		if (_elementUtils.isDeprecated(methodNotDeprecated)) {
-			reportError("ElementUtils.isDeprecated(Deprecation.nonDeprecatedMethod()) is true");
+			reportError("examineIsDeprecated: ElementUtils.isDeprecated(Deprecation.nonDeprecatedMethod()) is true");
 			return false;
 		}
 		if (!_elementUtils.isDeprecated(methodDeprecated)) {
-			reportError("ElementUtils.isDeprecated(Deprecation.deprecatedMethod()) is false");
+			reportError("examineIsDeprecated: ElementUtils.isDeprecated(Deprecation.deprecatedMethod()) is false");
 			return false;
 		}
 		TypeElement classDeprecated = null;
@@ -379,33 +384,33 @@ public class ElementUtilsProc extends BaseProcessor
 			}
 		}
 		if (null == classDeprecated || null == classNotDeprecated) {
-			reportError("Could not find methods Deprecation.deprecatedClass() or Deprecation.nonDeprecatedClass()");
+			reportError("examineIsDeprecated: Could not find methods Deprecation.deprecatedClass() or Deprecation.nonDeprecatedClass()");
 			return false;
 		}
 		if (null == interfaceDeprecated || null == interfaceNotDeprecated) {
-			reportError("Could not find methods Deprecation.deprecatedInterface() or Deprecation.nonDeprecatedInterface()");
+			reportError("examineIsDeprecated: Could not find methods Deprecation.deprecatedInterface() or Deprecation.nonDeprecatedInterface()");
 			return false;
 		}
 		if (_elementUtils.isDeprecated(classNotDeprecated)) {
-			reportError("ElementUtils.isDeprecated(Deprecation.nonDeprecatedClass()) is true");
+			reportError("examineIsDeprecated: ElementUtils.isDeprecated(Deprecation.nonDeprecatedClass()) is true");
 			return false;
 		}
 		if (!_elementUtils.isDeprecated(classDeprecated)) {
-			reportError("ElementUtils.isDeprecated(Deprecation.deprecatedClass()) is false");
+			reportError("examineIsDeprecated: ElementUtils.isDeprecated(Deprecation.deprecatedClass()) is false");
 			return false;
 		}
 		if (_elementUtils.isDeprecated(interfaceNotDeprecated)) {
-			reportError("ElementUtils.isDeprecated(Deprecation.nonDeprecatedInterface()) is true");
+			reportError("examineIsDeprecated: ElementUtils.isDeprecated(Deprecation.nonDeprecatedInterface()) is true");
 			return false;
 		}
 		if (!_elementUtils.isDeprecated(interfaceDeprecated)) {
-			reportError("ElementUtils.isDeprecated(Deprecation.deprecatedInterface()) is false");
+			reportError("examineIsDeprecated: ElementUtils.isDeprecated(Deprecation.deprecatedInterface()) is false");
 			return false;
 		}
 		
 		TypeElement deprecatedInnerClass = _elementUtils.getTypeElement("targets.model.pc.Deprecation.deprecatedClass");
 		if (null == deprecatedInnerClass) {
-			reportError("Couldn't find class Deprecation.deprecatedClass");
+			reportError("examineIsDeprecated: Couldn't find class Deprecation.deprecatedClass");
 			return false;
 		}
 
@@ -422,17 +427,17 @@ public class ElementUtilsProc extends BaseProcessor
 		final String refBNameFEnum = "targets.model.pc.F$FEnum";
 		String bnameF = _elementUtils.getBinaryName(_elementF).toString();
 		if (!refNameF.equals(bnameF)) {
-			reportError("getBinaryName(F) should be " + refNameF + ", was: " + bnameF);
+			reportError("examineBinaryName: getBinaryName(F) should be " + refNameF + ", was: " + bnameF);
 			return false;
 		}
 		String bnameFChild = _elementUtils.getBinaryName(_elementFChild).toString();
 		if (!refBNameFChild.equals(bnameFChild)) {
-			reportError("getBinaryName(F) should be " + refBNameFChild + ", was: " + bnameF);
+			reportError("examineBinaryName: getBinaryName(F) should be " + refBNameFChild + ", was: " + bnameF);
 			return false;
 		}
 		String bnameFEnum = _elementUtils.getBinaryName(_elementFEnum).toString();
 		if (!refBNameFEnum.equals(bnameFEnum)) {
-			reportError("getBinaryName(F) should be " + refBNameFEnum + ", was: " + bnameF);
+			reportError("examineBinaryName: getBinaryName(F) should be " + refBNameFEnum + ", was: " + bnameF);
 			return false;
 		}
 		return true;
@@ -458,7 +463,7 @@ public class ElementUtilsProc extends BaseProcessor
 		String actual = _elementUtils.getDocComment(_elementF);
 		String expected = nameToDoc.get("F");
 		if (!expected.equals(actual)) {
-			reportError("Unexpected result from getDocComment(F): " + actual);
+			reportError("examineGetDocComment: Unexpected result from getDocComment(F): " + actual);
 			return false;
 		}
 		for (Element e : _elementF.getEnclosedElements()) {
@@ -467,12 +472,12 @@ public class ElementUtilsProc extends BaseProcessor
 				actual = _elementUtils.getDocComment(e);
 				expected = nameToDoc.get(name);
 				if (expected == null && actual != null) {
-					reportError("Expected getDocComment(" + name + ") to return null, but got " + actual);
+					reportError("examineGetDocComment: Expected getDocComment(" + name + ") to return null, but got " + actual);
 					return false;
 				}
 				else if (expected != null) {
 					if (!expected.equals(actual)) {
-						reportError("Unexpected result from getDocComment(" + name + "): " + actual);
+						reportError("examineGetDocComment: Unexpected result from getDocComment(" + name + "): " + actual);
 						return false;
 					}
 				}
@@ -524,31 +529,37 @@ public class ElementUtilsProc extends BaseProcessor
 			}
 		}
 		if (null == fieldIntJ || null == fieldIntH || null == fieldIntG || null == fieldIntF) {
-			reportError("Failed to find field \"fieldInt\" in either F, G, H, or J");
+			reportError("examineHidesField: Failed to find field \"fieldInt\" in either F, G, H, or J");
 			return false;
 		}
 		if (null == methodFieldIntJ) {
-			reportError("Failed to find method \"fieldInt()\" in J");
+			reportError("examineHidesField: Failed to find method \"fieldInt()\" in J");
+			return false;
+		}
+		// Should hide:
+		if (!_elementUtils.hides(fieldIntH, fieldIntF)) {
+			reportError("examineHidesField: H.fieldInt should hide F.fieldInt");
+			return false;
+		}
+		// Should not hide:
+		if (_elementUtils.hides(fieldIntF, fieldIntF)) {
+			reportError("examineHidesField: F.fieldInt should not hide itself");
 			return false;
 		}
 		if (_elementUtils.hides(fieldIntF, fieldIntG)) {
-			reportError("F.fieldInt should not hide G.fieldInt");
+			reportError("examineHidesField: F.fieldInt should not hide G.fieldInt");
 			return false;
 		}
 		if (!_elementUtils.hides(fieldIntG, fieldIntF)) {
-			reportError("G.fieldInt should hide F.fieldInt");
-			return false;
-		}
-		if (!_elementUtils.hides(fieldIntH, fieldIntF)) {
-			reportError("H.fieldInt should hide F.fieldInt");
+			reportError("examineHidesField: G.fieldInt should hide F.fieldInt");
 			return false;
 		}
 		if (_elementUtils.hides(fieldIntJ, fieldIntG)) {
-			reportError("J.fieldInt should not hide G.fieldInt");
+			reportError("examineHidesField: J.fieldInt should not hide G.fieldInt");
 			return false;
 		}
 		if (_elementUtils.hides(fieldIntJ, methodFieldIntJ)) {
-			reportError("field J.fieldInt should not hide method J.fieldInt()");
+			reportError("examineHidesField: field J.fieldInt should not hide method J.fieldInt()");
 			return false;
 		}
 		return true;
@@ -602,32 +613,36 @@ public class ElementUtilsProc extends BaseProcessor
 		
 		// Should hide:
 		if (!_elementUtils.hides(elementFChildOnH, elementFChildOnF)) {
-			reportError("H.FChild should hide F.FChild");
+			reportError("examineHidesClass: H.FChild should hide F.FChild");
 			return false;
 		}
 		if (!_elementUtils.hides(elementIFChildOnH, elementIFChildOnIF)) {
-			reportError("H.IFChild should hide IF.IFChild");
+			reportError("examineHidesClass: H.IFChild should hide IF.IFChild");
 			return false;
 		}
 		// Should not hide:
+		if (_elementUtils.hides(elementFChildOnF, elementFChildOnF)) {
+			reportError("examineHidesClass: F.FChild should not hide itself");
+			return false;
+		}
 		if (_elementUtils.hides(elementIFChildOnH, elementFChildOnF)) {
-			reportError("H.IFChild should not hide F.FChild");
+			reportError("examineHidesClass: H.IFChild should not hide F.FChild");
 			return false;
 		}
 		if (_elementUtils.hides(elementFChildOnF, elementFChildOnH)) {
-			reportError("F.FChild should not hide H.FChild");
+			reportError("examineHidesClass: F.FChild should not hide H.FChild");
 			return false;
 		}
 		if (_elementUtils.hides(elementFChildOnJ, elementFChildOnF)) {
-			reportError("J.FChild should not hide F.FChild");
+			reportError("examineHidesClass: J.FChild should not hide F.FChild");
 			return false;
 		}
 		if (_elementUtils.hides(_elementF, elementFOnJ)) {
-			reportError("J.F should not hide F");
+			reportError("examineHidesClass: J.F should not hide F");
 			return false;
 		}
 		if (_elementUtils.hides(_elementF, elementFPackage) || _elementUtils.hides(elementFPackage, _elementF)) {
-			reportError("F should not hide its enclosing package, and vice versa");
+			reportError("examineHidesClass: F should not hide its enclosing package, and vice versa");
 			return false;
 		}
 		return true;
@@ -686,53 +701,206 @@ public class ElementUtilsProc extends BaseProcessor
 			}
 		}
 		if (methodStaticOnF == null || methodStatic2OnF == null || methodT1OnF == null) {
-			reportError("Failed to find an expected method on F");
+			reportError("examineHidesMethod: Failed to find an expected method on F");
 			return false;
 		}
 		if (methodStaticOnG == null || methodT1OnG == null) {
-			reportError("Failed to find an expected method on G");
+			reportError("examineHidesMethod: Failed to find an expected method on G");
 			return false;
 		}
 		if (methodStaticOnH == null || methodStaticIntOnH == null) {
-			reportError("Failed to find an expected method on H");
+			reportError("examineHidesMethod: Failed to find an expected method on H");
 			return false;
 		}
 		if (methodStaticOnJ == null) {
-			reportError("Failed to find an expected method on J");
+			reportError("examineHidesMethod: Failed to find an expected method on J");
 			return false;
 		}
 		
 		// The should-hide cases
 		if (!_elementUtils.hides(methodStaticOnH, methodStaticOnG)) {
-			reportError("H.staticMethod() should hide G.staticMethod()");
+			reportError("examineHidesMethod: H.staticMethod() should hide G.staticMethod()");
 			return false;
 		}
 		
 		// The should-not-hide cases
+		if (_elementUtils.hides(methodStaticOnG, methodStaticOnG)) {
+			reportError("examineHidesMethod: G.staticMethod() should not hide itself");
+			return false;
+		}
 		if (_elementUtils.hides(methodStaticOnG, methodStaticOnF)) {
-			reportError("G.staticMethod() should not hide (private) F.staticMethod()");
+			reportError("examineHidesMethod: G.staticMethod() should not hide (private) F.staticMethod()");
 			return false;
 		}
 		if (_elementUtils.hides(methodStaticOnG, methodStaticOnH)) {
-			reportError("G.staticMethod() should not hide H.staticMethod()");
+			reportError("examineHidesMethod: G.staticMethod() should not hide H.staticMethod()");
 			return false;
 		}
 		if (_elementUtils.hides(methodStaticOnG, methodStatic2OnF)) {
-			reportError("G.staticMethod() should not hide F.staticMethod2()");
+			reportError("examineHidesMethod: G.staticMethod() should not hide F.staticMethod2()");
 			return false;
 		}
 		if (_elementUtils.hides(methodStaticOnJ, methodStaticOnG)) {
-			reportError("J.staticMethod() should not hide G.staticMethod()");
+			reportError("examineHidesMethod: J.staticMethod() should not hide G.staticMethod()");
 			return false;
 		}
 		if (_elementUtils.hides(methodStaticIntOnH, methodStaticOnG)) {
-			reportError("H.staticMethod(int) should not hide G.staticMethod()");
+			reportError("examineHidesMethod: H.staticMethod(int) should not hide G.staticMethod()");
 			return false;
 		}
 		if (_elementUtils.hides(methodT1OnG, methodT1OnF)) {
-			reportError("G.methodT1() should not hide F.methodT1(), because they aren't static (JLS 8.4.8.2)");
+			reportError("examineHidesMethod: G.methodT1() should not hide F.methodT1(), because they aren't static (JLS 8.4.8.2)");
 			return false;
 		}
 		return true;
 	}
+	
+	/**
+	 * Test the {@link Elements#overrides(ExecutableElement, ExecutableElement, TypeElement)} implementation
+	 * @return true if all tests passed
+	 */
+	private boolean examineOverrides() {
+		TypeElement typeA = _elementUtils.getTypeElement("targets.model.pc.Overriding.A");
+		TypeElement typeB = _elementUtils.getTypeElement("targets.model.pc.Overriding.B");
+		TypeElement typeC = _elementUtils.getTypeElement("targets.model.pc.Overriding.C");
+		TypeElement typeD = _elementUtils.getTypeElement("targets.model.pc.Overriding.D");
+		if (typeA == null || typeB == null || typeC == null || typeD == null) {
+			reportError("Unable to find types in targets.model.pc.Overriding");
+			return false;
+		}
+		ExecutableElement methodAF = null;
+		ExecutableElement methodAG = null;
+		ExecutableElement methodAH = null;
+		ExecutableElement methodAJ = null;
+		ExecutableElement methodBF = null;
+		ExecutableElement methodBG = null;
+		ExecutableElement methodBH = null;
+		ExecutableElement methodCH = null;
+		ExecutableElement methodDF = null;
+		ExecutableElement methodDG = null;
+		ExecutableElement methodDJ = null;
+		for (ExecutableElement method : ElementFilter.methodsIn(typeA.getEnclosedElements())) {
+			String name = method.getSimpleName().toString();
+			if ("f".equals(name)) {
+				methodAF = method;
+			}
+			else if ("g".equals(name)) {
+				methodAG = method;
+			}
+			else if ("h".equals(name)) {
+				methodAH = method;
+			}
+			else if ("j".equals(name)) {
+				methodAJ = method;
+			}
+		}
+		for (ExecutableElement method : ElementFilter.methodsIn(typeB.getEnclosedElements())) {
+			String name = method.getSimpleName().toString();
+			if ("f".equals(name)) {
+				methodBF = method;
+			}
+			else if ("g".equals(name)) {
+				methodBG = method;
+			}
+			else if ("h".equals(name)) {
+				methodBH = method;
+			}
+		}
+		for (ExecutableElement method : ElementFilter.methodsIn(typeC.getEnclosedElements())) {
+			String name = method.getSimpleName().toString();
+			if ("h".equals(name)) {
+				methodCH = method;
+				break;
+			}
+		}
+		for (ExecutableElement method : ElementFilter.methodsIn(typeD.getEnclosedElements())) {
+			String name = method.getSimpleName().toString();
+			if ("f".equals(name)) {
+				methodDF = method;
+			}
+			else if ("g".equals(name)) {
+				methodDG = method;
+			}
+			else if ("j".equals(name)) {
+				methodDJ = method;
+			}
+		}
+		if (null == methodAF || null == methodAG || null == methodAH || null == methodAJ ||
+				null == methodBF || null == methodBG || null == methodBH ||
+				null == methodCH ||
+				null == methodDF || null == methodDG || null == methodDJ) {
+			reportError("examineOverrides: could not find some methods in targets.model.pc.Overrides");
+			return false;
+		}
+		
+		// Should override:
+		if (!_elementUtils.overrides(methodAF, methodBF, typeC)) {
+			reportError("examineOverrides: A.f() should override B.f() in the context of C");
+			return false;
+		}
+		if (!_elementUtils.overrides(methodCH, methodAH, typeC)) {
+			reportError("examineOverrides: C.h() should override A.h() in the context of C");
+			return false;
+		}
+		if (!_elementUtils.overrides(methodCH, methodAH, typeD)) {
+			reportError("examineOverrides: C.h() should override A.h() in the context of D");
+			return false;
+		}
+		if (!_elementUtils.overrides(methodDF, methodBF, typeD)) {
+			reportError("examineOverrides: D.f() should override B.f() in the context of D");
+			return false;
+		}
+		if (!_elementUtils.overrides(methodDG, methodBG, typeD)) {
+			reportError("examineOverrides: D.g() should override B.g() in the context of D");
+			return false;
+		}
+		if (!_elementUtils.overrides(methodDJ, methodAJ, typeD)) {
+			reportError("examineOverrides: D.j() should override A.j() in the context of D");
+			return false;
+		}
+		if (!_elementUtils.overrides(methodAH, methodBH, typeC)) {
+			reportError("examineOverrides: A.h() should override B.h() in the context of C (even though C.h does too)");
+			return false;
+		}
+		
+		// Should not override:
+		if (_elementUtils.overrides(methodAF, methodAF, typeA)) {
+			reportError("examineOverrides: A.f() should not override itself in the context of A");
+			return false;
+		}
+		if (_elementUtils.overrides(methodAF, methodAF, typeC)) {
+			reportError("examineOverrides: A.f() should not override itself in the context of C");
+			return false;
+		}
+		if (_elementUtils.overrides(methodAF, methodBF, typeA)) {
+			reportError("examineOverrides: A.f() should not override B.f() in the context of A");
+			return false;
+		}
+		if (_elementUtils.overrides(methodAG, methodBG, typeC)) {
+			reportError("examineOverrides: private A.g() should not override B.g() in the context of C");
+			return false;
+		}
+		if (_elementUtils.overrides(methodDG, methodAG, typeD)) {
+			reportError("examineOverrides: D.g() should not override private A.g() in the context of D");
+			return false;
+		}
+		if (_elementUtils.overrides(methodDJ, methodAJ, typeC)) {
+// javac implementation fails this test
+//			reportError("examineOverrides: D.j() should not override A.j() in the context of C");
+//			return false;
+		}
+		if (_elementUtils.overrides(methodDF, methodAF, typeC)) {
+// javac implementation fails this test
+//			reportError("examineOverrides: D.f() should not override A.f() in the context of C");
+//			return false;
+		}
+		if (_elementUtils.overrides(methodDF, methodBF, typeC)) {
+// javac implementation fails this test
+//			reportError("examineOverrides: D.f() should not override B.f() in the context of C");
+//			return false;
+		}
+		
+		return true;
+	}
+
 }

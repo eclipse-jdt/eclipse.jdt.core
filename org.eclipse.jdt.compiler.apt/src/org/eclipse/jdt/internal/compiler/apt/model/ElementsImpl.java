@@ -534,8 +534,10 @@ public class ElementsImpl implements Elements {
 	@Override
 	public boolean overrides(ExecutableElement overrider, ExecutableElement overridden,
 			TypeElement type) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI: ElementsImpl.overrides(...)"); //$NON-NLS-1$
+		if (overridden == null || type == null) {
+			throw new NullPointerException();
+		}
+		return ((ExecutableElementImpl)overrider).overrides(overridden, type);
 	}
 
 	/* (non-Javadoc)
