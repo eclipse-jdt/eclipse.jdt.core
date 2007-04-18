@@ -35,7 +35,9 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -239,15 +241,13 @@ public class ExecutableElementImpl extends ElementImpl implements
 	 * <pre>
 	 *   interface A { void f(); }
 	 *   class B { void f() {} }
-	 *   class D extends B implements I { }
+	 *   class C extends B implements I { }
 	 * </pre> 
 	 * In the context of B, B.f() does not override A.f(); they are unrelated.  But in the context of
-	 * D, B.f() does override A.f().  That is, the copy of B.f() that D inherits overrides A.f().
-	 * This is equivalent to considering two questions: first, does D inherit B.f(); if so, does
-	 * the inherited D.f() override A.f().  If B.f() were private, for instance, then in the context
-	 * of D it would still not override A.f().  Similarly, if an intervening type C extends B and
-	 * provides a definition of C.f(), then B.f() does not override A.f() in the context of D, because
-	 * it is hidden by C.f().
+	 * C, B.f() does override A.f().  That is, the copy of B.f() that C inherits overrides A.f().
+	 * This is equivalent to considering two questions: first, does C inherit B.f(); if so, does
+	 * the inherited C.f() override A.f().  If B.f() were private, for instance, then in the context
+	 * of C it would still not override A.f().  
 	 * 
 	 * @see javax.lang.model.util.Elements#overrides(ExecutableElement, ExecutableElement, TypeElement)
      * @jls3 8.4.8 Inheritance, Overriding, and Hiding
@@ -255,7 +255,48 @@ public class ExecutableElementImpl extends ElementImpl implements
 	 */
 	public boolean overrides(ExecutableElement overridden, TypeElement type)
 	{
-		throw new UnsupportedOperationException("NYI: overrides(...)"); //$NON-NLS-1$
+		MethodBinding overriddenBinding = (MethodBinding)((ExecutableElementImpl) overridden)._binding;
+		ReferenceBinding overriderContext = (ReferenceBinding)((TypeElementImpl)type)._binding;
+		if ((MethodBinding)_binding == overriddenBinding)
+			return false;
+		if (overriddenBinding.isPrivate()) {
+			return false;
+		}
+		char[] selector = ((MethodBinding)_binding).selector;
+		if (!CharOperation.equals(selector, overriddenBinding.selector))
+			return false;
+		
+		// Construct a binding to the equivalent of this (the overrider) as it would be inherited by 'type'.
+		// Can only do this if 'type' is descended from the overrider.
+		// Second clause of the AND is required to match a peculiar javac behavior.
+		if (null == overriderContext.findSuperTypeWithSameErasure(((MethodBinding)_binding).declaringClass) &&
+				null == ((MethodBinding)_binding).declaringClass.findSuperTypeWithSameErasure(overriderContext)) {
+			return false;
+		}
+		MethodBinding overriderBinding = new MethodBinding((MethodBinding)_binding, overriderContext);
+		if (overriderBinding.isPrivate()) {
+			// a private method can never override another method.  The other method would either be
+			// private itself, in which case it would not be visible; or this would be a restriction 
+			// of access, which is a compile-time error.
+			return false;
+		}
+		
+		TypeBinding match = overriderBinding.declaringClass.findSuperTypeWithSameErasure(overriddenBinding.declaringClass);
+		if (!(match instanceof ReferenceBinding)) return false;
+
+		org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] superMethods = ((ReferenceBinding)match).getMethods(selector);
+		for (int i = 0, length = superMethods.length; i < length; i++) {
+			if (superMethods[i].original() == overriddenBinding) {
+				LookupEnvironment lookupEnvironment = _env.getLookupEnvironment();
+				if (lookupEnvironment == null) return false;
+				MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
+				org.eclipse.jdt.internal.compiler.lookup.MethodBinding superMethod = superMethods[i];
+				return !superMethod.isPrivate()
+					&& !(superMethod.isDefault() && (superMethod.declaringClass.getPackage()) != overriderBinding.declaringClass.getPackage())
+					&& methodVerifier.doesMethodOverride(overriderBinding, superMethod);
+			}
+		}
+		return false;
 	}
 
 }

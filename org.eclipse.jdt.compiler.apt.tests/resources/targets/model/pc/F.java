@@ -60,4 +60,7 @@ public class F<T1> {
 	void deprecatedMethod()
 	{
 	}
+	
+	// unrelated to the same-signature methods in Overriding.java
+	void f() {}
 }

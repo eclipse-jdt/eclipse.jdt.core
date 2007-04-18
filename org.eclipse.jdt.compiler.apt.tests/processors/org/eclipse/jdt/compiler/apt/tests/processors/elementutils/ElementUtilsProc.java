@@ -104,8 +104,7 @@ public class ElementUtilsProc extends BaseProcessor
 			return false;
 		}
 		
-		// TODO: temporarily disabled
-		if (false && !examineOverrides()) {
+		if (!examineOverrides()) {
 			return false;
 		}
 		
@@ -760,10 +759,12 @@ public class ElementUtilsProc extends BaseProcessor
 	 * @return true if all tests passed
 	 */
 	private boolean examineOverrides() {
+		// D extends (C extends A implements B).  X is unrelated.
 		TypeElement typeA = _elementUtils.getTypeElement("targets.model.pc.Overriding.A");
 		TypeElement typeB = _elementUtils.getTypeElement("targets.model.pc.Overriding.B");
 		TypeElement typeC = _elementUtils.getTypeElement("targets.model.pc.Overriding.C");
 		TypeElement typeD = _elementUtils.getTypeElement("targets.model.pc.Overriding.D");
+		TypeElement typeX = _elementUtils.getTypeElement("targets.model.pc.F");
 		if (typeA == null || typeB == null || typeC == null || typeD == null) {
 			reportError("Unable to find types in targets.model.pc.Overriding");
 			return false;
@@ -779,6 +780,7 @@ public class ElementUtilsProc extends BaseProcessor
 		ExecutableElement methodDF = null;
 		ExecutableElement methodDG = null;
 		ExecutableElement methodDJ = null;
+		ExecutableElement methodXF = null;
 		for (ExecutableElement method : ElementFilter.methodsIn(typeA.getEnclosedElements())) {
 			String name = method.getSimpleName().toString();
 			if ("f".equals(name)) {
@@ -825,11 +827,19 @@ public class ElementUtilsProc extends BaseProcessor
 				methodDJ = method;
 			}
 		}
+		for (ExecutableElement method : ElementFilter.methodsIn(typeX.getEnclosedElements())) {
+			String name = method.getSimpleName().toString();
+			if ("f".equals(name)) {
+				methodXF = method;
+				break;
+			}
+		}
 		if (null == methodAF || null == methodAG || null == methodAH || null == methodAJ ||
 				null == methodBF || null == methodBG || null == methodBH ||
 				null == methodCH ||
-				null == methodDF || null == methodDG || null == methodDJ) {
-			reportError("examineOverrides: could not find some methods in targets.model.pc.Overrides");
+				null == methodDF || null == methodDG || null == methodDJ ||
+				null == methodXF) {
+			reportError("examineOverrides: could not find some methods");
 			return false;
 		}
 		
@@ -884,20 +894,27 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineOverrides: D.g() should not override private A.g() in the context of D");
 			return false;
 		}
-		if (_elementUtils.overrides(methodDJ, methodAJ, typeC)) {
-// javac implementation fails this test
-//			reportError("examineOverrides: D.j() should not override A.j() in the context of C");
-//			return false;
+		if (_elementUtils.overrides(methodXF, methodAF, typeD)) {
+			reportError("examineOverrides: unrelated X.f() should not override A.f() in the context of D");
+			return false;
 		}
-		if (_elementUtils.overrides(methodDF, methodAF, typeC)) {
-// javac implementation fails this test
-//			reportError("examineOverrides: D.f() should not override A.f() in the context of C");
-//			return false;
+		if (_elementUtils.overrides(methodXF, methodBF, typeX)) {
+			reportError("examineOverrides: X.f() should not override unrelated B.f() in the context of X");
+			return false;
 		}
-		if (_elementUtils.overrides(methodDF, methodBF, typeC)) {
-// javac implementation fails this test
-//			reportError("examineOverrides: D.f() should not override B.f() in the context of C");
-//			return false;
+		
+		// These cases seem like they should return false, but javac returns true:
+		if (!_elementUtils.overrides(methodDJ, methodAJ, typeC)) {
+			reportError("examineOverrides: to match javac, D.j() should override A.j() in the context of C");
+			return false;
+		}
+		if (!_elementUtils.overrides(methodDF, methodAF, typeC)) {
+			reportError("examineOverrides: to match javac, D.f() should override A.f() in the context of C");
+			return false;
+		}
+		if (!_elementUtils.overrides(methodDF, methodBF, typeC)) {
+			reportError("examineOverrides: to match javac, D.f() should override B.f() in the context of C");
+			return false;
 		}
 		
 		return true;
