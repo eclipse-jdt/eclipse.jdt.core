@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 	private static final char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
@@ -748,6 +749,9 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			extractReferenceFromConstantPool(contents, reader);
 		} catch (ClassFormatException e) {
 			// ignore
+		} catch (RuntimeException e) {
+			Util.log(e, "Indexer crashed on document " + this.document.getPath()); //$NON-NLS-1$
+			throw e;
 		}
 	}
 	/*
