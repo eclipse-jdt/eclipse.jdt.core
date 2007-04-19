@@ -206,13 +206,17 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 				roots = new IPackageFragmentRoot[0];
 				reverseMap.clear();
 			}
+			
+			HashMap otherRoots = JavaModelManager.getJavaModelManager().deltaState.otherRoots;
 			HashtableOfArrayToObject fragmentsCache = new HashtableOfArrayToObject();
 			HashtableOfArrayToObject isPackageCache = new HashtableOfArrayToObject();
 			for (int i = 0, length = roots.length; i < length; i++) {
 				IPackageFragmentRoot root = roots[i];
 				IJavaElement[] frags = null;
 				try {
-					if (root.isArchive() && !root.isOpen()) {
+					if (root.isArchive() 
+							&& !root.isOpen() 
+							&& otherRoots.get(((JarPackageFragmentRoot) root).jarPath) == null/*only if jar belongs to 1 project (https://bugs.eclipse.org/bugs/show_bug.cgi?id=161175)*/) {
 						JarPackageFragmentRootInfo info = new JarPackageFragmentRootInfo();
 						((JarPackageFragmentRoot) root).computeChildren(info, new HashMap());
 						frags = info.children;

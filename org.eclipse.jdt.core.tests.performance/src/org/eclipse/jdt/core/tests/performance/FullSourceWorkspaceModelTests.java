@@ -20,6 +20,7 @@ import junit.framework.*;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -851,6 +852,68 @@ public void testCloseProjects() throws JavaModelException {
 		// restore previous settings
 		ENV.getWorkspace().getDescription().setSnapshotInterval(oldSnapInterval);
 		ENV.getWorkspace().getDescription().setAutoBuilding(oldAutoBuildPolicy);
+	}
+}
+
+/*
+ * Creates a simple Java project with no source folder and only rt.jar on its classpath.
+ */
+private IJavaProject createJavaProject(String name) throws CoreException {
+	IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
+	if (project.exists())
+		project.delete(true, null);
+	project.create(null);
+	project.open(null);
+	IProjectDescription description = project.getDescription();
+	description.setNatureIds(new String[] {JavaCore.NATURE_ID});
+	project.setDescription(description, null);
+	IJavaProject javaProject = JavaCore.create(project);
+	javaProject.setRawClasspath(new IClasspathEntry[] {JavaCore.newVariableEntry(new Path("JRE_LIB"), null, null)}, null);
+	return javaProject;
+
+}
+/*
+ * Performance test for the first use of findType(...)
+ * (see bug 161175 JarPackageFragmentRoot slow to initialize)
+ */
+public void testFindType() throws CoreException {
+	
+	// get 20 projects
+	IJavaModel model = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot());
+	int max = 20;
+	IJavaProject[] projects = new IJavaProject[max];
+	for (int i = 0; i < max; i++) {
+		projects[i] = createJavaProject("FindType" + i);
+	}
+	AbstractJavaModelTests.waitUntilIndexesReady();
+	AbstractJavaModelTests.waitForAutoBuild();
+	
+	try {
+		// warm up
+		for (int i = 0; i < 5; i++) {
+			model.close();
+			for (int j = 0; j < max; j++) {
+				projects[j].findType("java.lang.Object");
+			}
+		}
+			
+		// measure performance
+		for (int i = 0; i < 10; i++) {
+			model.close();
+			runGc();
+			startMeasuring();
+			for (int j = 0; j < max; j++) {
+				projects[j].findType("java.lang.Object");
+			}
+			stopMeasuring();
+		}
+	
+		commitMeasurements();
+		assertPerformance();
+	} finally {
+		for (int i = 0; i < max; i++) {
+			projects[i].getProject().delete(false, null);
+		}
 	}
 }
 
