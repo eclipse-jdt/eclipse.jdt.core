@@ -29,10 +29,12 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Types;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -326,9 +328,12 @@ public class TypesImpl implements Types {
      */
     @Override
     public boolean isSubsignature(ExecutableType m1, ExecutableType m2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("NYI: TypesImpl.isSubsignature(...)"); //$NON-NLS-1$
-    }
+		MethodBinding methodBinding1 = (MethodBinding) ((ExecutableTypeImpl) m1)._binding;
+		MethodBinding methodBinding2 = (MethodBinding) ((ExecutableTypeImpl) m2)._binding;
+		if (!CharOperation.equals(methodBinding1.selector, methodBinding2.selector))
+			return false;
+		return methodBinding1.areParameterErasuresEqual(methodBinding2) && methodBinding1.areTypeVariableErasuresEqual(methodBinding2);
+	}
 
     /**
      * @return true if t1 is a subtype of t2, or if t1 == t2.
