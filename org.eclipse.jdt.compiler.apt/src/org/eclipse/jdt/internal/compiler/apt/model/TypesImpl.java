@@ -74,7 +74,7 @@ public class TypesImpl implements Types {
     @Override
     public TypeMirror asMemberOf(DeclaredType containing, Element element) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("NYI: TypesImpl.asMemberOf(...)"); //$NON-NLS-1$
+        throw new UnsupportedOperationException("NYI: TypesImpl.asMemberOf(" + containing + ", " + element + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     /* (non-Javadoc)
@@ -102,8 +102,18 @@ public class TypesImpl implements Types {
      */
     @Override
     public boolean contains(TypeMirror t1, TypeMirror t2) {
+    	switch(t1.getKind()) {
+    		case EXECUTABLE :
+    		case PACKAGE :
+    			throw new IllegalArgumentException("Executable and package are illegal argument for Types.contains(..)"); //$NON-NLS-1$
+    	}
+    	switch(t2.getKind()) {
+    		case EXECUTABLE :
+    		case PACKAGE :
+    			throw new IllegalArgumentException("Executable and package are illegal argument for Types.contains(..)"); //$NON-NLS-1$
+    	}
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("NYI: TypesImpl.contains(...)"); //$NON-NLS-1$
+        throw new UnsupportedOperationException("NYI: TypesImpl.contains(" + t1 + ", " + t2 + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     /* (non-Javadoc)
