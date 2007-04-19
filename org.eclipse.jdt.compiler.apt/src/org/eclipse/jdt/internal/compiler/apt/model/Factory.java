@@ -166,6 +166,8 @@ public class Factory {
 					ClassFileConstants.AccPublic,
 					ClassFileConstants.AccAbstract,
 					ClassFileConstants.AccFinal,
+					ClassFileConstants.AccPrivate,
+					ClassFileConstants.AccStatic,
 				});
 		}
 		return Collections.unmodifiableSet(result);
