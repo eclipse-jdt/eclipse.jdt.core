@@ -221,7 +221,7 @@ class TypeBinding implements ITypeBinding {
 	/*
 	 * @see ITypeBinding#getDeclaredFields()
 	 */
-	public IVariableBinding[] getDeclaredFields() {
+	public synchronized IVariableBinding[] getDeclaredFields() {
 		if (this.fields != null) {
 			return this.fields;
 		}
@@ -256,7 +256,7 @@ class TypeBinding implements ITypeBinding {
 	/*
 	 * @see ITypeBinding#getDeclaredMethods()
 	 */
-	public IMethodBinding[] getDeclaredMethods() {
+	public synchronized IMethodBinding[] getDeclaredMethods() {
 		if (this.methods != null) {
 			return this.methods;
 		}
@@ -304,7 +304,7 @@ class TypeBinding implements ITypeBinding {
 	/*
 	 * @see ITypeBinding#getDeclaredTypes()
 	 */
-	public ITypeBinding[] getDeclaredTypes() {
+	public synchronized ITypeBinding[] getDeclaredTypes() {
 		if (this.members != null) {
 			return this.members;
 		}
@@ -339,7 +339,7 @@ class TypeBinding implements ITypeBinding {
 	/*
 	 * @see ITypeBinding#getDeclaringMethod()
 	 */
-	public IMethodBinding getDeclaringMethod() {
+	public synchronized IMethodBinding getDeclaringMethod() {
 		if (this.binding instanceof LocalTypeBinding) {
 			LocalTypeBinding localTypeBinding = (LocalTypeBinding) this.binding;
 			MethodBinding methodBinding = localTypeBinding.enclosingMethod;
@@ -377,7 +377,7 @@ class TypeBinding implements ITypeBinding {
 	/*
 	 * @see ITypeBinding#getDeclaringClass()
 	 */
-	public ITypeBinding getDeclaringClass() {
+	public synchronized ITypeBinding getDeclaringClass() {
 		if (isClass() || isInterface() || isEnum()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			if (referenceBinding.isNestedType()) {
@@ -449,7 +449,7 @@ class TypeBinding implements ITypeBinding {
 		return this.resolver.getTypeBinding(this.binding.erasure());
 	}
 
-	public ITypeBinding[] getInterfaces() {
+	public synchronized ITypeBinding[] getInterfaces() {
 		if (this.interfaces != null) {
 			return this.interfaces;
 		}
@@ -887,7 +887,7 @@ class TypeBinding implements ITypeBinding {
 	/*
 	 * @see ITypeBinding#getSuperclass()
 	 */
-	public ITypeBinding getSuperclass() {
+	public synchronized ITypeBinding getSuperclass() {
 		if (this.binding == null)
 			return null;
 		switch (this.binding.kind()) {
