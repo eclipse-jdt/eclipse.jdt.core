@@ -2237,26 +2237,29 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 	if (expectedImport instanceof FieldBinding) {
 		int id = IProblem.UndefinedField;
 		FieldBinding field = (FieldBinding) expectedImport;
+		String[] readableArguments = null;
+		String[] shortArguments = null;
 		switch (expectedImport.problemId()) {
 			case ProblemReasons.NotVisible :
-				this.handle(
-					IProblem.NotVisibleField,
-					new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.readableName())},
-					new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.shortReadableName())},
-					nodeSourceStart(field, importRef),
-					nodeSourceEnd(field, importRef));
-				return;
+				id = IProblem.NotVisibleField;
+				readableArguments = new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.readableName())};
+				shortArguments = new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.shortReadableName())};
+				break;
 			case ProblemReasons.Ambiguous :
 				id = IProblem.AmbiguousField;
+				readableArguments = new String[] {new String(field.readableName())};
+				shortArguments = new String[] {new String(field.readableName())};
 				break;
 			case ProblemReasons.ReceiverTypeNotVisible :
 				id = IProblem.NotVisibleType;
+				readableArguments = new String[] {new String(field.declaringClass.leafComponentType().readableName())};
+				shortArguments = new String[] {new String(field.declaringClass.leafComponentType().shortReadableName())};
 				break;
 		}
 		this.handle(
-			id, 
-			new String[] {new String(field.declaringClass.leafComponentType().readableName())},
-			new String[] {new String(field.declaringClass.leafComponentType().shortReadableName())},
+			id,
+			readableArguments,
+			shortArguments,
 			nodeSourceStart(field, importRef),
 			nodeSourceEnd(field, importRef));
 		return;
@@ -2868,7 +2871,7 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 				new String[] {new String(fieldRef.token), new String(field.declaringClass.readableName())},
 				new String[] {new String(fieldRef.token), new String(field.declaringClass.shortReadableName())},
 				nodeSourceStart(field, fieldRef),
-				nodeSourceEnd(field, fieldRef));			
+				nodeSourceEnd(field, fieldRef));
 			return;
 		case ProblemReasons.Ambiguous :
 			id = IProblem.AmbiguousField;
