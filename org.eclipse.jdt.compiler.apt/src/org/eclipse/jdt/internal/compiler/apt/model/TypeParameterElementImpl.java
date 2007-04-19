@@ -161,5 +161,9 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 		// TODO what is the package of a type parameter?
 		return null;
 	}
-
+	
+	@Override
+	public String toString() {
+		return new String(_binding.readableName());
+	}
 }

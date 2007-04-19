@@ -367,6 +367,9 @@ public class TypesImpl implements Types {
      */
     @Override
     public boolean isSameType(TypeMirror t1, TypeMirror t2) {
+    	if (t1.getKind() == TypeKind.WILDCARD || t2.getKind() == TypeKind.WILDCARD) {
+    		return false;
+    	}
         if (t1 == t2) {
             return true;
         }

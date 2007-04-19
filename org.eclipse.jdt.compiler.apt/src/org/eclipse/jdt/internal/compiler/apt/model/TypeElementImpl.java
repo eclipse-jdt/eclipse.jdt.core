@@ -239,7 +239,8 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 
 	@Override
 	public String toString() {
-		return new String(_binding.readableName());
+		ReferenceBinding binding = (ReferenceBinding) this._binding;
+		return new String(CharOperation.concatWith(binding.compoundName, '.'));
 	}
 
 }
