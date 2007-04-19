@@ -84,7 +84,7 @@ private void computeClasspathLocations(
 		int severity = JavaCore.ERROR.equals(javaProject.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true))
 			? IMarker.SEVERITY_ERROR
 			: IMarker.SEVERITY_WARNING;
-		if (severity != ((Integer) cycleMarker.getAttribute(IMarker.SEVERITY)).intValue())
+		if (severity != cycleMarker.getAttribute(IMarker.SEVERITY, severity))
 			cycleMarker.setAttribute(IMarker.SEVERITY, severity);
 	}
 

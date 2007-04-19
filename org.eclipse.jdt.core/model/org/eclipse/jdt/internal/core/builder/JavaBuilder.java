@@ -210,26 +210,41 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	} catch (CoreException e) {
 		Util.log(e, "JavaBuilder handling CoreException while building: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()));
-		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
+		marker.setAttributes(
+			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
+			new Object[] {
+				Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()),
+				new Integer(IMarker.SEVERITY_ERROR),
+				new Integer(CategorizedProblem.CAT_BUILDPATH),
+				JavaBuilder.SOURCE_ID
+			}
+		);
 	} catch (ImageBuilderInternalException e) {
 		Util.log(e.getThrowable(), "JavaBuilder handling ImageBuilderInternalException while building: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()));
-		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
+		marker.setAttributes(
+			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
+			new Object[] {
+				Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()),
+				new Integer(IMarker.SEVERITY_ERROR),
+				new Integer(CategorizedProblem.CAT_BUILDPATH),
+				JavaBuilder.SOURCE_ID
+			}
+		);
 	} catch (MissingSourceFileException e) {
 		// do not log this exception since its thrown to handle aborted compiles because of missing source files
 		if (DEBUG)
 			System.out.println(Messages.bind(Messages.build_missingSourceFile, e.missingSourceFile));
 		removeProblemsAndTasksFor(currentProject); // make this the only problem for this project
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_missingSourceFile, e.missingSourceFile));
-		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
+		marker.setAttributes(
+			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.SOURCE_ID},
+			new Object[] {
+				Messages.bind(Messages.build_missingSourceFile, e.missingSourceFile),
+				new Integer(IMarker.SEVERITY_ERROR),
+				JavaBuilder.SOURCE_ID
+			}
+		);
 	} finally {
 		if (!ok)
 			// If the build failed, clear the previously built state, forcing a full build next time.
@@ -292,9 +307,14 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 	} catch (CoreException e) {
 		Util.log(e, "JavaBuilder handling CoreException while cleaning: " + currentProject.getName()); //$NON-NLS-1$
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()));
-		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
+		marker.setAttributes(
+			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.SOURCE_ID},
+			new Object[] {
+				Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()),
+				new Integer(IMarker.SEVERITY_ERROR),
+				JavaBuilder.SOURCE_ID
+			}
+		);
 	} finally {
 		notifier.done();
 		cleanup();
@@ -620,10 +640,15 @@ private boolean isWorthBuilding() throws CoreException {
 		removeProblemsAndTasksFor(currentProject); // remove all compilation problems
 
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttribute(IMarker.MESSAGE, Messages.build_abortDueToClasspathProblems);
-		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
+		marker.setAttributes(
+			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
+			new Object[] {
+				Messages.build_abortDueToClasspathProblems,
+				new Integer(IMarker.SEVERITY_ERROR),
+				new Integer(CategorizedProblem.CAT_BUILDPATH),
+				JavaBuilder.SOURCE_ID
+			}
+		);
 		return false;
 	}
 
@@ -656,13 +681,17 @@ private boolean isWorthBuilding() throws CoreException {
 
 			removeProblemsAndTasksFor(currentProject); // make this the only problem for this project
 			IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-			marker.setAttribute(IMarker.MESSAGE,
-				isClasspathBroken(prereq.getRawClasspath(), p)
-					? Messages.bind(Messages.build_prereqProjectHasClasspathProblems, p.getName())
-					: Messages.bind(Messages.build_prereqProjectMustBeRebuilt, p.getName()));
-			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-			marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-			marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
+			marker.setAttributes(
+				new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
+				new Object[] {
+					isClasspathBroken(prereq.getRawClasspath(), p)
+						? Messages.bind(Messages.build_prereqProjectHasClasspathProblems, p.getName())
+						: Messages.bind(Messages.build_prereqProjectMustBeRebuilt, p.getName()),
+					new Integer(IMarker.SEVERITY_ERROR),
+					new Integer(CategorizedProblem.CAT_BUILDPATH),
+					JavaBuilder.SOURCE_ID
+				}
+			);
 			return false;
 		}
 	}

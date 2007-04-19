@@ -652,10 +652,15 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 				this.keepStoringProblemMarkers = false;
 			}
 			IMarker marker = this.javaBuilder.currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-			marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_incompleteClassPath, missingClassfileName)); 
-			marker.setAttribute(IMarker.SEVERITY, isInvalidClasspathError ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING);
-			marker.setAttribute(IJavaModelMarker.CATEGORY_ID, CategorizedProblem.CAT_BUILDPATH);
-			marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
+			marker.setAttributes(
+				new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
+				new Object[] {
+					Messages.bind(Messages.build_incompleteClassPath, missingClassfileName),
+					new Integer(isInvalidClasspathError ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING),
+					new Integer(CategorizedProblem.CAT_BUILDPATH),
+					JavaBuilder.SOURCE_ID
+				}
+			);
 			// even if we're not keeping more markers, still fall through rest of the problem reporting, so that offending
 			// IsClassPathCorrect problem gets recorded since it may help locate the offending reference
 		}
