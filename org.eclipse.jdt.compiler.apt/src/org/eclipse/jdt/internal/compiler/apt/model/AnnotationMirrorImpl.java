@@ -93,6 +93,18 @@ public class AnnotationMirrorImpl implements AnnotationMirror {
 		return Collections.unmodifiableMap(valueMap);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof AnnotationMirrorImpl) {
+			return this._binding == ((AnnotationMirrorImpl) obj)._binding;
+		}
+		return false;
+	}
+
+	public int hashCode() {
+		return this._binding.hashCode();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * Sun implementation shows the values.  We avoid that here,

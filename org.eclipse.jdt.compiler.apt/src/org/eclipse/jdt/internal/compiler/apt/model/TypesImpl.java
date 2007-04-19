@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -74,7 +75,51 @@ public class TypesImpl implements Types {
     @Override
     public TypeMirror asMemberOf(DeclaredType containing, Element element) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("NYI: TypesImpl.asMemberOf(" + containing + ", " + element + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//        throw new UnsupportedOperationException("NYI: TypesImpl.asMemberOf(" + containing + ", " + element + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    	ElementImpl elementImpl = (ElementImpl) element;
+    	DeclaredTypeImpl declaredTypeImpl = (DeclaredTypeImpl) containing;
+    	ReferenceBinding referenceBinding = (ReferenceBinding) declaredTypeImpl._binding;
+    	switch(element.getKind()) {
+    		case CONSTRUCTOR :
+    		case METHOD :
+    			MethodBinding methodBinding = (MethodBinding) elementImpl._binding;
+    			if (methodBinding.declaringClass != referenceBinding) {
+    				throw new IllegalArgumentException("element is not valid for the containing declared type"); //$NON-NLS-1$
+    			}
+    			for (MethodBinding method : referenceBinding.methods()) {
+    				if (CharOperation.equals(method.selector, methodBinding.selector)
+    						&& method.areParameterErasuresEqual(methodBinding)) {
+    					return this._env.getFactory().newTypeMirror(method);
+    				}
+    			}
+    			break;
+    		case FIELD :
+    			FieldBinding fieldBinding = (FieldBinding) elementImpl._binding;
+    			if (fieldBinding.declaringClass != referenceBinding) {
+    				throw new IllegalArgumentException("element is not valid for the containing declared type"); //$NON-NLS-1$
+    			}
+    			for (FieldBinding field : referenceBinding.fields()) {
+    				if (CharOperation.equals(field.name, fieldBinding.name)) {
+    					return this._env.getFactory().newTypeMirror(field);
+    				}
+    			}
+    			break;
+    		case ENUM :
+    		case ANNOTATION_TYPE :
+    		case INTERFACE :
+    		case CLASS :
+    			ReferenceBinding referenceBinding2 = (ReferenceBinding) elementImpl._binding;
+    			if (referenceBinding2.enclosingType() != referenceBinding) {
+    				throw new IllegalArgumentException("element is not valid for the containing declared type"); //$NON-NLS-1$
+    			}
+    			for (ReferenceBinding referenceBinding3 : referenceBinding.memberTypes()) {
+    				if (CharOperation.equals(referenceBinding3.compoundName, referenceBinding3.compoundName)) {
+    					return this._env.getFactory().newTypeMirror(referenceBinding3);
+    				}
+    			}
+    			break;
+    	}
+		throw new IllegalArgumentException("element is not valid for the containing declared type"); //$NON-NLS-1$
     }
 
     /* (non-Javadoc)
@@ -350,6 +395,14 @@ public class TypesImpl implements Types {
      */
     @Override
     public boolean isSubtype(TypeMirror t1, TypeMirror t2) {
+    	if (t1 instanceof NoTypeImpl) {
+    		if (t2 instanceof NoTypeImpl) {
+    			return ((NoTypeImpl) t1).getKind() == ((NoTypeImpl) t2).getKind();
+    		}
+    		return false;
+    	} else if (t2 instanceof NoTypeImpl) {
+    		return false;
+    	}
         if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
             return false;
         }

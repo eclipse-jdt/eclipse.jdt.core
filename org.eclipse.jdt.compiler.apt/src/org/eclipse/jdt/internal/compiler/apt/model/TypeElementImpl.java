@@ -193,7 +193,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	public TypeMirror getSuperclass() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		ReferenceBinding superBinding = binding.superclass();
-		if (null == superBinding) {
+		if (null == superBinding || binding.isInterface()) {
 			return _env.getFactory().getNoType(TypeKind.NONE);
 		}
 		// superclass of a type must be a DeclaredType

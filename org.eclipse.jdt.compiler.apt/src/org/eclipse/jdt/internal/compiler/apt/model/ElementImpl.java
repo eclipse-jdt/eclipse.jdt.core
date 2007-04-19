@@ -46,7 +46,8 @@ public abstract class ElementImpl
 	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("NYI: " + this + ".getAnnotation(" + annotationType + ")"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		// throw new UnsupportedOperationException("NYI: " + this + ".getAnnotation(" + annotationType + ")"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		return null;
 	}
 
 	@Override

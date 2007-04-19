@@ -194,6 +194,19 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof AnnotationValueImpl) {
+			return this._value.equals(((AnnotationValueImpl) obj)._value);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return this._value.hashCode() + this._kind;
+	}
+
+	@Override
 	public String toString() {
 		if (null == _value) {
 			return "null"; //$NON-NLS-1$
