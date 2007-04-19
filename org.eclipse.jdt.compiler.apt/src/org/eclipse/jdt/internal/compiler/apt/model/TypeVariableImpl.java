@@ -12,6 +12,7 @@
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.TypeVisitor;
@@ -65,4 +66,12 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	public <R, P> R accept(TypeVisitor<R, P> v, P p) {
 		return v.visitTypeVariable(this, p);
 	}
+	
+	@Override
+	public TypeKind getKind()
+	{
+		return TypeKind.TYPEVAR;
+	}
+	
+	
 }

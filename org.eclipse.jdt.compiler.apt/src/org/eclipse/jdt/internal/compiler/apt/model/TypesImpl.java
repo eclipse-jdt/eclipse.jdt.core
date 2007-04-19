@@ -94,6 +94,7 @@ public class TypesImpl implements Types {
     			}
     			break;
     		case FIELD :
+    		case ENUM_CONSTANT:
     			FieldBinding fieldBinding = (FieldBinding) elementImpl._binding;
     			if (fieldBinding.declaringClass != referenceBinding) {
     				throw new IllegalArgumentException("element is not valid for the containing declared type"); //$NON-NLS-1$
@@ -119,7 +120,7 @@ public class TypesImpl implements Types {
     			}
     			break;
     	}
-		throw new IllegalArgumentException("element is not valid for the containing declared type"); //$NON-NLS-1$
+		throw new IllegalArgumentException("element is not valid for the containing declared type: element kind " + element.getKind()); //$NON-NLS-1$
     }
 
     /* (non-Javadoc)

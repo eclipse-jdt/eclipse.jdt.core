@@ -63,12 +63,12 @@ public class TypeMirrorImpl implements TypeMirror {
 		// case Binding.PACKAGE: handled by NoTypeImpl
 		// case Binding.WILDCARD_TYPE: handled by WildcardTypeImpl
 		// case Binding.ARRAY_TYPE: handled by ArrayTypeImpl
+		// case Binding.TYPE_PARAMETER: handled by TypeVariableImpl
 		// TODO: fill in the rest of these
 		case Binding.FIELD:
 		case Binding.LOCAL:
 		case Binding.VARIABLE:
 		case Binding.IMPORT:
-		case Binding.TYPE_PARAMETER:
 			throw new IllegalArgumentException("Invalid binding kind: " + _binding.kind()); //$NON-NLS-1$
 		}
 		return null;
