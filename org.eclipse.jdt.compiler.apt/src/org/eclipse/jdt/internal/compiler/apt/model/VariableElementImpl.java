@@ -138,7 +138,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	public Set<Modifier> getModifiers()
 	{
 		if (_binding instanceof VariableBinding) {
-			return Factory.getModifiers(((VariableBinding)_binding).modifiers);
+			return Factory.getModifiers(((VariableBinding)_binding).modifiers, getKind());
 		}
 		return Collections.emptySet();
 	}

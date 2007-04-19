@@ -20,6 +20,7 @@ import java.util.Set;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeParameterElement;
@@ -74,47 +75,99 @@ public class Factory {
 		}
 		return Collections.unmodifiableList(list);
 	}
-
+	
+	private static void appendModifier(Set<Modifier> result, int modifiers, int modifierConstant, Modifier modifier) {
+		if ((modifiers & modifierConstant) != 0) {
+			result.add(modifier);
+		}
+	}
+	
+	private static void decodeModifiers(Set<Modifier> result, int modifiers, int[] checkBits) {
+		if (checkBits == null) return;
+		for (int i = 0, max = checkBits.length; i < max; i++) {
+			switch(checkBits[i]) {
+				case ClassFileConstants.AccPublic :
+					appendModifier(result, modifiers, checkBits[i], Modifier.PUBLIC);
+					break;
+				case ClassFileConstants.AccProtected:
+					appendModifier(result, modifiers, checkBits[i], Modifier.PROTECTED);
+					break;
+				case ClassFileConstants.AccPrivate :
+					appendModifier(result, modifiers, checkBits[i], Modifier.PRIVATE);
+					break;
+				case ClassFileConstants.AccAbstract :
+					appendModifier(result, modifiers, checkBits[i], Modifier.ABSTRACT);
+					break;
+				case ClassFileConstants.AccStatic :
+					appendModifier(result, modifiers, checkBits[i], Modifier.STATIC);
+					break;
+				case ClassFileConstants.AccFinal :
+					appendModifier(result, modifiers, checkBits[i], Modifier.FINAL);
+					break;
+				case ClassFileConstants.AccSynchronized :
+					appendModifier(result, modifiers, checkBits[i], Modifier.SYNCHRONIZED);
+					break;
+				case ClassFileConstants.AccNative :
+					appendModifier(result, modifiers, checkBits[i], Modifier.NATIVE);
+					break;
+				case ClassFileConstants.AccStrictfp :
+					appendModifier(result, modifiers, checkBits[i], Modifier.STRICTFP);
+					break;
+				case ClassFileConstants.AccTransient :
+					appendModifier(result, modifiers, checkBits[i], Modifier.TRANSIENT);
+					break;
+				case ClassFileConstants.AccVolatile :
+					appendModifier(result, modifiers, checkBits[i], Modifier.VOLATILE);
+					break;
+			}
+		}
+	}
 	/**
 	 * Convert from the JDT's ClassFileConstants flags to the Modifier enum.
 	 */
-	public static Set<Modifier> getModifiers(int modifiers)
+	public static Set<Modifier> getModifiers(int modifiers, ElementKind kind)
 	{
 		EnumSet<Modifier> result = EnumSet.noneOf(Modifier.class);
-		if (0 != (modifiers & ClassFileConstants.AccPublic)) {
-			result.add(Modifier.PUBLIC);
+		switch(kind) {
+			case CONSTRUCTOR :
+			case METHOD :
+				// modifiers for methods
+				decodeModifiers(result, modifiers, new int[] {
+					ClassFileConstants.AccPublic,
+					ClassFileConstants.AccProtected,
+					ClassFileConstants.AccPrivate,
+					ClassFileConstants.AccAbstract,
+					ClassFileConstants.AccStatic,
+					ClassFileConstants.AccFinal,
+					ClassFileConstants.AccSynchronized,
+					ClassFileConstants.AccNative,
+					ClassFileConstants.AccStrictfp
+				});
+				break;
+			case FIELD :
+			case ENUM_CONSTANT :
+				// for fields
+				decodeModifiers(result, modifiers, new int[] {
+					ClassFileConstants.AccPublic,
+					ClassFileConstants.AccProtected,
+					ClassFileConstants.AccPrivate,
+					ClassFileConstants.AccStatic,
+					ClassFileConstants.AccFinal,
+					ClassFileConstants.AccTransient,
+					ClassFileConstants.AccVolatile
+				});
+				break;
+			case ANNOTATION_TYPE :
+			case ENUM :
+			case INTERFACE :
+			case CLASS :
+				// for type
+				decodeModifiers(result, modifiers, new int[] {
+					ClassFileConstants.AccPublic,
+					ClassFileConstants.AccAbstract,
+					ClassFileConstants.AccFinal,
+				});
 		}
-		if (0 != (modifiers & ClassFileConstants.AccPrivate)) {
-			result.add(Modifier.PRIVATE);
-		}
-		if (0 != (modifiers & ClassFileConstants.AccProtected)) {
-			result.add(Modifier.PROTECTED);
-		}
-		if (0 != (modifiers & ClassFileConstants.AccStatic)) {
-			result.add(Modifier.STATIC);
-		}
-		if (0 != (modifiers & ClassFileConstants.AccAbstract)) {
-			result.add(Modifier.ABSTRACT);
-		}
-		if (0 != (modifiers & ClassFileConstants.AccFinal)) {
-			result.add(Modifier.FINAL);
-		}
-		if (0 != (modifiers & ClassFileConstants.AccSynchronized)) {
-			result.add(Modifier.SYNCHRONIZED);
-		}
-		if (0 != (modifiers & ClassFileConstants.AccVolatile)) {
-			result.add(Modifier.VOLATILE);
-		}
-		if (0 != (modifiers & ClassFileConstants.AccTransient)) {
-			result.add(Modifier.TRANSIENT);
-		}
-		if (0 != (modifiers & ClassFileConstants.AccNative)) {
-			result.add(Modifier.NATIVE);
-		}
-		if (0 != (modifiers & ClassFileConstants.AccStrictfp)) {
-			result.add(Modifier.STRICTFP);
-		}
-			
 		return Collections.unmodifiableSet(result);
 	}
 

@@ -142,7 +142,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	public Set<Modifier> getModifiers()
 	{
 		ReferenceBinding refBinding = (ReferenceBinding)_binding;
-		return Factory.getModifiers(refBinding.modifiers);
+		return Factory.getModifiers(refBinding.modifiers, getKind());
 	}
 
 	@Override

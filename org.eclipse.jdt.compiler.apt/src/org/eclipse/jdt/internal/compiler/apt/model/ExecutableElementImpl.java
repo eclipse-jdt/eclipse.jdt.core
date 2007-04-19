@@ -115,7 +115,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 	@Override
 	public Set<Modifier> getModifiers() {
 		MethodBinding binding = (MethodBinding)_binding;
-		return Factory.getModifiers(binding.modifiers);
+		return Factory.getModifiers(binding.modifiers, getKind());
 	}
 
 	@Override
