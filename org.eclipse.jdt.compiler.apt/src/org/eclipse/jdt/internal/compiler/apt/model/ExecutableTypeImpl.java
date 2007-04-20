@@ -41,14 +41,28 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 	 */
 	@Override
 	public List<? extends TypeMirror> getParameterTypes() {
-		ArrayList<TypeMirror> list = new ArrayList<TypeMirror>();
-		TypeBinding[] parameters = ((MethodBinding) this._binding).parameters;
-		if (parameters.length != 0) {
+		MethodBinding binding = (MethodBinding) this._binding;
+		TypeBinding[] parameters = binding.parameters;
+		int length = parameters.length;
+		boolean isEnumConstructor = binding.isConstructor() && binding.declaringClass.isEnum();
+		if (isEnumConstructor) {
+			if (length == 2) {
+				return Collections.emptyList();
+			}
+			ArrayList<TypeMirror> list = new ArrayList<TypeMirror>();
+			for (int i = 2; i < length; i++) {
+				list.add(_env.getFactory().newTypeMirror(parameters[i]));
+			}
+			return Collections.unmodifiableList(list);
+		}
+		if (length != 0) {
+			ArrayList<TypeMirror> list = new ArrayList<TypeMirror>();
 			for (TypeBinding typeBinding : parameters) {
 				list.add(_env.getFactory().newTypeMirror(typeBinding));
 			}
+			return Collections.unmodifiableList(list);
 		}
-		return Collections.unmodifiableList(list);
+		return Collections.emptyList();
 	}
 
 	/* (non-Javadoc)

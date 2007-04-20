@@ -29,7 +29,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -51,7 +50,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	/**
 	 * @param binding might be a VariableBinding (for a field) or a TypeBinding (for a method param)
 	 */
-	VariableElementImpl(BaseProcessingEnvImpl env, Binding binding) {
+	VariableElementImpl(BaseProcessingEnvImpl env, VariableBinding binding) {
 		super(env, binding);
 	}
 	
@@ -63,14 +62,8 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
-		if (_binding instanceof VariableBinding) {
-			AnnotationBinding[] annotations = ((VariableBinding)_binding).getAnnotations();
-			return _env.getFactory().getAnnotationMirrors(annotations);
-		}
-		else {
-			// TODO: how to get annotations from parameters?
-			return Collections.emptyList();
-		}
+		AnnotationBinding[] annotations = ((VariableBinding)_binding).getAnnotations();
+		return _env.getFactory().getAnnotationMirrors(annotations);
 	}
 
 	@Override
@@ -188,4 +181,8 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		return false;
 	}
 
+	@Override
+	public String toString() {
+		return new String(((VariableBinding) _binding).name);
+	}
 }

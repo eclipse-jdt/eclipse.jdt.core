@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
@@ -53,6 +54,8 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	public boolean visit(Argument argument, BlockScope scope) {
 		Annotation[] annotations = argument.annotations;
 		if (annotations != null) {
+			TypeDeclaration typeDeclaration = scope.referenceType();
+			typeDeclaration.binding.resolveTypesFor(((AbstractMethodDeclaration) scope.referenceContext()).binding);
 			this.resolveAnnotations(
 					scope,
 					annotations,

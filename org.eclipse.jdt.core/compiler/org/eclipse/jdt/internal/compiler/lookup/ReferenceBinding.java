@@ -1093,7 +1093,7 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 	return readableName;
 }
 
-AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {
+public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {
 	SimpleLookupTable store = storedAnnotations(false);
 	return store == null ? null : (AnnotationHolder) store.get(binding);
 }

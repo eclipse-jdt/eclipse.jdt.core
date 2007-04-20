@@ -93,8 +93,28 @@ public class LocalVariableBinding extends VariableBinding {
 	}
 
 	public AnnotationBinding[] getAnnotations() {
-		if (this.declaringScope == null)
+		if (this.declaringScope == null) {
+			if ((this.tagBits & TagBits.AnnotationResolved) != 0) {
+				// annotation are already resolved
+				if (this.declaration == null) {
+					return Binding.NO_ANNOTATIONS;
+				}
+				Annotation[] annotations = this.declaration.annotations;
+				if (annotations != null) {
+					int length = annotations.length;
+					AnnotationBinding[] annotationBindings = new AnnotationBinding[length];
+					for (int i = 0; i < length; i++) {
+						AnnotationBinding compilerAnnotation = annotations[i].getCompilerAnnotation();
+						if (compilerAnnotation == null) {
+							return Binding.NO_ANNOTATIONS;
+						}
+						annotationBindings[i] = compilerAnnotation;
+					}
+					return annotationBindings;
+				}
+			}
 			return Binding.NO_ANNOTATIONS;
+		}
 		SourceTypeBinding sourceType = this.declaringScope.enclosingSourceType();
 		if (sourceType == null)
 			return Binding.NO_ANNOTATIONS;

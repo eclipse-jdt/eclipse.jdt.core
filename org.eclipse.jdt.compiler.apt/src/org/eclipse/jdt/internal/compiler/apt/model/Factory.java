@@ -157,8 +157,17 @@ public class Factory {
 					ClassFileConstants.AccVolatile
 				});
 				break;
-			case ANNOTATION_TYPE :
 			case ENUM :
+				decodeModifiers(result, modifiers, new int[] {
+						ClassFileConstants.AccPublic,
+						ClassFileConstants.AccProtected,
+						ClassFileConstants.AccFinal,
+						ClassFileConstants.AccPrivate,
+						ClassFileConstants.AccStatic,
+						ClassFileConstants.AccStrictfp
+					});
+				break;
+			case ANNOTATION_TYPE :
 			case INTERFACE :
 			case CLASS :
 				// for type
@@ -185,7 +194,7 @@ public class Factory {
 		case Binding.FIELD:
 		case Binding.LOCAL:
 		case Binding.VARIABLE:
-			return new VariableElementImpl(_env, binding);
+			return new VariableElementImpl(_env, (VariableBinding) binding);
 		case Binding.TYPE:
 		case Binding.GENERIC_TYPE:
 			ReferenceBinding referenceBinding = (ReferenceBinding)binding;

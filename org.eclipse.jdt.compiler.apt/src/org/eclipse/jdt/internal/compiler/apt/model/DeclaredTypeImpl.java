@@ -64,8 +64,11 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		if (binding.isParameterizedType()) {
 			ParameterizedTypeBinding ptb = (ParameterizedTypeBinding)_binding;
-			List<TypeMirror> args = new ArrayList<TypeMirror>(ptb.arguments.length);
-			for (TypeBinding arg : ptb.arguments) {
+			TypeBinding[] arguments = ptb.arguments;
+			int length = arguments == null ? 0 : arguments.length;
+			if (length == 0) return Collections.emptyList();
+			List<TypeMirror> args = new ArrayList<TypeMirror>(length);
+			for (TypeBinding arg : arguments) {
 				args.add(_env.getFactory().newTypeMirror(arg));
 			}
 			return Collections.unmodifiableList(args);

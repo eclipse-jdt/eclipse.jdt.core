@@ -34,7 +34,8 @@ import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationHolder;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryLocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
@@ -142,13 +143,44 @@ public class ExecutableElementImpl extends ElementImpl implements
 				}
 			} else {
 				// binary method
-				int i = 0;
-				for (TypeBinding typeBinding : binding.parameters) {
-					StringBuilder builder = new StringBuilder("arg");//$NON-NLS-1$
-					builder.append(i);
-					VariableElement param = new VariableElementImpl(_env, new LocalVariableBinding(String.valueOf(builder).toCharArray(), typeBinding, 0, true));
-					params.add(param);
-					i++;
+				boolean isEnumConstructor = binding.isConstructor() && binding.declaringClass.isEnum();
+				AnnotationBinding[][] parameterAnnotationBindings = null;
+				AnnotationHolder annotationHolder = binding.declaringClass.retrieveAnnotationHolder(binding, false);
+				if (annotationHolder != null) {
+					parameterAnnotationBindings = annotationHolder.getParameterAnnotations();
+				}
+				// we need to filter the synthetic arguments
+				if (isEnumConstructor) {
+					if (length == 2) {
+						// the two arguments are only the two synthetic arguments
+						return Collections.emptyList();
+					}
+					for (int i = 2; i < length; i++) {
+						TypeBinding typeBinding = binding.parameters[i];
+						StringBuilder builder = new StringBuilder("arg");//$NON-NLS-1$
+						builder.append(i - 2);
+						VariableElement param = new VariableElementImpl(_env,
+								new BinaryLocalVariableBinding(
+										String.valueOf(builder).toCharArray(),
+										typeBinding,
+										0,
+										null));
+						params.add(param);
+					}
+				} else {
+					int i = 0;
+					for (TypeBinding typeBinding : binding.parameters) {
+						StringBuilder builder = new StringBuilder("arg");//$NON-NLS-1$
+						builder.append(i);
+						VariableElement param = new VariableElementImpl(_env,
+								new BinaryLocalVariableBinding(
+										String.valueOf(builder).toCharArray(),
+										typeBinding,
+										0,
+										parameterAnnotationBindings != null ? parameterAnnotationBindings[i] : null));
+						params.add(param);
+						i++;
+					}
 				}
 			}
 			return Collections.unmodifiableList(params);

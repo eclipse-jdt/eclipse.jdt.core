@@ -82,20 +82,22 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	public AnnotationValueImpl(BaseProcessingEnvImpl env, Object value, TypeBinding type) {
 		_env = env;
 		int kind[] = new int[1];
-		if (value instanceof Object[]) {
-			Object[] values = (Object[])value;
-			List<AnnotationValue> convertedValues = new ArrayList<AnnotationValue>(values.length);
-			for (Object oneValue : values) {
-				TypeBinding valueType = null;
-				if (type instanceof ArrayBinding) {
-					valueType = ((ArrayBinding)type).elementsType();
+		if (type.isArrayType()) {
+			List<AnnotationValue> convertedValues = null;
+			TypeBinding valueType = ((ArrayBinding)type).elementsType();
+			if (value instanceof Object[]) {
+				Object[] values = (Object[])value;
+				convertedValues = new ArrayList<AnnotationValue>(values.length);
+				for (Object oneValue : values) {
+					convertedValues.add(new AnnotationValueImpl(_env, oneValue, valueType));
 				}
-				convertedValues.add(new AnnotationValueImpl(_env, oneValue, valueType));
+			} else {
+				convertedValues = new ArrayList<AnnotationValue>(1);
+				convertedValues.add(new AnnotationValueImpl(_env, value, valueType));
 			}
 			_value = Collections.unmodifiableList(convertedValues);
 			_kind = T_ArrayType;
-		}
-		else {
+		} else {
 			_value = convertToJavaType(value, type, kind);
 			_kind = kind[0];
 		}

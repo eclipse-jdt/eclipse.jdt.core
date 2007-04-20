@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-class AnnotationHolder {
+public class AnnotationHolder {
 	AnnotationBinding[] annotations;
 
 static AnnotationHolder storeAnnotations(AnnotationBinding[] annotations, AnnotationBinding[][] parameterAnnotations, Object defaultValue) {
@@ -36,7 +36,7 @@ AnnotationBinding[] getAnnotations() {
 Object getDefaultValue() {
 	return null;
 }
-AnnotationBinding[][] getParameterAnnotations() {
+public AnnotationBinding[][] getParameterAnnotations() {
 	return null;
 }
 AnnotationBinding[] getParameterAnnotations(int paramIndex) {
@@ -58,7 +58,7 @@ MethodHolder(AnnotationBinding[] annotations, AnnotationBinding[][] parameterAnn
 	setAnnotations(annotations);
 	this.parameterAnnotations = parameterAnnotations;
 }
-AnnotationBinding[][] getParameterAnnotations() {
+public AnnotationBinding[][] getParameterAnnotations() {
 	return this.parameterAnnotations;
 }
 AnnotationBinding[] getParameterAnnotations(int paramIndex) {

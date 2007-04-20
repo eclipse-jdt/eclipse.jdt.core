@@ -1298,7 +1298,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	}
 	return null; // should never reach this point
 }
-private MethodBinding resolveTypesFor(MethodBinding method) {
+public MethodBinding resolveTypesFor(MethodBinding method) {
 	if ((method.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return method;
 
@@ -1415,7 +1415,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	method.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 	return method;
 }
-AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {
+public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {
 	if (forceInitialization)
 		binding.getAnnotationTagBits(); // ensure annotations are up to date
 	return super.retrieveAnnotationHolder(binding, false);
