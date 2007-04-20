@@ -41,7 +41,7 @@ public class FullSourceWorkspaceCompleteSearchTests extends FullSourceWorkspaceS
 	private final static int ITERATIONS_COUNT = 0;
 
 	// Log file streams
-	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
+	private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
 
 	// Verify VM memory arguments: should be -Xmx256M -Xms256M
 	final static long MAX_MEM = 512L * 1024 * 1024;

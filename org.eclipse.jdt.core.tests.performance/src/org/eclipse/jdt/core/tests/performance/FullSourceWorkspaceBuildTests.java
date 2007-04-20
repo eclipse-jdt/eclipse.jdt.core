@@ -13,15 +13,24 @@ package org.eclipse.jdt.core.tests.performance;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -30,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -49,13 +59,14 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	// Tests counters
 	private static int TESTS_COUNT = 0;
 	private final static int ITERATIONS_COUNT = 10;
+	private final static int WARMUP_COUNT = 3;
 	private final static int SCAN_REPEAT = 800; // 800 is default
 
 	// Tests thresholds
 	private final static int TIME_THRESHOLD = 150;
 	
 	// Log files
-	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
+	private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
 
 	// Options
 	private static final String ALL_OPTIONS = "-warn:" +
@@ -123,6 +134,194 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	private static Class testClass() {
 		return FullSourceWorkspaceBuildTests.class;
+	}
+
+	/**
+	 * Start a build on given project or workspace using given options.
+	 * 
+	 * @param javaProject Project which must be (full) build or null if all workspace has to be built.
+	 * @param options Options used while building
+	 */
+	void build(final IJavaProject javaProject, Hashtable options, boolean noWarning) throws IOException, CoreException {
+		if (DEBUG) System.out.print("\tstart build...");
+		JavaCore.setOptions(options);
+		if (PRINT) System.out.println("JavaCore options: "+options);
+
+		// Build workspace if no project
+		if (javaProject == null) {
+			// single measure
+			runGc();
+			startMeasuring();
+			ENV.fullBuild();
+			stopMeasuring();
+		} else {
+			if (PRINT) System.out.println("Project options: "+javaProject.getOptions(false));
+			// warm-up
+			for (int i=0; i<WARMUP_COUNT; i++) {
+				ENV.fullBuild(javaProject.getProject().getName());
+			}
+			
+			// measures
+			int max = MEASURES_COUNT;
+			for (int i=0; i<max; i++) {
+				runGc();
+				startMeasuring();
+				IWorkspaceRunnable compilation = new IWorkspaceRunnable() {
+					public void run(IProgressMonitor monitor) throws CoreException {
+						ENV.fullBuild(javaProject.getPath());
+					}
+				};
+				IWorkspace workspace = ResourcesPlugin.getWorkspace();
+				workspace.run(
+					compilation,
+					null/*don't take any lock*/,
+					IWorkspace.AVOID_UPDATE,
+					null/*no progress available here*/);
+				stopMeasuring();
+			}
+		}
+		
+		// Verify markers
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IMarker[] markers = workspaceRoot.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		List resources = new ArrayList();
+		List messages = new ArrayList();
+		int warnings = 0;
+		for (int i = 0, length = markers.length; i < length; i++) {
+			IMarker marker = markers[i];
+			switch (((Integer) marker.getAttribute(IMarker.SEVERITY)).intValue()) {
+				case IMarker.SEVERITY_ERROR:
+					resources.add(marker.getResource().getName());
+					messages.add(marker.getAttribute(IMarker.MESSAGE));
+					break;
+				case IMarker.SEVERITY_WARNING:
+					warnings++;
+					if (noWarning) {
+						resources.add(marker.getResource().getName());
+						messages.add(marker.getAttribute(IMarker.MESSAGE));
+					}
+					break;
+			}
+		}
+		workspaceRoot.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+
+		// Assert result
+		int size = messages.size();
+		if (size > 0) {
+			StringBuffer debugBuffer = new StringBuffer();
+			for (int i=0; i<size; i++) {
+				debugBuffer.append(resources.get(i));
+				debugBuffer.append(":\n\t");
+				debugBuffer.append(messages.get(i));
+				debugBuffer.append('\n');
+			}
+			System.out.println(this.scenarioShortName+": Unexpected ERROR marker(s):\n" + debugBuffer.toString());
+			System.out.println("--------------------");
+		}
+		if (DEBUG) System.out.println("done");
+		
+		// Commit measure
+		commitMeasurements();
+		assertPerformance();
+	
+		// Store warning
+		if (warnings>0) {
+			System.out.println("\t- "+warnings+" warnings found while performing build.");
+		}
+		if (this.scenarioComment == null) {
+			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
+		} else {
+			this.scenarioComment.append(' ');
+		}
+		this.scenarioComment.append("warn=");
+		this.scenarioComment.append(warnings);
+	}
+
+	/*
+	 * Compile given paths using batch compiler
+	 */
+	void compile(String pluginID, String options, boolean log, String[] srcPaths) throws IOException, CoreException {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
+		final String targetWorkspacePath = workspaceRoot.getProject(pluginID).getLocation().toFile().getCanonicalPath();
+		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
+		String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath()+File.separator;
+		String binPath = File.separator+"bin"+File.pathSeparator;
+		String classpath = " -cp " +
+			workspacePath+"org.eclipse.osgi" + binPath +
+			workspacePath+"org.eclipse.jface" + binPath +
+			workspacePath+"org.eclipse.core.runtime" + binPath +
+			workspacePath+"org.eclipse.core.resources"+binPath +
+			workspacePath+"org.eclipse.text"+binPath;
+		String sources = srcPaths == null ? " "+targetWorkspacePath : "";
+		if (srcPaths != null) {
+			for (int i=0, l=srcPaths.length; i<l; i++) {
+				String path = workspacePath + pluginID + File.separator + srcPaths[i];
+				if (path.indexOf(" ") > 0) {
+					path = "\"" + path + "\"";
+				}
+				sources += " " + path;
+			}
+		}
+
+		// Warm up
+		String compliance = " -" + (COMPLIANCE==null ? "1.4" : COMPLIANCE);
+		final String cmdLine = classpath + compliance + " -g -preserveAllLocals "+(options==null?"":options)+" -d " + COMPILER_OUTPUT_DIR + (log?" -log "+logFileName:"") + sources;
+		if (PRINT) System.out.println("	Compiler command line = "+cmdLine);
+		int warnings = 0;
+		StringWriter errStrWriter = new StringWriter();
+		PrintWriter err = new PrintWriter(errStrWriter);
+		PrintWriter out = new PrintWriter(new StringWriter());
+		Main warmup = new Main(out, err, false);
+		for (int i=1; i<WARMUP_COUNT; i++) {
+			warmup.compile(Main.tokenize(cmdLine));
+		}
+		if (warmup.globalErrorsCount > 0) {
+			System.out.println(this.scenarioShortName+": "+warmup.globalErrorsCount+" Unexpected compile ERROR!");
+			if (DEBUG) {
+				System.out.println(errStrWriter.toString());
+				System.out.println("--------------------");
+			}
+		}
+		if (!"none".equals(COMPILER_OUTPUT_DIR)) {
+			org.eclipse.jdt.core.tests.util.Util.delete(COMPILER_OUTPUT_DIR);
+		}
+		warnings = warmup.globalWarningsCount;
+		if (!log) org.eclipse.jdt.core.tests.util.Util.writeToFile(errStrWriter.toString(), logFileName);
+
+		// Clean writer
+		err = null;
+		out = null;
+		errStrWriter = null;
+
+		// Measures
+		for (int i = 0; i < MEASURES_COUNT; i++) {
+			runGc();
+			NullPrintWriter nullPrint= new NullPrintWriter();
+			Main main = new Main(nullPrint, nullPrint, false);
+			startMeasuring();
+			main.compile(Main.tokenize(cmdLine));
+			stopMeasuring();
+			if (!"none".equals(COMPILER_OUTPUT_DIR)) {
+				org.eclipse.jdt.core.tests.util.Util.delete(COMPILER_OUTPUT_DIR);
+			}
+		}
+		
+		// Commit measures
+		commitMeasurements();
+		assertPerformance();
+
+		// Store warning
+		if (warnings>0) {
+			System.out.println("\t- "+warnings+" warnings found while performing batch compilation.");
+		}
+		if (this.scenarioComment == null) {
+			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
+		} else {
+			this.scenarioComment.append(' ');
+		}
+		this.scenarioComment.append("warn=");
+		this.scenarioComment.append(warnings);
 	}
 
 	/*
