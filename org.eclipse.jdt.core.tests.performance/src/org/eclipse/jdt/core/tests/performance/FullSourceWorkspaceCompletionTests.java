@@ -30,7 +30,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	static int COMPLETIONS_COUNT = 0;
 
 	// Log files
-	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
+	private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
 
 	public FullSourceWorkspaceCompletionTests(String name) {
 		super(name);

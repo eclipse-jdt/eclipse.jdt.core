@@ -15,79 +15,43 @@ import java.util.Map;
 
 import org.eclipse.test.internal.performance.OSPerformanceMeter;
 import org.eclipse.test.internal.performance.data.DataPoint;
-import org.eclipse.test.internal.performance.data.Dim;
 import org.eclipse.test.internal.performance.data.Sample;
-import org.eclipse.test.internal.performance.eval.StatisticsSession;
 
 public class JdtCorePerformanceMeter extends OSPerformanceMeter {
 
-    public static Map CPU_TIMES = null, ELAPSED_TIMES = null;
-	
-	public static final class Statistics {
-		public long count;
-		public long sum;
-		public double average;
-		public double stddev;
-		
-		public Statistics(StatisticsSession s, Dim dimension) {
-			count = s.getCount(dimension);
-			average = s.getAverage(dimension);
-			sum = s.getSum(dimension);
-			stddev = s.getStddev(dimension);
-		}
-		
-		public String toString() {
-			return "n="+count+", s="+sum+", av="+average+", dev="+stddev;
-		}
-	}
-	
-	public JdtCorePerformanceMeter(String scenarioId) {
-		super(scenarioId);
-		CPU_TIMES = new HashMap();
-		ELAPSED_TIMES = new HashMap();
-    }
+public static final Map STATISTICS = new HashMap();
 
-	/*
-	 * @see org.eclipse.test.performance.PerformanceMeter#commit()
-	 */
-	public void commit() {
-	    Sample sample= getSample();
-	    if (sample != null) {
-			 storeCpuTime(sample);
-		}
-	}
+public JdtCorePerformanceMeter(String scenarioId) {
+	super(scenarioId);
+}
 
-	private void storeCpuTime(Sample sample) {
-		DataPoint[] dataPoints= sample.getDataPoints();
-		System.out.println("Scenario '" + getReadableName()+ "':"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (dataPoints.length > 0) {
-			StatisticsSession s= new StatisticsSession(dataPoints);
-			Dim[] dimensions= dataPoints[0].getDimensions();
-			if (dimensions.length > 0) {
-				for (int i= 0; i < dimensions.length; i++) {
-				    Dim dimension= dimensions[i];
-					if (dimension.getName().equals("CPU Time")) {
-						Statistics stat = new Statistics(s, dimension);
-					    CPU_TIMES.put(getReadableName(), stat);
-						System.out.println("	- CPU Time: "+stat.toString());
-					} else if (dimension.getName().startsWith("Elapsed")) {
-						Statistics stat = new Statistics(s, dimension);
-					    ELAPSED_TIMES.put(getReadableName(), stat);
-						System.out.println("	- Elapsed process: "+stat.toString());
-					}
-				}
-			}
-		}
+/*
+ * @see org.eclipse.test.performance.PerformanceMeter#commit()
+ */
+public void commit() {
+	Sample sample = getSample();
+	if (sample != null) {
+		storeDataPoints(sample);
 	}
+}
 
-	public String getReadableName() {
-		String name = getScenarioName();
-		return name.substring(name.lastIndexOf('.')+1, name.length()-2);
+private void storeDataPoints(Sample sample) {
+	DataPoint[] dataPoints = sample.getDataPoints();
+	int length = dataPoints.length;
+	if (length > 0) {
+		System.out.println("	Store " + length + " data points...");
+		STATISTICS.put(getReadableName(), dataPoints);
 	}
+}
 
-	public String getShortName() {
-		String name = getReadableName();
-		return name.substring(name.lastIndexOf('#')+5/*1+"test".length()*/, name.length());
-	}
+public String getReadableName() {
+	String name = getScenarioName();
+	return name.substring(name.lastIndexOf('.') + 1, name.length() - 2);
+}
+
+public String getShortName() {
+	String name = getReadableName();
+	return name.substring(name.lastIndexOf('#') + 5/* 1+"test".length() */, name.length());
+}
 
 }
