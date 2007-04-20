@@ -393,7 +393,16 @@ public class ElementsImpl implements Elements {
 		
 		StringBuilder sb = new StringBuilder();
 		for (int line = firstLine; line <= lastLine; ++line) {
-			sb.append(lines[line]);
+			char[] chars = lines[line].toCharArray();
+			for (char c : chars) {
+				if (c == '\t') {
+					for (int i = 0; i < 8; i++) {
+						sb.append(' ');
+					}
+				} else {
+					sb.append(c);
+				}
+			}
 			// append a newline at the end of each line except the last, even if we skipped the last entirely
 			if (line < lines.length - 1) {
 				sb.append('\n');

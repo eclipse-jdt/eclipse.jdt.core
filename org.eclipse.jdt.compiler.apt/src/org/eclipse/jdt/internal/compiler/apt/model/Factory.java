@@ -164,10 +164,12 @@ public class Factory {
 				// for type
 				decodeModifiers(result, modifiers, new int[] {
 					ClassFileConstants.AccPublic,
+					ClassFileConstants.AccProtected,
 					ClassFileConstants.AccAbstract,
 					ClassFileConstants.AccFinal,
 					ClassFileConstants.AccPrivate,
 					ClassFileConstants.AccStatic,
+					ClassFileConstants.AccStrictfp
 				});
 		}
 		return Collections.unmodifiableSet(result);

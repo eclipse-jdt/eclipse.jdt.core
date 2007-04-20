@@ -18,6 +18,8 @@ import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.TypeVisitor;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
@@ -52,8 +54,14 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	@Override
 	public TypeMirror getUpperBound() {
 		TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this._binding;
-		if (typeVariableBinding.firstBound == null
-				|| typeVariableBinding.superInterfaces.length == 0) {
+		TypeBinding firstBound = typeVariableBinding.firstBound;
+		ReferenceBinding[] superInterfaces = typeVariableBinding.superInterfaces;
+		if (firstBound == null || superInterfaces.length == 0) {
+			// no explicit bound
+			return _env.getFactory().newTypeMirror(typeVariableBinding.upperBound());
+		}
+		if (firstBound != null && superInterfaces.length == 1 && superInterfaces[0] == firstBound) {
+			// only one bound that is an interface
 			return _env.getFactory().newTypeMirror(typeVariableBinding.upperBound());
 		}
 		return this._env.getFactory().newDeclaredType((TypeVariableBinding) this._binding);

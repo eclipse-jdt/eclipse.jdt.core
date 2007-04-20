@@ -32,6 +32,7 @@ import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -71,8 +72,11 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			enclosed.add(executable);
 		}
 		for (FieldBinding field : binding.fields()) {
-			 VariableElement variable = new VariableElementImpl(_env, field);
-			 enclosed.add(variable);
+			// TODO no field should be excluded according to the JLS
+			if (!field.isSynthetic()) {
+				 VariableElement variable = new VariableElementImpl(_env, field);
+				 enclosed.add(variable);
+			}
 		}
 		for (ReferenceBinding memberType : binding.memberTypes()) {
 			TypeElement type = new TypeElementImpl(_env, memberType);
@@ -142,7 +146,11 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	public Set<Modifier> getModifiers()
 	{
 		ReferenceBinding refBinding = (ReferenceBinding)_binding;
-		return Factory.getModifiers(refBinding.modifiers, getKind());
+		int modifiers = refBinding.modifiers;
+		if (refBinding.isInterface() && refBinding.isNestedType()) {
+			modifiers |= ClassFileConstants.AccStatic;
+		}
+		return Factory.getModifiers(modifiers, getKind());
 	}
 
 	@Override
@@ -171,6 +179,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		char[] qName;
 		if (binding.isMemberType()) {
 			qName = CharOperation.concatWith(binding.enclosingType().compoundName, binding.sourceName, '.');
+			CharOperation.replace(qName, '$', '.');
 		} else {
 			qName = CharOperation.concatWith(binding.compoundName, '.');
 		}
@@ -240,7 +249,13 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	@Override
 	public String toString() {
 		ReferenceBinding binding = (ReferenceBinding) this._binding;
-		return new String(CharOperation.concatWith(binding.compoundName, '.'));
+		char[] concatWith = CharOperation.concatWith(binding.compoundName, '.');
+		if (binding.isNestedType()) {
+			CharOperation.replace(concatWith, '$', '.');
+			return new String(concatWith);
+		}
+		return new String(concatWith);
+
 	}
 
 }

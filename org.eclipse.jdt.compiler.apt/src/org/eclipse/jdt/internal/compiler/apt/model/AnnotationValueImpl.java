@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 
 public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	
@@ -132,7 +133,11 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 			case T_float:
 				return ((Constant)value).floatValue();
 			case T_int:
-				return ((Constant)value).intValue();
+				try {
+					return ((Constant)value).intValue();
+				} catch (ShouldNotImplement e) {
+					return "<error>"; //$NON-NLS-1$
+				}
 			case T_JavaLangString:
 				return ((Constant)value).stringValue();
 			case T_long:
