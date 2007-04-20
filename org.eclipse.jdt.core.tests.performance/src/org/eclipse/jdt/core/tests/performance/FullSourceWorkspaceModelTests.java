@@ -718,8 +718,10 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 		for (int i=0; i<warmup; i++) {
 			searchAllTypeNames(scope);
 			CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
-			assertNotNull("Compilation Unit should not be null!", unit);
-			assertNotNull("Bindings were not resolved!", unit.getPackage().resolveBinding());
+			if (i == 0) {
+				assertNotNull("Compilation Unit should not be null!", unit);
+				assertNotNull("Bindings were not resolved!", unit.getPackage().resolveBinding());
+			}
 		}
 
 		// Measures
