@@ -8652,4 +8652,38 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding);
 		assertEquals("Wrong type", "java.lang.String", typeBinding.getQualifiedName());
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=183468
+	 */
+	public void test0263() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"@interface Annot {\n" +
+			"	int[] array();\n" +
+			"}\n" +
+			"@Annot(array=1)\n" +
+			"public class X {\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 1);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		List modifiers = typeDeclaration.modifiers();
+		assertEquals("Wrong size", 2, modifiers.size());
+		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+		assertTrue("Not an annotation", modifier.isAnnotation());
+		Annotation annotation = (Annotation) modifier;
+		assertTrue("Not a normal annotation", annotation.isNormalAnnotation());
+		NormalAnnotation normalAnnotation = (NormalAnnotation) annotation;
+		List values = normalAnnotation.values();
+		assertEquals("Wrong size", 1, values.size());
+		MemberValuePair pair = (MemberValuePair) values.get(0);
+		IMemberValuePairBinding memberValuePairBinding = pair.resolveMemberValuePairBinding();
+		assertFalse("Is default value", memberValuePairBinding.isDefault());
+	}
 }

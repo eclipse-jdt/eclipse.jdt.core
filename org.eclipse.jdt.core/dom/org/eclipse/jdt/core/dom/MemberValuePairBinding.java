@@ -154,6 +154,7 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 			}
 			return false;
 		}
+		if (defaultValue == null) return false;
 		return defaultValue.equals(value2);
 	}
 
