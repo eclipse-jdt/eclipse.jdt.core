@@ -24,10 +24,13 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	
     // Tests counter
     private static int TESTS_COUNT = 0;
-//	private final static int ITERATIONS_COUNT = 10;
+	private final static int WARMUP_COUNT = 5;
 
     // Log files
-    private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
+    private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
+
+	// Formats
+	private final static NumberFormat INT_FORMAT = NumberFormat.getIntegerInstance();
 
 	/**
 	 * @param name
@@ -92,33 +95,27 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 		assertNotNull("ASTNode not found!", unit);
 
 		// Warm up
-		IType[] types = unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses();
-		int length = types.length;
+		for (int i=0; i<WARMUP_COUNT; i++) {
+			IType[] types = unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses();
+			if (i==0) {
+				System.out.println("  - "+INT_FORMAT.format(types.length)+" all classes found in hierarchy.");
+			}
+		}
 
 		// Clean memory
 		runGc();
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
+			runGc();
 			startMeasuring();
-			assertEquals("Unexpected classes number in hierarchy!", length, unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses().length);
+			unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses();
 			stopMeasuring();
 		}
 		
 		// Commit
 		commitMeasurements();
 		assertPerformance();
-
-		// Print statistics
-		if (TESTS_COUNT == 0) {
-			// Print statistics
-			System.out.println("-------------------------------------");
-			System.out.println("Type Hierarchy test statistics:");
-			NumberFormat intFormat = NumberFormat.getIntegerInstance();
-			System.out.println("  - "+intFormat.format(length)+" all types found.");
-			System.out.println("-------------------------------------\n");
-		}
-		
 	}
 	
 	/*
@@ -133,14 +130,17 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 		assertNotNull("TemplateVariableResolver not found!", unit);
 
 		// Warm up
-		IType type = 	unit.getType("TemplateVariableResolver");
-		type.newTypeHierarchy(null);
+		IType type = unit.getType("TemplateVariableResolver");
+		for (int i=0; i<WARMUP_COUNT; i++) {
+			type.newTypeHierarchy(null);
+		}
 
 		// Clean memory
 		runGc();
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
+			runGc();
 			startMeasuring();
 			type.newTypeHierarchy(null);
 			stopMeasuring();

@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.tests.performance;
 import java.io.PrintStream;
 import java.text.NumberFormat;
 
-import junit.framework.*;
+import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,10 +31,14 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	// Tests counters
 	private static int TESTS_COUNT = 0;
 	private final static int ITERATIONS_COUNT = 10;
+	private final static int WARMUP_COUNT = 4;
 
 	// Log file streams
-	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
+	private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
 
+	// Formats
+	private final static NumberFormat INT_FORMAT = NumberFormat.getIntegerInstance();
+	
 	/**
 	 * @param name
 	 */
@@ -239,13 +243,14 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		tagAsSummary("Search JDT/Core indexes building", false); // do NOT put in fingerprint
 
 		// Warm-up
-		INDEX_MANAGER.removeIndexFamily(JDT_CORE_PROJECT.getPath());
-		INDEX_MANAGER.indexAll(JDT_CORE_PROJECT.getProject());
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			INDEX_MANAGER.removeIndexFamily(JDT_CORE_PROJECT.getPath());
+			INDEX_MANAGER.indexAll(JDT_CORE_PROJECT.getProject());
+			AbstractJavaModelTests.waitUntilIndexesReady();
+		}
 
 		// Measures
-		int max = MEASURES_COUNT * 10;
-		for (int i=0; i<max; i++) {
+		for (int i=0; i<MEASURES_COUNT; i++) {
 			runGc();
 			INDEX_MANAGER.removeIndexFamily(JDT_CORE_PROJECT.getPath());
 			INDEX_MANAGER.request(new Measuring(true/*start measuring*/));
@@ -274,21 +279,24 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-		new SearchEngine().searchAllTypeNames(
-			null,
-			null,
-			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-			IJavaSearchConstants.TYPE,
-			scope, 
-			requestor,
-			WAIT_UNTIL_READY_TO_SEARCH,
-			null);
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("	All type names = "+intFormat.format(requestor.count));
-		if (SEARCH_ALL_TYPE_NAMES_COUNT == -1) {
-			SEARCH_ALL_TYPE_NAMES_COUNT = requestor.count;
-		} else {
-			assertEquals("We should find same number of types in the workspace whatever the search method is!", SEARCH_ALL_TYPE_NAMES_COUNT, requestor.count);
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			new SearchEngine().searchAllTypeNames(
+				null,
+				null,
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				IJavaSearchConstants.TYPE,
+				scope, 
+				requestor,
+				WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+			if (i==0) {
+				System.out.println("	All type names = "+INT_FORMAT.format(requestor.count));
+				if (SEARCH_ALL_TYPE_NAMES_COUNT == -1) {
+					SEARCH_ALL_TYPE_NAMES_COUNT = requestor.count;
+				} else {
+					assertEquals("We should find same number of types in the workspace whatever the search method is!", SEARCH_ALL_TYPE_NAMES_COUNT, requestor.count);
+				}
+			}
 		}
 
 		// Measures
@@ -320,7 +328,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Performance tests for search: Search All Types Names.
 	 */
 	public void testNewSearchAllTypeNames() throws CoreException {
-		tagAsSummary("Cold search all type names", true); // put in fingerprint
+		tagAsSummary("Cold search all type names", true);	// put in fingerprint
 		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 
 		// Wait for indexing end
@@ -328,22 +336,25 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-		new SearchEngine().searchAllTypeNames(
-			null,
-			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-			null,
-			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-			IJavaSearchConstants.TYPE,
-			scope, 
-			requestor,
-			WAIT_UNTIL_READY_TO_SEARCH,
-			null);
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("	All type names = "+intFormat.format(requestor.count));
-		if (SEARCH_ALL_TYPE_NAMES_COUNT == -1) {
-			SEARCH_ALL_TYPE_NAMES_COUNT = requestor.count;
-		} else {
-			assertEquals("We should find same number of types in the workspace whatever the search method is!", SEARCH_ALL_TYPE_NAMES_COUNT, requestor.count);
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			new SearchEngine().searchAllTypeNames(
+				null,
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				null,
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				IJavaSearchConstants.TYPE,
+				scope, 
+				requestor,
+				WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+			if (i == 0) {
+				System.out.println("	All type names = "+INT_FORMAT.format(requestor.count));
+				if (SEARCH_ALL_TYPE_NAMES_COUNT == -1) {
+					SEARCH_ALL_TYPE_NAMES_COUNT = requestor.count;
+				} else {
+					assertEquals("We should find same number of types in the workspace whatever the search method is!", SEARCH_ALL_TYPE_NAMES_COUNT, requestor.count);
+				}
+			}
 		}
 
 		// Measures
@@ -384,22 +395,25 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-		new SearchEngine().searchAllTypeNames(
-			null,
-			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-			null,
-			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-			IJavaSearchConstants.TYPE,
-			scope, 
-			requestor,
-			WAIT_UNTIL_READY_TO_SEARCH,
-			null);
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("	All type names = "+intFormat.format(requestor.count));
-		if (SEARCH_ALL_TYPE_NAMES_COUNT == -1) {
-			SEARCH_ALL_TYPE_NAMES_COUNT = requestor.count;
-		} else {
-			assertEquals("We should find same number of types in the workspace whatever the search method is!", SEARCH_ALL_TYPE_NAMES_COUNT, requestor.count);
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			new SearchEngine().searchAllTypeNames(
+				null,
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				null,
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				IJavaSearchConstants.TYPE,
+				scope, 
+				requestor,
+				WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+			if (i == 0) {
+				System.out.println("	All type names = "+INT_FORMAT.format(requestor.count));
+				if (SEARCH_ALL_TYPE_NAMES_COUNT == -1) {
+					SEARCH_ALL_TYPE_NAMES_COUNT = requestor.count;
+				} else {
+					assertEquals("We should find same number of types in the workspace whatever the search method is!", SEARCH_ALL_TYPE_NAMES_COUNT, requestor.count);
+				}
+			}
 		}
 
 		// Measures
@@ -445,9 +459,12 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
 		String name = "JavaCore";
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		search(name, TYPE, ALL_OCCURRENCES, scope, resultCollector);
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("	- "+intFormat.format(resultCollector.count)+" occurences for type '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			search(name, TYPE, ALL_OCCURRENCES, scope, resultCollector);
+			if (i==0) {
+				System.out.println("	- "+INT_FORMAT.format(resultCollector.count)+" occurences for type '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+			}
+		}
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
@@ -476,9 +493,12 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
 		String name = "TYPE";
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		search(name, FIELD, ALL_OCCURRENCES, scope, resultCollector);
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("	- "+intFormat.format(resultCollector.count)+" occurences for field '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			search(name, FIELD, ALL_OCCURRENCES, scope, resultCollector);
+			if (i==0) {
+				System.out.println("	- "+INT_FORMAT.format(resultCollector.count)+" occurences for field '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+			}
+		}
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
@@ -509,9 +529,12 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
 		String name = "equals";
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		search(name, METHOD, ALL_OCCURRENCES, scope, resultCollector);
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("	- "+intFormat.format(resultCollector.count)+" occurences for method '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			search(name, METHOD, ALL_OCCURRENCES, scope, resultCollector);
+			if (i==0) {
+				System.out.println("	- "+INT_FORMAT.format(resultCollector.count)+" occurences for method '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+			}
+		}
 	
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
@@ -544,9 +567,12 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
 		String name = "java.lang.Object.hashCode()";
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		search(name, METHOD, ALL_OCCURRENCES, scope, resultCollector);
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("	- "+intFormat.format(resultCollector.count)+" occurences for method '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			search(name, METHOD, ALL_OCCURRENCES, scope, resultCollector);
+			if (i==0) {
+				System.out.println("	- "+INT_FORMAT.format(resultCollector.count)+" occurences for method '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+			}
+		}
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
@@ -578,9 +604,12 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
 		String name = "String";
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		search(name, CONSTRUCTOR, ALL_OCCURRENCES, scope, resultCollector);
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("	- "+intFormat.format(resultCollector.count)+" occurences for constructor '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			search(name, CONSTRUCTOR, ALL_OCCURRENCES, scope, resultCollector);
+			if (i==0) {
+				System.out.println("	- "+INT_FORMAT.format(resultCollector.count)+" occurences for constructor '"+name+"' in project "+JDT_CORE_PROJECT.getElementName());
+			}
+		}
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
@@ -590,7 +619,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			search(name, CONSTRUCTOR, ALL_OCCURRENCES, scope, resultCollector);
 			stopMeasuring();
 		}
-		
+
 		// Commit
 		commitMeasurements();
 		assertPerformance();
@@ -609,9 +638,12 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
 		String name = "*";
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
-		search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("	- "+intFormat.format(resultCollector.count)+" package declarations in project "+JDT_CORE_PROJECT.getElementName());
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
+			if (i==0) {
+				System.out.println("	- "+INT_FORMAT.format(resultCollector.count)+" package declarations in project "+JDT_CORE_PROJECT.getElementName());
+			}
+		}
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {

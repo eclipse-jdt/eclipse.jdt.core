@@ -20,11 +20,14 @@ import java.util.*;
 import junit.framework.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.builder.TestingEnvironment;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.performance.util.JdtCorePerformanceMeter;
+import org.eclipse.jdt.core.tests.performance.util.Statistics;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -33,6 +36,7 @@ import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.test.internal.performance.data.DataPoint;
 import org.eclipse.test.performance.Dimension;
 import org.eclipse.test.performance.Performance;
 
@@ -167,8 +171,14 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Time measuring
 	long startMeasuring, testDuration;
 
-	// Standard deviation threshold. Statistic should not be take into account when it's reached
-	protected final static double STDDEV_THRESHOLD = 0.02; // default is 2%
+	// Error threshold. Statistic should not be take into account when it's reached
+	protected final static double ERROR_THRESHOLD = 0.005; // default is 0.5%
+	protected final static String ERROR_STRING;
+	static {
+		NumberFormat valueFormat = NumberFormat.getNumberInstance();
+		valueFormat.setMaximumFractionDigits(1);
+		ERROR_STRING = valueFormat.format(ERROR_THRESHOLD*100);
+	}
 
 	/**
 	 * Variable used for log files.
@@ -184,7 +194,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	private final static File INVALID_DIR = new File("Invalid");
 	protected static File LOG_DIR;
 	// Types of statistic which can be stored.
-	protected final static String[] LOG_TYPES = { "cpu", "elapsed" };
+	protected final static String[] DIM_NAMES = { "cpu", "elapsed", "heap" };
 	// Main version which is logged
 	protected final static String LOG_VERSION;
 	static {
@@ -198,6 +208,14 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Patch version currently applied: may be null!
 	protected final static String PATCH_ID = System.getProperty("patch");
 	protected static String RUN_ID;
+	
+	// Format to store/display numbers
+	private NumberFormat percentFormat = NumberFormat.getPercentInstance();
+	private final NumberFormat d2Format = NumberFormat.getNumberInstance();
+	{
+		percentFormat.setMaximumFractionDigits(1);
+		d2Format.setMaximumFractionDigits(2);
+	}
 
 	// Filter to get only the 3.0 plugins
 	class FullSourceProjectsFilter implements FileFilter {
@@ -343,9 +361,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 */
 	static void createPrintStream(Class testClass, PrintStream[] logStreams, int count, String prefix) {
 		if (LOG_DIR != null) {
-			for (int i=0, ln=LOG_TYPES.length; i<ln; i++) {
+			for (int i=0, ln=DIM_NAMES.length; i<ln; i++) {
 				String suiteTypeName = suiteTypeShortName(testClass);
-				File logFile = new File(LOG_DIR, suiteTypeName+'_'+LOG_TYPES[i]+".log");
+				File logFile = new File(LOG_DIR, suiteTypeName+'_'+DIM_NAMES[i]+".log");
 				if (TOUCH) {
 					System.out.println("Log file "+logFile.getPath()+" would be opened.");
 					return;
@@ -411,65 +429,37 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		if (TOUCH) return;
 
 		// Perfs comment buffers
-		String[] comments = new String[2];
+		int length = DIM_NAMES.length;
+		String[] comments = new String[length];
 
 		// Log perf result
-		boolean haveTimes  = JdtCorePerformanceMeter.CPU_TIMES != null && JdtCorePerformanceMeter.ELAPSED_TIMES != null;
-		if (haveTimes) {
-			NumberFormat pFormat = NumberFormat.getPercentInstance();
-			pFormat.setMaximumFractionDigits(1);
-			NumberFormat dFormat = NumberFormat.getNumberInstance();
-			dFormat.setMaximumFractionDigits(0);
-			String stddevThresholdStr = dFormat.format(STDDEV_THRESHOLD*100);
-			NumberFormat dFormat2 = NumberFormat.getNumberInstance();
-			dFormat2.setMaximumFractionDigits(2);
-			try {
-				// Store CPU Time
-				JdtCorePerformanceMeter.Statistics cpuStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.CPU_TIMES.get(this.scenarioReadableName);
-				if (cpuStats != null) {
-					double percent = cpuStats.stddev/cpuStats.average;
-					if (percent > STDDEV_THRESHOLD) {
-						//if (logStreams[0] != null) logStreams[0].print("'"); // disable over threshold result for xls table
-						System.out.println("	WARNING: CPU time standard deviation is over "+stddevThresholdStr+"%: "+dFormat2.format(cpuStats.stddev)+"/"+cpuStats.average+"="+ pFormat.format(percent));
-						comments[0] = "stddev=" + pFormat.format(percent);
-					}
-					if (logStreams[0] != null) {
-						logStreams[0].print(""+cpuStats.sum+"\t");
-					}
-				} else {
-					Thread.sleep(1000);
-					System.err.println(this.scenarioShortName+": we should have stored CPU time!");
-					Thread.sleep(1000);
+		boolean haveStats = JdtCorePerformanceMeter.STATISTICS != null;
+		if (haveStats) {
+			DataPoint[] dataPoints = (DataPoint[]) JdtCorePerformanceMeter.STATISTICS.get(this.scenarioReadableName);
+			if (dataPoints != null) {
+				Statistics statistics = new Statistics(dataPoints);
+				for (int idx=0; idx<length; idx++) {
+					storeDimension(logStreams, comments, statistics, idx);
 				}
-				// Store Elapsed time
-				JdtCorePerformanceMeter.Statistics elapsedStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.ELAPSED_TIMES.get(this.scenarioReadableName);
-				if (elapsedStats != null) {
-					double percent = elapsedStats.stddev/elapsedStats.average;
-					if (percent > STDDEV_THRESHOLD) {
-						//if (logStreams[1] != null) logStreams[1].print("'"); // disable over threshold result for xls table
-						System.out.println("	WARNING: Elapsed time standard deviation is over "+stddevThresholdStr+"%: "+dFormat.format(elapsedStats.stddev)+"/"+elapsedStats.average+"="+ pFormat.format(percent));
-						comments[1] = "stddev=" + pFormat.format(percent);
-					}
-					if (logStreams[1] != null) {
-						logStreams[1].print(""+elapsedStats.sum+"\t");
-					}
-				} else {
+			} else {
+				try {
+					haveStats = false;
 					Thread.sleep(1000);
-					System.err.println(this.scenarioShortName+": we should have stored Elapsed time");
+					System.err.println(this.scenarioShortName+": we should have stored statistics!");
 					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// do nothing
 				}
-			} catch (InterruptedException e) {
-				// do nothing
 			}
 		}
 
 		// Update comment buffers
 		StringBuffer[] scenarioComments = (StringBuffer[]) SCENARII_COMMENT.get(getClass());
 		if (scenarioComments == null) {
-			scenarioComments = new StringBuffer[LOG_TYPES.length];
+			scenarioComments = new StringBuffer[length];
 			SCENARII_COMMENT.put(getClass(), scenarioComments);
 		}
-		for (int i=0, ln=LOG_TYPES.length; i<ln; i++) {
+		for (int i=0; i<length; i++) {
 			if (this.scenarioComment != null || comments[i] != null) {
 				if (scenarioComments[i] == null) {
 					scenarioComments[i] = new StringBuffer();
@@ -492,7 +482,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		if (count == 0) {
 			for (int i=0, ln=logStreams.length; i<ln; i++) {
 				if (logStreams[i] != null) {
-					if (haveTimes) {
+					if (haveStats) {
 						if (scenarioComments[i] != null) {
 							logStreams[i].print(scenarioComments[i].toString());
 						}	
@@ -504,6 +494,22 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			TEST_POSITION = 0;
 		}
 	}
+
+	private void storeDimension(PrintStream[] logStreams, String[] comments, Statistics statistics, int index) {
+	    System.out.println("	- "+statistics.toString(index));
+	    double stddev = statistics.getStddev(index);
+	    double average = statistics.getAverage(index);
+	    long count = statistics.getCount(index);
+	    double error = stddev / Math.sqrt(count);
+	    if ((error/average) > ERROR_THRESHOLD) {
+	    	//if (logStreams[0] != null) logStreams[0].print("'"); // disable over threshold result for xls table
+	    	System.out.println("	WARNING: "+DIM_NAMES[index]+" error is over "+ERROR_STRING+"%: "+d2Format.format(stddev)+"/sqrt("+count+")="+ percentFormat.format(error/average));
+	    	comments[index] = "err=" + percentFormat.format(error/average);
+	    }
+	    if (logStreams[index] != null) {
+	    	logStreams[index].print(""+statistics.getSum(index)+"\t");
+	    }
+    }
 
 	/**
 	 * Perform gc several times to be sure that it won't take time while executing current test.
@@ -594,6 +600,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
+
+		// Modify resources workspace preferences to avoid disturbing tests while running them
+		IEclipsePreferences resourcesPreferences = new InstanceScope().getNode(ResourcesPlugin.PI_RESOURCES);
+		resourcesPreferences.put(ResourcesPlugin.PREF_AUTO_REFRESH, "false");
+		workspace.getDescription().setSnapshotInterval(Long.MAX_VALUE);
+		workspace.getDescription().setAutoBuilding(false);
 
 		// Get projects directories
 		File wkspDir = new File(targetWorkspacePath);
@@ -762,105 +774,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		super.tearDown();
 	}
 
-	/**
-	 * Start a build on given projkect or workspace using given options.
-	 * 
-	 * @param javaProject Project which must be (full) build or null if all workspace has to be built.
-	 * @param options Options used while building
-	 */
-	protected void build(final IJavaProject javaProject, Hashtable options, boolean noWarning) throws IOException, CoreException {
-		if (DEBUG) System.out.print("\tstart build...");
-		JavaCore.setOptions(options);
-		if (PRINT) System.out.println("JavaCore options: "+options);
-
-		// Build workspace if no project
-		if (javaProject == null) {
-			// single measure
-			runGc();
-			startMeasuring();
-			ENV.fullBuild();
-			stopMeasuring();
-		} else {
-			if (PRINT) System.out.println("Project options: "+javaProject.getOptions(false));
-			// warm-up
-			ENV.fullBuild(javaProject.getProject().getName());
-			
-			// measures
-			int max = MEASURES_COUNT / 2;
-			for (int i=0; i<max; i++) {
-				runGc();
-				startMeasuring();
-				IWorkspaceRunnable compilation = new IWorkspaceRunnable() {
-					public void run(IProgressMonitor monitor) throws CoreException {
-						ENV.fullBuild(javaProject.getPath());
-					}
-				};
-				IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				workspace.run(
-					compilation,
-					null/*don't take any lock*/,
-					IWorkspace.AVOID_UPDATE,
-					null/*no progress available here*/);
-				stopMeasuring();
-			}
-		}
-		
-		// Verify markers
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		IMarker[] markers = workspaceRoot.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
-		List resources = new ArrayList();
-		List messages = new ArrayList();
-		int warnings = 0;
-		for (int i = 0, length = markers.length; i < length; i++) {
-			IMarker marker = markers[i];
-			switch (((Integer) marker.getAttribute(IMarker.SEVERITY)).intValue()) {
-				case IMarker.SEVERITY_ERROR:
-					resources.add(marker.getResource().getName());
-					messages.add(marker.getAttribute(IMarker.MESSAGE));
-					break;
-				case IMarker.SEVERITY_WARNING:
-					warnings++;
-					if (noWarning) {
-						resources.add(marker.getResource().getName());
-						messages.add(marker.getAttribute(IMarker.MESSAGE));
-					}
-					break;
-			}
-		}
-		workspaceRoot.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
-
-		// Assert result
-		int size = messages.size();
-		if (size > 0) {
-			StringBuffer debugBuffer = new StringBuffer();
-			for (int i=0; i<size; i++) {
-				debugBuffer.append(resources.get(i));
-				debugBuffer.append(":\n\t");
-				debugBuffer.append(messages.get(i));
-				debugBuffer.append('\n');
-			}
-			System.out.println(this.scenarioShortName+": Unexpected ERROR marker(s):\n" + debugBuffer.toString());
-			System.out.println("--------------------");
-		}
-		if (DEBUG) System.out.println("done");
-		
-		// Commit measure
-		commitMeasurements();
-		assertPerformance();
-	
-		// Store warning
-		if (warnings>0) {
-			System.out.println("\t- "+warnings+" warnings found while performing build.");
-		}
-		if (this.scenarioComment == null) {
-			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
-		} else {
-			this.scenarioComment.append(' ');
-		}
-		this.scenarioComment.append("warn=");
-		this.scenarioComment.append(warnings);
-	}
-
 	/*
 	 * Delete a directory from file system.
 	 * @param directory
@@ -904,91 +817,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 		options.put(JavaCore.COMPILER_TASK_TAGS, "");
 		return options;
-	}
-
-	/*
-	 * Full Build using batch compiler
-	 */
-	protected void compile(String pluginID, String options, boolean log, String[] srcPaths) throws IOException, CoreException {
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String targetWorkspacePath = workspaceRoot.getProject(pluginID).getLocation().toFile().getCanonicalPath();
-		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
-		String workspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath()+File.separator;
-		String binPath = File.separator+"bin"+File.pathSeparator;
-		String classpath = " -cp " +
-			workspacePath+"org.eclipse.osgi" + binPath +
-			workspacePath+"org.eclipse.jface" + binPath +
-			workspacePath+"org.eclipse.core.runtime" + binPath +
-			workspacePath+"org.eclipse.core.resources"+binPath +
-			workspacePath+"org.eclipse.text"+binPath;
-		String sources = srcPaths == null ? " "+targetWorkspacePath : "";
-		if (srcPaths != null) {
-			for (int i=0, l=srcPaths.length; i<l; i++) {
-				String path = workspacePath + pluginID + File.separator + srcPaths[i];
-				if (path.indexOf(" ") > 0) {
-					path = "\"" + path + "\"";
-				}
-				sources += " " + path;
-			}
-		}
-
-		// Warm up
-		String compliance = " -" + (COMPLIANCE==null ? "1.4" : COMPLIANCE);
-		final String cmdLine = classpath + compliance + " -g -preserveAllLocals "+(options==null?"":options)+" -d " + COMPILER_OUTPUT_DIR + (log?" -log "+logFileName:"") + sources;
-		if (PRINT) System.out.println("	Compiler command line = "+cmdLine);
-		int warnings = 0;
-		StringWriter errStrWriter = new StringWriter();
-		PrintWriter err = new PrintWriter(errStrWriter);
-		PrintWriter out = new PrintWriter(new StringWriter());
-		Main warmup = new Main(out, err, false);
-		warmup.compile(Main.tokenize(cmdLine));
-		if (warmup.globalErrorsCount > 0) {
-			System.out.println(this.scenarioShortName+": "+warmup.globalErrorsCount+" Unexpected compile ERROR!");
-			if (DEBUG) {
-				System.out.println(errStrWriter.toString());
-				System.out.println("--------------------");
-			}
-		}
-		if (!"none".equals(COMPILER_OUTPUT_DIR)) {
-			Util.delete(COMPILER_OUTPUT_DIR);
-		}
-		warnings = warmup.globalWarningsCount;
-		if (!log) Util.writeToFile(errStrWriter.toString(), logFileName);
-
-		// Clean writer
-		err = null;
-		out = null;
-		errStrWriter = null;
-
-		// Measures
-		for (int i = 0; i < MEASURES_COUNT; i++) {
-			runGc();
-			NullPrintWriter nullPrint= new NullPrintWriter();
-			Main main = new Main(nullPrint, nullPrint, false);
-			startMeasuring();
-			main.compile(Main.tokenize(cmdLine));
-			stopMeasuring();
-			if (!"none".equals(COMPILER_OUTPUT_DIR)) {
-				Util.delete(COMPILER_OUTPUT_DIR);
-			}
-		}
-		
-		// Commit measures
-		commitMeasurements();
-		assertPerformance();
-
-		// Store warning
-		if (warnings>0) {
-			System.out.println("\t- "+warnings+" warnings found while performing batch compilation.");
-		}
-		if (this.scenarioComment == null) {
-			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
-		} else {
-			this.scenarioComment.append(' ');
-		}
-		this.scenarioComment.append("warn=");
-		this.scenarioComment.append(warnings);
 	}
 
 	/**

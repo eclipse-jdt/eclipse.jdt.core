@@ -40,13 +40,13 @@ public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests impl
 
 	// Tests counters
 	static int TESTS_COUNT = 0;
-	private final static int WARMUP_COUNT = 1; // 30;
+	private final static int WARMUP_COUNT = 50;
 	private final static int FOLDERS_COUNT = 200;
 	private final static int PACKAGES_COUNT = 200;
 	static int TESTS_LENGTH;
 
 	// Log file streams
-	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
+	private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
 
 	// Type path
 	static IPath BIG_PROJECT_TYPE_PATH;
@@ -304,6 +304,23 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 	assertEquals(message, expected, actual);
 }
 
+/*
+ * Creates a simple Java project with no source folder and only rt.jar on its classpath.
+ */
+private IJavaProject createJavaProject(String name) throws CoreException {
+	IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
+	if (project.exists())
+		project.delete(true, null);
+	project.create(null);
+	project.open(null);
+	IProjectDescription description = project.getDescription();
+	description.setNatureIds(new String[] {JavaCore.NATURE_ID});
+	project.setDescription(description, null);
+	IJavaProject javaProject = JavaCore.create(project);
+	javaProject.setRawClasspath(new IClasspathEntry[] {JavaCore.newVariableEntry(new Path("JRE_LIB"), null, null)}, null);
+	return javaProject;
+}
+
 private NameLookup getNameLookup(JavaProject project) throws JavaModelException {
 	return project.newNameLookup((WorkingCopyOwner)null);
 }
@@ -322,12 +339,10 @@ public void testNameLookupFindKnownType() throws CoreException {
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.');
-	if (WARMUP_COUNT > 0) {
-		for (int i=0; i<WARMUP_COUNT; i++) {
-			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
-			IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
-			assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
-		}
+	for (int i=0; i<WARMUP_COUNT; i++) {
+		NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
+		IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
+		if (i==0) assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
 	}
 
 	// Measures
@@ -361,13 +376,11 @@ public void testNameLookupFindKnownSecondaryType() throws CoreException {
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.')+".TestSecondary";
-	if (WARMUP_COUNT > 0) {
-		for (int i=0; i<WARMUP_COUNT; i++) {
-			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
-			IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
-			if (LOG_VERSION.compareTo("v_623") > 0) {
-				assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
-			}
+	for (int i=0; i<WARMUP_COUNT; i++) {
+		NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
+		IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
+		if (i==0 && LOG_VERSION.compareTo("v_623") > 0) {
+			assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
 		}
 	}
 
@@ -402,12 +415,10 @@ public void testNameLookupFindUnknownType() throws CoreException {
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.')+".Unknown";
-	if (WARMUP_COUNT > 0) {
-		for (int i=0; i<WARMUP_COUNT; i++) {
-			NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
-			IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
-			assertNull("We should not find an unknown type in project "+BIG_PROJECT_NAME, type);
-		}
+	for (int i=0; i<WARMUP_COUNT; i++) {
+		NameLookup nameLookup = BIG_PROJECT.newNameLookup(DefaultWorkingCopyOwner.PRIMARY);
+		IType type = nameLookup.findType(fullQualifiedName, false /*full match*/, NameLookup.ACCEPT_ALL);
+		if (i==0) assertNull("We should not find an unknown type in project "+BIG_PROJECT_NAME, type);
 	}
 
 	// Measures
@@ -442,11 +453,9 @@ public void testProjectFindKnownType() throws CoreException {
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.');
-	if (WARMUP_COUNT > 0) {
-		for (int i=0; i<WARMUP_COUNT; i++) {
-			IType type = BIG_PROJECT.findType(fullQualifiedName);
-			assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
-		}
+	for (int i=0; i<WARMUP_COUNT; i++) {
+		IType type = BIG_PROJECT.findType(fullQualifiedName);
+		if (i==0) assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
 	}
 
 	// Measures
@@ -483,11 +492,9 @@ public void testProjectFindKnownMemberType() throws CoreException {
 	for (int i=1; i<=10; i++) {
 		fullQualifiedName += ".Level" + i;
 	}
-	if (WARMUP_COUNT > 0) {
-		for (int i=0; i<WARMUP_COUNT; i++) {
-			IType type = BIG_PROJECT.findType(fullQualifiedName);
-			assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
-		}
+	for (int i=0; i<WARMUP_COUNT; i++) {
+		IType type = BIG_PROJECT.findType(fullQualifiedName);
+		if (i==0) assertNotNull("We should find type '"+fullQualifiedName+"' in project "+BIG_PROJECT_NAME, type);
 	}
 
 	// Measures
@@ -521,10 +528,8 @@ public void testProjectFindKnownSecondaryType() throws CoreException {
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.')+".TestSecondary";
-	if (WARMUP_COUNT > 0) {
-		for (int i=0; i<WARMUP_COUNT; i++) {
-			BIG_PROJECT.findType(fullQualifiedName);
-		}
+	for (int i=0; i<WARMUP_COUNT; i++) {
+		BIG_PROJECT.findType(fullQualifiedName);
 	}
 
 	// Measures
@@ -558,11 +563,9 @@ public void testProjectFindUnknownType() throws CoreException {
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
 	fullQualifiedName = fullQualifiedName.replace('/', '.')+".Unknown";
-	if (WARMUP_COUNT > 0) {
-		for (int i=0; i<WARMUP_COUNT; i++) {
-			IType type = BIG_PROJECT.findType(fullQualifiedName);
-			assertNull("We should not find an unknown type in project "+BIG_PROJECT_NAME, type);
-		}
+	for (int i=0; i<WARMUP_COUNT; i++) {
+		IType type = BIG_PROJECT.findType(fullQualifiedName);
+		assertNull("We should not find an unknown type in project "+BIG_PROJECT_NAME, type);
 	}
 
 	// Measures
@@ -601,12 +604,11 @@ public void testPerfReconcile() throws CoreException {
             }
 		};
 		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(owner, null);
-		if (WARMUP_COUNT > 0) {
-			for (int i=0; i<WARMUP_COUNT; i++) {
-				CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
-				assertNotNull("Compilation Unit should not be null!", unit);
-				assertNotNull("Bindings were not resolved!", unit.getPackage().resolveBinding());
-			}
+		int warmup = WARMUP_COUNT / 5;
+		for (int i=0; i<warmup; i++) {
+			CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
+			assertNotNull("Compilation Unit should not be null!", unit);
+			assertNotNull("Bindings were not resolved!", unit.getPackage().resolveBinding());
 		}
 
 		// Measures
@@ -676,11 +678,10 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
 		workingCopy.becomeWorkingCopy(null);
 		
 		// Warm up
-		if (WARMUP_COUNT > 0) {
-			for (int i=0; i<WARMUP_COUNT; i++) {
-				workingCopy.getBuffer().setContents(bigContents.append("a").toString());
-				workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
-			}
+		int warmup = WARMUP_COUNT / 10;
+		for (int i=0; i<warmup; i++) {
+			workingCopy.getBuffer().setContents(bigContents.append("a").toString());
+			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
 		}
 	
 		// Measures
@@ -724,10 +725,11 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 		};
 		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(owner, null);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT });
-		if (WARMUP_COUNT > 0) {
-			for (int i=0; i<WARMUP_COUNT; i++) {
-				searchAllTypeNames(scope);
-				CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
+		int warmup = WARMUP_COUNT / 5;
+		for (int i=0; i<warmup; i++) {
+			searchAllTypeNames(scope);
+			CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
+			if (i == 0) {
 				assertNotNull("Compilation Unit should not be null!", unit);
 				assertNotNull("Bindings were not resolved!", unit.getPackage().resolveBinding());
 			}
@@ -781,7 +783,9 @@ public void testSeekPackageFragments() throws CoreException {
 	
 	// first pass: ensure all class are loaded, and ensure that the test works as expected
 	PackageRequestor requestor = new PackageRequestor();
-	getNameLookup(BIG_PROJECT).seekPackageFragments("org.eclipse.jdt.core.tests78.performance5", false/*not partial match*/, requestor);
+	for (int i=0; i<WARMUP_COUNT; i++) {
+		getNameLookup(BIG_PROJECT).seekPackageFragments("org.eclipse.jdt.core.tests78.performance5", false/*not partial match*/, requestor);
+	}
 	int size = requestor.pkgs.size();
 	IJavaElement[] result = new IJavaElement[size];
 	requestor.pkgs.toArray(result);
@@ -798,7 +802,7 @@ public void testSeekPackageFragments() throws CoreException {
 		runGc();
 		startMeasuring();
 		for (int j = 0; j < 50000; j++) {
-			getNameLookup(BIG_PROJECT).seekPackageFragments("org.eclipse.jdt.core.tests" + j + "0.performance" + j, false/*not partial match*/, requestor);
+			getNameLookup(BIG_PROJECT).seekPackageFragments("org.eclipse.jdt.core.tests" + i + "0.performance" + i, false/*not partial match*/, requestor);
 		}
 		stopMeasuring();
 	}
@@ -807,71 +811,63 @@ public void testSeekPackageFragments() throws CoreException {
 }
 
 public void testCloseProjects() throws JavaModelException {
-	// store current settings
-	long oldSnapInterval = ENV.getWorkspace().getDescription().getSnapshotInterval();
-	boolean oldAutoBuildPolicy = ENV.isAutoBuilding();
-	
-	// prevent snapshots and autobuilds from disturbing our measures
-	ENV.getWorkspace().getDescription().setSnapshotInterval(100000);
-	ENV.getWorkspace().getDescription().setAutoBuilding(false);
-	
-	try {
-		int length=ALL_PROJECTS.length;
-		// Warm-up
-		for (int i=0; i<WARMUP_COUNT; i++) {
-			for (int j=0; j<length; j++) {
-				ENV.closeProject(ALL_PROJECTS[j].getPath());
-			}
-			for (int j=0; j<length; j++) {
-				ENV.openProject(ALL_PROJECTS[j].getPath());
-			}
+	int length=ALL_PROJECTS.length;
+	// Warm-up
+	int wmax = WARMUP_COUNT / 10;
+	for (int i=0; i<wmax; i++) {
+		for (int j=0; j<length; j++) {
+			ENV.closeProject(ALL_PROJECTS[j].getPath());
 		}
-	
-		// Measures
-		for (int i=0; i<MEASURES_COUNT; i++) {
-			AbstractJavaModelTests.waitUntilIndexesReady();
-			// should not be autobuilding...
-			if (ENV.isAutoBuilding()) {
-				ENV.waitForAutoBuild();
-			}
-			runGc();
-			startMeasuring();
-			for (int j=0; j<length; j++) {
-				ENV.closeProject(ALL_PROJECTS[j].getPath());
-			}
-			stopMeasuring();
-			for (int j=0; j<length; j++) {
-				ENV.openProject(ALL_PROJECTS[j].getPath());
-			}
+		for (int j=0; j<length; j++) {
+			ENV.openProject(ALL_PROJECTS[j].getPath());
 		}
-		// Commit
-		commitMeasurements();
-		assertPerformance();
 	}
-	finally {
-		// restore previous settings
-		ENV.getWorkspace().getDescription().setSnapshotInterval(oldSnapInterval);
-		ENV.getWorkspace().getDescription().setAutoBuilding(oldAutoBuildPolicy);
+
+	// Measures
+	for (int i=0; i<MEASURES_COUNT; i++) {
+		AbstractJavaModelTests.waitUntilIndexesReady();
+		runGc();
+		startMeasuring();
+		for (int j=0; j<length; j++) {
+			ENV.closeProject(ALL_PROJECTS[j].getPath());
+		}
+		stopMeasuring();
+		for (int j=0; j<length; j++) {
+			ENV.openProject(ALL_PROJECTS[j].getPath());
+		}
 	}
+
+	// Commit
+	commitMeasurements();
+	assertPerformance();
 }
 
-/*
- * Creates a simple Java project with no source folder and only rt.jar on its classpath.
- */
-private IJavaProject createJavaProject(String name) throws CoreException {
-	IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
-	if (project.exists())
-		project.delete(true, null);
-	project.create(null);
-	project.open(null);
-	IProjectDescription description = project.getDescription();
-	description.setNatureIds(new String[] {JavaCore.NATURE_ID});
-	project.setDescription(description, null);
-	IJavaProject javaProject = JavaCore.create(project);
-	javaProject.setRawClasspath(new IClasspathEntry[] {JavaCore.newVariableEntry(new Path("JRE_LIB"), null, null)}, null);
-	return javaProject;
+public void testStartJDTPlugin() throws JavaModelException, CoreException {
+	// Warm-up
+	int wmax = WARMUP_COUNT / 5;
+	for (int i=0; i<wmax; i++) {
+		simulateExitRestart();
+		JavaCore.initializeAfterLoad(null);
+		AbstractJavaModelTests.waitUntilIndexesReady();
+	}
 
+	// Measures
+	for (int i=0; i<MEASURES_COUNT; i++) {
+		// shutdwon
+		simulateExit();			
+		runGc();
+		startMeasuring();
+		// restart
+		simulateRestart();
+		JavaCore.initializeAfterLoad(null);
+		AbstractJavaModelTests.waitUntilIndexesReady();
+		stopMeasuring();
+	}
+	// Commit
+	commitMeasurements();
+	assertPerformance();
 }
+
 /*
  * Performance test for the first use of findType(...)
  * (see bug 161175 JarPackageFragmentRoot slow to initialize)
@@ -890,7 +886,8 @@ public void testFindType() throws CoreException {
 	
 	try {
 		// warm up
-		for (int i = 0; i < 5; i++) {
+		int warmup = WARMUP_COUNT / 10;
+		for (int i = 0; i < warmup; i++) {
 			model.close();
 			for (int j = 0; j < max; j++) {
 				projects[j].findType("java.lang.Object");
@@ -898,7 +895,7 @@ public void testFindType() throws CoreException {
 		}
 			
 		// measure performance
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < MEASURES_COUNT; i++) {
 			model.close();
 			runGc();
 			startMeasuring();
@@ -914,44 +911,6 @@ public void testFindType() throws CoreException {
 		for (int i = 0; i < max; i++) {
 			projects[i].getProject().delete(false, null);
 		}
-	}
-}
-
-public void testStartJDTPlugin() throws JavaModelException {
-	// store current settings
-	long oldSnapInterval = ENV.getWorkspace().getDescription().getSnapshotInterval();	
-	// prevent snapshots and autobuilds from disturbing our measures
-	ENV.getWorkspace().getDescription().setSnapshotInterval(100000);
-	try {
-		// Warm-up
-		for (int i=0; i<WARMUP_COUNT; i++) {
-			simulateExitRestart();
-			JavaCore.initializeAfterLoad(null);
-			AbstractJavaModelTests.waitUntilIndexesReady();
-		}
-	
-		// Measures
-		for (int i=0; i<MEASURES_COUNT; i++) {
-			// shutdwon
-			simulateExit();			
-			runGc();
-			startMeasuring();
-			// restart
-			simulateRestart();
-			JavaCore.initializeAfterLoad(null);
-			AbstractJavaModelTests.waitUntilIndexesReady();
-			stopMeasuring();
-		}
-		// Commit
-		commitMeasurements();
-		assertPerformance();
-	}
-	catch (CoreException ex) {
-		// do nothing
-	}
-	finally {
-		// restore previous settings
-		ENV.getWorkspace().getDescription().setSnapshotInterval(oldSnapInterval);
 	}
 }
 
