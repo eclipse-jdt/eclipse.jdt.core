@@ -80,6 +80,7 @@ public final class Options {
 		ONE_ARGUMENT_OPTIONS.add("-source");//$NON-NLS-1$
 		ONE_ARGUMENT_OPTIONS.add("-target");//$NON-NLS-1$
 		ONE_ARGUMENT_OPTIONS.add("-processor");//$NON-NLS-1$
+		ONE_ARGUMENT_OPTIONS.add("-classNames");//$NON-NLS-1$
 	
 	}
 	public static int processOptionsFileManager(String option) {
