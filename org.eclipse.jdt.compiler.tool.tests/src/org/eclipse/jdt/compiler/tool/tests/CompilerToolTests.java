@@ -79,6 +79,7 @@ public class CompilerToolTests extends TestCase {
 		"-processorpath",
 		"-s",
 		"-processor",
+		"-classNames"
 	};
 	private static String[] ZERO_ARG_OPTIONS = {
 		"-1.3",
