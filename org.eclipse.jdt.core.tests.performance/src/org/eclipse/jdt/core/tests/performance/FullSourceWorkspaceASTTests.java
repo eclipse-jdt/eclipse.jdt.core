@@ -34,7 +34,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	int nodesCount = 0;
 
     // Log files
-    private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
+    private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
 
 	/**
 	 * @param name
