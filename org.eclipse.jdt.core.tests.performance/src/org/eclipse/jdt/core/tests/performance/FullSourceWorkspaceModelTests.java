@@ -598,7 +598,8 @@ public void testPerfReconcile() throws CoreException {
 	try {
 		ProblemRequestor requestor = new ProblemRequestor();
 		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(new WorkingCopyOwner() {}, requestor, null);
-		for (int i=0; i<WARMUP_COUNT; i++) {
+		int warmup = WARMUP_COUNT / 5;
+		for (int i=0; i<warmup; i++) {
 			CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
 			assertNotNull("Compilation Unit should not be null!", unit);
 			assertNotNull("Bindings were not resolved!", unit.getPackage().resolveBinding());
@@ -671,7 +672,8 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
 		workingCopy.becomeWorkingCopy(null, null);
 		
 		// Warm up
-		for (int i=0; i<WARMUP_COUNT; i++) {
+		int warmup = WARMUP_COUNT / 10;
+		for (int i=0; i<warmup; i++) {
 			workingCopy.getBuffer().setContents(bigContents.append("a").toString());
 			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
 		}
@@ -712,7 +714,8 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 		ProblemRequestor requestor = new ProblemRequestor();
 		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(new WorkingCopyOwner() {}, requestor, null);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT });
-		for (int i=0; i<WARMUP_COUNT; i++) {
+		int warmup = WARMUP_COUNT / 5;
+		for (int i=0; i<warmup; i++) {
 			searchAllTypeNames(scope);
 			CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
 			assertNotNull("Compilation Unit should not be null!", unit);
