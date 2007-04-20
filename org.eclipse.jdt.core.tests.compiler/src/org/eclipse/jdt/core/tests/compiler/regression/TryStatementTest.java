@@ -5444,6 +5444,50 @@ public void test058() {
 		assertTrue(false);
 	}	
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183395
+public void test059() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"    	try {\n" + 
+			"    		System.out.println(args.length);\n" + 
+			"    	} catch(Exception[] e) {\n" + 
+			"    		// ignore\n" + 
+			"    	}\n" + 
+			"    }\n" + 
+			"}" 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	} catch(Exception[] e) {\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=183395
+public void test060() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"    	try {\n" + 
+			"    		System.out.println(args.length);\n" + 
+			"    	} catch(int e) {\n" + 
+			"    		// ignore\n" + 
+			"    	}\n" + 
+			"    }\n" + 
+			"}" 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	} catch(int e) {\n" + 
+		"	        ^^^\n" + 
+		"No exception of type int can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }

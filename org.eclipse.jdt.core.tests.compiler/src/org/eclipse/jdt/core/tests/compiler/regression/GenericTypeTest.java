@@ -6569,7 +6569,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	           ^\n" + 
 			"Cannot use the type parameter T in a catch block\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 19)\n" + 
+			"2. WARNING in X.java (at line 13)\n" + 
+			"	} catch (T t) {\n" + 
+			"	           ^\n" + 
+			"The parameter t is hiding another local variable defined in an enclosing type scope\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 19)\n" + 
 			"	class EX extends Exception {\n" + 
 			"	      ^^\n" + 
 			"The serializable class EX does not declare a static final serialVersionUID field of type long\n" + 

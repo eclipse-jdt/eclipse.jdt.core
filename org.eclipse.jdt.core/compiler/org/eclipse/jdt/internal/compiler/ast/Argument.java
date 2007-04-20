@@ -100,20 +100,25 @@ public class Argument extends LocalDeclaration {
 
 		TypeBinding exceptionType = this.type.resolveType(scope, true /* check bounds*/);
 		if (exceptionType == null) return null;
+		boolean hasError = false;
 		if (exceptionType.isBoundParameterizedType()) {
 			scope.problemReporter().invalidParameterizedExceptionType(exceptionType, this);
-			return null;
+			hasError = true;
+			// fall thru to create the variable - avoids additional errors because the variable is missing
 		}
 		if (exceptionType.isTypeVariable()) {
 			scope.problemReporter().invalidTypeVariableAsException(exceptionType, this);
-			return null;
+			hasError = true;
+			// fall thru to create the variable - avoids additional errors because the variable is missing
 		}
 		if (exceptionType.isArrayType() && ((ArrayBinding) exceptionType).leafComponentType == TypeBinding.VOID) {
 			scope.problemReporter().variableTypeCannotBeVoidArray(this);
-			return null;
+			hasError = true;
+			// fall thru to create the variable - avoids additional errors because the variable is missing
 		}
 		if (exceptionType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
 			scope.problemReporter().cannotThrowType(this.type, exceptionType);
+			hasError = true;
 			// fall thru to create the variable - avoids additional errors because the variable is missing
 		}
 		
@@ -131,6 +136,7 @@ public class Argument extends LocalDeclaration {
 		
 		scope.addLocalVariable(binding);
 		binding.setConstant(Constant.NotAConstant);
+		if (hasError) return null;
 		return exceptionType;
 	}
 
