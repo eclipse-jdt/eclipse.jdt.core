@@ -31,6 +31,9 @@ import junit.framework.TestSuite;
  */
 public class BatchDispatchTests extends TestCase {
 
+	// Processor class names; see corresponding usage in the processor classes.
+	private static final String INHERITEDANNOPROC = "org.eclipse.jdt.compiler.apt.tests.processors.inherited.InheritedAnnoProc";
+
 	private static final String[] ONE_ARG_OPTIONS = {
 		"-s",
 		"-processor",
@@ -116,6 +119,24 @@ public class BatchDispatchTests extends TestCase {
 	}
 
 	/**
+	 * Validate the inherited annotations test against the javac compiler.
+	 * @throws IOException 
+	 */
+	public void testInheritedAnnosWithSystemCompiler() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestInheritance(compiler, INHERITEDANNOPROC);
+	}
+
+	/**
+	 * Test dispatch of annotation processor on inherited annotations.
+	 * @throws IOException 
+	 */
+	public void testInheritedAnnosWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestInheritance(compiler, INHERITEDANNOPROC);
+	}
+
+	/**
 	 * Verify that if a type has two annotations, both processors are run.
 	 * @throws IOException 
 	 */
@@ -176,6 +197,26 @@ public class BatchDispatchTests extends TestCase {
 		options.add("-Anovalue");
 		options.add("-Abar2=");
 		BatchTestUtils.compileOneClass(compiler, options, inputFile);
+	}
+
+	/**
+	 * Test functionality by running a particular processor against the types in
+	 * resources/targets.  The processor must support "*" (the set of all annotations) 
+	 * and must report its errors or success via the methods in BaseProcessor.
+	 * @throws IOException
+	 */
+	private void internalTestInheritance(JavaCompiler compiler, String processorClass) throws IOException {
+		System.clearProperty(processorClass);
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets/dispatch", "inheritedanno");
+		BatchTestUtils.copyResources("targets/dispatch/inheritedanno", targetFolder);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-A" + processorClass);
+		BatchTestUtils.compileTree(compiler, options, targetFolder);
+
+		// If it succeeded, the processor will have set this property to "succeeded";
+		// if not, it will set it to an error value.
+		assertEquals("succeeded", System.getProperty(processorClass));
 	}
 
 	@Override

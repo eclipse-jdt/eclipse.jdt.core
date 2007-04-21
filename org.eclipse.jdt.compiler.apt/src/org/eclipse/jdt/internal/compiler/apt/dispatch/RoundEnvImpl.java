@@ -19,16 +19,20 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.ElementFilter;
 
 import org.eclipse.jdt.internal.compiler.apt.model.Factory;
+import org.eclipse.jdt.internal.compiler.apt.model.TypeElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
 public class RoundEnvImpl implements RoundEnvironment
 {
@@ -38,14 +42,13 @@ public class RoundEnvImpl implements RoundEnvironment
 	private final ManyToMany<TypeElement, Element> _annoToUnit;
 	private final BinaryTypeBinding[] _binaryTypes;
 	private final Factory _factory;
+	private Set<Element> _rootElements = null;
 
 	public RoundEnvImpl(CompilationUnitDeclaration[] units, BinaryTypeBinding[] binaryTypeBindings, boolean isLastRound, BaseProcessingEnvImpl env) {
 		_processingEnv = env;
 		_isLastRound = isLastRound;
 		_units = units;
 		_factory = _processingEnv.getFactory();
-		
-		// TODO: deal with inherited annotations (esp. annotations inherited from binary supertypes)
 		
 		// Discover the annotations that will be passed to Processor.process()
 		AnnotationDiscoveryVisitor visitor = new AnnotationDiscoveryVisitor(_processingEnv);
@@ -92,7 +95,10 @@ public class RoundEnvImpl implements RoundEnvironment
 	}
 
 	/**
-	 * @return the set of annotation types that were discovered on the root elements.
+	 * Return the set of annotation types that were discovered on the root elements.
+	 * This does not include inherited annotations, only those directly on the root
+	 * elements.
+	 * @return a set of annotation types, possibly empty.
 	 */
 	public Set<TypeElement> getRootAnnotations()
 	{
@@ -105,52 +111,128 @@ public class RoundEnvImpl implements RoundEnvironment
 		return _processingEnv.errorRaised();
 	}
 
+	/**
+	 * From the set of root elements and their enclosed elements, return the subset that are annotated
+	 * with {@code a}.  If {@code a} is annotated with the {@link java.lang.annotations.Inherited} 
+	 * annotation, include those elements that inherit the annotation from their superclasses.
+	 * Note that {@link java.lang.annotations.Inherited} only applies to classes (i.e. TypeElements).
+	 */
 	@Override
 	public Set<? extends Element> getElementsAnnotatedWith(TypeElement a)
 	{
-		return _annoToUnit.getValues(a);
+		if (a.getKind() != ElementKind.ANNOTATION_TYPE) {
+			throw new IllegalArgumentException("Argument must represent an annotation type"); //$NON-NLS-1$
+		}
+		if (isAnnotationInherited(a)) {
+			Set<Element> annotatedElements = new HashSet<Element>(_annoToUnit.getValues(a));
+			// For all other root elements that are TypeElements, and for their recursively enclosed
+			// types, add each element if it has a superclass are annotated with 'a'
+			ReferenceBinding annoTypeBinding = (ReferenceBinding)((TypeElementImpl)a)._binding;
+			for (TypeElement element : ElementFilter.typesIn(getRootElements())) {
+				ReferenceBinding typeBinding = (ReferenceBinding)((TypeElementImpl)element)._binding;
+				addAnnotatedElements(annoTypeBinding, typeBinding, annotatedElements);
+			}
+			return Collections.unmodifiableSet(annotatedElements);
+		}
+		return Collections.unmodifiableSet(_annoToUnit.getValues(a));
 	}
-
+	
+	/**
+	 * For every type in types that is a class and that is annotated with anno, either directly or by inheritance,
+	 * add that type to result.  Recursively descend on each types's child classes as well.
+	 * @param anno the compiler binding for an annotation type
+	 * @param types a set of types, not necessarily all classes
+	 * @param result must be a modifiable Set; will accumulate annotated classes
+	 */
+	private void addAnnotatedElements(ReferenceBinding anno, ReferenceBinding type, Set<Element> result) {
+		if (type.isClass()) {
+			if (inheritsAnno(type, anno)) {
+				result.add(_factory.newElement(type));
+			}
+		}
+		for (ReferenceBinding element : type.memberTypes()) {
+			addAnnotatedElements(anno, element, result);
+		}
+	}
+	
+	/**
+	 * @param anno must be of ElementKind.ANNOTATION_TYPE
+	 * @return true if anno is itself annotated with @Inherited
+	 */
+	private boolean isAnnotationInherited(TypeElement anno) {
+		Binding annoBinding = ((TypeElementImpl)anno)._binding;
+		return 0 != (annoBinding.getAnnotationTagBits() & TagBits.AnnotationInherited);
+	}
+	
+	/**
+	 * Check whether an element has a superclass that is annotated with an @Inherited annotation.
+	 * @param element must be a class (not an interface, enum, etc.).
+	 * @param anno must be an annotation type, and must be @Inherited
+	 * @return true if element has a superclass that is annotated with anno
+	 */
+	private boolean inheritsAnno(ReferenceBinding element, ReferenceBinding anno) {
+		do {
+			if (isAnnotatedWith(element, anno)) {
+				return true;
+			}
+		} while (null != (element = element.superclass()));
+		return false;
+	}
+	
+	/**
+	 * @param anno must be ElementKind.ANNOTATION_TYPE
+	 * @return true if this element is itself annotated with anno (directly, not via inheritance)
+	 */
+	private boolean isAnnotatedWith(ReferenceBinding element, ReferenceBinding annoType) {
+		AnnotationBinding[] annos = element.getAnnotations();
+		for (AnnotationBinding annoBinding : annos) {
+			if (annoBinding.getAnnotationType() == annoType) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	public Set<? extends Element> getElementsAnnotatedWith(Class<? extends Annotation> a)
 	{
 		String canonicalName = a.getCanonicalName();
 		if (canonicalName == null) {
 			// null for anonymous and local classes or an array of those
-			throw new IllegalArgumentException("Only annotation type are expected"); //$NON-NLS-1$
+			throw new IllegalArgumentException("Argument must represent an annotation type"); //$NON-NLS-1$
 		}
 		TypeElement annoType = _processingEnv.getElementUtils().getTypeElement(canonicalName);
-		if (annoType.getKind() != ElementKind.ANNOTATION_TYPE) {
-			throw new IllegalArgumentException("Only annotation type are expected"); //$NON-NLS-1$
-		}
-		return _annoToUnit.getValues(annoType);
+		return getElementsAnnotatedWith(annoType);
 	}
 
 	@Override
 	public Set<? extends Element> getRootElements()
 	{
-		Set<Element> elements = new HashSet<Element>(_units.length);
-		for (CompilationUnitDeclaration unit : _units) {
-			if (null == unit.scope || null == unit.scope.topLevelTypes)
-				continue;
-			for (SourceTypeBinding binding : unit.scope.topLevelTypes) {
-				Element element = _factory.newElement(binding);
-				if (null == element) {
-					throw new IllegalArgumentException("Top-level type binding could not be converted to element: " + binding); //$NON-NLS-1$
+		if (_rootElements == null) {
+			Set<Element> elements = new HashSet<Element>(_units.length);
+			for (CompilationUnitDeclaration unit : _units) {
+				if (null == unit.scope || null == unit.scope.topLevelTypes)
+					continue;
+				for (SourceTypeBinding binding : unit.scope.topLevelTypes) {
+					Element element = _factory.newElement(binding);
+					if (null == element) {
+						throw new IllegalArgumentException("Top-level type binding could not be converted to element: " + binding); //$NON-NLS-1$
+					}
+					elements.add(element);
 				}
-				elements.add(element);
 			}
-		}
-		if (this._binaryTypes != null) {
-			for (BinaryTypeBinding typeBinding : _binaryTypes) {
-				TypeElement element = (TypeElement)_factory.newElement(typeBinding);
-				if (null == element) {
-					throw new IllegalArgumentException("Top-level type binding could not be converted to element: " + typeBinding); //$NON-NLS-1$
+			if (this._binaryTypes != null) {
+				for (BinaryTypeBinding typeBinding : _binaryTypes) {
+					TypeElement element = (TypeElement)_factory.newElement(typeBinding);
+					if (null == element) {
+						throw new IllegalArgumentException("Top-level type binding could not be converted to element: " + typeBinding); //$NON-NLS-1$
+					}
+					elements.add(element);
 				}
-				elements.add(element);
 			}
+			_rootElements = elements;
 		}
-		return elements;
+		return _rootElements;
 	}
 
 	@Override
