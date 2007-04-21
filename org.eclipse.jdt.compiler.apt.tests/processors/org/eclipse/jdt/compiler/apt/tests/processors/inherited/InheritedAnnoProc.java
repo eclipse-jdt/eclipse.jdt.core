@@ -21,6 +21,7 @@ import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
@@ -47,6 +48,9 @@ public class InheritedAnnoProc extends BaseProcessor
 	private TypeElement _elementAEnum;
 	private Element _elementAi;
 	private Element _elementAfoo;
+	private Element _elementAinit; // c'tor with no param
+	private Element _elementAinitI; // c'tor with int param
+	private Element _elementAa; // method with c'tor-like name 
 	
 	private TypeElement _elementB;
 	private TypeElement _elementBChild;
@@ -113,9 +117,21 @@ public class InheritedAnnoProc extends BaseProcessor
 			else if ("foo".equals(name)) {
 				_elementAfoo = e;
 			}
+			else if ("InheritanceA".equals(name)) {
+				_elementAa = e;
+			}
+			else if ("<init>".equals(name)) {
+				if (((ExecutableElement)e).getParameters().isEmpty()) {
+					_elementAinit = e;
+				}
+				else {
+					_elementAinitI = e;
+				}
+			}
 		}
 		if (null == _elementA || null == _elementAChild || null == _elementANotAnnotated ||
-				null == _elementAIntf || null == _elementAEnum || null == _elementAi || null == _elementAfoo) {
+				null == _elementAi || null == _elementAfoo || null == _elementAinitI || null == _elementAa ||
+				null == _elementAIntf || null == _elementAEnum || null == _elementAinit) {
 			reportError("collectElements: couldn't load elements from InheritanceA");
 			return false;
 		}
@@ -174,34 +190,35 @@ public class InheritedAnnoProc extends BaseProcessor
 		// Elements we expect to get from getElementsAnnotatedWith(@InheritedAnno)
 		final Element[] expectedInherited = 
 				{ _elementA, _elementAChild, _elementAIntf, _elementAEnum, 
-				_elementAi, _elementAfoo, _elementB, _elementBChild };
+				_elementAi, _elementAfoo, _elementAinit, _elementAinitI, _elementAa, 
+				_elementB, _elementBChild };
 		
 		Set<? extends Element> actualInherited = new HashSet<Element>(roundEnv.getElementsAnnotatedWith(_inheritedAnno));
 		for (Element element : expectedInherited) {
 			if (!actualInherited.remove(element)) {
-				reportError("examineGetElementsAnnotatedWith: did not contain expected element " + element.getSimpleName());
+				reportError("examineGetElementsAnnotatedWith(@InheritedAnno): did not contain expected element " + element.getSimpleName());
 				return false;
 			}
 		}
 		if (!actualInherited.isEmpty()) {
-			reportError("examineGetElementsAnnotatedWith: contained unexpected elements " + actualInherited);
+			reportError("examineGetElementsAnnotatedWith(@InheritedAnno): contained unexpected elements " + actualInherited);
 			return false;
 		}
 		
 		// Elements we expect to get from getElementsAnnotatedWith(@NotInheritedAnno)
 		final Element[] expectedNotInherited = 
 				{ _elementA, _elementAChild, _elementAIntf, _elementAEnum, 
-				_elementAi, _elementAfoo };
+				_elementAi, _elementAfoo, _elementAinit, _elementAinitI, _elementAa };
 		
 		Set<? extends Element> actualNotInherited = new HashSet<Element>(roundEnv.getElementsAnnotatedWith(_notInheritedAnno));
 		for (Element element : expectedNotInherited) {
 			if (!actualNotInherited.remove(element)) {
-				reportError("examineGetElementsAnnotatedWith: did not contain expected element " + element.getSimpleName());
+				reportError("examineGetElementsAnnotatedWith(@NotInheritedAnno): did not contain expected element " + element.getSimpleName());
 				return false;
 			}
 		}
 		if (!actualNotInherited.isEmpty()) {
-			reportError("examineGetElementsAnnotatedWith: contained unexpected elements " + actualNotInherited);
+			reportError("examineGetElementsAnnotatedWith(@NotInheritedAnno): contained unexpected elements " + actualNotInherited);
 			return false;
 		}
 		
