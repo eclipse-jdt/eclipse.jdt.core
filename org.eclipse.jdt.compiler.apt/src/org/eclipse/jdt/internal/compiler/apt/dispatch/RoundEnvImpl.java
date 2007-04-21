@@ -123,7 +123,8 @@ public class RoundEnvImpl implements RoundEnvironment
 		if (a.getKind() != ElementKind.ANNOTATION_TYPE) {
 			throw new IllegalArgumentException("Argument must represent an annotation type"); //$NON-NLS-1$
 		}
-		if (isAnnotationInherited(a)) {
+		Binding annoBinding = ((TypeElementImpl)a)._binding;
+		if (0 != (annoBinding.getAnnotationTagBits() & TagBits.AnnotationInherited)) {
 			Set<Element> annotatedElements = new HashSet<Element>(_annoToUnit.getValues(a));
 			// For all other root elements that are TypeElements, and for their recursively enclosed
 			// types, add each element if it has a superclass are annotated with 'a'
@@ -156,15 +157,6 @@ public class RoundEnvImpl implements RoundEnvironment
 	}
 	
 	/**
-	 * @param anno must be of ElementKind.ANNOTATION_TYPE
-	 * @return true if anno is itself annotated with @Inherited
-	 */
-	private boolean isAnnotationInherited(TypeElement anno) {
-		Binding annoBinding = ((TypeElementImpl)anno)._binding;
-		return 0 != (annoBinding.getAnnotationTagBits() & TagBits.AnnotationInherited);
-	}
-	
-	/**
 	 * Check whether an element has a superclass that is annotated with an @Inherited annotation.
 	 * @param element must be a class (not an interface, enum, etc.).
 	 * @param anno must be an annotation type, and must be @Inherited
@@ -172,24 +164,14 @@ public class RoundEnvImpl implements RoundEnvironment
 	 */
 	private boolean inheritsAnno(ReferenceBinding element, ReferenceBinding anno) {
 		do {
-			if (isAnnotatedWith(element, anno)) {
-				return true;
+			AnnotationBinding[] annos = element.getAnnotations();
+			for (AnnotationBinding annoBinding : annos) {
+				if (annoBinding.getAnnotationType() == anno) {
+					// element is annotated with anno
+					return true;
+				}
 			}
 		} while (null != (element = element.superclass()));
-		return false;
-	}
-	
-	/**
-	 * @param anno must be ElementKind.ANNOTATION_TYPE
-	 * @return true if this element is itself annotated with anno (directly, not via inheritance)
-	 */
-	private boolean isAnnotatedWith(ReferenceBinding element, ReferenceBinding annoType) {
-		AnnotationBinding[] annos = element.getAnnotations();
-		for (AnnotationBinding annoBinding : annos) {
-			if (annoBinding.getAnnotationType() == annoType) {
-				return true;
-			}
-		}
 		return false;
 	}
 	
