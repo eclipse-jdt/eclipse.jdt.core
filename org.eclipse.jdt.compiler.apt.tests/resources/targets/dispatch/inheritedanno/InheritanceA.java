@@ -1,3 +1,5 @@
+import org.eclipse.jdt.compiler.apt.tests.annotations.InheritedAnno;
+
 @InheritedAnno
 @NotInheritedAnno
 public class InheritanceA {
