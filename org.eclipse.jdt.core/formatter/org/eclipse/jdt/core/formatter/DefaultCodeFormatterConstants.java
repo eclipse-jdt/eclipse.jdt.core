@@ -3119,7 +3119,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to wrap before the binary operator
 	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_binary_operator"
 	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           FALSE
+	 *     - default:           TRUE
 	 * </pre>
 	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION} is set.
 	 * @see #TRUE
