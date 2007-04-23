@@ -282,12 +282,6 @@ private int scanAnnotation(int offset, boolean expectRuntimeVisibleAnno, boolean
 	currentOffset += 4;
 	if (expectRuntimeVisibleAnno && toplevel) {
 		switch (typeName.length) {
-			case 21:
-				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_INHERITED)) {
-					this.standardAnnotationTagBits |= TagBits.AnnotationInherited;
-					return currentOffset;
-				}
-				break;
 			case 22:
 				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_DEPRECATED)) {
 					this.standardAnnotationTagBits |= TagBits.AnnotationDeprecated;
@@ -310,6 +304,10 @@ private int scanAnnotation(int offset, boolean expectRuntimeVisibleAnno, boolean
 				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_RETENTION)) {
 					currentOffset += 2;
 					return readRetentionPolicy(currentOffset);
+				}
+				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_INHERITED)) {
+					this.standardAnnotationTagBits |= TagBits.AnnotationInherited;
+					return currentOffset;
 				}
 				break;
 		}

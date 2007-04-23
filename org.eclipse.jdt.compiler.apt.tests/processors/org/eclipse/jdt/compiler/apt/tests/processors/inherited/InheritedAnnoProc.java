@@ -81,8 +81,7 @@ public class InheritedAnnoProc extends BaseProcessor
 		}
 		
 		if (!examineGetElementsAnnotatedWith(roundEnv)) {
-			// temporarily disabled
-			// return false;
+			return false;
 		}
 		
 		reportSuccess();
