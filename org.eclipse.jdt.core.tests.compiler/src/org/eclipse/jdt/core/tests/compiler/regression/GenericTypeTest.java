@@ -11175,7 +11175,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			                ^
 			 */
 	}
-	public void test0384() {
+	public void test0384a() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -11191,6 +11191,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"");
+	}
+	public void test0384b() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -11215,7 +11217,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"The return type is incompatible with Y.foo2()\n" + 
 			"----------\n");
 	}
-
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77496
 	public void test0385() { 
 		this.runNegativeTest(

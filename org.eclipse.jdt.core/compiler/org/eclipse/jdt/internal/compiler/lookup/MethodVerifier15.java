@@ -769,6 +769,17 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 	return copy;
 }
 boolean reportIncompatibleReturnTypeError(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	// JLS 3 §8.4.5: more are accepted, with an unchecked conversion
+	if (currentMethod.returnType == inheritedMethod.returnType.erasure()) {
+		TypeBinding[] currentParams = currentMethod.parameters;
+		TypeBinding[] inheritedParams = inheritedMethod.parameters;
+		for (int i = 0, l = currentParams.length; i < l; i++) {
+			if (!areTypesEqual(currentParams[i], inheritedParams[i])) {
+				problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, inheritedMethod, this.type);
+				return false;
+			}
+		}
+	}
 	if (currentMethod.typeVariables == Binding.NO_TYPE_VARIABLES
 		&& inheritedMethod.original().typeVariables != Binding.NO_TYPE_VARIABLES
 		&& currentMethod.returnType.erasure().findSuperTypeWithSameErasure(inheritedMethod.returnType.erasure()) != null) {

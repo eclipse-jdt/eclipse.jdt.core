@@ -627,6 +627,16 @@ ProblemReporter problemReporter(MethodBinding currentMethod) {
 SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
 	return null; // noop in 1.4
 }
+/**
+ * Return true and report an incompatibleReturnType error if currentMethod's
+ * return type is strictly incompatible with inheritedMethod's, else return 
+ * false and report an unchecked conversion warning. Do not call when
+ * areReturnTypesCompatible(currentMethod, inheritedMethod) returns true.
+ * @param currentMethod the (potentially) inheriting method
+ * @param inheritedMethod the inherited method
+ * @return true if currentMethod's return type is strictly incompatible with
+ *         inheritedMethod's
+ */
 boolean reportIncompatibleReturnTypeError(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
 	return true;
