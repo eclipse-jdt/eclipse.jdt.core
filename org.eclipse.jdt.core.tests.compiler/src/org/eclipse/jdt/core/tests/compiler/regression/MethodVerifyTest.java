@@ -7667,69 +7667,6 @@ public void test132() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 // variant - if we detect a return type incompatibility, then skip any @Override errors 
 public void test133() {
-	String expectedOutput = this.complianceLevel.equals(COMPLIANCE_1_5) ?
-		"----------\n" + 
-		"1. ERROR in A.java (at line 8)\n" + 
-		"	Object foo() { return null; } // cannot override foo(), incompatible return type error\n" + 
-		"	^^^^^^\n" + 
-		"The return type is incompatible with A<U>.foo()\n" + 
-		"----------\n" + 
-		"2. WARNING in A.java (at line 10)\n" + 
-		"	Object foo(Object one) { return null; } // unchecked conversion warning\n" + 
-		"	^^^^^^\n" + 
-		"Type safety: The return type Object for foo(Object) from the type B<U> needs unchecked conversion to conform to U from the type A<U>\n" + 
-		"----------\n" + 
-		"3. ERROR in A.java (at line 12)\n" + 
-		"	Object foo(Object one, U two) { return null; }\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method foo(Object, U) of type B<U> has the same erasure as foo(U, U) of type A<U> but does not override it\n" + 
-		"----------\n" + 
-		"4. ERROR in A.java (at line 12)\n" + 
-		"	Object foo(Object one, U two) { return null; }\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The method foo(Object, U) of type B<U> must override a superclass method\n" + 
-		"----------\n" + 
-		"5. ERROR in A.java (at line 16)\n" + 
-		"	Object foo(U one) { return null; } // cannot override foo(U), incompatible return type error\n" + 
-		"	^^^^^^\n" + 
-		"The return type is incompatible with A<U>.foo(U)\n" + 
-		"----------\n" + 
-		"6. ERROR in A.java (at line 18)\n" + 
-		"	Object foo(U one, U two) { return null; } // cannot override foo(U), incompatible return type error\n" + 
-		"	^^^^^^\n" + 
-		"The return type is incompatible with A<U>.foo(U, U)\n" + 
-		"----------\n" :
-		"----------\n" + 
-		"1. ERROR in A.java (at line 8)\n" + 
-		"	Object foo() { return null; } // cannot override foo(), incompatible return type error\n" + 
-		"	^^^^^^\n" + 
-		"The return type is incompatible with A<U>.foo()\n" + 
-		"----------\n" + 
-		"2. WARNING in A.java (at line 10)\n" + 
-		"	Object foo(Object one) { return null; } // unchecked conversion warning\n" + 
-		"	^^^^^^\n" + 
-		"Type safety: The return type Object for foo(Object) from the type B<U> needs unchecked conversion to conform to U from the type A<U>\n" + 
-		"----------\n" + 
-		"3. ERROR in A.java (at line 12)\n" + 
-		"	Object foo(Object one, U two) { return null; }\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method foo(Object, U) of type B<U> has the same erasure as foo(U, U) of type A<U> but does not override it\n" + 
-		"----------\n" + 
-		"4. ERROR in A.java (at line 12)\n" + 
-		"	Object foo(Object one, U two) { return null; }\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The method foo(Object, U) of type B<U> must override or implement a supertype method\n" + 
-		"----------\n" + 
-		"5. ERROR in A.java (at line 16)\n" + 
-		"	Object foo(U one) { return null; } // cannot override foo(U), incompatible return type error\n" + 
-		"	^^^^^^\n" + 
-		"The return type is incompatible with A<U>.foo(U)\n" + 
-		"----------\n" + 
-		"6. ERROR in A.java (at line 18)\n" + 
-		"	Object foo(U one, U two) { return null; } // cannot override foo(U), incompatible return type error\n" + 
-		"	^^^^^^\n" + 
-		"The return type is incompatible with A<U>.foo(U, U)\n" + 
-		"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"A.java",
@@ -7753,7 +7690,40 @@ public void test133() {
 			"  Object foo(U one, U two) { return null; } // cannot override foo(U), incompatible return type error\n" +
 			"}"
 		},
-		expectedOutput
+		"----------\n" + 
+		"1. ERROR in A.java (at line 8)\n" + 
+		"	Object foo() { return null; } // cannot override foo(), incompatible return type error\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with A<U>.foo()\n" + 
+		"----------\n" + 
+		"2. WARNING in A.java (at line 10)\n" + 
+		"	Object foo(Object one) { return null; } // unchecked conversion warning\n" + 
+		"	^^^^^^\n" + 
+		"Type safety: The return type Object for foo(Object) from the type B<U> needs unchecked conversion to conform to U from the type A<U>\n" + 
+		"----------\n" + 
+		"3. ERROR in A.java (at line 12)\n" + 
+		"	Object foo(Object one, U two) { return null; }\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method foo(Object, U) of type B<U> has the same erasure as foo(U, U) of type A<U> but does not override it\n" + 
+		"----------\n" + 
+		"4. ERROR in A.java (at line 12)\n" + 
+		"	Object foo(Object one, U two) { return null; }\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		(this.complianceLevel.equals(COMPLIANCE_1_5)
+			? "The method foo(Object, U) of type B<U> must override a superclass method\n"
+			: "The method foo(Object, U) of type B<U> must override or implement a supertype method\n"
+		) + 
+		"----------\n" + 
+		"5. ERROR in A.java (at line 16)\n" + 
+		"	Object foo(U one) { return null; } // cannot override foo(U), incompatible return type error\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with A<U>.foo(U)\n" + 
+		"----------\n" + 
+		"6. ERROR in A.java (at line 18)\n" + 
+		"	Object foo(U one, U two) { return null; } // cannot override foo(U), incompatible return type error\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with A<U>.foo(U, U)\n" + 
+		"----------\n"
 	);
 }
 }
