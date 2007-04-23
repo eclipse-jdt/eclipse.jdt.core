@@ -33,12 +33,13 @@ import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 
 /* package */
 class JavaProjectElementInfo extends OpenableElementInfo {
+	
+	static final IPackageFragmentRoot[] NO_ROOTS = new IPackageFragmentRoot[0];
 
 	static class ProjectCache {
-		ProjectCache(IPackageFragmentRoot[] allPkgFragmentRootsCache, HashtableOfArrayToObject allPkgFragmentsCache, HashtableOfArrayToObject isPackageCache, Map rootToResolvedEntries) {
+		ProjectCache(IPackageFragmentRoot[] allPkgFragmentRootsCache, HashtableOfArrayToObject allPkgFragmentsCache, Map rootToResolvedEntries) {
 			this.allPkgFragmentRootsCache = allPkgFragmentRootsCache;
 			this.allPkgFragmentsCache = allPkgFragmentsCache;
-			this.isPackageCache = isPackageCache;
 			this.rootToResolvedEntries = rootToResolvedEntries;
 		}
 		
@@ -53,11 +54,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		 */
 		public HashtableOfArrayToObject allPkgFragmentsCache;
 		
-		/*
-		 * A set of package names (String[]) that are known to be packages.
-		 */
-		public HashtableOfArrayToObject isPackageCache;
-	
 		public Map rootToResolvedEntries;		
 	}
 	
@@ -72,13 +68,12 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 * Adds the given name and its super names to the given set
 	 * (e.g. for {"a", "b", "c"}, adds {"a", "b", "c"}, {"a", "b"}, and {"a"})
 	 */
-	public static void addNames(String[] name, HashtableOfArrayToObject set) {
-		set.put(name, name);
-		int length = name.length;
+	public static void addSuperPackageNames(String[] pkgName, HashtableOfArrayToObject packageFragments) {
+		int length = pkgName.length;
 		for (int i = length-1; i > 0; i--) {
-			String[] superName = new String[i];
-			System.arraycopy(name, 0, superName, 0, i);
-			set.put(superName, superName);
+			System.arraycopy(pkgName, 0, pkgName = new String[i], 0, i);
+			if (packageFragments.get(pkgName) == null)
+				packageFragments.put(pkgName, NO_ROOTS);
 		}
 	}
 	
@@ -209,7 +204,6 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 			
 			HashMap otherRoots = JavaModelManager.getJavaModelManager().deltaState.otherRoots;
 			HashtableOfArrayToObject fragmentsCache = new HashtableOfArrayToObject();
-			HashtableOfArrayToObject isPackageCache = new HashtableOfArrayToObject();
 			for (int i = 0, length = roots.length; i < length; i++) {
 				IPackageFragmentRoot root = roots[i];
 				IJavaElement[] frags = null;
@@ -230,11 +224,11 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 					PackageFragment fragment= (PackageFragment) frags[j];
 					String[] pkgName = fragment.names;
 					Object existing = fragmentsCache.get(pkgName);
-					if (existing == null) {
+					if (existing == null || existing == NO_ROOTS) {
 						fragmentsCache.put(pkgName, root);
-						// cache whether each package and its including packages (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161)
-						// are actual packages
-						addNames(pkgName, isPackageCache);
+						// ensure super packages (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161)
+						// are also in the map
+						addSuperPackageNames(pkgName, fragmentsCache);
 					} else {
 						if (existing instanceof PackageFragmentRoot) {
 							fragmentsCache.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
@@ -248,7 +242,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 					}
 				}
 			}
-			cache = new ProjectCache(roots, fragmentsCache, isPackageCache, reverseMap);
+			cache = new ProjectCache(roots, fragmentsCache, reverseMap);
 			this.projectCache = cache;
 		}
 		return cache;
@@ -290,7 +284,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 */
 	NameLookup newNameLookup(JavaProject project, ICompilationUnit[] workingCopies) {
 		ProjectCache cache = getProjectCache(project);
-		return new NameLookup(cache.allPkgFragmentRootsCache, cache.allPkgFragmentsCache, cache.isPackageCache, workingCopies, cache.rootToResolvedEntries);
+		return new NameLookup(cache.allPkgFragmentRootsCache, cache.allPkgFragmentsCache, workingCopies, cache.rootToResolvedEntries);
 	}
 	
 	/*
