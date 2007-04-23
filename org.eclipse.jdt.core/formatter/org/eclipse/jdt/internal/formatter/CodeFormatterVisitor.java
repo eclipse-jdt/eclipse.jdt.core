@@ -437,8 +437,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 							// a new line has been inserted by printTrailingComment()
 							this.scribe.indentationLevel = binaryExpressionAlignment.breakIndentationLevel;
 						}
-						this.scribe.alignFragment(binaryExpressionAlignment, i);
-						this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
+						if (this.preferences.wrap_before_binary_operator) {
+							this.scribe.alignFragment(binaryExpressionAlignment, i);
+							this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
+						} else {
+							this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
+							this.scribe.alignFragment(binaryExpressionAlignment, i);
+						}
 						if (operators[i] == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS)) {
 							// the next character is a minus (unary operator)
 							this.scribe.space();
@@ -3157,7 +3162,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			
 		if (constructorDeclaration.ignoreFurtherInvestigation) {
 			this.scribe.printComment();
-			this.scribe.printIndentationIfNecessary();
+			if (this.scribe.indentationLevel != 0) {
+				this.scribe.printIndentationIfNecessary();
+			}
 			this.scribe.scanner.resetTo(constructorDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition - 1);
 			this.scribe.printTrailingComment();
 			switch(this.scribe.scanner.source[this.scribe.scanner.currentPosition]) {
@@ -4041,7 +4048,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		if (methodDeclaration.ignoreFurtherInvestigation) {
 			this.scribe.printComment();
-			this.scribe.printIndentationIfNecessary();
+			if (this.scribe.indentationLevel != 0) {
+				this.scribe.printIndentationIfNecessary();
+			}
 			this.scribe.scanner.resetTo(methodDeclaration.declarationSourceEnd + 1, this.scribe.scannerEndPosition - 1);
 			this.scribe.printTrailingComment();
 			switch(this.scribe.scanner.source[this.scribe.scanner.currentPosition]) {
