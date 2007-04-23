@@ -5302,16 +5302,18 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// warning: create() in HashOrder overrides <U>create() in DoubleHash; return type requires unchecked conversion
 		);
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=125956
-	public void test081a() {
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=125956
+	public void test081() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public abstract class X<U> implements I {\n" +
 				"	public A<String> foo() { return null; }\n" +
+				"	public <S> A<U> bar() { return null; }\n" +
 				"}\n" +
 				"interface I {\n" +
 				"	<T> A<T> foo();\n" +
+				"	<S> A<S> bar();\n" +
 				"}\n" +
 				"class A<V> {}"
 			},
@@ -5320,28 +5322,14 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	public A<String> foo() { return null; }\r\n" + 
 			"	       ^\n" + 
 			"Type safety: The return type A<String> for foo() from the type X<U> needs unchecked conversion to conform to A<Object> from the type I\n" + 
-			"----------\n"
-		);
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=125956
-	public void test081b() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public abstract class X<U> implements I {\n" +
-				"	public <S> A<U> bar() { return null; }\n" +
-				"}\n" +
-				"interface I {\n" +
-				"	<S> A<S> bar();\n" +
-				"}\n" +
-				"class A<V> {}"
-			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\r\n" + 
+			"2. ERROR in X.java (at line 3)\r\n" + 
 			"	public <S> A<U> bar() { return null; }\r\n" + 
 			"	           ^^^^\n" + 
 			"The return type is incompatible with I.bar()\n" + 
 			"----------\n"
+			// <S>bar() in X cannot implement <S>bar() in I; attempting to use incompatible return type
+			// warning: foo() in X implements <T>foo() in I; return type requires unchecked conversion
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105339
@@ -7565,17 +7553,16 @@ public void test128() {
 			"  U foo(Object o, V v);\n" + 
 			"}\n" + 
 			"public class X<U, V> implements I<U, V> {\n" + 
-			"  public Object foo(Object o, Object v) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
+			"  public Object foo(Object o, Object v) { return null; }\n" + 
 			"}\n"
 		},
 		"----------\n" + 
 		"1. WARNING in X.java (at line 5)\n" + 
-		"	public Object foo(Object o, Object v) {\n" + 
+		"	public Object foo(Object o, Object v) { return null; }\n" + 
 		"	       ^^^^^^\n" + 
 		"Type safety: The return type Object for foo(Object, Object) from the type X<U,V> needs unchecked conversion to conform to U from the type I<U,V>\n" + 
-		"----------\n");
+		"----------\n"
+	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 // variant - Object is not a subtype of Z
@@ -7587,19 +7574,17 @@ public void test129() {
 			"  U foo(Object o, V v);\n" + 
 			"}\n" + 
 			"public class X<U extends Z, V> implements I<U, V> {\n" + 
-			"  public Object foo(Object o, Object v) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
+			"  public Object foo(Object o, Object v) { return null; }\n" + 
 			"}\n" + 
-			"class Z {\n" + 
-			"}\n"
+			"class Z {}"
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
-		"	public Object foo(Object o, Object v) {\n" + 
+		"	public Object foo(Object o, Object v) { return null; }\n" + 
 		"	       ^^^^^^\n" + 
 		"The return type is incompatible with I<U,V>.foo(Object, V)\n" + 
-		"----------\n");
+		"----------\n"
+	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 // ** variant - Z<Object> is not a subtype of Z<U>, and |Z<U>| = Z, not Z<Object>
@@ -7611,19 +7596,17 @@ public void test130() {
 			"  Z<U> foo(Object o, V v);\n" + 
 			"}\n" + 
 			"public class X<U, V> implements I<U, V> {\n" + 
-			"  public Z<Object> foo(Object o, Object v) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
+			"  public Z<Object> foo(Object o, Object v) { return null; }\n" + 
 			"}\n" + 
-			"class Z<T> {\n" + 
-			"}"
+			"class Z<T> {}"
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
-		"	public Z<Object> foo(Object o, Object v) {\n" + 
+		"	public Z<Object> foo(Object o, Object v) { return null; }\n" + 
 		"	       ^^^^^^^^^\n" + 
 		"The return type is incompatible with I<U,V>.foo(Object, V)\n" + 
-		"----------\n");
+		"----------\n"
+	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 // variant - two interfaces
@@ -7632,292 +7615,112 @@ public void test131() {
 		new String[] {
 			"X.java",
 			"interface I<U, V> {\n" + 
+			"  U foo();\n" + 
 			"  U foo(Object o, V v);\n" + 
 			"}\n" + 
 			"interface X<U, V> extends I<U, V> {\n" + 
+			"  Object foo();\n" + 
 			"  Object foo(Object o, Object v);\n" + 
 			"}\n"
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 5)\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Object foo();\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with I<U,V>.foo()\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
 		"	Object foo(Object o, Object v);\n" + 
 		"	^^^^^^\n" + 
 		"Type safety: The return type Object for foo(Object, Object) from the type X<U,V> needs unchecked conversion to conform to U from the type I<U,V>\n" + 
-		"----------\n");
+		"----------\n"
+	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant - simpler test case
+// variant - type identity vs type equivalence
 public void test132() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"interface I<U> {\n" + 
-			"  U foo();\n" + 
+			"  U foo(I<?> p);\n" + 
+			"  U foo2(I<? extends Object> p);\n" + 
 			"}\n" + 
 			"public class X<U> implements I<U> {\n" + 
-			"  public Object foo() {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
+			"  public Object foo(I<? extends Object> p) { return null; }\n" + 
+			"  public Object foo2(I<?> p) { return null; }\n" + 
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	public Object foo() {\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	public Object foo(I<? extends Object> p) { return null; }\n" + 
 		"	       ^^^^^^\n" + 
-		"The return type is incompatible with I<U>.foo()\n" + 
-		"----------\n");
+		"The return type is incompatible with I<U>.foo(I<?>)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	public Object foo2(I<?> p) { return null; }\n" + 
+		"	       ^^^^^^\n" + 
+		"The return type is incompatible with I<U>.foo2(I<? extends Object>)\n" + 
+		"----------\n"
+	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant
+// variant - if we detect a return type incompatibility, then skip any @Override errors 
 public void test133() {
 	this.runNegativeTest(
 		new String[] {
-			"X.java",
-			"public class X<U extends Z> {\n" + 
-			"  U foo() {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"class Y<U extends Z> extends X<U> {\n" + 
-			"  public Z foo() {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"class Z {\n" + 
-			"}"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	public Z foo() {\n" + 
-		"	       ^\n" + 
-		"The return type is incompatible with X<U>.foo()\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
-		"	public Z foo() {\n" + 
-		"	         ^^^^^\n" + 
-		"The method foo() of type Y<U> should be tagged with @Override since it actually overrides a superclass method\n" + 
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant - unchecked conversion of ZC to ZC<String> that is a subtype of Z<String> 
-public void test134() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"  Z<String> foo() {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"class Y extends X {\n" + 
-			"  public ZC foo() {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"class Z<T> {\n" + 
-			"}\n" + 
-			"class ZC<T> extends Z<T> {\n" + 
-			"}"
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 7)\n" + 
-		"	public ZC foo() {\n" + 
-		"	       ^^\n" + 
-		"ZC is a raw type. References to generic type ZC<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
-		"	public ZC foo() {\n" + 
-		"	       ^^\n" + 
-		"Type safety: The return type ZC for foo() from the type Y needs unchecked conversion to conform to Z<String> from the type X\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 7)\n" + 
-		"	public ZC foo() {\n" + 
-		"	          ^^^^^\n" + 
-		"The method foo() of type Y should be tagged with @Override since it actually overrides a superclass method\n" + 
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant - cast is not appropriate
-public void test135() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"interface I<U, V> {\n" + 
-			"  U foo(Object o, V v);\n" + 
-			"}\n" + 
-			"interface J<U, V> extends I<U, V> {\n" + 
-			"  Object foo(Object o, V v);\n" + 
-			"}\n" + 
-			"class X {\n" + 
-			"  J<Integer, Integer> m1;\n" + 
-			"  I<Integer, Integer> m2 = (I<Integer, Integer>) m1;\n" + 
-			"}"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	Object foo(Object o, V v);\n" + 
-		"	^^^^^^\n" + 
-		"The return type is incompatible with I<U,V>.foo(Object, V)\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 9)\n" + 
-		"	I<Integer, Integer> m2 = (I<Integer, Integer>) m1;\n" + 
-		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from J<Integer,Integer> to I<Integer,Integer>\n" + 
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant - type identity vs type equivalence
-public void test136() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"interface I<U> {\n" + 
-			"  U foo(I<?> p);\n" + 
-			"}\n" + 
-			"public class X<U> implements I<U> {\n" + 
-			"  public Object foo(I<? extends Object> p) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"}\n"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	public Object foo(I<? extends Object> p) {\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with I<U>.foo(I<?>)\n" + 
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant - type identity vs type equivalence
-public void test137() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"interface I<U> {\n" + 
-			"  U foo(I<? extends Object> p);\n" + 
-			"}\n" + 
-			"public class X<U> implements I<U> {\n" + 
-			"  public Object foo(I<?> p) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"}\n"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	public Object foo(I<?> p) {\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with I<U>.foo(I<? extends Object>)\n" + 
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant - @Override annotation
-public void test138() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X<U> {\n" + 
+			"A.java",
+			"class A<U> {\n" + 
 			"  U foo() { return null; }\n" + 
+			"  U foo(U one) { return null; }\n" + 
+			"  U foo(U one, U two) { return null; }\n" + 
 			"}\n" + 
-			"class Y<U> extends X<U> {\n" + 
+			"class B<U> extends A<U> {\n" + 
 			"  @Override // does not override error\n" + 
-			"  Object foo() { return null; } // cannot override foo(), incompatible return type error\n" + 
+			"  Object foo() { return null; } // cannot override foo(), incompatible return type error\n" +
+			"  @Override // does not override error\n" + 
+			"  Object foo(Object one) { return null; } // unchecked conversion warning\n" +
+			"  @Override // does not override error\n" + 
+			"  Object foo(Object one, U two) { return null; }\n" +
+			"}\n" + 
+			"class C<U> extends A<U> {\n" + 
+			"  @Override // does not override error\n" + 
+			"  Object foo(U one) { return null; } // cannot override foo(U), incompatible return type error\n" +
+			"  @Override // does not override error\n" + 
+			"  Object foo(U one, U two) { return null; } // cannot override foo(U), incompatible return type error\n" +
 			"}"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
+		"1. ERROR in A.java (at line 8)\n" + 
 		"	Object foo() { return null; } // cannot override foo(), incompatible return type error\n" + 
 		"	^^^^^^\n" + 
-		"The return type is incompatible with X<U>.foo()\n" + 
-		"----------\n");
-}// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant - @Override annotation
-public void test139() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X<U> {\n" + 
-			"  U foo(U one) { return null; }\n" + 
-			"}\n" + 
-			"class Y<U> extends X<U> {\n" + 
-			"  @Override\n" + 
-			"  Object foo(Object one) { return null; } // unchecked conversion warning\n" + 
-			"}"
-		},
+		"The return type is incompatible with A<U>.foo()\n" + 
 		"----------\n" + 
-		"1. WARNING in X.java (at line 6)\n" + 
+		"2. WARNING in A.java (at line 10)\n" + 
 		"	Object foo(Object one) { return null; } // unchecked conversion warning\n" + 
 		"	^^^^^^\n" + 
-		"Type safety: The return type Object for foo(Object) from the type Y<U> needs unchecked conversion to conform to U from the type X<U>\n" + 
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant - @Override annotation
-public void test140() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X<U> {\n" + 
-			"  U foo(U one, U two) { return null; }\n" + 
-			"}\n" + 
-			"class Y<U> extends X<U> {\n" + 
-			"  @Override // does not override error\n" + 
-			"  Object foo(Object one, U two) { return null; }\n" + 
-			"}"
-		},
+		"Type safety: The return type Object for foo(Object) from the type B<U> needs unchecked conversion to conform to U from the type A<U>\n" + 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
+		"3. ERROR in A.java (at line 12)\n" + 
 		"	Object foo(Object one, U two) { return null; }\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method foo(Object, U) of type Y<U> has the same erasure as foo(U, U) of type X<U> but does not override it\n" + 
+		"Name clash: The method foo(Object, U) of type B<U> has the same erasure as foo(U, U) of type A<U> but does not override it\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
+		"4. ERROR in A.java (at line 12)\n" + 
 		"	Object foo(Object one, U two) { return null; }\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		(complianceLevel.compareTo(COMPLIANCE_1_5) <= 0 ?
-				"The method foo(Object, U) of type Y<U> must override a superclass method\n" :
-					"The method foo(Object, U) of type Y<U> must override or implement a supertype method\n") +
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant - @Override annotation
-public void test141() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X<U> {\n" + 
-			"  U foo(U one) { return null; }\n" + 
-			"}\n" + 
-			"class Y<U> extends X<U> {\n" + 
-			"  @Override // does not override error\n" + 
-			"  Object foo(U one) { return null; } // cannot override foo(U), incompatible return type error\n" + 
-			"}"
-		},
+		"The method foo(Object, U) of type B<U> must override a superclass method\n" + 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
+		"5. ERROR in A.java (at line 16)\n" + 
 		"	Object foo(U one) { return null; } // cannot override foo(U), incompatible return type error\n" + 
 		"	^^^^^^\n" + 
-		"The return type is incompatible with X<U>.foo(U)\n" + 
-		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
-// variant - @Override annotation
-public void test142() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X<U> {\n" + 
-			"  U foo(U one, U two) { return null; }\n" + 
-			"}\n" + 
-			"class Y<U> extends X<U> {\n" + 
-			"  @Override // does not override error\n" + 
-			"  Object foo(U one, U two) { return null; } // cannot override foo(U,U), incompatible return type error\n" + 
-			"}"
-		},
+		"The return type is incompatible with A<U>.foo(U)\n" + 
 		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	Object foo(U one, U two) { return null; } // cannot override foo(U,U), incompatible return type error\n" + 
+		"6. ERROR in A.java (at line 18)\n" + 
+		"	Object foo(U one, U two) { return null; } // cannot override foo(U), incompatible return type error\n" + 
 		"	^^^^^^\n" + 
-		"The return type is incompatible with X<U>.foo(U, U)\n" + 
-		"----------\n");
+		"The return type is incompatible with A<U>.foo(U, U)\n" + 
+		"----------\n"
+	);
 }
 }
