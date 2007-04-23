@@ -785,15 +785,17 @@ public void testSeekPackageFragments() throws CoreException {
 	PackageRequestor requestor = new PackageRequestor();
 	for (int i=0; i<WARMUP_COUNT; i++) {
 		getNameLookup(BIG_PROJECT).seekPackageFragments("org.eclipse.jdt.core.tests78.performance5", false/*not partial match*/, requestor);
+		if (i == 0) {
+			int size = requestor.pkgs.size();
+			IJavaElement[] result = new IJavaElement[size];
+			requestor.pkgs.toArray(result);
+			assertElementsEqual(
+				"Unexpected packages",
+				"org.eclipse.jdt.core.tests78.performance5 [in src78 [in "+BIG_PROJECT_NAME+"]]",
+				result
+			);
+		}
 	}
-	int size = requestor.pkgs.size();
-	IJavaElement[] result = new IJavaElement[size];
-	requestor.pkgs.toArray(result);
-	assertElementsEqual(
-		"Unexpected packages",
-		"org.eclipse.jdt.core.tests78.performance5 [in src78 [in "+BIG_PROJECT_NAME+"]]",
-		result
-	);
 	
 	// measure performance
 	requestor.pkgs = null;
