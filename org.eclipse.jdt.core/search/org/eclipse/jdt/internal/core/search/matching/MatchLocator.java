@@ -1235,42 +1235,37 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 			return;
 		}
 		PackageDeclarationPattern pkgPattern = (PackageDeclarationPattern) searchPattern;
+		IPath[] scopeProjectsAndJars = this.scope.enclosingProjectsAndJars();
+		int scopeLength = scopeProjectsAndJars.length;
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
 			IJavaProject javaProject = projects[i];
-			IPackageFragmentRoot[] roots = null;
-			try {
-				roots = javaProject.getPackageFragmentRoots();
-			} catch (JavaModelException e) {
-				// java project doesn't exist -> continue with next project (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75561)
-				continue;
-			}
-			for (int j = 0, rootsLength = roots.length; j < rootsLength; j++) {
-				IJavaElement[] pkgs = null;
-				try {
-					pkgs = roots[j].getChildren();
-				} catch (JavaModelException e) {
-					// pkg fragment root doesn't exist -> continue with next root (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75561)
-					continue;
+			// Verify that project belongs to the scope
+			boolean found = false;
+			for (int j=0; j<scopeLength; j++) {
+				if (projects[i].getPath().equals(scopeProjectsAndJars[j])) {
+					found = true;
+					break;
 				}
-				for (int k = 0, pksLength = pkgs.length; k < pksLength; k++) {
-					IPackageFragment pkg = (IPackageFragment) pkgs[k];
-					if (!pkg.exists()) continue; // package doesn't exist -> continue with next package (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75561)
-					if (pkgPattern.matchesName(pkgPattern.pkgName, pkg.getElementName().toCharArray())) {
-						IResource resource = pkg.getResource();
-						if (resource == null) // case of a file in an external jar
-							resource = javaProject.getProject();
-						try {
-							if (encloses(pkg)) {
-								SearchMatch match = new PackageDeclarationMatch(pkg, SearchMatch.A_ACCURATE, -1, -1, participant, resource);
-								report(match);
-							}
-						} catch (JavaModelException e) {
-							throw e;
-						} catch (CoreException e) {
-							throw new JavaModelException(e);
-						}
+			}
+			if (!found) continue;
+			this.nameLookup = ((JavaProject) projects[i]).newNameLookup(this.workingCopies);
+			IPackageFragment[] packageFragments = this.nameLookup.findPackageFragments(new String(pkgPattern.pkgName), true, true);
+			int pLength = packageFragments == null ? 0 : packageFragments.length;
+			for (int p=0; p<pLength; p++) {
+				IPackageFragment fragment = packageFragments[p];
+				IResource resource = fragment.getResource();
+				if (resource == null) // case of a file in an external jar
+					resource = javaProject.getProject();
+				try {
+					if (encloses(fragment)) {
+						SearchMatch match = new PackageDeclarationMatch(fragment, SearchMatch.A_ACCURATE, -1, -1, participant, resource);
+						report(match);
 					}
+				} catch (JavaModelException e) {
+					throw e;
+				} catch (CoreException e) {
+					throw new JavaModelException(e);
 				}
 			}
 		}

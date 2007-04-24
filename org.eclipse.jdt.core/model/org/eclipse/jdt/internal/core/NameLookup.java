@@ -454,37 +454,48 @@ public class NameLookup implements SuffixConstants {
 	 * (qualified) name, or <code>null</code> if none exist.
 	 *
 	 * The name can be:
-	 *	- empty: ""
-	 *	- qualified: "pack.pack1.pack2"
+	 * <ul>
+	 *		<li>empty: ""</li>
+	 *		<li>qualified: "pack.pack1.pack2"</li>
+	 * </ul>
 	 * @param partialMatch partial name matches qualify when <code>true</code>,
 	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public IPackageFragment[] findPackageFragments(String name, boolean partialMatch) {
-		if (partialMatch) {
+		return findPackageFragments(name, partialMatch, false);
+	}
+
+	/**
+	 * Returns the package fragments whose name matches the given
+	 * (qualified) name or pattern, or <code>null</code> if none exist.
+	 *
+	 * The name can be:
+	 * <ul>
+	 *		<li>empty: ""</li>
+	 *		<li>qualified: "pack.pack1.pack2"</li>
+	 * 	<li>a pattern: "pack.*.util"</li>
+	 * </ul>
+	 * @param partialMatch partial name matches qualify when <code>true</code>,
+	 * @param patternMatch <code>true</code> when the given name might be a pattern,
+	 *		<code>false</code> otherwise.
+	 */
+	public IPackageFragment[] findPackageFragments(String name, boolean partialMatch, boolean patternMatch) {
+		boolean hasPatternChars = patternMatch && (name.indexOf('*') >= 0 || name.indexOf('?') >= 0);
+		if (partialMatch || hasPatternChars) {
 			String[] splittedName = Util.splitOn('.', name, 0, name.length());
 			IPackageFragment[] oneFragment = null;
 			ArrayList pkgs = null;
 			Object[][] keys = this.packageFragments.keyTable;
 			for (int i = 0, length = keys.length; i < length; i++) {
 				String[] pkgName = (String[]) keys[i];
-				if (pkgName != null && Util.startsWithIgnoreCase(pkgName, splittedName)) {
-					Object value = this.packageFragments.valueTable[i];
-					if (value instanceof PackageFragmentRoot) {
-						IPackageFragment pkg = ((PackageFragmentRoot) value).getPackageFragment(pkgName);
-						if (oneFragment == null) {
-							oneFragment = new IPackageFragment[] {pkg};
-						} else {
-							if (pkgs == null) {
-								pkgs = new ArrayList();
-								pkgs.add(oneFragment[0]);
-							}
-							pkgs.add(pkg);
-						}
-					} else {
-						IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-						for (int j = 0, length2 = roots.length; j < length2; j++) {
-							PackageFragmentRoot root = (PackageFragmentRoot) roots[j];
-							IPackageFragment pkg = root.getPackageFragment(pkgName);
+				if (pkgName != null) {
+					boolean match = hasPatternChars
+						? Util.matchesWithIgnoreCase(pkgName, name)
+						: Util.startsWithIgnoreCase(pkgName, splittedName);
+					if (match) {
+						Object value = this.packageFragments.valueTable[i];
+						if (value instanceof PackageFragmentRoot) {
+							IPackageFragment pkg = ((PackageFragmentRoot) value).getPackageFragment(pkgName);
 							if (oneFragment == null) {
 								oneFragment = new IPackageFragment[] {pkg};
 							} else {
@@ -493,6 +504,21 @@ public class NameLookup implements SuffixConstants {
 									pkgs.add(oneFragment[0]);
 								}
 								pkgs.add(pkg);
+							}
+						} else {
+							IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
+							for (int j = 0, length2 = roots.length; j < length2; j++) {
+								PackageFragmentRoot root = (PackageFragmentRoot) roots[j];
+								IPackageFragment pkg = root.getPackageFragment(pkgName);
+								if (oneFragment == null) {
+									oneFragment = new IPackageFragment[] {pkg};
+								} else {
+									if (pkgs == null) {
+										pkgs = new ArrayList();
+										pkgs.add(oneFragment[0]);
+									}
+									pkgs.add(pkg);
+								}
 							}
 						}
 					}

@@ -650,7 +650,9 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			cleanCategoryTableCache(false, scope, resultCollector);
 			runGc();
 			startMeasuring();
-			search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
+			// TODO (frederic) increase time for this test in next version as bug 183062 fix make its time around 2ms!
+//			for (int j=0; j<20; j++)
+				search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
 			stopMeasuring();
 		}
 		

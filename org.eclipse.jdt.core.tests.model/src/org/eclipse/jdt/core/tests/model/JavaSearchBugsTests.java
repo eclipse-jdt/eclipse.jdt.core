@@ -200,10 +200,10 @@ public void testBug70827() throws CoreException {
 public void testBug71279() throws CoreException {
 	JavaSearchResultCollector result = new JavaSearchResultCollector() {
 	    public void beginReporting() {
-	        results.append("Starting search...");
+	    	addLine("Starting search...");
         }
 	    public void endReporting() {
-	        results.append("\nDone searching.");
+	        addLine("Done searching.");
         }
 	};
 	workingCopies = new ICompilationUnit[1];

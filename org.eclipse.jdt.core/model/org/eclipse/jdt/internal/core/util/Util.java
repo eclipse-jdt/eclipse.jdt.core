@@ -1945,6 +1945,30 @@ public class Util {
 		return compoundName[prefixLength-1].toLowerCase().startsWith(prefix[prefixLength-1].toLowerCase());
 	}
 
+	/*
+	 * Returns whether the given compound name matches the given pattern.
+	 */
+	public static boolean matchesWithIgnoreCase(String[] compoundName, String pattern) {
+		if (pattern.equals("*")) return true; //$NON-NLS-1$
+		int nameLength = compoundName.length;
+		if (pattern.length() == 0) return nameLength == 0;
+		if (nameLength == 0) return false;
+		int length = nameLength-1;
+		for (int i=0; i<nameLength; i++) {
+			length += compoundName[i].length();
+		}
+		char[] compoundChars = new char[length];
+		int pos = 0;
+		for (int i=0; i<nameLength; i++) {
+			if (pos > 0) compoundChars[pos++] = '.';
+			char[] array = compoundName[i].toCharArray();
+			int size = array.length;
+			System.arraycopy(array, 0, compoundChars, pos, size);
+			pos += size;
+		}
+		return CharOperation.match(pattern.toCharArray(), compoundChars, false);
+	}
+
 	/**
 	 * Converts a String[] to char[][].
 	 */

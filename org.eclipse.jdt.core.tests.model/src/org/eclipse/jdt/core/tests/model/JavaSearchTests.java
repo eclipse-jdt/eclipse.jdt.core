@@ -453,10 +453,10 @@ public void testDeclarationOfReferencedTypes08() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
 	JavaSearchResultCollector result = new JavaSearchResultCollector() {
 	    public void beginReporting() {
-	        results.append("Starting search...");
+	        addLine("Starting search...");
         }
 	    public void endReporting() {
-	        results.append("\nDone searching.");
+	        addLine("Done searching.");
         }
 	};
 	searchDeclarationsOfReferencedTypes(
@@ -478,10 +478,10 @@ public void testDeclarationOfReferencedTypes09() throws CoreException {
 	ICompilationUnit cu = getCompilationUnit("JavaSearch15/src/p3/X.java");
 	JavaSearchResultCollector result = new JavaSearchResultCollector() {
 	    public void beginReporting() {
-	        results.append("Starting search...");
+	        addLine("Starting search...");
         }
 	    public void endReporting() {
-	        results.append("\nDone searching.");
+	        addLine("Done searching.");
         }
 	};
 	searchDeclarationsOfReferencedTypes(
@@ -1608,18 +1608,18 @@ public void testPackageDeclaration1() throws CoreException { // was testSimplePa
  * Various package declarations test.
  */
 public void testPackageDeclaration2() throws CoreException { // was testVariousPackageDeclarations
-
+	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
 	search(
 		"p3*", 
 		PACKAGE,
 		DECLARATIONS, 
 		getJavaSearchScope(), 
-		this.resultCollector);
+		packageCollector);
 	assertSearchResults(
 		"src/p3 p3\n" + 
 		"src/p3/p2 p3.p2\n" + 
 		"src/p3/p2/p p3.p2.p",
-		this.resultCollector);
+		packageCollector);
 }
 /**
  * Package declaration test.
@@ -1651,10 +1651,7 @@ public void testPackageDeclaration4() throws CoreException {
 		System.arraycopy(originalCP, 0, newCP, 0, cpLength);
 		newCP[cpLength] = JavaCore.newLibraryEntry(new Path("/JavaSearch/corrupt.jar"), null, null);
 		project.setRawClasspath(newCP, null);
-		
-
-		search(
-			"r9",
+		search("r9",
 			PACKAGE,
 			DECLARATIONS, 
 			getJavaSearchScope(), 
@@ -1704,6 +1701,84 @@ public void testPackageDeclarationBug117020() throws CoreException {
 			test.delete(true, null);
 		}
 	}
+}
+public void testPackageDeclarationBug183062a() throws CoreException {
+	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
+	search("j?",
+		PACKAGE,
+		DECLARATIONS, 
+		getJavaSearchScope(), 
+		packageCollector);
+	assertSearchResults(
+		"src/j1 j1\n" + 
+		"src/j2 j2\n" + 
+		"src/j3 j3\n" + 
+		"src/j4 j4\n" + 
+		"src/j5 j5\n" + 
+		"src/j6 j6\n" + 
+		"src/j7 j7\n" + 
+		"test47909.jar j3 [No source]",
+		packageCollector);
+}
+public void testPackageDeclarationBug183062b() throws CoreException {
+	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
+	search("j*",
+		PACKAGE,
+		DECLARATIONS, 
+		getJavaSearchScope(), 
+		packageCollector);
+	assertSearchResults(
+		""+ getExternalJCLPathString() + " java\n" + 
+		""+ getExternalJCLPathString() + " java.io\n" + 
+		""+ getExternalJCLPathString() + " java.lang\n" + 
+		"src/j1 j1\n" + 
+		"src/j2 j2\n" + 
+		"src/j3 j3\n" + 
+		"src/j4 j4\n" + 
+		"src/j5 j5\n" + 
+		"src/j6 j6\n" + 
+		"src/j7 j7\n" + 
+		"src/j7/qua j7.qua\n" + 
+		"src/j7/qua/li j7.qua.li\n" + 
+		"src/j7/qua/li/fied j7.qua.li.fied\n" + 
+		"test47909.jar j3 [No source]",
+		packageCollector);
+}
+public void testPackageDeclarationBug183062c() throws CoreException {
+	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
+	search("j7.*",
+		PACKAGE,
+		DECLARATIONS, 
+		getJavaSearchScope(), 
+		packageCollector);
+	assertSearchResults(
+		"src/j7/qua j7.qua\n" + 
+		"src/j7/qua/li j7.qua.li\n" + 
+		"src/j7/qua/li/fied j7.qua.li.fied",
+		packageCollector);
+}
+public void testPackageDeclarationBug183062d() throws CoreException {
+	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
+	search("j7.*.*",
+		PACKAGE,
+		DECLARATIONS, 
+		getJavaSearchScope(), 
+		packageCollector);
+	assertSearchResults(
+		"src/j7/qua/li j7.qua.li\n" + 
+		"src/j7/qua/li/fied j7.qua.li.fied",
+		packageCollector);
+}
+public void testPackageDeclarationBug183062e() throws CoreException {
+	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
+	search("????.????",
+		PACKAGE,
+		DECLARATIONS, 
+		getJavaSearchScope(), 
+		packageCollector);
+	assertSearchResults(
+		""+ getExternalJCLPathString() + " java.lang",
+		packageCollector);
 }
 /**
  * Package reference test.

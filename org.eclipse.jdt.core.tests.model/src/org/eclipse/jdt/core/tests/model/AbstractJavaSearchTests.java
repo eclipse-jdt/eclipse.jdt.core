@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.core.resources.*;
@@ -59,19 +61,24 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 		public boolean showSynthetic;
 		public int showFlavors = 0;
 		public int count = 0;
+		List lines = new ArrayList();
+		boolean sorted;
+		public JavaSearchResultCollector() {
+			this(false);
+		}
+		public JavaSearchResultCollector(boolean sorted) {
+			this.sorted = sorted;
+		}
 		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
-			count++;
+			this.count++;
 			this.match = searchMatch;
 			writeLine();
-			if (line != null) {
-				writeLineToResult();
+			if (this.line != null && (match.getAccuracy() == SearchMatch.A_ACCURATE || showPotential)) {
+				this.lines.add(this.line);
 			}
 		}
-		protected void writeLineToResult() {
-			if (match.getAccuracy() == SearchMatch.A_ACCURATE || showPotential) {
-				if (results.length() > 0) results.append("\n");
-				results.append(line);
-			}
+		protected void addLine(String text) {
+			this.lines.add(text);
 		}
 		protected void writeLine() throws CoreException {
 			try {
@@ -225,8 +232,8 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 					}
 				}
 			} catch (JavaModelException e) {
-				results.append("\n");
-				results.append(e.toString());
+				this.line.append("\n");
+				this.line.append(e.toString());
 			}
 		}
 		private boolean showSuperInvocation() {
@@ -384,8 +391,22 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			return contents;
 		}
 		public String toString() {
-			return results.toString();
-		}
+	    	StringBuffer buffer = new StringBuffer();
+	    	List displayedLines = new ArrayList(this.lines);
+	    	if (this.sorted) {
+	    		Collections.sort(displayedLines, new Comparator() {
+					public int compare(Object o1, Object o2) {
+						return o1.toString().compareTo(o2.toString());
+				    }
+				});
+	    	}
+	    	int size = displayedLines.size();
+	    	for (int i=0; i<size; i++) {
+	    		if (i > 0) buffer.append('\n');
+	    		buffer.append(displayedLines.get(i).toString());
+	    	}
+	        return buffer.toString();
+	    }
 	}
 	
 	static class TypeNameMatchCollector extends TypeNameMatchRequestor {
