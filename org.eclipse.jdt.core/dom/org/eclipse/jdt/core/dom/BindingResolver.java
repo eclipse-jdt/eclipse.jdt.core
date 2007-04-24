@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
@@ -219,9 +220,10 @@ class BindingResolver {
 	 * </p>
 	 *
 	 * @param recoveredTypeBinding the recovered type binding
+	 * @param dimensions the dimensions to add the to given type binding dimensions
 	 * @return the new type binding
 	 */
-	ITypeBinding getTypeBinding(RecoveredTypeBinding recoveredTypeBinding) {
+	ITypeBinding getTypeBinding(RecoveredTypeBinding recoveredTypeBinding, int dimensions) {
 		return null;
 	}
 
@@ -236,6 +238,18 @@ class BindingResolver {
 	 * @return the new variable binding
 	 */
 	IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
+		return null;
+	}
+
+	/**
+	 * Return the working copy owner for the receiver.
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * @return the working copy owner for the receiver
+	 */
+	public WorkingCopyOwner getWorkingCopyOwner() {
 		return null;
 	}
 

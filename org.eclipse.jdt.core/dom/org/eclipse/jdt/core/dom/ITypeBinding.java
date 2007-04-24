@@ -54,13 +54,11 @@ public interface ITypeBinding extends IBinding {
 	 * <p>If the receiver is an array binding, then the resulting dimension is the given dimension
 	 * plus the dimension of the receiver. Otherwise the resulting dimension is the given
 	 * dimension.</p>
-	 * <p>It cannot be called on a recovered binding.</p>
 	 *
 	 * @param dimension the given dimension
 	 * @return an array type binding
 	 * @throws IllegalArgumentException:<ul>
 	 * <li>if the receiver represents the void type</li>
-	 * <li>if the receiver represents a recovered binding</li>
 	 * <li>if the resulting dimensions is lower than one or greater than 255</li>
 	 * </ul>
 	 * @since 3.3
@@ -306,12 +304,12 @@ public interface ITypeBinding extends IBinding {
 	 * original source, since the compiler may change them (in particular,
 	 * for inner class emulation). The <code>getDeclaredModifiers</code> method
 	 * should be used if the original modifiers are needed.
-	 * Returns 0 if this type does not represent a class, interface, enum, or annotation
-	 * type.
+	 * Returns 0 if this type does not represent a class, an interface, an enum, an annotation
+	 * type or a recovered type.
 	 *
 	 * @return the compiled modifiers for this type binding or 0
-	 * if this type does not represent a class, interface, enum, or annotation
-	 * type
+	 * if this type does not represent a class, an interface, an enum, an annotation
+	 * type or a recovered type.
 	 * @see #getDeclaredModifiers()
 	 */
 	public int getModifiers();
@@ -365,11 +363,14 @@ public interface ITypeBinding extends IBinding {
 
 	/**
 	 * Returns the binding for the package in which this type is declared.
+	 * 
+	 * <p>The package of a recovered type reference binding is the package of the
+	 * enclosing type.</p>
 	 *
 	 * @return the binding for the package in which this class, interface,
 	 * enum, or annotation type is declared, or <code>null</code> if this type
 	 * binding represents a primitive type, an array type, the null type,
-	 * a type variable, a wildcard type, a capture binding, or a recovered binding.
+	 * a type variable, a wildcard type, a capture binding.
 	 */
 	public IPackageBinding getPackage();
 
@@ -454,8 +455,8 @@ public interface ITypeBinding extends IBinding {
 	 * <p>
 	 * If this type binding represents an interface, an array type, a
 	 * primitive type, the null type, a type variable, an enum type,
-	 * an annotation type, a wildcard type, a capture binding, or a
-	 * recovered binding then <code>null</code> is returned.
+	 * an annotation type, a wildcard type, or a capture binding then
+	 * <code>null</code> is returned.
 	 * </p>
 	 *
 	 * @return the superclass of the class represented by this type binding,
@@ -593,7 +594,8 @@ public interface ITypeBinding extends IBinding {
 	 * of the given type, as specified in section 5.2 of <em>The Java Language
 	 * Specification, Third Edition</em> (JLS3).
 	 *
-	 * <p>If the receiver or the argument is a recovered type, the answer is always false.</p>
+	 * <p>If the receiver or the argument is a recovered type, the answer is always false,
+	 * unless the two types are identical or the argument is <code>java.lang.Object</code>.</p>
 	 *
 	 * @param variableType the type of a variable to check compatibility against
 	 * @return <code>true</code> if an expression of this type can be assigned to a
@@ -641,7 +643,8 @@ public interface ITypeBinding extends IBinding {
 	 * <code>A.isCastCompatible(B)</code>
 	 * </p>
 	 *
-	 * <p>If the receiver or the argument is a recovered type, the answer is always false.</p>
+	 * <p>If the receiver or the argument is a recovered type, the answer is always false,
+	 * unless the two types are identical or the argument is <code>java.lang.Object</code>.</p>
 	 *
 	 * @param type the type to check compatibility against
 	 * @return <code>true</code> if this type is cast compatible with the
@@ -651,9 +654,9 @@ public interface ITypeBinding extends IBinding {
 	public boolean isCastCompatible(ITypeBinding type);
 
 	/**
-	 * Returns whether this type binding represents a class type.
+	 * Returns whether this type binding represents a class type or a recovered binding.
 	 *
-	 * @return <code>true</code> if this object represents a class,
+	 * @return <code>true</code> if this object represents a class or a recovered binding,
 	 *    and <code>false</code> otherwise
 	 */
 	public boolean isClass();
@@ -844,7 +847,8 @@ public interface ITypeBinding extends IBinding {
 	 * as specified in section 4.10 of <em>The Java Language
 	 * Specification, Third Edition</em> (JLS3).
 	 *
-	 * <p>If the receiver or the argument is a recovered type, the answer is always false.</p>
+	 * <p>If the receiver or the argument is a recovered type, the answer is always false,
+	 * unless the two types are identical or the argument is <code>java.lang.Object</code>.</p>
 	 *
 	 * @param type the type to check compatibility against
 	 * @return <code>true</code> if this type is subtype compatible with the

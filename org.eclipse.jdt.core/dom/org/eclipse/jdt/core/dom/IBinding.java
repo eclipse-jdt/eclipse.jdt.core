@@ -274,7 +274,7 @@ public interface IBinding {
 	 * </p>
 	 * <p>Note that the key for annotation bindings and member value pair bindings is
 	 * not yet implemented. This returns <code>null</code> for these 2 kinds of bindings.<br>
-	 * <code>null</code> is also returned for recovered bindings
+	 * Recovered bindings have a unique key.
 	 * </p>
 	 *
 	 * @return the key for this binding

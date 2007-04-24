@@ -63,6 +63,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
@@ -116,7 +117,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 675 };
+//		TESTS_NUMBERS =  new int[] { 676 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -8963,6 +8964,35 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNotNull("No binding", elementType);
 			assertEquals("Wrong name", "List", elementType.getName());
 			assertTrue("Not a recovered binding", elementType.isRecovered());
+
+			IJavaElement javaElement = elementType.getJavaElement();
+			assertNotNull("No java element", javaElement);
+			assertTrue("Javalement exists", !javaElement.exists());
+			IPackageBinding packageBinding = elementType.getPackage();
+			assertNotNull("No package", packageBinding);
+			assertTrue("Not the default package", packageBinding.isUnnamed());
+			ITypeBinding arrayBinding = elementType.createArrayType(2);
+			assertNotNull("No array binding", arrayBinding);
+			assertEquals("Wrong dimensions", 2, arrayBinding.getDimensions());
+			ITypeBinding elementType2 = arrayBinding.getElementType();
+			assertNotNull("No element type", elementType2);
+			assertNotNull("No key", elementType.getKey());
+			assertTrue("Not equals", elementType2.isEqualTo(elementType));
+			
+			node = getASTNode(unit, 0);
+			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			ITypeBinding typeBinding2 = typeDeclaration.resolveBinding();
+			ITypeBinding javaLangObject = typeBinding2.getSuperclass();
+			assertEquals("Not java.lang.Object", "java.lang.Object", javaLangObject.getQualifiedName());
+			assertTrue("Not isCastCompatible", elementType.isCastCompatible(javaLangObject));
+			assertTrue("Not isCastCompatible", elementType.isCastCompatible(elementType2));
+
+			assertTrue("Not isSubTypeCompatible", elementType.isSubTypeCompatible(javaLangObject));
+			assertTrue("Not isSubTypeCompatible", elementType.isSubTypeCompatible(elementType2));
+
+			assertTrue("Not isAssignmentCompatible", elementType.isAssignmentCompatible(javaLangObject));
+			assertTrue("Not isAssignmentCompatible", elementType.isAssignmentCompatible(elementType2));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
@@ -8971,6 +9001,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=149567
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=180905
 	 */
 	public void test0673() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
@@ -8999,13 +9030,40 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			ITypeBinding typeBinding = type.resolveBinding();
 			assertNotNull("No type binding", typeBinding);
 			assertTrue("Not a recovered binding", typeBinding.isRecovered());
-			IMethodBinding methodBinding = methodDeclaration.resolveBinding();
-			assertNull("Got a method binding", methodBinding);
+			IJavaElement javaElement = typeBinding.getJavaElement();
+			assertNotNull("No java element", javaElement);
+			assertTrue("Javalement exists", !javaElement.exists());
+			IPackageBinding packageBinding = typeBinding.getPackage();
+			assertNotNull("No package", packageBinding);
+			assertTrue("Not the default package", packageBinding.isUnnamed());
+			ITypeBinding arrayBinding = typeBinding.createArrayType(2);
+			assertNotNull("No array binding", arrayBinding);
+			assertEquals("Wrong dimensions", 2, arrayBinding.getDimensions());
+			ITypeBinding elementType = arrayBinding.getElementType();
+			assertNotNull("No element type", elementType);
+			assertNotNull("No key", typeBinding.getKey());
+			assertTrue("Not equals", elementType.isEqualTo(typeBinding));
+			
+			node = getASTNode(unit, 0);
+			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			ITypeBinding typeBinding2 = typeDeclaration.resolveBinding();
+			ITypeBinding javaLangObject = typeBinding2.getSuperclass();
+			assertEquals("Not java.lang.Object", "java.lang.Object", javaLangObject.getQualifiedName());
+			assertTrue("Not isCastCompatible", typeBinding.isCastCompatible(javaLangObject));
+			assertTrue("Not isCastCompatible", typeBinding.isCastCompatible(elementType));
+
+			assertTrue("Not isSubTypeCompatible", typeBinding.isSubTypeCompatible(javaLangObject));
+			assertTrue("Not isSubTypeCompatible", typeBinding.isSubTypeCompatible(elementType));
+
+			assertTrue("Not isAssignmentCompatible", typeBinding.isAssignmentCompatible(javaLangObject));
+			assertTrue("Not isAssignmentCompatible", typeBinding.isAssignmentCompatible(elementType));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
 	}
+
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=180524
 	 */
@@ -9075,6 +9133,72 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			ITypeBinding typeBinding = expression.resolveTypeBinding();
 			assertNotNull("No binding", typeBinding);
 			assertEquals("Wrong type", "java.lang.String", typeBinding.getQualifiedName());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=149567
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=180905
+	 */
+	public void test0676() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"package p;\n" +
+				"public class X {\n" + 
+				"	B foo() {\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/p/X.java", true/*resolve*/);
+			workingCopy.getBuffer().setContents(contents);
+			ASTNode node = runConversion(AST.JLS3, workingCopy, true, true, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertTrue("no binding recovery", unit.getAST().hasBindingsRecovery());
+			assertTrue("no statement recovery", unit.getAST().hasStatementsRecovery());
+			assertTrue("no binding resolution", unit.getAST().hasResolvedBindings());
+			String expectedError = "B cannot be resolved to a type";
+			assertProblemsSize(unit, 1, expectedError);
+			assertTrue("No binding recovery", unit.getAST().hasBindingsRecovery());
+			node = getASTNode(unit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			Type type = methodDeclaration.getReturnType2();
+			assertNotNull("No type", type);
+			ITypeBinding typeBinding = type.resolveBinding();
+			assertNotNull("No type binding", typeBinding);
+			assertTrue("Not a recovered binding", typeBinding.isRecovered());
+			IJavaElement javaElement = typeBinding.getJavaElement();
+			assertNotNull("No java element", javaElement);
+			assertTrue("Javalement exists", !javaElement.exists());
+			IPackageBinding packageBinding = typeBinding.getPackage();
+			assertNotNull("No package", packageBinding);
+			assertEquals("Not the package p", "p", packageBinding.getName());
+			ITypeBinding arrayBinding = typeBinding.createArrayType(2);
+			assertNotNull("No array binding", arrayBinding);
+			assertEquals("Wrong dimensions", 2, arrayBinding.getDimensions());
+			ITypeBinding elementType = arrayBinding.getElementType();
+			assertNotNull("No element type", elementType);
+			assertNotNull("No key", typeBinding.getKey());
+			assertTrue("Not equals", elementType.isEqualTo(typeBinding));
+			
+			node = getASTNode(unit, 0);
+			assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			ITypeBinding typeBinding2 = typeDeclaration.resolveBinding();
+			ITypeBinding javaLangObject = typeBinding2.getSuperclass();
+			assertEquals("Not java.lang.Object", "java.lang.Object", javaLangObject.getQualifiedName());
+			assertTrue("Not isCastCompatible", typeBinding.isCastCompatible(javaLangObject));
+			assertTrue("Not isCastCompatible", typeBinding.isCastCompatible(elementType));
+
+			assertTrue("Not isSubTypeCompatible", typeBinding.isSubTypeCompatible(javaLangObject));
+			assertTrue("Not isSubTypeCompatible", typeBinding.isSubTypeCompatible(elementType));
+
+			assertTrue("Not isAssignmentCompatible", typeBinding.isAssignmentCompatible(javaLangObject));
+			assertTrue("Not isAssignmentCompatible", typeBinding.isAssignmentCompatible(elementType));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();

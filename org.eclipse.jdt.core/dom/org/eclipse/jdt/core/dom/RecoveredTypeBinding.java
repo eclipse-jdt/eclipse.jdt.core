@@ -14,8 +14,11 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.CompilationUnit;
 
 /**
  * This class represents the recovered binding for a type
@@ -55,17 +58,17 @@ class RecoveredTypeBinding implements ITypeBinding {
 		}
 	}
 
-	RecoveredTypeBinding(BindingResolver resolver, RecoveredTypeBinding typeBinding) {
+	RecoveredTypeBinding(BindingResolver resolver, RecoveredTypeBinding typeBinding, int dimensions) {
 		this.innerTypeBinding = typeBinding;
-		this.dimensions = typeBinding.getDimensions() - 1;
+		this.dimensions = typeBinding.getDimensions() + dimensions;
 		this.resolver = resolver;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#createArrayType(int)
 	 */
-	public ITypeBinding createArrayType(int dimension) {
-		throw new IllegalArgumentException("Cannot be called on a recovered type binding"); //$NON-NLS-1$
+	public ITypeBinding createArrayType(int dims) {
+		return this.resolver.getTypeBinding(this, dims);
 	}
 
 	/* (non-Javadoc)
@@ -87,7 +90,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 */
 	public ITypeBinding getComponentType() {
 		if (this.dimensions == 0) return null;
-		return this.resolver.getTypeBinding(this);
+		return this.resolver.getTypeBinding(this, -1);
 	}
 
 	/* (non-Javadoc)
@@ -143,9 +146,13 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getElementType()
 	 */
 	public ITypeBinding getElementType() {
-		if (this.referenceBinding != null && this.referenceBinding.isArrayType()) {
-			ArrayBinding arrayBinding = (ArrayBinding) this.referenceBinding;
-			return new RecoveredTypeBinding(this.resolver, arrayBinding.leafComponentType);
+		if (this.referenceBinding != null) {
+			if (this.referenceBinding.isArrayType()) {
+				ArrayBinding arrayBinding = (ArrayBinding) this.referenceBinding;
+				return new RecoveredTypeBinding(this.resolver, arrayBinding.leafComponentType);
+			} else {
+				return new RecoveredTypeBinding(this.resolver, this.referenceBinding);
+			}
 		}
 		if (this.innerTypeBinding != null) {
 			return this.innerTypeBinding.getElementType();
@@ -216,6 +223,10 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getPackage()
 	 */
 	public IPackageBinding getPackage() {
+		CompilationUnitScope scope = this.resolver.scope();
+		if (scope != null) {
+			return this.resolver.getPackageBinding(scope.getCurrentPackage());
+		}
 		return null;
 	}
 
@@ -230,7 +241,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getSuperclass()
 	 */
 	public ITypeBinding getSuperclass() {
-		return null;
+		return this.resolver.resolveWellKnownType("java.lang.Object"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -240,7 +251,9 @@ class RecoveredTypeBinding implements ITypeBinding {
 		if (this.referenceBinding != null) {
 			return this.typeArguments = TypeBinding.NO_TYPE_BINDINGS;
 		}
-		if (this.typeArguments != null) return typeArguments;
+		if (this.typeArguments != null) {
+			return typeArguments;
+		}
 
 		if (this.innerTypeBinding != null) {
 			return this.innerTypeBinding.getTypeArguments();
@@ -315,8 +328,11 @@ class RecoveredTypeBinding implements ITypeBinding {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isAssignmentCompatible(org.eclipse.jdt.core.dom.ITypeBinding)
 	 */
-	public boolean isAssignmentCompatible(ITypeBinding variableType) {
-		return false;
+	public boolean isAssignmentCompatible(ITypeBinding typeBinding) {
+		if ("java.lang.Object".equals(typeBinding.getQualifiedName())) { //$NON-NLS-1$
+			return true;
+		}
+		return this.isEqualTo(typeBinding);
 	}
 
 	/* (non-Javadoc)
@@ -330,7 +346,10 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isCastCompatible(org.eclipse.jdt.core.dom.ITypeBinding)
 	 */
 	public boolean isCastCompatible(ITypeBinding typeBinding) {
-		return false;
+		if ("java.lang.Object".equals(typeBinding.getQualifiedName())) { //$NON-NLS-1$
+			return true;
+		}
+		return this.isEqualTo(typeBinding);
 	}
 
 	/* (non-Javadoc)
@@ -427,7 +446,10 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isSubTypeCompatible(org.eclipse.jdt.core.dom.ITypeBinding)
 	 */
 	public boolean isSubTypeCompatible(ITypeBinding typeBinding) {
-		return false;
+		if ("java.lang.Object".equals(typeBinding.getQualifiedName())) { //$NON-NLS-1$
+			return true;
+		}
+		return this.isEqualTo(typeBinding);
 	}
 
 	/* (non-Javadoc)
@@ -469,6 +491,11 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.IBinding#getJavaElement()
 	 */
 	public IJavaElement getJavaElement() {
+		try {
+			return new CompilationUnit(null, this.getInternalName(), this.resolver.getWorkingCopyOwner()).getWorkingCopy(this.resolver.getWorkingCopyOwner(), null);
+		} catch (JavaModelException e) {
+			//ignore
+		}
 		return null;
 	}
 
@@ -476,7 +503,36 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.IBinding#getKey()
 	 */
 	public String getKey() {
-		return null;
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Recovered#"); //$NON-NLS-1$
+		if (this.innerTypeBinding != null) {
+			buffer.append("innerTypeBinding") //$NON-NLS-1$
+			      .append(this.innerTypeBinding.getKey());
+		} else if (this.currentType != null) {
+			buffer.append("currentType") //$NON-NLS-1$
+			      .append(this.currentType.toString());
+		} else if (this.referenceBinding != null) {
+			buffer.append("referenceBinding") //$NON-NLS-1$
+				  .append(this.referenceBinding.computeUniqueKey());
+		} else if (variableDeclaration != null) {
+			buffer
+				.append("variableDeclaration") //$NON-NLS-1$
+				.append(this.variableDeclaration.getClass())
+				.append(this.variableDeclaration.getName().getIdentifier())
+				.append(this.variableDeclaration.getExtraDimensions());
+		}
+		buffer.append(this.getDimensions());
+		if (this.typeArguments != null) {
+			buffer.append('<');
+			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
+				if (i != 0) {
+					buffer.append(',');
+				}
+				buffer.append(this.typeArguments[i].getKey());
+			}
+			buffer.append('>');
+		}
+		return String.valueOf(buffer);
 	}
 
 	/* (non-Javadoc)
@@ -497,7 +553,8 @@ class RecoveredTypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.core.dom.IBinding#isEqualTo(org.eclipse.jdt.core.dom.IBinding)
 	 */
 	public boolean isEqualTo(IBinding other) {
-		return false;
+		if (!other.isRecovered() || other.getKind() != IBinding.TYPE) return false;
+		return this.getKey().equals(other.getKey());
 	}
 
 	/* (non-Javadoc)

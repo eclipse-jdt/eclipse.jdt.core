@@ -358,17 +358,11 @@ class DefaultBindingResolver extends BindingResolver {
 	/*
 	 * Method declared on BindingResolver.
 	 */
-	synchronized ITypeBinding getTypeBinding(RecoveredTypeBinding recoveredTypeBinding) {
+	synchronized ITypeBinding getTypeBinding(RecoveredTypeBinding recoveredTypeBinding, int dimensions) {
 		if (recoveredTypeBinding== null) {
 			return null;
 		}
-		ITypeBinding binding = (ITypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(recoveredTypeBinding);
-		if (binding != null) {
-			return binding;
-		}
-		binding = new RecoveredTypeBinding(this, recoveredTypeBinding);
-		this.bindingTables.compilerBindingsToASTBindings.put(recoveredTypeBinding, binding);
-		return binding;
+		return new RecoveredTypeBinding(this, recoveredTypeBinding, dimensions);
 	}
 
 	synchronized IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding variableBinding, VariableDeclaration variableDeclaration) {
@@ -415,6 +409,10 @@ class DefaultBindingResolver extends BindingResolver {
 			return null;
 		}
 		return this.getVariableBinding(variableBinding);
+	}
+
+	public WorkingCopyOwner getWorkingCopyOwner() {
+		return this.workingCopyOwner;
 	}
 
 	/*
@@ -1734,8 +1732,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * @param dimensions the given dimensions
 	 * @return an array type binding with the given type binding and the given
 	 * dimensions
-	 * @throws IllegalArgumentException if the type binding represents the <code>void</code> type binding or if the
-	 * given type binding is a recovered binding 
+	 * @throws IllegalArgumentException if the type binding represents the <code>void</code> type binding
 	 */
 	ITypeBinding resolveArrayType(ITypeBinding typeBinding, int dimensions) {
 		if (typeBinding.isRecovered()) throw new IllegalArgumentException("Cannot be called on a recovered type binding"); //$NON-NLS-1$

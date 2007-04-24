@@ -29,10 +29,24 @@ class RecoveredVariableBinding implements IVariableBinding {
 	}
 
 	public ITypeBinding getDeclaringClass() {
+		ASTNode parent = this.variableDeclaration.getParent();
+		while (parent != null && parent.getNodeType() != ASTNode.TYPE_DECLARATION) {
+			parent = parent.getParent();
+		}
+		if (parent != null) {
+			return ((TypeDeclaration) parent).resolveBinding();
+		}
 		return null;
 	}
 
 	public IMethodBinding getDeclaringMethod() {
+		ASTNode parent = this.variableDeclaration.getParent();
+		while (parent != null && parent.getNodeType() != ASTNode.METHOD_DECLARATION) {
+			parent = parent.getParent();
+		}
+		if (parent != null) {
+			return ((MethodDeclaration) parent).resolveBinding();
+		}
 		return null;
 	}
 
@@ -73,7 +87,16 @@ class RecoveredVariableBinding implements IVariableBinding {
 	}
 
 	public String getKey() {
-		return null;
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Recovered#"); //$NON-NLS-1$
+		if (variableDeclaration != null) {
+			buffer
+				.append("variableDeclaration") //$NON-NLS-1$
+				.append(this.variableDeclaration.getClass())
+				.append(this.variableDeclaration.getName().getIdentifier())
+				.append(this.variableDeclaration.getExtraDimensions());
+		}
+		return String.valueOf(buffer);
 	}
 
 	public int getKind() {
@@ -89,6 +112,9 @@ class RecoveredVariableBinding implements IVariableBinding {
 	}
 
 	public boolean isEqualTo(IBinding binding) {
+		if (binding.isRecovered() && binding.getKind() == IBinding.VARIABLE) {
+			return this.getKey().equals(binding.getKey());
+		}
 		return false;
 	}
 
