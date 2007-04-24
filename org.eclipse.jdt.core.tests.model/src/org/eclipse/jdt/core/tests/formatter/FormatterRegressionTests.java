@@ -54,7 +54,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 656 };
+//		TESTS_NUMBERS = new int[] { 665 };
 //		TESTS_RANGE = new int[] { 658, -1 };
 	}
 	public static Test suite() {
@@ -9314,5 +9314,16 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test664", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=49314
+	public void test665() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.never_indent_block_comments_on_first_column = true;
+		preferences.never_indent_line_comments_on_first_column = true;
+		preferences.comment_format_block_comment = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test665", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
