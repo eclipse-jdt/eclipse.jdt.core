@@ -1,15 +1,15 @@
 public class Test {
 // Test line comment
-	int i = 0;
+	int i;
 /*
  * test block comment
  */
-	int k = -(--i);
+	int k;
 
-/**
- * Test javadoc comment
- * @param args given arguments
- */
+	/**
+	 * Test javadoc comment
+	 * @param args given arguments
+	 */
 	public static void main(String[] args) {
 	}
 }

@@ -1,10 +1,10 @@
 public class Test {
 // Test line comment
-	int i = 0;
+	int i;
 /*
  * test block comment
  */
-	int k = -(--i);
+	int k;
 
 /**
  * Test javadoc comment

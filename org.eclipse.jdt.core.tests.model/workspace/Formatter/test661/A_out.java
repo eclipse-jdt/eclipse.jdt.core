@@ -1,9 +1,9 @@
 public class Test {
-// Test line comment
+	// Test line comment
 	int i;
-	/*
-	 * test block comment
-	 */
+/*
+ * test block comment
+ */
 	int k;
 
 	/**
