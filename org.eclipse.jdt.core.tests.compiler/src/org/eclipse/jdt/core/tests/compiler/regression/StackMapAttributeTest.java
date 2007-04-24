@@ -2641,17 +2641,17 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 	public void test032() {
 		this.runConformTest(
-            new String[] {
-        		"X.java",
-        		"import java.util.*;\n" + 
-        		"public class X {\n" + 
-        		"    public static void main(String[] args) {\n" + 
-        		"		int i = args.length;\n" +
-        		"       X[] array = new X[] { i == 0 ? null : null };\n" + 
-        		"		System.out.print(\"SUCCESS\" + array.length);\n" +
-        		"    }\n" + 
-        		"}",
-            },
-			"SUCCESS1");
+				new String[] {
+						"X.java",
+						"import java.util.*;\n" + 
+						"public class X {\n" + 
+						"    public static void main(String[] args) {\n" + 
+						"		int i = args.length;\n" +
+						"       X[] array = new X[] { i == 0 ? null : null };\n" + 
+						"		System.out.print(\"SUCCESS\" + array.length);\n" +
+						"    }\n" + 
+						"}",
+				},
+		"SUCCESS1");
 	}
 }
