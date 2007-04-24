@@ -37608,4 +37608,40 @@ public void test1128() {
 		"The member type A.Member<String> must be qualified with a parameterized type, since it is not static\n" + 
 		"----------\n");
 }
+public void test1129() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"abstract class Arg1 implements Comparable<Arg1>, Serializable {}\n" + 
+			"abstract class Arg2 implements Serializable, Comparable<Arg2>  {}\n" + 
+			"\n" + 
+			"interface IX<T> {}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo1(boolean b, IX<String> arg2) {\n" + 
+			"		IX<String> o = b ? null : arg2;\n" + 
+			"		IX<String> o2 = b ? arg2 : null;\n" + 
+			"	}\n" + 
+			"	void foo2(boolean b, IX<String> arg1, IX<? extends Object> arg2) {\n" + 
+			"		String s = b ? arg1 : arg2;\n" + 
+			"	}\n" + 
+			"	void foo3(boolean b, Arg1 arg1, Arg2 arg2) {\n" + 
+			"		String s = b ? arg1 : arg2;\n" + 
+			"	}\n" + 
+			"}  ", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	String s = b ? arg1 : arg2;\n" + 
+		"	           ^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from IX<capture#2-of ? extends Object> to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\n" + 
+		"	String s = b ? arg1 : arg2;\n" + 
+		"	           ^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object&Comparable<?>&Serializable to String\n" + 
+		"----------\n");
+}
 }
