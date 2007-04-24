@@ -4032,7 +4032,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				"}";
 		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r\n" + 
 				"	/*\r\n" + 
-				"	 \r\n" + 
+				"	\r\n" + 
 				"	 */\r\n" + 
 				"}";
 		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
@@ -4049,7 +4049,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				"}";
 		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r\n" + 
 				"	/*\r\n" + 
-				"	 \r\n" + 
+				"	\r\n" + 
 				"	 */\r\n" + 
 				"}";
 		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
@@ -4067,7 +4067,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				"}";
 		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\n" + 
 				"	/*\n" + 
-				"	 \n" + 
+				"	\n" + 
 				"	 */\n" + 
 				"}";
 		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
@@ -4085,7 +4085,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				"}";
 		String expectedResult = "public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {\r" + 
 				"	/*\r" + 
-				"	 \r" + 
+				"	\r" + 
 				"	 */\r" + 
 				"}";
 		runTest(source, expectedResult, codeFormatter, CodeFormatter.K_CLASS_BODY_DECLARATIONS, 0, false, 0, -1);
@@ -9231,27 +9231,88 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		runTest(codeFormatter, "test657", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-/*	public void test658() {
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=20793
+	public void test658() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.indent_comments_on_first_column = true;
+		preferences.never_indent_block_comments_on_first_column = false;
+		preferences.never_indent_line_comments_on_first_column = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test658", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=20793
 	public void test659() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.indent_comments_on_first_column = false;
+		preferences.never_indent_block_comments_on_first_column = true;
+		preferences.never_indent_line_comments_on_first_column = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test659", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=20793
 	public void test660() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.indent_comments_on_first_column = false;
+		preferences.never_indent_block_comments_on_first_column = false;
+		preferences.never_indent_line_comments_on_first_column = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test660", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
-	}*/
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=20793
+	public void test661() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.never_indent_block_comments_on_first_column = true;
+		preferences.never_indent_line_comments_on_first_column = false;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test661", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=20793
+	public void test662() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.never_indent_block_comments_on_first_column = true;
+		preferences.never_indent_line_comments_on_first_column = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test662", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=20793
+	public void test663() {
+		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.never_indent_block_comments_on_first_column = true;
+		preferences.never_indent_line_comments_on_first_column = true;
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test663", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=79068
+	 */
+	public void test664() {
+		Map options = DefaultCodeFormatterConstants.getEclipse21Settings();
+		options.put(
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION,
+				DefaultCodeFormatterConstants.createAlignmentValue(
+						true,
+						DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
+						DefaultCodeFormatterConstants.INDENT_BY_ONE
+				));
+		options.put(
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
+				DefaultCodeFormatterConstants.createAlignmentValue(
+						false,
+						DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
+						DefaultCodeFormatterConstants.INDENT_BY_ONE
+				));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_BINARY_OPERATOR, DefaultCodeFormatterConstants.FALSE);
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test664", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
+	}
 }
