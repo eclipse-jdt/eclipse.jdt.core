@@ -188,10 +188,13 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					return null;
 				}
 				// check parameterizing non-static member type of raw type
-				if (typeIsConsistent && !currentType.isStatic() && qualifiedType != null && qualifiedType.isRawType()) {
-					scope.problemReporter().rawMemberTypeCannotBeParameterized(
-							this, scope.environment().createRawType((ReferenceBinding)currentType.erasure(), qualifiedType), argTypes);
-					typeIsConsistent = false;				
+				if (typeIsConsistent && !currentType.isStatic()) {
+					ReferenceBinding actualEnclosing = currentType.enclosingType();
+					if (actualEnclosing != null && actualEnclosing.isRawType()) {
+						scope.problemReporter().rawMemberTypeCannotBeParameterized(
+								this, scope.environment().createRawType((ReferenceBinding)currentType.erasure(), actualEnclosing), argTypes);
+						typeIsConsistent = false;				
+					}
 				}
 				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, qualifiedType);
 				// check argument type compatibility
@@ -215,8 +218,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 													: currentType;
 				}
 			}
+			this.resolvedType = qualifiedType;
 		}
-		this.resolvedType = qualifiedType;
 		if (isTypeUseDeprecated(this.resolvedType, scope))
 			reportDeprecatedType(scope);
 		// array type ?
