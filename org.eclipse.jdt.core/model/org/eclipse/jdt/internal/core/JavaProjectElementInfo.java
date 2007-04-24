@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.util.HashSetOfArray;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 
@@ -37,10 +38,10 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	static final IPackageFragmentRoot[] NO_ROOTS = new IPackageFragmentRoot[0];
 
 	static class ProjectCache {
-		ProjectCache(IPackageFragmentRoot[] allPkgFragmentRootsCache, HashtableOfArrayToObject allPkgFragmentsCache, Map rootToResolvedEntries) {
+		ProjectCache(IPackageFragmentRoot[] allPkgFragmentRootsCache, Map rootToResolvedEntries, Map pkgFragmentsCaches) {
 			this.allPkgFragmentRootsCache = allPkgFragmentRootsCache;
-			this.allPkgFragmentsCache = allPkgFragmentsCache;
 			this.rootToResolvedEntries = rootToResolvedEntries;
+			this.pkgFragmentsCaches = pkgFragmentsCaches;
 		}
 		
 		/*
@@ -50,9 +51,15 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		
 		/*
 		 * A cache of all package fragments in this project.
-		 * (a map from String[] (the package name) to IPackageFragmentRoot[] (the package fragment roots that contain a package fragment with this name)
+		 * (a map from String[] (the package name) to IPackageFragmentRoot[] (the package fragment roots that contain a package fragment with this name))
 		 */
 		public HashtableOfArrayToObject allPkgFragmentsCache;
+		
+		/*
+		 * A cache of package fragments for each package fragment root of this project
+		 * (a map from IPackageFragmentRoot to a set of String[] (the package name))
+		 */
+		public Map pkgFragmentsCaches;
 		
 		public Map rootToResolvedEntries;		
 	}
@@ -68,12 +75,12 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 * Adds the given name and its super names to the given set
 	 * (e.g. for {"a", "b", "c"}, adds {"a", "b", "c"}, {"a", "b"}, and {"a"})
 	 */
-	public static void addSuperPackageNames(String[] pkgName, HashtableOfArrayToObject packageFragments) {
-		int length = pkgName.length;
-		for (int i = length-1; i > 0; i--) {
-			System.arraycopy(pkgName, 0, pkgName = new String[i], 0, i);
-			if (packageFragments.get(pkgName) == null)
+	static void addSuperPackageNames(String[] pkgName, HashtableOfArrayToObject packageFragments) {
+		for (int i = pkgName.length-1; i > 0; i--) {
+			if (packageFragments.getKey(pkgName, i) == null) {
+				System.arraycopy(pkgName, 0, pkgName = new String[i], 0, i);
 				packageFragments.put(pkgName, NO_ROOTS);
+			}
 		}
 	}
 	
@@ -202,47 +209,21 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 				reverseMap.clear();
 			}
 			
-			HashMap otherRoots = JavaModelManager.getJavaModelManager().deltaState.otherRoots;
-			HashtableOfArrayToObject fragmentsCache = new HashtableOfArrayToObject();
-			for (int i = 0, length = roots.length; i < length; i++) {
+			HashMap rootInfos = JavaModelManager.getJavaModelManager().deltaState.roots;
+			HashMap pkgFragmentsCaches = new HashMap();
+			int length = roots.length;
+			for (int i = 0; i < length; i++) {
 				IPackageFragmentRoot root = roots[i];
-				IJavaElement[] frags = null;
-				try {
-					if (root.isArchive() 
-							&& !root.isOpen() 
-							&& otherRoots.get(((JarPackageFragmentRoot) root).jarPath) == null/*only if jar belongs to 1 project (https://bugs.eclipse.org/bugs/show_bug.cgi?id=161175)*/) {
-						JarPackageFragmentRootInfo info = new JarPackageFragmentRootInfo();
-						((JarPackageFragmentRoot) root).computeChildren(info, new HashMap());
-						frags = info.children;
-					} else 
-						frags = root.getChildren();
-				} catch (JavaModelException e) {
-					// root doesn't exist: ignore
-					continue;
-				}
-				for (int j = 0, length2 = frags.length; j < length2; j++) {
-					PackageFragment fragment= (PackageFragment) frags[j];
-					String[] pkgName = fragment.names;
-					Object existing = fragmentsCache.get(pkgName);
-					if (existing == null || existing == NO_ROOTS) {
-						fragmentsCache.put(pkgName, root);
-						// ensure super packages (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161)
-						// are also in the map
-						addSuperPackageNames(pkgName, fragmentsCache);
-					} else {
-						if (existing instanceof PackageFragmentRoot) {
-							fragmentsCache.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
-						} else {
-							IPackageFragmentRoot[] entry= (IPackageFragmentRoot[]) existing;
-							IPackageFragmentRoot[] copy= new IPackageFragmentRoot[entry.length + 1];
-							System.arraycopy(entry, 0, copy, 0, entry.length);
-							copy[entry.length]= root;
-							fragmentsCache.put(pkgName, copy);
-						}
-					}
+				DeltaProcessor.RootInfo rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(root.getPath());
+				if (rootInfo == null || rootInfo.project.equals(project)) {
+					// compute fragment cache
+					HashSetOfArray fragmentsCache = new HashSetOfArray();
+					initializePackageNames(root, fragmentsCache);
+					pkgFragmentsCaches.put(root, fragmentsCache);
 				}
 			}
-			cache = new ProjectCache(roots, fragmentsCache, reverseMap);
+			
+			cache = new ProjectCache(roots, reverseMap, pkgFragmentsCaches);
 			this.projectCache = cache;
 		}
 		return cache;
@@ -257,6 +238,24 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 			this.nonJavaResources = computeNonJavaResources(project);
 		}
 		return this.nonJavaResources;
+	}
+	
+	private void initializePackageNames(IPackageFragmentRoot root, HashSetOfArray fragmentsCache) {
+		IJavaElement[] frags = null;
+		try {
+			if (!root.isOpen()) {
+				PackageFragmentRootInfo info = root.isArchive() ? new JarPackageFragmentRootInfo() : new PackageFragmentRootInfo();
+				((PackageFragmentRoot) root).computeChildren(info, new HashMap());
+				frags = info.children;
+			} else 
+				frags = root.getChildren();
+		} catch (JavaModelException e) {
+			// root doesn't exist: ignore
+			return;
+		}
+		for (int j = 0, length2 = frags.length; j < length2; j++) {
+			fragmentsCache.add(((PackageFragment) frags[j]).names);
+		}
 	}
 
 	/*
@@ -284,6 +283,57 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 */
 	NameLookup newNameLookup(JavaProject project, ICompilationUnit[] workingCopies) {
 		ProjectCache cache = getProjectCache(project);
+		HashtableOfArrayToObject allPkgFragmentsCache = cache.allPkgFragmentsCache;
+		if (allPkgFragmentsCache == null) {
+			HashMap rootInfos = JavaModelManager.getJavaModelManager().deltaState.roots;
+			IPackageFragmentRoot[] allRoots = cache.allPkgFragmentRootsCache;
+			int length = allRoots.length;
+			allPkgFragmentsCache = new HashtableOfArrayToObject();
+			for (int i = 0; i < length; i++) {
+				IPackageFragmentRoot root = allRoots[i];
+				DeltaProcessor.RootInfo rootInfo = (DeltaProcessor.RootInfo) rootInfos.get(root.getPath());
+				JavaProject rootProject = rootInfo == null ? project : rootInfo.project;
+				HashSetOfArray fragmentsCache;
+				if (rootProject.equals(project)) {
+					// retrieve package fragments cache from this project
+					fragmentsCache = (HashSetOfArray) cache.pkgFragmentsCaches.get(root);
+				} else {
+					// retrieve package fragments  cache from the root's project
+					ProjectCache rootProjectCache;
+					try {
+						rootProjectCache = rootProject.getProjectCache();
+					} catch (JavaModelException e) {
+						// project doesn't exit
+						continue;
+					}
+					fragmentsCache = (HashSetOfArray) rootProjectCache.pkgFragmentsCaches.get(root);
+				}
+				Object[][] set = fragmentsCache.set;
+				for (int j = 0, length2 = set.length; j < length2; j++) {
+					String[] pkgName = (String[]) set[j];
+					if (pkgName == null)
+						continue;
+					Object existing = allPkgFragmentsCache.get(pkgName);
+					if (existing == null || existing == NO_ROOTS) {
+						allPkgFragmentsCache.put(pkgName, root);
+						// ensure super packages (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161)
+						// are also in the map
+						addSuperPackageNames(pkgName, allPkgFragmentsCache);
+					} else {
+						if (existing instanceof PackageFragmentRoot) {
+							allPkgFragmentsCache.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
+						} else {
+							IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) existing;
+							int rootLength = roots.length;
+							System.arraycopy(roots, 0, roots = new IPackageFragmentRoot[rootLength+1], 0, rootLength);
+							roots[rootLength] = root;
+							allPkgFragmentsCache.put(pkgName, roots);
+						}
+					}
+				}
+			}
+			cache.allPkgFragmentsCache = allPkgFragmentsCache;
+		}
 		return new NameLookup(cache.allPkgFragmentRootsCache, cache.allPkgFragmentsCache, workingCopies, cache.rootToResolvedEntries);
 	}
 	
