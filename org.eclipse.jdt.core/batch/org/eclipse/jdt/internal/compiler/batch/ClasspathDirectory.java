@@ -131,8 +131,8 @@ public char[][][] findTypeNames(String qualifiedPackageName) {
 			return fileName.endsWith(".class") || fileName.endsWith(".java"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	});
-	int length = listFiles.length;
-	if (listFiles == null || length == 0) {
+	int length;
+	if (listFiles == null || (length = listFiles.length) == 0) {
 		return null;
 	}
 	char[][][] result = new char[length][][];
