@@ -813,8 +813,10 @@ public void testSeekPackageFragments() throws CoreException {
 }
 
 public void testCloseProjects() throws JavaModelException {
-	int length=ALL_PROJECTS.length;
+	tagAsSummary("Close all workspace projects", true); // put in fingerprint
+
 	// Warm-up
+	int length=ALL_PROJECTS.length;
 	int wmax = WARMUP_COUNT / 10;
 	for (int i=0; i<wmax; i++) {
 		for (int j=0; j<length; j++) {
@@ -845,6 +847,8 @@ public void testCloseProjects() throws JavaModelException {
 }
 
 public void testStartJDTPlugin() throws JavaModelException, CoreException {
+	tagAsSummary("JDT/Core plugin initialization", true); // put in fingerprint
+
 	// Warm-up
 	int wmax = WARMUP_COUNT / 5;
 	for (int i=0; i<wmax; i++) {

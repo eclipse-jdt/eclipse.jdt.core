@@ -203,7 +203,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * 	then rename the test as numbers will be different...
 	 */
 	public void testIndexing() throws CoreException {
-		tagAsSummary("Search indexes building", true); // put in fingerprint
+		tagAsSummary("Indexing all workspace projects", false); // do NOT put in fingerprint
 
 		// Wait for indexing end (we use initial indexing as warm-up)
 		AbstractJavaModelTests.waitUntilIndexesReady();
@@ -240,7 +240,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Performance tests for search: Indexing one project (JDT/Core).
 	 */
 	public void testIndexingOneProject() throws CoreException {
-		tagAsSummary("Search JDT/Core indexes building", false); // do NOT put in fingerprint
+		tagAsSummary("Indexing JDT/Core project", true); // put in fingerprint
 
 		// Warm-up
 		for (int i=0 ; i<WARMUP_COUNT; i++) {
