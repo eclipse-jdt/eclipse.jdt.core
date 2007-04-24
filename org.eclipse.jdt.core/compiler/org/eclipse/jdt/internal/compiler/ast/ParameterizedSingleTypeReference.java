@@ -120,7 +120,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 					: scope.environment().convertToParameterizedType(enclosingType);
 			}
 		} else { // resolving member type (relatively to enclosingType)
-			this.resolvedType = scope.getMemberType(token, (ReferenceBinding)enclosingType.erasure());		    
+			this.resolvedType = scope.getMemberType(token, enclosingType);		    
 			if (!this.resolvedType.isValidBinding()) {
 				scope.problemReporter().invalidEnclosingType(this, this.resolvedType, enclosingType);
 				return null;
@@ -165,10 +165,13 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		} else if (argLength != typeVariables.length) { // check arity
 			scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
 			return null;
-		} else if (!currentType.isStatic() && enclosingType != null && enclosingType.isRawType()){
-			scope.problemReporter().rawMemberTypeCannotBeParameterized(
-					this, scope.environment().createRawType((ReferenceBinding)currentType.erasure(), enclosingType), argTypes);
-			return null;
+		} else if (!currentType.isStatic()) {
+			ReferenceBinding actualEnclosing = currentType.enclosingType();
+			if (actualEnclosing != null && actualEnclosing.isRawType()){
+				scope.problemReporter().rawMemberTypeCannotBeParameterized(
+						this, scope.environment().createRawType((ReferenceBinding)currentType.erasure(), actualEnclosing), argTypes);
+				return null;
+			}
 		}
 
     	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, enclosingType);

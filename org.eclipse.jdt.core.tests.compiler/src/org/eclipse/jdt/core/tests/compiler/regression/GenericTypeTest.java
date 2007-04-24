@@ -37384,4 +37384,228 @@ public void test1124() {
 		"Type mismatch: cannot convert from element type Object to Map.Entry<String,String>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=183216
+public void test1125() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A {\n" + 
+			"    class B<T> {\n" + 
+			"        T t;\n" + 
+			"        T getValue() {\n" + 
+			"            return t;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class C<T> extends A {\n" + 
+			"	Zork z;\n" +
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    static C.B<Double> c = new C().new B<Double>();\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        C.B<String> temp = new C().new B<String>();\n" + 
+			"        String s = temp.getValue();\n" + 
+			"        System.out.println(s);\n" + 
+			"        foo(bar());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static C.B<? extends Number> bar() {\n" + 
+			"        return new C().new B<Integer>();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static void foo(C.B<?> arg) {\n" + 
+			"        Object o = arg.getValue();\n" + 
+			"        Double d = c.getValue();\n" + 
+			"        System.out.println(o);\n" + 
+			"        System.out.println(d);\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 15)\n" + 
+		"	static C.B<Double> c = new C().new B<Double>();\n" + 
+		"	                           ^\n" + 
+		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 18)\n" + 
+		"	C.B<String> temp = new C().new B<String>();\n" + 
+		"	                       ^\n" + 
+		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 25)\n" + 
+		"	return new C().new B<Integer>();\n" + 
+		"	           ^\n" + 
+		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=183216 - variation
+public void test1126() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A {\n" + 
+			"    class B<T> {\n" + 
+			"        T t;\n" + 
+			"        T getValue() {\n" + 
+			"            return t;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    static A.B<Double> c = new A().new B<Double>();\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        A.B<String> temp = new A().new B<String>();\n" + 
+			"        String s = temp.getValue();\n" + 
+			"        System.out.print(s);\n" + 
+			"        foo(bar());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static A.B<? extends Number> bar() {\n" + 
+			"        return new A().new B<Integer>();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static void foo(A.B<?> arg) {\n" + 
+			"        Object o = arg.getValue();\n" + 
+			"        Double d = c.getValue();\n" + 
+			"        System.out.print(o);\n" + 
+			"        System.out.print(d);\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"nullnullnull");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=183216 - variation
+public void test1127() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A<E> {\n" + 
+			"    class B<T> {\n" + 
+			"        T t;\n" + 
+			"        T getValue() {\n" + 
+			"            return t;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class C<T> extends A<T> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    static C.B<Double> c = new C().new B<Double>();\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        C.B<String> temp = new C().new B<String>();\n" + 
+			"        String s = temp.getValue();\n" + 
+			"        System.out.println(s);\n" + 
+			"        foo(bar());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static C.B<? extends Number> bar() {\n" + 
+			"        return new C().new B<Integer>();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static void foo(C.B<?> arg) {\n" + 
+			"        Object o = arg.getValue();\n" + 
+			"        Double d = c.getValue();\n" + 
+			"        System.out.println(o);\n" + 
+			"        System.out.println(d);\n" + 
+			"    }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	static C.B<Double> c = new C().new B<Double>();\n" + 
+		"	       ^^^\n" + 
+		"The member type A.B<Double> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 14)\n" + 
+		"	static C.B<Double> c = new C().new B<Double>();\n" + 
+		"	                           ^\n" + 
+		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	static C.B<Double> c = new C().new B<Double>();\n" + 
+		"	                                   ^\n" + 
+		"The member type A.B<Double> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 17)\n" + 
+		"	C.B<String> temp = new C().new B<String>();\n" + 
+		"	^^^\n" + 
+		"The member type A.B<String> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 17)\n" + 
+		"	C.B<String> temp = new C().new B<String>();\n" + 
+		"	                       ^\n" + 
+		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 17)\n" + 
+		"	C.B<String> temp = new C().new B<String>();\n" + 
+		"	                               ^\n" + 
+		"The member type A.B<String> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 23)\n" + 
+		"	static C.B<? extends Number> bar() {\n" + 
+		"	       ^^^\n" + 
+		"The member type A.B<? extends Number> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 24)\n" + 
+		"	return new C().new B<Integer>();\n" + 
+		"	           ^\n" + 
+		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 24)\n" + 
+		"	return new C().new B<Integer>();\n" + 
+		"	                   ^\n" + 
+		"The member type A.B<Integer> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 27)\n" + 
+		"	static void foo(C.B<?> arg) {\n" + 
+		"	                ^^^\n" + 
+		"The member type A.B<?> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=183216 - variation
+public void test1128() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" + 
+			"	class Member<U> {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends A {\n" + 
+			"	void foo() {\n" + 
+			"		new Member<String>();\n" + 
+			"		new X().new Member<String>();\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	public class X extends A {\n" + 
+		"	                       ^\n" + 
+		"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	new Member<String>();\n" + 
+		"	    ^^^^^^\n" + 
+		"The member type A.Member<String> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	new X().new Member<String>();\n" + 
+		"	            ^^^^^^\n" + 
+		"The member type A.Member<String> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n");
+}
 }
