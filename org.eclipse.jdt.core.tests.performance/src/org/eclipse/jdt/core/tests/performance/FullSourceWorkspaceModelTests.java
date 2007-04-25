@@ -880,42 +880,56 @@ public void testStartJDTPlugin() throws JavaModelException, CoreException {
  */
 public void testFindType() throws CoreException {
 	
-	// get 20 projects
 	IJavaModel model = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot());
-	int max = 20;
-	IJavaProject[] projects = new IJavaProject[max];
-	for (int i = 0; i < max; i++) {
-		projects[i] = createJavaProject("FindType" + i);
-	}
-	AbstractJavaModelTests.waitUntilIndexesReady();
-	AbstractJavaModelTests.waitForAutoBuild();
+	IJavaProject[] existingProjects = model.getJavaProjects();
 	
 	try {
-		// warm up
-		int warmup = WARMUP_COUNT / 10;
-		for (int i = 0; i < warmup; i++) {
-			model.close();
-			for (int j = 0; j < max; j++) {
-				projects[j].findType("java.lang.Object");
-			}
-		}
-			
-		// measure performance
-		for (int i = 0; i < MEASURES_COUNT; i++) {
-			model.close();
-			runGc();
-			startMeasuring();
-			for (int j = 0; j < max; j++) {
-				projects[j].findType("java.lang.Object");
-			}
-			stopMeasuring();
+		// close existing projects
+		for (int i = 0, length = existingProjects.length; i < length; i++) {
+			existingProjects[i].getProject().close(null);
 		}
 	
-		commitMeasurements();
-		assertPerformance();
-	} finally {
+		// get 20 projects
+		int max = 20;
+		IJavaProject[] projects = new IJavaProject[max];
 		for (int i = 0; i < max; i++) {
-			projects[i].getProject().delete(false, null);
+			projects[i] = createJavaProject("FindType" + i);
+		}
+		AbstractJavaModelTests.waitUntilIndexesReady();
+		AbstractJavaModelTests.waitForAutoBuild();
+		
+		try {
+			// warm up
+			int warmup = WARMUP_COUNT / 10;
+			for (int i = 0; i < warmup; i++) {
+				model.close();
+				for (int j = 0; j < max; j++) {
+					projects[j].findType("java.lang.Object");
+				}
+			}
+				
+			// measure performance
+			for (int i = 0; i < MEASURES_COUNT; i++) {
+				model.close();
+				runGc();
+				startMeasuring();
+				for (int j = 0; j < max; j++) {
+					projects[j].findType("java.lang.Object");
+				}
+				stopMeasuring();
+			}
+		
+			commitMeasurements();
+			assertPerformance();
+		} finally {
+			for (int i = 0; i < max; i++) {
+				projects[i].getProject().delete(false, null);
+			}
+		}
+	} finally {
+		// reopen existing projects
+		for (int i = 0, length = existingProjects.length; i < length; i++) {
+			existingProjects[i].getProject().open(null);
 		}
 	}
 }
