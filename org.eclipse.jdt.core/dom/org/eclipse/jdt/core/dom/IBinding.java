@@ -175,7 +175,7 @@ public interface IBinding {
 	 * the compiler generates for class declarations with no explicit constructors
 	 * declarations) are not generally considered synthetic (although they
 	 * may be if the class itself is synthetic).
-	 * But see {@link IMethodBinding#isDefaultConstructor IMethodBinding.isDefaultConstructor}
+	 * But see {@link IMethodBinding#isDefaultConstructor() IMethodBinding.isDefaultConstructor}
 	 * for cases where the compiled-generated default constructor can be recognized
 	 * instead.
 	 *
