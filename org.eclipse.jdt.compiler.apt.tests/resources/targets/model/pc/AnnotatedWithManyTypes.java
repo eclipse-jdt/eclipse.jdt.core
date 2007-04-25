@@ -17,8 +17,12 @@ public class AnnotatedWithManyTypes {
 	@TypedAnnos.AnnoShort(289)
 	@TypedAnnos.AnnoString("foo")
 	@TypedAnnos.AnnoEnumConst(TypedAnnos.Enum.A)
-	@TypedAnnos.AnnoArrayType({ String.class, Annotated.class })
 	@TypedAnnos.AnnoType(Exception.class)
 	@TypedAnnos.AnnoAnnoChar(@TypedAnnos.AnnoChar('x'))
+	@TypedAnnos.AnnoArrayInt({5, 8, 11})
+	@TypedAnnos.AnnoArrayString({"bar", "quux"})
+	@TypedAnnos.AnnoArrayEnumConst({TypedAnnos.Enum.B, TypedAnnos.Enum.C})
+	@TypedAnnos.AnnoArrayType({ String.class, Annotated.class })
+	@TypedAnnos.AnnoArrayAnnoChar({@TypedAnnos.AnnoChar('y'), @TypedAnnos.AnnoChar('z')})
 	public class Annotated {}
 }

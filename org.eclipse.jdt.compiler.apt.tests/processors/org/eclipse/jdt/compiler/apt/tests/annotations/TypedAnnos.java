@@ -51,14 +51,25 @@ public @interface TypedAnnos
 	public @interface AnnoEnumConst {
 		Enum value();
 	}
-	public @interface AnnoArrayType {
-		Class<?>[] value();
-	}
 	public @interface AnnoType {
 		Class<?> value();
 	}
 	public @interface AnnoAnnoChar {
 		AnnoChar value();
 	}
-
+	public @interface AnnoArrayInt {
+		int[] value();
+	}
+	public @interface AnnoArrayString {
+		String[] value();
+	}
+	public @interface AnnoArrayEnumConst {
+		Enum[] value();
+	}
+	public @interface AnnoArrayAnnoChar {
+		AnnoChar[] value();
+	}
+	public @interface AnnoArrayType {
+		Class<?>[] value();
+	}
 }

@@ -12,6 +12,7 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -610,5 +611,42 @@ public class Factory {
 		else // can't convert
 			return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
     }
+
+    /**
+     * Set an element of an array to the appropriate dummy value type
+     * @param array
+     * @param i
+     * @param expectedLeafType
+     */
+	public static void setArrayMatchingDummyValue(Object array, int i, Class<?> expectedLeafType)
+	{
+		if (boolean.class.equals(expectedLeafType)) {
+			Array.setBoolean(array, i, false);
+		}
+		else if (byte.class.equals(expectedLeafType)) {
+			Array.setByte(array, i, DUMMY_BYTE);
+		}
+		else if (char.class.equals(expectedLeafType)) {
+			Array.setChar(array, i, DUMMY_CHAR);
+		}
+		else if (double.class.equals(expectedLeafType)) {
+			Array.setDouble(array, i, DUMMY_DOUBLE);
+		}
+		else if (float.class.equals(expectedLeafType)) {
+			Array.setFloat(array, i, DUMMY_FLOAT);
+		}
+		else if (int.class.equals(expectedLeafType)) {
+			Array.setInt(array, i, DUMMY_INTEGER);
+		}
+		else if (long.class.equals(expectedLeafType)) {
+			Array.setLong(array, i, DUMMY_LONG);
+		}
+		else if (short.class.equals(expectedLeafType)) {
+			Array.setShort(array, i, DUMMY_SHORT);
+		}
+		else {
+			Array.set(array, i, null);
+		}
+	}
     
 }

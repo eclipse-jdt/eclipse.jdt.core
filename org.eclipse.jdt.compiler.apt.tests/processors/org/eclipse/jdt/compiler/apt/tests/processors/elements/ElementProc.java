@@ -780,6 +780,19 @@ public class ElementProc extends BaseProcessor {
 			reportError(badValue + "AnnoAnnoChar");
 			return false;
 		}
+		TypedAnnos.AnnoArrayInt annoArrayInt = annotatedElement.getAnnotation(TypedAnnos.AnnoArrayInt.class);
+		if (null == annoArrayInt) {
+			reportError(badValue + "AnnoArrayInt");
+			return false;
+		}
+		int[] arrayInt = annoArrayInt.value();
+		if (arrayInt == null || arrayInt.length != 3 || arrayInt[1] != 8) {
+			reportError(badValue + "AnnoArrayInt contents");
+			return false;
+		}
+		//TODO: AnnoArrayString
+		//TODO: AnnoArrayAnnoChar
+		//TODO: AnnoArrayEnumConst
 		TypedAnnos.AnnoArrayType annoArrayType = annotatedElement.getAnnotation(TypedAnnos.AnnoArrayType.class);
 		if (null == annoArrayType) {
 			reportError(badValue + "AnnoArrayType");
