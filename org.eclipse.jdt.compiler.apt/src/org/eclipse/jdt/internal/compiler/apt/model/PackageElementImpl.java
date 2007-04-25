@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
@@ -50,7 +49,8 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 	}
 
 	@Override
-	public List<? extends AnnotationMirror> getAnnotationMirrors() {
+	protected AnnotationBinding[] getAnnotationBindings()
+	{
 		PackageBinding packageBinding = (PackageBinding) this._binding;
 		char[][] compoundName = CharOperation.arrayConcat(packageBinding.compoundName, TypeConstants.PACKAGE_INFO_NAME);
 		ReferenceBinding type = this._env.getLookupEnvironment().getType(compoundName);
@@ -58,7 +58,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 		if (type != null && type.isValidBinding()) {
 			annotations = type.getAnnotations();
 		}
-		return _env.getFactory().getAnnotationMirrors(annotations);
+		return annotations;
 	}
 
 	@Override

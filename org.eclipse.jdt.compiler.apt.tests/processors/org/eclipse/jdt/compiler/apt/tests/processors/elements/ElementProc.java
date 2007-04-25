@@ -37,10 +37,13 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 
+import org.eclipse.jdt.compiler.apt.tests.annotations.TypedAnnos;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
@@ -125,6 +128,10 @@ public class ElementProc extends BaseProcessor {
 		}
 		
 		if (!examineDAnnotations()) {
+			return false;
+		}
+		
+		if (!examineGetAnnotation()) {
 			return false;
 		}
 		
@@ -687,6 +694,112 @@ public class ElementProc extends BaseProcessor {
 			}
 		}
 		
+		return true;
+	}
+	
+	/**
+	 * Test the Element.getAnnotation() implementation
+	 * @return true if all tests passed
+	 */
+	private boolean examineGetAnnotation() {
+		TypeElement annotatedElement = _elementUtils.getTypeElement("targets.model.pc.AnnotatedWithManyTypes.Annotated");
+		if (null == annotatedElement || annotatedElement.getKind() != ElementKind.CLASS) {
+			reportError("examineGetAnnotation: couldn't get AnnotatedWithManyTypes.Annotated element");
+			return false;
+		}
+		final String badValue = "examineGetAnnotation: unexpected value for ";
+		TypedAnnos.AnnoByte annoByte = annotatedElement.getAnnotation(TypedAnnos.AnnoByte.class);
+		if (null == annoByte || annoByte.value() != 3) {
+			reportError(badValue + "AnnoByte");
+			return false;
+		}
+		TypedAnnos.AnnoBoolean annoBoolean = annotatedElement.getAnnotation(TypedAnnos.AnnoBoolean.class);
+		if (null == annoBoolean || !annoBoolean.value()) {
+			reportError(badValue + "AnnoBoolean");
+			return false;
+		}
+		TypedAnnos.AnnoChar annoChar = annotatedElement.getAnnotation(TypedAnnos.AnnoChar.class);
+		if (null == annoChar || annoChar.value() != 'c') {
+			reportError(badValue + "AnnoChar");
+			return false;
+		}
+		TypedAnnos.AnnoDouble annoDouble = annotatedElement.getAnnotation(TypedAnnos.AnnoDouble.class);
+		if (null == annoDouble || annoDouble.value() != 6.3) {
+			reportError(badValue + "AnnoDouble");
+			return false;
+		}
+		TypedAnnos.AnnoFloat annoFloat = annotatedElement.getAnnotation(TypedAnnos.AnnoFloat.class);
+		if (null == annoFloat || annoFloat.value() != 26.7F) {
+			reportError(badValue + "AnnoFloat");
+			return false;
+		}
+		TypedAnnos.AnnoInt annoInt = annotatedElement.getAnnotation(TypedAnnos.AnnoInt.class);
+		if (null == annoInt || annoInt.value() != 19) {
+			reportError(badValue + "AnnoInt");
+			return false;
+		}
+		TypedAnnos.AnnoLong annoLong = annotatedElement.getAnnotation(TypedAnnos.AnnoLong.class);
+		if (null == annoLong || annoLong.value() != 300L) {
+			reportError(badValue + "AnnoLong");
+			return false;
+		}
+		TypedAnnos.AnnoShort annoShort = annotatedElement.getAnnotation(TypedAnnos.AnnoShort.class);
+		if (null == annoShort || annoShort.value() != 289) {
+			reportError(badValue + "AnnoShort");
+			return false;
+		}
+		TypedAnnos.AnnoString annoString = annotatedElement.getAnnotation(TypedAnnos.AnnoString.class);
+		if (null == annoString || !"foo".equals(annoString.value())) {
+			reportError(badValue + "AnnoString");
+			return false;
+		}
+		TypedAnnos.AnnoEnumConst annoEnumConst = annotatedElement.getAnnotation(TypedAnnos.AnnoEnumConst.class);
+		if (null == annoEnumConst || annoEnumConst.value() != TypedAnnos.Enum.A) {
+			reportError(badValue + "AnnoEnumConst");
+			return false;
+		}
+		TypedAnnos.AnnoType annoType = annotatedElement.getAnnotation(TypedAnnos.AnnoType.class);
+		if (null == annoType) {
+			reportError(badValue + "AnnoType");
+			return false;
+		}
+		try {
+			Class<?> clazz = annoType.value();
+			reportError("examineGetAnnotation: annoType.value() should have thrown a MirroredTypeException but instead returned " + clazz);
+			return false;
+		}
+		catch (MirroredTypeException mte) {
+			TypeMirror clazzMirror = mte.getTypeMirror();
+			if (null == clazzMirror || clazzMirror.getKind() != TypeKind.DECLARED) {
+				reportError("examineGetAnnotation: annoType.value() returned an incorrect mirror: " + clazzMirror);
+				return false;
+			}
+		}
+		TypedAnnos.AnnoAnnoChar annoAnnoChar = annotatedElement.getAnnotation(TypedAnnos.AnnoAnnoChar.class);
+		if (null == annoAnnoChar || null == annoAnnoChar.value() || 'x' != annoAnnoChar.value().value()) {
+			reportError(badValue + "AnnoAnnoChar");
+			return false;
+		}
+		TypedAnnos.AnnoArrayType annoArrayType = annotatedElement.getAnnotation(TypedAnnos.AnnoArrayType.class);
+		if (null == annoArrayType) {
+			reportError(badValue + "AnnoArrayType");
+			return false;
+		}
+		try {
+			Class<?>[] contents = annoArrayType.value();
+			reportError("examineGetAnnotation: annoArrayType.value() should have thrown a MirroredTypesException but instead returned " + contents);
+			return false;
+		}
+		catch (MirroredTypesException mte) {
+			List<? extends TypeMirror> clazzMirrors = mte.getTypeMirrors();
+			if (null == clazzMirrors || clazzMirrors.size() != 2) {
+				reportError("examineGetAnnotation: annoArrayType.value() returned an incorrect mirror list");
+				return false;
+			}
+		}
+		catch (MirroredTypeException mte) {
+			// ignore, because javac incorrectly throws this; see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519115
+		}
 		return true;
 	}
 }

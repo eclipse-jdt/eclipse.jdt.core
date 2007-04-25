@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
@@ -39,16 +38,11 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 /**
  * Implementation of VariableElement, which represents a a field, enum constant, 
  * method or constructor parameter, local variable, or exception parameter.
- * In the JDT internal typesystem, this does not correspond to a unitary type:
- * fields are FieldBindings, but parameters are TypeBindings.
- * 
- * TODO: this class should be separated into two, one corresponding to field
- * bindings and one corresponding to type bindings (e.g., parameters). 
  */
 public class VariableElementImpl extends ElementImpl implements VariableElement {
 
 	/**
-	 * @param binding might be a VariableBinding (for a field) or a TypeBinding (for a method param)
+	 * @param binding might be a FieldBinding (for a field) or a LocalVariableBinding (for a method param)
 	 */
 	VariableElementImpl(BaseProcessingEnvImpl env, VariableBinding binding) {
 		super(env, binding);
@@ -61,9 +55,9 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	}
 
 	@Override
-	public List<? extends AnnotationMirror> getAnnotationMirrors() {
-		AnnotationBinding[] annotations = ((VariableBinding)_binding).getAnnotations();
-		return _env.getFactory().getAnnotationMirrors(annotations);
+	protected AnnotationBinding[] getAnnotationBindings()
+	{
+		return ((VariableBinding)_binding).getAnnotations();
 	}
 
 	@Override
@@ -106,7 +100,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 			return _env.getFactory().newElement(((FieldBinding)_binding).declaringClass);
 		}
 		else if (_binding instanceof LocalVariableBinding){
-			//TODO: handle the other cases, e.g., method parameters
+			//TODO: return enclosing method binding
 			throw new UnsupportedOperationException("NYI: VariableElementImpl.getEnclosingElement()"); //$NON-NLS-1$
 		}
 		return null;
@@ -151,11 +145,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	
 	@Override
 	public Name getSimpleName() {
-		if (_binding instanceof VariableBinding) {
-			return new NameImpl(((VariableBinding)_binding).name);
-		}
-		// TODO: how can we get the name of a parameter?
-		throw new UnsupportedOperationException("NYI: VariableElmentImpl.getSimpleName()"); //$NON-NLS-1$
+		return new NameImpl(((VariableBinding)_binding).name);
 	}
 
 	@Override
@@ -178,6 +168,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 			}
 			return null != hider.declaringClass.findSuperTypeWithSameErasure(hidden.declaringClass);
 		}
+		// TODO: should we implement hides() for method parameters?
 		return false;
 	}
 

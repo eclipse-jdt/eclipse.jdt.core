@@ -303,9 +303,9 @@ public class VisitorProc extends BaseProcessor
 		}
 		
 		AnnotationVisitorTester annoValVisitor = new AnnotationVisitorTester();
-		TypeElement typedAnnosDecl = _elementUtils.getTypeElement("targets.model.pc.TypedAnnos");
+		TypeElement typedAnnosDecl = _elementUtils.getTypeElement("org.eclipse.jdt.compiler.apt.tests.annotations.TypedAnnos");
 		if (null == typedAnnosDecl) {
-			reportError("Couldn't find targets.model.pc.TypedAnnos");
+			reportError("Couldn't find targets.model.pc.AnnotatedWithManyTypes");
 			return false;
 		}
 		for (TypeElement anno : annotations) {

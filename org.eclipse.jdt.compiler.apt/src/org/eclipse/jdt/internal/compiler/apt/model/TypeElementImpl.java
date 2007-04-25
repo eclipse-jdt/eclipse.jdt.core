@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
@@ -58,9 +57,9 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	}
 
 	@Override
-	public List<? extends AnnotationMirror> getAnnotationMirrors() {
-		AnnotationBinding[] annotations = ((ReferenceBinding)_binding).getAnnotations();
-		return _env.getFactory().getAnnotationMirrors(annotations);
+	protected AnnotationBinding[] getAnnotationBindings()
+	{
+		return ((ReferenceBinding)_binding).getAnnotations();
 	}
 
 	@Override

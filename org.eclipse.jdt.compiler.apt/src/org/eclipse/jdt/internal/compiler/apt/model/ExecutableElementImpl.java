@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -60,9 +59,9 @@ public class ExecutableElementImpl extends ElementImpl implements
 	}
 
 	@Override
-	public List<? extends AnnotationMirror> getAnnotationMirrors() {
-		AnnotationBinding[] annotations = ((MethodBinding)_binding).getAnnotations();
-		return _env.getFactory().getAnnotationMirrors(annotations);
+	protected AnnotationBinding[] getAnnotationBindings()
+	{
+		return ((MethodBinding)_binding).getAnnotations();
 	}
 
 	@Override

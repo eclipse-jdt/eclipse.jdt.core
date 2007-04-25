@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
@@ -24,6 +23,7 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -122,9 +122,9 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 	 * @see javax.lang.model.element.Element#getAnnotationMirrors()
 	 */
 	@Override
-	public List<? extends AnnotationMirror> getAnnotationMirrors()
+	protected AnnotationBinding[] getAnnotationBindings()
 	{
-		return Collections.emptyList();
+		return null;
 	}
 
 	/*

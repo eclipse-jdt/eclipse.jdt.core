@@ -98,7 +98,7 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 			_value = Collections.unmodifiableList(convertedValues);
 			_kind = T_ArrayType;
 		} else {
-			_value = convertToJavaType(value, type, kind);
+			_value = convertToMirrorType(value, type, kind);
 			_kind = kind[0];
 		}
 	}
@@ -115,7 +115,7 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	 * converted object, represented with T_* values from TypeIds or from this class.
 	 * @return
 	 */
-	private Object convertToJavaType(Object value, TypeBinding type, int kind[]) {
+	private Object convertToMirrorType(Object value, TypeBinding type, int kind[]) {
 		if (value instanceof Constant) {
 			if (type instanceof BaseTypeBinding) {
 				kind[0] = ((BaseTypeBinding)type).id;

@@ -11,17 +11,24 @@
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Proxy;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * Element represents any defined Java language element - a package, 
@@ -43,11 +50,47 @@ public abstract class ElementImpl
 		return _env.getFactory().newTypeMirror(_binding);
 	}
 
+	@SuppressWarnings("unchecked") // for cast of newProxyInstance() to A
 	@Override
-	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
-		// TODO Auto-generated method stub
-		// throw new UnsupportedOperationException("NYI: " + this + ".getAnnotation(" + annotationType + ")"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-		return null;
+	public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
+		AnnotationBinding[] annoInstances = getAnnotationBindings();
+		if( annoInstances == null || annoInstances.length == 0 || annotationClass == null ) 
+			return null;
+
+		String annoTypeName = annotationClass.getName();
+		if( annoTypeName == null ) return null;
+		annoTypeName = annoTypeName.replace('$', '.');
+		for( AnnotationBinding annoInstance : annoInstances) {
+			if (annoInstance == null)
+				continue;
+			ReferenceBinding binding = annoInstance.getAnnotationType();            
+			if ( binding != null && binding.isAnnotationType() ) {
+				char[] qName;
+				if (binding.isMemberType()) {
+					qName = CharOperation.concatWith(binding.enclosingType().compoundName, binding.sourceName, '.');
+					CharOperation.replace(qName, '$', '.');
+				} else {
+					qName = CharOperation.concatWith(binding.compoundName, '.');
+				}
+				if( annoTypeName.equals(new String(qName)) ){
+					AnnotationMirrorImpl annoMirror =
+						(AnnotationMirrorImpl)_env.getFactory().newAnnotationMirror(annoInstance);
+					return (A)Proxy.newProxyInstance(annotationClass.getClassLoader(),
+							new Class[]{ annotationClass }, annoMirror );
+				}
+			}
+		}
+		return null; 
+	}
+	
+	/**
+	 * @return the set of compiler annotation bindings on this element
+	 */
+	protected abstract AnnotationBinding[] getAnnotationBindings();
+
+	@Override
+	public List<? extends AnnotationMirror> getAnnotationMirrors() {
+		return _env.getFactory().getAnnotationMirrors(getAnnotationBindings());
 	}
 
 	@Override
