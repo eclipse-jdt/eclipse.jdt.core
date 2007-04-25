@@ -25,8 +25,7 @@ public class ForStatement extends Statement {
 	public Statement action;
 
 	//when there is no local declaration, there is no need of a new scope
-	//scope is positionned either to a new scope, or to the "upper"scope (see resolveType)
-	public boolean neededScope;
+	//scope is positioned either to a new scope, or to the "upper"scope (see resolveType)
 	public BlockScope scope;
 
 	private BranchLabel breakLabel, continueLabel;
@@ -53,8 +52,10 @@ public class ForStatement extends Statement {
 		this.increments = increments;
 		this.action = action;
 		// remember useful empty statement
-		if (action instanceof EmptyStatement) action.bits |= IsUsefulEmptyStatement;
-		this.neededScope = neededScope;
+		if (action instanceof EmptyStatement) action.bits |= ASTNode.IsUsefulEmptyStatement;
+		if (neededScope) {
+			this.bits |= ASTNode.NeededScope;
+		}
 	}
 
 	public FlowInfo analyseCode(
@@ -232,7 +233,7 @@ public class ForStatement extends Statement {
 		if (isConditionOptimizedFalse) {
 			condition.generateCode(scope, codeStream, false);
 			// May loose some local variable initializations : affecting the local variable attributes
-			if (neededScope) {
+			if ((this.bits & ASTNode.NeededScope) != 0) {
 				codeStream.exitUserScope(scope);
 			}
 			if (mergedInitStateIndex != -1) {
@@ -314,7 +315,7 @@ public class ForStatement extends Statement {
 
 
 		// May loose some local variable initializations : affecting the local variable attributes
-		if (neededScope) {
+		if ((this.bits & ASTNode.NeededScope) != 0) {
 			codeStream.exitUserScope(scope);
 		}
 		if (mergedInitStateIndex != -1) {
@@ -361,7 +362,7 @@ public class ForStatement extends Statement {
 	public void resolve(BlockScope upperScope) {
 
 		// use the scope that will hold the init declarations
-		scope = neededScope ? new BlockScope(upperScope) : upperScope;
+		scope = (this.bits & ASTNode.NeededScope) != 0 ? new BlockScope(upperScope) : upperScope;
 		if (initializations != null)
 			for (int i = 0, length = initializations.length; i < length; i++)
 				initializations[i].resolve(scope);

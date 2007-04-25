@@ -15,11 +15,10 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 
 public class JavadocReturnStatement extends ReturnStatement {
-	public boolean empty = true;
 
 	public JavadocReturnStatement(int s, int e) {
 		super(null, s, e);
-		this.bits |= InsideJavadoc;
+		this.bits |= (ASTNode.InsideJavadoc | ASTNode.Empty);
 	}
 
 	/* (non-Javadoc)
@@ -36,7 +35,7 @@ public class JavadocReturnStatement extends ReturnStatement {
 				: TypeBinding.VOID;
 		if (methodType == null || methodType == TypeBinding.VOID) {
 			scope.problemReporter().javadocUnexpectedTag(this.sourceStart, this.sourceEnd);
-		} else if (this.empty) {
+		} else if ((this.bits & ASTNode.Empty) != 0) {
 			scope.problemReporter().javadocEmptyReturnTag(this.sourceStart, this.sourceEnd, scope.getDeclarationModifiers());
 		}
 	}
@@ -46,7 +45,7 @@ public class JavadocReturnStatement extends ReturnStatement {
 	 */
 	public StringBuffer printStatement(int tab, StringBuffer output) {
 		printIndent(tab, output).append("return"); //$NON-NLS-1$
-		if (!this.empty)
+		if ((this.bits & ASTNode.Empty) == 0)
 			output.append(' ').append(" <not empty>"); //$NON-NLS-1$
 		return output;
 	}

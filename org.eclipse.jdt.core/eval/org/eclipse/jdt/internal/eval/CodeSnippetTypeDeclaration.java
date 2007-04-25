@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.eval;
 
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 
@@ -25,8 +26,8 @@ public CodeSnippetTypeDeclaration(CompilationResult compilationResult){
  * Generic bytecode generation for type
  */
 public void generateCode(ClassFile enclosingClassFile) {
-	if (this.hasBeenGenerated) return;
-	this.hasBeenGenerated = true;
+	if ((this.bits & ASTNode.HasBeenGenerated) != 0) return;
+	this.bits |= ASTNode.HasBeenGenerated;
 	
 	if (this.ignoreFurtherInvestigation) {
 		if (this.binding == null)

@@ -25,8 +25,6 @@ public class IfStatement extends Statement {
 	public Statement thenStatement;
 	public Statement elseStatement;
 
-	boolean thenExit;
-
 	// for local variables table attributes
 	int thenInitStateIndex = -1;
 	int elseInitStateIndex = -1;
@@ -87,7 +85,9 @@ public class IfStatement extends Statement {
 			}
 		}
 		// code gen: optimizing the jump around the ELSE part
-		this.thenExit = (thenFlowInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
+		if ((thenFlowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) {
+			this.bits |= ASTNode.ThenExit;
+		}
 
 		// process the ELSE part
 		if (this.elseStatement != null) {
@@ -160,7 +160,7 @@ public class IfStatement extends Statement {
 			this.thenStatement.generateCode(currentScope, codeStream);
 			// jump around the else statement
 			if (hasElsePart) {
-				if (!thenExit) {
+				if ((this.bits & ASTNode.ThenExit) == 0) {
 					this.thenStatement.branchChainTo(endifLabel);
 					int position = codeStream.position;
 					codeStream.goto_(endifLabel);

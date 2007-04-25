@@ -20,7 +20,6 @@ public class JavadocMessageSend extends MessageSend {
 
 	public int tagSourceStart, tagSourceEnd;
 	public int tagValue;
-	public boolean superAccess = false;
 
 	public JavadocMessageSend(char[] name, long pos) {
 		this.selector = name;
@@ -81,7 +80,9 @@ public class JavadocMessageSend extends MessageSend {
 		}
 		this.actualReceiverType = scope.environment().convertToRawType(this.receiver.resolvedType);
 		SourceTypeBinding enclosingType = scope.enclosingSourceType();
-		this.superAccess = enclosingType==null ? false : enclosingType.isCompatibleWith(this.actualReceiverType);
+		if (enclosingType==null ? false : enclosingType.isCompatibleWith(this.actualReceiverType)) {
+			this.bits |= ASTNode.SuperAccess;
+		}
 
 		// base type cannot receive any message
 		if (this.actualReceiverType.isBaseType()) {
@@ -173,7 +174,7 @@ public class JavadocMessageSend extends MessageSend {
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
 	 */
 	public boolean isSuperAccess() {
-		return this.superAccess;
+		return (this.bits & ASTNode.SuperAccess) != 0;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){

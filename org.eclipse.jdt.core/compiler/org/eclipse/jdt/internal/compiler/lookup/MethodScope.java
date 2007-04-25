@@ -67,7 +67,7 @@ public class MethodScope extends BlockScope {
 		if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForMethod(declaringClass, (AbstractMethodDeclaration) referenceContext);
 
-		if (((ConstructorDeclaration) referenceContext).isDefaultConstructor) {
+		if ((((ConstructorDeclaration) referenceContext).bits & ASTNode.IsDefaultConstructor) != 0) {
 			// certain flags are propagated from declaring class onto constructor
 			final int DECLARING_FLAGS = ClassFileConstants.AccEnum|ClassFileConstants.AccPublic|ClassFileConstants.AccProtected;
 			final int VISIBILITY_FLAGS = ClassFileConstants.AccPrivate|ClassFileConstants.AccPublic|ClassFileConstants.AccProtected;
@@ -88,7 +88,7 @@ public class MethodScope extends BlockScope {
 
 		// check for abnormal modifiers
 		final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStrictfp);
-		if (declaringClass.isEnum() && !((ConstructorDeclaration) referenceContext).isDefaultConstructor) {
+		if (declaringClass.isEnum() && (((ConstructorDeclaration) referenceContext).bits & ASTNode.IsDefaultConstructor) == 0) {
 			final int UNEXPECTED_ENUM_CONSTR_MODIFIERS = ~(ClassFileConstants.AccPrivate | ClassFileConstants.AccStrictfp);
 			if ((realModifiers & UNEXPECTED_ENUM_CONSTR_MODIFIERS) != 0) {
 				problemReporter().illegalModifierForEnumConstructor((AbstractMethodDeclaration) referenceContext);

@@ -46,7 +46,6 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public int declarationSourceEnd;
 	public int bodyStart;
 	public int bodyEnd; // doesn't include the trailing comment if any.
-	protected boolean hasBeenGenerated = false;
 	public CompilationResult compilationResult;
 	public MethodDeclaration[] missingAbstractMethods;
 	public Javadoc javadoc;	
@@ -308,7 +307,7 @@ public ConstructorDeclaration createDefaultConstructor(	boolean needExplicitCons
 
 	//the constructor
 	ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
-	constructor.isDefaultConstructor = true;
+	constructor.bits |= ASTNode.IsDefaultConstructor;
 	constructor.selector = this.name;
 	constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
 
@@ -361,7 +360,7 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 		newModifiers |= ClassFileConstants.AccVarargs;
 	}
 	constructor.modifiers = newModifiers;
-	constructor.isDefaultConstructor = true;
+	constructor.bits |= ASTNode.IsDefaultConstructor;
 
 	if (argumentsLength > 0) {
 		Argument[] arguments = (constructor.arguments = new Argument[argumentsLength]);
@@ -491,9 +490,9 @@ public TypeDeclaration declarationOfType(char[][] typeName) {
  * Generic bytecode generation for type
  */
 public void generateCode(ClassFile enclosingClassFile) {
-	if (this.hasBeenGenerated)
+	if ((this.bits & ASTNode.HasBeenGenerated) != 0)
 		return;
-	this.hasBeenGenerated = true;
+	this.bits |= ASTNode.HasBeenGenerated;
 	if (this.ignoreFurtherInvestigation) {
 		if (this.binding == null)
 			return;
@@ -558,7 +557,7 @@ public void generateCode(BlockScope blockScope, CodeStream codeStream) {
 	if ((this.bits & ASTNode.IsReachable) == 0) {
 		return;
 	}		
-	if (this.hasBeenGenerated) return;
+	if ((this.bits & ASTNode.HasBeenGenerated) != 0) return;
 	int pc = codeStream.position;
 	if (this.binding != null) ((NestedTypeBinding) this.binding).computeSyntheticArgumentSlotSizes();
 	generateCode(codeStream.classFile);
@@ -569,7 +568,7 @@ public void generateCode(BlockScope blockScope, CodeStream codeStream) {
  * Bytecode generation for a member inner type
  */
 public void generateCode(ClassScope classScope, ClassFile enclosingClassFile) {
-	if (this.hasBeenGenerated) return;
+	if ((this.bits & ASTNode.HasBeenGenerated) != 0) return;
 	if (this.binding != null) ((NestedTypeBinding) this.binding).computeSyntheticArgumentSlotSizes();
 	generateCode(enclosingClassFile);
 }

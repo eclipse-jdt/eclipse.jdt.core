@@ -177,7 +177,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 	if (reference instanceof ImportReference) {
 		ImportReference importRef = (ImportReference) reference;
 		positions = importRef.sourcePositions;
-		last = importRef.onDemand ? positions.length : positions.length - 1;
+		last = (importRef.bits & ASTNode.OnDemand) != 0 ? positions.length : positions.length - 1;
 	} else {
 		TypeBinding typeBinding = null;
 		if (reference instanceof QualifiedNameReference) {

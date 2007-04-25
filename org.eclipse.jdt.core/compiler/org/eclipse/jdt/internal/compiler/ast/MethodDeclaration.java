@@ -96,8 +96,9 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			// check for missing returning path
 			TypeBinding returnTypeBinding = binding.returnType;
 			if ((returnTypeBinding == TypeBinding.VOID) || isAbstract()) {
-				this.needFreeReturn =
-					(flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0;
+				if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+					this.bits |= ASTNode.NeedFreeReturn;
+				}
 			} else {
 				if (flowInfo != FlowInfo.DEAD_END) { 
 					scope.problemReporter().shouldReturn(returnTypeBinding, this);

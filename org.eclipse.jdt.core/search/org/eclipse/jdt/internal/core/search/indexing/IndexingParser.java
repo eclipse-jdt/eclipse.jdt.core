@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
@@ -36,7 +37,9 @@ public class IndexingParser extends SourceElementParser {
 		ImportReference ref = this.importReference;
 		ref.tokens = tokens;
 		ref.sourcePositions = sourcePositions;
-		ref.onDemand = onDemand;
+		if (onDemand) {
+			ref.bits |= ASTNode.OnDemand;
+		}
 		ref.sourceEnd = (int) (sourcePositions[sourcePositions.length-1] & 0x00000000FFFFFFFF);
 		ref.sourceStart = (int) (sourcePositions[0] >>> 32);
 		ref.modifiers = modifiers;

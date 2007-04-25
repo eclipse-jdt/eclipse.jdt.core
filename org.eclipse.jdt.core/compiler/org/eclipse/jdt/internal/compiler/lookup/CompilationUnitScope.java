@@ -154,7 +154,7 @@ void checkAndSetImports() {
 	int numberOfImports = numberOfStatements + 1;
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = referenceContext.imports[i];
-		if (importReference.onDemand && CharOperation.equals(JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
+		if (((importReference.bits & ASTNode.OnDemand) != 0) && CharOperation.equals(JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
 			numberOfImports--;
 			break;
 		}
@@ -170,12 +170,12 @@ void checkAndSetImports() {
 		// skip duplicates or imports of the current package
 		for (int j = 0; j < index; j++) {
 			ImportBinding resolved = resolvedImports[j];
-			if (resolved.onDemand == importReference.onDemand && resolved.isStatic() == importReference.isStatic())
+			if (resolved.onDemand == ((importReference.bits & ASTNode.OnDemand) != 0) && resolved.isStatic() == importReference.isStatic())
 				if (CharOperation.equals(compoundName, resolvedImports[j].compoundName))
 					continue nextImport;
 		}
 
-		if (importReference.onDemand) {
+		if ((importReference.bits & ASTNode.OnDemand) != 0) {
 			if (CharOperation.equals(compoundName, currentPackageName))
 				continue nextImport;
 
@@ -299,7 +299,7 @@ void faultInImports() {
 	int numberOfStatements = referenceContext.imports.length;
 	HashtableOfType typesBySimpleNames = null;
 	for (int i = 0; i < numberOfStatements; i++) {
-		if (!referenceContext.imports[i].onDemand) {
+		if ((referenceContext.imports[i].bits & ASTNode.OnDemand) == 0) {
 			typesBySimpleNames = new HashtableOfType(topLevelTypes.length + numberOfStatements);
 			for (int j = 0, length = topLevelTypes.length; j < length; j++)
 				typesBySimpleNames.put(topLevelTypes[j].sourceName, topLevelTypes[j]);
@@ -311,7 +311,7 @@ void faultInImports() {
 	int numberOfImports = numberOfStatements + 1;
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = referenceContext.imports[i];
-		if (importReference.onDemand && CharOperation.equals(JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
+		if (((importReference.bits & ASTNode.OnDemand) != 0) && CharOperation.equals(JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
 			numberOfImports--;
 			break;
 		}
@@ -330,14 +330,14 @@ void faultInImports() {
 		// skip duplicates or imports of the current package
 		for (int j = 0; j < index; j++) {
 			ImportBinding resolved = resolvedImports[j];
-			if (resolved.onDemand == importReference.onDemand && resolved.isStatic() == importReference.isStatic()) {
+			if (resolved.onDemand == ((importReference.bits & ASTNode.OnDemand) != 0) && resolved.isStatic() == importReference.isStatic()) {
 				if (CharOperation.equals(compoundName, resolved.compoundName)) {
 					problemReporter().unusedImport(importReference); // since skipped, must be reported now
 					continue nextImport;
 				}
 			}
 		}
-		if (importReference.onDemand) {
+		if ((importReference.bits & ASTNode.OnDemand) != 0) {
 			if (CharOperation.equals(compoundName, currentPackageName)) {
 				problemReporter().unusedImport(importReference); // since skipped, must be reported now
 				continue nextImport;

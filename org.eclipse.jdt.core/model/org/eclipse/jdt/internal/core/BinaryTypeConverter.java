@@ -89,7 +89,7 @@ public class BinaryTypeConverter {
 
 		if (method.isConstructor()) {
 			ConstructorDeclaration decl = new ConstructorDeclaration(compilationResult);
-			decl.isDefaultConstructor = false;
+			decl.bits &= ~ASTNode.IsDefaultConstructor;
 			methodDeclaration = decl;
 		} else {
 			MethodDeclaration decl = type.isAnnotation() ? new AnnotationMethodDeclaration(compilationResult) : new MethodDeclaration(compilationResult);

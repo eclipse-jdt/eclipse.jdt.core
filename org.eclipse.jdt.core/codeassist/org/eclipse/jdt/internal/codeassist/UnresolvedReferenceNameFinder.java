@@ -296,7 +296,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	}
 	
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope classScope) {
-		if (!constructorDeclaration.isDefaultConstructor && !constructorDeclaration.isClinit()) {
+		if (((constructorDeclaration.bits & ASTNode.IsDefaultConstructor) == 0) && !constructorDeclaration.isClinit()) {
 			removeLocals(
 					constructorDeclaration.arguments,
 					constructorDeclaration.declarationSourceStart,
@@ -358,7 +358,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	}
 	
 	public void endVisit(ConstructorDeclaration constructorDeclaration, ClassScope classScope) {
-		if (!constructorDeclaration.isDefaultConstructor && !constructorDeclaration.isClinit()) {
+		if (((constructorDeclaration.bits & ASTNode.IsDefaultConstructor) == 0) && !constructorDeclaration.isClinit()) {
 			endVisitPreserved(constructorDeclaration.bodyStart, constructorDeclaration.bodyEnd);
 		}
 		popParent();

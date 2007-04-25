@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeReference {
 
 	public TypeReference[][] typeArguments;
-	public boolean didResolve = false;
 
 	/**
 	 * @param tokens
@@ -112,39 +111,39 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 
 		// handle the error here
 		this.constant = Constant.NotAConstant;
-		if (this.didResolve) { // is a shared type reference which was already resolved
+		if ((this.bits & ASTNode.DidResolve) != 0) { // is a shared type reference which was already resolved
 			if (this.resolvedType != null && !this.resolvedType.isValidBinding())
 				return null; // already reported error
 			return this.resolvedType;
 		} 
-	    this.didResolve = true;
-	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
-	    Binding binding = scope.getPackage(this.tokens);
-	    if (binding != null && !binding.isValidBinding()) {
-	    	this.resolvedType = (ReferenceBinding) binding;
+		this.bits |= ASTNode.DidResolve;
+		boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
+		Binding binding = scope.getPackage(this.tokens);
+		if (binding != null && !binding.isValidBinding()) {
+			this.resolvedType = (ReferenceBinding) binding;
 			reportInvalidType(scope);
 			// be resilient, still attempt resolving arguments
 			for (int i = 0, max = this.tokens.length; i < max; i++) {
-			    TypeReference[] args = this.typeArguments[i];
-			    if (args != null) {
+				TypeReference[] args = this.typeArguments[i];
+				if (args != null) {
 					int argLength = args.length;
 					for (int j = 0; j < argLength; j++) {
-					    TypeReference typeArgument = args[j];
-					    if (isClassScope) {
-					    	typeArgument.resolveType((ClassScope) scope);
-					    } else {
-					    	typeArgument.resolveType((BlockScope) scope, checkBounds);
-					    }
+						TypeReference typeArgument = args[j];
+						if (isClassScope) {
+							typeArgument.resolveType((ClassScope) scope);
+						} else {
+							typeArgument.resolveType((BlockScope) scope, checkBounds);
+						}
 					}
-			    }				
+				}
 			}
 			return null;
 		}
 
-	    PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
+		PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
 		boolean typeIsConsistent = true;
 		ReferenceBinding qualifiedType = null;
-	    for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length; i < max; i++) {
+		for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length; i < max; i++) {
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!(this.resolvedType.isValidBinding())) {
 				reportInvalidType(scope);

@@ -32,7 +32,6 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 	public final static int This = 3;
 
 	public VariableBinding[][] implicitArguments;
-//	boolean discardEnclosingInstance;
 	
 	// TODO Remove once DOMParser is activated
 	public int typeArgumentsSourceStart;

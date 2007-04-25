@@ -22,39 +22,39 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	public int sourceStart, sourceEnd;
 
-	// storage for internal flags (32 bits)						BIT USAGE
-	public final static int Bit1 = 0x1; 						// return type (operator) | name reference kind (name ref) | add assertion (type decl) | useful empty statement (empty statement)
-	public final static int Bit2 = 0x2; 						// return type (operator) | name reference kind (name ref) | has local type (type, method, field decl)
-	public final static int Bit3 = 0x4; 						// return type (operator) | name reference kind (name ref) | implicit this (this ref)
-	public final static int Bit4 = 0x8; 						// return type (operator) | first assignment to local (name ref,local decl) | undocumented empty block (block, type and method decl)
-	public final static int Bit5 = 0x10; 						// value for return (expression) | has all method bodies (unit) | supertype ref (type ref) | resolved (field decl)
-	public final static int Bit6 = 0x20; 						// depth (name ref, msg) | ignore need cast check (cast expression)
-	public final static int Bit7 = 0x40; 						// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression) | label used (labelStatement)
-	public final static int Bit8 = 0x80; 						// depth (name ref, msg) | operator (operator) | unsafe cast (cast expression)
-	public final static int Bit9 = 0x100; 					// depth (name ref, msg) | operator (operator) | is local type (type decl)
-	public final static int Bit10= 0x200; 					// depth (name ref, msg) | operator (operator) | is anonymous type (type decl)
-	public final static int Bit11 = 0x400; 					// depth (name ref, msg) | operator (operator) | is member type (type decl)
-	public final static int Bit12 = 0x800; 					// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
-	public final static int Bit13 = 0x1000; 				// depth (name ref, msg) | is secondary type (type decl)
-	public final static int Bit14 = 0x2000; 				// strictly assigned (reference lhs) | discard enclosing instance (explicit constr call)
-	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression) | is varargs (type ref) | isSubRoutineEscaping (try statement)
-	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
-	public final static int Bit17 = 0x10000; 				// compound assigned (reference lhs)
-	public final static int Bit18 = 0x20000;				// non null (expression)
-	public final static int Bit19 = 0x40000;
+	// storage for internal flags (32 bits)				BIT USAGE
+	public final static int Bit1 = 0x1;					// return type (operator) | name reference kind (name ref) | add assertion (type decl) | useful empty statement (empty statement)
+	public final static int Bit2 = 0x2;					// return type (operator) | name reference kind (name ref) | has local type (type, method, field decl)
+	public final static int Bit3 = 0x4;					// return type (operator) | name reference kind (name ref) | implicit this (this ref)
+	public final static int Bit4 = 0x8;					// return type (operator) | first assignment to local (name ref,local decl) | undocumented empty block (block, type and method decl)
+	public final static int Bit5 = 0x10;				// value for return (expression) | has all method bodies (unit) | supertype ref (type ref) | resolved (field decl)
+	public final static int Bit6 = 0x20;				// depth (name ref, msg) | ignore need cast check (cast expression) | error in signature (method declaration/ initializer)
+	public final static int Bit7 = 0x40;				// depth (name ref, msg) | operator (operator) | need runtime checkcast (cast expression) | label used (labelStatement) | needFreeReturn (AbstractMethodDeclaration)
+	public final static int Bit8 = 0x80;				// depth (name ref, msg) | operator (operator) | unsafe cast (cast expression) | is default constructor (constructor declaration)
+	public final static int Bit9 = 0x100;				// depth (name ref, msg) | operator (operator) | is local type (type decl)
+	public final static int Bit10= 0x200;				// depth (name ref, msg) | operator (operator) | is anonymous type (type decl)
+	public final static int Bit11 = 0x400;				// depth (name ref, msg) | operator (operator) | is member type (type decl)
+	public final static int Bit12 = 0x800;				// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
+	public final static int Bit13 = 0x1000;				// depth (name ref, msg) | is secondary type (type decl)
+	public final static int Bit14 = 0x2000;				// strictly assigned (reference lhs) | discard enclosing instance (explicit constr call) | hasBeenGenerated (type decl)
+	public final static int Bit15 = 0x4000;				// is unnecessary cast (expression) | is varargs (type ref) | isSubRoutineEscaping (try statement) | superAccess (javadoc allocation expression/javadoc message send/javadoc return statement)
+	public final static int Bit16 = 0x8000;				// in javadoc comment (name ref, type ref, msg)
+	public final static int Bit17 = 0x10000;			// compound assigned (reference lhs)
+	public final static int Bit18 = 0x20000;			// non null (expression) | onDemand (import reference)
+	public final static int Bit19 = 0x40000;			// didResolve (parameterized qualified type ref/parameterized single type ref)  | empty (javadoc return statement)
 	public final static int Bit20 = 0x80000;
 	public final static int Bit21 = 0x100000;
-	public final static int Bit22 = 0x200000; 			// parenthesis count (expression)
-	public final static int Bit23 = 0x400000; 			// parenthesis count (expression)
-	public final static int Bit24 = 0x800000; 			// parenthesis count (expression)
-	public final static int Bit25 = 0x1000000; 			// parenthesis count (expression)
-	public final static int Bit26 = 0x2000000; 			// parenthesis count (expression)
-	public final static int Bit27 = 0x4000000; 			// parenthesis count (expression)
-	public final static int Bit28 = 0x8000000; 			// parenthesis count (expression)
-	public final static int Bit29 = 0x10000000; 		// parenthesis count (expression)
-	public final static int Bit30 = 0x20000000; 		// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref)
-	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment)
-	public final static int Bit32 = 0x80000000; 		// reachable (statement)
+	public final static int Bit22 = 0x200000;			// parenthesis count (expression) | used (import reference)
+	public final static int Bit23 = 0x400000;			// parenthesis count (expression)
+	public final static int Bit24 = 0x800000;			// parenthesis count (expression)
+	public final static int Bit25 = 0x1000000;			// parenthesis count (expression)
+	public final static int Bit26 = 0x2000000;			// parenthesis count (expression)
+	public final static int Bit27 = 0x4000000;			// parenthesis count (expression)
+	public final static int Bit28 = 0x8000000;			// parenthesis count (expression)
+	public final static int Bit29 = 0x10000000;			// parenthesis count (expression)
+	public final static int Bit30 = 0x20000000;			// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref) | needScope (for statement) | isAnySubRoutineEscaping (return statement) | blockExit (synchronized statement)
+	public final static int Bit31 = 0x40000000;			// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment) | isSynchronized (return statement) | thenExit (if statement) 
+	public final static int Bit32 = 0x80000000;			// reachable (statement)
 
 	public final static long Bit32L = 0x80000000L;
 	public final static long Bit33L = 0x100000000L;
@@ -138,6 +138,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsMemberType = Bit11; // local member do not know it is local at parse time (need to look at binding)
 	public static final int HasAbstractMethods = Bit12; // used to promote abstract enums
 	public static final int IsSecondaryType = Bit13; // used to test for secondary
+	public static final int HasBeenGenerated = Bit14;
 
 	// for type, method and field declarations
 	public static final int HasLocalType = Bit2; // cannot conflict with AddAssertionMASK
@@ -162,6 +163,15 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int UndocumentedEmptyBlock = Bit4;
 	public static final int OverridingMethodWithSupercall = Bit5;
 
+	// for initializer and method declaration
+	public static final int ErrorInSignature = Bit6;
+	
+	// for abstract method declaration
+	public static final int NeedFreeReturn = Bit7; // abstract method declaration
+
+	// for constructor declaration
+	public static final int IsDefaultConstructor = Bit8;
+
 	// for compilation unit
 	public static final int HasAllMethodBodies = Bit5;
 	public static final int IsImplicitUnit = Bit1;
@@ -169,8 +179,15 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for references in Javadoc comments
 	public static final int InsideJavadoc = Bit16;
 
+	// for javadoc allocation expression/javadoc message send/javadoc return statement
+	public static final int SuperAccess = Bit15;
+
+	// for javadoc return statement
+	public static final int Empty = Bit19;
+
 	// for if statement
 	public static final int IsElseIfStatement = Bit30;
+	public static final int ThenExit = Bit31;
 
 	// for type reference
 	public static final int IsSuperType = Bit5;
@@ -183,6 +200,23 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for null reference analysis
 	public static final int IsNonNull = Bit18;
 
+	// for for statement
+	public static final int NeededScope = Bit30;
+
+	// for import reference
+	public static final int OnDemand = Bit18;
+	public static final int Used = Bit2;
+	
+	// for parameterized qualified/single type ref
+	public static final int DidResolve = Bit19;
+	
+	// for return statement
+	public static final int IsAnySubRoutineEscaping = Bit30;
+	public static final int IsSynchronized = Bit31;
+	
+	// for synchronized statement
+	public static final int BlockExit = Bit30;
+	
 	// constants used when checking invocation arguments
 	public static final int INVOCATION_ARGUMENT_OK = 0;
 	public static final int INVOCATION_ARGUMENT_UNCHECKED = 1;

@@ -18,11 +18,9 @@ public class ImportReference extends ASTNode {
 
 	public char[][] tokens;
 	public long[] sourcePositions; //each entry is using the code : (start<<32) + end
-	public boolean onDemand = true; //most of the time
 	public int declarationEnd; // doesn't include an potential trailing comment
 	public int declarationSourceStart;
 	public int declarationSourceEnd;
-	public boolean used;
 	public int modifiers; // 1.5 addition for static imports
 	public Annotation[] annotations;
 
@@ -34,7 +32,9 @@ public class ImportReference extends ASTNode {
 
 		this.tokens = tokens;
 		this.sourcePositions = sourcePositions;
-		this.onDemand = onDemand;
+		if (onDemand) {
+			this.bits |= ASTNode.OnDemand;
+		}
 		this.sourceEnd = (int) (sourcePositions[sourcePositions.length-1] & 0x00000000FFFFFFFF);
 		this.sourceStart = (int) (sourcePositions[0] >>> 32);
 		this.modifiers = modifiers;
@@ -64,7 +64,7 @@ public class ImportReference extends ASTNode {
 			if (i > 0) output.append('.');
 			output.append(tokens[i]);
 		}
-		if (withOnDemand && onDemand) {
+		if (withOnDemand && ((this.bits & ASTNode.OnDemand) != 0)) {
 			output.append(".*"); //$NON-NLS-1$
 		}
 		return output;

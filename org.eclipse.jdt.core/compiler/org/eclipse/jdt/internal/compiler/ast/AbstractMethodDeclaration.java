@@ -40,15 +40,12 @@ public abstract class AbstractMethodDeclaration
 	public int explicitDeclarations;
 	public MethodBinding binding;
 	public boolean ignoreFurtherInvestigation = false;
-	public boolean needFreeReturn = false;
 	
 	public Javadoc javadoc;
 	
 	public int bodyStart;
 	public int bodyEnd = -1;
 	public CompilationResult compilationResult;
-	
-	public boolean errorInSignature = false; 
 	
 	AbstractMethodDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
@@ -228,7 +225,7 @@ public abstract class AbstractMethodDeclaration
 				for (int i = 0, max = this.statements.length; i < max; i++)
 					this.statements[i].generateCode(this.scope, codeStream);
 			}
-			if (this.needFreeReturn) {
+			if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
 				codeStream.return_();
 			}
 			// local variable attributes

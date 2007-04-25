@@ -20,9 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public class ReturnStatement extends Statement {
 		
 	public Expression expression;
-	public boolean isSynchronized;
 	public SubRoutineStatement[] subroutines;
-	public boolean isAnySubRoutineEscaping = false;
 	public LocalVariableBinding saveValueVariable;
 	public int initStateIndex = -1;
 	
@@ -61,7 +59,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.subroutines[subCount++] = sub;
 			if (sub.isSubRoutineEscaping()) {
 				saveValueNeeded = false;
-				this.isAnySubRoutineEscaping = true;
+				this.bits |= ASTNode.IsAnySubRoutineEscaping;
 				break;
 			}
 		}
@@ -70,7 +68,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (traversedContext instanceof InsideSubRoutineFlowContext) {
 			ASTNode node = traversedContext.associatedNode;
 			if (node instanceof SynchronizedStatement) {
-				this.isSynchronized = true;
+				this.bits |= ASTNode.IsSynchronized;
 			} else if (node instanceof TryStatement) {
 				TryStatement tryStatement = (TryStatement) node;
 				flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits
@@ -99,7 +97,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 	} else {
 		this.saveValueVariable = null;
-		if (!this.isSynchronized && this.expression != null && this.expression.resolvedType == TypeBinding.BOOLEAN) {
+		if (((this.bits & ASTNode.IsSynchronized) == 0) && this.expression != null && this.expression.resolvedType == TypeBinding.BOOLEAN) {
 			this.expression.bits |= ASTNode.IsReturnedValue;
 		}
 	}
@@ -177,8 +175,8 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 
 public boolean needValue() {
 	return this.saveValueVariable != null 
-					|| this.isSynchronized
-					|| !this.isAnySubRoutineEscaping;
+					|| (this.bits & ASTNode.IsSynchronized) != 0
+					|| ((this.bits & ASTNode.IsAnySubRoutineEscaping) == 0);
 }
 
 public void prepareSaveValueLocation(TryStatement targetTryStatement){

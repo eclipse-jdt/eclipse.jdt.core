@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser.diagnose;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
@@ -141,7 +142,7 @@ public class RangeUtil {
 					AbstractMethodDeclaration method = methods[i];
 					if(containsIgnoredBody(method)) {
 						if(containsErrorInSignature(method)) {
-							method.errorInSignature = true;
+							method.bits |= ASTNode.ErrorInSignature;
 							result.addInterval(method.declarationSourceStart, method.declarationSourceEnd, IGNORE);
 						} else {
 							int flags = method.sourceEnd + 1 == method.bodyStart ? LBRACE_MISSING : NO_FLAG;
@@ -159,7 +160,7 @@ public class RangeUtil {
 					if (fields[i] instanceof Initializer) {
 						Initializer initializer = (Initializer)fields[i];
 						if(initializer.declarationSourceEnd == initializer.bodyEnd && initializer.declarationSourceStart != initializer.declarationSourceEnd){
-							initializer.errorInSignature = true;
+							initializer.bits |= ASTNode.ErrorInSignature;
 							result.addInterval(initializer.declarationSourceStart, initializer.declarationSourceEnd, IGNORE);
 						} else {
 							result.addInterval(initializer.bodyStart, initializer.bodyEnd);

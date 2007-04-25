@@ -57,8 +57,9 @@ public class Clinit extends AbstractMethodDeclaration {
 					FlowInfo.DEAD_END);
 
 			// check for missing returning path
-			this.needFreeReturn = (flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0;
-
+			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+				this.bits |= ASTNode.NeedFreeReturn;
+			}
 
 			// check missing blank final field initializations
 			flowInfo = flowInfo.mergedWith(staticInitializerFlowContext.initsOnReturn);
@@ -265,7 +266,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			// reset the constant pool to its state before the clinit
 			constantPool.resetForClinit(constantPoolIndex, constantPoolOffset);
 		} else {
-			if (this.needFreeReturn) {
+			if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
 				int before = codeStream.position;
 				codeStream.return_();
 				if (lastInitializerScope != null) {

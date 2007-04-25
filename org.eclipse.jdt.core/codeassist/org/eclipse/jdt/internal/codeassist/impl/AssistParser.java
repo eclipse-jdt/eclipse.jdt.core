@@ -679,7 +679,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 
 	/* build specific assist node on import statement */
 	ImportReference reference = this.createAssistImportReference(subset, positions, ClassFileConstants.AccStatic);
-	reference.onDemand = true;
+	reference.bits |= ASTNode.OnDemand;
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 
@@ -785,7 +785,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 
 	/* build specific assist node on import statement */
 	ImportReference reference = this.createAssistImportReference(subset, positions, ClassFileConstants.AccDefault);
-	reference.onDemand = true;
+	reference.bits |= ASTNode.OnDemand;
 	assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 

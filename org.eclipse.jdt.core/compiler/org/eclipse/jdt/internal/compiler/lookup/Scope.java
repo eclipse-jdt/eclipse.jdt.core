@@ -1540,7 +1540,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 									if (unitScope.resolveSingleImport(importBinding) != null && importBinding.resolvedImport instanceof FieldBinding) {
 										foundField = (FieldBinding) importBinding.resolvedImport;
 										ImportReference importReference = importBinding.reference;
-										if (importReference != null && needResolve) importReference.used = true;
+										if (importReference != null && needResolve) {
+											importReference.bits |= ASTNode.Used;
+										}
 										invocationSite.setActualReceiverType(foundField.declaringClass);											
 										if (foundField.isValidBinding()) {
 											return foundField;
@@ -1566,7 +1568,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 										} else if (temp.isStatic()) {
 											if (foundField == temp) continue;
 											ImportReference importReference = importBinding.reference;
-											if (importReference != null && needResolve) importReference.used = true;
+											if (importReference != null && needResolve) {
+												importReference.bits |= ASTNode.Used;
+											}
 											if (foundInImport)
 												// Answer error binding -- import on demand conflict; name found in two import on demand packages.
 												return new ProblemReferenceBinding(name, null, ProblemReasons.Ambiguous);
@@ -1916,7 +1920,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 										if (compatibleMethod.canBeSeenBy(unitScope.fPackage)) {
 											if (visible == null || !visible.contains(compatibleMethod)) {
 												ImportReference importReference = importBinding.reference;
-												if (importReference != null) importReference.used = true;
+												if (importReference != null) {
+													importReference.bits |= ASTNode.Used;
+												}
 												if (!skipOnDemand && !importBinding.onDemand) {
 													visible = null; // forget previous matches from on demand imports
 													skipOnDemand = true;
@@ -2333,7 +2339,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			if (binding != null) { // can also include NotFound ProblemReferenceBindings if we already know this name is not found
 				if (binding instanceof ImportBinding) { // single type import cached in faultInImports(), replace it in the cache with the type
 					ImportReference importReference = ((ImportBinding) binding).reference;
-					if (importReference != null) importReference.used = true;
+					if (importReference != null) {
+						importReference.bits |= ASTNode.Used;
+					}
 					if (binding instanceof ImportConflictBinding)
 						typeOrPackageCache.put(name, binding = ((ImportConflictBinding) binding).conflictingTypeBinding); // already know its visible
 					else
@@ -2367,7 +2375,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 							if (resolvedImport instanceof TypeBinding) {
 								ImportReference importReference = importBinding.reference;
 								if (importReference != null)
-									importReference.used = true;
+									importReference.bits |= ASTNode.Used;
 								return resolvedImport; // already know its visible
 							}
 						}
@@ -2406,7 +2414,9 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						if (temp != type && temp != null) {
 							if (temp.isValidBinding()) {
 								ImportReference importReference = someImport.reference;
-								if (importReference != null) importReference.used = true;
+								if (importReference != null) {
+									importReference.bits |= ASTNode.Used;
+								}
 								if (foundInImport) {
 									// Answer error binding -- import on demand conflict; name found in two import on demand packages.
 									temp = new ProblemReferenceBinding(name, type, ProblemReasons.Ambiguous);

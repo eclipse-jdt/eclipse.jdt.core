@@ -373,7 +373,9 @@ public class Javadoc extends ASTNode {
 					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, scopeModifiers);
 				}
 				else if (fieldRef.receiverType != null) {
-					fieldRef.superAccess = scope.enclosingSourceType().isCompatibleWith(fieldRef.receiverType);
+					if (scope.enclosingSourceType().isCompatibleWith(fieldRef.receiverType)) {
+						fieldRef.bits |= ASTNode.SuperAccess;
+					}
 					fieldRef.methodBinding = scope.findMethod((ReferenceBinding)fieldRef.receiverType, fieldRef.token, new TypeBinding[0], fieldRef);
 				}
 			}

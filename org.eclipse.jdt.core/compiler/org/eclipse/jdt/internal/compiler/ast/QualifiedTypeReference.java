@@ -37,10 +37,10 @@ public class QualifiedTypeReference extends TypeReference {
 		LookupEnvironment env = scope.environment();
 		try {
 			env.missingClassFileLocation = this;
-		    if (this.resolvedType == null) {
+			if (this.resolvedType == null) {
 				this.resolvedType = scope.getType(this.tokens[tokenIndex], packageBinding);
-		    } else {
-			    this.resolvedType = scope.getMemberType(this.tokens[tokenIndex], (ReferenceBinding) this.resolvedType);
+			} else {
+				this.resolvedType = scope.getMemberType(this.tokens[tokenIndex], (ReferenceBinding) this.resolvedType);
 				if (this.resolvedType instanceof ProblemReferenceBinding) {
 					ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) this.resolvedType;
 					this.resolvedType = new ProblemReferenceBinding(
@@ -49,7 +49,7 @@ public class QualifiedTypeReference extends TypeReference {
 						this.resolvedType.problemId());
 				}
 			}
-		    return this.resolvedType;
+			return this.resolvedType;
 		} catch (AbortCompilation e) {
 			e.updateContext(this, scope.referenceCompilationUnit().compilationResult);
 			throw e;

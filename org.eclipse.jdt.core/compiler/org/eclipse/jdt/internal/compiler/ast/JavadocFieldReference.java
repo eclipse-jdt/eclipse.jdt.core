@@ -19,7 +19,6 @@ public class JavadocFieldReference extends FieldReference {
 	public int tagSourceStart, tagSourceEnd;
 	public int tagValue;
 	public MethodBinding methodBinding;
-	public boolean superAccess = false;
 
 	public JavadocFieldReference(char[] source, long pos) {
 		super(source, pos);
@@ -103,7 +102,7 @@ public class JavadocFieldReference extends FieldReference {
 	}
 	
 	public boolean isSuperAccess() {
-		return this.superAccess;
+		return (this.bits & ASTNode.SuperAccess) != 0;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {

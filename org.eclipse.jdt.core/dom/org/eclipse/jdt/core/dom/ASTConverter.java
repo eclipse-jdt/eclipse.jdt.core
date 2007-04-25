@@ -2757,7 +2757,7 @@ class ASTConverter {
 	
 	public ImportDeclaration convertImport(org.eclipse.jdt.internal.compiler.ast.ImportReference importReference) {
 		final ImportDeclaration importDeclaration = new ImportDeclaration(this.ast);
-		final boolean onDemand = importReference.onDemand;
+		final boolean onDemand = (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0;
 		final char[][] tokens = importReference.tokens;
 		int length = importReference.tokens.length;
 		final long[] positions = importReference.sourcePositions;

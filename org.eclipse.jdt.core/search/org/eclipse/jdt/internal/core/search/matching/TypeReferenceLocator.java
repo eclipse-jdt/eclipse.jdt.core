@@ -207,10 +207,10 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 		typeBinding = (ReferenceBinding) binding;
 	} else if (binding instanceof FieldBinding) { // may happen for static import
 		typeBinding = ((FieldBinding)binding).declaringClass;
-		lastButOne = importRef.isStatic() && !importRef.onDemand;
+		lastButOne = importRef.isStatic() && ((importRef.bits & ASTNode.OnDemand) == 0);
 	} else if (binding instanceof MethodBinding) { // may happen for static import
 		typeBinding = ((MethodBinding)binding).declaringClass;
-		lastButOne = importRef.isStatic() && !importRef.onDemand;
+		lastButOne = importRef.isStatic() && ((importRef.bits & ASTNode.OnDemand) == 0);
 	}
 	if (typeBinding != null) {
 		int lastIndex = importRef.tokens.length - 1;

@@ -24,8 +24,7 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 	public ExplicitConstructorCall constructorCall;
-	
-	public boolean isDefaultConstructor = false;
+
 	public TypeParameter[] typeParameters;
 
 public ConstructorDeclaration(CompilationResult compilationResult){
@@ -54,7 +53,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 	checkUnused: {
 		MethodBinding constructorBinding;
 		if ((constructorBinding = this.binding) == null) break checkUnused;
-		if (this.isDefaultConstructor) break checkUnused;
+		if ((this.bits & ASTNode.IsDefaultConstructor) != 0) break checkUnused;
 		if (constructorBinding.isUsed()) break checkUnused;
 		if (constructorBinding.isPrivate()) {
 			if ((this.binding.declaringClass.tagBits & TagBits.HasNonPrivateConstructor) == 0)
@@ -136,7 +135,9 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			}
 		}
 		// check for missing returning path
-		this.needFreeReturn = (flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0;
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+			this.bits |= ASTNode.NeedFreeReturn;
+		}
 
 		// reuse the initial reach mode for diagnosing missing blank finals
 		flowInfo.setReachMode(initialReachMode);		
@@ -153,7 +154,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					&& (!flowInfo.isDefinitelyAssigned(fields[i]))) {
 					this.scope.problemReporter().uninitializedBlankFinalField(
 						field,
-						this.isDefaultConstructor ? (ASTNode) this.scope.referenceType() : this);
+						((this.bits & ASTNode.IsDefaultConstructor) != 0) ? (ASTNode) this.scope.referenceType() : this);
 				}
 			}
 		}
@@ -319,7 +320,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				this.statements[i].generateCode(this.scope, codeStream);
 			}
 		}
-		if (this.needFreeReturn) {
+		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
 			codeStream.return_();
 		}
 		// local variable attributes
@@ -341,7 +342,7 @@ public boolean isConstructor() {
 }
 
 public boolean isDefaultConstructor() {
-	return this.isDefaultConstructor;
+	return (this.bits & ASTNode.IsDefaultConstructor) != 0;
 }
 
 public boolean isInitializationMethod() {
@@ -381,7 +382,7 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 	//fill up the constructor body with its statements
 	if (this.ignoreFurtherInvestigation)
 		return;
-	if (this.isDefaultConstructor && this.constructorCall == null){
+	if (((this.bits & ASTNode.IsDefaultConstructor) != 0) && this.constructorCall == null){
 		this.constructorCall = SuperReference.implicitSuperConstructorCall();
 		this.constructorCall.sourceStart = this.sourceStart;
 		this.constructorCall.sourceEnd = this.sourceEnd; 
@@ -411,7 +412,7 @@ public StringBuffer printBody(int indent, StringBuffer output) {
 public void resolveJavadoc() {
 	if (this.binding == null || this.javadoc != null) {
 		super.resolveJavadoc();
-	} else if (!this.isDefaultConstructor) {
+	} else if ((this.bits & ASTNode.IsDefaultConstructor) == 0) {
 		this.scope.problemReporter().javadocMissing(this.sourceStart, this.sourceEnd, this.binding.modifiers);
 	}
 }

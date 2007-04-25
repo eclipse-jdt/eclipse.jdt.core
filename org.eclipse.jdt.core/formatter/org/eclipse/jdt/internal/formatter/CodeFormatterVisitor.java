@@ -624,7 +624,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(TerminalTokens.TokenNamestatic);
 			this.scribe.space();
 		}
-		if (importRef.onDemand) {
+		if ((importRef.bits & ASTNode.OnDemand) != 0) {
 			this.scribe.printQualifiedReference(importRef.sourceEnd);
 			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
 			this.scribe.printNextToken(TerminalTokens.TokenNameMULTIPLY);			

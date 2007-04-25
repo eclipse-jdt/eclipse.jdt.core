@@ -673,7 +673,7 @@ protected boolean createHierarchyResolver(IType focusType, PossibleMatch[] possi
  */
 protected IJavaElement createImportHandle(ImportReference importRef) {
 	char[] importName = CharOperation.concatWith(importRef.getImportName(), '.');
-	if (importRef.onDemand)
+	if ((importRef.bits & ASTNode.OnDemand) != 0)
 		importName = CharOperation.concat(importName, ".*" .toCharArray()); //$NON-NLS-1$
 	Openable openable = this.currentPossibleMatch.openable;
 	if (openable instanceof CompilationUnit)
@@ -2131,7 +2131,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 				if (this.hierarchyResolver != null) continue;
 
 				ImportReference importRef = (ImportReference) node;
-				Binding binding = importRef.onDemand
+				Binding binding = (importRef.bits & ASTNode.OnDemand) != 0
 					? unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
 					: unitScope.getImport(importRef.tokens, false, importRef.isStatic());
 				this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);

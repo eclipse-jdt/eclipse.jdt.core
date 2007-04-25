@@ -7537,7 +7537,7 @@ public final class CompletionEngine
 				
 				if (CharOperation.equals(f.tokens, compoundName)) continue next;
 				
-				if (!onDemand && !f.onDemand) {
+				if (!onDemand && ((f.bits & ASTNode.OnDemand) == 0)) {
 					if (CharOperation.equals(f.tokens[f.tokens.length - 1], compoundName[compoundName.length - 1]))
 						continue next;
 				}

@@ -37,7 +37,7 @@ public int match(ASTNode node, MatchingNodeSet nodeSet) {
 			// With static import, we can have static field reference in import reference
 			ImportReference importRef = (ImportReference) node;
 			int length = importRef.tokens.length-1;
-			if (importRef.isStatic() && !importRef.onDemand && matchesName(this.pattern.name, importRef.tokens[length])) {
+			if (importRef.isStatic() && ((importRef.bits & ASTNode.OnDemand) == 0) && matchesName(this.pattern.name, importRef.tokens[length])) {
 				char[][] compoundName = new char[length][];
 				System.arraycopy(importRef.tokens, 0, compoundName, 0, length);
 				FieldPattern fieldPattern = (FieldPattern) this.pattern;

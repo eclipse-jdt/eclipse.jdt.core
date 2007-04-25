@@ -59,12 +59,12 @@ public class MissingTypesGuesser extends ASTVisitor {
 		
 		private void cleanUp(ParameterizedSingleTypeReference typeReference) {
 			this.cleanUp((TypeReference)typeReference);
-			typeReference.didResolve = false;
+			typeReference.bits &= ~ASTNode.DidResolve;
 		}
 		
 		private void cleanUp(ParameterizedQualifiedTypeReference typeReference) {
 			this.cleanUp((TypeReference)typeReference);
-			typeReference.didResolve = false;
+			typeReference.bits &= ~ASTNode.DidResolve;
 		}
 		
 		public void cleanUp(TypeReference convertedType, BlockScope scope) {

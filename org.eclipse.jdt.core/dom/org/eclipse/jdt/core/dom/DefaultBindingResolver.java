@@ -728,7 +728,7 @@ class DefaultBindingResolver extends BindingResolver {
 			if (node instanceof ImportReference) {
 				ImportReference importReference = (ImportReference) node;
 				final boolean isStatic = importReference.isStatic();
-				if (importReference.onDemand) {
+				if ((importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0) {
 					Binding binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length), true, isStatic);
 					if (binding != null) {
 						if (isStatic) {
@@ -969,7 +969,7 @@ class DefaultBindingResolver extends BindingResolver {
 				if (this.scope == null) return null;
 				if (importReferenceLength == index) {
 					try {
-						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), importReference.onDemand, importReference.isStatic());
+						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0, importReference.isStatic());
 					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
@@ -1177,7 +1177,7 @@ class DefaultBindingResolver extends BindingResolver {
 				if (this.scope == null) return null;
 				if (importReferenceLength == index) {
 					try {
-						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), importReference.onDemand, importReference.isStatic());
+						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0, importReference.isStatic());
 					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}

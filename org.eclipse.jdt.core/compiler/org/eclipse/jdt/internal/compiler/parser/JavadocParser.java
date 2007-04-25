@@ -726,7 +726,7 @@ public class JavadocParser extends AbstractCommentParser {
 	 * Refresh return statement
 	 */
 	protected void refreshReturnStatement() {
-		((JavadocReturnStatement) this.returnStatement).empty = false;
+		((JavadocReturnStatement) this.returnStatement).bits &= ~ASTNode.Empty;
 	}
 
 	public String toString() {

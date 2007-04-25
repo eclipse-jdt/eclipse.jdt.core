@@ -9929,7 +9929,7 @@ public void recoveryTokenCheck() {
 protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 	if(this.referenceContext instanceof MethodDeclaration) {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) this.referenceContext;
-		if(methodDeclaration.errorInSignature){
+		if((methodDeclaration.bits & ASTNode.ErrorInSignature) != 0){
 			return;
 		}
 	}
@@ -9963,7 +9963,7 @@ private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
 			if(methods != null) {
 				for (int j = 0; j < methods.length; j++) {
 					AbstractMethodDeclaration method = methods[j];
-					if(method.errorInSignature) {
+					if((method.bits & ASTNode.ErrorInSignature) != 0) {
 						if(method.isAnnotationMethod()) {
 							DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameQUESTION, method.declarationSourceStart, method.declarationSourceEnd, this.options);
 							diagnoseParser.diagnoseParse(this.options.performStatementsRecovery);
@@ -9982,7 +9982,7 @@ private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
 				for (int j = 0; j < length; j++) {
 					if (fields[j] instanceof Initializer) {
 						Initializer initializer = (Initializer)fields[j];
-						if(initializer.errorInSignature){
+						if((initializer.bits & ASTNode.ErrorInSignature) != 0){
 							DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameRIGHT_SHIFT, initializer.declarationSourceStart, initializer.declarationSourceEnd, this.options);
 							diagnoseParser.diagnoseParse(this.options.performStatementsRecovery);
 						}

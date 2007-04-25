@@ -163,7 +163,7 @@ public class CompilationUnitDeclaration
 			for (int i = 0, max = this.scope.imports.length; i < max; i++){
 				ImportBinding importBinding = this.scope.imports[i];
 				ImportReference importReference = importBinding.reference;
-				if (importReference != null && !importReference.used){
+				if (importReference != null && ((importReference.bits & ASTNode.Used) == 0)){
 					scope.problemReporter().unusedImport(importReference);
 				}
 			}

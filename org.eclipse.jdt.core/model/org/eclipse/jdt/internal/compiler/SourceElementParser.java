@@ -1323,7 +1323,7 @@ public void notifySourceElementRequestor(
 			importReference.declarationSourceStart, 
 			importReference.declarationSourceEnd, 
 			importReference.tokens, 
-			importReference.onDemand,
+			(importReference.bits & ASTNode.OnDemand) != 0,
 			importReference.modifiers); 
 	}
 }

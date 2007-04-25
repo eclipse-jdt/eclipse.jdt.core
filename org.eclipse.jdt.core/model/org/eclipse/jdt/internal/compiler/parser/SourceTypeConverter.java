@@ -323,7 +323,7 @@ public class SourceTypeConverter {
 		int modifiers = methodInfo.getModifiers();
 		if (methodInfo.isConstructor()) {
 			ConstructorDeclaration decl = new ConstructorDeclaration(compilationResult);
-			decl.isDefaultConstructor = false;
+			decl.bits &= ~ASTNode.IsDefaultConstructor;
 			method = decl;
 			decl.typeParameters = typeParams;
 		} else {

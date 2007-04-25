@@ -22,7 +22,6 @@ public class SynchronizedStatement extends SubRoutineStatement {
 	public Expression expression;
 	public Block block;
 	public BlockScope scope;
-	boolean blockExit;
 	public LocalVariableBinding synchroVariable;
 	static final char[] SecretLocalDeclarationName = " syncValue".toCharArray(); //$NON-NLS-1$
 
@@ -65,7 +64,9 @@ public FlowInfo analyseCode(
 		currentScope.methodScope().recordInitializationStates(flowInfo);
 
 	// optimizing code gen
-	this.blockExit = (flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) {
+		this.bits |= ASTNode.BlockExit;
+	}
 
 	return flowInfo;
 }
@@ -119,7 +120,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 
 		BranchLabel endLabel = new BranchLabel(codeStream);
-		if (!blockExit) {
+		if ((this.bits & ASTNode.BlockExit) == 0) {
 			codeStream.load(synchroVariable);
 			codeStream.monitorexit();
 			this.exitAnyExceptionHandler();
@@ -144,7 +145,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		if (scope != currentScope) {
 			codeStream.removeVariable(this.synchroVariable);
 		}
-		if (!blockExit) {
+		if ((this.bits & ASTNode.BlockExit) == 0) {
 			endLabel.place();
 		}
 	}
