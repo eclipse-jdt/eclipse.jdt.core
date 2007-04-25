@@ -37644,4 +37644,26 @@ public void test1129() {
 		"Type mismatch: cannot convert from Object&Comparable<?>&Serializable to String\n" + 
 		"----------\n");
 }
+public void test1130() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"interface IX<T extends Comparable<T>&Serializable> {}\n" + 
+			"\n" + 
+			"public class X<T extends Comparable<T>&Serializable> {\n" + 
+			"	void foo4(boolean b, List<? extends T> l1, List<? extends Comparable<T>> l2) {\n" + 
+			"		String s = b ? l1.get(0) : l2.get(0);\n" + 
+			"	}\n" +
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	String s = b ? l1.get(0) : l2.get(0);\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Comparable<T> to String\n" + 
+		"----------\n");
+}
 }
