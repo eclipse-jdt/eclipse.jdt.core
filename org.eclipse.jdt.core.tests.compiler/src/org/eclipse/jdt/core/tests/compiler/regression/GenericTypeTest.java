@@ -37686,4 +37686,60 @@ public void test1131() {
 		"Type mismatch: cannot convert from Comparable<capture#3-of ? extends T> to String\n" + 
 		"----------\n");
 }
+public void test1132() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"\n" + 
+			"	public void thisDoesntCompile() {\n" + 
+			"		X myThing = new X<Object>();\n" + 
+			"		Integer i = myThing.getList().get(0); // Type Mismatch error - Since\n" + 
+			"												// myThing is unbounded, return\n" + 
+			"												// type List<Integer>\n" + 
+			"												// incorrectly becomes unbounded\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public List<Integer> getList() {\n" + 
+			"		ArrayList<Integer> l = new ArrayList<Integer>();\n" + 
+			"		l.add(new Integer(0));\n" + 
+			"		return l;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void thisMethodCompilesOk() {\n" + 
+			"		X<Object> myThing = new X<Object>();\n" + 
+			"		Integer i = myThing.getList().get(0);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void thisMethodAlsoCompilesOk() {\n" + 
+			"		X myThing = new X<Object>();\n" + 
+			"		List<Integer> l = myThing.getList();\n" + 
+			"		Integer i = l.get(0);\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	X myThing = new X<Object>();\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	Integer i = myThing.getList().get(0); // Type Mismatch error - Since\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to Integer\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 25)\n" + 
+		"	X myThing = new X<Object>();\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 26)\n" + 
+		"	List<Integer> l = myThing.getList();\n" + 
+		"	                  ^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<Integer>\n" + 
+		"----------\n");
+}
 }
