@@ -12,7 +12,9 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -44,7 +46,7 @@ public static Test suite() {
 	return buildModelTestSuite(NameLookupTests2.class);
 }
 
-private NameLookup getNameLookup(JavaProject project) throws JavaModelException {
+NameLookup getNameLookup(JavaProject project) throws JavaModelException {
 	return project.newNameLookup((WorkingCopyOwner)null);
 }
 public void testAddPackageFragmentRootAndPackageFrament() throws CoreException {
@@ -191,6 +193,34 @@ public void testFindDefaultPackageFragmentInNonDefaultRoot() throws CoreExceptio
 		
 	} finally {
 		deleteProject("P");
+	}
+}
+/*
+ * Creates a package fragment and finds it in a dependent project in a batch operation
+ * (regression test for bug 144776 JavaProject.resetCaches() needs to reset dependent projects
+ */
+public void testNameLookupFindPackageFragmentAfterCreation() throws CoreException {
+	try {
+		final IJavaProject p1 = createJavaProject("P1");
+		final JavaProject p2 = (JavaProject) createJavaProject("P2", new String[] {""}, new String[0], new String[] {"/P1"}, "");
+		
+		// populate namelookup for p2
+		getNameLookup(p2);
+		
+		IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+			public void run(IProgressMonitor monitor) throws CoreException {
+				p1.getPackageFragmentRoot(p1.getProject()).createPackageFragment("pkg", false/*don't force*/, monitor);
+				IPackageFragment[] pkgs = getNameLookup(p2).findPackageFragments("pkg", false/*exact match*/);
+				assertElementsEqual(
+					"Unexpected package fragments", 
+					"pkg [in <project root> [in P1]]",
+					pkgs);
+			}
+		};
+		JavaCore.run(runnable, null/*no progress*/);
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
 	}
 }
 /*

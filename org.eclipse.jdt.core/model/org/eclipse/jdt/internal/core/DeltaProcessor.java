@@ -232,7 +232,7 @@ public class DeltaProcessor {
 	private final ModelUpdater modelUpdater = new ModelUpdater();
 
 	/* A set of IJavaProject whose caches need to be reset */
-	private HashSet projectCachesToReset = new HashSet();  
+	public HashSet projectCachesToReset = new HashSet();  
 
 	/*
 	 * A list of IJavaElement used as a scope for external archives refresh during POST_CHANGE.
@@ -1778,7 +1778,7 @@ public class DeltaProcessor {
 	 * Traverse the set of projects which have changed namespace, and reset their 
 	 * caches and their dependents
 	 */
-	private void resetProjectCaches() {
+	public void resetProjectCaches() {
 		if (this.projectCachesToReset.size() == 0)
 			return;
 		

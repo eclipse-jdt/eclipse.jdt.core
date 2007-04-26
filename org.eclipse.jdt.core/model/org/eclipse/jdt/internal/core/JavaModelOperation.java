@@ -745,10 +745,11 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 					switch (element.getElementType()) {
 						case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 						case IJavaElement.PACKAGE_FRAGMENT:
-							((JavaProject) element.getJavaProject()).resetCaches();
+							deltaProcessor.projectCachesToReset.add(element.getJavaProject());
 							break;
 					}
 				}
+				deltaProcessor.resetProjectCaches();
 				
 				// fire only iff:
 				// - the operation is a top level operation
