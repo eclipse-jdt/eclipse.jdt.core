@@ -3242,6 +3242,26 @@ public final class JavaCore extends Plugin {
 					monitor.subTask(Messages.javamodel_configuring_classpath_containers);
 					manager.batchContainerInitializationsProgress.set(new SubProgressMonitor(monitor, 50)); // 50% of the time is spent in initializing containers and variables
 				}
+				
+				// all classpaths in the workspace are going to be resolved, ensure that containers are initialized in one batch
+				manager.batchContainerInitializations = true; 
+				
+				// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413)
+				IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
+				for (int i = 0, length = projects.length; i < length; i++) {
+					IClasspathEntry[] classpath = ((JavaProject) projects[i]).getResolvedClasspath();
+					if (classpath != null) {
+						for (int j = 0, length2 = classpath.length; j < length2; j++) {
+							IClasspathEntry entry = classpath[j];
+							if (entry.getSourceAttachmentPath() != null)
+								Util.setSourceAttachmentProperty(entry.getPath(), null);
+							// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
+						}
+					}
+				}
+				
+				// initialize delta state
+				manager.deltaState.rootsAreStale = true; // in case it was already initialized before we cleaned up the source attachment proprties
 				manager.deltaState.initializeRoots();
 			} finally {
 				manager.batchContainerInitializationsProgress.set(null);
@@ -3348,6 +3368,7 @@ public final class JavaCore extends Plugin {
 			} catch (JavaModelException e) {
 				// refreshing failed: ignore
 			}
+			
 		} finally {
 			if (monitor != null) monitor.done();
 		}

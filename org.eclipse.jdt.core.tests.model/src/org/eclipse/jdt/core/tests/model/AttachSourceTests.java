@@ -708,6 +708,31 @@ public void testProjectAsSourceAttachment() throws CoreException {
 	}
 }
 
+/*
+ * Ensures that a source attached during a session is not taken into account on restart
+ * if the entry has a source attachment.
+ * (regression test for bug 183413 PDE can't find the source for plug-ins in the target)
+ */
+public void testRestart() throws Exception {
+	try {
+		this.pkgFragmentRoot.attachSource(new Path("/AttachSourceTests/attachsrc.new.zip"), new Path("")/*source root*/, null/*no progress*/);
+		
+		simulateExitRestart();
+		JavaCore.initializeAfterLoad(null);
+		
+		// ensure source is correct
+		IClassFile cf = this.pkgFragmentRoot.getPackageFragment("x.y").getClassFile("A.class");
+		IMethod method = cf.getType().getMethod("foo", new String[] {});
+		assertSourceEquals(
+			"unexpected source for foo()",
+			"public void foo() {\n" + 
+			"	}",
+			method.getSource());
+	} finally {
+		this.pkgFragmentRoot.attachSource(null/*no source attachment*/, null/*no source root*/, null/*no progress*/);
+	}
+}
+
 /**
  * Attaches a source zip to a jar.  The source zip has
  * a nested root structure and exists as a resource.  Tests that
