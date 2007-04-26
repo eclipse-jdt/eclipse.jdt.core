@@ -4893,7 +4893,7 @@ public void test125() {
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 5]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: X.1.Local\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: new X(){}.Local\n" + 
 			"  \n" + 
 			"  // Method descriptor #15 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
@@ -4907,11 +4907,11 @@ public void test125() {
 			"        [pc: 0, line: 7]\n" + 
 			"        [pc: 10, line: 8]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 11] local: this index: 0 type: X.1.Local\n" + 
+			"        [pc: 0, pc: 11] local: this index: 0 type: new X(){}.Local\n" + 
 			"  \n" + 
 			"  // Method descriptor #37 (LX;Ljava/lang/String;LX$1$Local;)V\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
-			"  synthetic X$1$Local(X arg0, java.lang.String arg1, X.1.Local arg2);\n" + 
+			"  synthetic new X$1$Local(X arg0, java.lang.String arg1, X(){}.Local arg2);\n" + 
 			"    0  aload_0\n" + 
 			"    1  aload_1\n" + 
 			"    2  aload_2\n" + 
@@ -4922,50 +4922,52 @@ public void test125() {
 			"\n" + 
 			"  Inner classes:\n" + 
 			"    [inner class info: #1 X$1$Local, outer class info: #0\n" + 
-			"     inner name: #43 Local, accessflags: 0 default]\n"
+			"     inner name: #43 Local, accessflags: 0 default]\n" + 
+			"}"
 		: options.complianceLevel == ClassFileConstants.JDK1_4
 			?  	"class X$1$Local {\n" + 
-				"  \n" + 
-				"  // Field descriptor #6 LX;\n" + 
-				"  final synthetic X this$0;\n" + 
-				"  \n" + 
-				"  // Field descriptor #9 Ljava/lang/String;\n" + 
-				"  private final synthetic java.lang.String val$s;\n" + 
-				"  \n" + 
-				"  // Method descriptor #11 (LX;Ljava/lang/String;)V\n" + 
-				"  // Stack: 2, Locals: 3\n" + 
-				"  X$1$Local(X arg0, java.lang.String arg1);\n" + 
-				"     0  aload_0 [this]\n" + 
-				"     1  aload_1\n" + 
-				"     2  putfield X$1$Local.this$0 : X [13]\n" + 
-				"     5  aload_0 [this]\n" + 
-				"     6  aload_2\n" + 
-				"     7  putfield X$1$Local.val$s : java.lang.String [15]\n" + 
-				"    10  aload_0 [this]\n" + 
-				"    11  invokespecial java.lang.Object() [17]\n" + 
-				"    14  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 5]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 15] local: this index: 0 type: X.1.Local\n" + 
-				"  \n" + 
-				"  // Method descriptor #19 ()V\n" + 
-				"  // Stack: 2, Locals: 1\n" + 
-				"  void bar();\n" + 
-				"     0  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
-				"     3  aload_0 [this]\n" + 
-				"     4  getfield X$1$Local.val$s : java.lang.String [15]\n" + 
-				"     7  invokevirtual java.io.PrintStream.println(java.lang.String) : void [31]\n" + 
-				"    10  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 7]\n" + 
-				"        [pc: 10, line: 8]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 11] local: this index: 0 type: X.1.Local\n" + 
-				"\n" + 
-				"  Inner classes:\n" + 
-				"    [inner class info: #1 X$1$Local, outer class info: #0\n" + 
-				"     inner name: #40 Local, accessflags: 0 default]\n"
+			"  \n" + 
+			"  // Field descriptor #6 LX;\n" + 
+			"  final synthetic X this$0;\n" + 
+			"  \n" + 
+			"  // Field descriptor #9 Ljava/lang/String;\n" + 
+			"  private final synthetic java.lang.String val$s;\n" + 
+			"  \n" + 
+			"  // Method descriptor #11 (LX;Ljava/lang/String;)V\n" + 
+			"  // Stack: 2, Locals: 3\n" + 
+			"  X$1$Local(X arg0, java.lang.String arg1);\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  aload_1\n" + 
+			"     2  putfield X$1$Local.this$0 : X [13]\n" + 
+			"     5  aload_0 [this]\n" + 
+			"     6  aload_2\n" + 
+			"     7  putfield X$1$Local.val$s : java.lang.String [15]\n" + 
+			"    10  aload_0 [this]\n" + 
+			"    11  invokespecial java.lang.Object() [17]\n" + 
+			"    14  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: new X(){}.Local\n" + 
+			"  \n" + 
+			"  // Method descriptor #19 ()V\n" + 
+			"  // Stack: 2, Locals: 1\n" + 
+			"  void bar();\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [25]\n" + 
+			"     3  aload_0 [this]\n" + 
+			"     4  getfield X$1$Local.val$s : java.lang.String [15]\n" + 
+			"     7  invokevirtual java.io.PrintStream.println(java.lang.String) : void [31]\n" + 
+			"    10  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"        [pc: 10, line: 8]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 11] local: this index: 0 type: new X(){}.Local\n" + 
+			"\n" + 
+			"  Inner classes:\n" + 
+			"    [inner class info: #1 X$1$Local, outer class info: #0\n" + 
+			"     inner name: #40 Local, accessflags: 0 default]\n" + 
+			"}"
 			:	"class X$1Local {\n" + 
 				"  \n" + 
 				"  // Field descriptor #6 LX;\n" + 
@@ -4989,7 +4991,7 @@ public void test125() {
 				"      Line numbers:\n" + 
 				"        [pc: 0, line: 5]\n" + 
 				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 15] local: this index: 0 type: X.1Local\n" + 
+				"        [pc: 0, pc: 15] local: this index: 0 type: new X(){}\n" + 
 				"  \n" + 
 				"  // Method descriptor #18 ()V\n" + 
 				"  // Stack: 2, Locals: 1\n" + 
@@ -5003,7 +5005,7 @@ public void test125() {
 				"        [pc: 0, line: 7]\n" + 
 				"        [pc: 10, line: 8]\n" + 
 				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 11] local: this index: 0 type: X.1Local\n" + 
+				"        [pc: 0, pc: 11] local: this index: 0 type: new X(){}\n" + 
 				"\n" + 
 				"  Inner classes:\n" + 
 				"    [inner class info: #1 X$1Local, outer class info: #0\n" + 
