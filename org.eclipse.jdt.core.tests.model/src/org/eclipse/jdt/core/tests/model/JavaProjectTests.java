@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.model.ClasspathInitializerTests.DefaultContainerInitializer;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.UserLibrary;
 import org.eclipse.jdt.internal.core.UserLibraryManager;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -1033,6 +1034,52 @@ public void testPackageFragmentRootRawEntryWhenDuplicate() throws CoreException,
 		assertEquals("wrong number of entries:", 1, roots.length);
 		IClasspathEntry rawEntry = roots[0].getRawClasspathEntry();
 		assertEquals("unexpected root raw entry:", classpath[0], rawEntry); // ensure first entry is associated to the root
+	} finally {
+		if (libDir != null) {
+			org.eclipse.jdt.core.tests.util.Util.delete(libDir);
+		}
+		this.deleteProject("P");
+		JavaCore.removeClasspathVariable("MyVar", null);
+	}
+}
+/**
+ * @bug 162104: NPE in PackageExplorerContentProvider.getPackageFragmentRoots()
+ * @test That a JME is thrown when a classpath entry is no longer on the classpath
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=162104"
+ */
+public void testPackageFragmentRootNullRawEntry() throws CoreException, IOException {
+	File libDir = null;
+	try {
+		String libPath = getExternalPath() + "lib";
+		JavaCore.setClasspathVariable("MyVar", new Path(libPath), null);
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "bin");
+		libDir = new File(libPath);
+		libDir.mkdirs();
+		final int length = 10;
+		IClasspathEntry[] classpath = new IClasspathEntry[length];
+		for (int i = 0; i < length; i++){
+			File libJar = new File(libDir, "lib"+i+".jar");
+			libJar.createNewFile();
+			classpath[i] = JavaCore.newVariableEntry(new Path("/MyVar/lib"+i+".jar"), null, null);
+		}
+		proj.setRawClasspath(classpath, null);
+
+		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
+		assertEquals("wrong number of entries:", length, roots.length);
+
+		// remove last classpath entry
+		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length-1], 0, length-1);
+		proj.setRawClasspath(classpath, null);
+
+		// verify that JME occurs
+		IPackageFragmentRoot lastRoot = roots[length-1];
+		String rootPath = ((PackageFragmentRoot)lastRoot).toStringWithAncestors();
+		try {
+			IClasspathEntry rawEntry = roots[length-1].getRawClasspathEntry();
+			assertNotNull("We should no longer get a null classpath entry:", rawEntry);
+		} catch (JavaModelException jme) {
+			assertStatus(rootPath+" is not on its project's build path", jme.getJavaModelStatus());
+		}
 	} finally {
 		if (libDir != null) {
 			org.eclipse.jdt.core.tests.util.Util.delete(libDir);

@@ -583,6 +583,9 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 	if (rootPathToRawEntries != null) {
 		rawEntry = (IClasspathEntry) rootPathToRawEntries.get(this.getPath());
 	}
+	if (rawEntry == null) {
+		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH, this));
+	}
 	return rawEntry;
 }
 
