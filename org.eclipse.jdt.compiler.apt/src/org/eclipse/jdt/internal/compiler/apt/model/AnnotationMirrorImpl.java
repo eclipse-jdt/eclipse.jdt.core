@@ -53,7 +53,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof AnnotationMirrorImpl) {
-			return this._binding == ((AnnotationMirrorImpl) obj)._binding;
+			return this._binding.equals(((AnnotationMirrorImpl) obj)._binding);
 		}
 		return false;
 	}

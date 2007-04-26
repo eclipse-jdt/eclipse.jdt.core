@@ -19,7 +19,12 @@ import java.io.Writer;
 import javax.tools.ForwardingJavaFileObject;
 import javax.tools.JavaFileObject;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * A delegating JavaFileObject that hooks the close() methods of the Writer
@@ -209,8 +214,28 @@ public class HookedJavaFileObject extends
 		if (!_closed) {
 			_closed = true;
 			//TODO: support encoding
-			CompilationUnit unit = new CompilationUnit(null, _fileName, null /* encoding */);
-			_filer.addNewUnit(unit);
+			switch(this.getKind()) {
+				case SOURCE :
+					CompilationUnit unit = new CompilationUnit(null, _fileName, null /* encoding */);
+					_filer.addNewUnit(unit);
+					break;
+				case CLASS :
+					IBinaryType binaryType = null;
+					try {
+						binaryType = ClassFileReader.read(_fileName);
+					} catch (ClassFormatException e) {
+						// ignore
+					} catch (IOException e) {
+						// ignore
+					}
+					if (binaryType != null) {
+						char[] name = binaryType.getName();
+						ReferenceBinding type = this._filer._env._compiler.lookupEnvironment.getType(CharOperation.splitOn('/', name));
+						if (type != null && type.isValidBinding() && type.isBinaryBinding()) {
+							_filer.addNewClassFile(type);
+						}
+					}
+			}
 		}
 	}
 }

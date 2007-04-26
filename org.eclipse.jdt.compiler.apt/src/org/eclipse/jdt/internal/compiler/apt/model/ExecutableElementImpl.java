@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationHolder;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryLocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
@@ -142,7 +143,10 @@ public class ExecutableElementImpl extends ElementImpl implements
 				}
 			} else {
 				// binary method
-				boolean isEnumConstructor = binding.isConstructor() && binding.declaringClass.isEnum();
+				boolean isEnumConstructor = binding.isConstructor()
+						&& binding.declaringClass.isEnum()
+						&& binding.declaringClass.isBinaryBinding()
+						&& ((binding.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0);
 				AnnotationBinding[][] parameterAnnotationBindings = null;
 				AnnotationHolder annotationHolder = binding.declaringClass.retrieveAnnotationHolder(binding, false);
 				if (annotationHolder != null) {

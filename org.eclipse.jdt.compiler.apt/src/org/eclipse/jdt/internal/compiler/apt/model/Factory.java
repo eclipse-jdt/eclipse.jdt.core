@@ -159,10 +159,13 @@ public class Factory {
     		return null;
     }
     
+	public static Set<Modifier> getModifiers(int modifiers, ElementKind kind) {
+		return getModifiers(modifiers, kind, false);
+	}
 	/**
 	 * Convert from the JDT's ClassFileConstants flags to the Modifier enum.
 	 */
-	public static Set<Modifier> getModifiers(int modifiers, ElementKind kind)
+	public static Set<Modifier> getModifiers(int modifiers, ElementKind kind, boolean isFromBinary)
 	{
 		EnumSet<Modifier> result = EnumSet.noneOf(Modifier.class);
 		switch(kind) {
@@ -195,7 +198,19 @@ public class Factory {
 				});
 				break;
 			case ENUM :
-				decodeModifiers(result, modifiers, new int[] {
+				if (isFromBinary) {
+					decodeModifiers(result, modifiers, new int[] {
+						ClassFileConstants.AccPublic,
+						ClassFileConstants.AccProtected,
+						ClassFileConstants.AccFinal,
+						ClassFileConstants.AccPrivate,
+						ClassFileConstants.AccAbstract,
+						ClassFileConstants.AccStatic,
+						ClassFileConstants.AccStrictfp
+					});
+				} else {
+					// enum from source cannot be explicitly abstract
+					decodeModifiers(result, modifiers, new int[] {
 						ClassFileConstants.AccPublic,
 						ClassFileConstants.AccProtected,
 						ClassFileConstants.AccFinal,
@@ -203,6 +218,7 @@ public class Factory {
 						ClassFileConstants.AccStatic,
 						ClassFileConstants.AccStrictfp
 					});
+				}
 				break;
 			case ANNOTATION_TYPE :
 			case INTERFACE :

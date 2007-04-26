@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.model.TypesImpl;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * Implementation of ProcessingEnvironment that is common to batch and IDE environments.
@@ -45,12 +46,14 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	protected Elements _elementUtils;
 	protected Types _typeUtils;
 	private List<ICompilationUnit> _addedUnits;
+	private List<ReferenceBinding> _addedClassFiles;
 	private List<ICompilationUnit> _deletedUnits;
 	private boolean _errorRaised;
 	private Factory _factory;
 
 	public BaseProcessingEnvImpl() {
 		_addedUnits = new ArrayList<ICompilationUnit>();
+		_addedClassFiles = new ArrayList<ReferenceBinding>();
 		_deletedUnits = new ArrayList<ICompilationUnit>();
 		_elementUtils = new ElementsImpl(this);
 		_typeUtils = new TypesImpl(this);
@@ -60,6 +63,10 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 
 	public void addNewUnit(ICompilationUnit unit) {
 		_addedUnits.add(unit);
+	}
+
+	public void addNewClassFile(ReferenceBinding binding) {
+		_addedClassFiles.add(binding);
 	}
 
 	public ICompilationUnit[] getDeletedUnits() {
@@ -118,6 +125,7 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	 */
 	public void reset() {
 		_addedUnits.clear();
+		_addedClassFiles.clear();
 		_deletedUnits.clear();
 	}
 
@@ -142,6 +150,12 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	public Factory getFactory()
 	{
 		return _factory;
+	}
+
+	public ReferenceBinding[] getNewClassFiles() {
+		ReferenceBinding[] result = new ReferenceBinding[_addedClassFiles.size()];
+		_addedClassFiles.toArray(result);
+		return result;
 	}
 
 }

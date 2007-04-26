@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * This class is the central dispatch point for Java 6 annotation processing.
@@ -85,6 +85,11 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 	}
 
 	@Override
+	public ReferenceBinding[] getNewClassFiles() {
+		return _processingEnv.getNewClassFiles();
+	}
+
+	@Override
 	public void reset() {
 		_processingEnv.reset();
 	}
@@ -134,8 +139,8 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 	 * rather than being added to the end of the list.
 	 */
 	@Override
-	public void processAnnotations(CompilationUnitDeclaration[] units, BinaryTypeBinding[] binaryTypeBindings, boolean isLastRound) {
-		RoundEnvImpl roundEnv = new RoundEnvImpl(units, binaryTypeBindings, isLastRound, _processingEnv);
+	public void processAnnotations(CompilationUnitDeclaration[] units, ReferenceBinding[] referenceBindings, boolean isLastRound) {
+		RoundEnvImpl roundEnv = new RoundEnvImpl(units, referenceBindings, isLastRound, _processingEnv);
 		if (_isFirstRound) {
 			_isFirstRound = false;
 		}

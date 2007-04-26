@@ -22,6 +22,7 @@ import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.TypeVisitor;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -44,7 +45,10 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 		MethodBinding binding = (MethodBinding) this._binding;
 		TypeBinding[] parameters = binding.parameters;
 		int length = parameters.length;
-		boolean isEnumConstructor = binding.isConstructor() && binding.declaringClass.isEnum();
+		boolean isEnumConstructor = binding.isConstructor()
+				&& binding.declaringClass.isEnum()
+				&& binding.declaringClass.isBinaryBinding()
+				&& ((binding.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0);
 		if (isEnumConstructor) {
 			if (length == 2) {
 				return Collections.emptyList();

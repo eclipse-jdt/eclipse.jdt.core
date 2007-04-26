@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 public abstract class AbstractAnnotationProcessorManager {
 	public abstract void configure(Object batchCompiler, String[] options);
@@ -28,11 +28,13 @@ public abstract class AbstractAnnotationProcessorManager {
 
 	public abstract ICompilationUnit[] getNewUnits();
 	
+	public abstract ReferenceBinding[] getNewClassFiles();
+	
 	public abstract ICompilationUnit[] getDeletedUnits();
 	
 	public abstract void reset();
 	
-	public abstract void processAnnotations(CompilationUnitDeclaration[] units, BinaryTypeBinding[] binaryTypeBindings, boolean isLastRound);
+	public abstract void processAnnotations(CompilationUnitDeclaration[] units, ReferenceBinding[] referenceBindings, boolean isLastRound);
 	
 	public abstract void setProcessors(Object[] processors);
 

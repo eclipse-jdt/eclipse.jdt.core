@@ -55,11 +55,10 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -3303,7 +3302,7 @@ public void performCompilation() throws InvalidInputException {
 			&& this.compilerOptions.processAnnotations) {
 		initializeAnnotationProcessorManager();
 		if (this.classNames != null) {
-			this.batchCompiler.setBinaryTypes(processClassNames(environment));
+			this.batchCompiler.setBinaryTypes(processClassNames(this.batchCompiler.lookupEnvironment));
 		}
 	}
 
@@ -3326,10 +3325,10 @@ public void performCompilation() throws InvalidInputException {
 	// cleanup
 	environment.cleanup();
 }
-private IBinaryType[] processClassNames(FileSystem environment) throws InvalidInputException {
+private ReferenceBinding[] processClassNames(LookupEnvironment environment) throws InvalidInputException {
 	// check for .class file presence in case of apt processing
 	int length = this.classNames.length;
-	IBinaryType[] binaryTypes = new IBinaryType[length];
+	ReferenceBinding[] referenceBindings = new ReferenceBinding[length];
 	for (int i = 0; i < length; i++) {
 		String currentName = this.classNames[i];
 		char[][] compoundName = null;
@@ -3340,15 +3339,17 @@ private IBinaryType[] processClassNames(FileSystem environment) throws InvalidIn
 		} else {
 			compoundName = new char[][] { currentName.toCharArray() };
 		}
-		NameEnvironmentAnswer type = environment.findType(compoundName, true);
-		if (type != null) {
-			binaryTypes[i] = type.getBinaryType();
+		ReferenceBinding type = environment.getType(compoundName);
+		if (type != null && type.isValidBinding()) {
+			if (type.isBinaryBinding()) {
+				referenceBindings[i] = type;
+			}
 		} else {
 			throw new InvalidInputException(
-				this.bind("configure.invalidClassName", currentName));//$NON-NLS-1$
+					this.bind("configure.invalidClassName", currentName));//$NON-NLS-1$
 		}
 	}
-	return binaryTypes;
+	return referenceBindings;
 }
 protected void initializeAnnotationProcessorManager() {
 	try {

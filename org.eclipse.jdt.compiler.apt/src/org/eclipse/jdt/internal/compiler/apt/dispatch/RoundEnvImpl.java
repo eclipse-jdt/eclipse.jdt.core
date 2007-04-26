@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.apt.model.TypeElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -40,11 +39,11 @@ public class RoundEnvImpl implements RoundEnvironment
 	private final boolean _isLastRound;
 	private final CompilationUnitDeclaration[] _units;
 	private final ManyToMany<TypeElement, Element> _annoToUnit;
-	private final BinaryTypeBinding[] _binaryTypes;
+	private final ReferenceBinding[] _binaryTypes;
 	private final Factory _factory;
 	private Set<Element> _rootElements = null;
 
-	public RoundEnvImpl(CompilationUnitDeclaration[] units, BinaryTypeBinding[] binaryTypeBindings, boolean isLastRound, BaseProcessingEnvImpl env) {
+	public RoundEnvImpl(CompilationUnitDeclaration[] units, ReferenceBinding[] binaryTypeBindings, boolean isLastRound, BaseProcessingEnvImpl env) {
 		_processingEnv = env;
 		_isLastRound = isLastRound;
 		_units = units;
@@ -204,7 +203,7 @@ public class RoundEnvImpl implements RoundEnvironment
 				}
 			}
 			if (this._binaryTypes != null) {
-				for (BinaryTypeBinding typeBinding : _binaryTypes) {
+				for (ReferenceBinding typeBinding : _binaryTypes) {
 					TypeElement element = (TypeElement)_factory.newElement(typeBinding);
 					if (null == element) {
 						throw new IllegalArgumentException("Top-level type binding could not be converted to element: " + typeBinding); //$NON-NLS-1$

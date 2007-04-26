@@ -72,7 +72,7 @@ public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] rec
 
 private static AnnotationBinding buildMarkerAnnotation(char[][] compoundName, LookupEnvironment env) {
 	ReferenceBinding type = env.getResolvedType(compoundName, null);
-	return new AnnotationBinding(type, Binding.NO_ELEMENT_VALUE_PAIRS);
+	return env.createAnnotation(type, Binding.NO_ELEMENT_VALUE_PAIRS);
 }
 
 private static AnnotationBinding buildRetentionAnnotation(long bits, LookupEnvironment env) {
@@ -86,11 +86,11 @@ private static AnnotationBinding buildRetentionAnnotation(long bits, LookupEnvir
 		value = retentionPolicy.getField(TypeConstants.UPPER_CLASS, true);
 	else if ((bits & TagBits.AnnotationSourceRetention) != 0)
 		value = retentionPolicy.getField(TypeConstants.UPPER_SOURCE, true);
-	return (new AnnotationBinding(
+	return env.createAnnotation(
 		env.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_RETENTION, null),
 		new ElementValuePair[] { 
-			new ElementValuePair(TypeConstants.VALUE, value, null)})).
-				setMethodBindings();
+			new ElementValuePair(TypeConstants.VALUE, value, null)
+		});
 }
 
 private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironment env) {
@@ -136,18 +136,19 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 		if ((bits & TagBits.AnnotationForType) != 0)
 			value[index++] = elementType.getField(TypeConstants.TYPE, true);
 	}
-	return (new AnnotationBinding(target,
-				new ElementValuePair[] { 
-					new ElementValuePair(TypeConstants.VALUE, value, null)}).
-						setMethodBindings());
+	return env.createAnnotation(
+			target,
+			new ElementValuePair[] {
+				new ElementValuePair(TypeConstants.VALUE, value, null)
+			});
 }
 
-public AnnotationBinding(ReferenceBinding type, ElementValuePair[] pairs) {
+AnnotationBinding(ReferenceBinding type, ElementValuePair[] pairs) {
 	this.type = type;
 	this.pairs = pairs;
 }
 
-public AnnotationBinding(Annotation astAnnotation) {
+AnnotationBinding(Annotation astAnnotation) {
 	this((ReferenceBinding) astAnnotation.resolvedType, astAnnotation.computeElementValuePairs());
 }
 
@@ -159,15 +160,14 @@ public ElementValuePair[] getElementValuePairs() {
 	return this.pairs;
 }
 
-private AnnotationBinding setMethodBindings() {
+public static void setMethodBindings(ReferenceBinding type, ElementValuePair[] pairs) {
 	// set the method bindings of each element value pair
-	for (int i = this.pairs.length; --i >= 0;) {
-		ElementValuePair pair = this.pairs[i];
-		MethodBinding[] methods = this.type.getMethods(pair.getName());
+	for (int i = pairs.length; --i >= 0;) {
+		ElementValuePair pair = pairs[i];
+		MethodBinding[] methods = type.getMethods(pair.getName());
 		// there should be exactly one since the type is an annotation type.
 		if (methods != null && methods.length == 1)
 			pair.setMethodBinding(methods[0]);
 	}
-	return this;
 }
 }

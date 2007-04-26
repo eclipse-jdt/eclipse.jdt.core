@@ -42,7 +42,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public int parseThreshold = -1;
 	
 	public AbstractAnnotationProcessorManager annotationProcessorManager;
-	public BinaryTypeBinding[] binaryTypeBindings;
+	public ReferenceBinding[] referenceBindings;
 
 	// number of initial units parsed at once (-1: none)
 
@@ -427,14 +427,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		}
 	}
 	
-	public void setBinaryTypes(IBinaryType[] binaryTypes) {
-		final int length = binaryTypes.length;
-		BinaryTypeBinding[] temp = new BinaryTypeBinding[length];
-		for (int i = 0; i < length; i++) {
-			temp[i] = this.lookupEnvironment.cacheBinaryType(binaryTypes[i], null);
-		}
-		// TODO should I reset the lookup environment ?
-		this.binaryTypeBindings = temp;
+	public void setBinaryTypes(ReferenceBinding[] binaryTypes) {
+		this.referenceBindings = binaryTypes;
 	}
 	/*
 	 * Compiler crash recovery in case of unexpected runtime exceptions
@@ -646,11 +640,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 
 	protected void processAnnotations() {
 		int newUnitSize = 0;
+		int newClassFilesSize = 0;
 		int bottom = 0;
 		int top = this.unitsToProcess.length;
-		BinaryTypeBinding[] binaryTypeBindingsTemp = this.binaryTypeBindings;
+		ReferenceBinding[] binaryTypeBindingsTemp = this.referenceBindings;
 		if (top == 0 && binaryTypeBindingsTemp == null) return;
-		this.binaryTypeBindings = null;
+		this.referenceBindings = null;
 		do {
 			// extract units to process
 			int length = top - bottom;
@@ -666,17 +661,21 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				System.arraycopy(currentUnits, 0, (currentUnits = new CompilationUnitDeclaration[index]), 0, index);
 			}
 			this.annotationProcessorManager.processAnnotations(currentUnits, binaryTypeBindingsTemp, false);
-			binaryTypeBindingsTemp = null;
 			ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
 			newUnitSize = newUnits.length;
+			ReferenceBinding[] newClassFiles = this.annotationProcessorManager.getNewClassFiles();
+			binaryTypeBindingsTemp = newClassFiles;
+			newClassFilesSize = newClassFiles.length;
 			if (newUnitSize != 0) {
 				// we reset the compiler in order to restart with the new units
 				internalBeginToCompile(newUnits, newUnitSize);
 				bottom = top;
 				top = this.unitsToProcess.length;
-				this.annotationProcessorManager.reset();
+			} else {
+				bottom = top;
 			}
-		} while (newUnitSize != 0);
+			this.annotationProcessorManager.reset();
+		} while (newUnitSize != 0 || newClassFilesSize != 0);
 		// one more loop to create possible resources
 		// this loop cannot create any java source files
 		// TODO (olivier) we should check if we should pass any unit at all for the last round

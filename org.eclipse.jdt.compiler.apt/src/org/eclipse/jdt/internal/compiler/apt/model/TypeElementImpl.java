@@ -149,7 +149,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		if (refBinding.isInterface() && refBinding.isNestedType()) {
 			modifiers |= ClassFileConstants.AccStatic;
 		}
-		return Factory.getModifiers(modifiers, getKind());
+		return Factory.getModifiers(modifiers, getKind(), refBinding.isBinaryBinding());
 	}
 
 	@Override

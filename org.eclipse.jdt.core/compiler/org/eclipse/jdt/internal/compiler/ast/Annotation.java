@@ -298,7 +298,7 @@ public abstract class Annotation extends Expression {
 			}
 		}
 //		if (scope.compilerOptions().storeAnnotations)
-		this.compilerAnnotation = new AnnotationBinding(this);
+		this.compilerAnnotation = scope.environment().createAnnotation((ReferenceBinding) this.resolvedType, this.computeElementValuePairs());
 		// recognize standard annotations ?
 		long tagBits = detectStandardAnnotation(scope, annotationType, valueAttribute);
 

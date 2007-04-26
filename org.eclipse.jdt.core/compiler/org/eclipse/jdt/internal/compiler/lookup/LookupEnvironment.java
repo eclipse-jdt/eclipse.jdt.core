@@ -62,6 +62,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private SimpleLookupTable uniqueRawTypeBindings;
 	private SimpleLookupTable uniqueWildcardBindings;
 	private SimpleLookupTable uniqueParameterizedGenericMethodBindings;
+	private SimpleLookupTable uniqueAnnotationBindings;
 	
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units
 	public Object missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
@@ -81,6 +82,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
 	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(3);
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
+	this.uniqueAnnotationBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
 	this.accessRestrictions = new HashMap(3);
@@ -533,9 +535,61 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 	}
 	return type;
 }
+/*
+ *  Used to guarantee annotation identity.
+ */
+public AnnotationBinding createAnnotation(ReferenceBinding annotationType, ElementValuePair[] pairs) {
+	// cached info is array of already created annotation binding for this type
+	AnnotationBinding[] cachedInfo = (AnnotationBinding[])this.uniqueAnnotationBindings.get(annotationType);
+	boolean needToGrow = false;
+	int index = 0;
+	if (pairs.length != 0) {
+		AnnotationBinding.setMethodBindings(annotationType, pairs);
+	}
+	if (cachedInfo != null){
+		nextCachedType : 
+			// iterate existing parameterized for reusing one with same type arguments if any
+			for (int max = cachedInfo.length; index < max; index++){
+				AnnotationBinding cachedType = cachedInfo[index];
+				if (cachedType == null) break nextCachedType;
+				ElementValuePair[] elementValuePairs = cachedType.pairs;
+				int length2 = pairs.length;
+				if (length2 != elementValuePairs.length) continue nextCachedType;
+				loop: for (int i = 0; i < length2; i++) {
+					ElementValuePair pair = elementValuePairs[i];
+					// loop on the given pair to make sure one will match
+					for (int j = 0; j < length2; j++) {
+						ElementValuePair pair2 = pairs[j];
+						if (pair.binding == pair2.binding) {
+							continue loop;
+						}
+					}
+					// no match found for pair so we create a new annotation binding
+					continue nextCachedType;
+				}
+				// cached type match, reuse current
+				return cachedType;
+		}
+		needToGrow = true;
+	} else {
+		cachedInfo = new AnnotationBinding[1];
+		this.uniqueAnnotationBindings.put(annotationType, cachedInfo);
+	}
+	// grow cache ?
+	int length = cachedInfo.length;
+	if (needToGrow && index == length){
+		System.arraycopy(cachedInfo, 0, cachedInfo = new AnnotationBinding[length*2], 0, length);
+		this.uniqueAnnotationBindings.put(annotationType, cachedInfo);
+	}
+	// add new binding
+	AnnotationBinding annotationBinding = new AnnotationBinding(annotationType, pairs);
+	cachedInfo[index] = annotationBinding;
+	return annotationBinding;
+}
 
-/* Used to guarantee array type identity.
-*/
+/*
+ *  Used to guarantee array type identity.
+ */
 public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimensionCount) {
 	if (leafComponentType instanceof LocalTypeBinding) // cache local type arrays with the local type itself
 		return ((LocalTypeBinding) leafComponentType).createArrayType(dimensionCount, this);
@@ -1183,6 +1237,7 @@ public void reset() {
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
+	this.uniqueAnnotationBindings = new SimpleLookupTable(3);
 	
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;

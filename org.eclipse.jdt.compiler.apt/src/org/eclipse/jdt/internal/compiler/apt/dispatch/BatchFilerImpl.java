@@ -26,6 +26,7 @@ import javax.tools.StandardLocation;
 import javax.tools.JavaFileManager.Location;
 
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * Implementation of Filer used when compilation is driven by command line
@@ -50,6 +51,10 @@ public class BatchFilerImpl implements Filer {
 	public void addNewUnit(ICompilationUnit unit) {
 		_env.addNewUnit(unit);
 	}
+	
+	public void addNewClassFile(ReferenceBinding binding) {
+		_env.addNewClassFile(binding);
+	}
 
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.Filer#createClassFile(java.lang.CharSequence, javax.lang.model.element.Element[])
@@ -67,7 +72,7 @@ public class BatchFilerImpl implements Filer {
 		}
 
 		_createdFiles.add(uri);
-		return jfo;
+		return new HookedJavaFileObject(jfo, jfo.getName(), this);
 	}
 
 	/* (non-Javadoc)
