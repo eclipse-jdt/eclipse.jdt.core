@@ -2495,6 +2495,8 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
 	}
 	int p = start + 1;
 	int checkpoint = buffer.length();
+	int innerTypeStart = -1;
+	boolean inAnonymousType = false;
 	while (true) {
 		if (p >= string.length) {
 			throw new IllegalArgumentException();
@@ -2527,6 +2529,8 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
 				}
 				break;
 			 case C_DOLLAR :
+			 	innerTypeStart = buffer.length();
+			 	inAnonymousType = false;
 			 	if (resolved) {
 					// once we hit "$" there are no more package prefixes
 					removePackageQualifiers = false;
@@ -2540,7 +2544,15 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
 			 	}
 			 	break;
 			 default :
-				buffer.append(c);
+				if (innerTypeStart != -1 && !inAnonymousType && Character.isDigit(c)) {
+					inAnonymousType = true;
+					buffer.setLength(innerTypeStart); // remove '.'
+					buffer.insert(0, "new "); //$NON-NLS-1$
+					buffer.append("(){}"); //$NON-NLS-1$
+				}
+			 	if (!inAnonymousType)
+					buffer.append(c);
+				innerTypeStart = -1;
 		}
 		p++;
 	}

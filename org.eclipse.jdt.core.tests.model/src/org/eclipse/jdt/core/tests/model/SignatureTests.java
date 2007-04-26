@@ -813,6 +813,18 @@ public void testToQualifiedName() {
 	assertEquals("Signature#toQualifiedName is not correct3", "",
 			Signature.toQualifiedName(new String[0]));
 }
+
+/*
+ * Ensures that the toString() signature of an anonymous type is correct
+ * (regression test for bug 180713 Anonymous type rendered as number in hover)
+ */
+public void testToStringAnonymousType() {
+	assertEquals(
+		"Signature#toString is not correct", 
+		"new X(){}",
+		Signature.toString("LX$123;"));
+}
+
 /**
  * @see Signature#toString(String)
  */
@@ -1029,6 +1041,17 @@ public void testToStringInnerType() {
 		"Signature#toString is not correct", 
 		"x.y.A.Inner",
 		Signature.toString("Lx.y.A$Inner;"));
+}
+
+/*
+ * Ensures that the toString() signature of a member type with a number in its name is correct
+ * (regression test for bug 180713 Anonymous type rendered as number in hover)
+ */
+public void testToStringInnerType2() {
+	assertEquals(
+		"Signature#toString is not correct", 
+		"X.Y1",
+		Signature.toString("LX$Y1;"));
 }
 
 /**
