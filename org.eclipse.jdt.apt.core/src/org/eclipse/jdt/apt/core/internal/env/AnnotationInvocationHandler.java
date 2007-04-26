@@ -96,7 +96,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
                     for( ITypeBinding type : classTypes ){
                         TypeMirror mirror = Factory.createTypeMirror(type, _instance.getEnvironment() );
                         if( mirror == null )
-                            mirrorTypes.add( Factory.createTypeMirror(type, _instance.getEnvironment() ) );
+                            mirrorTypes.add(Factory.createErrorClassType(type));
                         else
                             mirrorTypes.add(mirror);
                     }
