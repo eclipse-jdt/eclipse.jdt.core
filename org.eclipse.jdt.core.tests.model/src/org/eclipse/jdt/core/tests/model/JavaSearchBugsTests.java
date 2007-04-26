@@ -2949,7 +2949,8 @@ public void testBug92264b() throws CoreException {
 		"java.lang.IllegalMonitorStateException\n" + 
 		"java.lang.InterruptedException\n" + 
 		"java.lang.RuntimeException\n" + 
-		"java.lang.annotation.Annotation",
+		"java.lang.annotation.Annotation\n" + 
+		"java.lang.annotation.Retention",
 		requestor);
 }
 public void testBug92264c() throws CoreException {

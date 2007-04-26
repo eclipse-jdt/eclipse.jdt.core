@@ -42,4 +42,5 @@ public interface RelevanceConstants {
 	int R_NON_INHERITED = 2;
 	int R_NO_PROBLEMS = 1;
 	int R_RESOLVED = 1;
+	int R_TARGET = 5;
 }

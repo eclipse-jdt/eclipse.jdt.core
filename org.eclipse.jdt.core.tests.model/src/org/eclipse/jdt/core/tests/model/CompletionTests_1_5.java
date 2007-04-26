@@ -2111,7 +2111,7 @@ public void test0075() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0076() throws JavaModelException {	
@@ -2135,7 +2135,7 @@ public void test0076() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0077() throws JavaModelException {
@@ -2186,7 +2186,7 @@ public void test0078() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0079() throws JavaModelException {
@@ -2211,7 +2211,7 @@ public void test0079() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0080() throws JavaModelException {
@@ -2236,7 +2236,7 @@ public void test0080() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0081() throws JavaModelException {
@@ -2261,7 +2261,7 @@ public void test0081() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0082() throws JavaModelException {
@@ -2287,7 +2287,7 @@ public void test0082() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void test0083() throws JavaModelException {
@@ -2367,7 +2367,7 @@ public void test0085() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"TestAnnotation[TYPE_REF]{TestAnnotation, test0085, Ltest0085.TestAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"TestAnnotation[TYPE_REF]{TestAnnotation, test0085, Ltest0085.TestAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=85290
@@ -2388,7 +2388,7 @@ public void test0086() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"TestAnnotation[TYPE_REF]{TestAnnotation, , LTestAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"TestAnnotation[TYPE_REF]{TestAnnotation, , LTestAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=85402
@@ -2415,7 +2415,7 @@ public void test0087() throws JavaModelException {
 				requestor.getResults());
 	} else {
 		assertResults(
-				"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+				"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 				requestor.getResults());
 	}
 }
@@ -6634,7 +6634,7 @@ public void test0206() throws JavaModelException {
 	            result.context);
 	    
 	    assertResults(
-	            "ZZType.ZZAnnotation[TYPE_REF]{p.ZZType.ZZAnnotation, p, Lp.ZZType$ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+	            "ZZType.ZZAnnotation[TYPE_REF]{p.ZZType.ZZAnnotation, p, Lp.ZZType$ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
 	            result.proposals);
 	} finally {
 		if(aType != null) {
@@ -9007,7 +9007,7 @@ public void test0290() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=123225
@@ -9435,6 +9435,1189 @@ public void test0300() throws JavaModelException {
 
 	assertResults(
 			"Top<java.lang.Object>.IZZException[TYPE_REF]{test.Top.IZZException, test, Ltest.Top<Ljava.lang.Object;>.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXCEPTION + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0301() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public void method() {\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0302() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public void method() {\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0303() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public void method() {\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/TOPZZZ1.java",
+			"package p;\n" +
+			"public class TOPZZZ1 {\n" +
+			"  @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"  public @interface ZZZ1 {\n" +
+			"  }\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/TOPZZZ2.java",
+			"package p;\n" +
+			"public class TOPZZZ2 {\n" +
+			"  public @interface ZZZ2 {\n" +
+			"  }\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"TOPZZZ1.ZZZ1[TYPE_REF]{p.TOPZZZ1.ZZZ1, p, Lp.TOPZZZ1$ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"TOPZZZ2.ZZZ2[TYPE_REF]{p.TOPZZZ2.ZZZ2, p, Lp.TOPZZZ2$ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0304() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"@interface ZZZ1 {\n" +
+			"}\n" +
+			"@interface ZZZ2 {\n" +
+			"}\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public void method() {\n" +
+			"    }\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{ZZZ1, test, Ltest.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{ZZZ2, test, Ltest.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0305() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"class TOPZZZ1 {\n" +
+			"  @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"  public @interface ZZZ1 {\n" +
+			"  }\n" +
+			"}\n" +
+			"class TOPZZZ2 {\n" +
+			"  public @interface ZZZ2 {\n" +
+			"  }\n" +
+			"}\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public void method() {\n" +
+			"    }\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"TOPZZZ1.ZZZ1[TYPE_REF]{test.TOPZZZ1.ZZZ1, test, Ltest.TOPZZZ1$ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"TOPZZZ2.ZZZ2[TYPE_REF]{test.TOPZZZ2.ZZZ2, test, Ltest.TOPZZZ2$ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0306() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"  public static class TOPZZZ1 {\n" +
+			"    @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"    public @interface ZZZ1 {\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public static class TOPZZZ2 {\n" +
+			"    public @interface ZZZ2 {\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public class TOPZZZ3 {\n" +
+			"    public @interface ZZZ3 {\n" +
+			"    }\n" +
+			"  }\n" +
+			"  @ZZZ\n" +
+			"  public void method() {\n" +
+			"  }\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Test.TOPZZZ1.ZZZ1[TYPE_REF]{test.Test.TOPZZZ1.ZZZ1, test, Ltest.Test$TOPZZZ1$ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"Test.TOPZZZ2.ZZZ2[TYPE_REF]{test.Test.TOPZZZ2.ZZZ2, test, Ltest.Test$TOPZZZ2$ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0307() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"    public @interface ZZZ1 {\n" +
+			"    }\n" +
+			"    public @interface ZZZ2 {\n" +
+			"    }\n" +
+			"    @ZZZ\n" +
+			"    public void method() {\n" +
+			"    }\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Test.ZZZ1[TYPE_REF]{ZZZ1, test, Ltest.Test$ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"Test.ZZZ2[TYPE_REF]{ZZZ2, test, Ltest.Test$ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0308() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public void method() {\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0309() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public class TestInner {\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0310() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public int field;\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0311() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    public void foo(@ZZZ int param){}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0312() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public Test(){}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.CONSTRUCTOR})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+// When the completion is inside a method body the annotation cannot be accuratly attached to the correct node by completino recovery.
+// So relevance based on annotation target are ignored.
+public void test0313() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    {\n" +
+			"        @ZZZ\n" +
+			"        int var = 0;\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.LOCAL_VARIABLE})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0314() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public @interface TestInner {}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0315() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"@ZZZ package test;\n" +
+			"public class Test {\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.PACKAGE})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0316() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public Test(){}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.CONSTRUCTOR})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0317() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    public @interface TestInner {}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0318() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"@ZZZ\n" +
+			"import test.*;\n" +
+			"public class Test {\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0319() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    {}\n" +
+			"    public void foo() {}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0320() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[5];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ\n" +
+			"    {\n" +
+			"        int var = 0;\n" +
+			"    }\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.LOCAL_VARIABLE})\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	this.workingCopies[4] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ4.java",
+			"package p;\n" +
+			"public @interface ZZZ4 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ4[TYPE_REF]{p.ZZZ4, p, Lp.ZZZ4;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0321() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ({})\n" +
+			"    int var = 0;\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0321b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ(value={})\n" +
+			"    int var = 0;\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0322() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ @Annot\n" +
+			"    int var = 0;\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0323() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @ZZZ @Annot({})\n" +
+			"    int var = 0;\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0324() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    public void foo(@ZZZ int param){}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0325() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @p.Annot(@ZZZ)\n" +
+			"    public void foo(){}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/Annot.java",
+			"package p;\n" +
+			"public @interface Annot {\n" +
+			"    ZZZ2 value();\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0326() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @p.Annot(@ZZZ(value=0))\n" +
+			"    public void foo(){}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/Annot.java",
+			"package p;\n" +
+			"public @interface Annot {\n" +
+			"    ZZZ2 value();\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0327() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @p.Annot(@ZZZ(value=0\n" +
+			"    public void foo(){}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/Annot.java",
+			"package p;\n" +
+			"public @interface Annot {\n" +
+			"    ZZZ2 value();\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0328() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"    @p.Annot(@ZZZ(value=\n" +
+			"    public void foo(){}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src3/p/Annot.java",
+			"package p;\n" +
+			"public @interface Annot {\n" +
+			"    ZZZ2 value();\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ2[TYPE_REF]{p.ZZZ2, p, Lp.ZZZ2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=158985
+public void test0329() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/Test.java",
+			"package test;\n" +
+			"@ZZZ\n" +
+			"public class Test {\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ1.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})\n" +
+			"public @interface ZZZ1 {\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ2.java",
+			"package p;\n" +
+			"@java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})\n" +
+			"public @interface ZZZ2 {\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/p/ZZZ3.java",
+			"package p;\n" +
+			"public @interface ZZZ3 {\n" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ZZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"ZZZ1[TYPE_REF]{p.ZZZ1, p, Lp.ZZZ1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"ZZZ3[TYPE_REF]{p.ZZZ3, p, Lp.ZZZ3;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130

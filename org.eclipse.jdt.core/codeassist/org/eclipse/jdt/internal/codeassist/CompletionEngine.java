@@ -255,6 +255,8 @@ public final class CompletionEngine
 	int  assistNodeInJavadoc = 0;
 	boolean assistNodeCanBeSingleMemberAnnotation = false;
 	
+	long targetedElement;
+	
 	IJavaProject javaProject;
 	CompletionParser parser;
 	CompletionRequestor requestor;
@@ -436,7 +438,7 @@ public final class CompletionEngine
 		acceptedTypes.add(new AcceptedType(packageName, simpleTypeName, enclosingTypeNames, modifiers, accessibility));
 	}
 	
-	private void acceptTypes() {
+	private void acceptTypes(Scope scope) {
 		if(this.acceptedTypes == null) return;
 		
 		int length = this.acceptedTypes.size();
@@ -512,7 +514,8 @@ public final class CompletionEngine
 								accessibility,
 								typeName,
 								fullyQualifiedName,
-								!CharOperation.equals(fullyQualifiedName, importName[1]));
+								!CharOperation.equals(fullyQualifiedName, importName[1]),
+								scope);
 						continue next;
 					}
 				}
@@ -526,7 +529,8 @@ public final class CompletionEngine
 							accessibility,
 							typeName,
 							fullyQualifiedName,
-							false);
+							false,
+							scope);
 					continue next;
 				} else {
 					char[] fullyQualifiedEnclosingTypeOrPackageName = null;
@@ -610,7 +614,8 @@ public final class CompletionEngine
 							accessibility,
 							typeName,
 							fullyQualifiedName,
-							true);
+							true,
+							scope);
 				}
 			}
 		}
@@ -628,7 +633,8 @@ public final class CompletionEngine
 							value.accessibility,
 							value.qualifiedTypeName,
 							value.fullyQualifiedName,
-							value.mustBeQualified);
+							value.mustBeQualified,
+							scope);
 				}
 			}
 		}
@@ -691,7 +697,7 @@ public final class CompletionEngine
 		return true;
 	}
 	
-	private void proposeType(char[] packageName, char[] simpleTypeName, int modifiers, int accessibility, char[] typeName, char[] fullyQualifiedName, boolean isQualified) {
+	private void proposeType(char[] packageName, char[] simpleTypeName, int modifiers, int accessibility, char[] typeName, char[] fullyQualifiedName, boolean isQualified, Scope scope) {
 		char[] completionName = fullyQualifiedName;
 		if(isQualified) {
 			if (packageName == null || packageName.length == 0)
@@ -699,6 +705,34 @@ public final class CompletionEngine
 					return; // ignore types from the default package from outside it
 		} else {
 			completionName = simpleTypeName;
+		}
+		
+		TypeBinding guessedType = null;
+		if ((modifiers & ClassFileConstants.AccAnnotation) != 0 &&
+				this.assistNodeIsAnnotation &&
+				(this.targetedElement & TagBits.AnnotationTargetMASK) != 0) {
+			char[][] cn = CharOperation.splitOn('.', fullyQualifiedName);
+			
+			TypeReference ref;
+			if (cn.length == 1) {
+				ref = new SingleTypeReference(simpleTypeName, 0);
+			} else {
+				ref = new QualifiedTypeReference(cn,new long[cn.length]);
+			}
+			
+			switch (scope.kind) {
+				case Scope.METHOD_SCOPE :
+				case Scope.BLOCK_SCOPE :
+					guessedType = ref.resolveType((BlockScope)scope);
+					break;
+				case Scope.CLASS_SCOPE :
+					guessedType = ref.resolveType((ClassScope)scope);
+					break;
+			}
+			
+			if (!guessedType.isValidBinding()) return;
+			
+			if (!hasPossibleAnnotationTarget(guessedType, scope)) return;
 		}
 
 		int relevance = computeBaseRelevance();
@@ -714,6 +748,7 @@ public final class CompletionEngine
 			case ClassFileConstants.AccAnnotation:
 			case ClassFileConstants.AccAnnotation | ClassFileConstants.AccInterface:
 				relevance += computeRelevanceForAnnotation();
+				if (guessedType != null) relevance += computeRelevanceForAnnotationTarget(guessedType);
 				relevance += computeRelevanceForInterface();
 				break;
 			case ClassFileConstants.AccEnum:
@@ -1428,6 +1463,16 @@ public final class CompletionEngine
 		} else if (astNode instanceof CompletionOnMarkerAnnotationName) {
 			CompletionOnMarkerAnnotationName annot = (CompletionOnMarkerAnnotationName) astNode;
 			
+			CompletionOnAnnotationOfType fakeType = (CompletionOnAnnotationOfType)scope.parent.referenceContext();
+			if (fakeType.annotations[0] == annot) {
+				// When the completion is inside a method body the annotation cannot be accuratly attached to the correct node by completion recovery.
+				// So 'targetedElement' is not computed in this case.
+				if (scope.parent.parent == null || !(scope.parent.parent instanceof MethodScope)) {
+					this.targetedElement = computeTargetedElement(fakeType);
+				}
+				
+			}
+			
 			this.assistNodeIsAnnotation = true;
 			if (annot.type instanceof CompletionOnSingleTypeReference) {
 				CompletionOnSingleTypeReference type = (CompletionOnSingleTypeReference) annot.type;
@@ -2110,6 +2155,34 @@ public final class CompletionEngine
 		}
 	}
 
+	private long computeTargetedElement(CompletionOnAnnotationOfType fakeNode) {
+		ASTNode annotatedElement = fakeNode.potentialAnnotatedNode;
+		
+		if (annotatedElement instanceof TypeDeclaration) {
+			TypeDeclaration annotatedTypeDeclaration = (TypeDeclaration) annotatedElement;
+			if (TypeDeclaration.kind(annotatedTypeDeclaration.modifiers) == TypeDeclaration.ANNOTATION_TYPE_DECL) {
+				return TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType;
+			}
+			return TagBits.AnnotationForType;
+		} else if (annotatedElement instanceof FieldDeclaration) {
+			if (fakeNode.isParameter) {
+				return TagBits.AnnotationForParameter;
+			}
+			return TagBits.AnnotationForField;
+		} else if (annotatedElement instanceof MethodDeclaration) {
+			return TagBits.AnnotationForMethod;
+		} else if (annotatedElement instanceof Argument) {
+			return TagBits.AnnotationForParameter;
+		} else if (annotatedElement instanceof ConstructorDeclaration) {
+			return TagBits.AnnotationForConstructor;
+		} else if (annotatedElement instanceof LocalDeclaration) {
+			return TagBits.AnnotationForLocalVariable;
+		} else if (annotatedElement instanceof ImportReference) {
+			return TagBits.AnnotationForPackage;
+		}
+		return 0;
+	}
+	
 	private TypeBinding[] computeTypes(Expression[] arguments) {
 		if (arguments == null) return null;
 		int argsLength = arguments.length;
@@ -3784,7 +3857,7 @@ public final class CompletionEngine
 					this.options.camelCaseMatch,
 					IJavaSearchConstants.TYPE,
 					this);
-			acceptTypes();
+			acceptTypes(null);
 		}
 	}
 	
@@ -4325,7 +4398,10 @@ public final class CompletionEngine
 			}
 			if (staticFieldsAndMethodOnly && this.insideQualifiedReference) relevance += R_NON_INHERITED; // This criterion doesn't concern types and is added to be balanced with field and method relevance.
 
-			if (memberType.isClass()) {
+			if (memberType.isAnnotationType()) {
+				relevance += computeRelevanceForAnnotation();
+				relevance += computeRelevanceForAnnotationTarget(memberType);
+			} else if (memberType.isClass()) {
 				relevance += computeRelevanceForClass();
 				relevance += computeRelevanceForException(memberType.sourceName);
 			} else if(memberType.isEnum()) {
@@ -5441,6 +5517,16 @@ public final class CompletionEngine
 		}
 		return 0;
 	}
+	private int computeRelevanceForAnnotationTarget(TypeBinding typeBinding){
+		if (this.assistNodeIsAnnotation &&
+				(this.targetedElement & TagBits.AnnotationTargetMASK) != 0) {
+			long target = typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
+			if(target == 0 || (target & this.targetedElement) != 0) {
+				return R_TARGET;
+			}
+		}
+		return 0;
+	}
 	private int computeRelevanceForClass(){
 		if(this.assistNodeIsClass) {
 			return R_CLASS;
@@ -6259,6 +6345,7 @@ public final class CompletionEngine
 								relevance += computeRelevanceForClass();
 								relevance += computeRelevanceForQualification(false);
 								relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for nested type
+								relevance += computeRelevanceForAnnotationTarget(localType);
 								
 								this.noProposal = false;
 								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
@@ -6412,7 +6499,7 @@ public final class CompletionEngine
 		
 		if (!skip && proposeType && scope.enclosingSourceType() != null) {
 			findNestedTypes(token, scope.enclosingSourceType(), scope, proposeAllMemberTypes, typesFound);
-			if(!assistNodeIsConstructor) {
+			if(!assistNodeIsConstructor && !assistNodeIsAnnotation) {
 				// don't propose type parameters if the completion is a constructor ('new |')
 				findTypeParameters(token, scope);
 			}
@@ -6459,6 +6546,10 @@ public final class CompletionEngine
 				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false)
 						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, sourceType.sourceName))) continue;
 	
+				if (this.assistNodeIsAnnotation && !hasPossibleAnnotationTarget(sourceType, scope)) {
+					continue next;
+				}
+
 				for (int j = typesFound.size; --j >= 0;) {
 					ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
 	
@@ -6489,6 +6580,7 @@ public final class CompletionEngine
 
 				if (sourceType.isAnnotationType()) {
 					relevance += computeRelevanceForAnnotation();
+					relevance += computeRelevanceForAnnotationTarget(sourceType);
 				} else if (sourceType.isInterface()) {
 					relevance += computeRelevanceForInterface();
 				} else if(sourceType.isClass()){
@@ -6648,7 +6740,7 @@ public final class CompletionEngine
 						this.options.camelCaseMatch,
 						searchFor,
 						this);
-				acceptTypes();
+				acceptTypes(scope);
 			}
 			if(!isEmptyPrefix && !this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
 				this.nameEnvironment.findPackages(token, this);
@@ -6767,7 +6859,7 @@ public final class CompletionEngine
 					this.options.camelCaseMatch,
 					searchFor,
 					this);
-			acceptTypes();
+			acceptTypes(scope);
 		}
 		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
 			this.nameEnvironment.findPackages(qualifiedName, this);
@@ -7575,6 +7667,32 @@ public final class CompletionEngine
 	public AssistParser getParser() {
 
 		return this.parser;
+	}
+	
+	protected boolean hasPossibleAnnotationTarget(TypeBinding typeBinding, Scope scope) {
+		if (this.targetedElement == TagBits.AnnotationForPackage) {
+			long target = typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
+			if(target != 0 && (target & TagBits.AnnotationForPackage) == 0) {
+				return false;
+			}
+		} else if ((this.targetedElement & TagBits.AnnotationForType) != 0) {
+			if (scope.parent != null &&
+					scope.parent.parent != null &&
+					scope.parent.referenceContext() instanceof CompletionOnAnnotationOfType &&
+					scope.parent.parent instanceof CompilationUnitScope) {
+				long target = typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
+				if ((this.targetedElement & TagBits.AnnotationForAnnotationType) != 0) {
+					if(target != 0 && (target &(TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType)) == 0) {
+						return false;
+					}
+				} else {
+					if(target != 0 && (target &(TagBits.AnnotationForType)) == 0) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 
 	protected void reset() {
