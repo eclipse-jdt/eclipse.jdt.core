@@ -2098,4 +2098,37 @@ public void _test055() {
 		},
 		"ERR");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184190
+public void test056() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"  void bar(X x) {\n" + 
+			"    ZA z = ZA.foo(x);\n" + 
+			"    z.toString();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"  public static <U> Y<U> foo(X<U> x) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class YA<T extends A> extends Y<T> {\n" + 
+			"  public static <U extends A> YA<U> foo(X<U> x) {\n" + 
+			"    return (YA<U>) Y.foo(x);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class ZA<T extends B> extends YA<T> {\n" + 
+			"  public static <U extends B> ZA<U> foo(X<U> x) {\n" + 
+			"    return (ZA<U>) Y.foo(x);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"abstract class A  {\n" + 
+			"}\n" + 
+			"abstract class B extends A {\n" + 
+			"}"
+		},
+		"");
+}
 }
