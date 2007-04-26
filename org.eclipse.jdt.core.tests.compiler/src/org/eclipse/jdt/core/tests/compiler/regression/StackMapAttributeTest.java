@@ -33,7 +33,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 28 };
+//		TESTS_NUMBERS = new int[] { 33, 34 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
@@ -2653,5 +2653,47 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 						"}",
 				},
 		"SUCCESS1");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184102
+	public void test033() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	C { @Override public boolean test() { return true; } };\n" + 
+				"	static {\n" + 
+				"		for (int i = 0; i < 1; i++) {}\n" + 
+				"	}\n" + 
+				"	public boolean test() {\n" + 
+				"	return false;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.print(\"SUCCESS\");\n" +
+				"	}\n" + 
+				"}",
+			},
+		"SUCCESS");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184102
+	public void test034() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	C;\n" + 
+				"	static {\n" + 
+				"		for (int i = 0; i < 1; i++) {}\n" + 
+				"	}\n" + 
+				"	public boolean test() {\n" + 
+				"	return false;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.print(\"SUCCESS\");\n" +
+				"	}\n" + 
+				"}",
+			},
+		"SUCCESS");
 	}
 }

@@ -1595,6 +1595,7 @@ public void invokeObjectGetClass() {
 }
 public void invokespecial(MethodBinding methodBinding) {
     super.invokespecial(methodBinding);
+    // initialize to 0 since we will manually remove 'this'
     int argCount = 0;
     if (methodBinding.isConstructor()) {
         final ReferenceBinding declaringClass = methodBinding.declaringClass;
@@ -1609,7 +1610,8 @@ public void invokespecial(MethodBinding methodBinding) {
             if (syntheticArguments != null) {
                 argCount += syntheticArguments.length;
             }
-        } else if (declaringClass.isEnum()) {
+        }
+        if (declaringClass.isEnum()) {
             argCount += 2;
         }
         argCount += methodBinding.parameters.length;

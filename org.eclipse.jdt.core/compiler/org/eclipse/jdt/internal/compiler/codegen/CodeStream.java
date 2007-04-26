@@ -3835,9 +3835,9 @@ public void invokeEnumOrdinal(char[] enumTypeConstantPoolName) {
 			ConstantPool.OrdinalSignature);
 }
 public void invokeinterface(MethodBinding methodBinding) {
-	// initialized to 1 to take into account this  immediately
 	if (DEBUG) System.out.println(position + "\t\tinvokeinterface: " + methodBinding); //$NON-NLS-1$
 	countLabels = 0;
+	// initialized to 1 to take into account this  immediately
 	int argCount = 1;
 	int id;
 	if (classFileOffset + 4 >= bCodeStream.length) {
@@ -4134,8 +4134,8 @@ public void invokeObjectGetClass() {
 }
 public void invokespecial(MethodBinding methodBinding) {
 	if (DEBUG) System.out.println(position + "\t\tinvokespecial:"+methodBinding); //$NON-NLS-1$
-	// initialized to 1 to take into account this  immediately
 	countLabels = 0;
+	// initialized to 1 to take into account this immediately
 	int argCount = 1;
 	int id;
 	if (classFileOffset + 2 >= bCodeStream.length) {
@@ -4174,7 +4174,8 @@ public void invokespecial(MethodBinding methodBinding) {
 					}
 				}
 			}
-		} else if (declaringClass.isEnum()) {
+		}
+		if (declaringClass.isEnum()) {
 			// adding String and int
 			argCount += 2;
 		}
@@ -4471,8 +4472,8 @@ public void invokeThrowableGetMessage() {
 }
 public void invokevirtual(MethodBinding methodBinding) {
 	if (DEBUG) System.out.println(position + "\t\tinvokevirtual:"+methodBinding); //$NON-NLS-1$
-	// initialized to 1 to take into account this  immediately
 	countLabels = 0;
+	// initialized to 1 to take into account this  immediately
 	int argCount = 1;
 	int id;
 	if (classFileOffset + 2 >= bCodeStream.length) {
