@@ -18,13 +18,17 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 /**
@@ -311,7 +315,35 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 		}
 		// limit of fault-tolerance
-		if (hasError) return this.resolvedType = receiverType;
+		if (hasError) {
+			if (receiverType instanceof ReferenceBinding) {
+				// record a best guess, for clients who need hint about possible contructor match
+				int length = this.arguments  == null ? 0 : this.arguments.length;
+				TypeBinding[] pseudoArgs = new TypeBinding[length];
+				for (int i = length; --i >= 0;) {
+					pseudoArgs[i] = argumentTypes[i] == null ? TypeBinding.NULL : argumentTypes[i]; // replace args with errors with null type
+				}
+				this.binding = scope.findMethod((ReferenceBinding) receiverType, TypeConstants.INIT, pseudoArgs, this);
+				if (this.binding != null && !this.binding.isValidBinding()) {
+					MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
+					// record the closest match, for clients who may still need hint about possible method match
+					if (closestMatch != null) {
+						if (closestMatch.original().typeVariables != Binding.NO_TYPE_VARIABLES) { // generic method
+							// shouldn't return generic method outside its context, rather convert it to raw method (175409)
+							closestMatch = scope.environment().createParameterizedGenericMethod(closestMatch.original(), (RawTypeBinding)null);
+						}
+						this.binding = closestMatch;
+						MethodBinding closestMatchOriginal = closestMatch.original();
+						if ((closestMatchOriginal.isPrivate() || closestMatchOriginal.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatchOriginal)) {
+							// ignore cases where method is used from within inside itself (e.g. direct recursions)
+							closestMatchOriginal.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+						}
+					}
+				}
+				
+			}
+			return this.resolvedType = receiverType;
+		}
 		if (this.anonymousType == null) {
 			// qualified allocation with no anonymous type
 			if (!receiverType.canBeInstantiated()) {

@@ -7878,7 +7878,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
-	public void _test0248() throws JavaModelException {
+	public void test0248() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		String contents =
 			"import java.util.Arrays;\n" +

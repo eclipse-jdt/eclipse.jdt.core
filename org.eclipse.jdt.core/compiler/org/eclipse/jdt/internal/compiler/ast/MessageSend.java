@@ -13,13 +13,28 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class MessageSend extends Expression implements InvocationSite {
@@ -42,20 +57,20 @@ public class MessageSend extends Expression implements InvocationSite {
 	
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
-	boolean nonStatic = !binding.isStatic();
-	flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
+	boolean nonStatic = !this.binding.isStatic();
+	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
 	if (nonStatic) {
-		receiver.checkNPE(currentScope, flowContext, flowInfo);
+		this.receiver.checkNPE(currentScope, flowContext, flowInfo);
 	}
 
-	if (arguments != null) {
-		int length = arguments.length;
+	if (this.arguments != null) {
+		int length = this.arguments.length;
 		for (int i = 0; i < length; i++) {
-			flowInfo = arguments[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+			flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 		}
 	}
 	ReferenceBinding[] thrownExceptions;
-	if ((thrownExceptions = binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
+	if ((thrownExceptions = this.binding.thrownExceptions) != Binding.NO_EXCEPTIONS) {
 		// must verify that exceptions potentially thrown by this expression are caught in the method
 		flowContext.checkExceptionHandlers(thrownExceptions, this, flowInfo.copy(), currentScope);
 		// TODO (maxime) the copy above is needed because of a side effect into 
@@ -78,17 +93,17 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 	    // extra cast needed if method return type is type variable
 		if (originalBinding != this.binding 
 				&& originalType != this.binding.returnType
-				&& runtimeTimeType.id != T_JavaLangObject
+				&& runtimeTimeType.id != TypeIds.T_JavaLangObject
 				&& (originalType.tagBits & TagBits.HasTypeVariable) != 0) {
 	    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType()) 
 	    		? compileTimeType  // unboxing: checkcast before conversion
 	    		: runtimeTimeType;
 	        this.valueCast = originalType.genericCast(targetType); 
 		} 	else if (this.actualReceiverType.isArrayType() 
-						&& runtimeTimeType.id != T_JavaLangObject
+						&& runtimeTimeType.id != TypeIds.T_JavaLangObject
 						&& this.binding.parameters == Binding.NO_PARAMETERS 
 						&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5 
-						&& CharOperation.equals(this.binding.selector, CLONE)) {
+						&& CharOperation.equals(this.binding.selector, TypeConstants.CLONE)) {
 					// from 1.5 compliant mode on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
 			this.valueCast = runtimeTimeType;			
 		}
@@ -110,28 +125,28 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// generate receiver/enclosing instance access
 	boolean isStatic = this.codegenBinding.isStatic();
 	if (isStatic) {
-		receiver.generateCode(currentScope, codeStream, false);
+		this.receiver.generateCode(currentScope, codeStream, false);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
-	} else if ((bits & DepthMASK) != 0 && receiver.isImplicitThis()) { // outer access ?
+	} else if ((this.bits & ASTNode.DepthMASK) != 0 && this.receiver.isImplicitThis()) { // outer access ?
 		// outer method can be reached through emulation if implicit access
-		ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);		
+		ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT);		
 		Object[] path = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
 		codeStream.generateOuterAccess(path, this, targetType, currentScope);
 	} else {
-		receiver.generateCode(currentScope, codeStream, true);
+		this.receiver.generateCode(currentScope, codeStream, true);
 		if (this.receiverGenericCast != null) 
 			codeStream.checkcast(this.receiverGenericCast);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		
 	}
 	// generate arguments
-	generateArguments(binding, arguments, currentScope, codeStream);
+	generateArguments(this.binding, this.arguments, currentScope, codeStream);
 	// actual message invocation
-	if (syntheticAccessor == null){
+	if (this.syntheticAccessor == null){
 		if (isStatic){
 			codeStream.invokestatic(this.codegenBinding);
 		} else {
-			if( (receiver.isSuper()) || this.codegenBinding.isPrivate()){
+			if( (this.receiver.isSuper()) || this.codegenBinding.isPrivate()){
 				codeStream.invokespecial(this.codegenBinding);
 			} else {
 				if (this.codegenBinding.declaringClass.isInterface()) { // interface or annotation type
@@ -142,17 +157,17 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			}
 		}
 	} else {
-		codeStream.invokestatic(syntheticAccessor);
+		codeStream.invokestatic(this.syntheticAccessor);
 	}
 	// required cast must occur even if no value is required
 	if (this.valueCast != null) codeStream.checkcast(this.valueCast);
 	if (valueRequired){
 		// implicit conversion if necessary
-		codeStream.generateImplicitConversion(implicitConversion);
+		codeStream.generateImplicitConversion(this.implicitConversion);
 	} else {
-		boolean isUnboxing = (implicitConversion & TypeIds.UNBOXING) != 0;
+		boolean isUnboxing = (this.implicitConversion & TypeIds.UNBOXING) != 0;
 		// conversion only generated if unboxing
-		if (isUnboxing) codeStream.generateImplicitConversion(implicitConversion);
+		if (isUnboxing) codeStream.generateImplicitConversion(this.implicitConversion);
 		switch (isUnboxing ? postConversionType(currentScope).id : this.codegenBinding.returnType.id) {
 			case T_long :
 			case T_double :
@@ -175,10 +190,10 @@ public TypeBinding[] genericTypeArguments() {
 }	
 
 public boolean isSuperAccess() {	
-	return receiver.isSuper();
+	return this.receiver.isSuper();
 }
 public boolean isTypeAccess() {	
-	return receiver != null && receiver.isTypeReference();
+	return this.receiver != null && this.receiver.isTypeReference();
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo){
 
@@ -191,28 +206,28 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)		
 		if (currentScope.enclosingSourceType() != this.codegenBinding.declaringClass){
 		
-			syntheticAccessor = ((SourceTypeBinding)this.codegenBinding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
+			this.syntheticAccessor = ((SourceTypeBinding)this.codegenBinding.declaringClass).addSyntheticMethod(this.codegenBinding, isSuperAccess());
 			currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			return;
 		}
 
-	} else if (receiver instanceof QualifiedSuperReference){ // qualified super
+	} else if (this.receiver instanceof QualifiedSuperReference){ // qualified super
 
 		// qualified super need emulation always
-		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)receiver).currentCompatibleType);
-		syntheticAccessor = destinationType.addSyntheticMethod(this.codegenBinding, isSuperAccess());
+		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)this.receiver).currentCompatibleType);
+		this.syntheticAccessor = destinationType.addSyntheticMethod(this.codegenBinding, isSuperAccess());
 		currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 		return;
 
-	} else if (binding.isProtected()){
+	} else if (this.binding.isProtected()){
 
 		SourceTypeBinding enclosingSourceType;
-		if (((bits & DepthMASK) != 0) 
+		if (((this.bits & ASTNode.DepthMASK) != 0) 
 				&& this.codegenBinding.declaringClass.getPackage() 
 					!= (enclosingSourceType = currentScope.enclosingSourceType()).getPackage()){
 
-			SourceTypeBinding currentCompatibleType = (SourceTypeBinding)enclosingSourceType.enclosingTypeAt((bits & DepthMASK) >> DepthSHIFT);
-			syntheticAccessor = currentCompatibleType.addSyntheticMethod(this.codegenBinding, isSuperAccess());
+			SourceTypeBinding currentCompatibleType = (SourceTypeBinding)enclosingSourceType.enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT);
+			this.syntheticAccessor = currentCompatibleType.addSyntheticMethod(this.codegenBinding, isSuperAccess());
 			currentScope.problemReporter().needToEmulateMethodAccess(this.codegenBinding, this);
 			return;
 		}
@@ -227,8 +242,8 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			&& !this.actualReceiverType.isArrayType()) {
 		CompilerOptions options = currentScope.compilerOptions();
 		if ((options.targetJDK >= ClassFileConstants.JDK1_2
-				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(receiver.isImplicitThis() && this.codegenBinding.isStatic()))
-				&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object methods
+				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(this.receiver.isImplicitThis() && this.codegenBinding.isStatic()))
+				&& this.binding.declaringClass.id != TypeIds.T_JavaLangObject) // no change for Object methods
 			|| !this.binding.declaringClass.canBeSeenBy(currentScope)) {
 
 			this.codegenBinding = currentScope.enclosingSourceType().getUpdatedMethodBinding(
@@ -249,7 +264,7 @@ public TypeBinding postConversionType(Scope scope) {
 	TypeBinding convertedType = this.resolvedType;
 	if (this.valueCast != null) 
 		convertedType = this.valueCast;
-	int runtimeType = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4;
+	int runtimeType = (this.implicitConversion & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
 	switch (runtimeType) {
 		case T_boolean :
 			convertedType = TypeBinding.BOOLEAN;
@@ -277,7 +292,7 @@ public TypeBinding postConversionType(Scope scope) {
 			break;
 		default :
 	}		
-	if ((this.implicitConversion & BOXING) != 0) {
+	if ((this.implicitConversion & TypeIds.BOXING) != 0) {
 		convertedType = scope.environment().computeBoxingType(convertedType);
 	}
 	return convertedType;
@@ -285,22 +300,22 @@ public TypeBinding postConversionType(Scope scope) {
 	
 public StringBuffer printExpression(int indent, StringBuffer output){
 	
-	if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.');
+	if (!this.receiver.isImplicitThis()) this.receiver.printExpression(0, output).append('.');
 	if (this.typeArguments != null) {
 		output.append('<');
-		int max = typeArguments.length - 1;
+		int max = this.typeArguments.length - 1;
 		for (int j = 0; j < max; j++) {
-			typeArguments[j].print(0, output);
+			this.typeArguments[j].print(0, output);
 			output.append(", ");//$NON-NLS-1$
 		}
-		typeArguments[max].print(0, output);
+		this.typeArguments[max].print(0, output);
 		output.append('>');
 	}
-	output.append(selector).append('(') ;
-	if (arguments != null) {
-		for (int i = 0; i < arguments.length ; i ++) {	
+	output.append(this.selector).append('(') ;
+	if (this.arguments != null) {
+		for (int i = 0; i < this.arguments.length ; i ++) {	
 			if (i > 0) output.append(", "); //$NON-NLS-1$
-			arguments[i].printExpression(0, output);
+			this.arguments[i].printExpression(0, output);
 		}
 	}
 	return output.append(')');
@@ -310,14 +325,14 @@ public TypeBinding resolveType(BlockScope scope) {
 	// Answer the signature return type
 	// Base type promotion
 
-	constant = Constant.NotAConstant;
+	this.constant = Constant.NotAConstant;
 	boolean receiverCast = false, argsContainCast = false; 
 	if (this.receiver instanceof CastExpression) {
-		this.receiver.bits |= DisableUnnecessaryCastCheck; // will check later on
+		this.receiver.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 		receiverCast = true;
 	}
-	this.actualReceiverType = receiver.resolveType(scope); 
-	boolean receiverIsType = receiver instanceof NameReference && (((NameReference) receiver).bits & Binding.TYPE) != 0;
+	this.actualReceiverType = this.receiver.resolveType(scope); 
+	boolean receiverIsType = this.receiver instanceof NameReference && (((NameReference) this.receiver).bits & Binding.TYPE) != 0;
 	if (receiverCast && this.actualReceiverType != null) {
 		 // due to change of declaring class with receiver type, only identity cast should be notified
 		if (((CastExpression)this.receiver).expression.resolvedType == this.actualReceiverType) { 
@@ -344,14 +359,14 @@ public TypeBinding resolveType(BlockScope scope) {
 	}	
 	// will check for null after args are resolved
 	TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
-	if (arguments != null) {
+	if (this.arguments != null) {
 		boolean argHasError = false; // typeChecks all arguments 
-		int length = arguments.length;
+		int length = this.arguments.length;
 		argumentTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++){
-			Expression argument = arguments[i];
+			Expression argument = this.arguments[i];
 			if (argument instanceof CastExpression) {
-				argument.bits |= DisableUnnecessaryCastCheck; // will check later on
+				argument.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 				argsContainCast = true;
 			}
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null){
@@ -359,23 +374,28 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		if (argHasError) {
-			if (actualReceiverType instanceof ReferenceBinding) {
+			if (this.actualReceiverType instanceof ReferenceBinding) {
 				//  record a best guess, for clients who need hint about possible method match
 				TypeBinding[] pseudoArgs = new TypeBinding[length];
 				for (int i = length; --i >= 0;)
-					pseudoArgs[i] = argumentTypes[i] == null ? actualReceiverType : argumentTypes[i]; // replace args with errors with receiver
+					pseudoArgs[i] = argumentTypes[i] == null ? TypeBinding.NULL : argumentTypes[i]; // replace args with errors with null type
 				this.binding = 
-					receiver.isImplicitThis()
-						? scope.getImplicitMethod(selector, pseudoArgs, this)
-						: scope.findMethod((ReferenceBinding) actualReceiverType, selector, pseudoArgs, this);
-				if (binding != null && !binding.isValidBinding()) {
-					MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
+					this.receiver.isImplicitThis()
+						? scope.getImplicitMethod(this.selector, pseudoArgs, this)
+						: scope.findMethod((ReferenceBinding) this.actualReceiverType, this.selector, pseudoArgs, this);
+				if (this.binding != null && !this.binding.isValidBinding()) {
+					MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
 					// record the closest match, for clients who may still need hint about possible method match
 					if (closestMatch != null) {
+						if (closestMatch.original().typeVariables != Binding.NO_TYPE_VARIABLES) { // generic method
+							// shouldn't return generic method outside its context, rather convert it to raw method (175409)
+							closestMatch = scope.environment().createParameterizedGenericMethod(closestMatch.original(), (RawTypeBinding)null);
+						}
 						this.binding = closestMatch;
-						if ((closestMatch.isPrivate() || closestMatch.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatch)) {
+						MethodBinding closestMatchOriginal = closestMatch.original();
+						if ((closestMatchOriginal.isPrivate() || closestMatchOriginal.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatchOriginal)) {
 							// ignore cases where method is used from within inside itself (e.g. direct recursions)
-							closestMatch.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+							closestMatchOriginal.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 						}
 					}
 				}
@@ -392,20 +412,20 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 	this.binding = 
-		receiver.isImplicitThis()
-			? scope.getImplicitMethod(selector, argumentTypes, this)
-			: scope.getMethod(this.actualReceiverType, selector, argumentTypes, this); 
-	if (!binding.isValidBinding()) {
-		if (binding.declaringClass == null) {
+		this.receiver.isImplicitThis()
+			? scope.getImplicitMethod(this.selector, argumentTypes, this)
+			: scope.getMethod(this.actualReceiverType, this.selector, argumentTypes, this); 
+	if (!this.binding.isValidBinding()) {
+		if (this.binding.declaringClass == null) {
 			if (this.actualReceiverType instanceof ReferenceBinding) {
-				binding.declaringClass = (ReferenceBinding) this.actualReceiverType;
+				this.binding.declaringClass = (ReferenceBinding) this.actualReceiverType;
 			} else { 
 				scope.problemReporter().errorNoMethodFor(this, this.actualReceiverType, argumentTypes);
 				return null;
 			}
 		}
-		scope.problemReporter().invalidMethod(this, binding);
-		MethodBinding closestMatch = ((ProblemMethodBinding)binding).closestMatch;
+		scope.problemReporter().invalidMethod(this, this.binding);
+		MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
 		switch (this.binding.problemId()) {
 			case ProblemReasons.Ambiguous :
 				break; // no resilience on ambiguous
@@ -421,25 +441,26 @@ public TypeBinding resolveType(BlockScope scope) {
 		// record the closest match, for clients who may still need hint about possible method match
 		if (closestMatch != null) {
 			this.binding = closestMatch;
-			if ((closestMatch.isPrivate() || closestMatch.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatch)) {
+			MethodBinding closestMatchOriginal = closestMatch.original();			
+			if ((closestMatchOriginal.isPrivate() || closestMatchOriginal.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatchOriginal)) {
 				// ignore cases where method is used from within inside itself (e.g. direct recursions)
-				closestMatch.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+				closestMatchOriginal.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 			}
 		}
 		return this.resolvedType;
 	}
 	final CompilerOptions compilerOptions = scope.compilerOptions();
-	if (!binding.isStatic()) {
+	if (!this.binding.isStatic()) {
 		// the "receiver" must not be a type, in other words, a NameReference that the TC has bound to a Type
 		if (receiverIsType) {
-			scope.problemReporter().mustUseAStaticMethod(this, binding);
+			scope.problemReporter().mustUseAStaticMethod(this, this.binding);
 			if (this.actualReceiverType.isRawType() 
-					&& (this.receiver.bits & IgnoreRawTypeCheck) == 0 
+					&& (this.receiver.bits & ASTNode.IgnoreRawTypeCheck) == 0 
 					&& compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 				scope.problemReporter().rawTypeReference(this.receiver, this.actualReceiverType);
 			}
 		} else {
-			receiver.computeConversion(scope, this.actualReceiverType, this.actualReceiverType);
+			this.receiver.computeConversion(scope, this.actualReceiverType, this.actualReceiverType);
 			// compute generic cast if necessary
 			TypeBinding receiverErasure = this.actualReceiverType.erasure();
 			if (receiverErasure instanceof ReferenceBinding) {
@@ -450,37 +471,37 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
-		if (!(receiver.isImplicitThis() || receiver.isSuper() || receiverIsType)) {
-			scope.problemReporter().nonStaticAccessToStaticMethod(this, binding);
+		if (!(this.receiver.isImplicitThis() || this.receiver.isSuper() || receiverIsType)) {
+			scope.problemReporter().nonStaticAccessToStaticMethod(this, this.binding);
 		}
-		if (!receiver.isImplicitThis() && binding.declaringClass != actualReceiverType) {
-			scope.problemReporter().indirectAccessToStaticMethod(this, binding);
+		if (!this.receiver.isImplicitThis() && this.binding.declaringClass != this.actualReceiverType) {
+			scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);
 		}		
 	}
-	checkInvocationArguments(scope, this.receiver, actualReceiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
+	checkInvocationArguments(scope, this.receiver, this.actualReceiverType, this.binding, this.arguments, argumentTypes, argsContainCast, this);
 
 	//-------message send that are known to fail at compile time-----------
-	if (binding.isAbstract()) {
-		if (receiver.isSuper()) {
-			scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, binding);
+	if (this.binding.isAbstract()) {
+		if (this.receiver.isSuper()) {
+			scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, this.binding);
 		}
 		// abstract private methods cannot occur nor abstract static............
 	}
-	if (isMethodUseDeprecated(binding, scope, true))
-		scope.problemReporter().deprecatedMethod(binding, this);
+	if (isMethodUseDeprecated(this.binding, scope, true))
+		scope.problemReporter().deprecatedMethod(this.binding, this);
 
 	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)
-	if (actualReceiverType.isArrayType() 
+	if (this.actualReceiverType.isArrayType() 
 			&& this.binding.parameters == Binding.NO_PARAMETERS 
 			&& compilerOptions.complianceLevel >= ClassFileConstants.JDK1_5 
-			&& CharOperation.equals(this.binding.selector, CLONE)) {
-		this.resolvedType = actualReceiverType;
+			&& CharOperation.equals(this.binding.selector, TypeConstants.CLONE)) {
+		this.resolvedType = this.actualReceiverType;
 	} else {
 		TypeBinding returnType = this.binding.returnType;
 		if (returnType != null) returnType = returnType.capture(scope, this.sourceEnd);
 		this.resolvedType = returnType;
 	}
-	if (receiver.isSuper() && compilerOptions.getSeverity(CompilerOptions.OverridingMethodWithoutSuperInvocation) != ProblemSeverities.Ignore) {
+	if (this.receiver.isSuper() && compilerOptions.getSeverity(CompilerOptions.OverridingMethodWithoutSuperInvocation) != ProblemSeverities.Ignore) {
 		final ReferenceContext referenceContext = scope.methodScope().referenceContext;
 		if (referenceContext instanceof AbstractMethodDeclaration) {
 			final AbstractMethodDeclaration abstractMethodDeclaration = (AbstractMethodDeclaration) referenceContext;
@@ -500,9 +521,9 @@ public void setActualReceiverType(ReferenceBinding receiverType) {
 	this.actualReceiverType = receiverType;
 }
 public void setDepth(int depth) {
-	bits &= ~DepthMASK; // flush previous depth if any
+	this.bits &= ~ASTNode.DepthMASK; // flush previous depth if any
 	if (depth > 0) {
-		bits |= (depth & 0xFF) << DepthSHIFT; // encoded on 8 bits
+		this.bits |= (depth & 0xFF) << ASTNode.DepthSHIFT; // encoded on 8 bits
 	}
 }
 
@@ -518,16 +539,16 @@ public void setFieldIndex(int depth) {
 
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
-		receiver.traverse(visitor, blockScope);
+		this.receiver.traverse(visitor, blockScope);
 		if (this.typeArguments != null) {
 			for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
 				this.typeArguments[i].traverse(visitor, blockScope);
 			}		
 		}
-		if (arguments != null) {
-			int argumentsLength = arguments.length;
+		if (this.arguments != null) {
+			int argumentsLength = this.arguments.length;
 			for (int i = 0; i < argumentsLength; i++)
-				arguments[i].traverse(visitor, blockScope);
+				this.arguments[i].traverse(visitor, blockScope);
 		}
 	}
 	visitor.endVisit(this, blockScope);

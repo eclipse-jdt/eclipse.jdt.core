@@ -340,9 +340,26 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				if (argHasError) {
 					// record a best guess, for clients who need hint about possible contructor match
 					TypeBinding[] pseudoArgs = new TypeBinding[length];
-					for (int i = length; --i >= 0;)
-						pseudoArgs[i] = argumentTypes[i] == null ? receiverType : argumentTypes[i]; // replace args with errors with receiver
+					for (int i = length; --i >= 0;) {
+						pseudoArgs[i] = argumentTypes[i] == null ? TypeBinding.NULL : argumentTypes[i]; // replace args with errors with null type
+					}
 					this.binding = scope.findMethod(receiverType, TypeConstants.INIT, pseudoArgs, this);
+					if (this.binding != null && !this.binding.isValidBinding()) {
+						MethodBinding closestMatch = ((ProblemMethodBinding)this.binding).closestMatch;
+						// record the closest match, for clients who may still need hint about possible method match
+						if (closestMatch != null) {
+							if (closestMatch.original().typeVariables != Binding.NO_TYPE_VARIABLES) { // generic method
+								// shouldn't return generic method outside its context, rather convert it to raw method (175409)
+								closestMatch = scope.environment().createParameterizedGenericMethod(closestMatch.original(), (RawTypeBinding)null);
+							}
+							this.binding = closestMatch;
+							MethodBinding closestMatchOriginal = closestMatch.original();
+							if ((closestMatchOriginal.isPrivate() || closestMatchOriginal.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatchOriginal)) {
+								// ignore cases where method is used from within inside itself (e.g. direct recursions)
+								closestMatchOriginal.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+							}
+						}
+					}
 					return;
 				}
 			} else if (receiverType.erasure().id == T_JavaLangEnum) {
