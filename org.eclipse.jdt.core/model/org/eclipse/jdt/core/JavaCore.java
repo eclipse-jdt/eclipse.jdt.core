@@ -3249,7 +3249,13 @@ public final class JavaCore extends Plugin {
 				// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413)
 				IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
 				for (int i = 0, length = projects.length; i < length; i++) {
-					IClasspathEntry[] classpath = ((JavaProject) projects[i]).getResolvedClasspath();
+					IClasspathEntry[] classpath;
+					try {
+						classpath = ((JavaProject) projects[i]).getResolvedClasspath();
+					} catch (JavaModelException e) {
+						// project no longer exist: ignore
+						continue;
+					}
 					if (classpath != null) {
 						for (int j = 0, length2 = classpath.length; j < length2; j++) {
 							IClasspathEntry entry = classpath[j];
