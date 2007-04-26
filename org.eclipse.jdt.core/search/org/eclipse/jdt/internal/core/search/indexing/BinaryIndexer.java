@@ -744,14 +744,14 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					}
 				}
 			}
-	
 			// record all references found inside the .class file
 			extractReferenceFromConstantPool(contents, reader);
 		} catch (ClassFormatException e) {
 			// ignore
 		} catch (RuntimeException e) {
-			Util.log(e, "Indexer crashed on document " + this.document.getPath()); //$NON-NLS-1$
-			throw e;
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=182154
+			// logging the entry that could not be indexed and continue with the next one
+			Util.log(e, "Indexer crashed on document " + this.document.getPath() + ". Please report this issue to JDT/Core including the problematic document"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 	/*
