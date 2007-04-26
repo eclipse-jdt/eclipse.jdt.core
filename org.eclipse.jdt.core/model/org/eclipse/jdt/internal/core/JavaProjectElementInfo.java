@@ -308,6 +308,10 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 					}
 					fragmentsCache = (HashSetOfArray) rootProjectCache.pkgFragmentsCaches.get(root);
 				}
+				if (fragmentsCache == null) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183833
+					fragmentsCache = new HashSetOfArray();
+					initializePackageNames(root, fragmentsCache);
+				}
 				Object[][] set = fragmentsCache.set;
 				for (int j = 0, length2 = set.length; j < length2; j++) {
 					String[] pkgName = (String[]) set[j];
