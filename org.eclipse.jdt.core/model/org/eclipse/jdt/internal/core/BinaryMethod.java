@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -42,7 +41,8 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 protected BinaryMethod(JavaElement parent, String name, String[] paramTypes) {
 	super(parent, name);
-	Assert.isTrue(name.indexOf('.') == -1);
+	// Assertion disabled since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=179011
+	// Assert.isTrue(name.indexOf('.') == -1);
 	if (paramTypes == null) {
 		this.parameterTypes= CharOperation.NO_STRINGS;
 	} else {

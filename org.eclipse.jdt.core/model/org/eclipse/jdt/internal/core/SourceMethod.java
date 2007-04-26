@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -31,7 +30,8 @@ public class SourceMethod extends NamedMember implements IMethod {
 
 protected SourceMethod(JavaElement parent, String name, String[] parameterTypes) {
 	super(parent, name);
-	Assert.isTrue(name.indexOf('.') == -1);
+	// Assertion disabled since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=179011
+	// Assert.isTrue(name.indexOf('.') == -1);
 	if (parameterTypes == null) {
 		this.parameterTypes= CharOperation.NO_STRINGS;
 	} else {
