@@ -263,13 +263,14 @@ public class ElementsImpl implements Elements {
 	@Override
 	public String getConstantExpression(Object value) {
 		if (!(value instanceof Integer)
-				|| !(value instanceof Byte)
-				|| !(value instanceof Float)
-				|| !(value instanceof Double)
-				|| !(value instanceof Long)
-				|| !(value instanceof Short)
-				|| !(value instanceof Character)
-				|| !(value instanceof String)) {
+				&& !(value instanceof Byte)
+				&& !(value instanceof Float)
+				&& !(value instanceof Double)
+				&& !(value instanceof Long)
+				&& !(value instanceof Short)
+				&& !(value instanceof Character)
+				&& !(value instanceof String)
+				&& !(value instanceof Boolean)) {
 			throw new IllegalArgumentException("Not a valid wrapper type : " + value.getClass()); //$NON-NLS-1$
 		}
 		if (value instanceof Character) {
