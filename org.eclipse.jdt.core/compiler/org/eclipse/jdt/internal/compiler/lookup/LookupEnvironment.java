@@ -561,6 +561,17 @@ public AnnotationBinding createAnnotation(ReferenceBinding annotationType, Eleme
 					for (int j = 0; j < length2; j++) {
 						ElementValuePair pair2 = pairs[j];
 						if (pair.binding == pair2.binding) {
+							if (pair.value == null) {
+								if (pair2.value == null) {
+									continue loop;
+								}
+								continue nextCachedType;
+							} else {
+								if (pair2.value == null
+										|| !pair2.value.equals(pair.value)) {
+									continue nextCachedType;
+								}
+							}
 							continue loop;
 						}
 					}
