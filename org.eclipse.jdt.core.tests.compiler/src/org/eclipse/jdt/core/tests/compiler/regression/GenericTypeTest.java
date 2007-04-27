@@ -37713,4 +37713,40 @@ public void test1132() {
 		"Type safety: The expression of type List needs unchecked conversion to conform to List<Integer>\n" + 
 		"----------\n");
 }
+public void test1133() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"class Y {\n" + 
+			"	List<String> foo() { return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X<T> extends Y {\n" + 
+			"	List<String> bar() { return null; }\n" + 
+			"	\n" + 
+			"	void m(X x) {\n" + 
+			"		List<Object> l1 = x.foo();\n" + 
+			"		List<Object> l2 = x.bar();\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	void m(X x) {\n" + 
+		"	       ^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	List<Object> l1 = x.foo();\n" + 
+		"	                  ^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<String> to List<Object>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
+		"	List<Object> l2 = x.bar();\n" + 
+		"	                  ^^^^^^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" + 
+		"----------\n");
+}
 }
