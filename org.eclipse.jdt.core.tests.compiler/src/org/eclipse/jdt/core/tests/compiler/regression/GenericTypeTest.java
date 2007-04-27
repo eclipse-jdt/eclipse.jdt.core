@@ -17,7 +17,6 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -33,7 +32,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1121, 1122 };
+//		TESTS_NUMBERS = new int[] { 1054 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -2592,7 +2591,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		Map customOptions = getCompilerOptions();
 		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
-		customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.DISABLED);
+		customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2622,7 +2621,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		Map customOptions = getCompilerOptions();
 		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
-		customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.DISABLED);
+		customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3296,7 +3295,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	    // also ensure no unsafe type operation problem is issued (assignment to variable of type raw)
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);			    
-		customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.DISABLED);
+		customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -34226,48 +34225,17 @@ public void test1053() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142935
 public void test1054() {
+	Map customOptions = getCompilerOptions();
+	// check no unsafe type operation problem is issued
+	customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	String expectedOutput =
 		"----------\n" + 
-		"1. WARNING in X.java (at line 10)\n" + 
-		"	Class clazz= X.class;\n" + 
-		"	^^^^^\n" + 
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 11)\n" + 
-		"	Bar bar= clazz.getAnnotation(Bar.class);\n" + 
-		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The method getAnnotation(Class) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 11)\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
 		"	Bar bar= clazz.getAnnotation(Bar.class);\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Annotation to Bar\n" + 
 		"----------\n";
-	
-	if (isJRELevel(AbstractCompilerTest.F_1_6|AbstractCompilerTest.F_1_7)) {
-		expectedOutput =
-			"----------\n" + 
-			"1. WARNING in X.java (at line 10)\n" + 
-			"	Class clazz= X.class;\n" + 
-			"	^^^^^\n" + 
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 11)\n" + 
-			"	Bar bar= clazz.getAnnotation(Bar.class);\n" + 
-			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The method getAnnotation(Class) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 11)\n" + 
-			"	Bar bar= clazz.getAnnotation(Bar.class);\n" + 
-			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Annotation to Bar\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 12)\n" + 
-			"	Method method= clazz.getMethod(\"bar\");\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The method getMethod(String, Class...) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n";
-	}
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -34290,8 +34258,11 @@ public void test1054() {
 			"@Retention(RetentionPolicy.RUNTIME)\r\n" + 
 			"@interface Bar {\r\n" + 
 			"}",
-		}, 
-		expectedOutput);
+		},
+		expectedOutput,
+		null,
+		true,
+		customOptions);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142935
 public void test1055() {
