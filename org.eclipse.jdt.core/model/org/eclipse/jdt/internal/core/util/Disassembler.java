@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -266,14 +269,32 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	 * @see org.eclipse.jdt.core.util.ClassFileBytesDisassembler#disassemble(byte[], java.lang.String)
 	 */
 	public String disassemble(byte[] classFileBytes, String lineSeparator) throws ClassFormatException {
-		return disassemble(new ClassFileReader(classFileBytes, IClassFileReader.ALL), lineSeparator, ClassFileBytesDisassembler.DEFAULT);
+		try {
+			return disassemble(new ClassFileReader(classFileBytes, IClassFileReader.ALL), lineSeparator, ClassFileBytesDisassembler.DEFAULT);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter writer = new PrintWriter(stringWriter);
+			e.printStackTrace(writer);
+			writer.flush();
+			writer.close();
+			throw new ClassFormatException(String.valueOf(stringWriter.getBuffer()));
+		}
 	}
 
 	/**
 	 * @see org.eclipse.jdt.core.util.ClassFileBytesDisassembler#disassemble(byte[], java.lang.String, int)
 	 */
 	public String disassemble(byte[] classFileBytes, String lineSeparator, int mode) throws ClassFormatException {
-		return disassemble(new ClassFileReader(classFileBytes, IClassFileReader.ALL), lineSeparator, mode);
+		try {
+			return disassemble(new ClassFileReader(classFileBytes, IClassFileReader.ALL), lineSeparator, mode);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter writer = new PrintWriter(stringWriter);
+			e.printStackTrace(writer);
+			writer.flush();
+			writer.close();
+			throw new ClassFormatException(String.valueOf(stringWriter.getBuffer()));
+		}
 	}
 
 	private void disassemble(IAnnotation annotation, StringBuffer buffer, String lineSeparator, int tabNumber) {
