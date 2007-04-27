@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.compiler.ast.Annotation;
 /**
  * Represents JSR 175 Annotation instances in the type-system.
  */ 
-public class AnnotationBinding{
+public class AnnotationBinding {
 	// do not access directly - use getters instead (UnresolvedAnnotationBinding
 	// resolves types for type and pair contents just in time)
 	ReferenceBinding type;
