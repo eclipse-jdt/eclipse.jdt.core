@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 269 };
+//		TESTS_NUMBERS = new int[] { 271 };
 //		TESTS_RANGE = new int[] { 253, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -8951,5 +8951,76 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", methodBinding);
 		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 		assertTrue("Not a parameterized method", methodBinding.isRawMethod());
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=180966
+	public void _test0270() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/foo/X.java", true/*resolve*/);
+		String contents =
+			"package foo;\n" + 
+			"\n" + 
+			"class GenericBase<T> {\n" + 
+			"        public void someMethod() {}\n" + 
+			"}\n" + 
+			"public class X extends GenericBase<String> {\n" + 
+			"        @Override\n" + 
+			"        public void someMethod() {}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding = declaration.resolveBinding();
+		node = getASTNode(unit, 1, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		declaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding2 = declaration.resolveBinding();
+		assertTrue("Doesn't override", methodBinding2.overrides(methodBinding));
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=180966
+	public void _test0271() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/foo/X.java", true/*resolve*/);
+		String contents =
+			"package foo;\n" + 
+			"\n" + 
+			"class GenericBase<T> {\n" + 
+			"        public void someMethod() {}\n" + 
+			"}\n" + 
+			"public class X extends GenericBase<String> {\n" + 
+			"        @Override\n" + 
+			"        public void someMethod() {}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 1, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding = declaration.resolveBinding();
+		node = getASTNode(unit, 1, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		declaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding2 = declaration.resolveBinding();
+		IMethodBinding[] declaredMethods = methodBinding.getDeclaringClass().getSuperclass().getDeclaredMethods();
+		IMethodBinding methodBinding3 = null;
+		loop: for (int i = 0, max = declaredMethods.length; i < max; i++) {
+			if (declaredMethods[i].getName().equals(methodBinding.getName())) {
+				methodBinding3 = declaredMethods[i];
+				break loop;
+			}
+		}
+		assertNotNull("Super method not found", methodBinding3);
+		assertTrue("Should be the same", methodBinding3.isEqualTo(methodBinding2));
+		assertTrue("Doesn't override", methodBinding.overrides(methodBinding3));
 	}
 }
