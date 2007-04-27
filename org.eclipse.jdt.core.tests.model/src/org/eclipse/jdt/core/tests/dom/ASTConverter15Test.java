@@ -8,7 +8,6 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
@@ -47,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 262 };
+//		TESTS_NUMBERS = new int[] { 269 };
 //		TESTS_RANGE = new int[] { 253, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -7896,10 +7895,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		String expectedErrors =
-			"x cannot be resolved\n" +
-			"The method asList(String) is undefined for the type Arrays";
-		assertProblemsSize(unit, 2, expectedErrors);
+		String expectedError = "x cannot be resolved";
+		assertProblemsSize(unit, 1, expectedError);
 		node = getASTNode(unit, 0, 1, 0);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		ExpressionStatement statement = (ExpressionStatement) node;
@@ -8685,5 +8682,274 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MemberValuePair pair = (MemberValuePair) values.get(0);
 		IMemberValuePairBinding memberValuePairBinding = pair.resolveMemberValuePairBinding();
 		assertFalse("Is default value", memberValuePairBinding.isDefault());
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
+	public void test0264() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	private <T> T find(T a, List<T> b) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public void foo1() {\n" + 
+			"		// T x;\n" + 
+			"		find(x, Arrays.asList(\"a\")); // closestMatch: #find(String,List<String>)\n" + 
+			"		find(x, 0); // closestMatch: #find(Object,List<Object>)\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedErrors =
+			"x cannot be resolved\n" + 
+			"x cannot be resolved";
+		assertProblemsSize(unit, 2, expectedErrors);
+		node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding = invocation.resolveMethodBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		node = getASTNode(unit, 0, 1, 1);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		invocation = (MethodInvocation) expression;
+		methodBinding = invocation.resolveMethodBinding();
+		assertNotNull("No binding", methodBinding);
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertTrue("Not a raw method", methodBinding.isRawMethod());
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
+	public void test0265() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	<T> X(T a, List<T> b) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void foo1() {\n" + 
+			"		// T x;\n" + 
+			"		new X(x, Arrays.asList(\"a\")); // closestMatch:#X(String,List<String>)\n" + 
+			"		new X(x, 0); // closestMatch: #X(Object,List<Object>)\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedErrors =
+			"x cannot be resolved\n" + 
+			"x cannot be resolved";
+		assertProblemsSize(unit, 2, expectedErrors);
+		node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		IMethodBinding methodBinding = classInstanceCreation.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		node = getASTNode(unit, 0, 1, 1);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		classInstanceCreation = (ClassInstanceCreation) expression;
+		methodBinding = classInstanceCreation.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertTrue("Not a raw method", methodBinding.isRawMethod());
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
+	public void test0266() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	class M {\n" + 
+			"		<T> M(T a, List<T> b) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public void foo1() {\n" + 
+			"		// T x;\n" + 
+			"		this.new M(x, Arrays.asList(\"a\")); // closestMatch: #X(String,List<String>)\n" + 
+			"		this.new M(x, 0); // closestMatch: #X(Object,List<Object>)\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedErrors =
+			"x cannot be resolved\n" + 
+			"x cannot be resolved";
+		assertProblemsSize(unit, 2, expectedErrors);
+		node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		IMethodBinding methodBinding = classInstanceCreation.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		node = getASTNode(unit, 0, 1, 1);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		classInstanceCreation = (ClassInstanceCreation) expression;
+		methodBinding = classInstanceCreation.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertTrue("Not a raw method", methodBinding.isRawMethod());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
+	public void test0267() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	class M {\n" + 
+			"		<T> M(T a, List<T> b) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public void foo1() {\n" + 
+			"		// T x;\n" + 
+			"		this.new M(x, Arrays.asList(\"a\")) {\n" + 
+			"		}; // closestMatch:#X(String,List<String>)\n" + 
+			"		this.new M(x, 0) {\n" + 
+			"		}; // closestMatch: #X(Object,List<Object>)\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedErrors =
+			"x cannot be resolved\n" + 
+			"x cannot be resolved";
+		assertProblemsSize(unit, 2, expectedErrors);
+		node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		IMethodBinding methodBinding = classInstanceCreation.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		node = getASTNode(unit, 0, 1, 1);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		statement = (ExpressionStatement) node;
+		expression = statement.getExpression();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		classInstanceCreation = (ClassInstanceCreation) expression;
+		methodBinding = classInstanceCreation.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertTrue("Not a raw method", methodBinding.isRawMethod());
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
+	public void test0268() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import java.util.*;\n" + 
+			"\n" + 
+			"class Super {\n" + 
+			"	<T> Super(T a, List<T> b) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X extends Super {\n" + 
+			"	public X() {\n" + 
+			"		// T x;\n" + 
+			"		super(x, Arrays.asList(\"a\")); // closestMatch:#X(String,List<String>)\n" + 
+			"	}\n" + 
+			"	public X(boolean b) {\n" + 
+			"		// T x;\n" + 
+			"		super(x, 0); // closestMatch: #X(Object,List<Object>)\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedErrors =
+			"x cannot be resolved\n" + 
+			"x cannot be resolved";
+		assertProblemsSize(unit, 2, expectedErrors);
+		node = getASTNode(unit, 1, 0, 0);
+		assertEquals("Not a super constructor invocation", ASTNode.SUPER_CONSTRUCTOR_INVOCATION, node.getNodeType());
+		SuperConstructorInvocation invocation = (SuperConstructorInvocation) node;
+		IMethodBinding methodBinding = invocation.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		node = getASTNode(unit, 1, 1, 0);
+		assertEquals("Not a expression statement", ASTNode.SUPER_CONSTRUCTOR_INVOCATION, node.getNodeType());
+		invocation = (SuperConstructorInvocation) node;
+		methodBinding = invocation.resolveConstructorBinding();
+		assertNotNull("No binding", methodBinding);
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertTrue("Not a raw method", methodBinding.isRawMethod());
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=175409
+	public void test0269() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	<T extends Comparable<T>> void find(T a, String[] b, List<T> c) {\n" + 
+			"	}\n" + 
+			"	void foo(String[] s) {\n" + 
+			"		find(x, Arrays.asList(\"a\"), s);\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedError = "x cannot be resolved";
+		assertProblemsSize(unit, 1, expectedError);
+		node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation invocation = (MethodInvocation) expression;
+		IMethodBinding methodBinding = invocation.resolveMethodBinding();
+		assertNotNull("No binding", methodBinding);
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertTrue("Not a parameterized method", methodBinding.isRawMethod());
 	}
 }
