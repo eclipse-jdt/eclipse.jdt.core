@@ -2547,7 +2547,7 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
 				if (innerTypeStart != -1 && !inAnonymousType && Character.isDigit(c)) {
 					inAnonymousType = true;
 					buffer.setLength(innerTypeStart); // remove '.'
-					buffer.insert(0, "new "); //$NON-NLS-1$
+					buffer.insert(checkpoint, "new "); //$NON-NLS-1$
 					buffer.append("(){}"); //$NON-NLS-1$
 				}
 			 	if (!inAnonymousType)

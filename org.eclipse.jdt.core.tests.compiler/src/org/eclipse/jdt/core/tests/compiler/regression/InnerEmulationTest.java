@@ -4911,7 +4911,7 @@ public void test125() {
 			"  \n" + 
 			"  // Method descriptor #37 (LX;Ljava/lang/String;LX$1$Local;)V\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
-			"  synthetic new X$1$Local(X arg0, java.lang.String arg1, X(){}.Local arg2);\n" + 
+			"  synthetic X$1$Local(X arg0, java.lang.String arg1, new X(){}.Local arg2);\n" + 
 			"    0  aload_0\n" + 
 			"    1  aload_1\n" + 
 			"    2  aload_2\n" + 
