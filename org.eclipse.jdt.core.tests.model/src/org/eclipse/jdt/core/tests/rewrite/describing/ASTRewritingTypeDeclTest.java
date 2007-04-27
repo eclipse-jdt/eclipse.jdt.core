@@ -725,19 +725,21 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("import java.util.Vector;\n");
 		buf.append("import java.util.Vector;\n");
 		buf.append("import java.net.*;\n");
-		buf.append("import java.text.*;\n");					
+		buf.append("import java.text.*;\n");
+		buf.append("import static java.lang.Math.*;\n");
+		buf.append("import java.lang.Math.*;\n");		
 		buf.append("public class Z {\n");
 		buf.append("}\n");	
 		ICompilationUnit cu= pack1.createCompilationUnit("Z.java", buf.toString(), false, null);
 		
-		CompilationUnit astRoot= createAST(cu);
+		CompilationUnit astRoot= createAST3(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		
 		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
 		
 		List imports= astRoot.imports();
-		assertTrue("Number of imports not 4", imports.size() == 4);
+		assertTrue("Number of imports not 6", imports.size() == 6);
 		
 		{ // rename import
 			ImportDeclaration imp= (ImportDeclaration) imports.get(0);
@@ -763,8 +765,17 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			
 			Name name= ast.newName(new String[] { "org", "eclipse" });
 			rewrite.replace(imp.getName(), name, null);
-		}		
-		
+		}
+		{ // remove static 
+			ImportDeclaration imp= (ImportDeclaration) imports.get(4);
+			
+			rewrite.set(imp, ImportDeclaration.STATIC_PROPERTY, Boolean.FALSE, null);
+		}
+		{ // add static
+			ImportDeclaration imp= (ImportDeclaration) imports.get(5);
+			
+			rewrite.set(imp, ImportDeclaration.STATIC_PROPERTY, Boolean.TRUE, null);
+		}
 				
 		String preview= evaluateRewrite(cu, rewrite);
 		
@@ -773,7 +784,9 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("import org.eclipse.X;\n");
 		buf.append("import java.util.*;\n");
 		buf.append("import java.net;\n");
-		buf.append("import org.eclipse.*;\n");			
+		buf.append("import org.eclipse.*;\n");
+		buf.append("import java.lang.Math.*;\n");
+		buf.append("import static java.lang.Math.*;\n");
 		buf.append("public class Z {\n");
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());

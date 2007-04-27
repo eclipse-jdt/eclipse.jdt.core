@@ -2107,17 +2107,17 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (node.getAST().apiLevel() >= AST.JLS3) {
 			RewriteEvent event= getEvent(node, ImportDeclaration.STATIC_PROPERTY);
 			if (event != null && event.getChangeKind() != RewriteEvent.UNCHANGED) {
-				boolean wasStatic= ((Boolean) event.getOriginalValue()).booleanValue();
-				int pos= node.getStartPosition();
-				if (wasStatic) {
-					try {
-						int endPos= getScanner().getTokenStartOffset(ITerminalSymbols.TokenNameimport, pos);
+				try {
+					int pos= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNameimport, node.getStartPosition());
+					boolean wasStatic= ((Boolean) event.getOriginalValue()).booleanValue();
+					if (wasStatic) {
+						int endPos= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNamestatic, pos);
 						doTextRemove(pos, endPos - pos, getEditGroup(event));
-					} catch (CoreException e) {
-						handleException(e);
+					} else {
+						doTextInsert(pos, " static", getEditGroup(event)); //$NON-NLS-1$
 					}
-				} else {
-					doTextInsert(pos, "static ", getEditGroup(event)); //$NON-NLS-1$
+				} catch (CoreException e) {
+					handleException(e);
 				}
 			}
 		}
