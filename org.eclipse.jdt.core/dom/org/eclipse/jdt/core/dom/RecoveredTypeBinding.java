@@ -332,6 +332,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 		if ("java.lang.Object".equals(typeBinding.getQualifiedName())) { //$NON-NLS-1$
 			return true;
 		}
+		// since recovered binding are not unique isEqualTo is required
 		return this.isEqualTo(typeBinding);
 	}
 
@@ -349,6 +350,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 		if ("java.lang.Object".equals(typeBinding.getQualifiedName())) { //$NON-NLS-1$
 			return true;
 		}
+		// since recovered binding are not unique isEqualTo is required
 		return this.isEqualTo(typeBinding);
 	}
 
@@ -449,6 +451,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 		if ("java.lang.Object".equals(typeBinding.getQualifiedName())) { //$NON-NLS-1$
 			return true;
 		}
+		// since recovered binding are not unique isEqualTo is required
 		return this.isEqualTo(typeBinding);
 	}
 
