@@ -16,11 +16,13 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
  * Tests the Java search engine accross multiple projects.
@@ -972,6 +974,7 @@ public void testBug119203() throws CoreException {
  */
 public void testBug179199() throws CoreException {
 	try {
+		// Create project and files
 		IJavaProject project = createJavaProject("P1", new String[] {"src"}, new String[] {"bin"}, "bin");
 		createFile(
 			"/P1/src/Test.java",
@@ -984,11 +987,21 @@ public void testBug179199() throws CoreException {
 			"	Test test;\n" +
 			"}" 
 		);
-		// Build to create bin/Test.class
+		waitUntilIndexesReady();
+
+		// Build to create .class files
 		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
+
 		// Remove source file to peek the class file in 'bin' instead while searching all type names
 		deleteFile("/P1/src/Test.java");
+
+		// Index the output location as it is a library for the project
+		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
+		indexManager.indexLibrary(new Path("/P1/bin"), project.getProject());
+		waitUntilIndexesReady();
+		
+		// Search for all types
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project });
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
@@ -1001,6 +1014,8 @@ public void testBug179199() throws CoreException {
 			collector,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null);
+		
+		// Verify results
 		assertSearchResults(
 			"Test (not open) [in Test.class [in <default> [in bin [in P1]]]]",
 			collector
