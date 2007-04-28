@@ -26,6 +26,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ErrorType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
@@ -243,6 +244,9 @@ public class Factory {
 	}
 	
 	public Element newElement(Binding binding) {
+		if (binding == null) {
+			return new ErrorTypeElement(this._env);
+		}
 		switch (binding.kind()) {
 		case Binding.FIELD:
 		case Binding.LOCAL:
@@ -400,7 +404,11 @@ public class Factory {
 		return new TypeParameterElementImpl(_env, variable, declaringElement);
 	}
 
-    /**
+    public ErrorType getErrorType() {
+		return new ErrorTypeImpl(this._env);
+	}
+
+	/**
      * This method is derived from code in org.eclipse.jdt.apt.core.
      * 
      * This method is designed to be invoked by the invocation handler and anywhere that requires

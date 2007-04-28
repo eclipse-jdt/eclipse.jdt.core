@@ -53,12 +53,18 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof AnnotationMirrorImpl) {
+			if (this._binding == null) {
+				return ((AnnotationMirrorImpl) obj)._binding == null;
+			}
 			return this._binding.equals(((AnnotationMirrorImpl) obj)._binding);
 		}
 		return false;
 	}
 
 	public DeclaredType getAnnotationType() {
+		if (this._binding == null) {
+			return _env.getFactory().getErrorType();
+		}
 		ReferenceBinding annoType = _binding.getAnnotationType();
 		return _env.getFactory().newDeclaredType(annoType);
 	}
@@ -68,11 +74,18 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	 * Default values are not included.
 	 */
 	public Map<? extends ExecutableElement, ? extends AnnotationValue> getElementValues() {
+		if (this._binding == null) {
+			return Collections.emptyMap();
+		}
 		ElementValuePair[] pairs = _binding.getElementValuePairs();
 		Map<ExecutableElement, AnnotationValue> valueMap =
 			new HashMap<ExecutableElement, AnnotationValue>(pairs.length);
 		for (ElementValuePair pair : pairs) {
 			MethodBinding method = pair.getMethodBinding();
+			if (method == null) {
+				// ideally we should be able to create a fake ExecuableElementImpl
+				continue;
+			}
 			ExecutableElement e = new ExecutableElementImpl(_env, method);
 			AnnotationValue v = new AnnotationValueImpl(_env, pair.getValue(), method.returnType);
 			valueMap.put(e, v);
@@ -86,6 +99,9 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	 * values.
 	 */
 	public Map<? extends ExecutableElement, ? extends AnnotationValue> getElementValuesWithDefaults() {
+		if (this._binding == null) {
+			return Collections.emptyMap();
+		}
 		ElementValuePair[] pairs = _binding.getElementValuePairs();
 		ReferenceBinding annoType = _binding.getAnnotationType();
 		Map<ExecutableElement, AnnotationValue> valueMap =
@@ -117,6 +133,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	}
 	
 	public int hashCode() {
+		if (this._binding == null) return this._env.hashCode();
 		return this._binding.hashCode();
 	}
 
@@ -135,6 +152,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
 	{
+		if (this._binding == null) return null;
         final String methodName = method.getName();
         if ( args == null || args.length == 0 ) {
             if( methodName.equals("hashCode") ) { //$NON-NLS-1$
@@ -186,6 +204,9 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	 */
 	@Override
 	public String toString() {
+		if (this._binding == null) {
+			return "@any()"; //$NON-NLS-1$
+		}
 		return "@" + _binding.getAnnotationType().debugName(); //$NON-NLS-1$
 	}
 	

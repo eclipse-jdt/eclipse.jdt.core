@@ -22,6 +22,9 @@ import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.DoubleConstant;
+import org.eclipse.jdt.internal.compiler.impl.FloatConstant;
+import org.eclipse.jdt.internal.compiler.impl.LongConstant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
@@ -82,7 +85,10 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	public AnnotationValueImpl(BaseProcessingEnvImpl env, Object value, TypeBinding type) {
 		_env = env;
 		int kind[] = new int[1];
-		if (type.isArrayType()) {
+		if (type == null) {
+			_value = convertToMirrorType(value, type, kind);
+			_kind = kind[0];
+		} else if (type.isArrayType()) {
 			List<AnnotationValue> convertedValues = null;
 			TypeBinding valueType = ((ArrayBinding)type).elementsType();
 			if (value instanceof Object[]) {
@@ -116,48 +122,84 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	 * @return
 	 */
 	private Object convertToMirrorType(Object value, TypeBinding type, int kind[]) {
-		if (value instanceof Constant) {
-			if (type instanceof BaseTypeBinding) {
-				kind[0] = ((BaseTypeBinding)type).id;
-			}
-			else {
-				kind[0] = ((Constant)value).typeID();
-			}
-			switch (kind[0]) {
-			case T_boolean:
-				return ((Constant)value).booleanValue();
-			case T_byte:
-				return ((Constant)value).byteValue();
-			case T_char:
-				return ((Constant)value).charValue();
-			case T_double:
-				return ((Constant)value).doubleValue();
-			case T_float:
-				return ((Constant)value).floatValue();
-			case T_int:
-				try {
-					return ((Constant)value).intValue();
-				} catch (ShouldNotImplement e) {
+		if (type == null) {
+			kind[0] = TypeIds.T_JavaLangString;
+			return "<error>"; //$NON-NLS-1$
+		} else if (type instanceof BaseTypeBinding || type.id == TypeIds.T_JavaLangString) {
+			if (value == null) {
+				if (type instanceof BaseTypeBinding
+						|| type.id == TypeIds.T_JavaLangString) {
+					// return a string with error in it to reflect a value that could not be resolved
+					kind[0] = TypeIds.T_JavaLangString;
+					return "<error>"; //$NON-NLS-1$
+				} else if (type.isAnnotationType()) {
+					kind[0] = T_AnnotationMirror;
+					return _env.getFactory().newAnnotationMirror(null);
+				}
+			} else if (value instanceof Constant) {
+				if (type instanceof BaseTypeBinding) {
+					kind[0] = ((BaseTypeBinding)type).id;
+				}
+				else if (type.id == TypeIds.T_JavaLangString) {
+					kind[0] = ((Constant)value).typeID();
+				} else {
+					// error case
+					kind[0] = TypeIds.T_JavaLangString;
 					return "<error>"; //$NON-NLS-1$
 				}
-			case T_JavaLangString:
-				return ((Constant)value).stringValue();
-			case T_long:
-				return ((Constant)value).longValue();
-			case T_short:
-				return ((Constant)value).shortValue();
+				switch (kind[0]) {
+				case T_boolean:
+					return ((Constant)value).booleanValue();
+				case T_byte:
+					return ((Constant)value).byteValue();
+				case T_char:
+					return ((Constant)value).charValue();
+				case T_double:
+					return ((Constant)value).doubleValue();
+				case T_float:
+					return ((Constant)value).floatValue();
+				case T_int:
+					try {
+						if (value instanceof LongConstant
+								|| value instanceof DoubleConstant
+								|| value instanceof FloatConstant) {
+							// error case
+							kind[0] = TypeIds.T_JavaLangString;
+							return "<error>"; //$NON-NLS-1$
+						}
+						return ((Constant)value).intValue();
+					} catch (ShouldNotImplement e) {
+						kind[0] = TypeIds.T_JavaLangString;
+						return "<error>"; //$NON-NLS-1$
+					}
+				case T_JavaLangString:
+					return ((Constant)value).stringValue();
+				case T_long:
+					return ((Constant)value).longValue();
+				case T_short:
+					return ((Constant)value).shortValue();
+				}
 			}
-		} else if (value instanceof FieldBinding) {
-			kind[0] = T_EnumConstant;
-			return (VariableElement) _env.getFactory().newElement((FieldBinding) value);
+		} else if (type.isEnum()) {
+			if (value instanceof FieldBinding) {
+				kind[0] = T_EnumConstant;
+				return (VariableElement) _env.getFactory().newElement((FieldBinding) value);
+			} else {
+				kind[0] = TypeIds.T_JavaLangString;
+				return "<error>"; //$NON-NLS-1$
+			}
+		} else if (type.isAnnotationType()) {
+			if (value instanceof AnnotationBinding) {
+				kind[0] = T_AnnotationMirror;
+				return _env.getFactory().newAnnotationMirror((AnnotationBinding) value);
+			}
 		} else if (value instanceof TypeBinding) {
 			kind[0] = T_ClassObject;
 			return _env.getFactory().newTypeMirror((TypeBinding) value);
-		} else if (value instanceof AnnotationBinding) {
-			kind[0] = T_AnnotationMirror;
-			return _env.getFactory().newAnnotationMirror((AnnotationBinding) value);
-		} 
-		throw new IllegalArgumentException("Unexpected type for annotation value: " + value); //$NON-NLS-1$
+		}
+		// error case
+		kind[0] = TypeIds.T_JavaLangString;
+		return "<error>"; //$NON-NLS-1$
 	}
 
 	@SuppressWarnings("unchecked") // Need to cast Object _value to a List<AnnotationValue>
