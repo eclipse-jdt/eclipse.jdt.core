@@ -20,8 +20,11 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
@@ -51,6 +54,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * Preference pane for most APT (Java annotation processing) settings.
@@ -367,6 +371,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 				}
 				if (fOriginalAptEnabled != AptConfig.isEnabled(null)) {
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
+					// make JDT "processingEnabled" setting track APT "enabled" setting.
+					setJDTProcessAnnotationsSetting(fAptEnabledField.isSelected());
 				}
 				if (fOriginalReconcileEnabled != AptConfig.shouldProcessDuringReconcile(null)) {
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_RECONCILEENABLED);
@@ -375,11 +381,37 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			else { // compare against current settings
 				if (!fOriginalGenSrcDir.equals(fGenSrcDirField.getText()))
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
-				if (fOriginalAptEnabled != fAptEnabledField.isSelected())
+				boolean isAptEnabled = fAptEnabledField.isSelected();
+				if (fOriginalAptEnabled != isAptEnabled) {
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
+					// make JDT "processingEnabled" setting track APT "enabled" setting.
+					setJDTProcessAnnotationsSetting(isAptEnabled);
+				}
 				if (fOriginalReconcileEnabled != fReconcileEnabledField.isSelected())
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_RECONCILEENABLED);
 			}
+		}
+	}
+	
+	/**
+	 * Set the org.eclipse.jdt.core.compiler.processAnnotations setting.  
+	 * In Eclipse 3.3, this value replaces org.eclipse.jdt.apt.aptEnabled,
+	 * but we continue to set both values in order to ensure backward
+	 * compatibility with prior versions.
+	 * the aptEnabled setting.
+	 * @param enable
+	 */
+	private void setJDTProcessAnnotationsSetting(boolean enable) {
+		IScopeContext context = (null != fJProj) ? 
+				new ProjectScope(fJProj.getProject()) : new InstanceScope();
+		IEclipsePreferences node = context.getNode(JavaCore.PLUGIN_ID);
+		final String value = enable ? AptPreferenceConstants.ENABLED : AptPreferenceConstants.DISABLED;
+		node.put(AptPreferenceConstants.APT_PROCESSANNOTATIONS, value);
+		try {
+			node.flush();
+		}
+		catch (BackingStoreException e){
+			AptPlugin.log(e, "Failed to save preference: " + AptPreferenceConstants.APT_PROCESSANNOTATIONS); //$NON-NLS-1$
 		}
 	}
 	

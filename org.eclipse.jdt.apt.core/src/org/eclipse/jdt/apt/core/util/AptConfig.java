@@ -706,16 +706,30 @@ public class AptConfig {
 	
 	/**
 	 * Is annotation processing turned on for this project?
+	 * <p>
+	 * Prior to Eclipse 3.3, this read the org.eclipse.jdt.apt.aptEnabled
+	 * setting.  In Eclipse 3.3, it reads the org.eclipse.jdt.core.compiler.processingEnabled
+	 * setting; the result is logically or-ed with value of the older setting in order to 
+	 * preserve backward compatibility. 
 	 * @param jproject an IJavaProject, or null to request workspace preferences.
 	 * @return true if annotation processing is turned on.
 	 */
 	public static boolean isEnabled(IJavaProject jproject) {
+		if ("enabled".equals(getString(jproject, AptPreferenceConstants.APT_PROCESSANNOTATIONS))) { //$NON-NLS-1$
+			return true;
+		}
+		// backward compatibility: also return true if old setting is enabled
 		return getBoolean(jproject, AptPreferenceConstants.APT_ENABLED);
 	}
 	
 	
 	/**
 	 * Turn annotation processing on or off for this project.
+	 * <p>
+	 * Prior to Eclipse 3.3, this affected the org.eclipse.jdt.apt.aptEnabled
+	 * setting.  In Eclipse 3.3, it affects the org.eclipse.jdt.core.compiler.processingEnabled
+	 * setting; the older setting is still set (and read) in order to preserve backward
+	 * compatibility. 
 	 * @param jproject an IJavaProject, or null to set workspace preferences.
 	 * @param enabled
 	 */
@@ -727,6 +741,9 @@ public class AptConfig {
 			AptPlugin.log(status);
 			throw e;
 		}
+		setString(jproject, AptPreferenceConstants.APT_PROCESSANNOTATIONS, 
+				enabled ? AptPreferenceConstants.ENABLED : AptPreferenceConstants.DISABLED);
+		// backward compatibility: also save old setting
 		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled);
 	}
 	
@@ -845,8 +862,15 @@ public class AptConfig {
 		else {
 			contexts = new IScopeContext[] { new InstanceScope(), new DefaultScope() };
 		}
+		String pluginId = null;
+		if (AptPreferenceConstants.APT_PROCESSANNOTATIONS.equals(optionName)) {
+			pluginId = JavaCore.PLUGIN_ID;
+		}
+		else {
+			pluginId = AptPlugin.PLUGIN_ID;
+		}
 		return service.getString(
-				AptPlugin.PLUGIN_ID, 
+				pluginId, 
 				optionName, 
 				AptPreferenceConstants.DEFAULT_OPTIONS_MAP.get(optionName), 
 				contexts);
@@ -884,7 +908,13 @@ public class AptConfig {
 	private static void setString(IJavaProject jproject, String optionName, String value) {
 		IScopeContext context = (null != jproject) ? 
 				new ProjectScope(jproject.getProject()) : new InstanceScope();
-		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
+		IEclipsePreferences node;
+		if (AptPreferenceConstants.APT_PROCESSANNOTATIONS.equals(optionName)) {
+			node = context.getNode(JavaCore.PLUGIN_ID);
+		}
+		else {
+			node = context.getNode(AptPlugin.PLUGIN_ID);
+		}
 		String oldValue = node.get(optionName, null);
 		node.put(optionName, value);
 		if (jproject != null && !value.equals(oldValue)) {

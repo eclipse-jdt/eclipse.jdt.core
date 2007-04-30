@@ -20,10 +20,16 @@ import java.util.Map;
  */
 public class AptPreferenceConstants {
 	public static final String APT_STRING_BASE = "org.eclipse.jdt.apt"; //$NON-NLS-1$
-	public static final String APT_ENABLED = APT_STRING_BASE + ".aptEnabled"; //$NON-NLS-1$
 	public static final String APT_GENSRCDIR = APT_STRING_BASE + ".genSrcDir"; //$NON-NLS-1$
 	public static final String APT_PROCESSOROPTIONS = APT_STRING_BASE + ".processorOptions"; //$NON-NLS-1$
 	public static final String APT_RECONCILEENABLED = APT_STRING_BASE + ".reconcileEnabled"; //$NON-NLS-1$
+	public static final String APT_PROCESSANNOTATIONS = "org.eclipse.jdt.core.compiler.processAnnotations"; //$NON-NLS-1$
+	// backward compatibility prior to Eclipse 3.3:
+	public static final String APT_ENABLED = APT_STRING_BASE + ".aptEnabled"; //$NON-NLS-1$
+
+	// used for APT_PROCESSANNOTATIONS setting:
+	public static final String ENABLED = "enabled"; //$NON-NLS-1$
+	public static final String DISABLED = "disabled"; //$NON-NLS-1$
 	
 	// Used in preference to indicate null value for processor option
 	public static final String APT_NULLVALUE = APT_STRING_BASE + ".NULLVALUE"; //$NON-NLS-1$
