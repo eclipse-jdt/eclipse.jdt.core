@@ -708,27 +708,16 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			new String[] {
 				"A.java",
 				"abstract class A implements I {}\n" +
-				"interface I extends J { Object foo(); }\n" +
+				"interface I extends J { Object foo(); }\n" + // with javac only this type gets an error
 				"interface J { String foo(); }\n",
 				"X.java",
 				"abstract class X2 extends A implements J {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in A.java (at line 1)\n" + 
-			"	abstract class A implements I {}\n" + 
-			"	               ^\n" + 
-			"The return type is incompatible with J.foo(), I.foo()\n" + 
-			"----------\n" + 
-			"2. ERROR in A.java (at line 2)\n" + 
+			"1. ERROR in A.java (at line 2)\n" + 
 			"	interface I extends J { Object foo(); }\n" + 
 			"	                        ^^^^^^\n" + 
 			"The return type is incompatible with J.foo()\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	abstract class X2 extends A implements J {}\n" + 
-			"	               ^^\n" + 
-			"The return type is incompatible with I.foo(), J.foo()\n" + 
 			"----------\n"
 		);
 	}
@@ -7589,6 +7578,189 @@ public void test133() {
 		"	Object foo(U one, U two) { return null; } // cannot override foo(U), incompatible return type error\n" + 
 		"	^^^^^^\n" + 
 		"The return type is incompatible with A<U>.foo(U, U)\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+public void test134() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"  <T extends Exception & Cloneable> T foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends I {\n" + 
+			"  A foo(Number n);\n" +  // warning: overrides <T>foo(java.lang.Number) in I; return type requires unchecked conversion
+			"}\n" + 
+			"abstract class A extends Exception implements Cloneable {}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	A foo(Number n);\n" + 
+		"	^\n" + 
+		"Type safety: The return type A for foo(Number) from the type J needs unchecked conversion to conform to T from the type I\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+public void test135() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"abstract class X implements J {}\n" + 
+			"class X2 implements J {\n" + 
+			"  public A foo(Number n) { return null; }\n" +
+			"}\n" + 
+			"abstract class Y extends X {}\n" + 
+			"interface I {\n" + 
+			"  <T extends Exception & Cloneable> T foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends I {\n" + 
+			"  A foo(Number n);\n" +  // warning: overrides <T>foo(java.lang.Number) in I; return type requires unchecked conversion
+			"}\n" + 
+			"abstract class A extends Exception implements Cloneable {}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	A foo(Number n);\n" + 
+		"	^\n" + 
+		"Type safety: The return type A for foo(Number) from the type J needs unchecked conversion to conform to T from the type I\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+public void test136() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public abstract class X extends E {}\n" + 
+			"class X2 extends E {\n" + 
+			"  @Override public A foo(Number n) { return null; }\n" +
+			"}\n" + 
+			"abstract class Y extends X {}\n" + 
+			"abstract class D {\n" + 
+			"  abstract <T extends Exception & Cloneable> T foo(Number n);\n" + 
+			"}\n" + 
+			"abstract class E extends D {\n" + 
+			"  @Override abstract A foo(Number n);\n" +  // warning: overrides <T>foo(java.lang.Number) in I; return type requires unchecked conversion
+			"}\n" + 
+			"abstract class A extends Exception implements Cloneable {}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	@Override abstract A foo(Number n);\n" + 
+		"	                   ^\n" + 
+		"Type safety: The return type A for foo(Number) from the type E needs unchecked conversion to conform to T from the type D\n" + 
+		"----------\n"
+		// javac reports warnings against X AND Y about E.foo(), as well as reporting the warning on E.foo() twice
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+public void test137() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public abstract class X implements J {}\n" + 
+			"interface I {\n" + 
+			"  <T extends Y<T> & Cloneable> T foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends I {\n" + 
+			"  XX foo(Number n);\n" + 
+			"}\n" + 
+			"class Z { }\n" +
+			"class Y <U> extends Z { }" +
+			"abstract class XX extends Y<XX> implements Cloneable {}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	XX foo(Number n);\n" + 
+		"	^^\n" + 
+		"Type safety: The return type XX for foo(Number) from the type J needs unchecked conversion to conform to T from the type I\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+public void test138() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public abstract class X implements J {}\n" + 
+			"interface I {\n" + 
+			"  <T extends Exception & Cloneable> A<T> foo(Number n);\n" +
+			"}\n" +
+			"interface J extends I {\n" +
+			"  A<XX> foo(Number n);\n" +
+			"}\n" + 
+			"class A<T> { }" +			
+			"abstract class XX extends Exception implements Cloneable {}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	A<XX> foo(Number n);\n" + 
+		"	^\n" + 
+		"Type safety: The return type A<XX> for foo(Number) from the type J needs unchecked conversion to conform to A<T> from the type I\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+public void test139() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public abstract class X implements J {\n" + 
+			"  void foo() {}\n" + 
+			"  public XX foo(Number n) { return null; }\n" + 
+			"}\n" + 
+			"interface I {\n" + 
+			"  <T extends Exception & Cloneable> T foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends I {\n" + 
+			"  XX foo(Number n);\n" + 
+			"}\n" + 
+			"abstract class XX extends Exception implements Cloneable {}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	XX foo(Number n);\n" + 
+		"	^^\n" + 
+		"Type safety: The return type XX for foo(Number) from the type J needs unchecked conversion to conform to T from the type I\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162073
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184293
+public void test140() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public abstract class X implements J, K {}\n" + 
+			"interface I {\n" + 
+			"  <T extends Exception & Cloneable> T foo(Number n);\n" + 
+			"}\n" + 
+			"interface J extends I {\n" + 
+			"  XX foo(Number n);\n" + 
+			"}\n" + 
+			"interface K {\n" + 
+			"  NullPointerException foo(Number n);\n" + 
+			"}\n" + 
+			"abstract class XX extends Exception implements Cloneable {}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public abstract class X implements J, K {}\n" + 
+		"	                      ^\n" + 
+		"The return type is incompatible with K.foo(Number), J.foo(Number)\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	XX foo(Number n);\n" + 
+		"	^^\n" + 
+		"Type safety: The return type XX for foo(Number) from the type J needs unchecked conversion to conform to T from the type I\n" + 
 		"----------\n"
 	);
 }
