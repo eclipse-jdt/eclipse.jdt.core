@@ -599,33 +599,35 @@ int[] findOverriddenInheritedMethods(MethodBinding[] methods, int length) {
 	// since superinterfaces can be added from different superclasses or other superinterfaces
 	int[] toSkip = null;
 	if (length > 1) {
-		int firstInterfaceMethod = length;
 		nextMethod : for (int i = 0; i < length; i++) {
-			if (toSkip != null && toSkip[i] == -1) continue nextMethod;
 			ReferenceBinding declaringClass = methods[i].declaringClass;
 			if (declaringClass.isInterface()) {
-				if (firstInterfaceMethod == length)
-					firstInterfaceMethod = i;
-				for (int j = firstInterfaceMethod; j < length; j++) {
-					if (i == j) continue;
+				if (toSkip != null && toSkip[i] == -1) continue nextMethod;
+				for (int j = i + 1; j < length; j++) {
+					if (toSkip != null && toSkip[j] == -1) continue;
 					ReferenceBinding declaringClass2 = methods[j].declaringClass;
 					if (declaringClass == declaringClass2) continue;
-					if (declaringClass2.implementsInterface(declaringClass, true)) {
+					if (declaringClass.implementsInterface(declaringClass2, true)) {
+						if (toSkip == null)
+							toSkip = new int[length];
+						toSkip[j] = -1;
+					} else if (declaringClass2.implementsInterface(declaringClass, true)) {
 						if (toSkip == null)
 							toSkip = new int[length];
 						toSkip[i] = -1;
 						continue nextMethod;
 					}
 				}
-			} else { 
-				for (int j = i + 1; j < firstInterfaceMethod; j++) {
+			} else {
+				// only keep methods from the closest superclass, all others from higher superclasses can be skipped
+				// NOTE: methods were added in order by walking up the superclass hierarchy
+				for (int j = i + 1; j < length; j++) {
 					ReferenceBinding declaringClass2 = methods[j].declaringClass;
+					if (declaringClass == declaringClass2) continue;
 					if (declaringClass2.isInterface()) {
-						// no methods from classes left
-						firstInterfaceMethod = j;
+						i = j - 1; // start the interface comparison with this method
 						continue nextMethod;
-					}
-					if (declaringClass != declaringClass2 && declaringClass2.isSuperclassOf(declaringClass)) {
+					} else {
 						if (toSkip == null)
 							toSkip = new int[length];
 						toSkip[j] = -1;
