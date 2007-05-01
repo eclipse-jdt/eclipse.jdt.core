@@ -846,7 +846,7 @@ public void testCloseProjects() throws JavaModelException {
 	assertPerformance();
 }
 
-public void testStartJDTPlugin() throws JavaModelException, CoreException {
+public void testInitJDTPlugin() throws JavaModelException, CoreException {
 	tagAsSummary("JDT/Core plugin initialization", true); // put in fingerprint
 
 	// Warm-up
