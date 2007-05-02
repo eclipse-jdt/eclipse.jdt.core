@@ -351,10 +351,10 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					}
 					if (fieldBinding.isStatic()) {
 						if (!valueRequired
-							// if no valueRequired, still need possible side-effects of <clinit> invocation, if field belongs to different class
-							&& ((FieldBinding)binding).original().declaringClass == this.actualReceiverType.erasure()
-							&& ((implicitConversion & TypeIds.UNBOXING) == 0)
-							&& this.genericCast == null) {
+								// if no valueRequired, still need possible side-effects of <clinit> invocation, if field belongs to different class
+								&& ((FieldBinding)binding).original().declaringClass == this.actualReceiverType.erasure()
+								&& ((implicitConversion & TypeIds.UNBOXING) == 0)
+								&& this.genericCast == null) {
 							// if no valueRequired, optimize out entire gen
 							codeStream.recordPositionsFrom(pc, this.sourceStart);
 							return;

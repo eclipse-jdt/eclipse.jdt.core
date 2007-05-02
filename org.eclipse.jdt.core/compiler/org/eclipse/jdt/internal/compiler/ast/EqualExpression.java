@@ -445,9 +445,9 @@ public class EqualExpression extends BinaryExpression {
 						codeStream.iconst_0();
 						endLabel.place();
 					}
-				}				
+				}
 				return;
-			}			
+			}
 		}
 
 		// null cases
