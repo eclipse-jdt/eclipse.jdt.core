@@ -35,11 +35,11 @@ public class AutoBoxingTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
-//	static {
+	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 65 };
-//		TESTS_RANGE = new int[] { 11, -1 };
-//	}
+//		TESTS_NUMBERS = new int[] { 78 };
+//		TESTS_RANGE = new int[] { 151, -1 };
+	}
 	public static Test suite() {
 		return buildComparableTestSuite(testClass());
 	}
@@ -4335,5 +4335,108 @@ public void test146() {
 		null,
 		settings,
 		null);		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+public void test147() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		if(new Integer(2) == 0) {}\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+public void test148() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Z test = new Z(1, 1);\n" + 
+			"		System.out.println(\"SUCCESS\" + test.foo());\n" + 
+			"	}\n" + 
+			"}",
+			"Z.java",
+			"class Z {\n" + 
+			"	public <A, B extends A> Z(A a, B b) {\n" + 
+			"	}\n" + 
+			"	public int foo() {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"}"
+		},
+		"SUCCESS0");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+public void test149() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Z test = new Z(1, 1);\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}",
+			"Z.java",
+			"class Z {\n" + 
+			"	public <A, B extends A> Z(A a, B b) {\n" + 
+			"	}\n" +
+			"}"
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+public void test150() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		if(new Integer(2) == 0) {\n" +
+			"			System.out.println(\"FAILED\");\n" + 
+			"		} else {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}\n" +
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+public void test151() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		if(new Double(2.0) == 0.0) {\n" +
+			"			System.out.println(\"FAILED\");\n" + 
+			"		} else {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}\n" +
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=184957
+public void test152() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		if(new Double(2.0) == 0.0) {}\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
 }
 }

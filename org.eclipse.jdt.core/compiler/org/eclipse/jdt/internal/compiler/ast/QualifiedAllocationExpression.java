@@ -110,7 +110,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		int pc = codeStream.position;
 		ReferenceBinding allocatedType = this.codegenBinding.declaringClass;
 		codeStream.new_(allocatedType);
-		if (valueRequired) {
+		boolean isUnboxing = (this.implicitConversion & TypeIds.UNBOXING) != 0;
+		if (valueRequired || isUnboxing) {
 			codeStream.dup();
 		}
 		// better highlight for allocation: display the type individually
@@ -152,7 +153,20 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 			codeStream.invokespecial(this.syntheticAccessor);
 		}
-		codeStream.generateImplicitConversion(this.implicitConversion);
+		if (valueRequired) {
+			codeStream.generateImplicitConversion(implicitConversion);
+		} else if (isUnboxing) {
+			// conversion only generated if unboxing
+			codeStream.generateImplicitConversion(implicitConversion);
+			switch (postConversionType(currentScope).id) {
+				case T_long :
+				case T_double :
+					codeStream.pop2();
+					break;
+				default :
+					codeStream.pop();
+			}
+		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 
 		if (this.anonymousType != null) {
