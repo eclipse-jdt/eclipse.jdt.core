@@ -126,7 +126,6 @@ public void test0500_synchronization() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712
 // reflection - access to a public method of a package visible
 // class through a public extending class
-// **
 public void _test0600_reflection() {
 	this.runConformTest(
 		new String[] {
@@ -159,24 +158,13 @@ public void _test0600_reflection() {
 			"  System.out.println(\"SUCCESS\"); //$NON-NLS-1$\n" + 
 			"  }\n" + 
 			"}\n"},
-		"SUCCESS\n" + 
-		"FAILURE: Class X can not access a member of class p.Z with modifiers \"public\"\n" + 
-		"java.lang.IllegalAccessException: Class X can not access a member of class p.Z with modifiers \"public\"\n" + 
-		"	at sun.reflect.Reflection.ensureMemberAccess(Reflection.java:65)\n" + 
-		"	at java.lang.reflect.Method.invoke(Method.java:588)\n" + 
-		"	at X.main(X.java:9)\n" + 
-		"	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" + 
-		"	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)\n" + 
-		"	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)\n" + 
-		"	at java.lang.reflect.Method.invoke(Method.java:597)\n" + 
-		"	at"
+		"SUCCESS\nSUCCESS"
 	);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712
 // reflection - access to a public field of a package visible
 // class through a public extending class
-// **
 public void _test0601_reflection() {
 	this.runConformTest(
 		new String[] {
@@ -207,19 +195,7 @@ public void _test0601_reflection() {
 			"class Z {\n" + 
 			"  public String m = \"SUCCESS\";\n" + 
 			"}\n"},
-		"SUCCESS\n" + 
-		"FAILURE: Class X can not access a member of class p.Z with modifiers \"public\"\n" + 
-		"java.lang.IllegalAccessException: Class X can not access a member of class p.Z with modifiers \"public\"\n" + 
-		"	at sun.reflect.Reflection.ensureMemberAccess(Reflection.java:65)\n" + 
-		"	at java.lang.reflect.Field.doSecurityCheck(Field.java:960)\n" + 
-		"	at java.lang.reflect.Field.getFieldAccessor(Field.java:896)\n" + 
-		"	at java.lang.reflect.Field.get(Field.java:358)\n" + 
-		"	at X.main(X.java:9)\n" + 
-		"	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" + 
-		"	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)\n" + 
-		"	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)\n" + 
-		"	at java.lang.reflect.Method.invoke(Method.java:597)\n" + 
-		"	at"
+		"SUCCESS\nSUCCESS"
 	);
 }
 
