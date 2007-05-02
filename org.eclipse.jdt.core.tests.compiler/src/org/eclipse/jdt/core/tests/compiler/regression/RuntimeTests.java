@@ -127,7 +127,7 @@ public void test0500_synchronization() {
 // reflection - access to a public method of a package visible
 // class through a public extending class
 // **
-public void test0600_reflection() {
+public void _test0600_reflection() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -177,7 +177,7 @@ public void test0600_reflection() {
 // reflection - access to a public field of a package visible
 // class through a public extending class
 // **
-public void test0601_reflection() {
+public void _test0601_reflection() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
