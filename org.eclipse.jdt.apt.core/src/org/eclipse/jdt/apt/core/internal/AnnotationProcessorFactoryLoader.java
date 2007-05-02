@@ -39,7 +39,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
@@ -155,6 +154,7 @@ public class AnnotationProcessorFactoryLoader {
 	private class ResourceListener implements IResourceChangeListener {
 
 		public void resourceChanged(IResourceChangeEvent event) {
+			Map<IJavaProject, LoadFailureHandler> failureHandlers = new HashMap<IJavaProject, LoadFailureHandler>();
 			synchronized (AnnotationProcessorFactoryLoader.this) {
 				switch (event.getType()) {
 				
@@ -180,11 +180,14 @@ public class AnnotationProcessorFactoryLoader {
 					}
 					Set<IJavaProject> affected = visitor.getAffectedProjects();
 					if (affected != null) {
-						processChanges(affected);
+						processChanges(affected, failureHandlers);
 					}
 					break;
 	
 				}
+			}
+			for (LoadFailureHandler handler : failureHandlers.values()) {
+				handler.reportFailureMarkers();
 			}
 		}
 		
@@ -372,17 +375,24 @@ public class AnnotationProcessorFactoryLoader {
      * containers in <code>jproj</code>.  The map is unmodifiable, and may be empty but 
      * will not be null.
      */
-    public synchronized Map<AnnotationProcessorFactory, FactoryPath.Attributes> 
+    public Map<AnnotationProcessorFactory, FactoryPath.Attributes> 
     	getJava5FactoriesAndAttributesForProject(IJavaProject jproj){
     	
-    	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = _project2Java5Factories.get(jproj);
-    	if( factories != null )
-    		return Collections.unmodifiableMap(factories);
+    	// We can't create problem markers inside synchronization -- see https://bugs.eclipse.org/bugs/show_bug.cgi?id=184923
+    	LoadFailureHandler failureHandler = new LoadFailureHandler(jproj);
     	
-    	// Load the project
-		FactoryPath fp = FactoryPathUtil.getFactoryPath(jproj);
-		Map<FactoryContainer, FactoryPath.Attributes> containers = fp.getEnabledContainers();
-		loadFactories(containers, jproj);
+    	synchronized (this) {
+	    	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = _project2Java5Factories.get(jproj);
+	    	if( factories != null )
+	    		return Collections.unmodifiableMap(factories);
+	    	
+	    	// Load the project
+			FactoryPath fp = FactoryPathUtil.getFactoryPath(jproj);
+			Map<FactoryContainer, FactoryPath.Attributes> containers = fp.getEnabledContainers();
+			loadFactories(containers, jproj, failureHandler);
+    	}
+    	
+    	failureHandler.reportFailureMarkers();
 		return Collections.unmodifiableMap(_project2Java5Factories.get(jproj));
     	
     }
@@ -394,17 +404,25 @@ public class AnnotationProcessorFactoryLoader {
      * containers in <code>jproj</code>.  The map is unmodifiable, and may be empty but 
      * will not be null.
      */
-    public synchronized Map<IServiceFactory, FactoryPath.Attributes> 
+    public Map<IServiceFactory, FactoryPath.Attributes> 
     	getJava6FactoriesAndAttributesForProject(IJavaProject jproj){
     	
-    	Map<IServiceFactory, FactoryPath.Attributes> factories = _project2Java6Factories.get(jproj);
-    	if( factories != null )
-    		return Collections.unmodifiableMap(factories);
+    	// We can't create problem markers inside synchronization -- see https://bugs.eclipse.org/bugs/show_bug.cgi?id=184923
+    	LoadFailureHandler failureHandler = new LoadFailureHandler(jproj);
     	
-    	// Load the project
-		FactoryPath fp = FactoryPathUtil.getFactoryPath(jproj);
-		Map<FactoryContainer, FactoryPath.Attributes> containers = fp.getEnabledContainers();
-		loadFactories(containers, jproj);
+    	synchronized (this) {
+    	
+	    	Map<IServiceFactory, FactoryPath.Attributes> factories = _project2Java6Factories.get(jproj);
+	    	if( factories != null )
+	    		return Collections.unmodifiableMap(factories);
+	    	
+	    	// Load the project
+			FactoryPath fp = FactoryPathUtil.getFactoryPath(jproj);
+			Map<FactoryContainer, FactoryPath.Attributes> containers = fp.getEnabledContainers();
+			loadFactories(containers, jproj, failureHandler);
+    	}
+    	
+    	failureHandler.reportFailureMarkers();
 		return Collections.unmodifiableMap(_project2Java6Factories.get(jproj));
     	
     }
@@ -440,7 +458,7 @@ public class AnnotationProcessorFactoryLoader {
 	/**
 	 * Wrapper around ClassLoader.loadClass().newInstance() to handle reporting of errors.
 	 */
-	private Object loadInstance( String factoryName, ClassLoader cl, IJavaProject jproj )
+	private Object loadInstance( String factoryName, ClassLoader cl, IJavaProject jproj, LoadFailureHandler failureHandler )
 	{
 		Object f = null;
 		try
@@ -451,12 +469,12 @@ public class AnnotationProcessorFactoryLoader {
 		catch( Exception e )
 		{
 			AptPlugin.log(e, "Failed to load " + factoryName); //$NON-NLS-1$
-			reportFailureToLoadFactory(factoryName, jproj);
+			failureHandler.addFailedFactory(factoryName);
 		}
 		catch ( NoClassDefFoundError ncdfe )
 		{
 			AptPlugin.log(ncdfe, "Failed to load " + factoryName); //$NON-NLS-1$
-			reportFailureToLoadFactory(factoryName, jproj);
+			failureHandler.addFailedFactory(factoryName);
 		}
 		return f;
 	}
@@ -467,7 +485,9 @@ public class AnnotationProcessorFactoryLoader {
 	 * @param containers an ordered map.
 	 */
 	private void loadFactories( 
-			Map<FactoryContainer, FactoryPath.Attributes> containers, IJavaProject project )
+			Map<FactoryContainer, FactoryPath.Attributes> containers, 
+			IJavaProject project,
+			LoadFailureHandler failureHandler)
 	{
 		Map<AnnotationProcessorFactory, FactoryPath.Attributes> java5Factories = 
 			new LinkedHashMap<AnnotationProcessorFactory, FactoryPath.Attributes>();
@@ -477,8 +497,8 @@ public class AnnotationProcessorFactoryLoader {
 		removeAptBuildProblemMarkers(project);
 		Set<FactoryContainer> badContainers = verifyFactoryPath(project);
 		if (badContainers != null) {
-			reportMissingFactoryContainers(badContainers, project);
 			for (FactoryContainer badFC : badContainers) {
+				failureHandler.addFailedFactory(badFC.getId());
 				containers.remove(badFC);
 			}
 		}
@@ -503,7 +523,7 @@ public class AnnotationProcessorFactoryLoader {
 				
 				// First the Java 5 factories in this container...
 				List<AnnotationProcessorFactory> java5FactoriesInContainer;
-				java5FactoriesInContainer = loadJava5FactoryClasses(fc, cl, project);
+				java5FactoriesInContainer = loadJava5FactoryClasses(fc, cl, project, failureHandler);
 				for ( AnnotationProcessorFactory apf : java5FactoriesInContainer ) {
 					java5Factories.put( apf, entry.getValue() );
 				}
@@ -511,7 +531,7 @@ public class AnnotationProcessorFactoryLoader {
 				if (AptPlugin.canRunJava6Processors()) {
 					// Now the Java 6 factories.  Use the same classloader for the sake of sanity.
 					List<IServiceFactory> java6FactoriesInContainer;
-					java6FactoriesInContainer = loadJava6FactoryClasses(fc, cl, project);
+					java6FactoriesInContainer = loadJava6FactoryClasses(fc, cl, project, failureHandler);
 					for ( IServiceFactory isf : java6FactoriesInContainer ) {
 						java6Factories.put( isf, entry.getValue() );
 					}
@@ -530,7 +550,7 @@ public class AnnotationProcessorFactoryLoader {
 	}
 
 	private List<AnnotationProcessorFactory> loadJava5FactoryClasses( 
-			FactoryContainer fc, ClassLoader classLoader, IJavaProject jproj )
+			FactoryContainer fc, ClassLoader classLoader, IJavaProject jproj, LoadFailureHandler failureHandler )
 			throws IOException
 	{
 		Map<String, String> factoryNames = fc.getFactoryNames();
@@ -543,7 +563,7 @@ public class AnnotationProcessorFactoryLoader {
 				if ( fc.getType() == FactoryType.PLUGIN )
 					factory = FactoryPluginManager.getJava5FactoryFromPlugin( factoryName );
 				else
-					factory = (AnnotationProcessorFactory)loadInstance( factoryName, classLoader, jproj );
+					factory = (AnnotationProcessorFactory)loadInstance( factoryName, classLoader, jproj, failureHandler );
 				
 				if ( factory != null )
 					factories.add( factory );
@@ -553,7 +573,7 @@ public class AnnotationProcessorFactoryLoader {
 	}
 	
 	private List<IServiceFactory> loadJava6FactoryClasses( 
-			FactoryContainer fc, ClassLoader classLoader, IJavaProject jproj )
+			FactoryContainer fc, ClassLoader classLoader, IJavaProject jproj, LoadFailureHandler failureHandler )
 			throws IOException
 	{
 		Map<String, String> factoryNames = fc.getFactoryNames();
@@ -573,7 +593,7 @@ public class AnnotationProcessorFactoryLoader {
 						factory = new ClassServiceFactory(clazz);
 					} catch (ClassNotFoundException e) {
 						AptPlugin.log(e, "Unable to load annotation processor " + factoryName); //$NON-NLS-1$
-						reportFailureToLoadFactory(factoryName, jproj);
+						failureHandler.addFailedFactory(factoryName);
 					} 
 				}
 				
@@ -590,7 +610,7 @@ public class AnnotationProcessorFactoryLoader {
 	 * This will cause build problem markers to be removed and regenerated,
 	 * and factory class caches to be cleared.
 	 */
-	private void processChanges(Set<IJavaProject> affected) {
+	private void processChanges(Set<IJavaProject> affected, Map<IJavaProject,LoadFailureHandler> handlers) {
 		for (IJavaProject jproj : affected) {
 			removeAptBuildProblemMarkers(jproj);
 			uncacheProject(jproj);
@@ -599,12 +619,19 @@ public class AnnotationProcessorFactoryLoader {
 		// is called.  But we have to do it then, because things might
 		// have changed in the interim; and if we don't do it here, then
 		// we'll have an empty _resources2Project cache, so we'll ignore
-		// all resource changes until the next build.  Is that a problem?   
+		// all resource changes until the next build.  Is that a problem?
 		for (IJavaProject jproj : affected) {
 			if (jproj.exists()) {
 				Set<FactoryContainer> badContainers = verifyFactoryPath(jproj);
 				if (badContainers != null) {
-					reportMissingFactoryContainers(badContainers, jproj);
+					LoadFailureHandler handler = handlers.get(jproj);
+					if (handler == null) {
+						handler = new LoadFailureHandler(jproj);
+						handlers.put(jproj, handler);
+					}
+					for (FactoryContainer container : badContainers) {
+						handler.addMissingLibrary(container.getId());
+					}
 				}
 			}
 		}
@@ -669,75 +696,6 @@ public class AnnotationProcessorFactoryLoader {
 			if (s.isEmpty()) {
 				i.remove();
 			}
-		}
-	}
-
-	/** 
-	 * Enter problem markers for factory containers that could not be found on 
-	 * disk.  This routine does not check whether markers already exist.
-	 * See class comments for information about the lifecycle of these markers.
-	 * @param jarName the name of the jar file.  This string is used only in
-	 * the text of the message, so it doesn't matter whether it's a relative
-	 * path, absolute path, or complete garbage.
-	 * @param jproj must not be null.  
-	 */
-	private static void reportMissingFactoryContainers(Set<FactoryContainer> badContainers, IJavaProject jproj) {
-		IProject project = jproj.getProject();
-		for (FactoryContainer fc : badContainers) {
-			try {
-				String message = Messages.bind(
-						Messages.AnnotationProcessorFactoryLoader_factorypath_missingLibrary, 
-						new String[] {fc.getId(), project.getName()});
-				IMarker marker = project.createMarker(AptPlugin.APT_LOADER_PROBLEM_MARKER);
-				marker.setAttributes(
-						new String[] {
-							IMarker.MESSAGE, 
-							IMarker.SEVERITY,
-							IMarker.LOCATION
-						},
-						new Object[] {
-							message,
-							IMarker.SEVERITY_ERROR,
-							Messages.AnnotationProcessorFactoryLoader_factorypath
-						}
-					);
-			} catch (CoreException e) {
-				AptPlugin.log(e, "Unable to create APT build problem marker on project " + project.getName()); //$NON-NLS-1$
-			}
-		}
-	}
-	
-	/** 
-	 * Enter a marker for a factory class that could not be loaded.
-	 * Note that if a jar is missing, we won't be able to load its factory
-	 * names, and thus we won't even try loading its factory classes; but
-	 * we can still fail to load a factory class if, for instance, the
-	 * jar is corrupted or the factory constructor throws an exception.  
-	 * See class comments for information about the lifecycle of these markers.
-	 * @param factoryName the fully qualified class name of the factory
-	 * @param jproj must not be null
-	 */
-	private static void reportFailureToLoadFactory(String factoryName, IJavaProject jproj) {
-		IProject project = jproj.getProject();
-		try {
-			String message = Messages.bind(
-					Messages.AnnotationProcessorFactoryLoader_unableToLoadFactoryClass, 
-					new String[] {factoryName, project.getName()});
-			IMarker marker = project.createMarker(AptPlugin.APT_LOADER_PROBLEM_MARKER);
-			marker.setAttributes(
-					new String[] {
-						IMarker.MESSAGE, 
-						IMarker.SEVERITY,
-						IMarker.LOCATION
-					},
-					new Object[] {
-						message,
-						IStatus.ERROR,
-						Messages.AnnotationProcessorFactoryLoader_factorypath
-					}
-				);
-		} catch (CoreException e) {
-			AptPlugin.log(e, "Unable to create build problem marker"); //$NON-NLS-1$
 		}
 	}
 	
@@ -841,7 +799,7 @@ public class AnnotationProcessorFactoryLoader {
 		List<URL> urls = new ArrayList<URL>(files.size());
 		for (int i=0;i<files.size();i++) {
 			try {
-				urls.add(files.get(i).toURL());
+				urls.add(files.get(i).toURI().toURL());
 			}
 			catch (MalformedURLException mue) {
 				// ignore
