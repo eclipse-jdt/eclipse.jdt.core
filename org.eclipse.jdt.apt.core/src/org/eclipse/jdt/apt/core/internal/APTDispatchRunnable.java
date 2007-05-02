@@ -72,7 +72,11 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			ReconcileEnv reconcileEnv = (ReconcileEnv)env;
 			
 			// Dispatch the annotation processors.  Env will keep track of problems and generated types.
-			dispatchToFileBasedProcessor(reconcileEnv);
+			try {
+				dispatchToFileBasedProcessor(reconcileEnv);
+			} catch (Throwable t) {
+				AptPlugin.log(t, "Processor failure during reconcile"); //$NON-NLS-1$
+			}
 			
 			// "Remove" any types that were generated in the past but not on this round.
 			// Because this is a reconcile, if a file exists on disk we can't really remove 
@@ -464,7 +468,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 							trace( "runAPT: invoking batch processor " + processor.getClass().getName(), //$NON-NLS-1$
 									processorEnv);
 						_currentDispatchBatchFactories.add(factory);
+						processorEnv.setCurrentProcessorFactory(factory);
 						processor.process();
+						processorEnv.setCurrentProcessorFactory(null);
 					}
 				}
 			}	
@@ -479,7 +485,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					if ( AptPlugin.DEBUG ) 
 						trace( "runAPT: invoking batch processor " + processor.getClass().getName(), //$NON-NLS-1$
 								processorEnv);
+					processorEnv.setCurrentProcessorFactory(prevRoundFactory);
 					processor.process();
+					processorEnv.setCurrentProcessorFactory(null);
 				}
 			}
 			
@@ -535,7 +543,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 							if ( AptPlugin.DEBUG ) 
 								trace( "runAPT: invoking file-based processor " + processor.getClass().getName(), //$NON-NLS-1$
 										processorEnv );
+							processorEnv.setCurrentProcessorFactory(factory);
 							processor.process();
+							processorEnv.setCurrentProcessorFactory(null);
 						}
 					}
 				}
@@ -577,7 +587,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 						trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + processorEnv.getFile(), //$NON-NLS-1$ //$NON-NLS-2$ 
 								processorEnv); 
 					}
+					processorEnv.setCurrentProcessorFactory(factory);
 					processor.process();						
+					processorEnv.setCurrentProcessorFactory(null);
 				}
 			}
 

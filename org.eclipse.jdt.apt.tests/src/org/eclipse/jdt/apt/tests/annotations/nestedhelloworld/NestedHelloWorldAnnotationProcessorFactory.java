@@ -13,8 +13,11 @@
 
 package org.eclipse.jdt.apt.tests.annotations.nestedhelloworld;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
+import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
 
 import com.sun.mirror.apt.AnnotationProcessor;
@@ -34,4 +37,8 @@ public class NestedHelloWorldAnnotationProcessorFactory extends BaseFactory
 		return new NestedHelloWorldAnnotationProcessor( env );
 	}
 	
+	public Collection<String> supportedOptions() {
+		return Collections.singletonList(AptPreferenceConstants.RTTG_ENABLED_OPTION);
+	}
+
 }

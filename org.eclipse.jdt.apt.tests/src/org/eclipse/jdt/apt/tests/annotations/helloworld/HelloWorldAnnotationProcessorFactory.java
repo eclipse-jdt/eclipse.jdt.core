@@ -12,8 +12,11 @@
 
 package org.eclipse.jdt.apt.tests.annotations.helloworld;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
+import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
 
 import com.sun.mirror.apt.AnnotationProcessor;
@@ -33,4 +36,8 @@ public class HelloWorldAnnotationProcessorFactory extends BaseFactory {
 		return new HelloWorldAnnotationProcessor( env );
 	}
 	
+	public Collection<String> supportedOptions() {
+		return Collections.singletonList(AptPreferenceConstants.RTTG_ENABLED_OPTION);
+	}
+
 }

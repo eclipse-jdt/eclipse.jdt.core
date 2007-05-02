@@ -179,29 +179,21 @@ public class AptCompilationParticipant extends CompilationParticipant
 	}
 	
 	public void reconcile(ReconcileContext context){
-		
-		try
-		{	
-			final ICompilationUnit workingCopy = context.getWorkingCopy();
-			if( workingCopy == null ) 
-				return;
-			IJavaProject javaProject = workingCopy.getJavaProject();			
-			if( javaProject == null )
-				return;
-			if (!AptConfig.shouldProcessDuringReconcile(javaProject)) {
-				AptPlugin.trace("Reconcile-time processing is disabled for project: " + javaProject.getElementName()); //$NON-NLS-1$
-				return;
-			}
-			AptProject aptProject = AptPlugin.getAptProject(javaProject);
-			
-			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = 
-				AnnotationProcessorFactoryLoader.getLoader().getJava5FactoriesAndAttributesForProject( javaProject );
-			APTDispatchRunnable.runAPTDuringReconcile(context, aptProject, factories);
+		final ICompilationUnit workingCopy = context.getWorkingCopy();
+		if( workingCopy == null ) 
+			return;
+		IJavaProject javaProject = workingCopy.getJavaProject();			
+		if( javaProject == null )
+			return;
+		if (!AptConfig.shouldProcessDuringReconcile(javaProject)) {
+			AptPlugin.trace("Reconcile-time processing is disabled for project: " + javaProject.getElementName()); //$NON-NLS-1$
+			return;
 		}
-		catch ( Throwable t )
-		{
-			AptPlugin.log(t, "Failure processing");  //$NON-NLS-1$
-		}	
+		AptProject aptProject = AptPlugin.getAptProject(javaProject);
+		
+		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = 
+			AnnotationProcessorFactoryLoader.getLoader().getJava5FactoriesAndAttributesForProject( javaProject );
+		APTDispatchRunnable.runAPTDuringReconcile(context, aptProject, factories);
 	}
 	
 	public void cleanStarting(IJavaProject javaProject){

@@ -115,4 +115,10 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 		addNewUnit(_dispatchManager.findCompilationUnit(result.getFile()));
 	}
 
+	public boolean currentProcessorSupportsRTTG()
+	{
+		// Reconcile time type generation is not currently enabled for Java 6 processors
+		return false;
+	}
+
 }

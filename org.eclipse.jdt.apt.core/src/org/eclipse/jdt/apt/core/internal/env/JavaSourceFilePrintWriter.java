@@ -50,7 +50,7 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	        Phase phase = _env.getPhase();
 			
 	        FileGenerationResult result = null;
-	        if ( phase == Phase.RECONCILE )
+	        if ( phase == Phase.RECONCILE && _env.currentProcessorSupportsRTTG() )
 	        {
 	        	ReconcileEnv reconcileEnv = (ReconcileEnv)_env;
 	        	ICompilationUnit parentCompilationUnit = reconcileEnv.getCompilationUnit();
@@ -61,7 +61,8 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	        }
 	        else if ( phase == Phase.BUILD)	{
 		        result = gfm.generateFileDuringBuild( 
-						Collections.singletonList(_env.getFile()),  _typeName, contents, null /* progress monitor */ );
+						Collections.singletonList(_env.getFile()),  _typeName, contents, 
+						_env.currentProcessorSupportsRTTG(), null /* progress monitor */ );
 	        }
 	        if (result != null) {
 	        	_env.addGeneratedSourceFile(result.getFile(), result.isModified());

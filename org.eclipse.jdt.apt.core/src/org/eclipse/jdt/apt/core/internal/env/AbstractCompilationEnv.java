@@ -11,6 +11,7 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
+import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -42,6 +44,7 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
+import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.apt.AnnotationProcessorListener;
 import com.sun.mirror.apt.Filer;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
@@ -49,7 +52,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 /** Base environment to be used during reconcile or build */ 
 public abstract class AbstractCompilationEnv 
 	extends BaseProcessorEnv 
-	implements EclipseAnnotationProcessorEnvironment{
+	implements EclipseAnnotationProcessorEnvironment {
 	
 	private Set<AnnotationProcessorListener> _listeners = null;
 	
@@ -65,6 +68,11 @@ public abstract class AbstractCompilationEnv
 	 * Currently open dom pipeline, used to request type bindings.
 	 */
 	protected ASTRequestor _requestor;
+
+	/**
+	 * The processor that is currently being executed, or null if processing is not underway.
+	 */
+	private AnnotationProcessorFactory _currentProcessorFactory = null;
 	
 	public static interface EnvCallback {
 		public void run(AbstractCompilationEnv env);
@@ -292,4 +300,27 @@ public abstract class AbstractCompilationEnv
         	throw new CoreException(status);
         }
 	}
+
+	public AnnotationProcessorFactory getCurrentProcessorFactory() {
+		return _currentProcessorFactory;
+	}
+	
+	public void setCurrentProcessorFactory(AnnotationProcessorFactory processor)
+	{
+		_currentProcessorFactory = processor;	
+	}
+
+	public boolean currentProcessorSupportsRTTG()
+	{
+		AnnotationProcessorFactory factory = getCurrentProcessorFactory();
+		if (null == factory) {
+			return false;
+		}
+		Collection<String> options = factory.supportedOptions();
+		if (null == options) {
+			return false;
+		}
+		return options.contains(AptPreferenceConstants.RTTG_ENABLED_OPTION);
+	}
+
 }

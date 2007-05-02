@@ -66,7 +66,8 @@ public class IdeJavaSourceFileWriter extends StringWriter {
 				// TODO: actually we need to be more sophisticated about dependencies, because they can be specified.  
 				// Remember empty-parent situation.
 				result = gfm.generateFileDuringBuild( 
-						_parentFiles,  _name.toString(), this.toString(), null /* progress monitor */ );
+						_parentFiles,  _name.toString(), this.toString(), 
+						_env.currentProcessorSupportsRTTG(), null /* progress monitor */ );
 			}
 			if (result != null) {
 				_env.addNewUnit(result);

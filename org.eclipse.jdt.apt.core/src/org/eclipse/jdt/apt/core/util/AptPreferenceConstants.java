@@ -36,6 +36,12 @@ public class AptPreferenceConstants {
 
 	public static final String DEFAULT_GENERATED_SOURCE_FOLDER_NAME = ".apt_generated"; //$NON-NLS-1$
 	
+	/**
+	 * Processors should report this option in {@link com.sun.mirror.apt.AnnotationProcessorFactory#supportedOptions()}
+	 * in order to enable type generation while editing, that is, during reconcile.
+	 */
+	public static final String RTTG_ENABLED_OPTION = "enableTypeGenerationInEditor"; //$NON-NLS-1$
+
 	public static Map<String,String> DEFAULT_OPTIONS_MAP;
 	
 	static {
