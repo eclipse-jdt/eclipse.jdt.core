@@ -4941,7 +4941,7 @@ public void test0532_try_finally() {
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184546
-public void test0533_try_finally_field() {
+public void _test0533_try_finally_field() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
