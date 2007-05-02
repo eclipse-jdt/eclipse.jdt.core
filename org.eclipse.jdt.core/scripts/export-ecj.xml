@@ -111,6 +111,10 @@
 				<include name="about.html"/>
 			</fileset>
 			<fileset dir="${ecj-temp-src-folder}"/>
+			<fileset dir="scripts">
+				<include name="META-INF/**" />
+				<include name="about.html" />
+			</fileset>
 		</zip>
 		
 		<delete dir="${ecj-temp-src-folder}" failonerror="false"/>
