@@ -82,10 +82,28 @@ public class BatchMessagerImpl implements Messager {
 	@Override
 	public void printMessage(Kind kind, CharSequence msg, Element e,
 			AnnotationMirror a, AnnotationValue v) {
+		//TODO: we are currently ignoring 'a' and 'v'
+		if (kind == Kind.ERROR) {
+			_processingEnv.setErrorRaised(true);
+		}
+		CategorizedProblem problem = createProblem(kind, msg, e);
+		if (problem != null) {
+			this._compiler.addExtraProblems(problem);
+		}
+	}
+
+	/**
+	 * @param kind
+	 * @param msg
+	 * @param e
+	 * @param referenceContext
+	 * @return
+	 */
+	public static CategorizedProblem createProblem(Kind kind, CharSequence msg, Element e) {
+		CategorizedProblem problem = null;
 		ReferenceContext referenceContext = null;
 		int startPosition = 0;
 		int endPosition = 0;
-		CategorizedProblem problem = null;
 		if (e != null) {
 			switch(e.getKind()) {
 				case ANNOTATION_TYPE :
@@ -154,7 +172,6 @@ public class BatchMessagerImpl implements Messager {
 		StringBuilder builder = new StringBuilder(msg);
 		switch(kind) {
 			case ERROR :
-				_processingEnv.setErrorRaised(true);
 				if (referenceContext != null) {
 					CompilationResult result = referenceContext.compilationResult();
 					int[] lineEnds = null;
@@ -224,8 +241,6 @@ public class BatchMessagerImpl implements Messager {
 				}
 				break;
 		}
-		if (problem != null) {
-			this._compiler.addExtraProblems(problem);
-		}
+		return problem;
 	}
 }

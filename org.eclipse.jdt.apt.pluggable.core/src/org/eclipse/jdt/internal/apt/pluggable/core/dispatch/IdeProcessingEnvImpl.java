@@ -51,7 +51,7 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 		_compiler = compiler;
 		_aptProject = AptPlugin.getAptProject(jproject);
 		_filer = new IdeFilerImpl(_dispatchManager, this);
-		//TODO: _messager
+		_messager = new IdeMessagerImpl(_dispatchManager, this);
 	}
 	
 	/* (non-Javadoc)

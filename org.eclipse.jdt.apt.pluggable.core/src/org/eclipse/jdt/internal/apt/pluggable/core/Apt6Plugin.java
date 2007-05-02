@@ -104,12 +104,13 @@ public class Apt6Plugin extends Plugin {
 	public static Status createInfoStatus(Throwable e, String message) {
 		return new Status(IStatus.INFO, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
-		public static void trace(final String msg){
+	
+	public static void trace(final String msg) {
 		if (DEBUG) {
 			StringBuffer sb = new StringBuffer();
 			sb.append('[');
 			// SimpleDateFormat is not thread-safe, according to javadoc
-			synchronized(TRACE_DATE_FORMAT) {
+			synchronized (TRACE_DATE_FORMAT) {
 				sb.append(TRACE_DATE_FORMAT.format(new Date()));
 			}
 			sb.append('-');
@@ -118,9 +119,8 @@ public class Apt6Plugin extends Plugin {
 			int dot = threadName.lastIndexOf('.');
 			if (dot < 0) {
 				sb.append(threadName);
-			}
-			else {
-				sb.append(threadName.substring(dot+1));
+			} else {
+				sb.append(threadName.substring(dot + 1));
 			}
 			sb.append(']');
 			sb.append(msg);
