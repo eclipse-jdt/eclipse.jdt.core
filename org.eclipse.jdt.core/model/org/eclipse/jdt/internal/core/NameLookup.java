@@ -125,12 +125,6 @@ public class NameLookup implements SuffixConstants {
 	 */
 	protected HashtableOfArrayToObject packageFragments;
 	
-	/*
-	 * A set of names (String[]) that are known to be package names.
-	 * Value is not null for known package.
-	 */
-	protected HashtableOfArrayToObject isPackageCache;
-
 	/**
 	 * Reverse map from root path to corresponding resolved CP entry
 	 * (so as to be able to figure inclusion/exclusion rules)
@@ -149,7 +143,6 @@ public class NameLookup implements SuffixConstants {
 	public NameLookup(
 			IPackageFragmentRoot[] packageFragmentRoots, 
 			HashtableOfArrayToObject packageFragments, 
-			HashtableOfArrayToObject isPackage, 
 			ICompilationUnit[] workingCopies, 
 			Map rootToResolvedEntries) {
 		long start = -1;
@@ -163,12 +156,10 @@ public class NameLookup implements SuffixConstants {
 		this.packageFragmentRoots = packageFragmentRoots;
 		if (workingCopies == null) {
 			this.packageFragments = packageFragments;
-			this.isPackageCache = isPackage;
 		} else {
 			// clone tables as we're adding packages from working copies
 			try {
 				this.packageFragments = (HashtableOfArrayToObject) packageFragments.clone();
-				this.isPackageCache = (HashtableOfArrayToObject) isPackage.clone();
 			} catch (CloneNotSupportedException e1) {
 				// ignore (implementation of HashtableOfArrayToObject supports cloning)
 			}
@@ -213,11 +204,11 @@ public class NameLookup implements SuffixConstants {
 				IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
 				String[] pkgName = pkg.names;
 				Object existing = this.packageFragments.get(pkgName);
-				if (existing == null) {
+				if (existing == null || existing == JavaProjectElementInfo.NO_ROOTS) {
 					this.packageFragments.put(pkgName, root);
-					// cache whether each package and its including packages (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161)
-					// are actual packages
-					JavaProjectElementInfo.addNames(pkgName, this.isPackageCache);
+					// ensure super packages (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=119161)
+					// are also in the map
+					JavaProjectElementInfo.addSuperPackageNames(pkgName, this.packageFragments);
 				} else {
 					if (existing instanceof PackageFragmentRoot) {
 						if (!existing.equals(root))
@@ -778,7 +769,7 @@ public class NameLookup implements SuffixConstants {
 	}
 	
 	public boolean isPackage(String[] pkgName) {
-		return this.isPackageCache.get(pkgName) != null;
+		return this.packageFragments.get(pkgName) != null;
 	}
 
 	/**

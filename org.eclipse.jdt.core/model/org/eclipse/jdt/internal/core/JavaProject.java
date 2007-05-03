@@ -63,6 +63,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -1944,6 +1945,10 @@ public class JavaProject
 	 */
 	public IProject getProject() {
 		return this.project;
+	}
+	
+	public ProjectCache getProjectCache() throws JavaModelException {
+		return ((JavaProjectElementInfo) getElementInfo()).getProjectCache(this);
 	}
 
 	/**
