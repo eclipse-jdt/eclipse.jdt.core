@@ -107,7 +107,7 @@ public String containerRelativePath(String documentPath) {
 public File getIndexFile() {
 	if (this.diskIndex == null) return null;
 
-	return this.diskIndex.getIndexFile();
+	return this.diskIndex.indexFile;
 }
 public boolean hasChanged() {
 	return this.memoryIndex.hasChanged();

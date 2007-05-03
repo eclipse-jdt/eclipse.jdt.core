@@ -2851,9 +2851,13 @@ public final class JavaCore extends Plugin {
 	public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
 		try {
 			if (monitor != null) monitor.beginTask(Messages.javamodel_initialization, 100);
-			// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
+			
+			 // initialize all containers and variables
+			JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
+			
+			// dummy query for waiting until the indexes are ready
 			SearchEngine engine = new SearchEngine();
-			IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
+			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 			try {
 				engine.searchAllTypeNames(
 					null,
