@@ -37,6 +37,10 @@ public class IdeMessagerImpl implements Messager {
 			IdeProcessingEnvImpl env) {
 		_manager = manager;
 		_env = env;
+		// This check is just here so the compiler doesn't complain about unread fields:
+		if (null == _manager || null == _env) {
+			throw new NullPointerException();
+		}
 	}
 
 	/* (non-Javadoc)
