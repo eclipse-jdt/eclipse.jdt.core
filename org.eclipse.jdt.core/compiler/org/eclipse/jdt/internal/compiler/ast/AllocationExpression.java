@@ -84,7 +84,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	ReferenceBinding allocatedType = this.codegenBinding.declaringClass;
 
 	codeStream.new_(allocatedType);
-	if (valueRequired) {
+	boolean isUnboxing = (this.implicitConversion & TypeIds.UNBOXING) != 0;
+	if (valueRequired || isUnboxing) {
 		codeStream.dup();
 	}
 	// better highlight for allocation: display the type individually
@@ -126,7 +127,20 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		}
 		codeStream.invokespecial(syntheticAccessor);
 	}
-	codeStream.generateImplicitConversion(this.implicitConversion);
+	if (valueRequired) {
+		codeStream.generateImplicitConversion(this.implicitConversion);
+	} else if (isUnboxing) {
+		// conversion only generated if unboxing
+		codeStream.generateImplicitConversion(this.implicitConversion);
+		switch (postConversionType(currentScope).id) {
+			case T_long :
+			case T_double :
+				codeStream.pop2();
+				break;
+			default :
+				codeStream.pop();
+		}
+	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 
