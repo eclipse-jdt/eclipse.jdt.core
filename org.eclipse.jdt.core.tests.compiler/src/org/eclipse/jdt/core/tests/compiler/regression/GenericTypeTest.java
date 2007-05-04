@@ -37786,5 +37786,40 @@ public void test1134() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
+public void test1135() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Foo <T>{\n" + 
+			"    private T myT;\n" + 
+			"\n" + 
+			"    public T getT() {\n" + 
+			"        return myT;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public void setT(T aT) {\n" + 
+			"        myT = aT;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends Foo<X.Baz> {\n" + 
+			"	X.Baz baz;\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        X myBar = new X();\n" + 
+			"        myBar.setT(new Baz());\n" + 
+			"        System.out.println(myBar.getT().toString());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static class Baz {\n" + 
+			"        @Override\n" + 
+			"        public String toString() {\n" + 
+			"            return \"Baz\";\n" + 
+			"        }\n" + 
+			"    }    \n" + 
+			"}\n", // =================
+		},
+		"Baz");
+}
 
 }
