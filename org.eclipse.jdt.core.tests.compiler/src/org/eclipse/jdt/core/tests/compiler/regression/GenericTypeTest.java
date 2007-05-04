@@ -37821,5 +37821,46 @@ public void test1135() {
 		},
 		"Baz");
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=154029
+public void test1136() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<Object>  l1 = Arrays.asList(1, \"X\");\n" + 
+			"		\n" + 
+			"		B<String> b = null;\n" + 
+			"		C<String>c = null;\n" + 
+			"		List<Object>  l2 = Arrays.asList(b, c);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A<T> {}\n" + 
+			"interface I {}\n" + 
+			"class B<T> extends A<T> implements I {}\n" + 
+			"class C<T> extends A<T> implements I {}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	List<Object>  l1 = Arrays.asList(1, \"X\");\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of Object&Comparable<?>&Serializable is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	List<Object>  l1 = Arrays.asList(1, \"X\");\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Object&Comparable<?>&Serializable> to List<Object>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	List<Object>  l2 = Arrays.asList(b, c);\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety : A generic array of A<String>&I is created for a varargs parameter\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	List<Object>  l2 = Arrays.asList(b, c);\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<A<String>&I> to List<Object>\n" + 
+		"----------\n");
+}
 }
