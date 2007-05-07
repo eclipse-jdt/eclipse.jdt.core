@@ -920,6 +920,7 @@ public class CompilerOptions {
 			if (ENABLED.equals(optionValue)) {
 				this.processAnnotations = true;
 				this.storeAnnotations = true; // annotation processing requires annotation to be stored
+				this.docCommentSupport = true;  // annotation processing requires javadoc processing
 			} else if (DISABLED.equals(optionValue)) {
 				this.processAnnotations = false;
 				this.storeAnnotations = false;

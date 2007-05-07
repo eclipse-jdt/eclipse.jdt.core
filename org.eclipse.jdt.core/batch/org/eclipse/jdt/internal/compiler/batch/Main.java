@@ -2155,6 +2155,12 @@ public void configure(String[] argv) throws InvalidInputException {
 		printUsage();
 		return;
 	}
+
+	// enable annotation processing by default in batch mode: 185768
+	this.options.put(
+		CompilerOptions.OPTION_Process_Annotations,
+		CompilerOptions.ENABLED);
+
 	final int INSIDE_CLASSPATH_start = 1;
 	final int INSIDE_DESTINATION_PATH = 3;
 	final int INSIDE_TARGET = 4;
@@ -2685,16 +2691,10 @@ public void configure(String[] argv) throws InvalidInputException {
 				}
 				if (currentArg.equals("-processorpath")) { //$NON-NLS-1$
 					mode = INSIDE_PROCESSOR_PATH_start;
-					this.options.put(
-						CompilerOptions.OPTION_Process_Annotations,
-						CompilerOptions.ENABLED);
 					continue;
 				}
 				if (currentArg.equals("-processor")) { //$NON-NLS-1$
 					mode = INSIDE_PROCESSOR_start;
-					this.options.put(
-						CompilerOptions.OPTION_Process_Annotations,
-						CompilerOptions.ENABLED);
 					continue;
 				}
 				if (currentArg.equals("-proc:only")) { //$NON-NLS-1$

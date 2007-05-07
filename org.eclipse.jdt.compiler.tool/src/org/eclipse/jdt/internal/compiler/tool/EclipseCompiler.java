@@ -304,16 +304,6 @@ public class EclipseCompiler extends Main implements JavaCompiler {
 		this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 		this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 
-		// TODO FIXME (olivier) REMOVE BEFORE 3.3 once the APT1.6 IS WORKING FINE
-		for (String option : options ) {
-			if ("-processorpath".equals(option) //$NON-NLS-1$
-					|| ("-processor".equals(option))) { //$NON-NLS-1$
-				this.options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
-				this.options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
-				break;
-			}
-		}
-
 		ArrayList<String> allOptions = new ArrayList<String>();
 		if (options != null) {
 			for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
