@@ -460,29 +460,42 @@ public class CompilerToolTests extends TestCase {
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
+		options.add("-1.5");
  		CompilationTask task = Compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
  		// check the classpath location
  		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
 		Boolean result = task.call();
 		printWriter.flush();
 		printWriter.close();
- 		if (!result.booleanValue()) {
- 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
- 		}
+		if (!result.booleanValue()) {
+			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+			assertTrue("Compilation failed ", false);
+		}
+		File outputFile = new File(tmpFolder, "p/X.class");
+		assertTrue(outputFile.exists());
+		ClassFileReader reader = null;
+		try {
+			reader = ClassFileReader.read(outputFile);
+		} catch (ClassFormatException e) {
+			assertTrue("Should not happen", false);
+		} catch (IOException e) {
+			assertTrue("Should not happen", false);
+		}
+		assertNotNull("No reader", reader);
+		assertEquals("Not a 1.5 .class file", ClassFileConstants.JDK1_5, reader.getVersion());
 
 		stringWriter = new StringWriter();
 		printWriter = new PrintWriter(stringWriter);
 		task = Compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
- 		// check the classpath location
- 		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+		// check the classpath location
+		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
 		result = task.call();
 		printWriter.flush();
 		printWriter.close();
- 		if (!result.booleanValue()) {
- 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
- 		}
+		if (!result.booleanValue()) {
+		System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+			assertTrue("Compilation failed ", false);
+		}
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 	}
