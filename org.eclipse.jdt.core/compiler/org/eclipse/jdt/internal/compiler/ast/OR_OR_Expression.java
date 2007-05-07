@@ -73,7 +73,6 @@ public class OR_OR_Expression extends BinaryExpression {
 	 * Code generation for a binary operation
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-
 		int pc = codeStream.position;
 		if (constant != Constant.NotAConstant) {
 			// inlined value
@@ -176,7 +175,6 @@ public class OR_OR_Expression extends BinaryExpression {
 	 * Boolean operator code generation Optimized operations are: ||
 	 */
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
-
 		if (constant != Constant.NotAConstant) {
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			return;
@@ -209,17 +207,16 @@ public class OR_OR_Expression extends BinaryExpression {
 					// implicit falling through the FALSE case
 					left.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, !leftIsConst); 
 					// need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1
-					if (leftIsConst && leftIsTrue) {
-						codeStream.goto_(trueLabel);
+					if (leftIsTrue) {
+						if (valueRequired) codeStream.goto_(trueLabel);
 						codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 						break generateOperands; // no need to generate right operand
 					}
 					if (rightInitStateIndex != -1) {
-						codeStream
-								.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
+						codeStream.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
 					}
 					right.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, valueRequired && !rightIsConst);
-					if (valueRequired && rightIsConst && rightIsTrue) {
+					if (valueRequired && rightIsTrue) {
 						codeStream.goto_(trueLabel);
 						codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 					}
@@ -230,7 +227,7 @@ public class OR_OR_Expression extends BinaryExpression {
 					BranchLabel internalTrueLabel = new BranchLabel(codeStream);
 					left.generateOptimizedBoolean(currentScope, codeStream, internalTrueLabel, null, !leftIsConst); 
 					// need value, e.g. if (a == 1 || ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a==1
-					if (leftIsConst && leftIsTrue) {
+					if (leftIsTrue) {
 						internalTrueLabel.place();
 						break generateOperands; // no need to generate right operand
 					}
@@ -239,11 +236,9 @@ public class OR_OR_Expression extends BinaryExpression {
 								.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
 					}
 					right.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, valueRequired && !rightIsConst);
-					if (valueRequired && rightIsConst) {
-						if (!rightIsTrue) {
-							codeStream.goto_(falseLabel);
-							codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
-						}
+					if (valueRequired && rightIsConst && !rightIsTrue) {
+						codeStream.goto_(falseLabel);
+						codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 					}
 					internalTrueLabel.place();
 				} else {

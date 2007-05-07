@@ -1933,7 +1933,655 @@ public void test038() {
 		assertTrue(false);
 	}		
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162965
+public void test039() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                boolean a = true, b;\n" + 
+			"                if (a ? false : (b = true))\n" + 
+			"                        a = b;\n" + 
+			"                System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  iconst_1\n" + 
+		"     1  istore_1 [a]\n" + 
+		"     2  iload_1 [a]\n" + 
+		"     3  ifeq 9\n" + 
+		"     6  goto 17\n" + 
+		"     9  iconst_1\n" + 
+		"    10  dup\n" + 
+		"    11  istore_2 [b]\n" + 
+		"    12  ifeq 17\n" + 
+		"    15  iload_2 [b]\n" + 
+		"    16  istore_1 [a]\n" + 
+		"    17  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    20  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+		"    25  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 2, line: 4]\n" + 
+		"        [pc: 15, line: 5]\n" + 
+		"        [pc: 17, line: 6]\n" + 
+		"        [pc: 25, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 26] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 2, pc: 26] local: a index: 1 type: boolean\n" + 
+		"        [pc: 12, pc: 17] local: b index: 2 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162965 - variation
+public void test040() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        public static void main(String[] args) {\n" + 
+			"                boolean a = true, b = false;\n" + 
+			"                if (!(a ? true : (b = true)))\n" + 
+			"                        a = b;\n" + 
+			"                System.out.println(\"SUCCESS\");\n" + 
+			"        }\n" + 
+			"}\n", // =================
+		},
+		"SUCCESS");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  iconst_1\n" + 
+		"     1  istore_1 [a]\n" + 
+		"     2  iconst_0\n" + 
+		"     3  istore_2 [b]\n" + 
+		"     4  iload_1 [a]\n" + 
+		"     5  ifeq 11\n" + 
+		"     8  goto 19\n" + 
+		"    11  iconst_1\n" + 
+		"    12  dup\n" + 
+		"    13  istore_2 [b]\n" + 
+		"    14  ifne 19\n" + 
+		"    17  iload_2 [b]\n" + 
+		"    18  istore_1 [a]\n" + 
+		"    19  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    22  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    24  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+		"    27  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 4, line: 4]\n" + 
+		"        [pc: 17, line: 5]\n" + 
+		"        [pc: 19, line: 6]\n" + 
+		"        [pc: 27, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 28] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 2, pc: 28] local: a index: 1 type: boolean\n" + 
+		"        [pc: 4, pc: 28] local: b index: 2 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162965 - variation
+public void test041() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		boolean a = true, b = false;\n" + 
+			"		if (a ? true : (b = false))\n" + 
+			"			a = b;\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" +
+			"}\n", // =================
+		},
+		"SUCCESS");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  iconst_1\n" + 
+		"     1  istore_1 [a]\n" + 
+		"     2  iconst_0\n" + 
+		"     3  istore_2 [b]\n" + 
+		"     4  iload_1 [a]\n" + 
+		"     5  ifeq 11\n" + 
+		"     8  goto 17\n" + 
+		"    11  iconst_0\n" + 
+		"    12  dup\n" + 
+		"    13  istore_2 [b]\n" + 
+		"    14  ifeq 19\n" + 
+		"    17  iload_2 [b]\n" + 
+		"    18  istore_1 [a]\n" + 
+		"    19  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    22  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    24  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+		"    27  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 4, line: 4]\n" + 
+		"        [pc: 17, line: 5]\n" + 
+		"        [pc: 19, line: 6]\n" + 
+		"        [pc: 27, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 28] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 2, pc: 28] local: a index: 1 type: boolean\n" + 
+		"        [pc: 4, pc: 28] local: b index: 2 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=162965 - variation
+public void test042() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		boolean a = true, b;\n" + 
+			"		if (a ? (b = true) : false)\n" + 
+			"		a = b;\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"    }        \n" + 
+			"}\n", // =================
+		},
+		"SUCCESS");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  iconst_1\n" + 
+		"     1  istore_1 [a]\n" + 
+		"     2  iload_1 [a]\n" + 
+		"     3  ifeq 14\n" + 
+		"     6  iconst_1\n" + 
+		"     7  dup\n" + 
+		"     8  istore_2 [b]\n" + 
+		"     9  ifeq 14\n" + 
+		"    12  iload_2 [b]\n" + 
+		"    13  istore_1 [a]\n" + 
+		"    14  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    17  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    19  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+		"    22  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 2, line: 4]\n" + 
+		"        [pc: 12, line: 5]\n" + 
+		"        [pc: 14, line: 6]\n" + 
+		"        [pc: 22, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 23] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 2, pc: 23] local: a index: 1 type: boolean\n" + 
+		"        [pc: 9, pc: 14] local: b index: 2 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567
+public void test043() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	boolean b;\n" + 
+			"	X(boolean b1) {\n" + 
+			"		if (b1 || (false && b1)) {\n" + 
+			"			System.out.println(b);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #8 (Z)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  X(boolean b1);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [10]\n" + 
+		"     4  iload_1 [b1]\n" + 
+		"     5  ifne 11\n" + 
+		"     8  goto 21\n" + 
+		"    11  getstatic java.lang.System.out : java.io.PrintStream [13]\n" + 
+		"    14  aload_0 [this]\n" + 
+		"    15  getfield X.b : boolean [19]\n" + 
+		"    18  invokevirtual java.io.PrintStream.println(boolean) : void [21]\n" + 
+		"    21  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 4, line: 4]\n" + 
+		"        [pc: 11, line: 5]\n" + 
+		"        [pc: 21, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 22] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 22] local: b1 index: 1 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+public void test044() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	X(boolean b1) {\n" + 
+			"		if (b1 || !(true || b1)) {\n" + 
+			"			System.out.println(b1);\n" + 
+			"		}\n" + 
+			"	} 	\n" + 
+			"}\n", // =================
+		},
+		"");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #6 (Z)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  X(boolean b1);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [8]\n" + 
+		"     4  iload_1 [b1]\n" + 
+		"     5  ifne 11\n" + 
+		"     8  goto 18\n" + 
+		"    11  getstatic java.lang.System.out : java.io.PrintStream [11]\n" + 
+		"    14  iload_1 [b1]\n" + 
+		"    15  invokevirtual java.io.PrintStream.println(boolean) : void [17]\n" + 
+		"    18  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 2]\n" + 
+		"        [pc: 4, line: 3]\n" + 
+		"        [pc: 11, line: 4]\n" + 
+		"        [pc: 18, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 19] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 19] local: b1 index: 1 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+public void test045() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(boolean b1, boolean b2){\n" + 
+			"		if (b1 || ((b1 && b2) && false)) {\n" + 
+			"			System.out.println(b1);	\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #15 (ZZ)V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  void foo(boolean b1, boolean b2);\n" + 
+		"     0  iload_1 [b1]\n" + 
+		"     1  ifne 15\n" + 
+		"     4  iload_1 [b1]\n" + 
+		"     5  ifeq 22\n" + 
+		"     8  iload_2 [b2]\n" + 
+		"     9  ifeq 22\n" + 
+		"    12  goto 22\n" + 
+		"    15  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    18  iload_1 [b1]\n" + 
+		"    19  invokevirtual java.io.PrintStream.println(boolean) : void [22]\n" + 
+		"    22  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 15, line: 4]\n" + 
+		"        [pc: 22, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 23] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 23] local: b1 index: 1 type: boolean\n" + 
+		"        [pc: 0, pc: 23] local: b2 index: 2 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+public void test046() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo2(boolean b1, boolean b2){\n" + 
+			"		if (b1 || ((b1 || b2) && false)) {\n" + 
+			"			System.out.println(b1);	\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #15 (ZZ)V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  void foo2(boolean b1, boolean b2);\n" + 
+		"     0  iload_1 [b1]\n" + 
+		"     1  ifne 15\n" + 
+		"     4  iload_1 [b1]\n" + 
+		"     5  ifne 22\n" + 
+		"     8  iload_2 [b2]\n" + 
+		"     9  ifeq 22\n" + 
+		"    12  goto 22\n" + 
+		"    15  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    18  iload_1 [b1]\n" + 
+		"    19  invokevirtual java.io.PrintStream.println(boolean) : void [22]\n" + 
+		"    22  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 15, line: 4]\n" + 
+		"        [pc: 22, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 23] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 23] local: b1 index: 1 type: boolean\n" + 
+		"        [pc: 0, pc: 23] local: b2 index: 2 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+public void test047() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	X(boolean b1) {\n" + 
+			"		int i;\n" + 
+			"		if (((b1 && false) && true) || true) {\n" + 
+			"			System.out.println(b1);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #6 (Z)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  X(boolean b1);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [8]\n" + 
+		"     4  iload_1 [b1]\n" + 
+		"     5  ifeq 8\n" + 
+		"     8  getstatic java.lang.System.out : java.io.PrintStream [11]\n" + 
+		"    11  iload_1 [b1]\n" + 
+		"    12  invokevirtual java.io.PrintStream.println(boolean) : void [17]\n" + 
+		"    15  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 2]\n" + 
+		"        [pc: 4, line: 4]\n" + 
+		"        [pc: 8, line: 5]\n" + 
+		"        [pc: 15, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 16] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 16] local: b1 index: 1 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+public void test048() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	X(boolean b1) {\n" + 
+			"		int i;\n" + 
+			"		if (((false && b1) && false) || true) {\n" + 
+			"			System.out.println(b1);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #6 (Z)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  X(boolean b1);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [8]\n" + 
+		"     4  getstatic java.lang.System.out : java.io.PrintStream [11]\n" + 
+		"     7  iload_1 [b1]\n" + 
+		"     8  invokevirtual java.io.PrintStream.println(boolean) : void [17]\n" + 
+		"    11  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 2]\n" + 
+		"        [pc: 4, line: 5]\n" + 
+		"        [pc: 11, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 12] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 12] local: b1 index: 1 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185567 - variation
+public void test049() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	X(boolean b1) {\n" + 
+			"		int i;\n" + 
+			"		if (((b1 && b1) && false) || true) {\n" + 
+			"			System.out.println(b1);\n" + 
+			"		}\n" + 
+			"	}\n" +
+			"}\n", // =================
+		},
+		"");
+	// 	ensure optimized boolean codegen sequence
+	String expectedOutput =
+		"  // Method descriptor #6 (Z)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  X(boolean b1);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [8]\n" + 
+		"     4  iload_1 [b1]\n" + 
+		"     5  ifeq 12\n" + 
+		"     8  iload_1 [b1]\n" + 
+		"     9  ifeq 12\n" + 
+		"    12  getstatic java.lang.System.out : java.io.PrintStream [11]\n" + 
+		"    15  iload_1 [b1]\n" + 
+		"    16  invokevirtual java.io.PrintStream.println(boolean) : void [17]\n" + 
+		"    19  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 2]\n" + 
+		"        [pc: 4, line: 4]\n" + 
+		"        [pc: 12, line: 5]\n" + 
+		"        [pc: 19, line: 7]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 20] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 20] local: b1 index: 1 type: boolean\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
 public static Class testClass() {
 	return BooleanTest.class;
 }

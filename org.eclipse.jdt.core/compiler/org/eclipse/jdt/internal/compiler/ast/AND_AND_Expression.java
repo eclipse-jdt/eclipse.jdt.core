@@ -172,8 +172,7 @@ public class AND_AND_Expression extends BinaryExpression {
 	/**
 	 * Boolean operator code generation Optimized operations are: &&
 	 */
-	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream,
-			BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
+	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
 
 		if (constant != Constant.NotAConstant) {
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel,
@@ -206,8 +205,7 @@ public class AND_AND_Expression extends BinaryExpression {
 				if (trueLabel != null) {
 					// implicit falling through the FALSE case
 					BranchLabel internalFalseLabel = new BranchLabel(codeStream);
-					left.generateOptimizedBoolean(currentScope, codeStream, null,
-							internalFalseLabel, !leftIsConst); 
+					left.generateOptimizedBoolean(currentScope, codeStream, null, internalFalseLabel, !leftIsConst); 
 					// need value, e.g. if (a == 1 && ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a!=1
 					if (leftIsConst && !leftIsTrue) {
 						internalFalseLabel.place();
@@ -231,7 +229,7 @@ public class AND_AND_Expression extends BinaryExpression {
 					left.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, !leftIsConst); 
 					// need value, e.g. if (a == 1 && ((b = 2) > 0)) {} -> shouldn't initialize 'b' if a!=1
 					if (leftIsConst && !leftIsTrue) {
-						codeStream.goto_(falseLabel);
+						if (valueRequired) codeStream.goto_(falseLabel);
 						codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
 						break generateOperands; // no need to generate right operand
 					}
@@ -239,8 +237,7 @@ public class AND_AND_Expression extends BinaryExpression {
 						codeStream
 								.addDefinitelyAssignedVariables(currentScope, rightInitStateIndex);
 					}
-					right.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel,
-							valueRequired && !rightIsConst);
+					right.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, valueRequired && !rightIsConst);
 					if (valueRequired && rightIsConst && !rightIsTrue) {
 						codeStream.goto_(falseLabel);
 						codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);
