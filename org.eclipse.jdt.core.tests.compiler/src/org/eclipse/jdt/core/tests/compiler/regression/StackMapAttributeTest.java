@@ -33,8 +33,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 33, 34 };
-//		TESTS_RANGE = new int[] { 23, -1 };
+//		TESTS_NUMBERS = new int[] { 23 };
+//		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_6);
@@ -2089,7 +2089,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
-	public void _test023() {
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=162965
+	public void test023() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
