@@ -234,9 +234,28 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			
 			if (needFalsePart) {
 				// Jump over the else part
-				int position = codeStream.position;
-				codeStream.goto_(endifLabel);
-				codeStream.updateLastRecordedEndPC(currentScope, position);
+				JumpEndif: {
+					if (falseLabel == null) {
+						if (trueLabel != null) {
+							// implicit falling through the FALSE case
+							cst = this.optimizedIfTrueConstant;
+							boolean isValueIfTrueOptimizedTrue = cst != null && cst != Constant.NotAConstant && cst.booleanValue() == true;
+							if (isValueIfTrueOptimizedTrue) break JumpEndif; // no need to jump over, since branched to true already
+						}
+					} else {
+						// implicit falling through the TRUE case
+						if (trueLabel == null) {
+							cst = this.optimizedIfTrueConstant;
+							boolean isValueIfTrueOptimizedFalse = cst != null && cst != Constant.NotAConstant && cst.booleanValue() == false;
+							if (isValueIfTrueOptimizedFalse) break JumpEndif; // no need to jump over, since branched to false already
+						} else {
+							// no implicit fall through TRUE/FALSE --> should never occur
+						}
+					}
+					int position = codeStream.position;
+					codeStream.goto_(endifLabel);
+					codeStream.updateLastRecordedEndPC(currentScope, position);
+				}
 				// No need to decrement codestream stack size
 				// since valueIfTrue was already consumed by branch bytecode
 			}
