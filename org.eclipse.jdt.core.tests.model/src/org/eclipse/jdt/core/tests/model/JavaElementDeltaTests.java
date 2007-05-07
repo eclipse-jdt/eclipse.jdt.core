@@ -2141,6 +2141,31 @@ public void testRemoveNonJavaProjectUpdateDependent3() throws CoreException {
 	}
 }
 /*
+ * Remove a non-Java resource .jar from a project, this .jar being on the classpath of another project
+ * (regression test for bug 185310 Removing internal jar referenced from another project doesn't update Package Explorer)
+ */
+public void testRemoveNonJavaResourceJar() throws CoreException {
+	try {
+		createJavaProject("P1", new String[] {"src"}, "bin");
+		createFile("/P1/test.jar", "");
+		createJavaProject("P2", new String[0], new String[] {"/P1/test.jar"}, "");
+		
+		startDeltas();
+		deleteFile("/P1/test.jar");
+		assertDeltas(
+			"Unexpected delta", 
+			"P1[*]: {CONTENT}\n" + 
+			"	ResourceDelta(/P1/test.jar)[-]\n" + 
+			"P2[*]: {CHILDREN}\n" + 
+			"	/P1/test.jar[-]: {}"
+		);
+	} finally {
+		stopDeltas();
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/*
  * Rename a java project.
  * (regression test for bug 7030 IllegalArgumentException renaming project)
  */

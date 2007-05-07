@@ -1263,7 +1263,8 @@ public class DeltaProcessor {
 					return IJavaElement.COMPILATION_UNIT;
 				} else if (Util.isValidClassFileName(fileName, sourceLevel, complianceLevel)) {
 					return IJavaElement.CLASS_FILE;
-				} else if (this.rootInfo(res.getFullPath(), kind) != null) {
+				} else if ((rootInfo = this.rootInfo(res.getFullPath(), kind)) != null 
+						&& rootInfo.project.getProject().getFullPath().isPrefixOf(res.getFullPath()) /*ensure root is a root of its project (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=185310) */) {
 					// case of proj=src=bin and resource is a jar file on the classpath
 					return IJavaElement.PACKAGE_FRAGMENT_ROOT;
 				} else {
