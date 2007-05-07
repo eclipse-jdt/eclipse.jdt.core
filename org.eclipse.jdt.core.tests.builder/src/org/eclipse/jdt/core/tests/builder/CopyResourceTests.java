@@ -268,4 +268,28 @@ public class CopyResourceTests extends BuilderTests {
 		expectingNoProblems();
 		expectingPresenceOf(bin.append("z.txt")); //$NON-NLS-1$
 	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=154693
+	public void testBug154693() throws JavaModelException {
+		IPath projectPath = env.addProject("P9"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		org.eclipse.jdt.core.IJavaProject p = env.getJavaProject("P9");
+		java.util.Map options = p.getOptions(true);
+		options.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, ".svn/"); //$NON-NLS-1$
+		p.setOptions(options);
+
+		IPath folder = env.addFolder(src, "p");
+		env.addFolder(folder, ".svn");
+		env.addFile(folder, "A.java", "package p;\nclass A{}"); //$NON-NLS-1$ //$NON-NLS-2$
+
+		fullBuild();
+		expectingNoProblems();
+		expectingNoPresenceOf(new IPath[] {
+			projectPath.append("bin/p/.svn") //$NON-NLS-1$
+		});
+	}
 }

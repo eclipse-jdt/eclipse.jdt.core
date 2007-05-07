@@ -243,7 +243,13 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 							if (!isOutputFolder) {
 								if (folderPath == null)
 									folderPath = proxy.requestFullPath();
-								createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
+								String packageName = folderPath.lastSegment();
+								if (packageName.length() > 0) {
+									String sourceLevel = javaBuilder.javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
+									String complianceLevel = javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+									if (JavaConventions.validatePackageName(packageName, sourceLevel, complianceLevel).getSeverity() != IStatus.ERROR)
+										createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
+								}
 							}
 					}
 					return true;
