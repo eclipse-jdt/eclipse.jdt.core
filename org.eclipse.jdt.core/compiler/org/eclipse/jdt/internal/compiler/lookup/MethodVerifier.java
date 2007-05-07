@@ -143,7 +143,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 	CompilerOptions options = type.scope.compilerOptions();
 	// need to find the overridden methods to avoid blaming this type for issues which are already reported against a supertype
 	// but cannot ignore an overridden inherited method completely when it comes to checking for bridge methods
-	int[] overriddenInheritedMethods = findOverriddenInheritedMethods(methods, length);
+	int[] overriddenInheritedMethods = length > 1 ? findOverriddenInheritedMethods(methods, length) : null;
 	nextMethod : for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
 		if (overriddenInheritedMethods == null || overriddenInheritedMethods[i] == 0) {
@@ -236,7 +236,7 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	// no op before 1.5
 }
 void checkInheritedMethods(MethodBinding[] methods, int length) {
-	int[] overriddenInheritedMethods = findOverriddenInheritedMethods(methods, length);
+	int[] overriddenInheritedMethods = length > 1 ? findOverriddenInheritedMethods(methods, length) : null;
 	if (overriddenInheritedMethods != null) {
 		// detected some overridden methods that can be ignored when checking return types
 		int index = 0;
@@ -594,45 +594,50 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 	return null; // noop in 1.4
 }
 int[] findOverriddenInheritedMethods(MethodBinding[] methods, int length) {
+	// NOTE assumes length > 1
 	// inherited methods are added as we walk up the superclass hierarchy, then each superinterface
 	// so method[1] from a class can NOT override method[0], but methods from superinterfaces can
 	// since superinterfaces can be added from different superclasses or other superinterfaces
 	int[] toSkip = null;
-	if (length > 1) {
-		nextMethod : for (int i = 0; i < length; i++) {
-			ReferenceBinding declaringClass = methods[i].declaringClass;
-			if (declaringClass.isInterface()) {
-				if (toSkip != null && toSkip[i] == -1) continue nextMethod;
-				for (int j = i + 1; j < length; j++) {
-					if (toSkip != null && toSkip[j] == -1) continue;
-					ReferenceBinding declaringClass2 = methods[j].declaringClass;
-					if (declaringClass == declaringClass2) continue;
-					if (declaringClass.implementsInterface(declaringClass2, true)) {
-						if (toSkip == null)
-							toSkip = new int[length];
-						toSkip[j] = -1;
-					} else if (declaringClass2.implementsInterface(declaringClass, true)) {
-						if (toSkip == null)
-							toSkip = new int[length];
-						toSkip[i] = -1;
-						continue nextMethod;
-					}
-				}
-			} else {
-				// only keep methods from the closest superclass, all others from higher superclasses can be skipped
-				// NOTE: methods were added in order by walking up the superclass hierarchy
-				for (int j = i + 1; j < length; j++) {
-					ReferenceBinding declaringClass2 = methods[j].declaringClass;
-					if (declaringClass == declaringClass2) continue;
-					if (declaringClass2.isInterface()) {
-						i = j - 1; // start the interface comparison with this method
-						continue nextMethod;
-					} else {
-						if (toSkip == null)
-							toSkip = new int[length];
-						toSkip[j] = -1;
-					}
-				}
+	int i = 0;
+	ReferenceBinding declaringClass = methods[i].declaringClass;
+	if (!declaringClass.isInterface()) {
+		// in the first pass, skip overridden methods from superclasses
+		// only keep methods from the closest superclass, all others from higher superclasses can be skipped
+		// NOTE: methods were added in order by walking up the superclass hierarchy
+		ReferenceBinding declaringClass2 = methods[++i].declaringClass;
+		while (declaringClass == declaringClass2) {
+			if (++i == length) return null;
+			declaringClass2 = methods[i].declaringClass;
+		}
+		if (!declaringClass2.isInterface()) {
+			// skip all methods from different superclasses
+			toSkip = new int[length];
+			do {
+				toSkip[i] = -1;
+				if (++i == length) return toSkip;
+				declaringClass2 = methods[i].declaringClass;
+			} while (!declaringClass2.isInterface());
+		}
+	}
+	// in the second pass, skip overridden methods from superinterfaces
+	// NOTE: superinterfaces can appear in 'random' order
+	nextMethod : for (; i < length; i++) {
+		if (toSkip != null && toSkip[i] == -1) continue nextMethod;
+		declaringClass = methods[i].declaringClass;
+		for (int j = i + 1; j < length; j++) {
+			if (toSkip != null && toSkip[j] == -1) continue;
+			ReferenceBinding declaringClass2 = methods[j].declaringClass;
+			if (declaringClass == declaringClass2) continue;
+			if (declaringClass.implementsInterface(declaringClass2, true)) {
+				if (toSkip == null)
+					toSkip = new int[length];
+				toSkip[j] = -1;
+			} else if (declaringClass2.implementsInterface(declaringClass, true)) {
+				if (toSkip == null)
+					toSkip = new int[length];
+				toSkip[i] = -1;
+				continue nextMethod;
 			}
 		}
 	}
