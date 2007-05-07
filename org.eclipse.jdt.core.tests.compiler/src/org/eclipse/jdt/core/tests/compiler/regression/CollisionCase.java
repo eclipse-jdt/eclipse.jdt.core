@@ -66,4 +66,23 @@ public void test002() {
 		"foo.bar cannot be resolved to a type\n" + 
 		"----------\n");
 }
+// http://bugs.eclipse.org/bugs/show_bug.cgi?id=84886
+public void test003() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"	class MyFoo {\n" + 
+			"		class Bar {}\n" + 
+			"	}\n" + 
+			"	static class MyFoo$Bar {}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	static class MyFoo$Bar {}\n" + 
+		"	             ^^^^^^^^^\n" + 
+		"Duplicate nested type MyFoo$Bar\n" + 
+		"----------\n");
+}
 }

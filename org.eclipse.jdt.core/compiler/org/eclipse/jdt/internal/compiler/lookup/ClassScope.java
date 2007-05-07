@@ -307,6 +307,10 @@ public class ClassScope extends Scope {
 			char[][] className = CharOperation.deepCopy(enclosingType.compoundName);
 			className[className.length - 1] =
 				CharOperation.concat(className[className.length - 1], referenceContext.name, '$');
+			ReferenceBinding existingType = packageBinding.getType0(className[className.length - 1]);
+			if (existingType != null)
+				// report the error against the parent - its still safe to answer the member type
+				this.parent.problemReporter().duplicateNestedType(referenceContext);
 			referenceContext.binding = new MemberTypeBinding(className, this, enclosingType);
 		}
 
