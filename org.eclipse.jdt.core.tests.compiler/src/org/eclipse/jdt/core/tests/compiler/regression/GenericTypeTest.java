@@ -37863,4 +37863,48 @@ public void test1136() {
 		"Type mismatch: cannot convert from List<A<String>&I> to List<Object>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=154267
+public void test1137() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.awt.Container;\n" + 
+			"import java.util.Collection;\n" + 
+			"\n" + 
+			"abstract class Kollection<T extends Container> implements Collection<T> {}\n" + 
+			"abstract class Kontainer extends Container {}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	private <T extends Container> Collection<T> foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	private <T extends Container> Kollection<T> bar() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void showProblem() {\n" + 
+			"		Collection<?> result = foo();\n" + 
+			"		Collection<? extends Container> result1 = foo();\n" + 
+			"		\n" + 
+			"		Collection<?> result2 = (Collection<Container>)foo();\n" + 
+			"		String result3 = foo();\n" + 
+			"		String result4 = (String) foo();		\n" + 
+			"\n" + 
+			"		Kollection<?> result5 = bar();\n" + 
+			"		Kollection<? extends Kontainer> result6 = bar();\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 20)\n" + 
+		"	String result3 = foo();\n" + 
+		"	                 ^^^^^\n" + 
+		"Type mismatch: cannot convert from Collection<Container> to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 21)\n" + 
+		"	String result4 = (String) foo();		\n" + 
+		"	                 ^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Collection<Container> to String\n" + 
+		"----------\n");
+}
 }
