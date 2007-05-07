@@ -317,7 +317,7 @@ public class CompilerOptions {
 	// annotation processing
 	public boolean generateClassFiles = true;
 
-	// TODO (olivier) by default we disable annotation processing equivalent to -proc:none
+	// Enable annotation processing by default only in batch mode
 	public boolean processAnnotations = false;
 
 	/**
