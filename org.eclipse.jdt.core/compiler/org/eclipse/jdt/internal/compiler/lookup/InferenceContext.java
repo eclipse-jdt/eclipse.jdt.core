@@ -19,6 +19,8 @@ public class InferenceContext {
 	MethodBinding genericMethod;
 	int depth;
 	int status;
+	TypeBinding expectedType;
+	boolean hasExplicitExpectedType; // indicates whether the expectedType (if set) was explicit in code, or set by default
 	TypeBinding[] substitutes;
 	final static int FAILED = 1;
 	final static int RAW_SUBSTITUTION = 2;

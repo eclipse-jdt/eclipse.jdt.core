@@ -37896,12 +37896,17 @@ public void test1137() {
 			"}\n", // =================
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 20)\n" + 
+		"1. WARNING in X.java (at line 19)\n" + 
+		"	Collection<?> result2 = (Collection<Container>)foo();\n" + 
+		"	                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from Collection<Container> to Collection<Container>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 20)\n" + 
 		"	String result3 = foo();\n" + 
 		"	                 ^^^^^\n" + 
 		"Type mismatch: cannot convert from Collection<Container> to String\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 21)\n" + 
+		"3. ERROR in X.java (at line 21)\n" + 
 		"	String result4 = (String) foo();		\n" + 
 		"	                 ^^^^^^^^^^^^^^\n" + 
 		"Cannot cast from Collection<Container> to String\n" + 

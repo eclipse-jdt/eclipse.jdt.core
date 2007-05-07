@@ -60,16 +60,22 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			
 			// 15.12.2.8 - inferring unresolved type arguments
 			if (inferenceContext.hasUnresolvedTypeArgument()) {
-				TypeBinding expectedType = null;
 				if (methodSubstitute.returnType != TypeBinding.VOID) {
+					TypeBinding expectedType = null;
 					// if message invocation has expected type
 					if (invocationSite instanceof MessageSend) {
 						MessageSend message = (MessageSend) invocationSite;
 						expectedType = message.expectedType;
 					}
-					if (expectedType == null) expectedType = scope.getJavaLangObject(); // assume Object by default
+					if (expectedType != null) {
+						// record it was explicit from context, as opposed to assumed by default (see below)
+						inferenceContext.hasExplicitExpectedType = true; 
+					} else {
+						expectedType = scope.getJavaLangObject(); // assume Object by default
+					}
+					inferenceContext.expectedType = expectedType;
 				}
-				methodSubstitute = methodSubstitute.inferFromExpectedType(scope, expectedType, inferenceContext);
+				methodSubstitute = methodSubstitute.inferFromExpectedType(scope, inferenceContext);
 				if (methodSubstitute == null) 
 					return null;
 			}
@@ -356,14 +362,14 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 * Given some type expectation, and type variable bounds, perform some inference.
 	 * Returns true if still had unresolved type variable at the end of the operation
 	 */
-	private ParameterizedGenericMethodBinding inferFromExpectedType(Scope scope, TypeBinding expectedType, InferenceContext inferenceContext) {
+	private ParameterizedGenericMethodBinding inferFromExpectedType(Scope scope, InferenceContext inferenceContext) {
 	    TypeVariableBinding[] originalVariables = this.originalMethod.typeVariables; // immediate parent (could be a parameterized method)
 		int varLength = originalVariables.length;
 		
 		computeSubstitutes: {
 		    // infer from expected return type
-			if (expectedType != null) {
-			    this.returnType.collectSubstitutes(scope, expectedType, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
+			if (inferenceContext.expectedType != null) {
+			    this.returnType.collectSubstitutes(scope, inferenceContext.expectedType, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
 			    if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
 			}
 		    // infer from bounds of type parameters
@@ -422,7 +428,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		// adjust method types to reflect latest inference
 		TypeBinding oldReturnType = this.returnType;
 		this.returnType = Scope.substitute(this, this.returnType);
-		this.inferredReturnType = this.returnType != oldReturnType;
+		this.inferredReturnType = inferenceContext.hasExplicitExpectedType && this.returnType != oldReturnType;
 	    this.parameters = Scope.substitute(this, this.parameters);
 	    this.thrownExceptions = Scope.substitute(this, this.thrownExceptions);
 	    return this;
