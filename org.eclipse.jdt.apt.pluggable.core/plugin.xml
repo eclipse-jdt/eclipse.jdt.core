@@ -8,5 +8,30 @@
             id="org.eclipse.jdt.apt.pluggable.core.annotationProcessorManager">
       </annotationProcessorManager>
    </extension>
+   <extension
+         point="org.eclipse.jdt.core.compilationParticipant">
+      <compilationParticipant
+            class="org.eclipse.jdt.internal.apt.pluggable.core.Apt6CompilationParticipant"
+            id="org.eclipse.jdt.apt.pluggable.core.compilationParticipant"
+            requiredSourceLevel="1.6">
+         <managedMarker
+               markerType="org.eclipse.jdt.apt.pluggable.core.compileProblem">
+         </managedMarker>
+      </compilationParticipant>
+   </extension>
+   <extension
+         id="compileProblem"
+         name="%compileProblemMarkerName"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
 
 </plugin>

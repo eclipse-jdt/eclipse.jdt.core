@@ -68,6 +68,10 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	public void addNewClassFile(ReferenceBinding binding) {
 		_addedClassFiles.add(binding);
 	}
+	
+	public Compiler getCompiler() {
+		return _compiler;
+	}
 
 	public ICompilationUnit[] getDeletedUnits() {
 		ICompilationUnit[] result = new ICompilationUnit[_deletedUnits.size()];

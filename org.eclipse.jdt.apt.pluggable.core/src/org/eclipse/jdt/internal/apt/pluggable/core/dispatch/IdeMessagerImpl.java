@@ -20,8 +20,9 @@ import javax.tools.Diagnostic.Kind;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.AptProblem;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BatchMessagerImpl;
 
 /**
@@ -71,8 +72,19 @@ public class IdeMessagerImpl implements Messager {
 	 */
 	public void printMessage(Kind kind, CharSequence msg, Element e, AnnotationMirror a,
 			AnnotationValue v) {
-		CategorizedProblem problem = BatchMessagerImpl.createProblem(kind, msg, e);
-		Apt6Plugin.log(new Status(IStatus.INFO, Apt6Plugin.PLUGIN_ID, Apt6Plugin.STATUS_EXCEPTION, problem.toString(), null));
+		AptProblem problem = BatchMessagerImpl.createProblem(kind, msg, e);
+		if (kind == Kind.NOTE) {
+			Apt6Plugin.log(new Status(IStatus.INFO, Apt6Plugin.PLUGIN_ID, Apt6Plugin.STATUS_EXCEPTION, problem.getMessage(), null));
+		}
+		else if (null != problem._referenceContext) {
+			CompilationResult result = problem._referenceContext.compilationResult();
+			result.record(problem, problem._referenceContext);
+		}
+		else {
+			// Unknown reference context; e.g., reported against an element not being compiled.
+			// TODO: report against project??  log??
+			Apt6Plugin.log(new Status(IStatus.INFO, Apt6Plugin.PLUGIN_ID, Apt6Plugin.STATUS_EXCEPTION, problem.getMessage(), null));
+		}
 	}
 
 }
