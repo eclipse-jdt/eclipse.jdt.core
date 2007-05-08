@@ -109,7 +109,7 @@ private void computeClasspathLocations(
 				} else {
 					outputFolder = root.getFolder(outputPath);
 					if (!outputFolder.exists())
-						createFolder(outputFolder);
+						createOutputFolder(outputFolder);
 				}
 				sLocations.add(
 					ClasspathLocation.forSourceFolder((IContainer) target, outputFolder, entry.fullInclusionPatternChars(), entry.fullExclusionPatternChars()));
@@ -246,10 +246,15 @@ public void cleanup() {
 		binaryLocations[i].cleanup();
 }
 
-private void createFolder(IContainer folder) throws CoreException {
-	if (!folder.exists()) {
-		createFolder(folder.getParent());
-		((IFolder) folder).create(true, true, null);
+private void createOutputFolder(IContainer outputFolder) throws CoreException {
+	createParentFolder(outputFolder.getParent());
+	((IFolder) outputFolder).create(IResource.FORCE | IResource.DERIVED, true, null);
+}
+
+private void createParentFolder(IContainer parent) throws CoreException {
+	if (!parent.exists()) {
+		createParentFolder(parent.getParent());
+		((IFolder) parent).create(true, true, null);
 	}
 }
 

@@ -762,4 +762,23 @@ public void test0100() throws JavaModelException {
 	incrementalBuild();
 	expectingNoProblems();
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=143025
+public void testMissingOutputFolder() throws JavaModelException {
+	IPath projectPath = env.addProject("P"); //$NON-NLS-1$
+	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+	IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+	fullBuild();
+	expectingNoProblems();
+
+	env.removeFolder(bin);
+
+	incrementalBuild();
+	expectingNoProblems();
+	expectingPresenceOf(bin); // check that bin folder was recreated and is marked as derived
+	if (!env.getProject(projectPath).getFolder("bin").isDerived())
+		fail("output folder is not derived");
+}
 }
