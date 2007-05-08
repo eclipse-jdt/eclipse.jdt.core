@@ -3771,7 +3771,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					 */
 					 formatGuardClauseBlock((Block) thenStatement, scope);
 				} else {
-                    formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
+					formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
 					thenStatement.traverse(this, scope);
 					if (elseStatement != null && (this.preferences.insert_new_line_before_else_in_if_statement)) {
 						this.scribe.printNewLine();
@@ -3802,7 +3802,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						this.scribe.redoAlignment(e);
 					}
 				} while (!ok);
-				this.scribe.exitAlignment(compactIfAlignment, true);				
+				this.scribe.exitAlignment(compactIfAlignment, true);
 			} else if (this.preferences.keep_then_statement_on_same_line) {
 				this.scribe.space();
 				thenStatement.traverse(this, scope);
@@ -3842,7 +3842,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					this.scribe.printNewLine();
 					this.scribe.indent();
 				}
-				this.scribe.space();				
+				this.scribe.space();
 				elseStatement.traverse(this, scope);
 				if (!this.preferences.compact_else_if) {
 					this.scribe.unIndent();
