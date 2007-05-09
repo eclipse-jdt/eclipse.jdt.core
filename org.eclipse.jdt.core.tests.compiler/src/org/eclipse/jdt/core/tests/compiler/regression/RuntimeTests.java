@@ -126,7 +126,7 @@ public void test0500_synchronization() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712
 // reflection - access to a public method of a package visible
 // class through a public extending class
-public void _test0600_reflection() {
+public void test0600_reflection() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -139,13 +139,15 @@ public void _test0600_reflection() {
 			"    Method foo = Y.class.getMethod(\"foo\", (Class []) null);\n" +
 			"    y.foo();\n" +
 			"    foo.invoke(y, (Object []) null);\n" +
-			"  }\n" +
-			"  catch (Throwable t) {\n" +
-			"    System.out.println(\"FAILURE: \" + t.getMessage());\n" +
-			"    t.printStackTrace(System.out);\n" +
+			"  } catch (NoSuchMethodException e) {\n" +
+			"      //ignore\n" +
+			"  } catch (InvocationTargetException e) {\n" +
+			"      //ignore\n" +
+			"  } catch (IllegalAccessException e) {\n" +
+			"    System.out.print(\"FAILURE: IllegalAccessException\");\n" +
 			"  }\n" + 
-			"}\n" + 
-			"}\n",
+			"}\n" +
+			"}",
 			"p/Y.java",
 			"package p;\n" +
 			"public class Y extends Z {\n" + 
@@ -158,14 +160,15 @@ public void _test0600_reflection() {
 			"  System.out.println(\"SUCCESS\"); //$NON-NLS-1$\n" + 
 			"  }\n" + 
 			"}\n"},
-		"SUCCESS\nSUCCESS"
+		"SUCCESS\n" + 
+		"FAILURE: IllegalAccessException"
 	);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712
 // reflection - access to a public field of a package visible
 // class through a public extending class
-public void _test0601_reflection() {
+public void test0601_reflection() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -178,13 +181,13 @@ public void _test0601_reflection() {
 			"    Field f = Y.class.getField(\"m\");\n" +
 			"    System.out.println(y.m);\n" +
 			"    System.out.println(f.get(y));\n" +
-			"  }\n" +
-			"  catch (Throwable t) {\n" +
-			"    System.out.println(\"FAILURE: \" + t.getMessage());\n" +
-			"    t.printStackTrace(System.out);\n" +
+			"  } catch (NoSuchFieldException e) {\n" +
+			"      //ignore\n" +
+			"  } catch (IllegalAccessException e) {\n" +
+			"    System.out.print(\"FAILURE: IllegalAccessException\");\n" +
 			"  }\n" + 
-			"}\n" + 
-			"}\n",
+			"}\n" +
+			"}",
 			"p/Y.java",
 			"package p;\n" +
 			"public class Y extends Z {\n" + 
@@ -195,7 +198,8 @@ public void _test0601_reflection() {
 			"class Z {\n" + 
 			"  public String m = \"SUCCESS\";\n" + 
 			"}\n"},
-		"SUCCESS\nSUCCESS"
+		"SUCCESS\n" + 
+		"FAILURE: IllegalAccessException"
 	);
 }
 
