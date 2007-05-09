@@ -587,7 +587,7 @@ private int initializeBuilder(int kind, boolean forBuild) throws CoreException {
 	}
 
 	this.binaryLocationsPerProject = new SimpleLookupTable(3);
-	this.nameEnvironment = new NameEnvironment(workspaceRoot, javaProject, binaryLocationsPerProject);
+	this.nameEnvironment = new NameEnvironment(workspaceRoot, javaProject, binaryLocationsPerProject, notifier);
 
 	if (forBuild) {
 		String filterSequence = javaProject.getOption(JavaCore.CORE_JAVA_BUILD_RESOURCE_COPY_FILTER, true);

@@ -30,12 +30,14 @@ public class NameEnvironment implements INameEnvironment, SuffixConstants {
 boolean isIncrementalBuild;
 ClasspathMultiDirectory[] sourceLocations;
 ClasspathLocation[] binaryLocations;
-	
+BuildNotifier notifier;
+
 SimpleSet initialTypeNames; // assumed that each name is of the form "a/b/ClassName"
 SimpleLookupTable additionalUnits;
 
-NameEnvironment(IWorkspaceRoot root, JavaProject javaProject, SimpleLookupTable binaryLocationsPerProject) throws CoreException {
+NameEnvironment(IWorkspaceRoot root, JavaProject javaProject, SimpleLookupTable binaryLocationsPerProject, BuildNotifier notifier) throws CoreException {
 	this.isIncrementalBuild = false;
+	this.notifier = notifier;
 	computeClasspathLocations(root, javaProject, binaryLocationsPerProject);
 	setNames(null, null);
 }
@@ -259,6 +261,9 @@ private void createParentFolder(IContainer parent) throws CoreException {
 }
 
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName) {
+	if (this.notifier != null)
+		this.notifier.checkCancelWithinCompiler();
+
 	if (this.initialTypeNames != null && this.initialTypeNames.includes(qualifiedTypeName)) {
 		if (isIncrementalBuild)
 			// catch the case that a type inside a source file has been renamed but other class files are looking for it
