@@ -117,7 +117,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 676 };
+//		TESTS_NUMBERS =  new int[] { 677 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9203,5 +9203,30 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=185306
+	 */
+	public void _test0677() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0677", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0);
+		assertProblemsSize(unit, 0);
+		assertNotNull(node);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
+		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
+		assertNotNull("No type binding", typeBinding);
+		ITypeBinding superclass = typeBinding.getSuperclass();
+		assertNotNull("No super class", superclass);
+		IMethodBinding[] methods = superclass.getDeclaredMethods();
+		assertNotNull("No methods", methods);
+		assertTrue("Empty", methods.length != 0);
+		IVariableBinding[] fields = superclass.getDeclaredFields();
+		assertNotNull("No fields", fields);
+		assertTrue("Empty", fields.length != 0);
 	}
 }
