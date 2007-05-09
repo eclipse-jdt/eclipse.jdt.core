@@ -85,7 +85,7 @@ public class QualifiedTypeReference extends TypeReference {
 				reportDeprecatedType(this.resolvedType, scope);			
 			}
 			if (isClassScope)
-				if (((ClassScope) scope).detectHierarchyCycle(this.resolvedType, this, null)) // must connect hierarchy to find inherited member types
+				if (((ClassScope) scope).detectHierarchyCycle(this.resolvedType, this)) // must connect hierarchy to find inherited member types
 					return null;
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 			if (qualifiedType != null) {

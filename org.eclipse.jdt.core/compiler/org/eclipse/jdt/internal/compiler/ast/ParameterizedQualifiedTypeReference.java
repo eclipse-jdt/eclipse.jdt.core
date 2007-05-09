@@ -204,7 +204,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 				if (isClassScope) {
 					((ClassScope) scope).superTypeReference = keep;
-					if (((ClassScope) scope).detectHierarchyCycle(currentType, this, argTypes))
+					if (((ClassScope) scope).detectHierarchyCycle(currentType, this))
 						return null;
 				}
 
@@ -232,7 +232,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				qualifiedType = parameterizedType;
 		    } else {
 				if (isClassScope)
-					if (((ClassScope) scope).detectHierarchyCycle(currentType, this, null))
+					if (((ClassScope) scope).detectHierarchyCycle(currentType, this))
 						return null;
 				ReferenceBinding currentErasure = (ReferenceBinding)currentType.erasure();
 				if (currentErasure.isGenericType()) {

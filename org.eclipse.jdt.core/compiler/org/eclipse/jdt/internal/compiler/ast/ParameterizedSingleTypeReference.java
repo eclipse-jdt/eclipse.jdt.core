@@ -153,7 +153,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		if (argHasError) return null;
 		if (isClassScope) {
 	    	((ClassScope) scope).superTypeReference = keep;
-			if (((ClassScope) scope).detectHierarchyCycle(currentType, this, argTypes))
+			if (((ClassScope) scope).detectHierarchyCycle(currentType, this))
 				return null;
 		}
 

@@ -997,7 +997,7 @@ public class ClassScope extends Scope {
 			problemReporter().hierarchyHasProblems(sourceType);
 	}
 
-	public boolean detectHierarchyCycle(TypeBinding superType, TypeReference reference, TypeBinding[] argTypes) {
+	public boolean detectHierarchyCycle(TypeBinding superType, TypeReference reference) {
 		if (!(superType instanceof ReferenceBinding)) return false;
 
 		if (reference == this.superTypeReference) { // see findSuperType()

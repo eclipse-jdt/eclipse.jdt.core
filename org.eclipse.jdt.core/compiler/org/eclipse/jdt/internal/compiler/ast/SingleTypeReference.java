@@ -44,7 +44,7 @@ public class SingleTypeReference extends TypeReference {
 		this.resolvedType = scope.getType(token);
 
 		if (scope.kind == Scope.CLASS_SCOPE && this.resolvedType.isValidBinding())
-			if (((ClassScope) scope).detectHierarchyCycle(this.resolvedType, this, null))
+			if (((ClassScope) scope).detectHierarchyCycle(this.resolvedType, this))
 				return null;
 		return this.resolvedType;
 	}
