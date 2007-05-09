@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaModelStatus;
@@ -2179,6 +2180,53 @@ public void testExportContainer() throws CoreException {
 	}
 }
 /*
+ * Ensures that adding an external jar and refreshing removed the markers
+ * (regression test for 185733 Refreshing external jar doesn't update problem marker)
+ */
+public void testExternalJarAdd() throws CoreException, IOException {
+	String externalJarPath = getExternalPath() + "test185733.jar";
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {externalJarPath}, "");
+		waitUntilIndexesReady();
+		waitForAutoBuild();
+		// at this point, a marker indicates that test185733.jar has been created: "Project 'P' is missing required library: '[...]\test185733.jar'"
+		
+		createFile(new File(getExternalPath()), "test185733.jar", "");
+		getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
+		assertMarkers(
+			"Unexpected markers", 
+			"",
+			p);
+	} finally {
+		deleteFile(new File(externalJarPath));
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that removing an external jar and refreshing creates the correct markers
+ * (regression test for 185733 Refreshing external jar doesn't update problem marker)
+ */
+public void testExternalJarRemove() throws CoreException, IOException {
+	try {
+		File externalJar = createFile(new File(getExternalPath()), "test185733.jar", "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {externalJar.getPath()}, "");
+		waitUntilIndexesReady();
+		waitForAutoBuild();
+		// at this point, the project has no markers
+		
+		deleteFile(externalJar);
+		getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
+		assertMarkers(
+			"Unexpected markers", 
+			"Project \'P\' is missing required library: \'" + externalJar.getPath() + "\'",
+			p);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
  * Ensures that setting 0 extra classpath attributes generates the correct .classpath file.
  */
 public void testExtraAttributes1() throws CoreException {
@@ -3904,4 +3952,5 @@ public void testRemoveDuplicates() throws CoreException {
 		this.deleteProjects(new String[] {"P1", "P2"});
 	}
 }
+
 }

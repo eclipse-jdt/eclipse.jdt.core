@@ -924,6 +924,7 @@ public class DeltaProcessor {
 								System.out.println("- External JAR ADDED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							} 
 							elementAdded(root, null, null);
+							this.state.addClasspathValidation(javaProject); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=185733
 							hasDelta = true;
 						} else if (status == EXTERNAL_JAR_CHANGED) {
 							PackageFragmentRoot root = (PackageFragmentRoot) javaProject.getPackageFragmentRoot(entryPath.toString());
@@ -938,6 +939,7 @@ public class DeltaProcessor {
 								System.out.println("- External JAR REMOVED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							elementRemoved(root, null, null);
+							this.state.addClasspathValidation(javaProject); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=185733
 							hasDelta = true;
 						}
 					}
