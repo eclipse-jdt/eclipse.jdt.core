@@ -2697,4 +2697,48 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			},
 		"SUCCESS");
 	}
+	
+	// add more bytecode coverage: fneg, lneg, dneg, dstore_0, f2l, fstore_0, fstore_2, lstore_0 and saload
+	public void test035() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	static double foo() {\n" + 
+				"		double d = 3.0;\n" + 
+				"		d = -d;\n" + 
+				"		return d > 1.0 ? d : -d;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static float foo2() {\n" + 
+				"		float f = 3.0f;\n" + 
+				"		int i = 0;\n" + 
+				"		float f2 = f+ i;\n" + 
+				"		long l = (long) f;\n" + 
+				"		l += f2;\n" + 
+				"		return i == 0 ? f : -f + (float) l;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static long foo3() {\n" + 
+				"		long l = Long.MAX_VALUE - 3;\n" + 
+				"		boolean b = true;\n" + 
+				"		return b ? l : -l;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	static short foo4() {\n" + 
+				"		short[] tab = new short[] { 1, 2, 3 };\n" + 
+				"		return tab.length == 3 ? tab[2] : (tab.length == 2 ? tab[1] : tab[0]);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String args[]) {\n" + 
+				"		foo();\n" + 
+				"		foo2();\n" + 
+				"		foo3();\n" + 
+				"		foo4();\n" + 
+				"		System.out.print(\"SUCCESS\");\n" +
+				"	}\n" + 
+				"}",
+			},
+		"SUCCESS");
+	}
 }
