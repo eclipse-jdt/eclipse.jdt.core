@@ -296,7 +296,7 @@ public abstract class AbstractCompilationEnv
         String sourceLevel = options.get(JavaCore.COMPILER_SOURCE);
         String complianceLevel = options.get(JavaCore.COMPILER_COMPLIANCE);
         IStatus status = JavaConventions.validateJavaTypeName(typeName, sourceLevel, complianceLevel);
-        if (!status.isOK()) {
+        if (status.matches(IStatus.ERROR)) {
         	throw new CoreException(status);
         }
 	}

@@ -187,6 +187,22 @@ public class AptBuilderTests extends APTTestBase
 		env.addClass( srcRoot, "p1", "A", code );
 		fullBuild( project.getFullPath() );
 		assertEquals("Could not generate text file due to IOException", getProcessorResult(HelloWorldAnnotationProcessor.class));
+
+		// Type "lowercase" would cause a warning in the new type wizard, because it doesn't start with caps.
+		// Test that we do not issue a warning or error in this case.
+		String code2 = "package p1;\n"
+			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
+			+ "import generatedfilepackage.lowercase;"
+			+ "\n" + "public class A " + "\n" + "{"
+			+ "    @HelloWorldAnnotation(\"lowercase\")" + "\n"
+			+ "    public static void main( String[] argv )" + "\n" + "    {"
+			+ "\n"
+			+ "        lowercase.helloWorld();"
+			+ "\n" + "    }" + "\n" + "}" + "\n";
+
+		env.addClass( srcRoot, "p1", "A", code2 );
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
 	}
 	
 	@SuppressWarnings("nls")
