@@ -121,7 +121,9 @@ class TypeBinding implements ITypeBinding {
 	 * @since 3.0
 	 */
 	public String getBinaryName() {
-		if (this.binding.isTypeVariable()) {
+		if (this.binding.isCapture()) {
+			return null; // no binary name for capture binding
+		} else if (this.binding.isTypeVariable()) {
 			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
 			org.eclipse.jdt.internal.compiler.lookup.Binding declaring = typeVariableBinding.declaringElement;
 			StringBuffer binaryName = new StringBuffer();

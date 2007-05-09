@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 271 };
+//		TESTS_NUMBERS = new int[] { 272 };
 //		TESTS_RANGE = new int[] { 253, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -9022,5 +9022,58 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("Super method not found", methodBinding3);
 		assertTrue("Should be the same", methodBinding3.isEqualTo(methodBinding2));
 		assertTrue("Doesn't override", methodBinding.overrides(methodBinding3));
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=186189
+	public void test0272() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	<T> T foo(T t) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	Object bar() {\n" + 
+			"		return new Object() {\n" + 
+			"			void bar(List<?> l) {\n" + 
+			"				foo(l.get(0));\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static void main(String args[]) {\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+		ReturnStatement statement = (ReturnStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("Not a class instance creation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
+		List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
+		assertEquals("Wrong size", 1, bodyDeclarations.size());
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclarations.get(0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, bodyDeclaration.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block body = methodDeclaration.getBody();
+		assertNotNull("No block", body);
+		List statements = body.statements();
+		assertEquals("Wrong size", 1, statements.size());
+		Statement statement2 = (Statement) statements.get(0);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, statement2.getNodeType());
+		Expression expression2 = ((ExpressionStatement) statement2).getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
+		ITypeBinding typeBinding = ((MethodInvocation) expression2).resolveTypeBinding();
+		assertTrue("Not a capture", typeBinding.isCapture());
+		assertNull("No binary type", typeBinding.getBinaryName());
 	}
 }
