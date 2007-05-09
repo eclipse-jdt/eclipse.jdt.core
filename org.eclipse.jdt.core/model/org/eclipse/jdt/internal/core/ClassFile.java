@@ -354,7 +354,7 @@ public IBuffer getBuffer() throws JavaModelException {
 		// .class file not on classpath, create a new buffer to be nice (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=41444)
 		Object info = ((ClassFile) getClassFile()).getBinaryTypeInfo((IFile) getResource());
 		IBuffer buffer = openBuffer(null, info);
-		if (buffer != null)
+		if (buffer != null && !(buffer instanceof NullBuffer))
 			return buffer;
 		if (status.getCode() == IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH)
 			return null; // don't throw a JavaModelException to be able to open .class file outside the classpath (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=138507)
@@ -633,21 +633,30 @@ private IBuffer mapSource(SourceMapper mapper, IBinaryType info) {
 		if (buffer == null) return null;
 		BufferManager bufManager = getBufferManager();
 		bufManager.addBuffer(buffer);
-		
+
 		// set the buffer source
 		if (buffer.getCharacters() == null){
 			buffer.setContents(contents);
 		}
-		
+
 		// listen to buffer changes
-		buffer.addBufferChangedListener(this);	
-				
+		buffer.addBufferChangedListener(this);
+
 		// do the source mapping
 		mapper.mapSource(getType(), contents, info);
-		
+
+		return buffer;
+	} else {
+		// create buffer
+		IBuffer buffer = BufferManager.createNullBuffer(this);
+		if (buffer == null) return null;
+		BufferManager bufManager = getBufferManager();
+		bufManager.addBuffer(buffer);
+
+		// listen to buffer changes
+		buffer.addBufferChangedListener(this);
 		return buffer;
 	}
-	return null;
 }
 /* package */ static String simpleName(char[] className) {
 	if (className == null)

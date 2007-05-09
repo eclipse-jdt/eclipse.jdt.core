@@ -72,6 +72,15 @@ public static IBuffer createBuffer(IOpenable owner) {
 			owner, 
 			element.isReadOnly());
 }
+public static IBuffer createNullBuffer(IOpenable owner) {
+	IJavaElement element = (IJavaElement)owner;
+	IResource resource = element.getResource();
+	return 
+		new NullBuffer(
+			resource instanceof IFile ? (IFile)resource : null, 
+			owner, 
+			element.isReadOnly());
+}
 /**
  * Returns the open buffer associated with the given owner,
  * or <code>null</code> if the owner does not have an open
