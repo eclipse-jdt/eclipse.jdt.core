@@ -8,15 +8,14 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IOpenable;
 
 /**
- * @author othomann
- *
+ * This class represents a null buffer. This buffer is used to represent a buffer for a class file
+ * that has no source attached.
  */
 public class NullBuffer extends Buffer {
 	/**

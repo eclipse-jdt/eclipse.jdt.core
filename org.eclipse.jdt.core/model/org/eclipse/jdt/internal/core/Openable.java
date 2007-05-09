@@ -258,6 +258,9 @@ public IBuffer getBuffer() throws JavaModelException {
 			// try to (re)open a buffer
 			buffer = openBuffer(null, info);
 		}
+		if (buffer instanceof NullBuffer) {
+			return null;
+		}
 		return buffer;
 	} else {
 		return null;
