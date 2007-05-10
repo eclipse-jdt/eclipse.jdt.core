@@ -191,6 +191,16 @@ public class AptPlugin extends Plugin {
 		}
 	}
 	
+	/**
+	 * Convenience method to report an exception in debug trace mode.
+	 */
+	public static void trace(String msg, Throwable t) {
+		trace(msg);
+		if (DEBUG) {
+			t.printStackTrace(System.out);
+		}
+	}
+	
 	private static AptProject getAptProject(IJavaProject javaProject, boolean create){
 		synchronized(PROJECT_MAP){
 			AptProject aptProject = PROJECT_MAP.get(javaProject);
@@ -237,5 +247,5 @@ public class AptPlugin extends Plugin {
 	public static Class<?> getJava6ProcessorClass() {
 		return _java6ProcessorClass;
 	}
-	
+
 }

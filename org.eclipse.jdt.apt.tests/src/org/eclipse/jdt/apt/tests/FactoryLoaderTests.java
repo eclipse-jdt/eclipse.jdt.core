@@ -15,9 +15,12 @@ import java.io.File;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.IFactoryPath;
 import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorAnnotationProcessor;
@@ -34,6 +37,7 @@ public class FactoryLoaderTests extends APTTestBase {
 	
 	private File _extJar; // external annotation jar
 	private IPath _extVarJar; // external annotation jar, as a classpath-var-relative path
+	private IPath _projectPath; // initialized in setUp(), cleared in tearDown()
 	
 	private final static String TEMPJARDIR_CPVAR = "FACTORYLOADERTEST_TEMP"; //$NON-NLS-1$
 	
@@ -49,11 +53,9 @@ public class FactoryLoaderTests extends APTTestBase {
 	public void setUp() throws Exception {
 		super.setUp();
 		
-		// project will be deleted by super-class's tearDown() method
-		IPath projectPath = env.getProject( getProjectName() ).getFullPath(); //$NON-NLS-1$
-		
+		_projectPath = env.getProject( getProjectName() ).getFullPath();
 		_extJar = TestUtil.createAndAddExternalAnnotationJar(
-				env.getJavaProject( projectPath ));
+				env.getJavaProject( _projectPath ));
 		
 		// Create a classpath variable for the same jar file, so we can
 		// refer to it that way.
@@ -126,6 +128,48 @@ public class FactoryLoaderTests extends APTTestBase {
 		assertFalse(LoaderTestAnnotationProcessor.isLoaded());
 	}
 
+	// Test what happens when the factory path contains a jar file that can't be found.
+	public void testNonexistentEntry() throws Exception {
+		LoaderTestAnnotationProcessor.clearLoaded();
+		IProject project = env.getProject( getProjectName() );
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		assertFalse(LoaderTestAnnotationProcessor.isLoaded());
+		
+		IJavaProject jproj = env.getJavaProject( getProjectName() );
+		IFactoryPath ifp = AptConfig.getFactoryPath(jproj);
+		
+		// add bogus entry to factory list, and rebuild.
+		File bogusJar = new File("bogusJar.jar"); // assumed to not exist
+		ifp.addExternalJar(bogusJar);
+		
+		// verify that a problem marker was added.
+		AptConfig.setFactoryPath(jproj, ifp);
+		fullBuild( project.getFullPath() );
+		IMarker[] markers = getAllAPTMarkers(_projectPath);
+		assertEquals(1, markers.length);
+		assertEquals(AptPlugin.APT_LOADER_PROBLEM_MARKER, markers[0].getType());
+		String message = markers[0].getAttribute(IMarker.MESSAGE, "");
+		assertTrue(message.contains("bogusJar.jar"));
+		
+		// remove bogus entry, add _extJar to the factory list as an external jar, and rebuild.
+		ifp.removeExternalJar(bogusJar);
+		ifp.addExternalJar(_extJar);
+		AptConfig.setFactoryPath(jproj, ifp);
+		
+		// rebuild and verify that the processor was loaded and the problems were removed.
+		LoaderTestAnnotationProcessor.clearLoaded();
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		assertTrue(LoaderTestAnnotationProcessor.isLoaded());
+		
+		// Verify that we were able to run the ColorAnnotationProcessor successfully
+		assertTrue(ColorAnnotationProcessor.wasSuccessful());
+		
+		// restore to the original
+		AptConfig.setFactoryPath(jproj, ifp);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.builder.Tests#tearDown()
 	 */
@@ -134,6 +178,7 @@ public class FactoryLoaderTests extends APTTestBase {
 		JavaCore.removeClasspathVariable( TEMPJARDIR_CPVAR, null );
 		_extJar = null;
 		_extVarJar = null;
+		_projectPath = null;
 		super.tearDown();
 	}
 	

@@ -468,12 +468,12 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		catch( Exception e )
 		{
-			AptPlugin.log(e, "Failed to load " + factoryName); //$NON-NLS-1$
+			AptPlugin.trace("Failed to load factory " + factoryName, e); //$NON-NLS-1$
 			failureHandler.addFailedFactory(factoryName);
 		}
 		catch ( NoClassDefFoundError ncdfe )
 		{
-			AptPlugin.log(ncdfe, "Failed to load " + factoryName); //$NON-NLS-1$
+			AptPlugin.trace("Failed to load " + factoryName, ncdfe); //$NON-NLS-1$
 			failureHandler.addFailedFactory(factoryName);
 		}
 		return f;
@@ -592,7 +592,7 @@ public class AnnotationProcessorFactoryLoader {
 						clazz = classLoader.loadClass(factoryName);
 						factory = new ClassServiceFactory(clazz);
 					} catch (ClassNotFoundException e) {
-						AptPlugin.log(e, "Unable to load annotation processor " + factoryName); //$NON-NLS-1$
+						AptPlugin.trace("Unable to load annotation processor " + factoryName, e); //$NON-NLS-1$
 						failureHandler.addFailedFactory(factoryName);
 					} 
 				}
