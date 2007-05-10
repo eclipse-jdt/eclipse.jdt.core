@@ -175,6 +175,22 @@ public class ExceptionHandlingTests extends APTTestBase {
 	}
 
 	/**
+	 * Annotation that expects an array of enums but gets an annotation should not throw a ClassCastException
+	 */
+	@SuppressWarnings("nls")
+	public void testAnnotationForEnumArrayValue() throws Exception
+	{
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		
+		IPath testPath = env.addClass(srcRoot, "test", "Test", getCodeForTest("enumsValue = @ExceptionHandlingAnnotation()"));
+
+		fullBuild( project.getFullPath() );
+		expectingOnlySpecificProblemFor(testPath, new ExpectedProblem("Test", "Type mismatch: cannot convert from ExceptionHandlingAnnotation to ExceptionHandlingAnnotation.EHAEnum[]", testPath));
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+	}
+
+	/**
 	 * Set up the test code for APT exception handling tests
 	 * @param annoValue attribute values to pass to ExceptionHandlingAnnotation
 	 * @return complete test code

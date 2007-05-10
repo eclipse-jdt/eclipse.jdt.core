@@ -204,9 +204,9 @@ public class AnnotationInvocationHandler implements InvocationHandler
 		
 	    else if( domValue instanceof IAnnotationBinding )
 		{
-	    	// Make sure the expected value is not a String or a primitive
-	    	if (expectedType.isPrimitive() || expectedType == String.class) {
-	    		return domValue;
+	    	// We cannot convert an annotation into anything else
+	    	if (!expectedType.isAnnotation()) {
+	    		return null;
 	    	}
 	    	
 			final AnnotationMirrorImpl annoMirror = 

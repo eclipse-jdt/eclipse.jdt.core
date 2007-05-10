@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.exceptionhandling.ExceptionHandlingAnnotation.EHAEnum;
 
 public class ExceptionHandlingProcessor extends BaseProcessor {  
 
@@ -39,6 +40,7 @@ public class ExceptionHandlingProcessor extends BaseProcessor {
         	boolean booleanValue = annotation.booleanValue();
         	String strValue = annotation.strValue();
         	String[] arrValue = annotation.arrValue();
+        	EHAEnum[] enumsValue = annotation.enumsValue();
         }        
 	}
 }
