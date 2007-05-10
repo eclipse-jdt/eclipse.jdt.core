@@ -187,6 +187,9 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	}	
 }
 
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#availableMethods()
+ */
 public FieldBinding[] availableFields() {
 	if ((this.tagBits & TagBits.AreFieldsComplete) != 0)
 		return fields;
@@ -212,6 +215,10 @@ public FieldBinding[] availableFields() {
 		System.arraycopy(availableFields, 0, availableFields = new FieldBinding[count], 0, count);
 	return availableFields;
 }
+
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#availableMethods()
+ */
 public MethodBinding[] availableMethods() {
 	if ((this.tagBits & TagBits.AreMethodsComplete) != 0)
 		return methods;

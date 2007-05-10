@@ -106,13 +106,17 @@ public interface ITypeBinding extends IBinding {
 
 	/**
 	 * Returns a list of bindings representing all the fields declared
-	 * as members of this class, interface, or enum type. These include public,
-	 * protected, default (package-private) access, and private fields declared
-	 * by the class, but excludes inherited fields. Synthetic fields may or
-	 * may not be included.
-	 * Returns an empty list if the class, interface, or enum declares no fields,
-	 * and for other kinds of type bindings that do not directly have members.
-	 * The resulting bindings are in no particular order.
+	 * as members of this class, interface, or enum type.
+	 * 
+	 * <p>These include public, protected, default (package-private) access,
+	 * and private fields declared by the class, but excludes inherited fields.
+	 * Synthetic fields may or may not be included. Fields from binary types that
+	 * reference unresolvable types may not be included.</p>
+	 *
+	 * <p>Returns an empty list if the class, interface, or enum declares no fields,
+	 * and for other kinds of type bindings that do not directly have members.</p>
+	 *
+	 * <p>The resulting bindings are in no particular order.</p>
 	 *
 	 * @return the list of bindings for the field members of this type,
 	 *   or the empty list if this type does not have field members
@@ -122,12 +126,15 @@ public interface ITypeBinding extends IBinding {
 	/**
 	 * Returns a list of method bindings representing all the methods and
 	 * constructors declared for this class, interface, enum, or annotation
-	 * type. These include public, protected, default (package-private) access,
+	 * type.
+	 * <p>These include public, protected, default (package-private) access,
 	 * and private methods Synthetic methods and constructors may or may not be
 	 * included. Returns an empty list if the class, interface, or enum,
 	 * type declares no methods or constructors, if the annotation type declares
 	 * no members, or if this type binding represents some other kind of type
-	 * binding. The resulting bindings are in no particular order.
+	 * binding. Methods from binary types that reference unresolvable types may
+	 * not be included.</p>
+	 * <p>The resulting bindings are in no particular order.</p>
 	 *
 	 * @return the list of method bindings for the methods and constructors
 	 *   declared by this class, interface, enum type, or annotation type,

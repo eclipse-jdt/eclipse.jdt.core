@@ -160,9 +160,16 @@ public static void sortMethods(MethodBinding[] sortedMethods, int left, int righ
 	Arrays.sort(sortedMethods, left, right, METHOD_COMPARATOR);
 }
 
+/**
+ * Return the array of resolvable fields (resilience)
+ */
 public FieldBinding[] availableFields() {
 	return fields();
 }
+
+/**
+ * Return the array of resolvable methods (resilience)
+ */
 public MethodBinding[] availableMethods() {
 	return methods();
 }

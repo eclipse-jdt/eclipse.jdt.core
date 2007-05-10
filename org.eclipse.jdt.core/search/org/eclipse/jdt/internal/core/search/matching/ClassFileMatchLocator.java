@@ -69,7 +69,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 				// filter out element not in hierarchy scope
 				if (!locator.typeInHierarchy(binding)) return;
 
-				MethodBinding[] methods = binding.methods();
+				MethodBinding[] methods = binding.availableMethods(); // resilience
 				for (int i = 0, l = methods.length; i < l; i++) {
 					MethodBinding method = methods[i];
 					if (locator.patternLocator.resolveLevel(method) == PatternLocator.ACCURATE_MATCH) {
@@ -82,7 +82,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 					}
 				}
 
-				FieldBinding[] fields = binding.fields();
+				FieldBinding[] fields = binding.availableFields();
 				for (int i = 0, l = fields.length; i < l; i++) {
 					FieldBinding field = fields[i];
 					if (locator.patternLocator.resolveLevel(field) == PatternLocator.ACCURATE_MATCH) {

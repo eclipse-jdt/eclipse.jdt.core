@@ -230,7 +230,7 @@ class TypeBinding implements ITypeBinding {
 		try {
 			if (isClass() || isInterface() || isEnum()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-				FieldBinding[] fieldBindings = referenceBinding.fields();
+				FieldBinding[] fieldBindings = referenceBinding.availableFields(); // resilience
 				int length = fieldBindings.length;
 				if (length != 0) {
 					IVariableBinding[] newFields = new IVariableBinding[length];
@@ -265,7 +265,7 @@ class TypeBinding implements ITypeBinding {
 		try {
 			if (isClass() || isInterface() || isEnum()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
-				org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] internalMethods = referenceBinding.methods();
+				org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] internalMethods = referenceBinding.availableMethods(); // be resilient
 				int length = internalMethods.length;
 				if (length != 0) {
 					int removeSyntheticsCounter = 0;

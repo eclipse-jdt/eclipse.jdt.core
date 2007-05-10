@@ -57,7 +57,7 @@ class AnnotationBinding implements IAnnotationBinding {
 		IMemberValuePairBinding[] pairs = getDeclaredMemberValuePairs();
 		ReferenceBinding typeBinding = this.internalAnnotation.getAnnotationType();
 		if (typeBinding == null) return pairs;
-		MethodBinding[] methods = typeBinding.methods();
+		MethodBinding[] methods = typeBinding.availableMethods(); // resilience
 		int methodLength = methods == null ? 0 : methods.length;
 		if (methodLength == 0) return pairs;
 

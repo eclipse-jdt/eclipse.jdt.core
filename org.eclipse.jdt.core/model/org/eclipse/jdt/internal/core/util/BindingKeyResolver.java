@@ -192,7 +192,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 
 	public void consumeField(char[] fieldName) {
-		FieldBinding[] fields = ((ReferenceBinding) this.typeBinding).fields();
+		FieldBinding[] fields = ((ReferenceBinding) this.typeBinding).availableFields(); // resilience
 	 	for (int i = 0, length = fields.length; i < length; i++) {
 			FieldBinding field = fields[i];
 			if (CharOperation.equals(fieldName, field.name)) {
@@ -238,7 +238,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 
 	public void consumeMethod(char[] selector, char[] signature) {
-		MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).methods();
+		MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).availableMethods(); // resilience
 	 	for (int i = 0, methodLength = methods.length; i < methodLength; i++) {
 			MethodBinding method = methods[i];
 			if (CharOperation.equals(selector, method.selector) || (selector.length == 0 && method.isConstructor())) {
@@ -339,7 +339,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	public void consumeTypeVariable(char[] position, char[] typeVariableName) {
 		if (position.length > 0) {
 			int pos = Integer.parseInt(new String(position));
-			MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).methods();
+			MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).availableMethods(); // resilience
 			if (methods != null && pos < methods.length) {
 				this.methodBinding = methods[pos];
 			}

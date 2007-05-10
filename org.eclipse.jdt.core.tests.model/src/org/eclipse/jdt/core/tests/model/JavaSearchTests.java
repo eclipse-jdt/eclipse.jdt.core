@@ -1931,8 +1931,7 @@ public void testPackageReference8() throws CoreException { // was testPatternMat
 	resultCollector.toString();
 }
 /**
- * Test that we find potential matches in binaries even if we can't resolve the entire
- * class file.
+ * Test that we find matches in binaries even if we can't resolve the entire class file.
  * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
  */
 public void testPotentialMatchInBinary1() throws CoreException {
@@ -1956,9 +1955,8 @@ public void testPotentialMatchInBinary1() throws CoreException {
 			getJavaSearchScope(), 
 			this.resultCollector);
 		assertSearchResults(
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] POTENTIAL_MATCH\n" + 
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] POTENTIAL_MATCH\n" + 
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] POTENTIAL_MATCH",
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] EXACT_MATCH",
 			this.resultCollector);
 	} finally {
 		// reset classpath
@@ -1966,8 +1964,7 @@ public void testPotentialMatchInBinary1() throws CoreException {
 	}
 }	
 /**
- * Test that we find potential matches in binaries even if we can't resolve the entire
- * class file.
+ * Test that we find matches in binaries even if we can't resolve the entire class file.
  * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
  */
 public void testPotentialMatchInBinary2() throws CoreException {
@@ -1991,9 +1988,8 @@ public void testPotentialMatchInBinary2() throws CoreException {
 			getJavaSearchScope(), 
 			this.resultCollector);
 		assertSearchResults(
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] POTENTIAL_MATCH\n" + 
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo(java.util.EventListener) [No source] POTENTIAL_MATCH\n" + 
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] POTENTIAL_MATCH",
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] EXACT_MATCH",
 			this.resultCollector);
 	} finally {
 		// reset classpath
@@ -2001,8 +1997,7 @@ public void testPotentialMatchInBinary2() throws CoreException {
 	}
 }	
 /**
- * Test that we find potential matches in binaries even if we can't resolve the entire
- * class file.
+ * Test that we find potential matches in binaries even if we can't resolve the entire class file.
  * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
  */
 public void testPotentialMatchInBinary3() throws CoreException {
