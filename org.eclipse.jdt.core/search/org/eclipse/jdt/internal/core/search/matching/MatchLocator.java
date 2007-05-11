@@ -1235,42 +1235,52 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 			return;
 		}
 		PackageDeclarationPattern pkgPattern = (PackageDeclarationPattern) searchPattern;
-		IPath[] scopeProjectsAndJars = this.scope.enclosingProjectsAndJars();
-		int scopeLength = scopeProjectsAndJars.length;
+		boolean isWorkspaceScope = this.scope == JavaModelManager.getJavaModelManager().getWorkspaceScope();
+		IPath[] scopeProjectsAndJars =  isWorkspaceScope ? null : this.scope.enclosingProjectsAndJars();
+		int scopeLength = isWorkspaceScope ? 0 : scopeProjectsAndJars.length;
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+		SimpleSet packages = new SimpleSet();
 		for (int i = 0, length = projects.length; i < length; i++) {
 			IJavaProject javaProject = projects[i];
 			// Verify that project belongs to the scope
-			boolean found = false;
-			for (int j=0; j<scopeLength; j++) {
-				if (projects[i].getPath().equals(scopeProjectsAndJars[j])) {
-					found = true;
-					break;
+			if (!isWorkspaceScope) {
+				boolean found = false;
+				for (int j=0; j<scopeLength; j++) {
+					if (javaProject.getPath().equals(scopeProjectsAndJars[j])) {
+						found = true;
+						break;
+					}
 				}
+				if (!found) continue;
 			}
-			if (!found) continue;
+			// Get all project package fragment names
 			this.nameLookup = ((JavaProject) projects[i]).newNameLookup(this.workingCopies);
 			IPackageFragment[] packageFragments = this.nameLookup.findPackageFragments(new String(pkgPattern.pkgName), true, true);
 			int pLength = packageFragments == null ? 0 : packageFragments.length;
+			// Report matches avoiding duplicate names
 			for (int p=0; p<pLength; p++) {
 				IPackageFragment fragment = packageFragments[p];
-				IResource resource = fragment.getResource();
-				if (resource == null) // case of a file in an external jar
-					resource = javaProject.getProject();
-				try {
-					if (encloses(fragment)) {
-						SearchMatch match = new PackageDeclarationMatch(fragment, SearchMatch.A_ACCURATE, -1, -1, participant, resource);
-						report(match);
+				if (packages.addIfNotIncluded(fragment) == null) continue;
+				if (encloses(fragment)) {
+					IResource resource = fragment.getResource();
+					if (resource == null) // case of a file in an external jar
+						resource = javaProject.getProject();
+					try {
+						if (encloses(fragment)) {
+							SearchMatch match = new PackageDeclarationMatch(fragment, SearchMatch.A_ACCURATE, -1, -1, participant, resource);
+							report(match);
+						}
+					} catch (JavaModelException e) {
+						throw e;
+					} catch (CoreException e) {
+						throw new JavaModelException(e);
 					}
-				} catch (JavaModelException e) {
-					throw e;
-				} catch (CoreException e) {
-					throw new JavaModelException(e);
 				}
 			}
 		}
 	}
 }
+//*/
 protected IType lookupType(ReferenceBinding typeBinding) {
 	if (typeBinding == null) return null;
 

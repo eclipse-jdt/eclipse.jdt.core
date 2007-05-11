@@ -3784,8 +3784,9 @@ public void testBug97606() throws CoreException {
 		"	}\n" + 
 		"}\n"
 	);
-	IPath pathDef = new Path("/JavaSearchBugs/src/b97606/pack/def");
-	IPath pathRef = new Path("/JavaSearchBugs/src/b97606/pack/ref");
+	IPath rootPath = new Path("/JavaSearchBugs/src/b97606");
+	IPath pathDef = rootPath.append("pack").append("def");
+	IPath pathRef = rootPath.append("pack").append("ref");
 	try {
 		createFolder(pathDef);
 		createFolder(pathRef);
@@ -3803,8 +3804,7 @@ public void testBug97606() throws CoreException {
 		);
 	}
 	finally {
-		deleteFolder(pathDef);
-		deleteFolder(pathRef);
+		deleteFolder(rootPath);
 	}
 }
 public void testBug97606b() throws CoreException {
@@ -3837,8 +3837,9 @@ public void testBug97606b() throws CoreException {
 		"	}\n" + 
 		"}\n"
 	);
-	IPath pathDef = new Path("/JavaSearchBugs/src/b97606/pack/def");
-	IPath pathRef = new Path("/JavaSearchBugs/src/b97606/pack/ref");
+	IPath rootPath = new Path("/JavaSearchBugs/src/b97606");
+	IPath pathDef = rootPath.append("pack").append("def");
+	IPath pathRef = rootPath.append("pack").append("ref");
 	try {
 		createFolder(pathDef);
 		createFolder(pathRef);
@@ -3856,8 +3857,7 @@ public void testBug97606b() throws CoreException {
 		);
 	}
 	finally {
-		deleteFolder(pathDef);
-		deleteFolder(pathRef);
+		deleteFolder(rootPath);
 	}
 }
 
@@ -7911,6 +7911,89 @@ public void testBug178847() throws CoreException {
 	} finally {
 		deleteProjects(new String[] {"P1", "P2" });
 	}
+}
+
+/**
+ * @bug 185452 [search] for all packages seems hung
+ * @test Ensure that all package declarations are found only once
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=185452"
+ */
+public void testBug185452() throws CoreException {
+	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
+	search(
+		"*", 
+		PACKAGE,
+		DECLARATIONS, 
+		SearchEngine.createWorkspaceScope(), 
+		packageCollector);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " \n" + 
+		""+ getExternalJCLPathString("1.5") + " java\n" + 
+		""+ getExternalJCLPathString("1.5") + " java.io\n" + 
+		""+ getExternalJCLPathString("1.5") + " java.lang\n" + 
+		""+ getExternalJCLPathString("1.5") + " java.lang.annotation\n" + 
+		"lib \n" + 
+		"lib/JavaSearch15.jar  [No source]\n" + 
+		"lib/JavaSearch15.jar g1 [No source]\n" + 
+		"lib/JavaSearch15.jar g1.t [No source]\n" + 
+		"lib/JavaSearch15.jar g1.t.s [No source]\n" + 
+		"lib/JavaSearch15.jar g1.t.s.def [No source]\n" + 
+		"lib/JavaSearch15.jar g5 [No source]\n" + 
+		"lib/JavaSearch15.jar g5.c [No source]\n" + 
+		"lib/JavaSearch15.jar g5.c.def [No source]\n" + 
+		"lib/JavaSearch15.jar g5.m [No source]\n" + 
+		"lib/JavaSearch15.jar g5.m.def [No source]\n" + 
+		"lib/b110422.jar  [No source]\n" + 
+		"lib/b110422.jar b110422 [No source]\n" + 
+		"lib/b123679.jar  [No source]\n" + 
+		"lib/b123679.jar pack [No source]\n" + 
+		"lib/b123679.jar test [No source]\n" + 
+		"lib/b124469.jar  [No source]\n" + 
+		"lib/b124469.jar pack [No source]\n" + 
+		"lib/b124469.jar test [No source]\n" + 
+		"lib/b124645.jar  [No source]\n" + 
+		"lib/b124645.jar test [No source]\n" + 
+		"lib/b124645.jar xy [No source]\n" + 
+		"lib/b125178.jar  [No source]\n" + 
+		"lib/b125178.jar pack [No source]\n" + 
+		"lib/b125178.jar pack.age [No source]\n" + 
+		"lib/b126330.jar  [No source]\n" + 
+		"lib/b128877.jar  [No source]\n" + 
+		"lib/b128877.jar pack [No source]\n" + 
+		"lib/b137984.jar  [No source]\n" + 
+		"lib/b140156.jar  [No source]\n" + 
+		"lib/b164791.jar  [No source]\n" + 
+		"lib/b164791.jar pack [No source]\n" + 
+		"lib/b164791.jar test [No source]\n" + 
+		"lib/b166348.jar  [No source]\n" + 
+		"lib/b166348.jar pack [No source]\n" + 
+		"lib/b166348.jar test [No source]\n" + 
+		"lib/b86293.jar  [No source]\n" + 
+		"lib/b87627.jar  [No source]\n" + 
+		"lib/b87627.jar b87627 [No source]\n" + 
+		"lib/b89848 b89848\n" + 
+		"lib/b95152.jar  [No source]\n" + 
+		"lib/b95152.jar b95152 [No source]\n" + 
+		"lib/test75816.jar  [No source]\n" + 
+		"lib/test81556.jar  [No source]\n" + 
+		"lib/test81556.jar b81556 [No source]\n" + 
+		"lib/test81556.jar b81556.b [No source]\n" + 
+		"src \n" + 
+		"src/b108088 b108088\n" + 
+		"src/b123679 b123679\n" + 
+		"src/b123679/pack b123679.pack\n" + 
+		"src/b123679/test b123679.test\n" + 
+		"src/b124645 b124645\n" + 
+		"src/b124645/test b124645.test\n" + 
+		"src/b124645/xy b124645.xy\n" + 
+		"src/b127628 b127628\n" + 
+		"src/b137984 b137984\n" + 
+		"src/b163984 b163984\n" + 
+		"src/b81556 b81556\n" + 
+		"src/b81556/a b81556.a\n" + 
+		"src/b86380 b86380\n" + 
+		"src/b95794 b95794",
+		packageCollector);
 }
 
 }

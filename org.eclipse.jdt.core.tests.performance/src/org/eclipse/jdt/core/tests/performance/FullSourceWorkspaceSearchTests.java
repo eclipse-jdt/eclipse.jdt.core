@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.tests.performance;
 
 import java.io.PrintStream;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.Test;
 
@@ -19,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
@@ -161,7 +164,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		}
 	}
 	
-	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, JavaSearchResultCollector resultCollector) throws CoreException {
+	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor resultCollector) throws CoreException {
 		int matchMode = patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1
 			? SearchPattern.R_PATTERN_MATCH
 			: SearchPattern.R_EXACT_MATCH;
@@ -653,6 +656,89 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			// TODO (frederic) increase time for this test in next version as bug 183062 fix make its time around 2ms!
 //			for (int j=0; j<20; j++)
 				search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
+			stopMeasuring();
+		}
+		
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+	}
+
+	/**
+	 * Performance tests for search: Package Declarations on workspace scope.
+	 */
+	public void testSearchPackageDeclarationsWorkspace() throws CoreException {
+		tagAsSummary("Search workspace package declarations", false); // do NOT put in fingerprint
+
+		// Wait for indexing end
+		AbstractJavaModelTests.waitUntilIndexesReady();
+
+		// Warm up
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		String name = "*";
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
+			if (i==0) {
+				System.out.println("	- "+INT_FORMAT.format(resultCollector.count)+" package declarations in workspace.");
+			}
+		}
+
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			cleanCategoryTableCache(false, scope, resultCollector);
+			runGc();
+			startMeasuring();
+			for (int j=0; j<10; j++)
+				search(name, PACKAGE, DECLARATIONS, scope, resultCollector);
+			stopMeasuring();
+		}
+		
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+	}
+
+	/**
+	 * Performance tests for search: Simulate a Goto Package action.
+	 * This action searches all package declarations on the entire workspace.
+	 * Not activated, as this is more a JDT/UI performance tests, but released
+	 * to keep a trace in the repository...
+	 */
+	public void _testGotoPackage() throws CoreException {
+		tagAsSummary("Search package declarations", true); // put in fingerprint
+
+		// Wait for indexing end
+		AbstractJavaModelTests.waitUntilIndexesReady();
+
+		// Warm up
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		String name = "*";
+		final List packageList= new ArrayList();
+		SearchRequestor requestor = new SearchRequestor() {
+			public void acceptSearchMatch(SearchMatch match) throws CoreException {
+				IJavaElement enclosingElement= (IJavaElement) match.getElement();
+				enclosingElement.getElementName();
+				IPackageFragment pkg= (IPackageFragment) enclosingElement;
+				if (pkg.getCompilationUnits().length == 0 && pkg.getClassFiles().length == 0) {
+					return;
+				}
+				packageList.add(enclosingElement);
+			}
+		};
+		for (int i=0 ; i<WARMUP_COUNT; i++) {
+			search(name, PACKAGE, DECLARATIONS, scope, requestor);
+			if (i==0) {
+				System.out.println("	- "+INT_FORMAT.format(packageList.size())+" package declarations in workspace.");
+			}
+		}
+
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			cleanCategoryTableCache(false, scope, new JavaSearchResultCollector());
+			runGc();
+			startMeasuring();
+			search(name, PACKAGE, DECLARATIONS, scope, requestor);
 			stopMeasuring();
 		}
 		
