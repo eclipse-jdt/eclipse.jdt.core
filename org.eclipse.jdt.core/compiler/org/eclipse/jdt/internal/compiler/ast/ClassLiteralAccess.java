@@ -78,16 +78,21 @@ public class ClassLiteralAccess extends Expression {
 		if ((targetType = type.resolveType(scope, true /* check bounds*/)) == null)
 			return null;
 
-		if (targetType.isArrayType()
-			&& ((ArrayBinding) targetType).leafComponentType == TypeBinding.VOID) {
-			scope.problemReporter().cannotAllocateVoidArray(this);
-			return null;
-		} else if (targetType.isTypeVariable()) {
+		if (targetType.isArrayType()) {
+			ArrayBinding arrayBinding = (ArrayBinding) this.targetType;
+			TypeBinding leafComponentType = arrayBinding.leafComponentType;
+			if (leafComponentType == TypeBinding.VOID) {
+				scope.problemReporter().cannotAllocateVoidArray(this);
+				return null;
+			} else if (leafComponentType.isTypeVariable()) {
+				scope.problemReporter().illegalClassLiteralForTypeVariable((TypeVariableBinding)leafComponentType, this);
+			}
+		} else if (this.targetType.isTypeVariable()) {
 			scope.problemReporter().illegalClassLiteralForTypeVariable((TypeVariableBinding)targetType, this);
 		}
 		ReferenceBinding classType = scope.getJavaLangClass();
 		if (classType.isGenericType()) {
-		    // Integer.class --> Class<Integer>, perform boxing of base types (int.class --> Class<Integer>)
+			// Integer.class --> Class<Integer>, perform boxing of base types (int.class --> Class<Integer>)
 			TypeBinding boxedType = null;
 			if (targetType.id == T_void) {
 				boxedType = scope.environment().getType(JAVA_LANG_VOID);
@@ -97,9 +102,9 @@ public class ClassLiteralAccess extends Expression {
 			} else {
 				boxedType = scope.boxing(targetType);
 			}
-		    this.resolvedType = scope.environment().createParameterizedType(classType, new TypeBinding[]{ boxedType }, null/*not a member*/);
+			this.resolvedType = scope.environment().createParameterizedType(classType, new TypeBinding[]{ boxedType }, null/*not a member*/);
 		} else {
-		    this.resolvedType = classType;
+			this.resolvedType = classType;
 		}
 		return this.resolvedType;
 	}

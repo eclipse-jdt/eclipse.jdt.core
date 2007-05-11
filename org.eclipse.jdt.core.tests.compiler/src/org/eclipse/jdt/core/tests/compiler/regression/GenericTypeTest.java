@@ -33313,5 +33313,40 @@ public void test1128() {
 		"The member type A.Member<String> must be qualified with a parameterized type, since it is not static\n" + 
 		"----------\n");
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=181270
+public void test1129() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	void foo() {\r\n" + 
+			"		System.out.println(T[].class);\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(T[].class);\n" + 
+		"	                   ^^^^^^^^^\n" + 
+		"Illegal class literal for the type parameter T\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=181270
+public void test1130() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<T> void foo() {\r\n" + 
+			"		System.out.println(T[].class);\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(T[].class);\n" + 
+		"	                   ^^^^^^^^^\n" + 
+		"Illegal class literal for the type parameter T\n" + 
+		"----------\n");
+}
 }
