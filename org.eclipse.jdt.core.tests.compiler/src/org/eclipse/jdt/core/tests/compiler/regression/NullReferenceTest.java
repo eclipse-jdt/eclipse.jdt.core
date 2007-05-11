@@ -4350,6 +4350,8 @@ public void test0515_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128547
 // variant
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184546
+// variant
 public void test0516_try_finally() {
 	this.runConformTest(
 		new String[] {
@@ -4370,7 +4372,6 @@ public void test0516_try_finally() {
 			"}\n"},
 		""); 
 }
-
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132072
@@ -4412,7 +4413,6 @@ public void test0517_try_finally() {
 			"}\n"},
 		""); 
 }
-
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132120
@@ -4889,6 +4889,30 @@ public void test0532_try_finally() {
 			"  }\n" + 
 			"}"},
 		"");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=184546
+public void test0533_try_finally_field() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			" static char SHOULD_NOT_MATTER = '?';\n" +
+			" Object foo() {\n" + 
+			"   X x = null;\n" +
+			"   try {\n" + 
+			"     x = new X();\n" +
+			"     return x;\n" +
+			"   }\n" + 
+			"   finally {\n" + 
+			"     if (x != null) {\n" +
+			"       x.toString();\n" +
+			"     }\n" +
+			"   }\n" + 
+			" }\n" + 
+			"}\n"},
+		""); 
 }
 
 // null analysis -- try/catch

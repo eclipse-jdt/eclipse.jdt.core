@@ -38,6 +38,7 @@ public class NullInfoRegistry extends UnconditionalFlowInfo {
  *  	not modified by this constructor
  */
 public NullInfoRegistry(UnconditionalFlowInfo upstream) {
+	this.maxFieldCount = upstream.maxFieldCount;
 	if ((upstream.tagBits & NULL_FLAG_MASK) != 0) {
 		long u1, u2, u3, u4, nu2, nu3, nu4;
 		this.nullBit2 = (u1 = upstream.nullBit1)
