@@ -51,7 +51,8 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 	 */
 	private final TypeDeclarationImpl _typeDecl;
 	
-	private IPackageFragment[] _pkgFragments;
+	// Lazily initialized unless specified in constructor.
+	private IPackageFragment[] _pkgFragments = null;
 	
     public PackageDeclarationImpl(
 			final IPackageBinding binding, 
@@ -63,7 +64,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
         	 typeDecl, 
         	 env, 
         	 hideSourcePosition, 
-        	 PackageUtil.getPackageFragments(binding.getName(), env));
+        	 null);
     }
     
     public PackageDeclarationImpl(
@@ -103,6 +104,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     }
 
     public Collection<ClassDeclaration> getClasses() {
+    	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
 		List<ClassDeclaration> classes = new ArrayList<ClassDeclaration>();
 		for (IType type : types) {
@@ -122,6 +124,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     }
 
     public Collection<EnumDeclaration> getEnums() {
+    	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
 		List<EnumDeclaration> enums = new ArrayList<EnumDeclaration>();
 		for (IType type : types) {
@@ -137,6 +140,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     }
 
     public Collection<InterfaceDeclaration> getInterfaces() {
+    	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
 		List<InterfaceDeclaration> interfaces = new ArrayList<InterfaceDeclaration>();
 		for (IType type : types) {
@@ -201,6 +205,18 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 	public IPackageBinding getDeclarationBinding(){ return (IPackageBinding)_binding; }
 
 	public boolean isFromSource(){ return _typeDecl.isFromSource(); }
+	
+	/**
+	 * Make sure to call this before attempting to access _pkgFragments.
+	 * We initialize this field lazily, because it is very expensive to compute and
+	 * there are some common questions such as getQualifiedName() that can be
+	 * answered without initializing it at all.
+	 */
+	private void initFragments() {
+		if (null == _pkgFragments) {
+			_pkgFragments = PackageUtil.getPackageFragments(_binding.getName(), _env);
+		}
+	}
 	
 	private static List<IType> getTypesInPackage(final IPackageFragment[] fragments) {
 		List<IType> types = new ArrayList<IType>();
