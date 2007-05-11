@@ -9076,4 +9076,26 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a capture", typeBinding.isCapture());
 		assertNull("No binary type", typeBinding.getBinaryName());
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185129
+	public void test0273() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"import test0273.B;\n" +
+			"import test0273.A;\n" +
+			"public class X {\n" +
+			"	Object foo() {\n" +
+			"		return new B(new A());\n" +
+			"	}\n" +
+			"	void bar(String s) {\n" +
+			"		System.out.println(s);\n" +
+			"	}\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "The type A is not generic; it cannot be parameterized with arguments <?>");
+	}
 }

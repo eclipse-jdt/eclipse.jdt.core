@@ -65,23 +65,25 @@ public class LocalVariableBinding extends VariableBinding {
 		
 		// declaring method or type
 		BlockScope scope = this.declaringScope;
-		MethodScope methodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
-		ReferenceContext referenceContext = methodScope.referenceContext;
-		if (referenceContext instanceof AbstractMethodDeclaration) {
-			MethodBinding methodBinding = ((AbstractMethodDeclaration) referenceContext).binding;
-			if (methodBinding != null) {
-				buffer.append(methodBinding.computeUniqueKey(false/*not a leaf*/));
+		if (scope != null) {
+			// the scope can be null. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=185129
+			MethodScope methodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
+			ReferenceContext referenceContext = methodScope.referenceContext;
+			if (referenceContext instanceof AbstractMethodDeclaration) {
+				MethodBinding methodBinding = ((AbstractMethodDeclaration) referenceContext).binding;
+				if (methodBinding != null) {
+					buffer.append(methodBinding.computeUniqueKey(false/*not a leaf*/));
+				}
+			} else if (referenceContext instanceof TypeDeclaration) {
+				TypeBinding typeBinding = ((TypeDeclaration) referenceContext).binding;
+				if (typeBinding != null) {
+					buffer.append(typeBinding.computeUniqueKey(false/*not a leaf*/));
+				}
 			}
-		} else if (referenceContext instanceof TypeDeclaration) {
-			TypeBinding typeBinding = ((TypeDeclaration) referenceContext).binding;
-			if (typeBinding != null) {
-				buffer.append(typeBinding.computeUniqueKey(false/*not a leaf*/));
-			}
+	
+			// scope index
+			getScopeKey(scope, buffer);
 		}
-
-		// scope index
-		getScopeKey(scope, buffer);
-
 		// variable name
 		buffer.append('#');
 		buffer.append(this.name);
