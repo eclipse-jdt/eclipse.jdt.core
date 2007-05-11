@@ -67,6 +67,53 @@ public class DependencyTests extends BuilderTests {
 		expectingOnlySpecificProblemFor(collaboratorPath, new Problem("Collaborator", "The type Collaborator must implement the inherited abstract method Indicted.foo()", collaboratorPath, 38, 50, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=168208
+	public void testCaseInvariantType() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		org.eclipse.jdt.core.IJavaProject p = env.getJavaProject("Project");
+		java.util.Map options = p.getOptions(true);
+		options.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, org.eclipse.jdt.core.JavaCore.DISABLED); //$NON-NLS-1$
+		p.setOptions(options);
+
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A {\n" +
+			"	class Node {}\n" +
+			"}" //$NON-NLS-1$
+		);
+
+		env.addClass(root, "p1", "Bb", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"class Bb {}" //$NON-NLS-1$
+		);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A {\n" +
+			"	class node {}\n" +
+			"}" //$NON-NLS-1$
+		);
+
+		env.addClass(root, "p1", "Bb", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"class BB {}" //$NON-NLS-1$
+		);
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+
 	public void testExactMethodDeleting() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());

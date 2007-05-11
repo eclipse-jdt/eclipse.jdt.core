@@ -788,7 +788,7 @@ protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit,
 	}
 
 	IFile file = container.getFile(filePath.addFileExtension(SuffixConstants.EXTENSION_class));
-	writeClassFileBytes(classFile.getBytes(), file, fileName, isTopLevelType, compilationUnit.updateClassFile);
+	writeClassFileBytes(classFile.getBytes(), file, fileName, isTopLevelType, compilationUnit);
 	if (classFile.isShared) {
 		this.compiler.lookupEnvironment.classFilePool.release(classFile);
 	}
@@ -796,7 +796,7 @@ protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit,
 	return filePath.lastSegment().toCharArray();
 }
 
-protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isTopLevelType, boolean updateClassFile) throws CoreException {
+protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException {
 	if (file.exists()) {
 		// Deal with shared output folders... last one wins... no collision cases detected
 		if (JavaBuilder.DEBUG)

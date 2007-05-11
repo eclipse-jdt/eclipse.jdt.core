@@ -776,11 +776,11 @@ protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) t
 	storeTasksFor(sourceFile, tasks);
 }
 
-protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isTopLevelType, boolean updateClassFile) throws CoreException {
+protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException {
 	// Before writing out the class file, compare it to the previous file
-	// If structural changes occured then add dependent source files
+	// If structural changes occurred then add dependent source files
 	if (file.exists()) {
-		if (writeClassFileCheck(file, qualifiedFileName, bytes) || updateClassFile) { // see 46093
+		if (writeClassFileCheck(file, qualifiedFileName, bytes) || compilationUnit.updateClassFile) { // see 46093
 			if (JavaBuilder.DEBUG)
 				System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
 			if (!file.isDerived())
@@ -797,9 +797,40 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 		try {
 			file.create(new ByteArrayInputStream(bytes), IResource.FORCE | IResource.DERIVED, null);
 		} catch (CoreException e) {
-			if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
-				// catch the case that a nested type has been renamed and collides on disk with an as-yet-to-be-deleted type
+			if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS) {
+				IStatus status = e.getStatus();
+				if (status instanceof IResourceStatus) {
+					IPath oldFilePath = ((IResourceStatus) status).getPath();
+					char[] oldTypeName = oldFilePath.removeFileExtension().lastSegment().toCharArray();
+					char[][] previousTypeNames = newState.getDefinedTypeNamesFor(compilationUnit.typeLocator());
+					boolean fromSameFile = false;
+					if (previousTypeNames == null) {
+						fromSameFile = CharOperation.equals(compilationUnit.getMainTypeName(), oldTypeName);
+					} else {
+						for (int i = 0, l = previousTypeNames.length; i < l; i++) {
+							if (CharOperation.equals(previousTypeNames[i], oldTypeName)) {
+								fromSameFile = true;
+								break;
+							}
+						}
+					}
+					if (fromSameFile) {
+						// file is defined by the same compilationUnit, but won't be deleted until later so do it now
+						IFile collision = file.getParent().getFile(new Path(oldFilePath.lastSegment()));
+						collision.delete(true, false, null);
+						boolean success = false;
+						try {
+							file.create(new ByteArrayInputStream(bytes), IResource.FORCE | IResource.DERIVED, null);
+							success = true;
+						} catch (CoreException ignored) {
+							// ignore the second exception
+						}
+						if (success) return;
+					}
+				}
+				// catch the case that a type has been renamed and collides on disk with an as-yet-to-be-deleted type
 				throw new AbortCompilation(true, new AbortIncrementalBuildException(qualifiedFileName));
+			}
 			throw e; // rethrow
 		}
 	}
