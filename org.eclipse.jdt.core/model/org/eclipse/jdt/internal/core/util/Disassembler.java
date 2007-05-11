@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.*;
+import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 /**
@@ -560,7 +561,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(Messages.disassembler_space); 
 		}
 		CharOperation.replace(methodDescriptor, '/', '.');
-		final boolean isVarArgs = (accessFlags & IModifierConstants.ACC_VARARGS) != 0;
+		final boolean isVarArgs = isVarArgs(methodInfo);
 		if (methodInfo.isConstructor()) {
 			if (checkMode(mode, WORKING_COPY) && signatureAttribute != null) {
 				final char[] signature = signatureAttribute.getSignature();
@@ -619,7 +620,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				if (returnType.length == 1) {
 					switch(returnType[0]) {
 						case 'V' :
-							writeNewLine(buffer, lineSeparator, tabNumber);							
+							writeNewLine(buffer, lineSeparator, tabNumber);
 							break;
 						case 'I' :
 						case 'B' :
@@ -630,19 +631,19 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						case 'C' :
 							writeNewLine(buffer, lineSeparator, tabNumber + 1);
 							buffer.append("return 0;"); //$NON-NLS-1$
-							writeNewLine(buffer, lineSeparator, tabNumber);							
+							writeNewLine(buffer, lineSeparator, tabNumber);
 							break;
 						default :
 							// boolean
 							writeNewLine(buffer, lineSeparator, tabNumber + 1);
 							buffer.append("return false;"); //$NON-NLS-1$
-							writeNewLine(buffer, lineSeparator, tabNumber);							
+							writeNewLine(buffer, lineSeparator, tabNumber);
 					}
 				} else {
 					// object
 					writeNewLine(buffer, lineSeparator, tabNumber + 1);
 					buffer.append("return null;"); //$NON-NLS-1$
-					writeNewLine(buffer, lineSeparator, tabNumber);							
+					writeNewLine(buffer, lineSeparator, tabNumber);
 				}
 				buffer.append('}');
 			} else {
@@ -980,6 +981,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		return CharOperation.equals(TypeConstants.JAVA_LANG_OBJECT, CharOperation.splitOn('.', className));
 	}
 	
+	private boolean isVarArgs(IMethodInfo methodInfo) {
+		int accessFlags = methodInfo.getAccessFlags();
+		if ((accessFlags & IModifierConstants.ACC_VARARGS) != 0) return true;
+		// check the presence of the unspecified Varargs attribute
+		return Util.getAttribute(methodInfo, AttributeNamesConstants.VarargsName) != null;
+	}
 	private void disassemble(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber - 1);
 		DefaultBytecodeVisitor visitor = new DefaultBytecodeVisitor(codeAttribute, buffer, lineSeparator, tabNumber, mode);

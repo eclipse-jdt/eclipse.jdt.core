@@ -369,6 +369,9 @@ private void readModifierRelatedAttributes() {
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.AnnotationDefaultName))
 						this.accessFlags |= ClassFileConstants.AccAnnotationDefault;
 					break;
+				case 'V' :
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.VarargsName))
+						this.accessFlags |= ClassFileConstants.AccVarargs;
 			}
 		}
 		readOffset += (6 + u4At(readOffset + 2));

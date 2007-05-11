@@ -5347,23 +5347,46 @@ public class ClassFile
 
 			attributeNumber++;
 		}
-		if (this.targetJDK < ClassFileConstants.JDK1_5 && methodBinding.isSynthetic()) {
-			// Synthetic attribute
-			// Check that there is enough space to write the deprecated attribute
-			if (contentsOffset + 6 >= this.contents.length) {
-				resizeContents(6);
+		if (this.targetJDK < ClassFileConstants.JDK1_5) {
+			if (methodBinding.isSynthetic()) {
+				// Synthetic attribute
+				// Check that there is enough space to write the deprecated attribute
+				if (contentsOffset + 6 >= this.contents.length) {
+					resizeContents(6);
+				}
+				int syntheticAttributeNameIndex =
+					constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
+				contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
+				contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
+				// the length of a synthetic attribute is equals to 0
+				contents[contentsOffset++] = 0;
+				contents[contentsOffset++] = 0;
+				contents[contentsOffset++] = 0;
+				contents[contentsOffset++] = 0;
+	
+				attributeNumber++;
 			}
-			int syntheticAttributeNameIndex =
-				constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
-			contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
-			contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
-			// the length of a synthetic attribute is equals to 0
-			contents[contentsOffset++] = 0;
-			contents[contentsOffset++] = 0;
-			contents[contentsOffset++] = 0;
-			contents[contentsOffset++] = 0;
-
-			attributeNumber++;
+			if (methodBinding.isVarargs()) {
+				/*
+				 * handle of the target jsr14 for varargs in the source
+				 * Varargs attribute
+				 * Check that there is enough space to write the deprecated attribute
+				 */
+				if (contentsOffset + 6 >= this.contents.length) {
+					resizeContents(6);
+				}
+				int varargsAttributeNameIndex =
+					constantPool.literalIndex(AttributeNamesConstants.VarargsName);
+				contents[contentsOffset++] = (byte) (varargsAttributeNameIndex >> 8);
+				contents[contentsOffset++] = (byte) varargsAttributeNameIndex;
+				// the length of a varargs attribute is equals to 0
+				contents[contentsOffset++] = 0;
+				contents[contentsOffset++] = 0;
+				contents[contentsOffset++] = 0;
+				contents[contentsOffset++] = 0;
+	
+				attributeNumber++;
+			}
 		}
 		// add signature attribute
 		char[] genericSignature = methodBinding.genericSignature();
@@ -5439,8 +5462,9 @@ public class ClassFile
 			resizeContents(10);
 		}
 		if (targetJDK < ClassFileConstants.JDK1_5) {
-		    // pre 1.5, synthetic was an attribute, not a modifier
-		    accessFlags &= ~ClassFileConstants.AccSynthetic;
+			// pre 1.5, synthetic is an attribute, not a modifier
+			// pre 1.5, varargs is an attribute, not a modifier (-target jsr14 mode)
+			accessFlags &= ~(ClassFileConstants.AccSynthetic | ClassFileConstants.AccVarargs);
 		}
 		if ((methodBinding.tagBits & TagBits.ClearPrivateModifier) != 0) {
 			accessFlags &= ~ClassFileConstants.AccPrivate;

@@ -10,6 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+import java.util.Map;
+
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.util.IClassFileAttribute;
+import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.core.util.IMethodInfo;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 
 public class VarargsTest extends AbstractComparableTest {
@@ -22,7 +33,7 @@ public class VarargsTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 30 };
+//		TESTS_NUMBERS = new int[] { 60 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 	public static Test suite() {
@@ -2063,5 +2074,68 @@ public class VarargsTest extends AbstractComparableTest {
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n");
-	}		
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=186181
+	public void test060() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"   public static String varargMethod( Object... objects ) {\r\n" + 
+					"      String s = \"\";\n" + 
+					"      for (Object object : objects)\n" + 
+					"         s += \",\" + object.toString();\n" + 
+					"      return s;\n" + 
+					"   }\n" + 
+					"}",
+				},
+				"",
+				null,
+				true,
+				null,
+				options,
+				null);
+
+		// make sure that this file contains the varargs attribute
+		IClassFileReader reader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "X.class", IClassFileReader.ALL);
+		IMethodInfo[] methodInfos = reader.getMethodInfos();
+		assertEquals("Wrong size", 2, methodInfos.length);
+		IMethodInfo methodInfo = null;
+		if (CharOperation.equals(methodInfos[0].getName(), "varargMethod".toCharArray())) {
+			methodInfo = methodInfos[0];
+		} else if (CharOperation.equals(methodInfos[1].getName(), "varargMethod".toCharArray())) {
+			methodInfo = methodInfos[1];
+		}
+		assertTrue("ACC_VARARGS is not set", (methodInfo.getAccessFlags() & ClassFileConstants.AccVarargs) == 0);
+		assertNotNull("Method varargMethodshould be there", methodInfo);
+		assertEquals("2", 2, methodInfo.getAttributeCount());
+		IClassFileAttribute[] attributes = methodInfo.getAttributes();
+		assertTrue("varargs attribute not found", CharOperation.equals(attributes[0].getAttributeName(), "Varargs".toCharArray())
+				|| CharOperation.equals(attributes[1].getAttributeName(), "Varargs".toCharArray()));
+
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+		this.runConformTest(
+				new String[] {
+					"UseVararg.java",
+					"public class UseVararg {\r\n" + 
+					"   public static void main( String[] args ) {\n" + 
+					"      String arg = \"SUCCESS\";\n" + 
+					"      String results = X.varargMethod(arg);\n" + 
+					"      System.out.println( results );\n" + 
+					"   }\r\n" + 
+					"}",
+				},
+				",SUCCESS",
+				null,
+				false,
+				null,
+				options,
+				null);
+	}
 }
