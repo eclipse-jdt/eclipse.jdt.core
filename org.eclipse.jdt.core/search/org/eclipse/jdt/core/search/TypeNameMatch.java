@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.*;
  * The type of this match is available from {@link #getType()}.
  * </p>
  * <p>
- * This class is intended to be overridden by clients.
+ * This class is not intended to be overridden by clients.
  * </p>
  * 
  * @see TypeNameMatchRequestor
