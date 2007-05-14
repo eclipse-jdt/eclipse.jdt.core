@@ -37934,6 +37934,7 @@ public void test1138() {
 			false, // do not flush previous output dir content
 			null); // no special vm args		);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=186833
 public void test1139() {
 	this.runConformTest(
 		new String[] {
@@ -37981,6 +37982,30 @@ public void test1140() {
 		"	public class X extends Super<A<X>> {\r\n" + 
 		"	                       ^^^^^\n" + 
 		"Super cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=186833 - variation
+public void test1141() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"import static p.Top.*;\n" + 
+			"\n" + 
+			"class Top<T> {\n" + 
+			"	static class A<U> {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends p.X.Super<A<X>> {\n" + 
+			"	static class Super<T> extends Top<T>{\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 8)\r\n" + 
+		"	public class X extends p.X.Super<A<X>> {\r\n" + 
+		"	                       ^^^^^^^^^\n" + 
+		"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" + 
 		"----------\n");
 }
 }
