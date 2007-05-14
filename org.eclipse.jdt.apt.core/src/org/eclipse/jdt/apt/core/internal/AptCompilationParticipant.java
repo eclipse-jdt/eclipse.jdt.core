@@ -21,6 +21,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -70,6 +73,15 @@ public class AptCompilationParticipant extends CompilationParticipant
 	public AptCompilationParticipant()
 	{
 		INSTANCE = this;
+
+		// Bug 180107: there is no CompilationParticipant.buildComplete() method,
+		// so we have to use a resource change listener instead.
+		IResourceChangeListener listener = new IResourceChangeListener() {
+			public void resourceChanged(IResourceChangeEvent event) {
+				buildComplete();
+			}
+		};
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_BUILD);
 	}
 	
 	public boolean isAnnotationProcessor(){
@@ -228,8 +240,13 @@ public class AptCompilationParticipant extends CompilationParticipant
 			AptPlugin.getAptProject(project).compilationStarted();
 		}		
 		_buildRound = 0; // reset
+		// Note that for each project build, we blow away the last project's processed files.
 		_processedFiles = new HashMap<IFile, CategorizedProblem[]>();
 		// TODO: (wharley) if the factory path is different we need a full build
 		return CompilationParticipant.READY_FOR_BUILD;
+	}
+	
+	private void buildComplete() {
+		_processedFiles = null;
 	}
 }
