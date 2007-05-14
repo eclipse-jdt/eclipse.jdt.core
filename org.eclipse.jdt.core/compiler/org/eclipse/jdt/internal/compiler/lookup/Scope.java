@@ -951,7 +951,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces == null) { // needed for statically imported types which don't know their hierarchy yet
 				ReferenceBinding sourceType = currentType.isParameterizedType()
-					? ((ParameterizedTypeBinding) enclosingType).genericType()
+					? ((ParameterizedTypeBinding) currentType).genericType()
 					: currentType;
 				if (sourceType.isHierarchyBeingConnected())
 					return null; // looking for an undefined member type in its own superclass ref
