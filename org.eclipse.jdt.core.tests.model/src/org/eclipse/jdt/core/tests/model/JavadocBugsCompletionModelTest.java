@@ -1058,4 +1058,56 @@ public void _testBug171031() throws JavaModelException {
 	completeInJavadoc("/Completion/src/bugs/b171031/BasicTestBugs.java", source, true, "@In", 1);
 	assertSortedResults(""); // should not have any proposal as 
 }
+
+/**
+ * @bug 185576: [javadoc][assist] Type parameters should not be proposed while completing in @link or @see reference
+ * @test Do not include type params in Javadoc content assist proposals 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=185576"
+ */
+public void testBug185576a() throws JavaModelException {
+	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	String source =
+		"package bugs.b185576;\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	/**\n" + 
+		"	 * The return type is {@link } and that is all.  \n" + 
+		"	 * \n" + 
+		"	 * @param <X>\n" + 
+		"	 * @param t\n" + 
+		"	 * @return something.\n" + 
+		"	 */\n" + 
+		"	public <X> X foooo(X t) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b185576/BasicTestBugs.java", source, true, "@link ", 0);
+	String emptyPositions = "["+this.completionStart+", "+this.completionStart+"], ";
+	assertSortedResults(
+		"BasicTestBugs[TYPE_REF]{BasicTestBugs, bugs.b185576, Lbugs.b185576.BasicTestBugs;, null, null, "+emptyPositions+R_DRICUNR+"}"
+	);
+}
+public void testBug185576b() throws JavaModelException {
+	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	String source =
+		"package bugs.b185576;\n" + 
+		"public class BasicTestBugs {\n" + 
+		"	/**\n" + 
+		"	 * The return type is {@link } and that is all.  \n" + 
+		"	 * \n" + 
+		"	 * @param <X>\n" + 
+		"	 * @param t\n" + 
+		"	 * @return something.\n" + 
+		"	 */\n" + 
+		"	public <X> X foooo(X t) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"  class X {}\n" +
+		"}\n";
+	completeInJavadoc("/Completion/src/bugs/b185576/BasicTestBugs.java", source, true, "@link ", 0);
+	String emptyPositions = "["+this.completionStart+", "+this.completionStart+"], ";
+	assertSortedResults(
+		"BasicTestBugs[TYPE_REF]{BasicTestBugs, bugs.b185576, Lbugs.b185576.BasicTestBugs;, null, null, "+emptyPositions+R_DRICUNR+"}\n" + 
+		"BasicTestBugs.X[TYPE_REF]{X, bugs.b185576, Lbugs.b185576.BasicTestBugs$X;, null, null, "+emptyPositions+R_DRICUNR+"}"
+	);
+}
 }

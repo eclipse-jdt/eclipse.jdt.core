@@ -6499,7 +6499,7 @@ public final class CompletionEngine
 		
 		if (!skip && proposeType && scope.enclosingSourceType() != null) {
 			findNestedTypes(token, scope.enclosingSourceType(), scope, proposeAllMemberTypes, typesFound);
-			if(!assistNodeIsConstructor && !assistNodeIsAnnotation) {
+			if((!assistNodeIsConstructor && !assistNodeIsAnnotation) && this.assistNodeInJavadoc == 0) {
 				// don't propose type parameters if the completion is a constructor ('new |')
 				findTypeParameters(token, scope);
 			}
