@@ -265,7 +265,11 @@ public class CompilationUnitDeclaration
 		if (imports != null)
 			for (int i = 0; i < imports.length; i++) {
 				printIndent(indent, output).append("import "); //$NON-NLS-1$
-				imports[i].print(0, output).append(";\n"); //$NON-NLS-1$
+				ImportReference currentImport = imports[i];
+				if (currentImport.isStatic()) {
+					output.append("static "); //$NON-NLS-1$
+				}
+				currentImport.print(0, output).append(";\n"); //$NON-NLS-1$
 			}
 
 		if (types != null) {
