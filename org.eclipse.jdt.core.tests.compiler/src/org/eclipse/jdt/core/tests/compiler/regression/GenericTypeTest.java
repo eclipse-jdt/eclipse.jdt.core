@@ -37938,19 +37938,49 @@ public void test1139() {
 	this.runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\r\n" + 
-			"import p.X.Super;\r\n" + 
-			"import static p.Top.*;\r\n" + 
-			"\r\n" + 
-			"class Top<T> {\r\n" + 
-			"	static class A<U> {}\r\n" + 
-			"}\r\n" + 
-			"\r\n" + 
-			"public class X extends Super<A<X>> {\r\n" + 
-			"	static class Super<T> extends Top<T>{\r\n" + 
-			"	}\r\n" + 
+			"package p;\n" + 
+			"import p.X.Super;\n" + 
+			"import static p.Top.*;\n" + 
+			"\n" + 
+			"class Top<T> {\n" + 
+			"	static class A<U> {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends Super<A<X>> {\n" + 
+			"	static class Super<T> extends Top<T>{\n" + 
+			"	}\n" + 
 			"}", // =================
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=186788
+public void test1140() {
+	this.runNegativeTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"import static p.X.Super;\n" + 
+			"import static p.Top.*;\n" + 
+			"\n" + 
+			"class Top<T> {\n" + 
+			"        static class A<U> {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X extends Super<A<X>> {\n" + 
+			"        class Super<T> extends Top<T>{\n" + 
+			"        }\n" + 
+			"}", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 2)\r\n" + 
+		"	import static p.X.Super;\r\n" + 
+		"	              ^^^^^^^^^\n" + 
+		"The import p.X.Super cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 9)\r\n" + 
+		"	public class X extends Super<A<X>> {\r\n" + 
+		"	                       ^^^^^\n" + 
+		"Super cannot be resolved to a type\n" + 
+		"----------\n");
 }
 }
