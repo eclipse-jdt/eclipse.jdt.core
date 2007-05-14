@@ -37912,4 +37912,45 @@ public void test1137() {
 		"Cannot cast from Collection<Container> to String\n" + 
 		"----------\n");
 }
+public void test1138() {
+	// binary prerequisite
+	this.runConformTest(
+		new String[] {
+			"p/E.java",
+			"package p;\n" + 
+			"public enum E {\n" + 
+			"}\n", // =================
+		},
+		"");
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.E.*;\n" + 
+				"public class X implements java.io.Serializable {\n" + 
+				"}\n", // =================
+			},
+			"",
+			null, // use default class-path
+			false, // do not flush previous output dir content
+			null); // no special vm args		);
+}
+public void test1139() {
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\r\n" + 
+			"import p.X.Super;\r\n" + 
+			"import static p.Top.*;\r\n" + 
+			"\r\n" + 
+			"class Top<T> {\r\n" + 
+			"	static class A<U> {}\r\n" + 
+			"}\r\n" + 
+			"\r\n" + 
+			"public class X extends Super<A<X>> {\r\n" + 
+			"	static class Super<T> extends Top<T>{\r\n" + 
+			"	}\r\n" + 
+			"}", // =================
+		},
+		"");
+}
 }
