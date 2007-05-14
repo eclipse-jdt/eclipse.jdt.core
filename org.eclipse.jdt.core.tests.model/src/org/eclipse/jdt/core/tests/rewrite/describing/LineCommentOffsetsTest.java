@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.HashSet;
+import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -453,7 +454,6 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
-	/* not yet working
 	public void testBug128422() throws Exception {
 		
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -495,7 +495,62 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 		buf.append("  }\n");	
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());
-	}*/
+	}
+	
+	public void testBug128422b() throws Exception {
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("  void foo() {\n");
+		buf.append("    foo(); //comment\n");
+		buf.append("    foo();\n");
+		buf.append("  }\n");	
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		
+		AST ast= astRoot.getAST();
+		
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration method= (MethodDeclaration) type.bodyDeclarations().get(0);
+		List statements= method.getBody().statements();
+		ASTNode copy= rewrite.createCopyTarget((ASTNode) statements.get(0));
+		
+		Block newBlock= ast.newBlock();
+		newBlock.statements().add(newStatement(ast));
+		newBlock.statements().add(copy);
+		newBlock.statements().add(newStatement(ast));
+		
+		rewrite.getListRewrite(method.getBody(), Block.STATEMENTS_PROPERTY).insertLast(newBlock, null);
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("  void foo() {\n");
+		buf.append("    foo(); //comment\n");
+		buf.append("    foo();\n");
+		buf.append("    {\n");
+		buf.append("        bar();\n");
+		buf.append("        foo(); //comment\n");
+		buf.append("        bar();\n");
+		buf.append("    }\n");
+		buf.append("  }\n");	
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+	}
+	
+	private Statement newStatement(AST ast) {
+		MethodInvocation inv= ast.newMethodInvocation();
+		inv.setName(ast.newSimpleName("bar"));
+		return ast.newExpressionStatement(inv);
+	}
 	
 	public void testCommentAtEnd() throws Exception {
 		

@@ -1061,6 +1061,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					TextEdit sourceEdit= getCopySourceEdit(copySource);
 					doTextCopy(sourceEdit, insertOffset, srcIndentLevel, destIndentString, editGroup);
 					currPos= offset + curr.length; // continue to insert after the replaced string
+					if (needsNewLineForLineComment(copySource.getNode(), formatted, currPos)) {
+						doTextInsert(insertOffset, getLineDelimiter(), editGroup);
+					}
 				} else if (data instanceof StringPlaceholderData) { // replace with a placeholder
 					String code= ((StringPlaceholderData) data).code;
 					String str= this.formatter.changeIndent(code, 0, destIndentString); 
@@ -1074,6 +1077,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			String insertStr= formatted.substring(currPos);
 			doTextInsert(insertOffset, insertStr, editGroup);
 		}
+	}
+	
+	private boolean needsNewLineForLineComment(ASTNode node, String formatted, int offset) {
+		if (!this.lineCommentEndOffsets.isEndOfLineComment(getExtendedEnd(node), this.content)) {
+			return false;
+		}
+		// copied code ends with a line comment, but doesn't contain the new line
+		return offset < formatted.length() && !IndentManipulation.isLineDelimiterChar(formatted.charAt(offset));
 	}
 	
 	private String getCurrentLine(String str, int pos) {
