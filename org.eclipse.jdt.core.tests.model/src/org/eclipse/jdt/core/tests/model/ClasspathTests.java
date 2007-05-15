@@ -3715,6 +3715,40 @@ public void testReplaceProject() throws CoreException {
 }
 
 /*
+ * Ensures that renaming a .jar file and updating the classpath in a PRE_BUILD event doesn't leave markers
+ * (regression test for bug 177922 FlexibleProjectContainer refresh logic sporadically leaves project with "missing library" error on rename/delete)
+ */
+public void testRenameJar() throws CoreException {
+	IResourceChangeListener listener = null;
+	try {
+		final IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/lib/test1.jar"}, "");
+		createFolder("/P/lib");
+		createFile("/P/lib/test1.jar", "");
+		// at this point no markers exist
+		
+		// register a listener that updates the classpath in a PRE_BUILD event
+		listener = new IResourceChangeListener(){
+			public void resourceChanged(IResourceChangeEvent event) {
+				try {
+					p.setRawClasspath(new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/lib/test2.jar"), null, null)}, null);
+				} catch (JavaModelException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.PRE_BUILD);
+		
+		// rename .jar
+		getFile("/P/lib/test1.jar").move(new Path("/P/lib/test2.jar"), false, null);
+		assertMarkers("Unexpected markers", "", p);
+	} finally {
+		if (listener != null)
+			getWorkspace().removeResourceChangeListener(listener);
+		deleteProject("P");
+	}
+}
+
+/*
  * Ensures that unknown classpath attributes in a .classpath file are not lost when read and rewritten.
  * (regression test for bug 101425 Classpath persistence should be resilient with unknown attributes)
  */
