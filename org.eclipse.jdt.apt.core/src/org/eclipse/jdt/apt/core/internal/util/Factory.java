@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class Factory
 {
+	private static final String NULL_BINDING_NAME = "[NullBinding]"; //$NON-NLS-1$
 	// using auto-boxing to take advantage of caching, if any.
 	// the dummy value picked here falls within the caching range.
 	public static final Byte DUMMY_BYTE = 0; 
@@ -673,12 +674,14 @@ public class Factory
 
     public static InterfaceType createErrorInterfaceType(final ITypeBinding binding)
     {
-        return new ErrorType.ErrorInterface(binding.getName());
+    	String name = null == binding ? NULL_BINDING_NAME : binding.getName();
+        return new ErrorType.ErrorInterface(name);
     }
 
     public static ClassType createErrorClassType(final ITypeBinding binding)
     {
-        return createErrorClassType(binding.getName());
+    	String name = null == binding ? NULL_BINDING_NAME : binding.getName();
+        return createErrorClassType(name);
     }
     
     public static ClassType createErrorClassType(final String name)
@@ -688,7 +691,8 @@ public class Factory
 
     public static AnnotationType createErrorAnnotationType(final ITypeBinding binding)
     {
-        return createErrorAnnotationType(binding.getName());
+    	String name = null == binding ? NULL_BINDING_NAME : binding.getName();
+        return createErrorAnnotationType(name);
     }
     
     public static AnnotationType createErrorAnnotationType(String name)
