@@ -1029,18 +1029,17 @@ public class ClassScope extends Scope {
 			return true;
 		}
 
-// No longer believe this code is necessary, since we changed supertype lookup to use TypeReference resolution
-//		if (superType.isMemberType()) {
-//			ReferenceBinding current = superType.enclosingType();
-//			do {
-//				if (current.isHierarchyBeingConnected()) {
-//					problemReporter().hierarchyCircularity(sourceType, current, reference);
-//					sourceType.tagBits |= TagBits.HierarchyHasProblems;
-//					current.tagBits |= TagBits.HierarchyHasProblems;
-//					return true;
-//				}
-//			} while ((current = current.enclosingType()) != null);
-//		}
+		if (superType.isMemberType()) {
+			ReferenceBinding current = superType.enclosingType();
+			do {
+				if (current.isHierarchyBeingConnected() && current == sourceType) {
+					problemReporter().hierarchyCircularity(sourceType, current, reference);
+					sourceType.tagBits |= TagBits.HierarchyHasProblems;
+					current.tagBits |= TagBits.HierarchyHasProblems;
+					return true;
+				}
+			} while ((current = current.enclosingType()) != null);
+		}
 
 		if (superType.isBinaryBinding()) {
 			// force its superclass & superinterfaces to be found... 2 possibilities exist - the source type is included in the hierarchy of:

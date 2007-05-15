@@ -297,41 +297,23 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * the same bounds, providing one is substituted with the other: <T1 extends
 	 * List<T1>> is interchangeable with <T2 extends List<T2>>.
 	 */
-	public boolean isInterchangeableWith(final LookupEnvironment environment, final TypeVariableBinding otherVariable) {
+	public boolean isInterchangeableWith(TypeVariableBinding otherVariable, Substitution substitute) {
 		if (this == otherVariable)
 			return true;
 		int length = this.superInterfaces.length;
 		if (length != otherVariable.superInterfaces.length)
 			return false;
 
-		identical: {
-			if (this.superclass != otherVariable.superclass) {
-				if (this.superclass.erasure() != otherVariable.superclass.erasure())
-					return false; // no way it can match after substitution
-				break identical;
-			}
-			for (int i = 0; i < length; i++) {
-				if (this.superInterfaces[i] != otherVariable.superInterfaces[i]) {
-					if (this.superInterfaces[i].erasure() != otherVariable.superInterfaces[i].erasure())
-						return false; // no way it can match after substitution
-					break identical;
-				}
-			}
-			return true;
-		}
-		// need substitutions
-		Substitution subst = new Substitution() {
-			public LookupEnvironment environment() { return environment; }
-			public boolean isRawSubstitution() { return false; }
-			public TypeBinding substitute(TypeVariableBinding typeVariable) {
-				return typeVariable == otherVariable ? TypeVariableBinding.this : typeVariable;
-			}
-		};
-		if (this.superclass != Scope.substitute(subst, otherVariable.superclass))
+		if (this.superclass != Scope.substitute(substitute, otherVariable.superclass))
 			return false;
-		for (int i = 0; i < length; i++)
-			if (this.superInterfaces[i] != Scope.substitute(subst, otherVariable.superInterfaces[i]))
-				return false;
+
+		next : for (int i = 0; i < length; i++) {
+			TypeBinding superType = Scope.substitute(substitute, otherVariable.superInterfaces[i]);
+			for (int j = 0; j < length; j++)
+				if (superType == this.superInterfaces[j])
+					continue next;
+			return false; // not a match
+		}
 		return true;
 	}
 	

@@ -1984,4 +1984,22 @@ public void test056() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=186382
+public void test057() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends Y {\n" + 
+			"	@Override <T4, G4 extends I<T4>> T4 foo(G4 g) { return super.foo(g); }\n" + 
+			"}\n" + 
+			"class Y extends Z {\n" + 
+			"	@Override <T3, G3 extends I<T3>> T3 foo(G3 g) { return super.foo(g); }\n" + 
+			"}\n" + 
+			"class Z {\n" + 
+			"	<T2, G2 extends I<T2>> T2 foo(G2 g) { return null; }\n" + 
+			"}\n" + 
+			"interface I<T1> {}"
+		},
+		"");
+}
 }

@@ -299,18 +299,20 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	return false;
 }
 MethodBinding computeSubstitutedMethod(MethodBinding method, LookupEnvironment env) {
-	TypeVariableBinding[] vars = this.typeVariables;
-	TypeVariableBinding[] vars2 = method.typeVariables;
-	if (vars.length != vars2.length)
+	int length = this.typeVariables.length;
+	TypeVariableBinding[] vars = method.typeVariables;
+	if (length != vars.length)
 		return null;
-	for (int v = vars.length; --v >= 0;)
-		if (!vars[v].isInterchangeableWith(env, vars2[v]))
-			return null;
 
 	// must substitute to detect cases like:
 	//   <T1 extends X<T1>> void dup() {}
 	//   <T2 extends X<T2>> Object dup() {return null;}
-	return env.createParameterizedGenericMethod(method, vars);
+	ParameterizedGenericMethodBinding substitute =
+		env.createParameterizedGenericMethod(method, this.typeVariables);
+	for (int i = 0; i < length; i++)
+		if (!this.typeVariables[i].isInterchangeableWith(vars[i], substitute))
+			return null;
+	return substitute;
 }
 /*
  * declaringUniqueKey dot selector genericSignature

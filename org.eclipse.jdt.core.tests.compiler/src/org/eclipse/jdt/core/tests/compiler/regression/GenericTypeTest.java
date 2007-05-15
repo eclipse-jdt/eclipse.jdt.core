@@ -32767,7 +32767,7 @@ public void test1021() {
 	);
 }
 public void test1021b() { // should this case be allowed?
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"p/SomeClass2.java",
 			"package p;\n" + 
@@ -32780,7 +32780,12 @@ public void test1021b() { // should this case be allowed?
 			"	}\n" + 
 			"}\n",
 		},
-		""
+		"----------\n" + 
+		"1. ERROR in p\\SomeClass2.java (at line 3)\n" + 
+		"	public abstract class SomeClass2<T> extends M {\n" + 
+		"	                                            ^\n" + 
+		"Cycle detected: the type SomeClass2<T> cannot extend/implement itself or one of its own member types\n" + 
+		"----------\n"
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=151410 (duplicate of 149376)
@@ -37936,7 +37941,7 @@ public void test1138() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=186833
 public void test1139() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"p/X.java",
 			"package p;\n" + 
@@ -37952,7 +37957,13 @@ public void test1139() {
 			"	}\n" + 
 			"}", // =================
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 9)\r\n" + 
+		"	public class X extends Super<A<X>> {\r\n" + 
+		"	                       ^^^^^\n" + 
+		"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" + 
+		"----------\n"
+	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=186788
 public void test1140() {
