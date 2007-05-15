@@ -632,7 +632,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Performance tests for search: Package Declarations.
 	 */
 	public void testSearchPackageDeclarations() throws CoreException {
-		tagAsSummary("Search package declarations", true); // put in fingerprint
+		tagAsSummary("Search package declarations", false); // do NOT put in fingerprint
 
 		// Wait for indexing end
 		AbstractJavaModelTests.waitUntilIndexesReady();
@@ -668,7 +668,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Performance tests for search: Package Declarations on workspace scope.
 	 */
 	public void testSearchPackageDeclarationsWorkspace() throws CoreException {
-		tagAsSummary("Search workspace package declarations", false); // do NOT put in fingerprint
+		tagAsSummary("Search workspace package declarations", true); // put in fingerprint
 
 		// Wait for indexing end
 		AbstractJavaModelTests.waitUntilIndexesReady();
@@ -706,7 +706,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * to keep a trace in the repository...
 	 */
 	public void _testGotoPackage() throws CoreException {
-		tagAsSummary("Search package declarations", true); // put in fingerprint
 
 		// Wait for indexing end
 		AbstractJavaModelTests.waitUntilIndexesReady();
