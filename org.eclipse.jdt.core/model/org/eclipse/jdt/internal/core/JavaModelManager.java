@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
+import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
@@ -55,6 +56,7 @@ import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -893,6 +895,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			
 		IPath resourcePath = resource.getFullPath();
 		try {
+			JavaProjectElementInfo projectInfo = (JavaProjectElementInfo) getJavaModelManager().getInfo(project);
+			ProjectCache projectCache = projectInfo == null ? null : projectInfo.projectCache;
+			HashtableOfArrayToObject allPkgFragmentsCache = projectCache == null ? null : projectCache.allPkgFragmentsCache;
 			IClasspathEntry[] entries = 
 				org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourcePath.lastSegment())
 					? project.getRawClasspath() // JAVA file can only live inside SRC folder (on the raw path)
@@ -922,6 +927,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 								pkgPath = pkgPath.removeLastSegments(1);
 							}
 							String[] pkgName = pkgPath.segments();
+							
+							// if package name is in the cache, then it has already been validated
+							// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=133141)
+							if (allPkgFragmentsCache != null && allPkgFragmentsCache.containsKey(pkgName))
+								return root.getPackageFragment(pkgName);
+							
 							if (pkgName.length != 0 && JavaConventions.validatePackageName(Util.packageName(pkgPath, sourceLevel, complianceLevel), sourceLevel, complianceLevel).getSeverity() == IStatus.ERROR) {
 								return null;
 							}
