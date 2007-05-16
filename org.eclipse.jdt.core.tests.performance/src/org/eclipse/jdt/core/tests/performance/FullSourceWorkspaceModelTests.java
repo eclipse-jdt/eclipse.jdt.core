@@ -853,7 +853,7 @@ public void testCloseProjects() throws JavaModelException {
 public void testCreateJavaElement() throws CoreException {
 	// setup (force the project cache to be created)
 	IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(BIG_PROJECT_TYPE_PATH);
-	getNameLookup((JavaProject) JavaCore.create(file.getProject()));
+	getNameLookup(BIG_PROJECT);
 	
 	// warm up
 	int warmup = WARMUP_COUNT / 10;
