@@ -1872,4 +1872,30 @@ public class StaticImportTest extends AbstractComparableTest {
 			"The local variable i may not have been initialized\n" + 
 			"----------\n");		
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=187329
+	public void test050() {
+		this.runConformTest(
+			new String[] {
+				"p/A.java",
+				"package p;\n" +
+				"import static p.B.bar3;\n" + 
+				"public class A { int a = bar3; }" ,
+				"p/B.java",
+				"package p;\n" +
+				"import static p.Util.someStaticMethod;\n" +
+				"public class B {\n" +
+				"	static final int bar = someStaticMethod();\n" +
+				"	static final int bar2 = someStaticMethod();\n" +
+				"	static final int bar3 = someStaticMethod();\n" +
+				"}" ,
+				"p/C.java",
+				"package p;\n" +
+				"import static p.B.bar;\n" + 
+				"public class C { int c = bar; }" ,
+				"p/Util.java",
+				"package p;\n" +
+				"class Util { static int someStaticMethod() { return 0; } }"
+			},
+			"");		
+	}
 }

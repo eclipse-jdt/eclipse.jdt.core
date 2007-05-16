@@ -1530,6 +1530,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 				if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 					// at this point the scope is a compilation unit scope & need to check for imported static fields
+					unitScope.faultInImports(); // ensure static imports are resolved
 					ImportBinding[] imports = unitScope.imports;
 					if (imports != null) {
 						// check single static imports
@@ -1877,6 +1878,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 			// at this point the scope is a compilation unit scope & need to check for imported static methods
 			CompilationUnitScope unitScope = (CompilationUnitScope) scope;
+			unitScope.faultInImports(); // field constants can cause static imports to be accessed before they're resolved 
 			ImportBinding[] imports = unitScope.imports;
 			if (imports != null) {
 				ObjectVector visible = null;

@@ -290,6 +290,8 @@ void connectTypeHierarchy() {
 		topLevelTypes[i].scope.connectTypeHierarchy();
 }
 void faultInImports() {
+	if (this.typeOrPackageCache != null)
+		return; // can be called when a field constant is resolved before static imports
 	if (referenceContext.imports == null) {
 		this.typeOrPackageCache = new HashtableOfObject(1);
 		return;
