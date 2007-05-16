@@ -173,16 +173,19 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		if(this.proposalsPtr < 0) return "";
 		Arrays.sort(this.proposals, new Comparator() {
 			public int compare(Object o1, Object o2) {
-				if (o1 instanceof CompletionProposal && o2 instanceof CompletionProposal) {
-					CompletionProposal p1 = (CompletionProposal) o1;
-					CompletionProposal p2 = (CompletionProposal) o2;
-					int relDif = p2.getRelevance() - p1.getRelevance();
-					if(relDif != 0)  return relDif;
-					String name1 = getElementName(p1);
-					String name2 = getElementName(p2);
-					return name1.compareTo(name2);
-				}
-				return -1;
+				if (o1 == o2) 
+					return 0;
+				if (o1 == null)
+					return 1;
+				if (o2 == null)
+					return -1;
+				CompletionProposal p1 = (CompletionProposal) o1;
+				CompletionProposal p2 = (CompletionProposal) o2;
+				int relDif = p2.getRelevance() - p1.getRelevance();
+				if(relDif != 0) return relDif;
+				String name1 = getElementName(p1);
+				String name2 = getElementName(p2);
+				return name1.compareTo(name2);
 			}
 		});
 		return getResultsWithoutSorting();
