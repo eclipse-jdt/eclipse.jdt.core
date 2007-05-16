@@ -835,6 +835,38 @@ public void testCloseProjects() throws JavaModelException {
 	assertPerformance();
 }
 
+/*
+ * Tests the performance of JavaCore#create(IResource).
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=133141)
+ */
+public void testCreateJavaElement() throws CoreException {
+	// setup (force the project cache to be created)
+	IFile file = (IFile) WORKING_COPY.getResource();
+	getNameLookup(BIG_PROJECT);
+	
+	// warm up
+	int warmup = WARMUP_COUNT / 10;
+	int iterations = 5000;
+	for (int i = 0; i < warmup; i++) {
+		for (int j = 0; j < iterations; j++) {
+			JavaCore.create(file);
+		}
+	}
+		
+	// measure performance
+	for (int i = 0; i < MEASURES_COUNT; i++) {
+		runGc();
+		startMeasuring();
+		for (int j = 0; j < iterations; j++) {
+			JavaCore.create(file);
+		}
+		stopMeasuring();
+	}
+
+	commitMeasurements();
+	assertPerformance();
+}
+
 public void testInitJDTPlugin() throws JavaModelException, CoreException {
 	tagAsSummary("JDT/Core plugin initialization", true); // put in fingerprint
 
