@@ -7764,4 +7764,48 @@ public void test140() {
 		"----------\n"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=186457
+public void test141() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.nio.charset.Charset;\n" + 
+			"import java.nio.charset.CharsetDecoder;\n" + 
+			"import java.nio.charset.CharsetEncoder;\n" + 
+			"public class X extends Charset {\n" + 
+			"  public X(String name, String[] aliases) { super(name, aliases); }\n" + 
+			"  @Override public CharsetEncoder newEncoder() { return null;  }\n" + 
+			"  @Override public CharsetDecoder newDecoder() { return null;  }\n" + 
+			"  @Override public boolean contains(Charset x) { return false; }\n" + 
+			"  public int compareTo(Object obj) {\n" + 
+			"    return compareTo((Charset) obj);\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	public int compareTo(Object obj) {\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method compareTo(Object) of type X has the same erasure as compareTo(T) of type Comparable<T> but does not override it\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=186457
+public void test142() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.nio.charset.Charset;\n" + 
+			"import java.nio.charset.CharsetDecoder;\n" + 
+			"import java.nio.charset.CharsetEncoder;\n" + 
+			"public class X extends Charset {\n" + 
+			"  public X(String name, String[] aliases) { super(name, aliases); }\n" + 
+			"  public CharsetEncoder newEncoder() { return null;  }\n" + 
+			"  public CharsetDecoder newDecoder() { return null;  }\n" + 
+			"  public boolean contains(Charset x) { return false; }\n" + 
+			"}"
+		},
+		""
+	);
+}
 }
