@@ -2536,12 +2536,10 @@ public abstract class Scope implements TypeConstants, TypeIds {
 			nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
 				TypeBinding mec = mecs[k];
 				if (mec == null) continue nextCandidate;
-				Set invalidInvocations = (Set) invocations.get(mec);
-				int invalidSize = invalidInvocations.size();
-				if (invalidSize > 1) {
-					TypeBinding[] collisions;
-					invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
-					problemReporter().superinterfacesCollide(collisions[0].erasure(), typeRef, collisions[0], collisions[1]);
+				Object value = invocations.get(mec);
+				if (value instanceof TypeBinding[]) {
+					TypeBinding[] invalidInvocations = (TypeBinding[]) value;
+					problemReporter().superinterfacesCollide(invalidInvocations[0].erasure(), typeRef, invalidInvocations[0], invalidInvocations[1]);
 					type.tagBits |= TagBits.HierarchyHasProblems;
 					return true;
 				}
@@ -2756,11 +2754,12 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		return false;
 	}
 
-	private TypeBinding leastContainingInvocation(TypeBinding mec, Set invocations, List lubStack) {
-		if (invocations == null) return mec; // no alternate invocation
-		int length = invocations.size();
-		Iterator iter = invocations.iterator();
-		if (length == 1) return (TypeBinding) iter.next();
+	private TypeBinding leastContainingInvocation(TypeBinding mec, Object invocationData, List lubStack) {
+		if (invocationData == null) return mec; // no alternate invocation
+		if (invocationData instanceof TypeBinding) { // only one invocation, simply return it (array only allocated if more than one)
+			return (TypeBinding) invocationData;
+		}
+		TypeBinding[] invocations = (TypeBinding[]) invocationData;
 
 		// if mec is an array type, intersect invocation leaf component types, then promote back to array
 		int dim = mec.dimensions();
@@ -2771,23 +2770,23 @@ public abstract class Scope implements TypeConstants, TypeIds {
 
 		// infer proper parameterized type from invocations
 		TypeBinding[] bestArguments = new TypeBinding[argLength];
-		while (iter.hasNext()) {
-			TypeBinding invocation = ((TypeBinding)iter.next()).leafComponentType();
+		for (int i = 0, length = invocations.length; i < length; i++) {
+			TypeBinding invocation = invocations[i].leafComponentType();
 			switch (invocation.kind()) {
 				case Binding.GENERIC_TYPE :
 					TypeVariableBinding[] invocationVariables = invocation.typeVariables();
-					for (int i = 0; i < argLength; i++) {
-						TypeBinding bestArgument = leastContainingTypeArgument(bestArguments[i], invocationVariables[i], (ReferenceBinding) mec, i, lubStack);
+					for (int j = 0; j < argLength; j++) {
+						TypeBinding bestArgument = leastContainingTypeArgument(bestArguments[j], invocationVariables[j], (ReferenceBinding) mec, j, lubStack);
 						if (bestArgument == null) return null;
-						bestArguments[i] = bestArgument;
+						bestArguments[j] = bestArgument;
 					}
 					break;
 				case Binding.PARAMETERIZED_TYPE :
 					ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding)invocation;
-					for (int i = 0; i < argLength; i++) {
-						TypeBinding bestArgument = leastContainingTypeArgument(bestArguments[i], parameterizedType.arguments[i], (ReferenceBinding) mec, i, lubStack);
+					for (int j = 0; j < argLength; j++) {
+						TypeBinding bestArgument = leastContainingTypeArgument(bestArguments[j], parameterizedType.arguments[j], (ReferenceBinding) mec, j, lubStack);
 						if (bestArgument == null) return null;
-						bestArguments[i] = bestArgument;
+						bestArguments[j] = bestArgument;
 					}
 					break;
 				case Binding.RAW_TYPE :
@@ -2928,7 +2927,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		for (int i = 0; i < length; i++) {
 			TypeBinding mec = mecs[i];
 			if (mec == null) continue;
-			mec = leastContainingInvocation(mec, (Set)invocations.get(mec), lubStack);
+			mec = leastContainingInvocation(mec, invocations.get(mec), lubStack);
 			if (mec == null) return null;
 			int dim = mec.dimensions();
 			if (commonDim == -1) {
@@ -3001,9 +3000,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 		TypeBinding leafType = firstType.leafComponentType();
 		TypeBinding firstErasure = (leafType.isTypeVariable() || leafType.isWildcard()/*&& !leafType.isCapture()*/) ? firstType : firstType.erasure();
 		if (firstErasure != firstType) {
-			Set someInvocations = new HashSet(1);
-			someInvocations.add(firstType);
-			allInvocations.put(firstErasure, someInvocations);
+			allInvocations.put(firstErasure, firstType);
 		}						
 		typesToVisit.add(firstType);
 		int max = 1;
@@ -3063,9 +3060,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						max++;
 						TypeBinding superTypeErasure = (firstBound.isTypeVariable() || firstBound.isWildcard() /*&& !itsInterface.isCapture()*/) ? superType : superType.erasure();
 						if (superTypeErasure != superType) {
-							Set someInvocations = new HashSet(1);
-							someInvocations.add(superType);
-							allInvocations.put(superTypeErasure, someInvocations);
+							allInvocations.put(superTypeErasure, superType);
 						}						
 					}
 					continue;
@@ -3082,9 +3077,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						max++;
 						TypeBinding superTypeErasure = (itsInterface.isTypeVariable() || itsInterface.isWildcard() /*&& !itsInterface.isCapture()*/) ? superType : superType.erasure();
 						if (superTypeErasure != superType) {
-							Set someInvocations = new HashSet(1);
-							someInvocations.add(superType);
-							allInvocations.put(superTypeErasure, someInvocations);
+							allInvocations.put(superTypeErasure, superType);
 						}						
 					}
 				}
@@ -3097,9 +3090,7 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					max++;
 					TypeBinding superTypeErasure = (itsSuperclass.isTypeVariable() || itsSuperclass.isWildcard() /*&& !itsSuperclass.isCapture()*/) ? superType : superType.erasure();
 					if (superTypeErasure != superType) {
-						Set someInvocations = new HashSet(1);
-						someInvocations.add(superType);
-						allInvocations.put(superTypeErasure, someInvocations);
+						allInvocations.put(superTypeErasure, superType);
 					}
 				}
 			}
@@ -3128,10 +3119,27 @@ public abstract class Scope implements TypeConstants, TypeIds {
 						continue nextSuperType;
 					}
 					// record invocation
-					Set someInvocations = (Set) allInvocations.get(erasedSuperType);
-					if (someInvocations == null) someInvocations = new HashSet(1);
-					someInvocations.add(match);
-					allInvocations.put(erasedSuperType, someInvocations);
+					Object invocationData = allInvocations.get(erasedSuperType);
+					if (invocationData == null) {
+						allInvocations.put(erasedSuperType, match); // no array for singleton
+					} else if (invocationData instanceof TypeBinding) {
+						if (match != invocationData) {
+							// using an array to record invocations in order (188103)
+							TypeBinding[] someInvocations = { (TypeBinding) invocationData, match, };
+							allInvocations.put(erasedSuperType, someInvocations);
+						}
+					} else { // using an array to record invocations in order (188103)
+						TypeBinding[] someInvocations = (TypeBinding[]) invocationData;
+						checkExisting: {
+							int invocLength = someInvocations.length;
+							for (int k = 0; k < invocLength; k++) {
+								if (someInvocations[k] == match) break checkExisting;
+							}
+							System.arraycopy(someInvocations, 0, someInvocations = new TypeBinding[invocLength+1], 0, invocLength);
+							allInvocations.put(erasedSuperType, someInvocations);
+							someInvocations[invocLength] = match;
+						}
+					}
 				}
 				continue nextOtherType;
 			}
@@ -3154,10 +3162,27 @@ public abstract class Scope implements TypeConstants, TypeIds {
 					}
 				}
 				// record invocation
-				Set someInvocations = (Set) allInvocations.get(erasedSuperType);
-				if (someInvocations == null) someInvocations = new HashSet(1);
-				someInvocations.add(match);
-				allInvocations.put(erasedSuperType, someInvocations);
+				Object invocationData = allInvocations.get(erasedSuperType);
+				if (invocationData == null) {
+					allInvocations.put(erasedSuperType, match); // no array for singleton
+				} else if (invocationData instanceof TypeBinding) {
+					if (match != invocationData) {
+						// using an array to record invocations in order (188103)
+						TypeBinding[] someInvocations = { (TypeBinding) invocationData, match, };
+						allInvocations.put(erasedSuperType, someInvocations);
+					}
+				} else { // using an array to record invocations in order (188103)
+					TypeBinding[] someInvocations = (TypeBinding[]) invocationData;
+					checkExisting: {
+						int invocLength = someInvocations.length;
+						for (int k = 0; k < invocLength; k++) {
+							if (someInvocations[k] == match) break checkExisting;
+						}
+						System.arraycopy(someInvocations, 0, someInvocations = new TypeBinding[invocLength+1], 0, invocLength);
+						allInvocations.put(erasedSuperType, someInvocations);
+						someInvocations[invocLength] = match;
+					}
+				}
 			}				
 		}
 		// eliminate non minimal super types

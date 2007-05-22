@@ -31414,12 +31414,12 @@ public void test0985() {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	List<Class<Object>>  lco = Arrays.asList(String.class, Integer.class, Long.class);\n" + 
 			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Class<? extends Object&Comparable<?>&Serializable> is created for a varargs parameter\n" + 
+			"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	List<Class<Object>>  lco = Arrays.asList(String.class, Integer.class, Long.class);\n" + 
 			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from List<Class<? extends Object&Comparable<?>&Serializable>> to List<Class<Object>>\n" + 
+			"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<Object>>\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=91709
