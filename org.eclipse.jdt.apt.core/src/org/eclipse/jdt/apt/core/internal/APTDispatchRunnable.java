@@ -31,15 +31,15 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv;
-import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
 import org.eclipse.jdt.apt.core.internal.env.BuildEnv;
+import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
 import org.eclipse.jdt.apt.core.internal.env.ReconcileEnv;
 import org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv.EnvCallback;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.BuildContext;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
 
 import com.sun.mirror.apt.AnnotationProcessor;
@@ -605,10 +605,12 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			// testing a processor
 			if (t.getClass().getName().startsWith("junit.framework")) //$NON-NLS-1$
 				throw t;
-			AptPlugin.log(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
+			AptPlugin.logWarning(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
 		} 
 		catch (Throwable t) {
-			AptPlugin.log(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
+			// Workaround for 3.2.2 patch to bugzilla 187135: don't log AbortCompilation
+			if (!"org.eclipse.jdt.internal.compiler.problem.AbortCompilation".equals(t.getClass().getName())) //$NON-NLS-1$
+				AptPlugin.logWarning(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
 		}
 		
 		return Collections.emptySet();
