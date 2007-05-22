@@ -634,8 +634,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				cleanupAllGeneratedFilesFrom(_filesWithoutAnnotation);
 			}
 			
-			processorEnv.close();
-			_aptProject.getGeneratedFileManager().writeState();
 
 			// log unclaimed annotations.
 		}
@@ -644,10 +642,14 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			// testing a processor
 			if (t.getClass().getName().startsWith("junit.framework")) //$NON-NLS-1$
 				throw t;
-			AptPlugin.log(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
+			AptPlugin.logWarning(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
 		} 
 		catch (Throwable t) {
-			AptPlugin.log(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
+			AptPlugin.logWarning(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
+		}
+		finally {
+			processorEnv.close();
+			_aptProject.getGeneratedFileManager().writeState();
 		}
 		
 		return Collections.emptySet();

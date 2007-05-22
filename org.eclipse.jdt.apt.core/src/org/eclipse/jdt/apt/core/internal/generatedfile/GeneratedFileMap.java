@@ -186,6 +186,7 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 			}
 			// our serialized and in-memory states are now identical
 			clearDirtyBit();
+			out.flush();
 		}
 		catch (IOException ioe) {
 			// We can safely continue without having written our dependencies.
@@ -194,11 +195,10 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 		finally {
 			if (out != null) {
 				try {
-					out.flush();
 					out.close();
 				}
 				catch (IOException ioe) {
-					AptPlugin.log(ioe, "Failed to write the APT dependency state to disk"); //$NON-NLS-1$
+					// Do nothing
 				}
 			}
 		}
