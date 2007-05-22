@@ -66,8 +66,15 @@ protected State(JavaBuilder javaBuilder) {
 	this.typeLocators = new SimpleLookupTable(7);
 
 	this.buildNumber = 0; // indicates a full build
-	this.lastStructuralBuildTime = System.currentTimeMillis();
+	this.lastStructuralBuildTime = computeStructuralBuildTime(javaBuilder.lastState == null ? 0 : javaBuilder.lastState.lastStructuralBuildTime);
 	this.structuralBuildTimes = new SimpleLookupTable(3);
+}
+
+long computeStructuralBuildTime(long previousTime) {
+	long newTime = System.currentTimeMillis();
+	if (newTime <= previousTime)
+		newTime = previousTime + 1;
+	return newTime;
 }
 
 void copyFrom(State lastState) {
@@ -354,7 +361,7 @@ boolean wasNoopBuild() {
 void tagAsStructurallyChanged() {
 	this.previousStructuralBuildTime = this.lastStructuralBuildTime;
 	this.structurallyChangedTypes = new StringSet(7);
-	this.lastStructuralBuildTime = System.currentTimeMillis();
+	this.lastStructuralBuildTime = computeStructuralBuildTime(this.previousStructuralBuildTime);
 }
 
 boolean wasStructurallyChanged(IProject prereqProject, State prereqState) {
