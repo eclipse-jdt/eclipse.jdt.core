@@ -2156,11 +2156,6 @@ public void configure(String[] argv) throws InvalidInputException {
 		return;
 	}
 
-	// enable annotation processing by default in batch mode: 185768
-	this.options.put(
-		CompilerOptions.OPTION_Process_Annotations,
-		CompilerOptions.ENABLED);
-
 	final int INSIDE_CLASSPATH_start = 1;
 	final int INSIDE_DESTINATION_PATH = 3;
 	final int INSIDE_TARGET = 4;
@@ -2202,6 +2197,7 @@ public void configure(String[] argv) throws InvalidInputException {
 	boolean didSpecifyWarnings = false;
 	boolean useEnableJavadoc = false;
 	boolean didSpecifyCompliance = false;
+	boolean didSpecifyDisabledAnnotationProcessing = false;
 
 	String customEncoding = null;
 	String customDestinationPath = null;
@@ -2705,6 +2701,7 @@ public void configure(String[] argv) throws InvalidInputException {
 					continue;
 				}
 				if (currentArg.equals("-proc:none")) { //$NON-NLS-1$
+					didSpecifyDisabledAnnotationProcessing = true;
 					this.options.put(
 						CompilerOptions.OPTION_Process_Annotations,
 						CompilerOptions.DISABLED);
@@ -3000,6 +2997,13 @@ public void configure(String[] argv) throws InvalidInputException {
 	this.logger.logVersion(printVersionRequired);
 
 	validateOptions(didSpecifyCompliance);
+	
+	// Enable annotation processing by default in batch mode when compliance is at least 1.6
+	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=185768
+	if (!didSpecifyDisabledAnnotationProcessing
+			&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) >= ClassFileConstants.JDK1_6) {
+		this.options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	}
 
 	this.logger.logCommandLineArguments(newCommandLineArgs);
 	this.logger.logOptions(this.options);
