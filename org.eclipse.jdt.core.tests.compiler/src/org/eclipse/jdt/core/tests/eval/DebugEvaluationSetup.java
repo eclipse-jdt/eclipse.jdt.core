@@ -153,7 +153,7 @@ public class DebugEvaluationSetup extends EvaluationSetup {
 
 			// Create target
 			this.target = new TargetInterface();
-			this.target.connect("localhost", evalPort, 10000);
+			this.target.connect("localhost", evalPort, 30000); // allow 30s max to connect (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=188127)
 
 			// Create name environment
 			this.env = new FileSystem(Util.getJavaClassLibs(), new String[0], null);

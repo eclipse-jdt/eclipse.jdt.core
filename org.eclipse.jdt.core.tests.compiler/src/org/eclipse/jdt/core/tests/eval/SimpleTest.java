@@ -289,7 +289,7 @@ protected void startEvaluationContext() throws TargetException {
 
 	this.requestor = new Requestor();
 	this.target = new TargetInterface();
-	this.target.connect("localhost", evalPort, 10000);
+	this.target.connect("localhost", evalPort, 30000); // allow 30s max to connect (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=188127)
 	this.context = new EvaluationContext();
 }
 protected void stopEvaluationContext() {
