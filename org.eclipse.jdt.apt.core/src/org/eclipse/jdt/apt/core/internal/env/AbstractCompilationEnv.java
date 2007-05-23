@@ -54,6 +54,9 @@ public abstract class AbstractCompilationEnv
 	extends BaseProcessorEnv 
 	implements EclipseAnnotationProcessorEnvironment {
 	
+	// Bugzilla 188185: accept "-AenableTypeGenerationInEditor" as well as "enableTypeGenerationInEditor".
+	private final static String RTTG_ENABLED_DASH_A_OPTION = "-A" + AptPreferenceConstants.RTTG_ENABLED_OPTION; //$NON-NLS-1$
+	
 	private Set<AnnotationProcessorListener> _listeners = null;
 	
 	protected List<APTProblem> _problems = new ArrayList<APTProblem>();
@@ -320,7 +323,8 @@ public abstract class AbstractCompilationEnv
 		if (null == options) {
 			return false;
 		}
-		return options.contains(AptPreferenceConstants.RTTG_ENABLED_OPTION);
+		return options.contains(AptPreferenceConstants.RTTG_ENABLED_OPTION) ||
+			options.contains(RTTG_ENABLED_DASH_A_OPTION);
 	}
 
 }
