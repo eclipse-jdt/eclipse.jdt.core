@@ -1947,7 +1947,6 @@ protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customE
 				paths[i], customEncoding, false, true);
 		}
 	} else {
-	 	final File javaHome = getJavaHome();
 	 	bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		/* no bootclasspath specified
 		 * we can try to retrieve the default librairies of the VM used to run
@@ -1961,36 +1960,62 @@ protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customE
 		 }
 
 	 	/*
-	 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
+	 	 * Handle >= JDK 1.2.2 settings: retrieve the bootclasspath
 	 	 */
-	 	 if (javaHome != null) {
-			File[] directoriesToCheck = null;
-			if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
-				directoriesToCheck = new File[] {
-					new File(javaHome, "../Classes"), //$NON-NLS-1$
-				};
-			} else {
-				directoriesToCheck = new File[] {
-					new File(javaHome, "lib") //$NON-NLS-1$
-				};
+		// check bootclasspath properties for Sun, JRockit and Harmony VMs
+		String bootclasspathProperty = System.getProperty("sun.boot.class.path"); //$NON-NLS-1$
+		if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
+			// IBM J9 VMs
+			bootclasspathProperty = System.getProperty("vm.boot.class.path"); //$NON-NLS-1$
+			if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {
+				// Harmony using IBM VME
+				bootclasspathProperty = System.getProperty("org.apache.harmony.boot.class.path"); //$NON-NLS-1$
 			}
-			File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
-			if (systemLibrariesJars != null) {
-				for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
-					File[] current = systemLibrariesJars[i];
-					if (current != null) {
-						for (int j = 0, max2 = current.length; j < max2; j++) {
-							FileSystem.Classpath classpath =
-								FileSystem.getClasspath(current[j].getAbsolutePath(),
-									null, false, null, null);
-							if (classpath != null) {
-								bootclasspaths.add(classpath);
+		}
+		if ((bootclasspathProperty != null) && (bootclasspathProperty.length() != 0)) {
+			StringTokenizer tokenizer = new StringTokenizer(bootclasspathProperty, File.pathSeparator);
+			String token;
+			while (tokenizer.hasMoreTokens()) {
+				token = tokenizer.nextToken();
+				FileSystem.Classpath currentClasspath = FileSystem
+						.getClasspath(token, customEncoding, null);
+				if (currentClasspath != null) {
+					bootclasspaths.add(currentClasspath);
+				}
+			}
+		} else {
+			// try to get all jars inside the lib folder of the java home
+			final File javaHome = getJavaHome();
+			if (javaHome != null) {
+				File[] directoriesToCheck = null;
+				if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
+					directoriesToCheck = new File[] {
+						new File(javaHome, "../Classes"), //$NON-NLS-1$
+					};
+				} else {
+					// fall back to try to retrieve them out of the lib directory
+					directoriesToCheck = new File[] {
+						new File(javaHome, "lib") //$NON-NLS-1$
+					};
+				}
+				File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
+				if (systemLibrariesJars != null) {
+					for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
+						File[] current = systemLibrariesJars[i];
+						if (current != null) {
+							for (int j = 0, max2 = current.length; j < max2; j++) {
+								FileSystem.Classpath classpath =
+									FileSystem.getClasspath(current[j].getAbsolutePath(),
+										null, false, null, null);
+								if (classpath != null) {
+									bootclasspaths.add(classpath);
+								}
 							}
 						}
 					}
 				}
 			}
- 		}
+		}
 	}
 	return bootclasspaths;
 }
