@@ -2172,8 +2172,6 @@ public class DefaultCodeFormatterOptions {
 		setJavaConventionsSettings();
 		this.tab_char = TAB;
 		this.tab_size = 4;
-		this.never_indent_block_comments_on_first_column = true;
-		this.never_indent_line_comments_on_first_column = true;
 	}
 
 	public void setJavaConventionsSettings() {

@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.formatter;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 
@@ -21,7 +22,7 @@ import org.eclipse.jdt.internal.formatter.align.Alignment;
  * <p>
  * This class is not intended to be instantiated or subclassed by clients.
  * </p>
- * 
+ *
  * @since 3.0
  */
 public class DefaultCodeFormatterConstants {
@@ -3035,10 +3036,13 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to indent block comments that start on the first column
 	 *     - option id:         "org.eclipse.jdt.core.formatter.formatter.never_indent_block_comments_on_first_column"
 	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           TRUE
+	 *     - default:           FALSE
 	 * </pre>
+	 * Note that if the formatter is created without {@link ToolFactory#M_FORMAT_HONOR_NEVER_INDENT_COMMENT_OPTIONS} set,
+	 * this option is ignored.
 	 * @see #TRUE
 	 * @see #FALSE
+	 * @see ToolFactory#createCodeFormatter(Map, int)
 	 * @since 3.3
 	 */
 	public static final String FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN = JavaCore.PLUGIN_ID + ".formatter.never_indent_block_comments_on_first_column"; //$NON-NLS-1$	
@@ -3047,10 +3051,13 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to indent line comments that start on the first column
 	 *     - option id:         "org.eclipse.jdt.core.formatter.formatter.never_indent_line_comments_on_first_column"
 	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           TRUE
+	 *     - default:           FALSE
 	 * </pre>
+	 * Note that if the formatter is created without {@link ToolFactory#M_FORMAT_HONOR_NEVER_INDENT_COMMENT_OPTIONS} set,
+	 * this option is ignored.
 	 * @see #TRUE
 	 * @see #FALSE
+	 * @see ToolFactory#createCodeFormatter(Map, int)
 	 * @since 3.3
 	 */
 	public static final String FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN = JavaCore.PLUGIN_ID + ".formatter.never_indent_line_comments_on_first_column"; //$NON-NLS-1$	
