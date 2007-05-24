@@ -2002,4 +2002,41 @@ public void test057() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=188741
+public void test058() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends A {\n" +
+			"	void x(G g) { System.out.print(1); }\n" +
+			"	void x(G g, G g2) { System.out.print(1); }\n" +
+			"	public static void main(String[] s) {\n" +
+			"		H h = new H();\n" +
+			"		new X().x(h);\n" +
+			"		new X().x(h, h);\n" +
+			"	}\n" +
+			"}\n" +
+			"class A<T> {\n" +
+			"	void x(T t) { System.out.print(2); }\n" +
+			"	<U> void x(T t, U u) { System.out.print(2); }\n" +
+			"}\n" +
+			"class F<T> {}\n" +
+			"class G<T> extends F<T> {}\n" +
+			"class H<T> extends G<T> {}"
+		},
+		"11");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=188741
+public void test058a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends java.util.ArrayList {\n" + 
+			"	private static final long serialVersionUID = 1L;\n" + 
+			"	public void add(Comparable o) {}\n" + 
+			"	public void test() { add(\"hello\"); }\n" + 
+			"}"
+		},
+		"");
+}
 }

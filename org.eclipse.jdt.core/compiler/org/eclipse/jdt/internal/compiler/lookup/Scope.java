@@ -2580,10 +2580,8 @@ public abstract class Scope implements TypeConstants, TypeIds {
 				}
 				if (oneParam.isCompatibleWith(twoParam)) {
 					if (oneParam.leafComponentType().isRawType()) {
-						if (oneParam.needsUncheckedConversion(twoParam))
-							return false;
 						// A#RAW is not more specific than a rawified A<T>
-						if (oneParam == one.original().parameters[i] && twoParam != two.original().parameters[i])
+						if (oneParam.needsUncheckedConversion(two.original().parameters[i]))
 							return false;
 					}
 				} else {
