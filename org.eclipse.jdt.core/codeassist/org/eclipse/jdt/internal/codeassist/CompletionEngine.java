@@ -2028,7 +2028,10 @@ public final class CompletionEngine
 											}
 											if(importReference.isStatic()) {
 												if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+													long positions = importReference.sourcePositions[importReference.sourcePositions.length - 1];
+													setSourceRange((int) (positions >>> 32), (int) positions);
 													this.findImportsOfStaticFields(lastToken, ref);
+													setSourceRange(importReference.sourceStart, importReference.declarationSourceEnd);
 												}
 												if(!this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
 													this.findImportsOfStaticMethods(lastToken, ref);
@@ -3939,14 +3942,7 @@ public final class CompletionEngine
 				&& !field.canBeSeenBy(this.unitScope.fPackage))
 				continue next;
 			
-			char[] completionName = CharOperation.concat(
-					field.declaringClass.qualifiedPackageName(),
-					'.',
-					field.declaringClass.qualifiedSourceName(),
-					'.',
-					field.name);
-			
-			completionName = CharOperation.concat(completionName, SEMICOLON);
+			char[] completionName = CharOperation.concat(field.name, SEMICOLON);
 			
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();

@@ -1997,7 +1997,7 @@ public void test0072() throws JavaModelException {
 				"	public static void ZZZ2(int i) {}\n"+
 				"}");
 		
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true);
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0072", "Test.java");
 	
 		String str = cu.getSource();
@@ -2005,10 +2005,16 @@ public void test0072() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
+		int end1 = cursorLocation;
+		int start1 = end1 - "ZZ".length();
+		
+		int end2 = cursorLocation;
+		int start2 = end2 - "test0072.p.ImportedClass.ZZ".length();
+		
 		assertResults(
-				"ZZZ1[FIELD_REF]{test0072.p.ImportedClass.ZZZ1;, Ltest0072.p.ImportedClass;, I, ZZZ1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{test0072.p.ImportedClass.ZZZ2;, Ltest0072.p.ImportedClass;, ()V, ZZZ2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{test0072.p.ImportedClass.ZZZ2;, Ltest0072.p.ImportedClass;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				"ZZZ1[FIELD_REF]{ZZZ1;, Ltest0072.p.ImportedClass;, I, ZZZ1, null, ["+start1+", "+end1+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0072.p.ImportedClass.ZZZ2;, Ltest0072.p.ImportedClass;, ()V, ZZZ2, null, ["+start2+", "+end2+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0072.p.ImportedClass.ZZZ2;, Ltest0072.p.ImportedClass;, (I)V, ZZZ2, (i), ["+start2+", "+end2+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		if(importedClass != null) {
@@ -2034,7 +2040,7 @@ public void test0073() throws JavaModelException {
 				"	}\n"+
 				"}");
 		
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true);
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0073", "Test.java");
 	
 		String str = cu.getSource();
@@ -2042,10 +2048,16 @@ public void test0073() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
+		int end1 = cursorLocation;
+		int start1 = end1 - "ZZ".length();
+		
+		int end2 = cursorLocation;
+		int start2 = end2 - "test0073.p.ImportedClass.Inner.ZZ".length();
+		
 		assertResults(
-				"ZZZ1[FIELD_REF]{test0073.p.ImportedClass.Inner.ZZZ1;, Ltest0073.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{test0073.p.ImportedClass.Inner.ZZZ2;, Ltest0073.p.ImportedClass$Inner;, ()V, ZZZ2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{test0073.p.ImportedClass.Inner.ZZZ2;, Ltest0073.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				"ZZZ1[FIELD_REF]{ZZZ1;, Ltest0073.p.ImportedClass$Inner;, I, ZZZ1, null, ["+start1+", "+end1+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0073.p.ImportedClass.Inner.ZZZ2;, Ltest0073.p.ImportedClass$Inner;, ()V, ZZZ2, null, ["+start2+", "+end2+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0073.p.ImportedClass.Inner.ZZZ2;, Ltest0073.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), ["+start2+", "+end2+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		if(importedClass != null) {
@@ -2071,7 +2083,7 @@ public void test0074() throws JavaModelException {
 				"	}\n"+
 				"}");
 		
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true);
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0074", "Test.java");
 	
 		String str = cu.getSource();
@@ -2079,10 +2091,16 @@ public void test0074() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
+		int end1 = cursorLocation;
+		int start1 = end1 - "ZZ".length();
+		
+		int end2 = cursorLocation;
+		int start2 = end2 - "test0074.p.ImportedClass.Inner.ZZ".length();
+		
 		assertResults(
-				"ZZZ1[FIELD_REF]{test0074.p.ImportedClass.Inner.ZZZ1;, Ltest0074.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, ()V, ZZZ2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				"ZZZ1[FIELD_REF]{ZZZ1;, Ltest0074.p.ImportedClass$Inner;, I, ZZZ1, null, ["+start1+", "+end1+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, ()V, ZZZ2, null, ["+start2+", "+end2+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), ["+start2+", "+end2+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		if(importedClass != null) {
@@ -7373,10 +7391,10 @@ public void test0223() throws JavaModelException {
 	            result.context);
 	
 	    int end = result.cursorLocation;
-		int start = end - "test0223.AType.va".length();
+		int start = end - "va".length();
 		
 		assertResults(
-				"VAR[FIELD_REF]{test0223.AType.VAR;, Ltest0223.AType;, I, VAR, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+				"VAR[FIELD_REF]{VAR;, Ltest0223.AType;, I, VAR, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(paramClass1 != null) {
