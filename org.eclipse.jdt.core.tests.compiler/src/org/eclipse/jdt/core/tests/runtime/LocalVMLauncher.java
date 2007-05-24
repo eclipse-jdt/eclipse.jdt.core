@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Nina Rinskaya
+ *     		Fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=172820.
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.runtime;
 
@@ -68,6 +70,9 @@ public static LocalVMLauncher getLauncher() {
 	}
 	if ("IBM J9SE VM".equals(vmName)) {
 		return new SideCarJ9VMLauncher();
+	}
+	if ("DRLVM".equals(vmName)) {
+		return new DRLVMLauncher();
 	}
 	return new SideCarVMLauncher();
 }

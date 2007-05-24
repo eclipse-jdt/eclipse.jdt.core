@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Nina Rinskaya
+ *     		Fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=172820.
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.util;
 
@@ -653,6 +655,18 @@ public static String[] getJavaClassLibs() {
             toNativePath(jreDir + "/lib/jclMax/classes.zip")
         };
     }
+	if ("DRLVM".equals(vmName)) {
+		FilenameFilter jarFilter = new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".jar") & !name.endsWith("-src.jar");
+			}
+		};
+		String[] jars = new File(jreDir + "/lib/boot/").list(jarFilter);
+		for (int i = 0; i < jars.length; i++) {
+			jars[i] = toNativePath(jreDir + "/lib/boot/" + jars[i]);
+		}
+		return jars;
+	}
     ArrayList paths = new ArrayList();
     String[] jarsNames = new String[] {
     		"/lib/vm.jar",
