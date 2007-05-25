@@ -2039,4 +2039,55 @@ public void test058a() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=188960
+public void test059() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> {\n" + 
+			"	X() {}\n" + 
+			"	X(String s) {}\n" + 
+			"	X(T t) {}\n" + 
+			"	void foo(String s) {}\n" + 
+			"	void foo(T t) {}\n" + 
+			"}\n" +
+			"class NoErrorSubclass extends X<String> {}\n" +
+			"class StringOnlySubClass extends X<String> {\n" +
+			"	StringOnlySubClass(String s) { super(s); }\n" +
+			"	@Override void foo(String s) { super.foo(s); }\n" +
+			"}\n" +
+			"class Test {\n" +
+			"	Object o = new X<String>(\"xyz\");\n" +
+			"	void test(X<String> x) { x.foo(\"xyz\"); }\n" +
+			"}"
+		},
+		// no error is reported against duplicate constructors - but the call is reported as ambiguous
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	class NoErrorSubclass extends X<String> {}\n" + 
+		"	      ^^^^^^^^^^^^^^^\n" + 
+		"Duplicate methods named foo with the parameters (T) and (String) are defined by the type X<String>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	StringOnlySubClass(String s) { super(s); }\n" + 
+		"	                               ^^^^^^^^^\n" + 
+		"The constructor X<String>(String) is ambiguous\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	@Override void foo(String s) { super.foo(s); }\n" + 
+		"	                                     ^^^\n" + 
+		"The method foo(String) is ambiguous for the type X<String>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 14)\n" + 
+		"	Object o = new X<String>(\"xyz\");\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor X<String>(String) is ambiguous\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 15)\n" + 
+		"	void test(X<String> x) { x.foo(\"xyz\"); }\n" + 
+		"	                           ^^^\n" + 
+		"The method foo(String) is ambiguous for the type X<String>\n" + 
+		"----------\n"
+	);
+}
 }

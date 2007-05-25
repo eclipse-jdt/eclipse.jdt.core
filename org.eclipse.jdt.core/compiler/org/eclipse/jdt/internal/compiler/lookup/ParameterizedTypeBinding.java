@@ -399,6 +399,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 		int argCount = argumentTypes.length;
+		MethodBinding match = null;
 
 		if ((tagBits & TagBits.AreMethodsComplete) != 0) { // have resolved all arg types & return type of the methods
 			long range;
@@ -410,7 +411,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 						for (int iarg = 0; iarg < argCount; iarg++)
 							if (toMatch[iarg] != argumentTypes[iarg])
 								continue nextMethod;
-						return method;
+						if (match != null) return null; // collision case
+						match = method;
 					}
 				}
 			}
@@ -423,11 +425,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 					for (int p = 0; p < argCount; p++)
 						if (toMatch[p] != argumentTypes[p])
 							continue nextMethod;
-						return method;
+						if (match != null) return null; // collision case
+						match = method;
 				}
 			}
 		}
-		return null;
+		return match;
 	}
 
 	/**
