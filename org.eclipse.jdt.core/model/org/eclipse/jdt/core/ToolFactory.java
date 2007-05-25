@@ -49,17 +49,31 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 public class ToolFactory {
 	
 	/**
-	 * If set, this mode tells the default code formatter to honor the options that
-	 * never indent comments on first column. Note that if these options are disabled,
-	 * then they remain disabled even if this mode is set.
-	 * If this mode is not set, these options are ignored, even if they are enabled.
+	 * This mode is used for formatting new code when some formatter options should not be used. 
+	 * In particular, options that preserve the indentation of comments are not used. 
+	 * In the future,  newly added options may be ignored as well.
+	 * <p>Clients that are formatting new code are recommended to use this mode.
+	 * </p>
+	 * 
+	 * @see DefaultCodeFormatterConstants#FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN
+	 * @see DefaultCodeFormatterConstants#FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN
+	 * @see #createCodeFormatter(Map, int)
+	 * @since 3.3
+	 */
+	public static final int M_FORMAT_NEW = new Integer(0).intValue();
+	
+	/**
+	 * This mode is used for formatting existing code when all formatter options should be used. 
+	 * In particular, options that preserve the indentation of comments are used. 
+	 * <p>Clients that are formatting existing code are recommended to use this mode.
+	 * </p>
 	 *
 	 * @see DefaultCodeFormatterConstants#FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN
 	 * @see DefaultCodeFormatterConstants#FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN
 	 * @see #createCodeFormatter(Map, int)
 	 * @since 3.3
 	 */
-	public static final int M_FORMAT_HONOR_NEVER_INDENT_COMMENT_OPTIONS = 0x01;
+	public static final int M_FORMAT_EXISTING = new Integer(1).intValue();
 
 	/**
 	 * Create an instance of a code formatter. A code formatter implementation can be contributed via the 
@@ -105,8 +119,8 @@ public class ToolFactory {
 	 * ({@link JavaCore#COMPILER_CODEGEN_TARGET_PLATFORM}).
 	 * Without these options, it is not possible for the code formatter to know what kind of source it needs to format.
 	 * </p><p>
-	 * Note this is equivalent to <code>createCodeFormatter(options, 0)</code>. Thus some code formatter options
-	 * may be ignored since the corresponding mode is not set.
+	 * Note this is equivalent to <code>createCodeFormatter(options, M_FORMAT_NEW)</code>. Thus some code formatter options
+	 * may be ignored. See @{link {@link #M_FORMAT_NEW} for more details.
 	 * </p>
 	 * @param options - the options map to use for formatting with the default code formatter. Recognized options
 	 * 	are documented on <code>JavaCore#getDefaultOptions()</code>. If set to <code>null</code>, then use 
@@ -117,7 +131,7 @@ public class ToolFactory {
 	 * @since 3.0
 	 */
 	public static CodeFormatter createCodeFormatter(Map options){
-		return createCodeFormatter(options, 0);
+		return createCodeFormatter(options, M_FORMAT_NEW);
 	}
 
 	/**
@@ -127,10 +141,9 @@ public class ToolFactory {
 	 * ({@link JavaCore#COMPILER_CODEGEN_TARGET_PLATFORM}).
 	 * Without these options, it is not possible for the code formatter to know what kind of source it needs to format.
 	 * </p>
-	 * <p>The given mode is a bitwise value. It is used to determine what options should be enabled when
-	 * formatting the code.</p>
-	 * <p>The list of bits used to set the mode includes only {@link #M_FORMAT_HONOR_NEVER_INDENT_COMMENT_OPTIONS}, but
-	 * other bits are left for future use.</p>
+	 * <p>The given mode determine what options should be enabled when formatting the code. It can have the following
+	 * values: {@link #M_FORMAT_NEW}, {@link #M_FORMAT_EXISTING}, but other values may be added in the future.
+	 * </p>
 	 * 
 	 * @param options the options map to use for formatting with the default code formatter. Recognized options
 	 * 	are documented on <code>JavaCore#getDefaultOptions()</code>. If set to <code>null</code>, then use 
@@ -145,7 +158,7 @@ public class ToolFactory {
 	public static CodeFormatter createCodeFormatter(Map options, int mode) {
 		if (options == null) options = JavaCore.getOptions();
 		Map currentOptions = new HashMap(options);
-		if ((mode & M_FORMAT_HONOR_NEVER_INDENT_COMMENT_OPTIONS) == 0) {
+		if (mode == M_FORMAT_NEW) {
 			// disable the option for not indenting comments starting on first column
 			currentOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.FALSE);
 			currentOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.FALSE);

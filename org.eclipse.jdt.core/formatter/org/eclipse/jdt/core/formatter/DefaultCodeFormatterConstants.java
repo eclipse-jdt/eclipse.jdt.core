@@ -3038,8 +3038,7 @@ public class DefaultCodeFormatterConstants {
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
 	 * </pre>
-	 * Note that if the formatter is created without {@link ToolFactory#M_FORMAT_HONOR_NEVER_INDENT_COMMENT_OPTIONS} set,
-	 * this option is ignored.
+	 * Note that this option is ignored if the formatter is created with the mode {@link ToolFactory#M_FORMAT_NEW}.
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @see ToolFactory#createCodeFormatter(Map, int)
@@ -3053,8 +3052,7 @@ public class DefaultCodeFormatterConstants {
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
 	 * </pre>
-	 * Note that if the formatter is created without {@link ToolFactory#M_FORMAT_HONOR_NEVER_INDENT_COMMENT_OPTIONS} set,
-	 * this option is ignored.
+	 * Note that this option is ignored if the formatter is created with the mode {@link ToolFactory#M_FORMAT_NEW}.
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @see ToolFactory#createCodeFormatter(Map, int)
