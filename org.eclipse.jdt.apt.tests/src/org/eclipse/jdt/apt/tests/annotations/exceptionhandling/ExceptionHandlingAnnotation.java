@@ -12,7 +12,7 @@
 package org.eclipse.jdt.apt.tests.annotations.exceptionhandling;
 
 public @interface ExceptionHandlingAnnotation {
-	public enum EHAEnum { A, B };
+	public enum EHAEnum { A, B }
 	EHAEnum[] enumsValue() default { EHAEnum.A };
 	boolean booleanValue() default false;
 	String strValue() default "";
