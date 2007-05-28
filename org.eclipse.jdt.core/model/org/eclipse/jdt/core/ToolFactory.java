@@ -141,7 +141,7 @@ public class ToolFactory {
 	 * ({@link JavaCore#COMPILER_CODEGEN_TARGET_PLATFORM}).
 	 * Without these options, it is not possible for the code formatter to know what kind of source it needs to format.
 	 * </p>
-	 * <p>The given mode determine what options should be enabled when formatting the code. It can have the following
+	 * <p>The given mode determines what options should be enabled when formatting the code. It can have the following
 	 * values: {@link #M_FORMAT_NEW}, {@link #M_FORMAT_EXISTING}, but other values may be added in the future.
 	 * </p>
 	 * 
