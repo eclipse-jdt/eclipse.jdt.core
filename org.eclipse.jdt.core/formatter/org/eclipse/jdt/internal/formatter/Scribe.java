@@ -628,14 +628,14 @@ public class Scribe {
 					// check that we are on the same line
 					int lineIndexForComment = Arrays.binarySearch(this.lineEnds, start);
 					if (lineIndexForComment == index) {
-						return CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, start) != -1;
+						return CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, start, currentLineEnd) != -1;
 					}
 				}
 			}
 		}
 		return false;
 	}
-	
+
 	public void indent() {
 		this.indentationLevel += this.indentationSize;
 		this.numberOfIndentations++;
@@ -1094,7 +1094,7 @@ public class Scribe {
 	private void printLineComment(char[] s) {
 		int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 		int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
-		if (CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, currentTokenStartPosition) != -1) {
+		if (CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, currentTokenStartPosition, currentTokenEndPosition) != -1) {
 			this.nlsTagCounter = 0;
 		}
 		this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);
