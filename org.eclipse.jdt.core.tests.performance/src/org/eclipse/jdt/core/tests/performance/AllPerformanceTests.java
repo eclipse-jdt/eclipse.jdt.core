@@ -38,6 +38,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 			FullSourceWorkspaceTypeHierarchyTests.class,
 			FullSourceWorkspaceModelTests.class,
 			FullSourceWorkspaceCompletionTests.class,
+			FullSourceWorkspaceFormatterTests.class,
 		};
 	}
 

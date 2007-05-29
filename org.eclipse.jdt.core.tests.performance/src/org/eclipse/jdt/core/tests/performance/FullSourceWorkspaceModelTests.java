@@ -82,11 +82,7 @@ private static Class testClass() {
 
 protected void setUp() throws Exception {
 	super.setUp();
-	if (BIG_PROJECT == null) {
-		setUpBigProject();
-	} else if (BIG_PROJECT_TYPE_PATH == null) {
-		setUpBigProjectInfo();
-	}
+	setUpBigProject();
 }
 private void setUpBigProject() throws CoreException, IOException {
 	try {
@@ -137,12 +133,9 @@ private void setUpBigProject() throws CoreException, IOException {
 		}
 		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 
-		// Print for log in case of project creation troubles...
-		System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
-		start = System.currentTimeMillis();
-		System.out.print("	- Create compilation unit with secondary type...");
-
 		// Add CU with secondary type
+		System.out.print("	- Create compilation unit with secondary type...");
+		start = System.currentTimeMillis();
 		BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (FOLDERS_COUNT-1) + "/performance" + (PACKAGES_COUNT-1) + "/TestBigProject.java");
 		IFile file = workspaceRoot.getFile(BIG_PROJECT_TYPE_PATH);
 		if (!file.exists()) {
@@ -177,16 +170,6 @@ private void setUpBigProject() throws CoreException, IOException {
 		// do not delete project
 	}
 	
-}
-private void setUpBigProjectInfo() {
-	// Set up type path
-	BIG_PROJECT_TYPE_PATH = new Path("/BigProject/src" + (FOLDERS_COUNT-1) + "/org/eclipse/jdt/core/tests" + (FOLDERS_COUNT-1) + "/performance" + (PACKAGES_COUNT-1) + "/TestBigProject.java");
-
-	// Set up working copy
-	IWorkspace workspace = ResourcesPlugin.getWorkspace();
-	IWorkspaceRoot workspaceRoot = workspace.getRoot();
-	IFile file = workspaceRoot.getFile(BIG_PROJECT_TYPE_PATH);
-	WORKING_COPY = (ICompilationUnit)JavaCore.create(file);
 }
 /* (non-Javadoc)
  * @see junit.framework.TestCase#tearDown()
