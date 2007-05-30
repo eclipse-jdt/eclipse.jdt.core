@@ -2090,4 +2090,91 @@ public void test059() {
 		"----------\n"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=189933
+public void _test060() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"  public void bar(K<T, Object> p) {\n" + 
+			"    new Y(p);\n" + 
+			"    new Y((J<T, Object>) p);\n" + 
+			"    new Y((I<T, Object>) p);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<T, U> {\n" + 
+			"  Y(I<? extends T, ? extends U> p) {\n" + 
+			"  }\n" + 
+			"  Y(J<T, ? extends U> p) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface I<T, U> {  \n" + 
+			"}\n" + 
+			"interface J<T, U> extends I<T, U> {\n" + 
+			"}\n" + 
+			"interface K<T, U> extends I<T, U>, J<T, U> {\n" + 
+			"}"
+		},
+		""
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=189933
+// variant
+public void _test061() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"  public void bar(K<T, Object> p) {\n" + 
+			"    new Y(p);\n" + 
+			"    new Y((J<T, Object>) p);\n" + 
+			"    new Y((I<T, Object>) p);\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Y<T, U> {\n" + 
+			"  Y(I<? extends T, ? extends U> p) {\n" + 
+			"  }\n" + 
+			"  Y(J<T, ? extends U> p) {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface I<T, U> {  \n" + 
+			"}\n" + 
+			"interface J<T, U> {\n" + 
+			"}\n" + 
+			"interface K<T, U> extends I<T, U>, J<T, U> {\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	new Y(p);\n" + 
+		"	^^^^^^^^\n" + 
+		"The constructor Y(I) is ambiguous\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	new Y(p);\n" + 
+		"	    ^\n" + 
+		"Y is a raw type. References to generic type Y<T,U> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	new Y((J<T, Object>) p);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The constructor Y(J) belongs to the raw type Y. References to generic type Y<T,U> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 4)\n" + 
+		"	new Y((J<T, Object>) p);\n" + 
+		"	    ^\n" + 
+		"Y is a raw type. References to generic type Y<T,U> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 5)\n" + 
+		"	new Y((I<T, Object>) p);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The constructor Y(I) belongs to the raw type Y. References to generic type Y<T,U> should be parameterized\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 5)\n" + 
+		"	new Y((I<T, Object>) p);\n" + 
+		"	    ^\n" + 
+		"Y is a raw type. References to generic type Y<T,U> should be parameterized\n" + 
+		"----------\n"
+	);
+}
 }
