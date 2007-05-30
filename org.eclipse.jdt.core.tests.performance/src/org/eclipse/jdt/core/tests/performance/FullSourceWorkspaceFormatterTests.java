@@ -18,13 +18,12 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 
 /**
  */
-public class FullSourceWorkspaceFormatterTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
+public class FullSourceWorkspaceFormatterTests extends FullSourceWorkspaceTests {
 
 	// Tests counters
 	static int TESTS_COUNT = 0;
@@ -47,13 +46,7 @@ public FullSourceWorkspaceFormatterTests(String name) {
 
 static {
 //	TESTS_NAMES = new String[] {
-//		"testPerfNameLookupFindKnownSecondaryType",
-//		"testPerfNameLookupFindUnknownType",
-//		"testPerfReconcile", 
-//		"testPerfSearchAllTypeNamesAndReconcile",
 //	};
-	
-//	TESTS_PREFIX = "testPerfReconcile";
 }
 public static Test suite() {
 	Test suite = buildSuite(testClass());
@@ -135,8 +128,8 @@ public void testFormatDefault() throws JavaModelException {
 /**
  * Format big file (GenericTypeTest.java - 1297242 chars) using code formatter default options.
  */
-public void testFormatDefaultBigFile() throws JavaModelException {
-	tagAsGlobalSummary("Format big file with default options", false); // do NOT put in global fingerprint yet...
+public void testFormatDefaultBigFile() {
+	tagAsSummary("Format big file with default options", false); // do NOT put in fingerprint yet...
 
 	// Warm up
 	String source = FORMAT_TYPE_SOURCE;

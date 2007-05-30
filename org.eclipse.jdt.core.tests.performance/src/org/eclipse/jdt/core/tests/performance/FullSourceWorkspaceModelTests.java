@@ -621,7 +621,7 @@ public void testPerfReconcile() throws CoreException {
  * (regression test for bug 135083 RangeUtil#isInInterval(...) takes significant amount of time while editing)
  */
 public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException {
-	tagAsSummary("Reconcile editor change on big file with syntax error", true); // put in fingerprint
+	tagAsSummary("Reconcile editor change on big file with syntax error", false); // do NOT put in fingerprint
 	
 	// build big file contents
 	String method =
@@ -796,7 +796,7 @@ public void testSeekPackageFragments() throws CoreException {
 }
 
 public void testCloseProjects() throws JavaModelException {
-	tagAsSummary("Close all workspace projects", true); // put in fingerprint
+	tagAsSummary("Close all workspace projects", false); // do NOT put in fingerprint
 
 	// Warm-up
 	int length=ALL_PROJECTS.length;

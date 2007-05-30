@@ -598,7 +598,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Performance tests for search: Constructors occruences.
 	 */
 	public void testSearchConstructor() throws CoreException {
-		tagAsSummary("Search constructor occurences", true); // put in fingerprint
+		tagAsSummary("Search constructor occurences", false); // do NOT put in fingerprint
 
 		// Wait for indexing end
 		AbstractJavaModelTests.waitUntilIndexesReady();
@@ -668,7 +668,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * Performance tests for search: Package Declarations on workspace scope.
 	 */
 	public void testSearchPackageDeclarationsWorkspace() throws CoreException {
-		tagAsSummary("Search workspace package declarations", true); // put in fingerprint
+		tagAsSummary("Search workspace package declarations", false); // do NOT put in fingerprint
 
 		// Wait for indexing end
 		AbstractJavaModelTests.waitUntilIndexesReady();
