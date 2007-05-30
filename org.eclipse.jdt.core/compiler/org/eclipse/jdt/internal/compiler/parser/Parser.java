@@ -443,10 +443,12 @@ private final static void buildFileForTable(String filename, byte[] bytes) {
 		stream = new java.io.FileOutputStream(filename);
 		stream.write(bytes);
 	} catch(IOException e) {
+		// ignore
+	} finally {
 		if (stream != null) {
 			try {
 				stream.close();
-			} catch (IOException e1) {
+			} catch (IOException e) {
 				// ignore
 			}
 		}
@@ -465,10 +467,12 @@ private final static void buildFileForTable(String filename, char[] chars) {
 		stream = new java.io.FileOutputStream(filename);
 		stream.write(bytes);
 	} catch(IOException e) {
+		// ignore
+	} finally {
 		if (stream != null) {
 			try {
 				stream.close();
-			} catch (IOException e1) {
+			} catch (IOException e) {
 				// ignore
 			}
 		}
