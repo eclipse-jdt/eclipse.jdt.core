@@ -647,10 +647,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		int length = ALL_PROJECTS.length;
 		for (int i = 0; i < length; i++) {
 			String projectName = ALL_PROJECTS[i].getElementName();
+			if (BIG_PROJECT_NAME.equals(projectName)) continue; // will be set later
 			if (JavaCore.PLUGIN_ID.equals(projectName)) {
 				JDT_CORE_PROJECT = ALL_PROJECTS[i];
-			} else if (BIG_PROJECT_NAME.equals(projectName)) {
-				BIG_PROJECT = (JavaProject) ALL_PROJECTS[i];
 //			} else if (JUNIT_PROJECT_NAME.equals(projectName)) {
 //				JUNIT_PROJECT = ALL_PROJECTS[i];
 			}
@@ -746,8 +745,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		if (fingerprint) super.tagAsSummary(shortName, dimensions);
 	}
 	public void startMeasuring() {
-		super.startMeasuring();
 		this.startMeasuring = System.currentTimeMillis();
+		super.startMeasuring();
 	}
 	public void stopMeasuring() {
 		super.stopMeasuring();

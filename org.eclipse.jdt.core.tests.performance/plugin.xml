@@ -21,6 +21,7 @@
       <import plugin="org.eclipse.jdt.core.tests.model"/>
       <import plugin="org.junit"/>
       <import plugin="org.eclipse.test.performance"/>
+      <import plugin="org.eclipse.text"/>
    </requires>
 
 </plugin>

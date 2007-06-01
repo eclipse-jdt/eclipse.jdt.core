@@ -57,7 +57,7 @@
       <property name="data-dir" value="${jdt-core-perf-folder}/data"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" value="org.eclipse.jdt.core.tests.performance.AllPerformanceTests"/>
-      <property name="timeout" value="9000000" />
+      <property name="timeout" value="12000000" />
     </ant>
   </target>
 
