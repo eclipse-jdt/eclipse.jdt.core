@@ -633,7 +633,7 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to control whether multiple comments are formatted
+	 * FORMATTER / Option to control whether multiple lines comments are formatted
 	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.format_block_comments"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           TRUE
