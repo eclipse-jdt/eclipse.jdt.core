@@ -261,6 +261,42 @@ public void test004() {
 		"The final field X.Test6.o cannot be assigned\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190391
+public void test005() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	final int contents;\n" + 
+			"	\n" + 
+			"	X() {\n" + 
+			"		contents = 3;\n" + 
+			"	}\n" + 
+			"	X(X other) {\n" + 
+			"		other.contents = 5;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X one = new X();\n" + 
+			"		System.out.println(\"one.contents: \" + one.contents);\n" + 
+			"		X two = new X(one);\n" + 
+			"		System.out.println(\"one.contents: \" + one.contents);\n" + 
+			"		System.out.println(\"two.contents: \" + two.contents);\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	X(X other) {\n" + 
+		"	^^^^^^^^^^\n" + 
+		"The blank final field contents may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	other.contents = 5;\n" + 
+		"	      ^^^^^^^^\n" + 
+		"The final field X.contents cannot be assigned\n" + 
+		"----------\n");
+}
 // final multiple assignment
 public void test020() {
 	this.runNegativeTest(
