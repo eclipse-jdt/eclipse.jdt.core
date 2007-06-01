@@ -2743,7 +2743,7 @@ public final class JavaCore extends Plugin {
 	 * CODEASSIST / Activate Suggestion of Static Import
 	 *    When enabled, completion proposals can contain static import
 	 *    pattern.
-	 *     - option id:         "org.eclipse.jdt.core.codeComplete.suggestStaticImport"
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.suggestStaticImports"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
 	 * </pre>
