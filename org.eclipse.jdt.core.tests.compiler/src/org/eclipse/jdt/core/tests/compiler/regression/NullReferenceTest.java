@@ -6878,6 +6878,25 @@ public void test0744_for_infinite() {
 		"");
 }
 
+// null analysis - for
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=190737
+public void _test0745_for() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  void foo(Object o) {\n" + 
+			"    if (o != null) {\n" + 
+			"      for (int i = 0; i < Integer.MAX_VALUE; i++) {\n" + 
+			"        if (o == null) {\n" +  // should complain here
+			"        }\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"},
+		"ERR");
+}
+
 // null analysis -- switch
 public void test0800_switch() {
 	this.runConformTest(
