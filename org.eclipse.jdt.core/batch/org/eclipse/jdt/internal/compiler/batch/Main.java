@@ -502,6 +502,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				"configure.incorrectExtDirsEntry", wrongPath)); //$NON-NLS-1$
 		}
 
+		public void logIncorrectVMVersionForAnnotationProcessing() {
+			if ((this.tagBits & Logger.XML) != 0) {
+				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.incorrectVMVersionforAPT")); //$NON-NLS-1$
+				this.printTag(Logger.ERROR_TAG, this.parameters, true, true);
+			}
+			this.printlnErr(this.main.bind("configure.incorrectVMVersionforAPT")); //$NON-NLS-1$
+		}
+
 		/**
 		 *
 		 */
@@ -1515,7 +1523,61 @@ public String bind(String id, String[] arguments) {
 	}
 	return MessageFormat.format(message, arguments);
 }
-
+/**
+ * Return true if and only if the running VM supports the given minimal version.
+ * 
+ * <p>This only checks the major version, since the minor version is always 0 (at least for the useful cases).</p>
+ * <p>The given minimalSupportedVersion is one of the constants:</p>
+ * <ul>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_1</code></li>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_2</code></li>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_3</code></li>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_4</code></li>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_5</code></li>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_6</code></li>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_7</code></li>
+ * </ul>
+ * @param minimalSupportedVersion the given minimal version
+ * @return true if and only if the running VM supports the given minimal version, false otherwise
+ */
+private boolean checkVMVersion(long minimalSupportedVersion) {
+	// the format of this property is supposed to be xx.x where x are digits.
+	String classFileVersion = System.getProperty("java.class.version"); //$NON-NLS-1$
+	if (classFileVersion == null) {
+		// by default we don't support a class file version we cannot recognize
+		return false;
+	}
+	int index = classFileVersion.indexOf('.');
+	if (index == -1) {
+		// by default we don't support a class file version we cannot recognize
+		return false;
+	}
+	int majorVersion;
+	try {
+		majorVersion = Integer.parseInt(classFileVersion.substring(0, index));
+	} catch (NumberFormatException e) {
+		// by default we don't support a class file version we cannot recognize
+		return false;
+	}
+	switch(majorVersion) {
+		case 45 : // 1.0 and 1.1
+			return ClassFileConstants.JDK1_1 >= minimalSupportedVersion;
+		case 46 : // 1.2
+			return ClassFileConstants.JDK1_2 >= minimalSupportedVersion;
+		case 47 : // 1.3
+			return ClassFileConstants.JDK1_3 >= minimalSupportedVersion;
+		case 48 : // 1.4
+			return ClassFileConstants.JDK1_4 >= minimalSupportedVersion;
+		case 49 : // 1.5
+			return ClassFileConstants.JDK1_5 >= minimalSupportedVersion;
+		case 50 : // 1.6
+			return ClassFileConstants.JDK1_6 >= minimalSupportedVersion;
+		case 51 : // 1.7
+			return ClassFileConstants.JDK1_7 >= minimalSupportedVersion;
+	}
+	// unknown version
+	return false;
+}
 /*
  *  Low-level API performing the actual compilation
  */
@@ -3329,9 +3391,14 @@ public void performCompilation() throws InvalidInputException {
 
 	if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
 			&& this.compilerOptions.processAnnotations) {
-		initializeAnnotationProcessorManager();
-		if (this.classNames != null) {
-			this.batchCompiler.setBinaryTypes(processClassNames(this.batchCompiler.lookupEnvironment));
+		if (checkVMVersion(ClassFileConstants.JDK1_6)) {
+			initializeAnnotationProcessorManager();
+			if (this.classNames != null) {
+				this.batchCompiler.setBinaryTypes(processClassNames(this.batchCompiler.lookupEnvironment));
+			}
+		} else {
+			// report a warning
+			this.logger.logIncorrectVMVersionForAnnotationProcessing();
 		}
 	}
 
@@ -3396,6 +3463,9 @@ protected void initializeAnnotationProcessorManager() {
 	} catch (IllegalAccessException e) {
 		// should not happen
 		throw new org.eclipse.jdt.internal.compiler.problem.AbortCompilation();
+	} catch(UnsupportedClassVersionError e) {
+		// report a warning
+		this.logger.logIncorrectVMVersionForAnnotationProcessing();
 	}
 }
 public void printUsage() {
@@ -3918,11 +3988,11 @@ protected void validateOptions(boolean didSpecifyCompliance) throws InvalidInput
 					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_5){
 				throw new InvalidInputException(this.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
 			}
-	   		 // target must be 1.4 if source is 1.4
-	   		if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4
+			// target must be 1.4 if source is 1.4
+			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4
 					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_4){
 				throw new InvalidInputException(this.bind("configure.incompatibleTargetForSource", (String) targetVersion, CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
-	   		}
+			}
 			// target cannot be greater than compliance level
 			if (CompilerOptions.versionToJdkLevel(compliance) < CompilerOptions.versionToJdkLevel(targetVersion)){
 				throw new InvalidInputException(this.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String) targetVersion)); //$NON-NLS-1$
