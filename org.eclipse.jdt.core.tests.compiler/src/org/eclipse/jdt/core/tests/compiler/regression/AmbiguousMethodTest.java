@@ -2090,59 +2090,79 @@ public void test059() {
 		"----------\n"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=191029
+public void test059a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.TreeMap;\n" + 
+			"class X {\n" + 
+			"	void test(TreeMap<String, Object> tm) {\n" + 
+			"		TreeMap copy = new TreeMap(tm);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	TreeMap copy = new TreeMap(tm);\n" + 
+		"	^^^^^^^\n" + 
+		"TreeMap is a raw type. References to generic type TreeMap<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	TreeMap copy = new TreeMap(tm);\n" + 
+		"	               ^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The constructor TreeMap(SortedMap) belongs to the raw type TreeMap. References to generic type TreeMap<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	TreeMap copy = new TreeMap(tm);\n" + 
+		"	                   ^^^^^^^\n" + 
+		"TreeMap is a raw type. References to generic type TreeMap<K,V> should be parameterized\n" + 
+		"----------\n"
+	);
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=189933
-public void _test060() {
+public void test060() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" + 
-			"  public void bar(K<T, Object> p) {\n" + 
-			"    new Y(p);\n" + 
-			"    new Y((J<T, Object>) p);\n" + 
-			"    new Y((I<T, Object>) p);\n" + 
-			"  }\n" + 
+			"	public void bar(K<T, Object> p) {\n" + 
+			"		new Y(p);\n" + 
+			"		new Y((J<T, Object>) p);\n" + 
+			"		new Y((I<T, Object>) p);\n" + 
+			"	}\n" + 
 			"}\n" + 
 			"class Y<T, U> {\n" + 
-			"  Y(I<? extends T, ? extends U> p) {\n" + 
-			"  }\n" + 
-			"  Y(J<T, ? extends U> p) {\n" + 
-			"  }\n" + 
+			"	Y(I<? extends T, ? extends U> p) {}\n" + 
+			"	Y(J<T, ? extends U> p) {}\n" + 
 			"}\n" + 
-			"interface I<T, U> {  \n" + 
-			"}\n" + 
-			"interface J<T, U> extends I<T, U> {\n" + 
-			"}\n" + 
-			"interface K<T, U> extends I<T, U>, J<T, U> {\n" + 
-			"}"
+			"interface I<T, U> {}\n" + 
+			"interface J<T, U> extends I<T, U> {}\n" + 
+			"interface K<T, U> extends I<T, U>, J<T, U> {}"
 		},
 		""
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=189933
 // variant
-public void _test061() {
+public void test061() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" + 
-			"  public void bar(K<T, Object> p) {\n" + 
-			"    new Y(p);\n" + 
-			"    new Y((J<T, Object>) p);\n" + 
-			"    new Y((I<T, Object>) p);\n" + 
-			"  }\n" + 
+			"	public void bar(K<T, Object> p) {\n" + 
+			"		new Y(p);\n" + 
+			"		new Y((J<T, Object>) p);\n" + 
+			"		new Y((I<T, Object>) p);\n" + 
+			"	}\n" + 
 			"}\n" + 
 			"class Y<T, U> {\n" + 
-			"  Y(I<? extends T, ? extends U> p) {\n" + 
-			"  }\n" + 
-			"  Y(J<T, ? extends U> p) {\n" + 
-			"  }\n" + 
+			"	Y(I<? extends T, ? extends U> p) {}\n" + 
+			"	Y(J<T, ? extends U> p) {}\n" + 
 			"}\n" + 
-			"interface I<T, U> {  \n" + 
-			"}\n" + 
-			"interface J<T, U> {\n" + 
-			"}\n" + 
-			"interface K<T, U> extends I<T, U>, J<T, U> {\n" + 
-			"}"
+			"interface I<T, U> {}\n" + 
+			"interface J<T, U> {}\n" + 
+			"interface K<T, U> extends I<T, U>, J<T, U> {}"
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 

@@ -239,17 +239,17 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 	int[] overriddenInheritedMethods = length > 1 ? findOverriddenInheritedMethods(methods, length) : null;
 	if (overriddenInheritedMethods != null) {
 		// detected some overridden methods that can be ignored when checking return types
+		// but cannot ignore an overridden inherited method completely when it comes to checking for bridge methods
 		int index = 0;
 		MethodBinding[] closestMethods = new MethodBinding[length];
 		for (int i = 0; i < length; i++)
 			if (overriddenInheritedMethods[i] == 0)
 				closestMethods[index++] = methods[i];
-		methods = closestMethods;
-		length = index;
-	}
-
-	if (!checkInheritedReturnTypes(methods, length))
+		if (!checkInheritedReturnTypes(closestMethods, index))
+			return;
+	} else if (!checkInheritedReturnTypes(methods, length)) {
 		return;
+	}
 
 	MethodBinding concreteMethod = null;
 	if (!type.isInterface()) {  // ignore concrete methods for interfaces

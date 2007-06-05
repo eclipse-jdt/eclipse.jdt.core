@@ -7808,4 +7808,27 @@ public void test142() {
 		""
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190748
+public void test143() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] s) { ((IBase) new Impl()).get(); }\n" +
+			"}\n" + 
+			"class Impl extends AImpl implements IBase, IEnhanced {}\n" + 
+			"interface IBase {\n" + 
+			"	IBaseReturn get();\n" + 
+			"}\n" + 
+			"interface IEnhanced extends IBase {\n" + 
+			"	IEnhancedReturn get();\n" + 
+			"}\n" + 
+			"abstract class AImpl {\n" + 
+			"	public IEnhancedReturn get() { return null; }\n" + 
+			"}\n" + 
+			"interface IBaseReturn {}\n" + 
+			"interface IEnhancedReturn extends IBaseReturn {}"
+		},
+		"");
+}
 }
