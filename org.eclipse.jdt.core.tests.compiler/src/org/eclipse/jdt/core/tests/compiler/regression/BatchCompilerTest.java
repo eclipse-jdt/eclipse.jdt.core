@@ -4860,7 +4860,7 @@ public void test113(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.6 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.6 -source 1.3 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -4878,7 +4878,7 @@ public void test114(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.6 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.6 -source 1.4 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -4896,7 +4896,7 @@ public void test115(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.6 -source 1.5 -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.6 -source 1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -4914,7 +4914,7 @@ public void test116(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.6 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.6 -source 1.6 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -4932,7 +4932,7 @@ public void test117(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -source 1.3 -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.7 -source 1.3 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -4950,7 +4950,7 @@ public void test118(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -source 1.4 -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.7 -source 1.4 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -4968,7 +4968,7 @@ public void test119(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -source 1.5 -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.7 -source 1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -4986,7 +4986,7 @@ public void test120(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.7 -source 1.6 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -5004,7 +5004,7 @@ public void test121(){
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.7 -source 1.7 -d \"" + OUTPUT_DIR + "\"",
+		+ " -1.7 -source 1.7 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"",
 		true);
@@ -5280,6 +5280,26 @@ public void test143_null_ref_option(){
 "",
 "",
 true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190493
+public void test144(){
+	String version = System.getProperty("java.class.version");
+	if ("49.0".equals(version)) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"/** */\n" +
+				"public class X {\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+			+ " -1.6 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"Annotation processing got disabled, since it requires a 1.6 compliant JVM\n",
+			true);
+		String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;
