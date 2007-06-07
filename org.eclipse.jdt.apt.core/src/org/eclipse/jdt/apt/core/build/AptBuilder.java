@@ -25,7 +25,12 @@ import org.eclipse.equinox.app.IApplicationContext;
  *
  * Sample commandline invocation:
  *
- * %ECLIPSE_HOME%/eclipse -noupdate -application org.eclipse.jdt.apt.core.aptBuild -data %WORKSPACE%
+ * %ECLIPSE_HOME%/eclipsec -nosplash -application org.eclipse.jdt.apt.core.aptBuild -data %WORKSPACE%
+ * 
+ * This class should not be referenced programmatically by other
+ * Java code. This class exists only for the purpose of launching
+ * the AptBuilder from the command line.  The fields and methods on this
+ * class are not API.
  */
 public class AptBuilder implements IApplication {
 
