@@ -51,7 +51,8 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 	 */
 	private final TypeDeclarationImpl _typeDecl;
 	
-	private IPackageFragment[] _pkgFragments;
+	// Initialized lazily
+	private IPackageFragment[] _pkgFragments = null;
 	
     public PackageDeclarationImpl(
 			final IPackageBinding binding, 
@@ -63,7 +64,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
         	 typeDecl, 
         	 env, 
         	 hideSourcePosition, 
-        	 PackageUtil.getPackageFragments(binding.getName(), env));
+        	 null);
     }
     
     public PackageDeclarationImpl(
@@ -77,6 +78,16 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 		_typeDecl = typeDecl;
 		_hideSourcePosition = hideSourcePosition;
 		_pkgFragments = pkgFragments;
+    }
+    
+    /**
+     * This must be called before any attempt to access
+     * the _pkgFragments field.
+     */
+    private void initFragments() {
+    	if (null == _pkgFragments) {
+    		_pkgFragments = PackageUtil.getPackageFragments(_binding.getName(), _env);
+    	}
     }
 
     public IPackageBinding getPackageBinding(){ return (IPackageBinding)_binding; }
@@ -103,6 +114,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     }
 
     public Collection<ClassDeclaration> getClasses() {
+    	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
 		List<ClassDeclaration> classes = new ArrayList<ClassDeclaration>();
 		for (IType type : types) {
@@ -122,6 +134,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     }
 
     public Collection<EnumDeclaration> getEnums() {
+    	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
 		List<EnumDeclaration> enums = new ArrayList<EnumDeclaration>();
 		for (IType type : types) {
@@ -137,6 +150,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     }
 
     public Collection<InterfaceDeclaration> getInterfaces() {
+    	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
 		List<InterfaceDeclaration> interfaces = new ArrayList<InterfaceDeclaration>();
 		for (IType type : types) {
