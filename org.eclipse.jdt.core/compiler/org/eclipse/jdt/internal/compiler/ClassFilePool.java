@@ -20,7 +20,7 @@ public class ClassFilePool {
 	
 private ClassFilePool() {
 	// prevent instantiation
-	this.classFiles = new ClassFile[POOL_SIZE];		
+	this.classFiles = new ClassFile[POOL_SIZE];
 }
 
 public static ClassFilePool newInstance() {
@@ -56,14 +56,6 @@ public ClassFile acquire(SourceTypeBinding typeBinding) {
 	return new ClassFile(typeBinding);
 }
 public void reset() {
-	Arrays.fill(this.classFiles, null); 	
+	Arrays.fill(this.classFiles, null);
 }
-//	TypeBinding mostEnclosingType(TypeBinding binding) {
-//		TypeBinding currentBinding = binding;
-//		while (currentBinding.enclosingType() != null) {
-//			currentBinding = currentBinding.enclosingType();
-//		}
-//		return currentBinding;
-//	}
 }
-
