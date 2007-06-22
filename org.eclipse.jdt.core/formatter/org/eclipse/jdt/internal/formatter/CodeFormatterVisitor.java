@@ -305,9 +305,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						multiFieldDeclaration.declarations[length] = currentField;
 					} else if (previousMergedNode instanceof FieldDeclaration) {
 						// need to check we need to create a multiple field declaration
-						if (currentField.declarationSourceStart == ((FieldDeclaration) previousMergedNode).declarationSourceStart) {
+						final FieldDeclaration previousFieldDeclaration = (FieldDeclaration)previousMergedNode;
+						if (currentField.declarationSourceStart == previousFieldDeclaration.declarationSourceStart) {
 							// we create a multi field declaration
-							mergedNodes.set(mergedNodes.size() - 1, new MultiFieldDeclaration(new FieldDeclaration[]{ (FieldDeclaration)previousMergedNode, currentField}));
+							final MultiFieldDeclaration multiFieldDeclaration = new MultiFieldDeclaration(new FieldDeclaration[]{ previousFieldDeclaration, currentField});
+							multiFieldDeclaration.annotations = previousFieldDeclaration.annotations;
+							mergedNodes.set(mergedNodes.size() - 1, multiFieldDeclaration);
 						} else {
 							mergedNodes.add(currentNode);
 						}
@@ -368,10 +371,13 @@ public class CodeFormatterVisitor extends ASTVisitor {
 							System.arraycopy(multiField.declarations, 0, multiField.declarations=new FieldDeclaration[length+1], 0, length);
 							multiField.declarations[length] = field;
 						} else {
-							members[index - 1] = new MultiFieldDeclaration(new FieldDeclaration[]{ (FieldDeclaration)previousMember, field});
+							FieldDeclaration fieldDeclaration = (FieldDeclaration)previousMember;
+							final MultiFieldDeclaration multiFieldDeclaration = new MultiFieldDeclaration(new FieldDeclaration[]{ fieldDeclaration, field});
+							multiFieldDeclaration.annotations = fieldDeclaration.annotations;
+							members[index - 1] = multiFieldDeclaration;
 						}
 					} else {
-						members[index++] = field;					
+						members[index++] = field;
 					}
 					previousFieldStart = fieldStart;
 					if (++fieldIndex < fieldCount) { // find next field if any
