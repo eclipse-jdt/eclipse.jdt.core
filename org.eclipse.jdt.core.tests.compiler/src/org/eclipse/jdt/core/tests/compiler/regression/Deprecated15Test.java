@@ -187,6 +187,45 @@ public void test003() {
 		customOptions,
 		null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191909
+public void test004() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"test1/E01.java",
+			"package test1;\n" + 
+			"public class E01 {\n" + 
+			"	@Deprecated\n" + 
+			"	public static int x = 5, y= 10;\n" + 
+			"}",
+			"test1/E02.java",
+			"package test1;\n" + 
+			"public class E02 {\n" + 
+			"	public void foo() {\n" + 
+			"		System.out.println(E01.x);\n" + 
+			"		System.out.println(E01.y);\n" + 
+			"	}\n" + 
+			"}"
+		}, 
+		"----------\n" + 
+		"1. ERROR in test1\\E02.java (at line 4)\n" + 
+		"	System.out.println(E01.x);\n" + 
+		"	                       ^\n" + 
+		"The field E01.x is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in test1\\E02.java (at line 5)\n" + 
+		"	System.out.println(E01.y);\n" + 
+		"	                       ^\n" + 
+		"The field E01.y is deprecated\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions,
+		true,
+		false,
+		false);
+}
 public static Class testClass() {
 	return Deprecated15Test.class;
 }

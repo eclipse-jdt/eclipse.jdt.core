@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 272 };
+//		TESTS_NUMBERS = new int[] { 276 };
 //		TESTS_RANGE = new int[] { 253, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -9097,5 +9097,63 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 1, "The type A is not generic; it cannot be parameterized with arguments <?>");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191908
+	public void test0274() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" +
+			"	@Deprecated\n" + 
+			"	public static int x= 5, y= 10;\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		List fragments = fieldDeclaration.fragments();
+		assertEquals("Wrong size", 2, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding binding = fragment.resolveBinding();
+		assertTrue("Not deprecated", binding.isDeprecated());
+		fragment = (VariableDeclarationFragment) fragments.get(1);
+		binding = fragment.resolveBinding();
+		assertTrue("Not deprecated", binding.isDeprecated());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191908
+	public void test0275() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		@Deprecated\n" + 
+			"		int x= 5, y= 10;\n" + 
+			"	}\n" +
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 2, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		IVariableBinding binding = fragment.resolveBinding();
+		IAnnotationBinding[] annotations = binding.getAnnotations();
+		assertEquals("Wrong size", 1, annotations.length);
+		fragment = (VariableDeclarationFragment) fragments.get(1);
+		binding = fragment.resolveBinding();
+		annotations = binding.getAnnotations();
+		assertEquals("Wrong size", 1, annotations.length);
 	}
 }
