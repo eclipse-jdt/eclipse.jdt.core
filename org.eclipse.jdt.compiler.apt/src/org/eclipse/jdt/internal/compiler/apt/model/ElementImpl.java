@@ -63,7 +63,7 @@ public abstract class ElementImpl
 		for( AnnotationBinding annoInstance : annoInstances) {
 			if (annoInstance == null)
 				continue;
-			ReferenceBinding binding = annoInstance.getAnnotationType();            
+			ReferenceBinding binding = annoInstance.getAnnotationType();
 			if ( binding != null && binding.isAnnotationType() ) {
 				char[] qName;
 				if (binding.isMemberType()) {
