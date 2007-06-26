@@ -5046,12 +5046,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. ERROR in I.java (at line 8)\n" + 
 			"	interface P extends L, M, N {}\n" + 
 			"	          ^\n" + 
-			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
+			"The return type is incompatible with N.getI(), M.getI()\n" + 
 			"----------\n" + 
 			"2. ERROR in I.java (at line 10)\n" + 
 			"	abstract class Y implements L, M, N {}\n" + 
 			"	               ^\n" + 
-			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
+			"The return type is incompatible with N.getI(), M.getI()\n" + 
 			"----------\n"
 /* See addtional comments in https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
 			"----------\n" + 
@@ -7830,5 +7830,36 @@ public void test143() {
 			"interface IEnhancedReturn extends IBaseReturn {}"
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=194034
+public void test144() {
+	this.runNegativeTest(
+		new String[] {
+			"PurebredCatShopImpl.java",
+			"import java.util.List;\n" +
+			"interface Pet {}\n" +
+			"interface Cat extends Pet {}\n" + 
+			"interface PetShop { List<Pet> getPets(); }\n" + 
+			"interface CatShop extends PetShop {\n" + 
+			"	<V extends Pet> List<? extends Cat> getPets();\n" + 
+			"}\n" + 
+			"interface PurebredCatShop extends CatShop {}\n" + 
+			"class CatShopImpl implements CatShop {\n" + 
+			"	public List<Pet> getPets() { return null; }\n" + 
+			"}\n" + 
+			"class PurebredCatShopImpl extends CatShopImpl implements PurebredCatShop {}"
+		},
+		"----------\n" + 
+		"1. WARNING in PurebredCatShopImpl.java (at line 10)\n" + 
+		"	public List<Pet> getPets() { return null; }\n" + 
+		"	       ^^^^\n" + 
+		"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" + 
+		"----------\n" + 
+		"2. WARNING in PurebredCatShopImpl.java (at line 12)\n" + 
+		"	class PurebredCatShopImpl extends CatShopImpl implements PurebredCatShop {}\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" + 
+		"----------\n"
+	);
 }
 }

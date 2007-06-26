@@ -342,24 +342,46 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 	super.checkInheritedMethods(methods, length);
 }
 boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
-	if (methods[0].declaringClass.isClass())
-		return super.checkInheritedReturnTypes(methods, length);
-
+	// assumes length > 1
 	// its possible in 1.5 that A is compatible with B & C, but B is not compatible with C
-	for (int i = 0, l = length - 1; i < l;) {
+	int[] areIncompatible = null;
+	// abstract classes must check every method against each other
+	for (int i = 0, l = this.type.isAbstract() ? length - 2 : 0; i <= l;) {
 		MethodBinding method = methods[i++];
-		nextMethod : for (int j = i; j <= l; j++) {
+		nextMethod : for (int j = i; j < length; j++) {
 			if (!areReturnTypesCompatible(method, methods[j])) {
 				if (this.type.isInterface())
 					for (int m = length; --m >= 0;)
 						if (methods[m].declaringClass.id == TypeIds.T_JavaLangObject)
 							continue nextMethod; // do not complain since the super interface already got blamed
-				problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
-				return false;
+				// check to see if this is just a warning, if so report it & skip to next method
+				if (isUnsafeReturnTypeOverride(method, methods[j])) {
+					problemReporter(method).unsafeReturnTypeOverride(method, methods[j], this.type);
+					continue nextMethod;
+				}
+				if (areIncompatible == null)
+					areIncompatible = new int[length];
+				areIncompatible[i - 1] = -1;
+				areIncompatible[j] = -1;
 			}
 		}
 	}
-	return true;
+	if (areIncompatible == null)
+		return true;
+
+	int count = 0;
+	for (int i = 0; i < length; i++)
+		if (areIncompatible[i] == -1) count++;
+	if (count == length) {
+		problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
+		return false;
+	}
+	MethodBinding[] methodsToReport = new MethodBinding[count];
+	for (int i = 0, index = 0; i < length; i++)
+		if (areIncompatible[i] == -1)
+			methodsToReport[index++] = methods[i];
+	problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methodsToReport, count);
+	return false;
 }
 void checkMethods() {
 	boolean mustImplementAbstractMethods = mustImplementAbstractMethods();
@@ -581,16 +603,6 @@ boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	// one has type variables and substituteTwo did not pass bounds check in computeSubstituteMethod()
 	return one.typeVariables != Binding.NO_TYPE_VARIABLES && !(substituteTwo instanceof ParameterizedGenericMethodBinding);
 }
-// caveat: returns false if a method is implemented that needs a bridge method
-boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBinding existingMethod, ReferenceBinding superType) {
-	if (inheritedMethod.original() != inheritedMethod && existingMethod.declaringClass.isInterface())
-		return false; // must hold onto ParameterizedMethod to see if a bridge method is necessary
-
-	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
-	return inheritedMethod != null
-		&& inheritedMethod.returnType == existingMethod.returnType // keep around to produce bridge methods
-		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
-}
 SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
 	ReferenceBinding[] interfacesToVisit = null;
 	int nextPosition = 0;
@@ -660,23 +672,36 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 	}
 	return copy;
 }
-boolean reportIncompatibleReturnTypeError(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+// caveat: returns false if a method is implemented that needs a bridge method
+boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBinding existingMethod, ReferenceBinding superType) {
+	if (inheritedMethod.original() != inheritedMethod && existingMethod.declaringClass.isInterface())
+		return false; // must hold onto ParameterizedMethod to see if a bridge method is necessary
+
+	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
+	return inheritedMethod != null
+		&& inheritedMethod.returnType == existingMethod.returnType // keep around to produce bridge methods
+		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
+}
+boolean isUnsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	// JLS 3 §8.4.5: more are accepted, with an unchecked conversion
 	if (currentMethod.returnType == inheritedMethod.returnType.erasure()) {
 		TypeBinding[] currentParams = currentMethod.parameters;
 		TypeBinding[] inheritedParams = inheritedMethod.parameters;
-		for (int i = 0, l = currentParams.length; i < l; i++) {
-			if (!areTypesEqual(currentParams[i], inheritedParams[i])) {
-				problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, inheritedMethod, this.type);
-				return false;
-			}
-		}
+		for (int i = 0, l = currentParams.length; i < l; i++)
+			if (!areTypesEqual(currentParams[i], inheritedParams[i]))
+				return true;
 	}
 	if (currentMethod.typeVariables == Binding.NO_TYPE_VARIABLES
 		&& inheritedMethod.original().typeVariables != Binding.NO_TYPE_VARIABLES
 		&& currentMethod.returnType.erasure().findSuperTypeWithSameErasure(inheritedMethod.returnType.erasure()) != null) {
-			problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, inheritedMethod, this.type);
-			return false;
+			return true;
+	}
+	return false;
+}
+boolean reportIncompatibleReturnTypeError(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	if (isUnsafeReturnTypeOverride(currentMethod, inheritedMethod)) {
+		problemReporter(currentMethod).unsafeReturnTypeOverride(currentMethod, inheritedMethod, this.type);
+		return false;
 	}
 	return super.reportIncompatibleReturnTypeError(currentMethod, inheritedMethod);
 }
