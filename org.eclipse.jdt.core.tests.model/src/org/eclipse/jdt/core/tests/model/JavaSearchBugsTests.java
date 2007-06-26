@@ -7996,4 +7996,22 @@ public void testBug185452() throws CoreException {
 		packageCollector);
 }
 
+/**
+ * @bug 194185 [search] for package declarations finds also subpackages
+ * @test Ensure that exact package is found when no 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=194185"
+ */
+public void testBug194185() throws CoreException {
+	JavaSearchResultCollector packageCollector = new JavaSearchResultCollector(true);
+	search(
+		"java", 
+		PACKAGE,
+		DECLARATIONS, 
+		SearchEngine.createWorkspaceScope(), 
+		packageCollector);
+	assertSearchResults(
+		""+ getExternalJCLPathString("1.5") + " java",
+		packageCollector);
+}
+
 }
