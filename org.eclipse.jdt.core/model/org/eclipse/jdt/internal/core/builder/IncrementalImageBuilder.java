@@ -329,7 +329,7 @@ protected void deleteGeneratedFiles(IFile[] deletedGeneratedFiles) {
 		}
 	} catch (CoreException e) {
 		// must continue with compile loop so just log the CoreException
-		e.printStackTrace();
+		Util.log(e, "JavaBuilder logging CompilationParticipant's CoreException to help debugging"); //$NON-NLS-1$
 	}
 }
 
