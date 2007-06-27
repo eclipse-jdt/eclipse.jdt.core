@@ -10613,14 +10613,14 @@ public void test0329() throws JavaModelException {
 			"public @interface ZZZ1 {\n" +
 			"}");
 	
-	this.workingCopies[1] = getWorkingCopy(
+	this.workingCopies[2] = getWorkingCopy(
 			"/Completion/src3/p/ZZZ2.java",
 			"package p;\n" +
 			"@java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})\n" +
 			"public @interface ZZZ2 {\n" +
 			"}");
 	
-	this.workingCopies[2] = getWorkingCopy(
+	this.workingCopies[3] = getWorkingCopy(
 			"/Completion/src3/p/ZZZ3.java",
 			"package p;\n" +
 			"public @interface ZZZ3 {\n" +
@@ -10718,6 +10718,108 @@ public void test0333() throws JavaModelException {
 
 	assertResults(
 			"foo2[FIELD_REF]{foo2;, Ltest0333.q.Y;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=151967
+public void test0334() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/ClassC.java",
+			"package test;\n" +
+			"public class ClassC {\n" +
+			"	public ClassC() {\n" +
+			"		EnumB.B1.a();\n" +
+			"		EnumB.B1.b();\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/InterfaceA.java",
+			"package test;\n" +
+			"public interface InterfaceA {\n" +
+			"	void a();\n" +
+			"	void b();\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/test/EnumB.java",
+			"package test;\n" +
+			"public enum EnumB implements InterfaceA {\n" +
+			"	B1 {\n" +
+			"		public void b() {\n" +
+			"			// do something for B1\n" +
+			"		}\n" +
+			"	},\n" +
+			"	B2 {\n" +
+			"		public void b() {\n" +
+			"			// do something for B2\n" +
+			"		}\n" +
+			"	};\n" +
+			"	public void a() {\n" +
+			"		// do something in common\n" +
+			"	}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "EnumB.B1.a";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"a[METHOD_REF]{a, Ltest.EnumB;, ()V, a, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=151967
+public void test0335() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/ClassC.java",
+			"package test;\n" +
+			"public class ClassC {\n" +
+			"	public ClassC() {\n" +
+			"		EnumB.B1.a();\n" +
+			"		EnumB.B1.b();\n" +
+			"	}\n" +
+			"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src3/test/InterfaceA.java",
+			"package test;\n" +
+			"public interface InterfaceA {\n" +
+			"	void a();\n" +
+			"	void b();\n" +
+			"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src3/test/EnumB.java",
+			"package test;\n" +
+			"public enum EnumB implements InterfaceA {\n" +
+			"	B1 {\n" +
+			"		public void b() {\n" +
+			"			// do something for B1\n" +
+			"		}\n" +
+			"	},\n" +
+			"	B2 {\n" +
+			"		public void b() {\n" +
+			"			// do something for B2\n" +
+			"		}\n" +
+			"	};\n" +
+			"	public void a() {\n" +
+			"		// do something in common\n" +
+			"	}\n" +
+			"}");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "EnumB.B1.b";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"B1[FIELD_REF]{B1, Ltest.EnumB;, Ltest.EnumB;, B1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"B2[FIELD_REF]{B2, Ltest.EnumB;, Ltest.EnumB;, B2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"b[METHOD_REF]{b, Ltest.InterfaceA;, ()V, b, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130

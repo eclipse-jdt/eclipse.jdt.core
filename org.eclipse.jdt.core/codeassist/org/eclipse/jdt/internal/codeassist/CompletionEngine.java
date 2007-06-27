@@ -6162,7 +6162,10 @@ public final class CompletionEngine
 			
 			if (notInJavadoc &&
 					hasPotentialDefaultAbstractMethods &&
-					(currentType.isAbstract() || currentType.isTypeVariable() || currentType.isIntersectionType())){
+					(currentType.isAbstract() ||
+							currentType.isTypeVariable() ||
+							currentType.isIntersectionType() ||
+							currentType.isEnum())){
 				
 				ReferenceBinding[] superInterfaces = currentType.superInterfaces();
 				if (superInterfaces != null && currentType.isIntersectionType()) {
