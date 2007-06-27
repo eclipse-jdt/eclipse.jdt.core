@@ -743,6 +743,13 @@ public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] de
  */
 protected void addElement(IJavaElement element) {
 	int elementLength = this.elementIndex + 1;
+	
+	for (int i = 0; i < elementLength; i++) {
+		if (this.elements[i].equals(element)) {
+			return;
+		}
+	}
+	
 	if (elementLength == this.elements.length) {
 		System.arraycopy(this.elements, 0, this.elements = new IJavaElement[(elementLength*2) + 1], 0, elementLength);
 	}

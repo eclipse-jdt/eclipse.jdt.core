@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 
 import junit.framework.*;
@@ -1899,6 +1901,54 @@ public void testDuplicateTypeDeclaration6() throws JavaModelException {
 			elements
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=119434
+public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
+	String jarName = "bug119434.jar";
+	try {
+		String[] pathAndContents = new String[] {
+			"test/p/Type.java",
+			"package test.p;"+
+			"public class Type {\n" + 
+			"}\n"
+		};
+		
+		addLibrary(jarName, "bug119434_src.zip", pathAndContents, JavaCore.VERSION_1_4);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;"+
+			"import test.p.Type;"+
+			"public class Test {\n" + 
+			"}\n");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Resolve/src/test/p/Type.java",
+			"package test.p;"+
+			"public class Type {\n" + 
+			"}\n");
+		
+		String str = this.workingCopies[0].getSource();
+		int start = str.lastIndexOf("Type");
+		int length = "Type".length();
+		IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+		
+		
+		// The result should be "Type [in Type.class [in test.p [in src [in Resolve]]]]" but it is
+		// currently "Type [in Type.class [in test.p [in bug119434.jar [in Resolve]]]]". 
+		// This is caused by the bug 194432
+		// This test must be updated once bug 194432 will be fixed
+		assertElementsEqual(
+				"Unexpected elements",
+				"Type [in Type.class [in test.p [in bug119434.jar [in Resolve]]]]",
+				elements
+		);
+	} finally {
+		removeLibraryEntry(this.currentProject, new Path(jarName));
+		deleteFile(new File(jarName));
+	}
+}
+
 public void testArrayParameterInsideParent1() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveArrayParameterInsideParent1.java");
 	
