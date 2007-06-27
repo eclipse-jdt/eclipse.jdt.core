@@ -269,6 +269,23 @@ protected void assumeEquals(String msg, String expected, String actual) {
 }
 
 /**
+ * Same method as {@link #assertEquals(String, int, int)} if the flag
+ * {@link #abortOnFailure} has been set to <code>true</code>.
+ * Otherwise, the thrown exception {@link AssertionFailedError} is caught
+ * and its message is only displayed in the console hence producing no JUnit failure.
+ */
+protected void assumeEquals(String msg, int expected, int actual) {
+	try {
+		assertEquals(msg, expected, actual);
+	} catch (AssertionFailedError afe) {
+		if (abortOnFailure) {
+			throw afe;
+		}
+		printAssertionFailure(afe);
+	}
+}
+
+/**
  * Same method as {@link #assertTrue(String, boolean)} if the flag
  * {@link #abortOnFailure} has been set to <code>true</code>.
  * Otherwise, the thrown exception {@link AssertionFailedError} is caught
@@ -277,15 +294,6 @@ protected void assumeEquals(String msg, String expected, String actual) {
 protected void assumeTrue(String msg, boolean cond) {
 	try {
 		assertTrue(msg, cond);
-	} catch (ComparisonFailure cf) {
-		if (abortOnFailure) {
-			System.out.println("Failure while running test "+Performance.getDefault().getDefaultScenarioId(this)+"!!!");
-			System.out.println("Actual output is:");
-			System.out.println(Util.displayString(cf.getActual(), 2));
-			System.out.println();
-			throw cf;
-		}
-		printAssertionFailure(cf);
 	} catch (AssertionFailedError afe) {
 		if (abortOnFailure) {
 			throw afe;
