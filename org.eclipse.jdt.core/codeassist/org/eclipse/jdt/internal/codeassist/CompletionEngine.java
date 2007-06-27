@@ -3917,7 +3917,7 @@ public final class CompletionEngine
 	}
 	
 	private void findImportsOfStaticFields(char[] fieldName, ReferenceBinding ref) {
-		FieldBinding[] fields = ref.fields();
+		FieldBinding[] fields = ref.availableFields();
 		
 		int fieldLength = fieldName.length;
 		next : for (int m = fields.length; --m >= 0;) {
@@ -3973,7 +3973,7 @@ public final class CompletionEngine
 	}
 	
 	private void findImportsOfStaticMethods(char[] methodName, ReferenceBinding ref) {
-		MethodBinding[] methods = ref.methods();
+		MethodBinding[] methods = ref.availableMethods();
 		
 		int methodLength = methodName.length;
 		next : for (int m = methods.length; --m >= 0;) {

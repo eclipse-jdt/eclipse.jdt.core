@@ -9891,9 +9891,9 @@ public void testCompletionMemberType() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionMemberType.java",
             "public class CompletionMemberType {\n"+
-            "	public class Y {\n"+
+            "	public class MemberType {\n"+
             "		public void foo(){\n"+
-            "			Y var = new Y\n"+
+            "			MemberType var = new MemberType\n"+
             "		}\n"+
             "	}\n"+
             "}");
@@ -9901,12 +9901,12 @@ public void testCompletionMemberType() throws JavaModelException {
     
     CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
     String str = this.wc.getSource();
-    String completeBehind = "new Y";
+    String completeBehind = "new MemberType";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
     this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
-		"CompletionMemberType.Y[TYPE_REF]{Y, , LCompletionMemberType$Y;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_EXACT_NAME+ R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+		"CompletionMemberType.MemberType[TYPE_REF]{MemberType, , LCompletionMemberType$MemberType;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_EXACT_NAME+ R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());
 }
 public void testCompletionMemberType2() throws JavaModelException {

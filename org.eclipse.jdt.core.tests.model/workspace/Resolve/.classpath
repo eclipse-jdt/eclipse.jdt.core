@@ -11,6 +11,7 @@
     <classpathentry kind="lib" path="test47214.jar" sourcepath="/Resolve/test47214.jar"/>
     <classpathentry kind="lib" path="test0023.jar" sourcepath="/Resolve/test0023src.zip"/>
     <classpathentry kind="lib" path="p4.jar"/>
+    <classpathentry kind="lib" path="bug185318r.jar"/>
     <classpathentry kind="lib" path="class-folder"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

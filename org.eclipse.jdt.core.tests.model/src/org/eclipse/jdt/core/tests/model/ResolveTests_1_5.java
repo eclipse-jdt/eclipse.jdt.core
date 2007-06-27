@@ -2284,7 +2284,7 @@ public void test0102() throws CoreException, IOException {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=165900
-public void test103() throws JavaModelException {
+public void test0103() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
@@ -2313,7 +2313,7 @@ public void test103() throws JavaModelException {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=165900
-public void test104() throws JavaModelException {
+public void test0104() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
@@ -2344,7 +2344,7 @@ public void test104() throws JavaModelException {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=165900
-public void test105() throws JavaModelException {
+public void test0105() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
@@ -2375,7 +2375,7 @@ public void test105() throws JavaModelException {
 		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=165900
-public void test106() throws JavaModelException {
+public void test0106() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Resolve/src/test/Test.java",
@@ -2402,6 +2402,90 @@ public void test106() throws JavaModelException {
 	assertElementsEqual(
 			"Unexpected elements",
 			"foo(Test3<T>) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			elements
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185318
+public void test0107() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"import static test0107.q.Y.foo2;\n" +
+			"public class Test {\n" +
+			"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo2");
+	int length = "foo2".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo2() [in Y [in Y.class [in test0107.q [in bug185318r.jar [in Resolve]]]]]",
+			elements
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185318
+public void test0108() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"import static test0108.q.Y.foo2;\n" +
+			"public class Test {\n" +
+			"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo2");
+	int length = "foo2".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo2() [in Y [in Y.class [in test0108.q [in bug185318r.jar [in Resolve]]]]]",
+			elements
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185318
+public void test0109() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"import static test0109.q.Y.foo2;\n" +
+			"public class Test {\n" +
+			"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo2");
+	int length = "foo2".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo2 [in Y [in Y.class [in test0109.q [in bug185318r.jar [in Resolve]]]]]",
+			elements
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=185318
+public void test0110() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/test/Test.java",
+			"package test;\n" +
+			"import static test0110.q.Y.foo2;\n" +
+			"public class Test {\n" +
+			"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("foo2");
+	int length = "foo2".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"foo2 [in Y [in Y.class [in test0110.q [in bug185318r.jar [in Resolve]]]]]",
 			elements
 		);
 }

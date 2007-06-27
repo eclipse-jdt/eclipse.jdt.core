@@ -754,7 +754,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	
 	private void selectStaticFieldFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
 		int fieldLength = lastToken.length;
-		FieldBinding[] fields = ref.fields();
+		FieldBinding[] fields = ref.availableFields();
 		next : for (int j = 0; j < fields.length; j++) {
 			FieldBinding field = fields[j];
 			
@@ -776,7 +776,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	
 	private void selectStaticMethodFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
 		int methodLength = lastToken.length;
-		MethodBinding[] methods = ref.methods();
+		MethodBinding[] methods = ref.availableMethods();
 		next : for (int j = 0; j < methods.length; j++) {
 			MethodBinding method = methods[j];
 			
