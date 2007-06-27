@@ -3261,7 +3261,27 @@ public void testCompletionFieldName() throws JavaModelException {
 		"element:withComplexName    completion:withComplexName    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
+public void testCompletionFieldName2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TypeNameRequestor.java",
+		"package test;"+
+		"public class TypeNameRequestor {\n" + 
+		"  TypeNameRequestor name\n" + 
+		"}\n");
 
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "TypeNameRequestor name";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"nameRequestor[VARIABLE_DECLARATION]{nameRequestor, null, Ltest.TypeNameRequestor;, nameRequestor, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}\n" +
+			"nameTypeNameRequestor[VARIABLE_DECLARATION]{nameTypeNameRequestor, null, Ltest.TypeNameRequestor;, nameTypeNameRequestor, null, " + (R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 
 /**
  * Complete the type "A" from "new A".

@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 
 public class InternalNamingConventions {
 	private static final char[] DEFAULT_NAME = "name".toCharArray(); //$NON-NLS-1$
@@ -158,6 +159,7 @@ public class InternalNamingConventions {
 		}
 	
 		boolean acceptDefaultName = true;
+		SimpleSetOfCharArray foundNames = new SimpleSetOfCharArray();
 		
 		next : for (int i = 0; i < tempNames.length; i++) {
 			char[] tempName = tempNames[i];
@@ -207,8 +209,11 @@ public class InternalNamingConventions {
 									case TerminalTokens.TokenNameIdentifier :
 										int token = nameScanner.getNextToken();
 										if (token == TerminalTokens.TokenNameEOF && nameScanner.startPosition == suffixName.length) {
-											acceptName(suffixName, prefixes[k], suffixes[l],  k == 0, l == 0, internalPrefix.length - j, requestor);
-											acceptDefaultName = false;
+											if (!foundNames.includes(suffixName)) {
+												acceptName(suffixName, prefixes[k], suffixes[l],  k == 0, l == 0, internalPrefix.length - j, requestor);
+												foundNames.add(suffixName);
+												acceptDefaultName = false;
+											}
 										}
 										break;
 									default:
@@ -228,8 +233,11 @@ public class InternalNamingConventions {
 											case TerminalTokens.TokenNameIdentifier :
 												token = nameScanner.getNextToken();
 												if (token == TerminalTokens.TokenNameEOF && nameScanner.startPosition == suffixName.length) {
-													acceptName(suffixName, prefixes[k], suffixes[l], k == 0, l == 0, internalPrefix.length - j, requestor);
-													acceptDefaultName = false;
+													if (!foundNames.includes(suffixName)) {
+														acceptName(suffixName, prefixes[k], suffixes[l], k == 0, l == 0, internalPrefix.length - j, requestor);
+														foundNames.add(suffixName);
+														acceptDefaultName = false;
+													}
 												}
 										}
 								}
