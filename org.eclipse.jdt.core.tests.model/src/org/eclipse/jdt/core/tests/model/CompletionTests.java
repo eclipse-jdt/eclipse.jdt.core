@@ -4004,6 +4004,38 @@ public void testCompletionImportedType5() throws JavaModelException {
 			"ZZZZ[TYPE_REF]{ZZZZ, test.imported2, Ltest.imported2.ZZZZ;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=171037
+public void testCompletionImportedType6() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"import AClas;"+
+		"public class Test {\n"+
+		"  \n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/AClass1.java",
+		"public class AClass1 {"+
+		"}");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/test/p/AClass2.java",
+		"package test.p;"+
+		"public class AClass2 {"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "AClas";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"AClass2[TYPE_REF]{test.p.AClass2;, test.p, Ltest.p.AClass2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=78151
 public void testCompletionInsideExtends1() throws JavaModelException {

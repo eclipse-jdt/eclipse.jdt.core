@@ -471,6 +471,10 @@ public final class CompletionEngine
 			this.knownTypes.put(fullyQualifiedName, this);
 			
 			if (this.resolvingImports) {
+				if(this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_4 && packageName.length == 0) {
+					continue next; // import of default package is forbidden when compliance is 1.4 or higher
+				}
+				
 				char[] completionName;
 				
 				if(this.resolvingStaticImports) {
