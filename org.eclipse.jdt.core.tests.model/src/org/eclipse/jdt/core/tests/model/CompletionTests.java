@@ -2942,7 +2942,43 @@ public void testCompletionEmptyTypeName3() throws JavaModelException {
 			requestor.getResults());
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102031
+public void testCompletionEmptyTypeName4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+ 		"    new A().call(new /*content assist here*/)\n" + 
+		"  }\n" + 
+		"}\n" +
+		"interface I {\n" + 
+		"  void call(TestRunnable r);\n" + 
+		"}\n" + 
+		"class A implements I{\n" + 
+		"  public void call(TestRunnable r) {}\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/TestRunnable.java",
+		"package test;"+
+		"public class TestRunnable {\n" + 
+		"}\n");
 
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "(new ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"A[TYPE_REF]{A, test, Ltest.A;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"I[TYPE_REF]{I, test, Ltest.I;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"Test[TYPE_REF]{Test, test, Ltest.Test;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE +R_UNQUALIFIED +  R_NON_RESTRICTED) + "}\n" +
+			"TestRunnable[TYPE_REF]{TestRunnable, test, Ltest.TestRunnable;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 /**
  * Complete at end of file.
  */
