@@ -10822,6 +10822,32 @@ public void test0335() throws JavaModelException {
 			"b[METHOD_REF]{b, Ltest.InterfaceA;, ()V, b, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void test0336() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"@boole"+
+		"public class Test {\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/booleanClass.java",
+		"package test;"+
+		"public @interface booleanClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "boole";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"booleanClass[TYPE_REF]{booleanClass, test, Ltest.booleanClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_UNQUALIFIED + R_TARGET + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=153130
 public void testEC001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];

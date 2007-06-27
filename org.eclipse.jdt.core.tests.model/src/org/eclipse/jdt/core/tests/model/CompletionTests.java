@@ -16168,4 +16168,205 @@ public void testStaticMembers1() throws JavaModelException {
 			"this[KEYWORD]{this, null, null, this, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test extends boole {\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/booleanClass.java",
+		"package test;"+
+		"public class booleanClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "boole";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"booleanClass[TYPE_REF]{booleanClass, test, Ltest.booleanClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  boole\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/booleanClass.java",
+		"package test;"+
+		"public class booleanClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "boole";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"boole[POTENTIAL_METHOD_DECLARATION]{boole, Ltest.Test;, ()V, boole, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"boolean[KEYWORD]{boolean, null, null, boolean, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"booleanClass[TYPE_REF]{booleanClass, test, Ltest.booleanClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  class InnerTest {\n" + 
+		"    boole\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/booleanClass.java",
+		"package test;"+
+		"public class booleanClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "boole";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"boole[POTENTIAL_METHOD_DECLARATION]{boole, Ltest.Test$InnerTest;, ()V, boole, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"boolean[KEYWORD]{boolean, null, null, boolean, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"booleanClass[TYPE_REF]{booleanClass, test, Ltest.booleanClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    boole\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/booleanClass.java",
+		"package test;"+
+		"public class booleanClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "boole";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"boolean[KEYWORD]{boolean, null, null, boolean, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"booleanClass[TYPE_REF]{booleanClass, test, Ltest.booleanClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType5() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    class InnerTest {\n" + 
+		"      boole\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/booleanClass.java",
+		"package test;"+
+		"public class booleanClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "boole";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"boole[POTENTIAL_METHOD_DECLARATION]{boole, LInnerTest;, ()V, boole, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"boolean[KEYWORD]{boolean, null, null, boolean, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"booleanClass[TYPE_REF]{booleanClass, test, Ltest.booleanClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType6() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo(boole) {\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/booleanClass.java",
+		"package test;"+
+		"public class booleanClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "boole";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"boolean[KEYWORD]{boolean, null, null, boolean, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"booleanClass[TYPE_REF]{booleanClass, test, Ltest.booleanClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType7() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    new boole\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/booleanClass.java",
+		"package test;"+
+		"public class booleanClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "boole";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"boolean[KEYWORD]{boolean, null, null, boolean, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"booleanClass[TYPE_REF]{booleanClass, test, Ltest.booleanClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 }
