@@ -214,8 +214,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 							copiedResource.delete(IResource.FORCE, null); // last one wins
 						}
 						createFolder(partialPath.removeLastSegments(1), outputFolder); // ensure package folder exists
-						resource.copy(copiedResource.getFullPath(), IResource.FORCE | IResource.DERIVED, null);
-						Util.setReadOnly(copiedResource, false); // just in case the original was read only
+						copyResource(resource, copiedResource);
 						return false;
 					case IResource.FOLDER :
 						resource = proxy.requestResource();

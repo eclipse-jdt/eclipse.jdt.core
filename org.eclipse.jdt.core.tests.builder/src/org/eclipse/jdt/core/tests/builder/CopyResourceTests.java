@@ -292,4 +292,62 @@ public class CopyResourceTests extends BuilderTests {
 			projectPath.append("bin/p/.svn") //$NON-NLS-1$
 		});
 	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=194420
+	public void testBug194420() throws JavaModelException {
+		IPath projectPath = env.addProject("P"); //$NON-NLS-1$
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		IPath folder = env.addFolder(src, "p");
+		String testContents = "incremental test contents"; //$NON-NLS-1$
+		IPath zPath = env.addFile(folder, "z.txt", testContents); //$NON-NLS-1$
+		IPath zBinPath = bin.append("p/z.txt");
+		org.eclipse.core.resources.IFile zFile = env.getWorkspace().getRoot().getFile(zPath);
+
+		fullBuild();
+		expectingNoProblems();
+		expectingPresenceOf(zBinPath);
+		try {
+			byte[] contents = new byte[testContents.length()];
+			java.io.InputStream stream = zFile.getContents(); 
+			stream.read(contents);
+			stream.close();
+			assumeEquals("File was not copied", testContents, new String(contents)); //$NON-NLS-1$
+		} catch (Exception e) {
+			fail("File was not copied"); //$NON-NLS-1$
+		}
+
+		java.io.File file = new java.io.File(zFile.getLocation().toOSString());
+		file.delete();
+
+		fullBuild();
+		expectingNoProblems();
+		expectingNoPresenceOf(zBinPath);
+
+		testContents = "incremental test contents"; //$NON-NLS-1$
+		env.addFile(folder, "z.txt", testContents); //$NON-NLS-1$
+
+		incrementalBuild();
+		expectingNoProblems();
+		expectingPresenceOf(zBinPath);
+		try {
+			byte[] contents = new byte[testContents.length()];
+			java.io.InputStream stream = zFile.getContents(); 
+			stream.read(contents);
+			stream.close();
+			assumeEquals("File was not copied", testContents, new String(contents)); //$NON-NLS-1$
+		} catch (Exception e) {
+			fail("File was not copied"); //$NON-NLS-1$
+		}
+
+		env.addFile(folder, "z.txt", "about to be deleted"); //$NON-NLS-1$ //$NON-NLS-2$
+		file.delete();
+
+		incrementalBuild();
+		expectingNoProblems();
+		expectingNoPresenceOf(zBinPath);
+	}
 }

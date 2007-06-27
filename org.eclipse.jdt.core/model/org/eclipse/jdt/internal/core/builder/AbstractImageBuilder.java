@@ -371,6 +371,19 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 	notifier.checkCancel();
 }
 
+protected void copyResource(IResource source, IResource destination) throws CoreException {
+	IPath destPath = destination.getFullPath();
+	try {
+		source.copy(destPath, IResource.FORCE | IResource.DERIVED, null);
+	} catch (CoreException e) {
+		// handle the case when the source resource is deleted
+		source.refreshLocal(0, null);
+		if (!source.exists()) return; // source resource was deleted so skip it
+		throw e;
+	}
+	Util.setReadOnly(destination, false); // just in case the original was read only
+}
+
 protected void createProblemFor(IResource resource, IMember javaElement, String message, String problemSeverity) {
 	try {
 		IMarker marker = resource.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
