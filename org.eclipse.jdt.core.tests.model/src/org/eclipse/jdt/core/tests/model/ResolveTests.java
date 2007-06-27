@@ -2165,4 +2165,26 @@ public void testSecondaryTypes() throws JavaModelException {
 		elements
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=192497
+public void testSelectOnCursor1() throws JavaModelException {
+	ICompilationUnit cu = getWorkingCopy(
+			"/Resolve/src/AType.java",
+			"public class AType {\n" +
+			"  public void doLoad(){}\n" +
+			"  public void foo() {\n" +
+			"    doLoad();\n" +
+			"  }\n" +
+			"}\n");
+	
+	String str = cu.getSource();
+	// perform code select between 'd' and 'o'
+	int start = str.indexOf("oLoad();");
+	int length = 0;
+	IJavaElement[] elements = cu.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"doLoad() [in AType [in [Working copy] AType.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
 }
