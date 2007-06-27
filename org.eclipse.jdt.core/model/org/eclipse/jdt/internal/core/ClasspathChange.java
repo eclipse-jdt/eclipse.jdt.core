@@ -227,6 +227,16 @@ public class ClasspathChange {
 			if (this.oldRawClasspath != null && !JavaProject.areClasspathsEqual(this.oldRawClasspath, newRawClasspath, this.oldOutputLocation, newOutputLocation)) {
 				delta.changed(this.project, IJavaElementDelta.F_CLASSPATH_CHANGED);
 				result |= HAS_DELTA;
+				
+				// reset containers that are no longer on the classpath
+				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=139446)
+				for (int i = 0, length = this.oldRawClasspath.length; i < length; i++) {
+					IClasspathEntry entry = this.oldRawClasspath[i];
+					if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+						if (classpathContains(newRawClasspath, entry) == -1)
+							manager.containerPut(this.project, entry.getPath(), null);
+					}
+				}
 			}
 					
 			// if no changes to resolved classpath, nothing more to do

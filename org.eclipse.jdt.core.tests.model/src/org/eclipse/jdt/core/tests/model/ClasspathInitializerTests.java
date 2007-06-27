@@ -896,6 +896,70 @@ public void testContainerInitializer18() throws CoreException {
 	}
 }
 
+/*
+ * Ensures that a container is not kept in the cache if no longer referenced on the classpath
+ * (regression test for 139446 [build path] bug in the Edit Library dialog box, when changing the default JRE, and switching from alternate JRE to workspace default)
+ */
+public void testContainerInitializer19() throws CoreException {
+	try {
+		// setup
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib1.jar"}));
+		IJavaProject p1 = createJavaProject(
+				"P1", 
+				new String[] {}, 
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+				"");
+		createFile("/P1/lib1.jar", "");
+		createFile("/P1/lib2.jar", "");
+		p1.getResolvedClasspath(true);
+		IClasspathEntry[] initialClasspath = p1.getRawClasspath();
+		
+		// remove reference to container, change initializer, and add reference to container back
+		p1.setRawClasspath(new IClasspathEntry[0], null);
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib2.jar"}));
+		p1.setRawClasspath(initialClasspath, null);
+		
+		assertClasspathEquals(
+			p1.getResolvedClasspath(true), 
+			"/P1/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:false]"
+		);
+	} finally {
+		deleteProject("P1");
+	}
+}
+
+/*
+ * Ensures that container a container is not kept in the cache if no longer referenced on the classpath
+ * (regression test for 136382 [classpath] Discard container if not referenced on classpath)
+ */
+public void testContainerInitializer20() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P");
+		final StringBuffer paths = new StringBuffer();
+		DefaultContainerInitializer initializer = new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}) {
+			public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+				paths.append(containerPath);
+				paths.append('\n');
+				super.initialize(containerPath, project);
+			}
+		};
+		ContainerInitializer.setInitializer(initializer);
+		
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1"))});
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE2"))});
+		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1"))});
+		assertStringEquals(
+			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1\n" + 
+			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE2\n" + 
+			"org.eclipse.jdt.core.tests.model.TEST_CONTAINER/JRE1\n",
+			paths.toString(), 
+			false);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+
 public void testVariableInitializer01() throws CoreException {
 	try {
 		createProject("P1");
