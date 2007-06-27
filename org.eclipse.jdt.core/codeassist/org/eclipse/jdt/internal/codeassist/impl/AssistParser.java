@@ -352,6 +352,12 @@ protected void consumeMethodBody() {
 	super.consumeMethodBody();
 	popElement(K_METHOD_DELIMITER);
 }
+protected void consumeMethodDeclaration(boolean isNotAbstract) {
+	if (!isNotAbstract) {
+		popElement(K_METHOD_DELIMITER);
+	}
+	super.consumeMethodDeclaration(isNotAbstract);
+}
 protected void consumeMethodHeader() {
 	super.consumeMethodHeader();
 	pushOnElementStack(K_METHOD_DELIMITER);

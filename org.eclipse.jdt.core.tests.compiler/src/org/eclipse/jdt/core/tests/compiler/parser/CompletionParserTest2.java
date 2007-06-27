@@ -11479,4 +11479,62 @@ public void test0171_Method() {
 			expectedReplacedSource,
 			"full ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=150632
+public void test0172() {
+
+	String str = 
+		"abstract class MatchFilter {\n"+
+		"    private static final String SETTINGS_LAST_USED_FILTERS= \"filters_last_used\"; \n"+
+		"\n"+
+		"    // works if next line is commented out or moved to after PUBLIC_FILTER\n"+
+		"    public abstract String getName();\n"+
+		"\n"+
+		"    // content assist at new ModifierFilter(|):\n"+
+		"    private static final MatchFilter PUBLIC_FILTER= new ModifierFilter();\n"+
+		"}\n"+
+		"\n"+
+		"class ModifierFilter extends MatchFilter {\n"+
+		"   private final String fName;\n"+
+		"    public ModifierFilter(String name) {\n"+
+		"        fName= name;\n"+
+		"    }\n"+
+		"   public String getName() {\n"+
+		"        return fName;\n"+
+		"    }\n"+
+		"}\n"; 
+
+	String completeBehind = "new ModifierFilter(";
+	int cursorLocation = str.lastIndexOf("new ModifierFilter(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new ModifierFilter()>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+		"abstract class MatchFilter {\n" + 
+		"  private static final String SETTINGS_LAST_USED_FILTERS;\n" + 
+		"  private static final MatchFilter PUBLIC_FILTER = <CompleteOnAllocationExpression:new ModifierFilter()>;\n" + 
+		"  MatchFilter() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  public abstract String getName();\n" + 
+		"}\n" + 
+		"class ModifierFilter extends MatchFilter {\n" + 
+		"  private final String fName;\n" + 
+		"  public ModifierFilter(String name) {\n" + 
+		"  }\n" + 
+		"  public String getName() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }

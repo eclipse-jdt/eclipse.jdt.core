@@ -2723,6 +2723,12 @@ protected void consumeMethodHeader() {
 	super.consumeMethodHeader();
 	pushOnElementStack(K_BLOCK_DELIMITER);
 }
+protected void consumeMethodDeclaration(boolean isNotAbstract) {
+	if (!isNotAbstract) {
+		popElement(K_BLOCK_DELIMITER);
+	}
+	super.consumeMethodDeclaration(isNotAbstract);
+}
 protected void consumeModifiers() {
 	super.consumeModifiers();
 	// save from stack values
