@@ -10108,6 +10108,137 @@ public void testCompletionMethodDeclaration12() throws JavaModelException {
             "fo[POTENTIAL_METHOD_DECLARATION]{fo, Ltest.CompletionMethodDeclaration12_3;, ()V, fo, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
             requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157069
+public void testCompletionMethodDeclaration13() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test extends other.SuperClass {\n" + 
+ 		"  doSom\n" + 
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/other/SuperClass.java",
+		"package other;"+
+		"public class SuperClass {\n" + 
+		"  protected class Sub {}\n" + 
+ 		"  protected Sub doSomething() {}\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION, true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "doSom";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"doSomething[METHOD_DECLARATION]{protected Sub doSomething(), Lother.SuperClass;, ()Lother.SuperClass$Sub;, doSomething, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157069
+public void testCompletionMethodDeclaration14() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test extends other.SuperClass {\n" + 
+ 		"  doSom\n" + 
+		"}\n");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/other/SuperClass.java",
+		"package other;"+
+		"public class SuperClass extends SuperClass2 {\n" + 
+		"  private class Sub {}\n" + 
+		"}\n");
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/other/SuperClass2.java",
+		"package other;"+
+		"public class SuperClass2 {\n" + 
+		"  protected class Sub {}\n" + 
+ 		"  protected Sub doSomething() {}\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION, true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "doSom";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"doSomething[METHOD_DECLARATION]{protected Sub doSomething(), Lother.SuperClass2;, ()Lother.SuperClass2$Sub;, doSomething, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157069
+public void testCompletionMethodDeclaration15() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test extends other.SuperClass {\n" + 
+ 		"  doSom\n" + 
+		"}\n");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/other/SuperClass.java",
+		"package other;"+
+		"public class SuperClass extends SuperClass2 {\n" + 
+		"  public class Sub {}\n" + 
+		"}\n");
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/other/SuperClass2.java",
+		"package other;"+
+		"public class SuperClass2 {\n" + 
+		"  public class Sub {}\n" + 
+ 		"  protected Sub doSomething() {}\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION, true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "doSom";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"doSomething[METHOD_DECLARATION]{protected other.SuperClass2.Sub doSomething(), Lother.SuperClass2;, ()Lother.SuperClass2$Sub;, doSomething, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=157069
+public void testCompletionMethodDeclaration16() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test extends other.SuperClass {\n" + 
+ 		"  doSom\n" + 
+		"}\n");
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/other/SuperClass.java",
+		"package other;"+
+		"public class SuperClass extends SuperClass2 {\n" + 
+		"  public class Sub {}\n" + 
+		"}\n");
+	this.workingCopies[2] = getWorkingCopy(
+		"/Completion/src/other/SuperClass2.java",
+		"package other;"+
+		"public class SuperClass2 {\n" + 
+		"  protected class Sub {}\n" + 
+ 		"  protected Sub doSomething() {}\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION, true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "doSom";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"doSomething[METHOD_DECLARATION]{protected other.SuperClass2.Sub doSomething(), Lother.SuperClass2;, ()Lother.SuperClass2$Sub;, doSomething, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 public void testCompletionMethodDeclaration2() throws JavaModelException {
 	ICompilationUnit superClass = null;
 	try {

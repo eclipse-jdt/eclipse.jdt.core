@@ -2818,9 +2818,9 @@ public final class CompletionEngine
 										if (p>0) javadocCompletion.append(", "); //$NON-NLS-1$
 										TypeBinding argTypeBinding = constructor.parameters[p];
 										if (isVarargs && p == ln - 1)  {
-											createVargsType(argTypeBinding.erasure(), javadocCompletion);
+											createVargsType(argTypeBinding.erasure(), scope, javadocCompletion);
 										} else {
-											createType(argTypeBinding.erasure(), javadocCompletion);
+											createType(argTypeBinding.erasure(), scope, javadocCompletion);
 										}
 									}
 								}
@@ -4960,9 +4960,9 @@ public final class CompletionEngine
 							if (p>0) javadocCompletion.append(", "); //$NON-NLS-1$
 							TypeBinding argTypeBinding = method.parameters[p];
 							if (isVarargs && p == ln - 1)  {
-								createVargsType(argTypeBinding.erasure(), javadocCompletion);
+								createVargsType(argTypeBinding.erasure(), scope, javadocCompletion);
 							} else {
-								createType(argTypeBinding.erasure(), javadocCompletion);
+								createType(argTypeBinding.erasure(), scope,javadocCompletion);
 							}
 						}
 					}
@@ -5767,7 +5767,7 @@ public final class CompletionEngine
 			
 			StringBuffer completion = new StringBuffer(10);
 			if (!exactMatch) {
-				createMethod(method, parameterPackageNames, parameterFullTypeNames, parameterNames, completion);
+				createMethod(method, parameterPackageNames, parameterFullTypeNames, parameterNames, scope, completion);
 			}
 
 			int relevance = computeBaseRelevance();
@@ -5810,14 +5810,14 @@ public final class CompletionEngine
 		methodsFound.addAll(newMethodsFound);
 	}
 	
-	private void createTypeVariable(TypeVariableBinding typeVariable, StringBuffer completion) {
+	private void createTypeVariable(TypeVariableBinding typeVariable, Scope scope, StringBuffer completion) {
 		completion.append(typeVariable.sourceName);
 		
 		if (typeVariable.superclass != null && typeVariable.firstBound == typeVariable.superclass) {
 		    completion.append(' ');
 		    completion.append(EXTENDS);
 		    completion.append(' ');
-		    createType(typeVariable.superclass, completion);
+		    createType(typeVariable.superclass, scope, completion);
 		}
 		if (typeVariable.superInterfaces != null && typeVariable.superInterfaces != Binding.NO_SUPERINTERFACES) {
 		   if (typeVariable.firstBound != typeVariable.superclass) {
@@ -5831,12 +5831,12 @@ public final class CompletionEngine
 				   completion.append(EXTENDS);
 				   completion.append(' ');
 			   }
-			   createType(typeVariable.superInterfaces[i], completion);
+			   createType(typeVariable.superInterfaces[i], scope, completion);
 		   }
 		}
 	}
 	
-	private void createType(TypeBinding type, StringBuffer completion) {
+	private void createType(TypeBinding type, Scope scope, StringBuffer completion) {
 		if (type.isBaseType()) {
 			completion.append(type.sourceName());
 		} else if (type.isTypeVariable()) {
@@ -5849,7 +5849,7 @@ public final class CompletionEngine
 					completion.append(' ');
 					completion.append(EXTENDS);
 					completion.append(' ');
-					createType(wildcardBinding.bound, completion);
+					createType(wildcardBinding.bound, scope, completion);
 					if(wildcardBinding.otherBounds != null) {
 						
 						int length = wildcardBinding.otherBounds.length;
@@ -5857,7 +5857,7 @@ public final class CompletionEngine
 							completion.append(' ');
 							completion.append('&');
 							completion.append(' ');
-							createType(wildcardBinding.otherBounds[i], completion);
+							createType(wildcardBinding.otherBounds[i], scope, completion);
 						}
 					}
 					break;
@@ -5865,11 +5865,11 @@ public final class CompletionEngine
 					completion.append(' ');
 					completion.append(SUPER);
 					completion.append(' ');
-					createType(wildcardBinding.bound, completion);
+					createType(wildcardBinding.bound, scope, completion);
 					break;
 			}
 		} else if (type.isArrayType()) {
-			createType(type.leafComponentType(), completion);
+			createType(type.leafComponentType(), scope, completion);
 			int dim = type.dimensions();
 			for (int i = 0; i < dim; i++) {
 				completion.append('[');
@@ -5878,7 +5878,7 @@ public final class CompletionEngine
 		} else if (type.isParameterizedType()) {
 			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
 			if (type.isMemberType()) {
-				createType(parameterizedType.enclosingType(), completion);
+				createType(parameterizedType.enclosingType(), scope, completion);
 				completion.append('.');
 				completion.append(parameterizedType.sourceName);
 			} else {
@@ -5888,7 +5888,7 @@ public final class CompletionEngine
 				completion.append('<');
 			    for (int i = 0, length = parameterizedType.arguments.length; i < length; i++) {
 			        if (i != 0) completion.append(',');
-			        createType(parameterizedType.arguments[i], completion);
+			        createType(parameterizedType.arguments[i], scope, completion);
 			    }
 			    completion.append('>');
 			}
@@ -5896,10 +5896,9 @@ public final class CompletionEngine
 			char[] packageName = type.qualifiedPackageName();
 			char[] typeName = type.qualifiedSourceName();
 			if(mustQualifyType(
+					(ReferenceBinding)type,
 					packageName,
-					type.sourceName(),
-					type.isMemberType() ? type.enclosingType().qualifiedSourceName() : null,
-					((ReferenceBinding)type).modifiers)) {
+					scope)) {
 				completion.append(CharOperation.concat(packageName, typeName,'.'));
 			} else {
 				completion.append(type.sourceName());
@@ -5907,9 +5906,9 @@ public final class CompletionEngine
 		}
 	}
 	
-	private void createVargsType(TypeBinding type, StringBuffer completion) {
+	private void createVargsType(TypeBinding type, Scope scope, StringBuffer completion) {
 		if (type.isArrayType()) {
-			createType(type.leafComponentType(), completion);
+			createType(type.leafComponentType(), scope, completion);
 			int dim = type.dimensions() - 1;
 			for (int i = 0; i < dim; i++) {
 				completion.append('[');
@@ -5917,7 +5916,7 @@ public final class CompletionEngine
 			}
 			completion.append(VARARGS);
 		} else {
-			createType(type, completion);
+			createType(type, scope, completion);
 		}
 	}
 	private char[] createImportCharArray(char[] importedElement, boolean isStatic, boolean onDemand) {
@@ -5931,7 +5930,7 @@ public final class CompletionEngine
 		}
 		return CharOperation.concat(result, IMPORT_END);
 	}
-	private void createMethod(MethodBinding method, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, StringBuffer completion) {
+	private void createMethod(MethodBinding method, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, Scope scope, StringBuffer completion) {
 		//// Modifiers
 		// flush uninteresting modifiers
 		int insertedModifiers = method.modifiers & ~(ClassFileConstants.AccNative | ClassFileConstants.AccAbstract);	
@@ -5949,14 +5948,14 @@ public final class CompletionEngine
 					completion.append(',');
 					completion.append(' ');
 				}
-				createTypeVariable(typeVariableBindings[i], completion);
+				createTypeVariable(typeVariableBindings[i], scope, completion);
 			}
 			completion.append('>');
 			completion.append(' ');
 		}
 		
 		//// Return type
-		createType(method.returnType, completion);
+		createType(method.returnType, scope, completion);
 		completion.append(' ');
 		
 		//// Selector
@@ -5972,7 +5971,7 @@ public final class CompletionEngine
 				completion.append(',');
 				completion.append(' ');
 			}
-			createType(parameterTypes[i], completion);
+			createType(parameterTypes[i], scope, completion);
 			completion.append(' ');
 			if(parameterNames != null){
 				completion.append(parameterNames[i]);
@@ -5995,7 +5994,7 @@ public final class CompletionEngine
 					completion.append(' ');
 					completion.append(',');
 				}
-				createType(exceptions[i], completion);
+				createType(exceptions[i], scope, completion);
 			}
 		}
 	}
@@ -8455,7 +8454,33 @@ public final class CompletionEngine
 		}
 		return true;
 	}
-	
+	private boolean mustQualifyType(ReferenceBinding type, char[] packageName, Scope scope) {
+		if(!mustQualifyType(
+				packageName,
+				type.sourceName(),
+				type.isMemberType() ? type.enclosingType().qualifiedSourceName() : null,
+				type.modifiers)) {
+			return false;
+		}
+		ReferenceBinding enclosingType = scope.enclosingSourceType();
+		while (enclosingType != null) {
+			ReferenceBinding currentType = enclosingType;
+			while (currentType != null) {
+				ReferenceBinding[] memberTypes = currentType.memberTypes();
+				if(memberTypes != null) {
+					for (int i = 0; i < memberTypes.length; i++) {
+						if (CharOperation.equals(memberTypes[i].sourceName, type.sourceName()) &&
+								memberTypes[i].canBeSeenBy(scope)) {
+							return memberTypes[i] != type;
+						}
+					}
+				}
+				currentType = currentType.superclass();
+			}
+			enclosingType = enclosingType.enclosingType();
+		}
+		return true;
+	}
 	public static char[] createNonGenericTypeSignature(char[] qualifiedPackageName, char[] qualifiedTypeName) {
 		return Signature.createCharArrayTypeSignature(
 				CharOperation.concat(
