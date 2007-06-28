@@ -491,7 +491,7 @@ public class NameLookup implements SuffixConstants {
 				if (pkgName != null) {
 					boolean match = hasPatternChars
 						? Util.matchesWithIgnoreCase(pkgName, name)
-						: Util.startsWithIgnoreCase(pkgName, splittedName);
+						: Util.startsWithIgnoreCase(pkgName, splittedName, partialMatch);
 					if (match) {
 						Object value = this.packageFragments.valueTable[i];
 						if (value instanceof PackageFragmentRoot) {
@@ -857,7 +857,7 @@ public class NameLookup implements SuffixConstants {
 				if (requestor.isCanceled())
 					return;
 				String[] pkgName = (String[]) keys[i];
-				if (pkgName != null && Util.startsWithIgnoreCase(pkgName, splittedName)) {
+				if (pkgName != null && Util.startsWithIgnoreCase(pkgName, splittedName, partialMatch)) {
 					Object value = this.packageFragments.valueTable[i];
 					if (value instanceof PackageFragmentRoot) {
 						PackageFragmentRoot root = (PackageFragmentRoot) value;

@@ -1934,7 +1934,7 @@ public class Util {
 	 * Returns true if the n first elements of the prefix are equals and the last element of the 
 	 * prefix is a prefix of the corresponding element in the compound name.
 	 */
-	public static boolean startsWithIgnoreCase(String[] compoundName, String[] prefix) {
+	public static boolean startsWithIgnoreCase(String[] compoundName, String[] prefix, boolean partialMatch) {
 		int prefixLength = prefix.length;
 		int nameLength = compoundName.length;
 		if (prefixLength > nameLength) return false;
@@ -1942,7 +1942,7 @@ public class Util {
 			if (!compoundName[i].equalsIgnoreCase(prefix[i]))
 				return false;
 		}
-		return compoundName[prefixLength-1].toLowerCase().startsWith(prefix[prefixLength-1].toLowerCase());
+		return (partialMatch || prefixLength == nameLength) && compoundName[prefixLength-1].toLowerCase().startsWith(prefix[prefixLength-1].toLowerCase());
 	}
 
 	/*

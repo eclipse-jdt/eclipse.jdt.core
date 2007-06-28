@@ -1255,7 +1255,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 			}
 			// Get all project package fragment names
 			this.nameLookup = ((JavaProject) projects[i]).newNameLookup(this.workingCopies);
-			IPackageFragment[] packageFragments = this.nameLookup.findPackageFragments(new String(pkgPattern.pkgName), true, true);
+			IPackageFragment[] packageFragments = this.nameLookup.findPackageFragments(new String(pkgPattern.pkgName), false, true);
 			int pLength = packageFragments == null ? 0 : packageFragments.length;
 			// Report matches avoiding duplicate names
 			for (int p=0; p<pLength; p++) {
