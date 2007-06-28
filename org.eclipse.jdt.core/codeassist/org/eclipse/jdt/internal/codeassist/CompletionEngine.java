@@ -7580,32 +7580,26 @@ public final class CompletionEngine
 	}
 
 	private void findVariableNames(char[] name, TypeReference type , char[][] discouragedNames, char[][] forbiddenNames, int kind, int modifiers){
-
 		if(type != null &&
-			type.resolvedType != null &&
-			type.resolvedType.problemId() == ProblemReasons.NoError){
+			type.resolvedType != null) {
 			TypeBinding tb = type.resolvedType;
-			findVariableName(
-				name,
-				tb.leafComponentType().qualifiedPackageName(),
-				tb.leafComponentType().qualifiedSourceName(),
-				tb.leafComponentType().sourceName(),
-				tb,
-				discouragedNames,
-				forbiddenNames,
-				type.dimensions(),
-				kind,
-				modifiers);
-		}/*	else {
-			char[][] typeName = type.getTypeName();
-			findVariableName(
-				name,
-				NoChar,
-				CharOperation.concatWith(typeName, '.'),
-				typeName[typeName.length - 1],
-				excludeNames,
-				type.dimensions());
-		}*/
+			
+			if (tb.problemId() == ProblemReasons.NoError &&
+					tb != Scope.getBaseType(VOID)) {
+				findVariableName(
+					name,
+					tb.leafComponentType().qualifiedPackageName(),
+					tb.leafComponentType().qualifiedSourceName(),
+					tb.leafComponentType().sourceName(),
+					tb,
+					discouragedNames,
+					forbiddenNames,
+					type.dimensions(),
+					kind,
+					modifiers);
+			}
+		}
+
 	}
 	
 	private ImportBinding[] getFavoriteReferenceBindings(Scope scope) {

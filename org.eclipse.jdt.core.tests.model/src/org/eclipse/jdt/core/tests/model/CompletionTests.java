@@ -12839,6 +12839,37 @@ public void testCompletionVariableName38() throws JavaModelException {
 			"",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=137452
+public void testCompletionVariableName39() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;\n"+
+			"public class AutoCompleteBug {\n"+
+			"    interface I {\n"+
+			"        void doIt();\n"+
+			"    }\n"+
+			"    class C1 implements I {\n"+
+			"        public void doIt() {\n"+
+			"        }\n"+
+			"    }\n"+
+			"    class C2 extends C1 {\n"+
+			"        /*here*/public void doIt() {\n"+
+			"			super.doIt();\n"+
+			"        }\n"+
+			"    }\n"+
+			"}");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "/*here*/public void doIt";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+			"",
+			requestor.getResults());
+}
 public void testCompletionVariableName4() throws JavaModelException {
 	this.wc = getWorkingCopy(
             "/Completion/src/CompletionVariableName4.java",
