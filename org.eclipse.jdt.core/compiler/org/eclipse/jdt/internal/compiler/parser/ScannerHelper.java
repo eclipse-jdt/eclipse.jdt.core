@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     David Foerster - patch for toUpperCase as described in https://bugs.eclipse.org/bugs/show_bug.cgi?id=153125
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -305,7 +306,7 @@ public static char toUpperCase(char c) {
 			return (char) (c - 32); 
 		}
 	}
-	return Character.toLowerCase(c);
+	return Character.toUpperCase(c);
 }
 public static char toLowerCase(char c) {
 	if (c < MAX_OBVIOUS) {

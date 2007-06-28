@@ -584,6 +584,19 @@ public void testSuggestGetterName007() {
 		"getIsSomething", //$NON-NLS-1$
 		new String(suggestion));
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=153125
+public void testSuggestGetterName008() {
+	char[] suggestion = NamingConventions.suggestGetterName(
+		project,
+		"Èfield".toCharArray(), //$NON-NLS-1$
+		0,
+		false,
+		CharOperation.NO_CHAR_CHAR);
+	
+	assumeEquals(
+		"get…field", //$NON-NLS-1$
+		new String(suggestion));
+}
 public void testSuggestSetterName001() {
 	char[] suggestion = NamingConventions.suggestSetterName(
 		project,
