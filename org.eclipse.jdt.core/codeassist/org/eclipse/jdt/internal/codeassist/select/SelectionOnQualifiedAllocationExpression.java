@@ -61,11 +61,26 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 	public TypeBinding resolveType(BlockScope scope) {
 		super.resolveType(scope);
 	
-		// tolerate some error cases
-		if (binding == null || 
-				!(binding.isValidBinding() || 
-					binding.problemId() == ProblemReasons.NotVisible))
+		if (binding == null) {
 			throw new SelectionNodeFound();
+		}
+		
+		// tolerate some error cases
+		if (!binding.isValidBinding()) {
+			switch (binding.problemId()) {
+				case ProblemReasons.NotVisible:
+					// visibility is ignored
+					break;
+				case ProblemReasons.NotFound:
+					if (resolvedType != null && resolvedType.isValidBinding()) {
+						throw new SelectionNodeFound(resolvedType);
+					}
+					throw new SelectionNodeFound();
+				default:
+					throw new SelectionNodeFound();
+			}
+		}
+		
 		if (anonymousType == null)
 			throw new SelectionNodeFound(binding);
 	

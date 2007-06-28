@@ -1948,7 +1948,42 @@ public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
 		deleteFile(new File(jarName));
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=120766
+public void testDuplicateTypeDeclaration8() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    test.p1.Type t = new test.p1.Type();\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src/test/p1/Type.java",
+		"package test.p1;"+
+		"public class Type {\n" + 
+		"  public Type(int i) {}\n" + 
+		"}\n");
+	
+	this.workingCopies[2] = getWorkingCopy(
+		"/Resolve/src/test/p2/Type.java",
+		"package test.p2;"+
+		"public class Type {\n" + 
+		"}\n");
 
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("Type");
+	int length = "Type".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+	
+	assertElementsEqual(
+			"Unexpected elements",
+			"Type [in [Working copy] Type.java [in test.p1 [in src [in Resolve]]]]",
+			elements
+	);
+}
 public void testArrayParameterInsideParent1() throws JavaModelException {
 	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveArrayParameterInsideParent1.java");
 	
