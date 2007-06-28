@@ -1346,9 +1346,6 @@ public class DeltaProcessor {
 
 		switch (eventType) {
 			case DEFAULT_CHANGE_EVENT:
-				firePostChangeDelta(deltaToNotify, listeners, listenerMask, listenerCount);
-				fireReconcileDelta(listeners, listenerMask, listenerCount);
-				break;
 			case ElementChangedEvent.POST_CHANGE:
 				firePostChangeDelta(deltaToNotify, listeners, listenerMask, listenerCount);
 				fireReconcileDelta(listeners, listenerMask, listenerCount);
