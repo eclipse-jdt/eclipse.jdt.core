@@ -315,11 +315,16 @@ public final class CompletionEngine
 	};
 	static final int BASE_TYPES_LENGTH = BASE_TYPES.length;
 	static final char[][] BASE_TYPE_NAMES = new char[BASE_TYPES_LENGTH][];
-	static { 
-		for (int i=0; i<BASE_TYPES_LENGTH; i++) {
-			BASE_TYPE_NAMES[i] = BASE_TYPES[i].simpleName;
+	static final int BASE_TYPES_WITHOUT_VOID_LENGTH = BASE_TYPES.length - 1;
+	static final char[][] BASE_TYPE_NAMES_WITHOUT_VOID = new char[BASE_TYPES_WITHOUT_VOID_LENGTH][];
+ 	static { 
+ 		for (int i=0; i<BASE_TYPES_LENGTH; i++) {
+ 			BASE_TYPE_NAMES[i] = BASE_TYPES[i].simpleName;
+ 		}
+		for (int i=0; i<BASE_TYPES_WITHOUT_VOID_LENGTH; i++) {
+			BASE_TYPE_NAMES_WITHOUT_VOID[i] = BASE_TYPES[i].simpleName;
 		}
-	}
+ 	}
 		
 	static final char[] classField = "class".toCharArray();  //$NON-NLS-1$
 	static final char[] lengthField = "length".toCharArray();  //$NON-NLS-1$
@@ -904,7 +909,7 @@ public final class CompletionEngine
 			this.completionToken = type.token;
 			setSourceRange(type.sourceStart, type.sourceEnd);
 			
-			findTypesAndPackages(this.completionToken, scope, true, new ObjectVector());
+			findTypesAndPackages(this.completionToken, scope, true, true, new ObjectVector());
 			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 				findKeywordsForMember(this.completionToken, field.modifiers);
 			}
@@ -926,7 +931,7 @@ public final class CompletionEngine
 			SingleTypeReference type = (CompletionOnSingleTypeReference) method.returnType;
 			this.completionToken = type.token;
 			setSourceRange(type.sourceStart, type.sourceEnd);
-			findTypesAndPackages(this.completionToken, scope.parent, true, new ObjectVector());
+			findTypesAndPackages(this.completionToken, scope.parent, true, true, new ObjectVector());
 			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 				findKeywordsForMember(this.completionToken, method.modifiers);
 			}
@@ -955,7 +960,7 @@ public final class CompletionEngine
 					this.findEnumConstant(this.completionToken, (SwitchStatement) astNodeParent);
 				}
 			} else if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
-				findTypesAndPackages(this.completionToken, scope, false, new ObjectVector());
+				findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 			} else {
 				if (scope instanceof BlockScope && !this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 					char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, singleNameReference);
@@ -974,7 +979,7 @@ public final class CompletionEngine
 					insideTypeAnnotation,
 					singleNameReference.isInsideAnnotationAttribute);
 				// can be the start of a qualified type name
-				findTypesAndPackages(this.completionToken, scope, true, new ObjectVector());
+				findTypesAndPackages(this.completionToken, scope, true, false, new ObjectVector());
 				if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 					if (this.completionToken != null && this.completionToken.length != 0) {
 						findKeywords(this.completionToken, singleNameReference.possibleKeywords, false, false);
@@ -1023,7 +1028,7 @@ public final class CompletionEngine
 								(BlockScope)scope,
 								typesFound);
 					}
-					findTypesAndPackages(this.completionToken, scope, this.assistNodeIsConstructor, typesFound);
+					findTypesAndPackages(this.completionToken, scope, this.assistNodeIsConstructor, false, typesFound);
 				}
 			} else if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 				findMemberTypes(
@@ -1483,7 +1488,7 @@ public final class CompletionEngine
 				this.completionToken = type.token;
 				setSourceRange(type.sourceStart, type.sourceEnd);
 				
-				findTypesAndPackages(this.completionToken, scope, false, new ObjectVector());
+				findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 			} else if (annot.type instanceof CompletionOnQualifiedTypeReference) {
 				this.insideQualifiedReference = true;
 				
@@ -1522,7 +1527,7 @@ public final class CompletionEngine
 				}
 				if (this.assistNodeCanBeSingleMemberAnnotation) {
 					if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
-						findTypesAndPackages(this.completionToken, scope, false, new ObjectVector());
+						findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 					} else {
 						if (scope instanceof BlockScope && !this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 							char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, FakeInvocationSite);
@@ -1541,7 +1546,7 @@ public final class CompletionEngine
 							insideTypeAnnotation,
 							true);
 						// can be the start of a qualified type name
-						findTypesAndPackages(this.completionToken, scope, false, new ObjectVector());
+						findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 					}
 				}
 			}
@@ -1606,6 +1611,7 @@ public final class CompletionEngine
 						this.completionToken,
 						scope,
 						(this.assistNodeInJavadoc & CompletionOnJavadoc.BASE_TYPES) != 0,
+						false,
 						new ObjectVector());
 
 			} else if (astNode instanceof CompletionOnJavadocQualifiedTypeReference) {
@@ -6483,7 +6489,7 @@ public final class CompletionEngine
 			scope = scope.parent;
 		}
 	}
-	private void findTypesAndPackages(char[] token, Scope scope, boolean proposeBaseTypes, ObjectVector typesFound) {
+	private void findTypesAndPackages(char[] token, Scope scope, boolean proposeBaseTypes, boolean proposeVoidType, ObjectVector typesFound) {
 		
 		if (token == null)
 			return;
@@ -6717,7 +6723,11 @@ public final class CompletionEngine
 			if(!isEmptyPrefix && !this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 				if (this.assistNodeInJavadoc == 0 || (this.assistNodeInJavadoc & CompletionOnJavadoc.BASE_TYPES) != 0) {
 					if (proposeBaseTypes) {
-						findKeywords(token, BASE_TYPE_NAMES, false, false);
+						if (proposeVoidType) {
+							findKeywords(token, BASE_TYPE_NAMES, false, false);
+						} else {
+							findKeywords(token, BASE_TYPE_NAMES_WITHOUT_VOID, false, false);
+						}
 					}
 				}
 			}

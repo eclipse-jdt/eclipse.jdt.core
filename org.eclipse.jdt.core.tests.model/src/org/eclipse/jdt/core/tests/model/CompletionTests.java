@@ -16420,4 +16420,203 @@ public void testType7() throws JavaModelException {
 			"booleanClass[TYPE_REF]{booleanClass, test, Ltest.booleanClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType8() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test extends voi {\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/voidClass.java",
+		"package test;"+
+		"public class voidClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "voi";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"voidClass[TYPE_REF]{voidClass, test, Ltest.voidClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType9() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  voi\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/voidClass.java",
+		"package test;"+
+		"public class voidClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "voi";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"voi[POTENTIAL_METHOD_DECLARATION]{voi, Ltest.Test;, ()V, voi, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"void[KEYWORD]{void, null, null, void, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"voidClass[TYPE_REF]{voidClass, test, Ltest.voidClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType10() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  class InnerTest {\n" + 
+		"    voi\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/voidClass.java",
+		"package test;"+
+		"public class voidClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "voi";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"voi[POTENTIAL_METHOD_DECLARATION]{voi, Ltest.Test$InnerTest;, ()V, voi, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"void[KEYWORD]{void, null, null, void, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"voidClass[TYPE_REF]{voidClass, test, Ltest.voidClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType11() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    voi\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/voidClass.java",
+		"package test;"+
+		"public class voidClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "voi";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"voidClass[TYPE_REF]{voidClass, test, Ltest.voidClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType12() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    class InnerTest {\n" + 
+		"      voi\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/voidClass.java",
+		"package test;"+
+		"public class voidClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "voi";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"voi[POTENTIAL_METHOD_DECLARATION]{voi, LInnerTest;, ()V, voi, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"void[KEYWORD]{void, null, null, void, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"voidClass[TYPE_REF]{voidClass, test, Ltest.voidClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType13() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo(voi) {\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/voidClass.java",
+		"package test;"+
+		"public class voidClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "voi";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"void[KEYWORD]{void, null, null, void, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"voidClass[TYPE_REF]{voidClass, test, Ltest.voidClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
+public void testType14() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    new voi\n" + 
+		"  }\n" + 
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/test/voidClass.java",
+		"package test;"+
+		"public class voidClass {\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "voi";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"voidClass[TYPE_REF]{voidClass, test, Ltest.voidClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 }
