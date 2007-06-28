@@ -88,6 +88,9 @@ public class LocalVariableBinding extends VariableBinding {
 		buffer.append('#');
 		buffer.append(this.name);
 		
+		// add source pos to avoid same key for duplicate variables
+		buffer.append(this.declaration.sourceStart);
+		
 		int length = buffer.length();
 		char[] uniqueKey = new char[length];
 		buffer.getChars(0, length, uniqueKey, 0);

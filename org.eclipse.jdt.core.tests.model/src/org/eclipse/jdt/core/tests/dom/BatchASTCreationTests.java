@@ -830,7 +830,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X;.foo()V#i");
+			"Lp1/X;.foo()V#i52");
 	}
 
 	/* 
@@ -852,7 +852,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X;.foo()V#1#b");
+			"Lp1/X;.foo()V#1#b113");
 	}
 
 	/*

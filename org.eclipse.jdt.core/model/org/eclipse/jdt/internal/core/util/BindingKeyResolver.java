@@ -229,7 +229,11 @@ public class BindingKeyResolver extends BindingKeyParser {
 		}
 	 	for (int i = 0; i < this.scope.localIndex; i++) {
 			LocalVariableBinding local = this.scope.locals[i];
-			if (CharOperation.equals(varName, local.name)) {
+			char[] localName = local.name;
+			int localLength = localName.length;
+			char[] localPos = Integer.toString(local.declaration.sourceStart).toCharArray();
+			if (CharOperation.equals(local.name, varName, 0, localLength)
+					&& CharOperation.equals(localPos, varName, localLength, varName.length)) {
 				this.methodBinding = null;
 				this.compilerBinding = local;
 				return;
