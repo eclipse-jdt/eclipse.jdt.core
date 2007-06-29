@@ -2372,4 +2372,40 @@ public void test0052() {
 		expected15ProblemLog
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=42243
+public void test0053() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		assert true;\n" + 
+		"	}\n" + 
+		"}\n"
+	};
+	
+	String expected13ProblemLog =
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	assert true;\n" + 
+		"	^^^^^^\n" + 
+		"\'assert\' should not be used as an identifier, since it is a reserved keyword from source level 1.4 on\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	assert true;\n" + 
+		"	^^^^^^\n" + 
+		"Syntax error on token \"assert\", AssignmentOperator expected after this token\n" + 
+		"----------\n";
+	String expected14ProblemLog =
+		"";
+	
+	String expected15ProblemLog = 
+		expected14ProblemLog;
+	
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
+	);
+}
 }
