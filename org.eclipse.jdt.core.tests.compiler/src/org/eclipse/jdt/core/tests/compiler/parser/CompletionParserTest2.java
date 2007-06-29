@@ -11537,4 +11537,96 @@ public void test0172() {
 			expectedReplacedSource,
 	"diet ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=6004
+public void test0173_Diet() {
+
+	String str = 
+		"public class Y {\n" + 
+		"\n" + 
+		"	int foo(){\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	int bar() {	\n" + 
+		"	\n" + 
+		"	public int x = new Object(;\n" + 
+		"	/*<CODE ASSIST>*/\n" + 
+		"	}\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"}\n"; 
+
+	String completeBehind = "";
+	int cursorLocation = str.lastIndexOf("/*<CODE ASSIST>*/") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+		"public class Y {\n" + 
+		"  public int x;\n" + 
+		"  <CompleteOnType:>;\n" + 
+		"  public Y() {\n" + 
+		"  }\n" + 
+		"  int foo() {\n" + 
+		"  }\n" + 
+		"  int bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=6004
+public void test0173_Method() {
+
+	String str = 
+		"public class Y {\n" + 
+		"\n" + 
+		"	int foo(){\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	int bar() {	\n" + 
+		"	\n" + 
+		"	public int x = new Object(;\n" + 
+		"	/*<CODE ASSIST>*/\n" + 
+		"	}\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"}\n"; 
+
+	String completeBehind = "";
+	int cursorLocation = str.lastIndexOf("/*<CODE ASSIST>*/") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+			"public class Y {\n" + 
+			"  public int x;\n" + 
+			"  <CompleteOnType:>;\n" + 
+			"  public Y() {\n" + 
+			"  }\n" + 
+			"  int foo() {\n" + 
+			"  }\n" + 
+			"  int bar() {\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }
