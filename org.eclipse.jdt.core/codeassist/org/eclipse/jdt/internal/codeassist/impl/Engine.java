@@ -314,7 +314,11 @@ public abstract class Engine implements ITypeRequestor {
 	}
 
 	public static char[] getTypeSignature(TypeBinding typeBinding) {
-		return typeBinding.signature();
+		char[] result = typeBinding.signature();
+		if (result != null) {
+			result = CharOperation.replaceOnCopy(result, '/', '.');
+		}
+		return result;
 	}
 	public static char[] getSignature(Binding binding) {
 		char[] result = null;

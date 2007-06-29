@@ -7514,7 +7514,7 @@ public void test0228() throws JavaModelException {
             result.context);
 
 	assertResults(
-			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0228/Test;>;, class, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0228.Test;>;, class, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			result.proposals);
 }
 /*
@@ -7539,7 +7539,7 @@ public void test0229() throws JavaModelException {
             result.context);
 
 	assertResults(
-			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0229/Test;>;, class, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0229.Test;>;, class, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			result.proposals);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=96944
