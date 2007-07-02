@@ -103,11 +103,16 @@ public String toString() {
 			buffer.append("raw-subst]");//$NON-NLS-1$
 			break;
 	}
-	buffer.append("[depth=").append(this.depth).append(']'); //$NON-NLS-1$
+	if (this.expectedType == null) {
+		buffer.append(" [expectedType=null]"); //$NON-NLS-1$
+	} else {
+		buffer.append(" [expectedType=").append(this.expectedType.shortReadableName()).append(']'); //$NON-NLS-1$
+	}
+	buffer.append(" [depth=").append(this.depth).append(']'); //$NON-NLS-1$
 	buffer.append("\n\t[collected={");//$NON-NLS-1$
 	for (int i = 0, length = this.collectedSubstitutes == null ? 0 : this.collectedSubstitutes.length; i < length; i++) {
 		TypeBinding[][] collected = this.collectedSubstitutes[i];
-		for (int j = TypeConstants.CONSTRAINT_EQUAL; j < TypeConstants.CONSTRAINT_SUPER; j++) {
+		for (int j = TypeConstants.CONSTRAINT_EQUAL; j <= TypeConstants.CONSTRAINT_SUPER; j++) {
 			TypeBinding[] constraintCollected = collected[j];
 			if (constraintCollected != null) {
 				for (int k = 0, clength = constraintCollected.length; k < clength; k++) {
@@ -123,7 +128,9 @@ public String toString() {
 							buffer.append(">:"); //$NON-NLS-1$
 							break;
 					}
-					buffer.append(constraintCollected[k]);
+					if (constraintCollected[k] != null) {
+						buffer.append(constraintCollected[k].shortReadableName());
+					}					
 				}
 			}
 		}
@@ -135,7 +142,7 @@ public String toString() {
 		if (this.substitutes[i] == null) continue;
 		count++;
 		buffer.append('{').append(this.genericMethod.typeVariables[i].sourceName);
-		buffer.append("=").append(this.substitutes[i]).append('}'); //$NON-NLS-1$
+		buffer.append("=").append(this.substitutes[i].shortReadableName()).append('}'); //$NON-NLS-1$
 	}
 	if (count == 0) buffer.append("{}"); //$NON-NLS-1$
 	buffer.append(']');
