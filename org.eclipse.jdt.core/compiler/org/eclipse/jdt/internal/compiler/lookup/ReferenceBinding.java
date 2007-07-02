@@ -843,7 +843,7 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 		this.compatibleCache = new SimpleLookupTable(3);
 		result = null;
 	} else {
-		result = this.compatibleCache.get(otherType);
+		result = this.compatibleCache.get(otherType); // [dbg reset] this.compatibleCache.put(otherType,null)
 		if (result != null) {
 			return result == Boolean.TRUE;
 		}
