@@ -361,19 +361,17 @@ private void copyQueryResults(HashtableOfObject categoryToWords, int newPosition
 void initialize(boolean reuseExistingFile) throws IOException {
 	if (this.indexFile.exists()) {
 		if (reuseExistingFile) {
-			FileInputStream stream = new FileInputStream(this.indexFile);
-			this.streamBuffer = new byte[BUFFER_READ_SIZE];
+			RandomAccessFile file = new RandomAccessFile(this.indexFile, "r"); //$NON-NLS-1$
 			try {
-				char[] signature = readStreamChars(stream);
-				if (!CharOperation.equals(signature, SIGNATURE_CHARS)) {
+				String signature = file.readUTF();
+				if (!signature.equals(SIGNATURE))
 					throw new IOException(Messages.exception_wrongFormat); 
-				}
-				this.headerInfoOffset = readStreamInt(stream);
-				if (this.headerInfoOffset > 0) { // file is empty if its not set
-					readHeaderInfo(stream);
-				}
+
+				this.headerInfoOffset = file.readInt();
+				if (this.headerInfoOffset > 0) // file is empty if its not set
+					readHeaderInfo(file);
 			} finally {
-				stream.close();
+				file.close();
 			}
 			return;
 		}
@@ -752,30 +750,28 @@ synchronized int[] readDocumentNumbers(Object arrayOffset) throws IOException {
 		this.streamBuffer = null;
 	}
 }
-private void readHeaderInfo(FileInputStream stream) throws IOException {
-	stream.skip(this.headerInfoOffset);
-	this.bufferIndex = 0;
-	this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
+private void readHeaderInfo(RandomAccessFile file) throws IOException {
+	file.seek(this.headerInfoOffset);
 
 	// must be same order as writeHeaderInfo()
-	this.numberOfChunks = readStreamInt(stream);
-	this.sizeOfLastChunk = this.streamBuffer[this.bufferIndex++] & 0xFF;
-	this.documentReferenceSize = this.streamBuffer[this.bufferIndex++] & 0xFF;
+	this.numberOfChunks = file.readInt();
+	this.sizeOfLastChunk = file.readUnsignedByte();
+	this.documentReferenceSize = file.readUnsignedByte();
 
 	this.chunkOffsets = new int[this.numberOfChunks];
 	for (int i = 0; i < this.numberOfChunks; i++)
-		this.chunkOffsets[i] = readStreamInt(stream);
+		this.chunkOffsets[i] = file.readInt();
 
-	this.startOfCategoryTables = readStreamInt(stream);
+	this.startOfCategoryTables = file.readInt();
 
-	int size = readStreamInt(stream);
+	int size = file.readInt();
 	this.categoryOffsets = new HashtableOfIntValues(size);
 	this.categoryEnds = new HashtableOfIntValues(size);
 	char[] previousCategory = null;
 	int offset = -1;
 	for (int i = 0; i < size; i++) {
-		char[] categoryName = INTERNED_CATEGORY_NAMES.get(readStreamChars(stream));
-		offset = readStreamInt(stream);
+		char[] categoryName = INTERNED_CATEGORY_NAMES.get(file.readUTF().toCharArray());
+		offset = file.readInt();
 		this.categoryOffsets.put(categoryName, offset); // cache offset to category table
 		if (previousCategory != null) {
 			this.categoryEnds.put(previousCategory, offset); // cache end of the category table
