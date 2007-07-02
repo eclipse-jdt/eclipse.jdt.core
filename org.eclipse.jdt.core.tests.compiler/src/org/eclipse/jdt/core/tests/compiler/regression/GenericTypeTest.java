@@ -38019,4 +38019,238 @@ public void test1141() {
 		"Cycle detected: the type X cannot extend/implement itself or one of its own member types\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945
+public void test1142() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Comparator;\n" + 
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"  public static <T> Comparator<T> compound(Comparator<? super T> a, Comparator<? super T> b) {\n" + 
+			"	  return compound(asList(a, b));\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static <T> Comparator<T> compound(Iterable<? extends Comparator<? super T>> comparators) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  public static <E> List<E> asList(E a, E b) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return compound(asList(a, b));\n" + 
+		"	       ^^^^^^^^\n" + 
+		"The method compound(Iterable<? extends Comparator<? super T>>) in the type X is not applicable for the arguments (List<Comparator<? extends Object>>)\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
+public void test1143() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Comparator;\n" + 
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"  public static <T> Comparator<T> compound(Comparator<? super T> a, Comparator<? super T> b) {\n" + 
+			"	  int i = asList(a, b);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static <T> Comparator<T> compound(Iterable<? extends Comparator<? super T>> comparators) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  public static <E> List<E> asList(E a, E b) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	int i = asList(a, b);\n" + 
+		"	        ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Comparator<? extends Object>> to int\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
+public void test1144() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Comparator;\n" + 
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"  Iterable<Comparator<? extends Object>> itc1;\n" + 
+			"  Iterable<? extends Comparator<? super Object>> itc2 = itc1;\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Iterable<? extends Comparator<? super Object>> itc2 = itc1;\n" + 
+		"	                                               ^^^^\n" + 
+		"Type mismatch: cannot convert from Iterable<Comparator<? extends Object>> to Iterable<? extends Comparator<? super Object>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
+public void test1145() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	<T> Comparator<T> compound(Comparator<? super T> a, Comparator<? super T> b) {\n" + 
+			"		return compound(asList(a));\n" + 
+			"	}\n" + 
+			"	<T> Comparator<T> compound(Iterable<? extends Comparator<? super T>> c) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	<E> List<E> asList(E a) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
+public void test1146() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	public static <T> Comparator<T> compound(\n" + 
+			"			Comparator<? super T> a,\n" + 
+			"			Comparator<? super T> b, \n" + 
+			"			Comparator<? super T>... rest) {\n" + 
+			"		int i = asList(a, b, rest);\n" + 
+			"		int j = asList2(a, b);\n" + 
+			"		return compound(asList(a, b, rest));\n" + 
+			"	}\n" + 
+			"	public static <U> Comparator<U> compound(Iterable<? extends Comparator<? super U>> comparators) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static <E> List<E> asList(E a, E b, E... rest) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static <E> List<E> asList2(E a, E b) {\n" + 
+			"		return null;\n" + 
+			"	}	\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	int i = asList(a, b, rest);\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Comparator<?>> to int\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	int j = asList2(a, b);\n" + 
+		"	        ^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Comparator<? extends Object>> to int\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	return compound(asList(a, b, rest));\n" + 
+		"	       ^^^^^^^^\n" + 
+		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
+public void test1147() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void foo(Comparator<? super X> cx, Comparator<? super X>[] cxs) {\n" + 
+			"		int i = cx;\n" + 
+			"		int j = cxs;\n" + 
+			"		int k = cxs[0];\n" + 
+			"		int l = asList2(cxs[0], cxs[1]);\n" + 
+			"	}\n" + 
+			"	public static <E> List<E> asList2(E a, E b) {\n" + 
+			"		return null;\n" + 
+			"	}	\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	int i = cx;\n" + 
+		"	        ^^\n" + 
+		"Type mismatch: cannot convert from Comparator<capture#1-of ? super X> to int\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	int j = cxs;\n" + 
+		"	        ^^^\n" + 
+		"Type mismatch: cannot convert from Comparator<? super X>[] to int\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	int k = cxs[0];\n" + 
+		"	        ^^^^^^\n" + 
+		"Type mismatch: cannot convert from Comparator<capture#2-of ? super X> to int\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
+		"	int l = asList2(cxs[0], cxs[1]);\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Comparator<? extends Object>> to int\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
+public void test1148() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	public static <T> Comparator<T> compound(Comparator<? super T> a, Comparator<? super T> b, Comparator<? super T>... rest) {\n" + 
+			"		int i = asList(a, b, rest);\n" + 
+			"		int j = compound(asList(a, b, rest));\n" + 
+			"		compound(asList(a, b, rest));\n" + 
+			"		if (true) return compound(asList(a, b, rest));\n" + 
+			"		\n" + 
+			"		List<Comparator<?>> c = null;\n" + 
+			"		compound(c);\n" + 
+			"		return compound(c);\n" + 
+			"	}\n" + 
+			"	public static <U> Comparator<U> compound(Iterable<? extends Comparator<? super U>> comparators) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static <E> List<E> asList(E a, E b, E... rest) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	int i = asList(a, b, rest);\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Comparator<?>> to int\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	int j = compound(asList(a, b, rest));\n" + 
+		"	        ^^^^^^^^\n" + 
+		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	compound(asList(a, b, rest));\n" + 
+		"	^^^^^^^^\n" + 
+		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
+		"	if (true) return compound(asList(a, b, rest));\n" + 
+		"	                 ^^^^^^^^\n" + 
+		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
+		"	compound(c);\n" + 
+		"	^^^^^^^^\n" + 
+		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
+		"	return compound(c);\n" + 
+		"	       ^^^^^^^^\n" + 
+		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+		"----------\n");
+}
 }
