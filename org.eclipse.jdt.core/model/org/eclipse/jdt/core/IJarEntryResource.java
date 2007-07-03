@@ -41,7 +41,9 @@ public interface IJarEntryResource extends IStorage {
 	 * <p>
 	 * A jar entry resource's full path indicates the route from the root of the archive
 	 * to the jar entry resource.  Within an archive, there is exactly one such path
-	 * for any given jar entry resource. The returned path never has a trailing separator.  
+	 * for any given jar entry resource. </p>
+	 * <p>
+	 * The returned path is absolute (i.e. it starts with a separator) and it never has a trailing separator.
 	 * </p>
 	 * 
 	 * @return the absolute path of this jar entry resource
@@ -57,9 +59,9 @@ public interface IJarEntryResource extends IStorage {
 	Object getParent();
 	
 	/**
-	 * Returns the package fragment root this jar entry file belongs to.
+	 * Returns the package fragment root this jar entry resource belongs to.
 	 * 
-	 * @return the package fragment root this jar entry file belongs to.
+	 * @return the package fragment root this jar entry resource belongs to.
 	 */
 	IPackageFragmentRoot getPackageFragmentRoot();
 	
