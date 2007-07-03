@@ -49,6 +49,9 @@ import org.eclipse.core.runtime.IPath;
  * and <code>/Project/someLib.jar/com/xyz/tests/quick/T2.class</code> would not be
  * accessible. 
  * </p>
+ * <p>
+ * This interface is not intended to be implemented by clients.
+ * </p>
  * 
  * @since 3.1
  */
