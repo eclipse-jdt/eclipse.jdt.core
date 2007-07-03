@@ -349,9 +349,10 @@ public interface IJavaElement extends IAdaptable {
 
 	/**
 	 * Returns whether the structure of this element is known. For example, for a
-	 * compilation unit that could not be parsed, <code>false</code> is returned.
+	 * compilation unit that has syntax errors, <code>false</code> is returned.
 	 * If the structure of an element is unknown, navigations will return reasonable
-	 * defaults. For example, <code>getChildren</code> will return an empty collection.
+	 * defaults. For example, <code>getChildren</code> for a compilation unit with
+	 * syntax errors will return a collection of the children that could be parsed.
 	 * <p>
 	 * Note: This does not imply anything about consistency with the
 	 * underlying resource/buffer contents.
