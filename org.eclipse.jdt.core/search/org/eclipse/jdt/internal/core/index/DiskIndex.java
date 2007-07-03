@@ -361,17 +361,24 @@ private void copyQueryResults(HashtableOfObject categoryToWords, int newPosition
 void initialize(boolean reuseExistingFile) throws IOException {
 	if (this.indexFile.exists()) {
 		if (reuseExistingFile) {
-			RandomAccessFile file = new RandomAccessFile(this.indexFile, "r"); //$NON-NLS-1$
+			FileInputStream stream = new FileInputStream(this.indexFile);
+			this.streamBuffer = new byte[BUFFER_READ_SIZE];
+			this.bufferIndex = 0;
+			this.bufferEnd = stream.read(this.streamBuffer, 0, 128);
 			try {
-				String signature = file.readUTF();
-				if (!signature.equals(SIGNATURE))
-					throw new IOException(Messages.exception_wrongFormat); 
-
-				this.headerInfoOffset = file.readInt();
-				if (this.headerInfoOffset > 0) // file is empty if its not set
-					readHeaderInfo(file);
+				char[] signature = readStreamChars(stream);
+				if (!CharOperation.equals(signature, SIGNATURE_CHARS)) {
+					throw new IOException(Messages.exception_wrongFormat);
+				}
+				this.headerInfoOffset = readStreamInt(stream);
+				if (this.headerInfoOffset > 0) { // file is empty if its not set
+					stream.skip(this.headerInfoOffset - this.bufferEnd); // assume that the header info offset is over current buffer end
+					this.bufferIndex = 0;
+					this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
+					readHeaderInfo(stream);
+				}
 			} finally {
-				file.close();
+				stream.close();
 			}
 			return;
 		}
@@ -382,12 +389,19 @@ void initialize(boolean reuseExistingFile) throws IOException {
 		}
 	}
 	if (this.indexFile.createNewFile()) {
-		RandomAccessFile file = new RandomAccessFile(this.indexFile, "rw"); //$NON-NLS-1$
+		FileOutputStream stream = new FileOutputStream(this.indexFile, false);
 		try {
-			file.writeUTF(SIGNATURE);
-			file.writeInt(-1); // file is empty
+			this.streamBuffer = new byte[BUFFER_READ_SIZE];
+			this.bufferIndex = 0;
+			writeStreamChars(stream, SIGNATURE_CHARS);
+			writeStreamInt(stream, -1); // file is empty
+			// write the buffer to the stream
+			if (this.bufferIndex > 0) {
+				stream.write(this.streamBuffer, 0, this.bufferIndex);
+				this.bufferIndex = 0;
+			}
 		} finally {
-			file.close();
+			stream.close();
 		}
 	} else {
 		if (DEBUG)
@@ -750,28 +764,27 @@ synchronized int[] readDocumentNumbers(Object arrayOffset) throws IOException {
 		this.streamBuffer = null;
 	}
 }
-private void readHeaderInfo(RandomAccessFile file) throws IOException {
-	file.seek(this.headerInfoOffset);
+private void readHeaderInfo(FileInputStream stream) throws IOException {
 
 	// must be same order as writeHeaderInfo()
-	this.numberOfChunks = file.readInt();
-	this.sizeOfLastChunk = file.readUnsignedByte();
-	this.documentReferenceSize = file.readUnsignedByte();
+	this.numberOfChunks = readStreamInt(stream);
+	this.sizeOfLastChunk = this.streamBuffer[this.bufferIndex++] & 0xFF;
+	this.documentReferenceSize = this.streamBuffer[this.bufferIndex++] & 0xFF;
 
 	this.chunkOffsets = new int[this.numberOfChunks];
 	for (int i = 0; i < this.numberOfChunks; i++)
-		this.chunkOffsets[i] = file.readInt();
+		this.chunkOffsets[i] = readStreamInt(stream);
 
-	this.startOfCategoryTables = file.readInt();
+	this.startOfCategoryTables = readStreamInt(stream);
 
-	int size = file.readInt();
+	int size = readStreamInt(stream);
 	this.categoryOffsets = new HashtableOfIntValues(size);
 	this.categoryEnds = new HashtableOfIntValues(size);
 	char[] previousCategory = null;
 	int offset = -1;
 	for (int i = 0; i < size; i++) {
-		char[] categoryName = INTERNED_CATEGORY_NAMES.get(file.readUTF().toCharArray());
-		offset = file.readInt();
+		char[] categoryName = INTERNED_CATEGORY_NAMES.get(readStreamChars(stream));
+		offset = readStreamInt(stream);
 		this.categoryOffsets.put(categoryName, offset); // cache offset to category table
 		if (previousCategory != null) {
 			this.categoryEnds.put(previousCategory, offset); // cache end of the category table

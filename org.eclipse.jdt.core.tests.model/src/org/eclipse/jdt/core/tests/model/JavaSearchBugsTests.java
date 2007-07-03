@@ -25,9 +25,13 @@ import org.eclipse.jdt.core.search.*;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.ClassFile;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.SourceMethod;
+import org.eclipse.jdt.internal.core.index.DiskIndex;
+import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
@@ -7910,6 +7914,34 @@ public void testBug178847() throws CoreException {
 		);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2" });
+	}
+}
+
+/**
+ * @bug 181488 [index] Lots of unbuffered sequential reads in DiskIndex
+ * @test Ensure that indexing does not happen while reopening workspace (see bug 195091)
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=181488"
+ */
+public void testBug181488a() throws CoreException {
+	waitUntilIndexesReady();
+	IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
+	Index index = manager.getIndex(JAVA_PROJECT.getPath(), true, false);
+	long lastModified = index.getIndexFile().lastModified();
+	simulateExitRestart();
+	waitUntilIndexesReady();
+	Index newIndex = manager.getIndex(JAVA_PROJECT.getPath(), true, false);
+	assertEquals("Index file should be unchanged!!!", lastModified, newIndex.getIndexFile().lastModified());
+}
+public void testBug181488b() throws CoreException {
+	IJavaProject project = createJavaProject("Bug181488");
+	try {
+		waitUntilIndexesReady();
+		IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
+		Index index = manager.getIndex(project.getPath(), true, false);
+		assertEquals("Index file should at least contains the signature!!!", DiskIndex.SIGNATURE.length()+6, index.getIndexFile().length());
+	}
+	finally {
+		deleteProject(project);
 	}
 }
 
