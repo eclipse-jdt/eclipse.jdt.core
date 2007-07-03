@@ -61,8 +61,12 @@ String getSource() throws JavaModelException;
  * For class files, this returns the range of the entire compilation unit 
  * associated with the class file (if there is one).
  * </p>
+ * <p>
+ * If this element has no associated source code <code>null</code> is either returned,
+ * or a source range with a -1 offset and a 0 length.
+ * </p>
  *
- * @return the source range, or <code>null</code> if this element has no 
+ * @return the source range, or either <code>null</code> or [-1, 0] if this element has no 
  *   associated source code
  * @exception JavaModelException if an exception occurs while accessing its corresponding resource
  */
