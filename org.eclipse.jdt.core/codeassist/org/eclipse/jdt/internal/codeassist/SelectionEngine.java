@@ -341,8 +341,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		int token;
 		
 		if(selectionStart > selectionEnd){
-			// compute end position of the selection
-			int end = selectionEnd + 1 == source.length ? selectionEnd : selectionEnd + 1;
+			int end = source.length - 1;
 			
 			// compute start position of current line
 			int currentPosition = selectionStart - 1;
