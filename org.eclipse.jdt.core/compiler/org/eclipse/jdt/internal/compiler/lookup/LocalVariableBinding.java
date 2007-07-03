@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
@@ -57,14 +58,15 @@ public class LocalVariableBinding extends VariableBinding {
 	}
 	
 	/*
-	 * declaringUniqueKey # scopeIndex / varName
-	 * p.X { void foo() { int local; } } --> Lp/X;.foo()V#1/local
+	 * declaringUniqueKey # scopeIndex(0-based) # varName [# occurrenceCount(0-based)]
+	 * p.X { void foo() { int local; int local;} } --> Lp/X;.foo()V#1#local#1
 	 */
 	public char[] computeUniqueKey(boolean isLeaf) {
 		StringBuffer buffer = new StringBuffer();
 		
 		// declaring method or type
 		BlockScope scope = this.declaringScope;
+		int occurenceCount = 0;
 		if (scope != null) {
 			// the scope can be null. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=185129
 			MethodScope methodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
@@ -83,10 +85,28 @@ public class LocalVariableBinding extends VariableBinding {
 	
 			// scope index
 			getScopeKey(scope, buffer);
+			
+			// find number of occurences of a variable with the same name in the scope
+			LocalVariableBinding[] locals = scope.locals;
+			for (int i = 0; i < scope.localIndex; i++) { // use linear search assuming the number of locals per scope is low
+				LocalVariableBinding local = locals[i];
+				if (CharOperation.equals(this.name, local.name)) {
+					if (this == local)
+						break;
+					occurenceCount++;
+				}
+			}
 		}
 		// variable name
 		buffer.append('#');
 		buffer.append(this.name);
+		
+		// add occurence count to avoid same key for duplicate variables
+		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=149590)
+		if (occurenceCount > 0) {
+			buffer.append('#');
+			buffer.append(occurenceCount);
+		}
 		
 		int length = buffer.length();
 		char[] uniqueKey = new char[length];

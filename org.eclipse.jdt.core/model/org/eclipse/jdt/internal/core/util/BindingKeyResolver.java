@@ -223,13 +223,14 @@ public class BindingKeyResolver extends BindingKeyParser {
  			}
 	}
 
-	public void consumeLocalVar(char[] varName) {
+	public void consumeLocalVar(char[] varName, int occurrenceCount) {
 		if (this.scope == null) {
 			this.scope = this.methodBinding.sourceMethod().scope;
 		}
 	 	for (int i = 0; i < this.scope.localIndex; i++) {
 			LocalVariableBinding local = this.scope.locals[i];
-			if (CharOperation.equals(varName, local.name)) {
+			if (CharOperation.equals(local.name, varName)
+					&& occurrenceCount-- == 0) {
 				this.methodBinding = null;
 				this.compilerBinding = local;
 				return;

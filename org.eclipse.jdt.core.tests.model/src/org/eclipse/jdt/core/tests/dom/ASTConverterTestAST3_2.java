@@ -8305,7 +8305,6 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=144858
-	 * TODO (frederic) check that keys are different (PR 149590)
 	 */
 	public void test0660() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
@@ -8336,9 +8335,9 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNotNull("No binding", variableBinding);
 			assertEquals("Wrong name", "x", variableBinding.getName());
 			// (PR 149590)
-			// String key = variableBinding.getKey();
+			String key = variableBinding.getKey();
 
-			node = getASTNode(unit, 0, 0, 0);
+			node = getASTNode(unit, 0, 0, 1);
 			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 			statement = (VariableDeclarationStatement) node;
 			fragments = statement.fragments();
@@ -8348,8 +8347,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNotNull("No binding", variableBinding);
 			assertEquals("Wrong name", "x", variableBinding.getName());
 			// (PR 149590)
-			// String key2 = variableBinding.getKey();
-			//assertFalse("Keys should not be equals", key2.equals(key));
+			String key2 = variableBinding.getKey();
+			assertFalse("Keys should not be equals", key2.equals(key));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
@@ -8358,7 +8357,6 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=144858
-	 * TODO (frederic) check that keys are different (PR 149590)
 	 */
 	public void test0661() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
@@ -8392,7 +8390,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNotNull("No binding", variableBinding);
 			assertEquals("Wrong name", "x", variableBinding.getName());
 			// (PR 149590)
-			// String key = variableBinding.getKey();
+			String key = variableBinding.getKey();
 
 			node = getASTNode(unit, 0, 0, 1);
 			assertEquals("Not a try statement", ASTNode.TRY_STATEMENT, node.getNodeType());
@@ -8405,8 +8403,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNotNull("No binding", variableBinding);
 			assertEquals("Wrong name", "x", variableBinding.getName());
 			// (PR 149590)
-			// String key2 = variableBinding.getKey();
-			//assertFalse("Keys should not be equals", key2.equals(key));
+			String key2 = variableBinding.getKey();
+			assertFalse("Keys should not be equals", key2.equals(key));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
@@ -8415,7 +8413,6 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=144858
-	 * TODO (frederic) check that keys are different (PR 149590)
 	 */
 	public void test0662() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
@@ -8451,7 +8448,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNotNull("No binding", variableBinding);
 			assertEquals("Wrong name", "x", variableBinding.getName());
 			// (PR 149590)
-			// String key = variableBinding.getKey();
+			String key = variableBinding.getKey();
 
 			node = getASTNode(unit, 0, 0, 1);
 			assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
@@ -8470,8 +8467,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertEquals("Wrong name", "x", variableBinding.getName());
 
 			// (PR 149590)
-			// String key2 = variableBinding.getKey();
-			//assertFalse("Keys should not be equals", key2.equals(key));
+			String key2 = variableBinding.getKey();
+			assertFalse("Keys should not be equals", key2.equals(key));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
@@ -8480,7 +8477,6 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=144858
-	 * TODO (frederic) check that keys are different (PR 149590)
 	 */
 	public void test0663() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
@@ -8519,7 +8515,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNotNull("No binding", variableBinding);
 			assertEquals("Wrong name", "i", variableBinding.getName());
 			// (PR 149590)
-			// String key = variableBinding.getKey();
+			String key = variableBinding.getKey();
 
 			Block block = (Block) statement.getBody();
 			List statements = block.statements();
@@ -8540,8 +8536,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertEquals("Wrong name", "i", variableBinding.getName());
 
 			// (PR 149590)
-			// String key2 = variableBinding.getKey();
-			//assertFalse("Keys should not be equals", key2.equals(key));
+			String key2 = variableBinding.getKey();
+			assertFalse("Keys should not be equals", key2.equals(key));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();

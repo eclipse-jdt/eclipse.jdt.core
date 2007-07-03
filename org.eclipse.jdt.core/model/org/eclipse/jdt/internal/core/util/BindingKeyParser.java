@@ -430,7 +430,7 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 	
-	public void consumeLocalVar(char[] varName) {
+	public void consumeLocalVar(char[] varName, int occurrenceCount) {
 		// default is to do nothing
 	}
 	
@@ -695,7 +695,16 @@ public class BindingKeyParser {
 			}
 			parseLocalVariable();
 		} else {
-		 	consumeLocalVar(varName);
+			int occurrenceCount = 0;
+			if (this.scanner.isAtLocalVariableStart()) {
+			 	if (this.scanner.nextToken() != Scanner.LOCAL_VAR) {
+			 		malformedKey();
+					return;
+			 	}
+				char[] occurrence = this.scanner.getTokenSource();
+				occurrenceCount = Integer.parseInt(new String(occurrence));
+			}
+		 	consumeLocalVar(varName, occurrenceCount);
 		}
  	}
 	

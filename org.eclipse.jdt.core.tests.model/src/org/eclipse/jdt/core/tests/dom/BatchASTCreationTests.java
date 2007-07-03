@@ -2070,4 +2070,25 @@ public void test082() throws CoreException, IOException {
 			}, 
 			"Lp1/X~Y;");
 	}
+	
+	/* 
+	 * Ensures that a duplicate local variable binding can be created using its key in ASTRequestor#createBindings
+	 * (regression test for bug 149590 [model] bindings for duplicate local variables share same key)
+	 */
+	public void test084() throws CoreException {
+		assertBindingCreated(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    int i;\n" +
+				"    int i;\n" +
+				"  }\n" +
+				"}",
+			},
+			"Lp1/X;.foo()V#i#1");
+	}
+
+
 }

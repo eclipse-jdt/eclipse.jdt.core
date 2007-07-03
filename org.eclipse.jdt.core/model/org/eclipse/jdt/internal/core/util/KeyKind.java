@@ -53,7 +53,7 @@ public class KeyKind extends BindingKeyParser {
 		this.flags |= F_LOCAL;
 	}
 
-	public void consumeLocalVar(char[] varName) {
+	public void consumeLocalVar(char[] varName, int occurrenceCount) {
 		this.flags |= F_LOCAL_VAR;
 	}
 
