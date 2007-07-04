@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 
-public class PackageReferencePattern extends AndPattern {
+public class PackageReferencePattern extends IntersectingPattern {
 
 protected char[] pkgName;
 

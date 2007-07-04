@@ -58,4 +58,5 @@ public interface IIndexConstants {
 	int OR_PATTERN = 0x0100;
 	int LOCAL_VAR_PATTERN = 0x0200;
 	int TYPE_PARAM_PATTERN = 0x0400;
+	int AND_PATTERN = 0x0800;
 }

@@ -10,74 +10,68 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.io.IOException;
+import org.eclipse.jdt.core.search.SearchPattern;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.util.SimpleSet;
-import org.eclipse.jdt.internal.core.index.*;
-import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
+public class AndPattern extends IntersectingPattern {
+protected SearchPattern[] patterns;
+int current;
 
-/**
- * Query the index multiple times and do an 'and' on the results.
- */
-public abstract class AndPattern extends JavaSearchPattern { // TODO should rename IntersectingPattern, and make AndPattern a true subclass
-	
-public AndPattern(int patternKind, int matchRule) {
-	super(patternKind, matchRule);
-}
-public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) throws IOException {
-	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-
-	this.resetQuery();
-	SimpleSet intersectedNames = null;
-	try {
-		index.startQuery();
-		do {
-			SearchPattern pattern = ((InternalSearchPattern) this).currentPattern();
-			EntryResult[] entries = ((InternalSearchPattern)pattern).queryIn(index);
-			if (entries == null) return;
-
-			SearchPattern decodedResult = pattern.getBlankPattern();
-			SimpleSet newIntersectedNames = new SimpleSet(3);
-			for (int i = 0, l = entries.length; i < l; i++) {
-				if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
-
-				EntryResult entry = entries[i];
-				decodedResult.decodeIndexKey(entry.getWord());
-				if (pattern.matchesDecodedKey(decodedResult)) {
-					String[] names = entry.getDocumentNames(index);
-					if (intersectedNames != null) {
-						for (int j = 0, n = names.length; j < n; j++)
-							if (intersectedNames.includes(names[j]))
-								newIntersectedNames.add(names[j]);
-					} else {
-						for (int j = 0, n = names.length; j < n; j++)
-							newIntersectedNames.add(names[j]);
-					}
-				}
-			}
-
-			if (newIntersectedNames.elementSize == 0) return;
-			intersectedNames = newIntersectedNames;
-		} while (this.hasNextQuery());
-	} finally {
-		index.stopQuery();
+private static int combinedMatchRule(int matchRule, int matchRule2) {
+	int combined = matchRule & matchRule2;
+	int compatibility = combined & MATCH_COMPATIBILITY_MASK;
+	if (compatibility == 0) {
+		if ((matchRule & MATCH_COMPATIBILITY_MASK) == R_FULL_MATCH) {
+			compatibility = matchRule2;
+		} else if ((matchRule2 & MATCH_COMPATIBILITY_MASK) == R_FULL_MATCH) {
+			compatibility = matchRule;
+		} else {
+			compatibility = Math.min(matchRule & MATCH_COMPATIBILITY_MASK, matchRule2 & MATCH_COMPATIBILITY_MASK);
+		}
 	}
-
-	String containerPath = index.containerPath;
-	Object[] names = intersectedNames.values;
-	for (int i = 0, l = names.length; i < l; i++)
-		if (names[i] != null)
-			((InternalSearchPattern) this).acceptMatch((String) names[i], containerPath, null/*no pattern*/, requestor, participant, scope); // AndPatterns cannot provide the decoded result
+	return (combined & (R_EXACT_MATCH | R_PREFIX_MATCH | R_PATTERN_MATCH | R_REGEXP_MATCH))
+		| (combined & R_CASE_SENSITIVE)
+		| compatibility
+		| (combined & R_CAMELCASE_MATCH);
 }
-/**
- * Returns whether another query must be done.
+
+public AndPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
+	super(AND_PATTERN, combinedMatchRule(leftPattern.getMatchRule(), rightPattern.getMatchRule()));
+	((InternalSearchPattern) this).mustResolve = ((InternalSearchPattern) leftPattern).mustResolve || ((InternalSearchPattern) rightPattern).mustResolve;
+
+	SearchPattern[] leftPatterns = leftPattern instanceof AndPattern ? ((AndPattern) leftPattern).patterns : null;
+	SearchPattern[] rightPatterns = rightPattern instanceof AndPattern ? ((AndPattern) rightPattern).patterns : null;
+	int leftSize = leftPatterns == null ? 1 : leftPatterns.length;
+	int rightSize = rightPatterns == null ? 1 : rightPatterns.length;
+	this.patterns = new SearchPattern[leftSize + rightSize];
+
+	if (leftPatterns == null)
+		this.patterns[0] = leftPattern;
+	else
+		System.arraycopy(leftPatterns, 0, this.patterns, 0, leftSize);
+	if (rightPatterns == null)
+		this.patterns[leftSize] = rightPattern;
+	else
+		System.arraycopy(rightPatterns, 0, this.patterns, leftSize, rightSize);
+
+	// Store erasure match
+	matchCompatibility = getMatchRule() & MATCH_COMPATIBILITY_MASK;
+
+	this.current = 0;
+}
+
+/* (non-Javadoc)
+ * @see org.eclipse.jdt.internal.core.search.matching.InternalSearchPattern#currentPattern()
  */
-protected abstract boolean hasNextQuery();
-/**
- * Resets the query and prepares this pattern to be queried.
- */
-protected abstract void resetQuery();
+SearchPattern currentPattern() {
+	return this.patterns[this.current++];
+}
+
+protected boolean hasNextQuery() {
+	return this.current < (this.patterns.length-1);
+}
+
+protected void resetQuery() {
+	this.current = 0;
+}
+
 }

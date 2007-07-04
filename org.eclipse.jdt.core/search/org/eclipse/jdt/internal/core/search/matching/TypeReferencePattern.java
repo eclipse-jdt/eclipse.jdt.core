@@ -15,7 +15,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.util.Util;
 
-	public class TypeReferencePattern extends AndPattern {
+	public class TypeReferencePattern extends IntersectingPattern {
 	
 	protected char[] qualification;
 	protected char[] simpleName;

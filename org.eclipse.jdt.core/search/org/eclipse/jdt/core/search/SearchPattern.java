@@ -432,9 +432,10 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
  * @param leftPattern the left pattern
  * @param rightPattern the right pattern
  * @return an "and" pattern
+ * @deprecated This functionality is not fully supported yet. This might be done in a further version...
  */
 public static SearchPattern createAndPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
-	return MatchLocator.createAndPattern(leftPattern, rightPattern);
+	return new AndPattern(leftPattern, rightPattern);
 }
 
 /**

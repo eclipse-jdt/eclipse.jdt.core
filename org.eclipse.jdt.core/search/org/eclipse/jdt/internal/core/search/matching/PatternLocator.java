@@ -84,6 +84,8 @@ public static PatternLocator patternLocator(SearchPattern pattern) {
 			return new MethodLocator((MethodPattern) pattern);
 		case IIndexConstants.OR_PATTERN :
 			return new OrLocator((OrPattern) pattern);
+		case IIndexConstants.AND_PATTERN :
+			return new AndLocator((AndPattern) pattern);
 		case IIndexConstants.LOCAL_VAR_PATTERN :
 			return new LocalVariableLocator((LocalVariablePattern) pattern);
 		case IIndexConstants.TYPE_PARAM_PATTERN:

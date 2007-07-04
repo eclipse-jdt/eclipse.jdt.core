@@ -299,25 +299,6 @@ public static ClassFileReader classFileReader(IType type) {
 	return null;
 }
 
-public static SearchPattern createAndPattern(final SearchPattern leftPattern, final SearchPattern rightPattern) {
-	return new AndPattern(0/*no kind*/, 0/*no rule*/) {
-		SearchPattern current = leftPattern;
-		public SearchPattern currentPattern() {
-			return this.current;
-		}
-		protected boolean hasNextQuery() {
-			if (this.current == leftPattern) {
-				this.current = rightPattern;
-				return true;
-			}
-			return false; 
-		}
-		protected void resetQuery() {
-			this.current = leftPattern;
-		}
-	};
-}
-
 /**
  * Query a given index for matching entries. Assumes the sender has opened the index and will close when finished.
  */
@@ -344,7 +325,7 @@ public MatchLocator(
 		
 	this.pattern = pattern;
 	this.patternLocator = PatternLocator.patternLocator(this.pattern);
-	this.matchContainer = this.patternLocator.matchContainer();
+	this.matchContainer = this.patternLocator == null ? 0 : this.patternLocator.matchContainer();
 	this.requestor = requestor;
 	this.scope = scope;
 	this.progressMonitor = progressMonitor;
@@ -1084,6 +1065,7 @@ protected void locateMatches(JavaProject javaProject, PossibleMatchSet matchSet,
  * Locate the matches in the given files and report them using the search requestor. 
  */
 public void locateMatches(SearchDocument[] searchDocuments) throws CoreException {
+	if (this.patternLocator == null) return;
 	int docsLength = searchDocuments.length;
 	if (BasicSearchEngine.VERBOSE) {
 		System.out.println("Locating matches in documents ["); //$NON-NLS-1$
@@ -1609,6 +1591,12 @@ public SearchParticipant getParticipant() {
 }
 
 protected void report(SearchMatch match) throws CoreException {
+	if (match == null) {
+		if (BasicSearchEngine.VERBOSE) {
+			System.out.println("Cannot report a null match!!!"); //$NON-NLS-1$
+		}
+		return;
+	}
 	long start = -1;
 	if (BasicSearchEngine.VERBOSE) {
 		start = System.currentTimeMillis();
