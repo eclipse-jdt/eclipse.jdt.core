@@ -563,12 +563,36 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		TypeBinding[] annotationTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			Annotation annotation = annotations[i];
-			annotation.recipient = recipient;
-			annotationTypes[i] = annotation.resolveType(scope);
-
-			// null if receiver is a package binding
-			if (instances != null)
-				instances[i] = annotation.getCompilerAnnotation();
+			final Binding annotationRecipient = annotation.recipient;
+			if (annotationRecipient != null && recipient != null) {
+				// only local and field can share annnotations
+				switch (recipient.kind()) {
+					case Binding.FIELD :
+						FieldBinding field = (FieldBinding) recipient;
+						field.tagBits = ((FieldBinding) annotationRecipient).tagBits;
+						break;
+					case Binding.LOCAL :
+						LocalVariableBinding local = (LocalVariableBinding) recipient;
+						local.tagBits = ((LocalVariableBinding) annotationRecipient).tagBits;
+						break;
+				}
+				if (instances != null) {
+					// need to fill the instances array
+					instances[0] = annotation.getCompilerAnnotation();
+					for (int j = 1; j < length; j++) {
+						Annotation annot = annotations[j];
+						instances[j] = annot.getCompilerAnnotation();
+					}
+				}
+				return;
+			} else {
+				annotation.recipient = recipient;
+				annotationTypes[i] = annotation.resolveType(scope);
+				// null if receiver is a package binding
+				if (instances != null) {
+					instances[i] = annotation.getCompilerAnnotation();
+				}
+			}
 		}
 		// check duplicate annotations
 		for (int i = 0; i < length; i++) {
