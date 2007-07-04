@@ -1579,12 +1579,16 @@ protected void consumeBinaryExpression(int op) {
 			// look for "string1" + "string2"
 			if (this.optimizeStringLiterals) {
 				if (expr1 instanceof StringLiteral) {
-					if (expr2 instanceof CharLiteral) { // string+char
-						this.expressionStack[this.expressionPtr] = 
-							((StringLiteral) expr1).extendWith((CharLiteral) expr2); 
-					} else if (expr2 instanceof StringLiteral) { //string+string
-						this.expressionStack[this.expressionPtr] = 
-							((StringLiteral) expr1).extendWith((StringLiteral) expr2); 
+					if (((expr1.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) {
+						if (expr2 instanceof CharLiteral) { // string+char
+							this.expressionStack[this.expressionPtr] = 
+								((StringLiteral) expr1).extendWith((CharLiteral) expr2); 
+						} else if (expr2 instanceof StringLiteral) { //string+string
+							this.expressionStack[this.expressionPtr] = 
+								((StringLiteral) expr1).extendWith((StringLiteral) expr2); 
+						} else {
+							this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
+						}
 					} else {
 						this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
 					}
@@ -1609,7 +1613,7 @@ protected void consumeBinaryExpression(int op) {
 					cursor.right = expr2;
 					cursor.sourceEnd = expr2.sourceEnd;
 					this.expressionStack[this.expressionPtr] = cursor;
-					// BE_INSTRUMENTATION: neutralized in the released code					
+					// BE_INSTRUMENTATION: neutralized in the released code
 //					cursor.depthTracker = ((BinaryExpression)cursor.left).
 //						depthTracker + 1;					
 				} else if (expr1 instanceof BinaryExpression &&
@@ -1626,7 +1630,8 @@ protected void consumeBinaryExpression(int op) {
 						new BinaryExpression(expr1, expr2, PLUS);
 				}
 			} else if (expr1 instanceof StringLiteral) {
-				if (expr2 instanceof StringLiteral) {
+				if (expr2 instanceof StringLiteral
+						&& ((expr1.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) {
 					// string + string
 					this.expressionStack[this.expressionPtr] = 
 						((StringLiteral) expr1).extendsWith((StringLiteral) expr2); 
@@ -1651,7 +1656,7 @@ protected void consumeBinaryExpression(int op) {
 					}
 					cursor.right = expr2;
 					cursor.sourceEnd = expr2.sourceEnd;
-					// BE_INSTRUMENTATION: neutralized in the released code					
+					// BE_INSTRUMENTATION: neutralized in the released code
 //					cursor.depthTracker = ((BinaryExpression)cursor.left).
 //						depthTracker + 1;
 					this.expressionStack[this.expressionPtr] = cursor;
@@ -1754,7 +1759,8 @@ protected void consumeBinaryExpressionWithName(int op) {
 		case PLUS :
 			// look for "string1" + "string2"
 			if (this.optimizeStringLiterals) {
-				if (expr1 instanceof StringLiteral) {
+				if (expr1 instanceof StringLiteral
+						&& ((expr1.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) {
 					if (expr2 instanceof CharLiteral) { // string+char
 						this.expressionStack[this.expressionPtr] = 
 							((StringLiteral) expr1).extendWith((CharLiteral) expr2); 
@@ -1768,7 +1774,8 @@ protected void consumeBinaryExpressionWithName(int op) {
 					this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
 				}
 			} else if (expr1 instanceof StringLiteral) {
-				if (expr2 instanceof StringLiteral) {
+				if (expr2 instanceof StringLiteral
+						&& ((expr1.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) {
 					// string + string
 					this.expressionStack[this.expressionPtr] = 
 						((StringLiteral) expr1).extendsWith((StringLiteral) expr2); 

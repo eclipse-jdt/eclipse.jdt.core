@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
@@ -76,6 +77,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
@@ -117,7 +119,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 670, -1 };
-//		TESTS_NUMBERS =  new int[] { 677 };
+//		TESTS_NUMBERS =  new int[] { 679 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -9224,5 +9226,100 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		IVariableBinding[] fields = superclass.getDeclaredFields();
 		assertNotNull("No fields", fields);
 		assertTrue("Empty", fields.length != 0);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=193979
+	 */
+	public void test0678() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	public String foo() {\n" + 
+				"		return((true ? \"\" : (\"Hello\" + \" World\") + \"!\"));\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, node.getNodeType());
+			ReturnStatement returnStatement = (ReturnStatement) node;
+			Expression expression = returnStatement.getExpression();
+			assertNotNull("No expression", expression);
+			assertEquals("Not a parenthesized expression", ASTNode.PARENTHESIZED_EXPRESSION, expression.getNodeType());
+			expression = ((ParenthesizedExpression) expression).getExpression();
+			assertEquals("Not a parenthesized expression", ASTNode.PARENTHESIZED_EXPRESSION, expression.getNodeType());
+			expression = ((ParenthesizedExpression) expression).getExpression();
+			assertEquals("Not a conditional expression", ASTNode.CONDITIONAL_EXPRESSION, expression.getNodeType());
+			ConditionalExpression conditionalExpression = (ConditionalExpression) expression;
+			final Expression elseExpression = conditionalExpression.getElseExpression();
+			assertEquals("Not an infix expression", ASTNode.INFIX_EXPRESSION, elseExpression.getNodeType());
+			InfixExpression infixExpression = (InfixExpression) elseExpression;
+			List extendedOperands = infixExpression.extendedOperands();
+			assertEquals("wrong size", 0, extendedOperands.size());
+			Expression leftOperand = infixExpression.getLeftOperand();
+			assertEquals("Not a parenthesized expression", ASTNode.PARENTHESIZED_EXPRESSION, leftOperand.getNodeType());
+			ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) leftOperand;
+			assertEquals("Not an infix expression", ASTNode.INFIX_EXPRESSION, parenthesizedExpression.getExpression().getNodeType());
+			Expression rightOperand = infixExpression.getRightOperand();
+			assertEquals("Not a string literal", ASTNode.STRING_LITERAL, rightOperand.getNodeType());
+			StringLiteral stringLiteral = (StringLiteral) rightOperand;
+			assertEquals("wrong value", "!", stringLiteral.getLiteralValue());
+			infixExpression = (InfixExpression) parenthesizedExpression.getExpression();
+			leftOperand = infixExpression.getLeftOperand();
+			assertEquals("Not a string literal", ASTNode.STRING_LITERAL, leftOperand.getNodeType());
+			stringLiteral = (StringLiteral) leftOperand;
+			assertEquals("wrong value", "Hello", stringLiteral.getLiteralValue());
+			rightOperand = infixExpression.getRightOperand();
+			assertEquals("Not a string literal", ASTNode.STRING_LITERAL, rightOperand.getNodeType());
+			stringLiteral = (StringLiteral) rightOperand;
+			assertEquals("wrong value", " World", stringLiteral.getLiteralValue());
+			assertEquals("Wrong size", 0, infixExpression.extendedOperands().size());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=169745
+	 */
+	public void _test0679() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	int i = 1 - 2 + 3 + 4 + 5;\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0);
+			assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			final List fragments = fieldDeclaration.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			final Expression initializer = fragment.getInitializer();
+			assertEquals("Not an infix expression", ASTNode.INFIX_EXPRESSION, initializer.getNodeType());
+			InfixExpression infixExpression = (InfixExpression) initializer;
+			final Expression leftOperand = infixExpression.getLeftOperand();
+			assertEquals("Not a number literal", ASTNode.NUMBER_LITERAL, leftOperand.getNodeType());
+			NumberLiteral literal = (NumberLiteral) leftOperand;
+			assertEquals("Wrong value", "1", literal.getToken());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }
