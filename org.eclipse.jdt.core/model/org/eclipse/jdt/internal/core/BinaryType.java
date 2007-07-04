@@ -931,7 +931,8 @@ public String sourceFileName(IBinaryType info) {
 			return getElementName() + Util.defaultJavaExtension();
 		}
 	} else {
-		return  new String(sourceFileName);
+		int index = CharOperation.lastIndexOf('/', sourceFileName);
+		return new String(sourceFileName, index + 1, sourceFileName.length - index - 1);
 	}
 }
 /*
