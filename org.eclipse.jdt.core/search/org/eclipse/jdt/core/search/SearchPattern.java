@@ -432,7 +432,9 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
  * @param leftPattern the left pattern
  * @param rightPattern the right pattern
  * @return an "and" pattern
- * @deprecated This functionality is not fully supported yet. This might be done in a further version...
+ * @deprecated Unfortunately, this functionality is not fully supported yet
+ * 	(see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=142044" for more details).
+ * 	This might be done in a further version...
  */
 public static SearchPattern createAndPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	return new AndPattern(leftPattern, rightPattern);

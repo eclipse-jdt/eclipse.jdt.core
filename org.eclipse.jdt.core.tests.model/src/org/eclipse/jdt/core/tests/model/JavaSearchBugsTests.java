@@ -6815,6 +6815,7 @@ public void testBug140156() throws CoreException {
  * @bug 142044: [search] "And" Pattern fails with NullPointerException
  * @test Verify that no NPE occurs while using a {@link AndPattern}
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=142044"
+ * @deprecated As using deprecated method
  */
 /* Bug test case:
 	Following test does not produce any result due to the fact that each type reference
@@ -6829,6 +6830,9 @@ public void testBug142044() throws CoreException {
 	search(SearchPattern.createAndPattern(leftPattern, rightPattern), getJavaSearchScopeBugs(), this.resultCollector);
 	assertSearchResults("");
 }
+/**
+ * @deprecated As using deprecated method
+ */
 public void testBug142044_Identical() throws CoreException {
 	IType type1 = getCompilationUnit("JavaSearchBugs", "src", "b142044", "I142044_A.java").getType("I142044_A");
 	SearchPattern leftPattern = SearchPattern.createPattern(type1, IMPLEMENTORS);
@@ -6842,6 +6846,9 @@ public void testBug142044_Identical() throws CoreException {
 		"src/b142044/X142044_AB.java b142044.X142044_AB [I142044_A] EXACT_MATCH"
 	);
 }
+/**
+ * @deprecated As using deprecated method
+ */
 public void testBug142044_And01() throws CoreException {
 	SearchPattern leftPattern = createPattern("X*", CLASS, DECLARATIONS, true);
 	IType iType = getCompilationUnit("JavaSearchBugs", "src", "b142044", "I142044_A.java").getType("I142044_A");
@@ -6849,6 +6856,9 @@ public void testBug142044_And01() throws CoreException {
 	search(SearchPattern.createAndPattern(leftPattern, rightPattern), getJavaSearchScopeBugs(), this.resultCollector);
 	assertSearchResults(""); // currently no results as only same kind of pattern are ANDoable...
 }
+/**
+ * @deprecated As using deprecated method
+ */
 public void testBug142044_And02() throws CoreException {
 	IType type1 = getCompilationUnit("JavaSearchBugs", "src", "b142044", "I142044_A.java").getType("I142044_A");
 	SearchPattern leftPattern = SearchPattern.createPattern(type1, IMPLEMENTORS);
@@ -6861,6 +6871,9 @@ public void testBug142044_And02() throws CoreException {
 		"src/b142044/X142044_AB.java b142044.X142044_AB [I142044_A] EXACT_MATCH"
 	);
 }
+/**
+ * @deprecated As using deprecated method
+ */
 public void testBug142044_Or() throws CoreException {
 	IType type1 = getCompilationUnit("JavaSearchBugs", "src", "b142044", "I142044_A.java").getType("I142044_A");
 	SearchPattern leftPattern = SearchPattern.createPattern(type1, IMPLEMENTORS);
