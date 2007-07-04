@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -109,6 +110,13 @@ protected void executeOperation() throws JavaModelException {
 	} finally {
 		done();
 	}
+}
+protected ISchedulingRule getSchedulingRule() {
+	if (this.pkgName.length == 0)
+		return null; // no resource is going to be created
+	IResource parentResource = getParentElement().getResource();
+	IResource resource = ((IContainer) parentResource).getFolder(new Path(this.pkgName[0]));
+	return resource.getWorkspace().getRuleFactory().createRule(resource);
 }
 /**
  * Possible failures: <ul>

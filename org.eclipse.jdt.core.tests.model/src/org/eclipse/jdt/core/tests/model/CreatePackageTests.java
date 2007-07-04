@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 
 import junit.framework.Test;
@@ -92,6 +95,21 @@ public void testCreatePackageFragment4() throws JavaModelException {
 	IPackageFragment frag= root.createPackageFragment("A", false, null);
 	assertCreation(frag);
 	assertTrue("Fragment return not correct", frag.getElementName().equals("A"));
+}
+/*
+ * Ensures that a package fragment can be created inside an operation with a
+ * package fragment root scheduling rule.
+ * (regression test for 95288 [model] CreatePackageFragmentOperation runs with wrong ISchedulingRule)
+ */
+public void testCreatePackageFragment5() throws CoreException {
+	IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
+		public void run(IProgressMonitor monitor) throws CoreException {
+			IPackageFragmentRoot root= getPackageFragmentRoot("P", "");
+			IPackageFragment frag= root.createPackageFragment("p", false, monitor);
+			assertCreation(frag);
+		}
+	};
+	getWorkspace().run(runnable, getProject("P"), IResource.NONE, null);
 }
 /**
  * Ensures that a package fragment that already exists is not duplicated in the package
