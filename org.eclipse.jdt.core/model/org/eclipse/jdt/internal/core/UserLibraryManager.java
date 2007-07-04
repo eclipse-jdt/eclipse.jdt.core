@@ -41,7 +41,8 @@ public class UserLibraryManager {
 	public final static String CP_USERLIBRARY_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".userLibrary."; //$NON-NLS-1$
 	public final static String CP_ENTRY_IGNORE = "##<cp entry ignore>##"; //$NON-NLS-1$
 
-	private static Map userLibraries;
+	private static Map UserLibraries;
+	private static ThreadLocal InitializingLibraries = new ThreadLocal();
 	private static final boolean logProblems= false;
 	private static IEclipsePreferences.IPreferenceChangeListener listener= new IEclipsePreferences.IPreferenceChangeListener() {
 
@@ -122,32 +123,40 @@ public class UserLibraryManager {
 	}
 	
 	static Map getLibraryMap() {
-		if (userLibraries == null) {
-			userLibraries= new HashMap();
-			// load variables and containers from preferences into cache
-			IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
-			instancePreferences.addPreferenceChangeListener(listener);
-
-			// only get variable from preferences not set to their default
+		if (UserLibraries == null) {
+			HashMap libraries = (HashMap) InitializingLibraries.get();
+			if (libraries != null)
+				return libraries;
 			try {
-				String[] propertyNames = instancePreferences.keys();
-				for (int i = 0; i < propertyNames.length; i++) {
-					String propertyName = propertyNames[i];
-					if (propertyName.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
-						try {
-							String propertyValue = instancePreferences.get(propertyName, null);
-							if (propertyValue != null)
-								recreatePersistedUserLibraryEntry(propertyName,propertyValue, false, false);
-						} catch (JavaModelException e) {
-							// won't happen: no rebinding
+				InitializingLibraries.set(libraries = new HashMap());
+				// load variables and containers from preferences into cache
+				IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
+				instancePreferences.addPreferenceChangeListener(listener);
+	
+				// only get variable from preferences not set to their default
+				try {
+					String[] propertyNames = instancePreferences.keys();
+					for (int i = 0; i < propertyNames.length; i++) {
+						String propertyName = propertyNames[i];
+						if (propertyName.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
+							try {
+								String propertyValue = instancePreferences.get(propertyName, null);
+								if (propertyValue != null)
+									recreatePersistedUserLibraryEntry(propertyName,propertyValue, false, false);
+							} catch (JavaModelException e) {
+								// won't happen: no rebinding
+							}
 						}
 					}
+				} catch (BackingStoreException e) {
+					// nothing to do in this case
 				}
-			} catch (BackingStoreException e) {
-				// nothing to do in this case
+				UserLibraries = libraries;
+			} finally {
+				InitializingLibraries.set(null);
 			}
 		}
-		return userLibraries;
+		return UserLibraries;
 	}
 	
 	static void recreatePersistedUserLibraryEntry(String propertyName, String savedString, boolean save, boolean rebind) throws JavaModelException {
