@@ -3600,12 +3600,12 @@ public void test0136() throws JavaModelException {
 				"RED");
 		
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={Ltest0136.Colors;}\n" +
+				"expectedTypesKeys={Ltest0136/Colors;}",
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0136.Colors;, Ltest0136.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0136.Colors;, Ltest0136.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -3639,12 +3639,12 @@ public void test0137() throws JavaModelException {
 				"RED");
 		
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={Ltest0137.Colors;}\n" +
+				"expectedTypesKeys={Ltest0137/Colors;}",
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0137.Colors;, Ltest0137.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0137.Colors;, Ltest0137.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -3679,12 +3679,12 @@ public void test0138() throws JavaModelException {
 				"RED");
 		
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={Ltest0138.Colors;}\n" +
+				"expectedTypesKeys={Ltest0138/Colors;}",
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0138.Colors;, Ltest0138.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0138.Colors;, Ltest0138.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -3718,12 +3718,12 @@ public void test0139() throws JavaModelException {
 				"RED");
 		
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={Ltest0139.Colors;}\n" +
+				"expectedTypesKeys={Ltest0139/Colors;}",
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0139.Colors;, Ltest0139.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0139.Colors;, Ltest0139.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -3757,12 +3757,12 @@ public void test0140() throws JavaModelException {
 				"RED");
 		
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={Ltest0140.Colors;}\n" +
+				"expectedTypesKeys={Ltest0140/Colors;}",
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0140.Colors;, Ltest0140.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0140.Colors;, Ltest0140.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -3797,8 +3797,8 @@ public void test0141() throws JavaModelException {
 				"RED");
 		
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={Ltest0141.Colors;}\n" +
+				"expectedTypesKeys={Ltest0141/Colors;}",
 				result.context);
 		
 		assertResults(
@@ -3839,12 +3839,12 @@ public void test0142() throws JavaModelException {
 				"RED");
 		
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={Ltest0142.Colors;}\n" +
+				"expectedTypesKeys={Ltest0142/Colors;}",
 				result.context);
 		
 		assertResults(
-				"RED[FIELD_REF]{RED, Ltest0142.Colors;, Ltest0142.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
+				"RED[FIELD_REF]{RED, Ltest0142.Colors;, Ltest0142.Colors;, RED, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ENUM_CONSTANT) + "}",
 				result.proposals);
 	} finally {
 		if(enumeration != null) {
@@ -6717,13 +6717,13 @@ public void test0208() throws JavaModelException {
 	    
 	
 	    assertResults(
-	            "expectedTypesSignatures=null\n" +
-	            "expectedTypesKeys=null",
+	            "expectedTypesSignatures={Lp.Colors;}\n" +
+	            "expectedTypesKeys={Lp/Colors;}",
 	            result.context);
 	    
 	    assertResults(
-	            "BLACK[FIELD_REF]{BLACK, Lp.Colors;, Lp.Colors;, BLACK, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ENUM + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"WHITE[FIELD_REF]{WHITE, Lp.Colors;, Lp.Colors;, WHITE, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ENUM + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+	            "BLACK[FIELD_REF]{BLACK, Lp.Colors;, Lp.Colors;, BLACK, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_ENUM + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"WHITE[FIELD_REF]{WHITE, Lp.Colors;, Lp.Colors;, WHITE, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_ENUM + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 	            result.proposals);
 	} finally {
 		if(aType != null) {
@@ -8253,9 +8253,9 @@ public void test0265() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"bar[FIELD_REF]{bar, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
-			"baz[FIELD_REF]{baz, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, baz, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
-			"foo[FIELD_REF]{foo, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+			"bar[FIELD_REF]{bar, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, bar, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
+			"baz[FIELD_REF]{baz, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, baz, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
+			"foo[FIELD_REF]{foo, Lenumbug.EnumBug$Foo;, Lenumbug.EnumBug$Foo;, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128169

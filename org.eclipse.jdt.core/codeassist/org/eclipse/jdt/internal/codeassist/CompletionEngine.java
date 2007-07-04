@@ -8121,6 +8121,12 @@ public final class CompletionEngine
 					this.expectedTypesFilter = SUPERTYPE;
 				}
 			}
+		} else if (parent instanceof SwitchStatement) {
+			SwitchStatement switchStatement = (SwitchStatement) parent;
+			if (switchStatement.expression != null &&
+					switchStatement.expression.resolvedType != null) {
+				addExpectedType(switchStatement.expression.resolvedType, scope);
+			}
 			
 		// Expected types for javadoc
 		} else if (parent instanceof Javadoc) {
