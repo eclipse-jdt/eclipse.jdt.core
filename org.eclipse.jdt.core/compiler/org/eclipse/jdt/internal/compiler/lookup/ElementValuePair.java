@@ -16,8 +16,8 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 public class ElementValuePair {
 	char[] name;
-	Object value;
-	MethodBinding binding;
+	public Object value;
+	public MethodBinding binding;
 
 public static Object getValue(Expression expression) {
 	if (expression == null)

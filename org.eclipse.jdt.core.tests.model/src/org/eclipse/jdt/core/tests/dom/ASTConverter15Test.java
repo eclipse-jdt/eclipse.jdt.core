@@ -9156,4 +9156,44 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		annotations = binding.getAnnotations();
 		assertEquals("Wrong size", 1, annotations.length);
 	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=192774
+	//Test ability to distinguish AST nodes of multiple similar annotations.
+	public void test0276() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"@interface Annot {\n" +
+			"  public int value();\n" +
+			"}\n" +
+			"\n" + 
+			"public class X {\n" +
+			"  @Annot(1) String foo1() { return null; }\n" +
+			"  @Annot(1) String foo2() { return null; }\n" +
+			"}";
+		this.workingCopy.getBuffer().setContents(contents);
+		
+		class CompilationUnitRequestor extends ASTRequestor {
+			public void acceptAST(ICompilationUnit source, CompilationUnit node) {
+				MethodDeclaration methodDeclaration = (MethodDeclaration)getASTNode(node, 1, 0);
+				IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+				IAnnotationBinding annoBinding = methodBinding.getAnnotations()[0];
+				ASTNode annoNode = node.findDeclaringNode(annoBinding);
+				int position1 = annoNode.getStartPosition();
+
+				methodDeclaration = (MethodDeclaration)getASTNode(node, 1, 1);
+				methodBinding = methodDeclaration.resolveBinding();
+				IAnnotationBinding annoBinding2 = methodBinding.getAnnotations()[0];
+				annoNode = node.findDeclaringNode(annoBinding2);
+				int position2 = annoNode.getStartPosition();
+				assertTrue("Anno 2 position <= anno 1 position", position2 > position1);
+			}
+		}
+
+		CompilationUnitRequestor requestor = new CompilationUnitRequestor();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(this.getJavaProject("Converter15"));
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.createASTs(new ICompilationUnit[]{this.workingCopy}, new String[0], requestor, null);
+	}	
 }

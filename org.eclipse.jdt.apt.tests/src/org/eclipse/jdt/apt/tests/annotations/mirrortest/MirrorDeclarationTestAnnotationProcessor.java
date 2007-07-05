@@ -25,6 +25,7 @@
 package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
@@ -159,14 +160,21 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		ProcessorTestStatus.assertTrue("constructor with one (int) arg", constructIntArg != null);
 		
 		Collection<MethodDeclaration> methodDecls = testClassDec.getMethods();
-		ProcessorTestStatus.assertEquals("Number of methods", 2, methodDecls.size());
+		ProcessorTestStatus.assertEquals("Number of methods", 5, methodDecls.size());
 
+		HashSet<AnnotationMirror> annotationMirrors = new HashSet<AnnotationMirror>();
+		for (MethodDeclaration methodDeclaration : methodDecls) {
+			Collection<AnnotationMirror> mirrors = methodDeclaration.getAnnotationMirrors();
+			annotationMirrors.addAll(mirrors);
+		}
+		ProcessorTestStatus.assertEquals("Wrong size for annotation mirrors", 3, annotationMirrors.size());
+		
 		MethodDeclaration methodDecl = null;
 		methodDecl = methodDecls.iterator().next();
 		ProcessorTestStatus.assertTrue("method declaration exists", methodDecl != null);
 		
 		ClassType superClass = testClassDec.getSuperclass();
-		ProcessorTestStatus.assertEquals("Object is only super", "java.lang.Object", superClass.toString());	
+		ProcessorTestStatus.assertEquals("Object is only super", "java.lang.Object", superClass.toString());
 	}
 	
 	/**

@@ -452,13 +452,40 @@ public class ElementUtilsProc extends BaseProcessor
 		nameToDoc.put("F", " Javadoc on element F\n @param <T1> a type parameter\n");
 		nameToDoc.put("FChild", " Javadoc on nested element FChild\n");
 		nameToDoc.put("FEnum", " Javadoc on nested enum FEnum\n Two lines long\n");
-		nameToDoc.put("FChildI", " Javadoc on nested interface FChildI\n");
+		nameToDoc.put("FChildI", 
+				" Javadoc on nested interface FChildI\n" +
+				"\tthis line has tab after asterisk and ends with another tab\t\n" +
+				"\tthis one too\t\n" +
+				"   this line has three spaces after asterisk and ends with three spaces   \n" +
+				" this line has only one space before the asterisk\n");
 		nameToDoc.put("_fieldT1_protected", "Javadoc on field _fieldT1_protected, inline format ");
+		nameToDoc.put("_fieldT1_private", 
+				"\n" +
+				" Javadoc on _fieldT1_private\n" +
+				"  this line starts with two spaces, no asterisk\n" +
+				"        This line starts, contains\tand ends with a tab\t\n" +
+				"                 This line starts with a space, tab, space, tab, space\n");
 		nameToDoc.put("fieldInt", null);
 		nameToDoc.put("method_T1", " Javadoc on F.method_T1\n");
 		nameToDoc.put("method_String", null);
+		nameToDoc.put("getAnonymousObjectAbstract", "");
+		nameToDoc.put("add", "\n	@add(int)\n");
+		nameToDoc.put("foo", "\n Creates a new instance of AllChecks \n");
+		nameToDoc.put("bar", " @bar\t(int)\n");
+		nameToDoc.put("bar2", "\t@bar2(int)\n");
+		nameToDoc.put("m", "                Method\tm\n");
+		nameToDoc.put("m1", "This is a comment for the method m1,\n" + 
+				"  it is on two lines\n");
+		nameToDoc.put("m2", "Another comment - starts on first line and\n" + 
+				"    continue on the second line ");
+		nameToDoc.put("m3", " One more test case that.\n" + 
+				" needs\n" + 
+				" to be verified.\n" + 
+				"\n" + 
+				" An empty line with no spaces need to be seen as an empty line.\n" + 
+				"\n" + 
+				" End of the comment.\n");
 
-		
 		String actual = _elementUtils.getDocComment(_elementF);
 		String expected = nameToDoc.get("F");
 		if (!expected.equals(actual)) {
@@ -471,12 +498,12 @@ public class ElementUtilsProc extends BaseProcessor
 				actual = _elementUtils.getDocComment(e);
 				expected = nameToDoc.get(name);
 				if (expected == null && actual != null) {
-					reportError("examineGetDocComment: Expected getDocComment(" + name + ") to return null, but got " + actual);
+					reportError("examineGetDocComment: Expected getDocComment(" + name + ") to return null, but got " + _elementUtils.getDocComment(e));
 					return false;
 				}
 				else if (expected != null) {
 					if (!expected.equals(actual)) {
-						reportError("examineGetDocComment: Unexpected result from getDocComment(" + name + "): " + actual);
+						reportError("examineGetDocComment: Unexpected result from getDocComment(" + name + "): " + _elementUtils.getDocComment(e));
 						return false;
 					}
 				}

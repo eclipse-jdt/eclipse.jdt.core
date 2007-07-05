@@ -56,9 +56,40 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 			if (this._binding == null) {
 				return ((AnnotationMirrorImpl) obj)._binding == null;
 			}
-			return this._binding.equals(((AnnotationMirrorImpl) obj)._binding);
+			return equals(this._binding, ((AnnotationMirrorImpl) obj)._binding);
 		}
 		return false;
+	}
+
+	private static boolean equals(AnnotationBinding annotationBinding, AnnotationBinding annotationBinding2) {
+		if (annotationBinding.getAnnotationType() != annotationBinding2.getAnnotationType()) return false;
+		final ElementValuePair[] elementValuePairs = annotationBinding.getElementValuePairs();
+		final ElementValuePair[] elementValuePairs2 = annotationBinding2.getElementValuePairs();
+		final int length = elementValuePairs.length;
+		if (length != elementValuePairs2.length) return false;
+		loop: for (int i = 0; i < length; i++) {
+			ElementValuePair pair = elementValuePairs[i];
+			// loop on the given pair to make sure one will match
+			for (int j = 0; j < length; j++) {
+				ElementValuePair pair2 = elementValuePairs2[j];
+				if (pair.binding == pair2.binding) {
+					if (pair.value == null) {
+						if (pair2.value == null) {
+							continue loop;
+						}
+						return false;
+					} else {
+						if (pair2.value == null
+								|| !pair2.value.equals(pair.value)) {
+							return false;
+						}
+					}
+					continue loop;
+				}
+			}
+			return false;
+		}
+		return true;
 	}
 
 	public DeclaredType getAnnotationType() {

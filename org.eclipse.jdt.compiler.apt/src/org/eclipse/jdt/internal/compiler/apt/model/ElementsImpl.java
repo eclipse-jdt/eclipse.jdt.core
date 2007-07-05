@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2007 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -61,13 +61,10 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 public class ElementsImpl implements Elements {
 
 	// Used for parsing Javadoc comments: matches initial delimiter, followed by whitespace
-	private static final Pattern INITIAL_DELIMITER = Pattern.compile("^\\s*/\\*\\*\\s*"); //$NON-NLS-1$
-	// Used for parsing Javadoc comments: matches initial whitespace followed by one or more stars
-	private static final Pattern INITIAL_WHITESPACE_STARS = Pattern.compile("^\\s*\\*+"); //$NON-NLS-1$
+	private static final Pattern INITIAL_DELIMITER = Pattern.compile("^\\s*/\\*+"); //$NON-NLS-1$
 
-	
 	private final BaseProcessingEnvImpl _env;
-	
+
 	/*
 	 * The processing env creates and caches an ElementsImpl.  Other clients should
 	 * not create their own; they should ask the env for it.
@@ -93,7 +90,7 @@ public class ElementsImpl implements Elements {
 			while (null != binding) {
 				for (AnnotationBinding annotation : binding.getAnnotations()) {
 					if (annotation == null) continue;
-					ReferenceBinding annotationType = annotation.getAnnotationType(); 
+					ReferenceBinding annotationType = annotation.getAnnotationType();
 					if (!annotationTypes.contains(annotationType)) {
 						annotationTypes.add(annotationType);
 						annotations.add(annotation);
@@ -116,14 +113,14 @@ public class ElementsImpl implements Elements {
 	 * Compute a list of all the visible entities in this type.  Specifically:
 	 * <ul>
 	 * <li>All nested types declared in this type, including interfaces and enums</li>
-	 * <li>All protected or public nested types declared in this type's superclasses 
+	 * <li>All protected or public nested types declared in this type's superclasses
 	 * and superinterfaces, that are not hidden by a name collision</li>
 	 * <li>All methods declared in this type, including constructors but not
 	 * including static or instance initializers, and including abstract
 	 * methods and unimplemented methods declared in interfaces</li>
 	 * <li>All protected or public methods declared in this type's superclasses,
 	 * that are not overridden by another method, but not including constructors
-	 * or initializers.  Includes abstract methods and methods declared in 
+	 * or initializers. Includes abstract methods and methods declared in
 	 * superinterfaces but not implemented</li>
 	 * <li>All fields declared in this type, including constants</li>
 	 * <li>All non-private fields declared in this type's superclasses and
@@ -169,7 +166,7 @@ public class ElementsImpl implements Elements {
 		}
 		return allMembers;
 	}
-	
+
 	/**
 	 * Recursively depth-first walk the tree of superinterfaces of a type, collecting
 	 * all the unique superinterface bindings.  (Note that because of generics, a type may
@@ -178,7 +175,7 @@ public class ElementsImpl implements Elements {
 	 * @param existing bindings already in this set will not be re-added or recursed into
 	 * @param newfound newly found bindings will be added to this set
 	 */
-	private void collectSuperInterfaces(ReferenceBinding type, 
+	private void collectSuperInterfaces(ReferenceBinding type,
 			Set<ReferenceBinding> existing, Set<ReferenceBinding> newfound) {
 		for (ReferenceBinding superinterface : type.superInterfaces()) {
 			if (!existing.contains(superinterface) && !newfound.contains(superinterface)) {
@@ -190,7 +187,7 @@ public class ElementsImpl implements Elements {
 
 	/**
 	 * Add the members of a type to the maps of subtypes, fields, and methods.  Add only those
-	 * which are non-private and which are not overridden by an already-discovered member. 
+	 * which are non-private and which are not overridden by an already-discovered member.
 	 * For fields, add them all; javac implementation does not take field hiding into account.
 	 * @param binding the type whose members will be added to the lists
 	 * @param ignoreVisibility if true, all members will be added regardless of whether they
@@ -222,7 +219,7 @@ public class ElementsImpl implements Elements {
 				if (null == sameNamedMethods) {
 					// New method name.  Create a set for it and add it to the list.
 					// We don't expect many methods with same name, so only 4 slots:
-					sameNamedMethods = new HashSet<MethodBinding>(4); 
+					sameNamedMethods = new HashSet<MethodBinding>(4);
 					methods.put(methodName, sameNamedMethods);
 					sameNamedMethods.add(method);
 				}
@@ -359,7 +356,7 @@ public class ElementsImpl implements Elements {
 	/**
 	 * Strip the comment characters from a javadoc comment. Assume the comment is already
 	 * missing its closing delimiter.
-	 * 
+	 *
 	 * We mainly do not attempt to emulate the baroque behavior of javac with respect to
 	 * treatment of whitespace. The rules here are simpler: eliminate the opening and
 	 * closing delimiter, and eliminate [whitespace plus stars] at the beginning of each
@@ -369,12 +366,12 @@ public class ElementsImpl implements Elements {
 	 * after the delimiter, but no non-whitespace chars, then delete the whitespace but
 	 * preserve the newline; and so forth.
 	 */
-	public static String formatJavadoc(char[] unparsed)
+	private static String formatJavadoc(char[] unparsed)
 	{
 		if (unparsed == null || unparsed.length < 5) { // delimiters take 5 chars
 			return null;
 		}
-		
+
 		String[] lines = new String(unparsed).split("\n"); //$NON-NLS-1$
 		Matcher delimiterMatcher = INITIAL_DELIMITER.matcher(lines[0]);
 		if (!delimiterMatcher.find()) {
@@ -384,44 +381,129 @@ public class ElementsImpl implements Elements {
 		lines[0] = lines[0].substring(iOpener);
 		if (lines.length == 1) {
 			// single-line comment.  Should trim(), but javac doesn't.
-			return lines[0];
-		}
-		
-		int firstLine = lines[0].trim().length() > 0 ? 0 : 1;
-		
-		// for each line after the first, including the last, if it starts with whitespace
-		// followed by stars, skip all that. 
-		for (int line = 1; line < lines.length; ++line) {
-			Matcher whitespaceMatcher = INITIAL_WHITESPACE_STARS.matcher(lines[line]);
-			if (whitespaceMatcher.find()) {
-				int firstAfterStars = whitespaceMatcher.end();
-				lines[line] = lines[line].substring(firstAfterStars);
-			}
-		}
-		
-		// If the last line is now empty, skip it
-		int lastLine = lines[lines.length - 1].trim().length() > 0 ? lines.length - 1 : lines.length - 2;
-		
-		StringBuilder sb = new StringBuilder();
-		for (int line = firstLine; line <= lastLine; ++line) {
-			char[] chars = lines[line].toCharArray();
+			// we should however remove the starting whitespaces
+			StringBuilder sb = new StringBuilder();
+			char[] chars = lines[0].toCharArray();
+			boolean startingWhitespaces = true;
 			for (char c : chars) {
-				if (c == '\t') {
-					for (int i = 0; i < 8; i++) {
-						sb.append(' ');
-					}
+				if (Character.isWhitespace(c))
+					if (startingWhitespaces) {
+						continue;
+					} else {
+						sb.append(c);
 				} else {
+					startingWhitespaces = false;
 					sb.append(c);
 				}
 			}
+			return sb.toString();
+		}
+
+		// if the first line ends with spaces after the /** then we want to insert a line separator
+		int firstLine = lines[0].trim().length() > 0 ? 0 : 1;
+
+		// If the last line is now empty, skip it
+		int lastLine = lines[lines.length - 1].trim().length() > 0 ? lines.length - 1 : lines.length - 2;
+
+		StringBuilder sb = new StringBuilder();
+		if (lines[0].length() != 0 && firstLine == 1) {
+			// insert a line separator only if the remaining chars on the line are whitespaces
+			sb.append('\n');
+		}
+		boolean preserveLineSeparator = lines[0].length() == 0;
+		for (int line = firstLine; line <= lastLine; ++line) {
+			char[] chars = lines[line].toCharArray();
+			int starsIndex = getStars(chars);
+			int leadingWhitespaces = 0;
+			boolean recordLeadingWhitespaces = true;
+			for (int i = 0, max = chars.length; i < max; i++) {
+				char c = chars[i];
+				switch(c) {
+					case '\t' :
+						if (starsIndex == -1) {
+							if (recordLeadingWhitespaces) {
+								leadingWhitespaces += 8;
+							} else {
+								sb.append(c);
+							}
+						} else if (i >= starsIndex) {
+							sb.append(c);
+						}
+						break;
+					case ' ' :
+						if (starsIndex == -1) {
+							if (recordLeadingWhitespaces) {
+								leadingWhitespaces++;
+							} else {
+								sb.append(c);
+							}
+						} else if (i >= starsIndex) {
+							sb.append(c);
+						}
+						break;
+					default :
+						// convert leading whitespaces to spaces
+						recordLeadingWhitespaces = false;
+						if (leadingWhitespaces != 0) {
+							int numberOfTabs = leadingWhitespaces / 8;
+							if (numberOfTabs != 0) {
+								for (int j = 0, max2 = numberOfTabs; j < max2; j++) {
+									sb.append("        "); //$NON-NLS-1$
+								}
+								if ((leadingWhitespaces % 8) >= 1) {
+									sb.append(' ');
+								}
+							} else if (line != 0) {
+								// we don't want to preserve the leading spaces for the first line
+								for (int j = 0, max2 = leadingWhitespaces; j < max2; j++) {
+									sb.append(' ');
+								}
+							}
+							leadingWhitespaces = 0;
+							sb.append(c);
+						} else if (c != '*' || i > starsIndex) {
+							sb.append(c);
+						}
+				}
+			}
+
 			// append a newline at the end of each line except the last, even if we skipped the last entirely
-			if (line < lines.length - 1) {
+			int end = lines.length - 1;
+			if (line < end) {
+				sb.append('\n');
+			} else if (preserveLineSeparator && line == end) {
 				sb.append('\n');
 			}
 		}
 		return sb.toString();
 	}
-	
+
+	/**
+	 * Returns the index of the last leading stars on this line, -1 if none.
+	 *
+	 * @param line the given line
+	 * @return the computed index
+	 */
+	private static int getStars(char[] line) {
+		loop: for (int i = 0, max = line.length; i < max; i++) {
+			char c = line[i];
+			if (!Character.isWhitespace(c)) {
+				if (c == '*') {
+					// only whitespaces before the first star
+					// consume all stars and return the last index
+					for (int j = i + 1; j < max; j++) {
+						if (line[j] != '*') {
+							return j;
+						}
+					}
+					return max - 1;
+				}
+				// no need to continue
+				break loop;
+			}
+		}
+		return -1;
+	}
 	/**
 	 * @return all the annotation instance's explicitly set values, plus default values
 	 *         for all the annotation members that are not explicitly set but that have
@@ -507,7 +589,7 @@ public class ElementsImpl implements Elements {
 		// try finding the top-level type and then working downwards.
 		if (null == binding) {
 			ReferenceBinding topLevelBinding = null;
-			int topLevelSegments = compoundName.length; 
+			int topLevelSegments = compoundName.length;
 			while (--topLevelSegments > 0) {
 				char[][] topLevelName = new char[topLevelSegments][];
 				for (int i = 0; i < topLevelSegments; ++i) {
