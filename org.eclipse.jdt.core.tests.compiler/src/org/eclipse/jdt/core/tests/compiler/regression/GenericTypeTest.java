@@ -32,7 +32,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1054 };
+//		TESTS_NUMBERS = new int[] { 744 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -23116,11 +23116,18 @@ public void test0744() {
 			"\n" + 
 			"import java.io.*;\n" + 
 			"\n" + 
-			"public abstract class X<K1, V1> extends HashMap<K1, V1> {\n" + 
+			"class Super<U, V> {\n" +
+			"	static class Entry<U,V> {\n" +
+			"		Entry(int i, U u, V v, Entry<U,V> entry) {}\n" + 
+			"		void recordAccess(Super<U,V> s) {\n" + 
+			"		}\n" +
+			"	}\n" +
+			"}\n"+
+			"public abstract class X<K1, V1> extends Super<K1, V1> {\n" + 
 			"\n" + 
 			"	Entry<K1, V1> h;\n" + 
 			"\n" + 
-			"	private static class Entry<K2, V2> extends HashMap.Entry<K2, V2> {\n" + 
+			"	private static class Entry<K2, V2> extends Super.Entry<K2, V2> {\n" + 
 			"\n" + 
 			"		Entry() {\n" + 
 			"			super(0, null, null, null);\n" + 
@@ -23129,7 +23136,7 @@ public void test0744() {
 			"		void ab(@SuppressWarnings(\"unused\") Entry<K2, V2> e) {\n" + 
 			"		}\n" + 
 			"\n" + 
-			"		@Override void recordAccess(HashMap<K2, V2> m) {\n" + 
+			"		@Override void recordAccess(Super<K2, V2> m) {\n" + 
 			"			X<K2, V2> x = (X<K2, V2>) m;\n" + 
 			"			ab(x.h);\n" + 
 			"		}\n" + 
@@ -23138,7 +23145,7 @@ public void test0744() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in java\\util\\X.java (at line 23)\n" + 
+		"1. ERROR in java\\util\\X.java (at line 30)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
