@@ -52,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -2100,7 +2101,10 @@ protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding)
 		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 		if ((classProp == null) || (classProp.length() == 0)) {
 			this.logger.logNoClasspath();
-			classpaths.add(FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null));//$NON-NLS-1$
+			final Classpath classpath = FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null);//$NON-NLS-1$
+			if (classpath != null) {
+				classpaths.add(classpath);
+			}
 		} else {
 			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
 			String token;

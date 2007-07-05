@@ -371,10 +371,13 @@ public class EclipseCompilerImpl extends Main {
 		}
 		if (location != null) {
 			for (File file : location) {
-				fileSystemClasspaths.add(FileSystem.getClasspath(
-					file.getAbsolutePath(),
-					null,
-					null));
+				Classpath classpath = FileSystem.getClasspath(
+						file.getAbsolutePath(),
+						null,
+						null);
+				if (classpath != null) {
+					fileSystemClasspaths.add(classpath);
+				}
 			}
 		}
 		if (standardJavaFileManager != null) {
