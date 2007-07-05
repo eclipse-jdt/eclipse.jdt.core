@@ -48,7 +48,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 		_dispatchManager = dispatchManager;
 		Class<?> c = null;
 		try {
-			c = Class.forName("org.eclipse.jdt.internal.compiler.tool.EclipseCompiler"); //$NON-NLS-1$
+			c = Class.forName("org.eclipse.jdt.internal.compiler.tool.EclipseCompilerImpl"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {
 			// ignore
 		}
@@ -79,7 +79,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 		} else {
 			String encoding = (String) batchCompiler.options.get(CompilerOptions.OPTION_Encoding);
 			Charset charset = encoding != null ? Charset.forName(encoding) : null;
-			JavaFileManager manager = new EclipseFileManager(batchCompiler, batchCompiler.compilerLocale, charset);
+			JavaFileManager manager = new EclipseFileManager(batchCompiler.compilerLocale, charset);
 			ArrayList<String> options = new ArrayList<String>();
 			for (String argument : commandLineArguments) {
 				options.add(argument);

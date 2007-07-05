@@ -18,12 +18,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.zip.ZipException;
@@ -34,9 +37,13 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.JavaFileObject.Kind;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.batch.Main.ResourceBundleFactory;
+import org.eclipse.jdt.internal.compiler.env.AccessRule;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 
 /**
  * Implementation of the Standard Java File Manager
@@ -52,18 +59,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	Charset charset;
 	Locale locale;
 	Map<String, Iterable<? extends File>> locations;
-	Main compiler;
 	int flags;
+	public ResourceBundle bundle;
 	
-	public EclipseFileManager(Main eclipseCompiler, Locale locale, Charset charset) {
-		this.compiler = eclipseCompiler;
+	public EclipseFileManager(Locale locale, Charset charset) {
 		this.locale = locale == null ? Locale.getDefault() : locale;
 		this.charset = charset == null ? Charset.defaultCharset() : charset;
 		this.locations = new HashMap<String, Iterable<? extends File>>();
 		this.archivesCache = new HashMap<File, Archive>();
-		if (locale != null) {
-			this.compiler.setLocale(locale);
-		}
 		try {
 			this.setLocation(StandardLocation.PLATFORM_CLASS_PATH, getDefaultBootclasspath());
 			Iterable<? extends File> defaultClasspath = getDefaultClasspath();
@@ -71,6 +74,11 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			this.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, defaultClasspath);
 		} catch (IOException e) {
 			// ignore
+		}
+		try {
+			this.bundle = ResourceBundleFactory.getBundle(this.locale);
+		} catch(MissingResourceException e) {
+			System.out.println("Missing resource : " + Main.bundleName.replace('.', '/') + ".properties for locale " + locale); //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 
@@ -266,7 +274,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
 		ArrayList<File> files = new ArrayList<File>();
 		try {
-			this.compiler.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
+			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
 		} catch (InvalidInputException e) {
 			return null;
 		}
@@ -287,21 +295,28 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		/*
 		 * Handle >= JDK 1.6
 		 */
-		File javaHome = this.compiler.getJavaHome();
-		addFilesFrom(javaHome, "java.endorsed.dirs", "/lib/endorsed", files);//$NON-NLS-1$//$NON-NLS-2$
+		String javaHome = System.getProperty("java.home"); //$NON-NLS-1$
+		File javaHomeFile = null;
 		if (javaHome != null) {
+			javaHomeFile = new File(javaHome);
+			if (!javaHomeFile.exists())
+				javaHomeFile = null;
+		}
+
+		addFilesFrom(javaHomeFile, "java.endorsed.dirs", "/lib/endorsed", files);//$NON-NLS-1$//$NON-NLS-2$
+		if (javaHomeFile != null) {
 			File[] directoriesToCheck = null;
 			if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
-				directoriesToCheck = new File[] { new File(javaHome, "../Classes"), //$NON-NLS-1$
+				directoriesToCheck = new File[] { new File(javaHomeFile, "../Classes"), //$NON-NLS-1$
 				};
 			} else {
-				directoriesToCheck = new File[] { new File(javaHome, "lib") //$NON-NLS-1$
+				directoriesToCheck = new File[] { new File(javaHomeFile, "lib") //$NON-NLS-1$
 				};
 			}
 			File[][] jars = Main.getLibrariesFiles(directoriesToCheck);
 			addFiles(jars, files);
 		}
-		addFilesFrom(javaHome, "java.ext.dirs", "/lib/ext", files);//$NON-NLS-1$//$NON-NLS-2$
+		addFilesFrom(javaHomeFile, "java.ext.dirs", "/lib/ext", files);//$NON-NLS-1$//$NON-NLS-2$
 		return files;
 	}
 
@@ -329,7 +344,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
 		ArrayList<File> files = new ArrayList<File>();
 		try {
-			this.compiler.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
+			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
 		} catch (InvalidInputException e) {
 			return null;
 		}
@@ -343,7 +358,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
 		ArrayList<File> files = new ArrayList<File>();
 		try {
-			this.compiler.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
+			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
 		} catch (InvalidInputException e) {
 			return null;
 		}
@@ -838,6 +853,299 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 	
 	public void setLocale(Locale locale) {
-		this.locale = locale;
+		this.locale = locale == null ? Locale.getDefault() : locale;
+		try {
+			this.bundle = ResourceBundleFactory.getBundle(this.locale);
+		} catch(MissingResourceException e) {
+			System.out.println("Missing resource : " + Main.bundleName.replace('.', '/') + ".properties for locale " + locale); //$NON-NLS-1$//$NON-NLS-2$
+			throw e;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public void processPathEntries(final int defaultSize, final ArrayList paths,
+			final String currentPath, String customEncoding, boolean isSourceOnly,
+			boolean rejectDestinationPathOnJars)
+		throws InvalidInputException {
+		String currentClasspathName = null;
+		String currentDestinationPath = null;
+		ArrayList currentRuleSpecs = new ArrayList(defaultSize);
+		StringTokenizer tokenizer = new StringTokenizer(currentPath,
+				File.pathSeparator + "[]", true); //$NON-NLS-1$
+		ArrayList tokens = new ArrayList();
+		while (tokenizer.hasMoreTokens()) {
+			tokens.add(tokenizer.nextToken());
+		}
+		// state machine
+		final int start = 0;
+		final int readyToClose = 1;
+		// 'path' 'path1[rule];path2'
+		final int readyToCloseEndingWithRules = 2;
+		// 'path[rule]' 'path1;path2[rule]'
+		final int readyToCloseOrOtherEntry = 3;
+		// 'path[rule];' 'path;' 'path1;path2;'
+		final int rulesNeedAnotherRule = 4;
+		// 'path[rule1;'
+		final int rulesStart = 5;
+		// 'path[' 'path1;path2['
+		final int rulesReadyToClose = 6;
+		// 'path[rule' 'path[rule1;rule2'
+		final int destinationPathReadyToClose = 7;
+		// 'path[-d bin'
+		final int readyToCloseEndingWithDestinationPath = 8;
+		// 'path[-d bin]' 'path[rule][-d bin]'
+		final int destinationPathStart = 9;
+		// 'path[rule]['
+		final int bracketOpened = 10;
+		// '.*[.*'
+		final int bracketClosed = 11;
+		// '.*([.*])+'
+	
+		final int error = 99;
+		int state = start;
+		String token = null;
+		int cursor = 0, tokensNb = tokens.size(), bracket = -1;
+		while (cursor < tokensNb && state != error) {
+			token = (String) tokens.get(cursor++);
+			if (token.equals(File.pathSeparator)) {
+				switch (state) {
+				case start:
+				case readyToCloseOrOtherEntry:
+				case bracketOpened:
+					break;
+				case readyToClose:
+				case readyToCloseEndingWithRules:
+				case readyToCloseEndingWithDestinationPath:
+					state = readyToCloseOrOtherEntry;
+					addNewEntry(paths, currentClasspathName, currentRuleSpecs,
+							customEncoding, currentDestinationPath, isSourceOnly,
+							rejectDestinationPathOnJars);
+					currentRuleSpecs.clear();
+					break;
+				case rulesReadyToClose:
+					state = rulesNeedAnotherRule;
+					break;
+				case destinationPathReadyToClose:
+					throw new InvalidInputException(
+							this.bind("configure.incorrectDestinationPathEntry", //$NON-NLS-1$
+									currentPath));
+				case bracketClosed:
+					cursor = bracket + 1;
+					state = rulesStart;
+					break;
+				default:
+					state = error;
+				}
+			} else if (token.equals("[")) { //$NON-NLS-1$
+				switch (state) {
+				case start:
+					currentClasspathName = ""; //$NON-NLS-1$
+				case readyToClose:
+					bracket = cursor - 1;
+				case bracketClosed:
+					state = bracketOpened;
+					break;
+				case readyToCloseEndingWithRules:
+					state = destinationPathStart;
+					break;
+				case readyToCloseEndingWithDestinationPath:
+					state = rulesStart;
+					break;
+				case bracketOpened:
+				default:
+					state = error;
+				}
+			} else if (token.equals("]")) { //$NON-NLS-1$
+				switch (state) {
+				case rulesReadyToClose:
+					state = readyToCloseEndingWithRules;
+					break;
+				case destinationPathReadyToClose:
+					state = readyToCloseEndingWithDestinationPath;
+					break;
+				case bracketOpened:
+					state = bracketClosed;
+					break;
+				case bracketClosed:
+				default:
+					state = error;
+				}
+			} else {
+				// regular word
+				switch (state) {
+				case start:
+				case readyToCloseOrOtherEntry:
+					state = readyToClose;
+					currentClasspathName = token;
+					break;
+				case rulesStart:
+					if (token.startsWith("-d ")) { //$NON-NLS-1$
+						if (currentDestinationPath != null) {
+							throw new InvalidInputException(
+									this.bind("configure.duplicateDestinationPathEntry", //$NON-NLS-1$
+											currentPath));
+						}
+						currentDestinationPath = token.substring(3).trim();
+						state = destinationPathReadyToClose;
+						break;
+					} // else we proceed with a rule
+				case rulesNeedAnotherRule:
+					if (currentDestinationPath != null) {
+						throw new InvalidInputException(
+								this.bind("configure.accessRuleAfterDestinationPath", //$NON-NLS-1$
+									currentPath));
+					}
+					state = rulesReadyToClose;
+					currentRuleSpecs.add(token);
+					break;
+				case destinationPathStart:
+					if (!token.startsWith("-d ")) { //$NON-NLS-1$
+						state = error;
+					} else {
+						currentDestinationPath = token.substring(3).trim();
+						state = destinationPathReadyToClose;
+					}
+					break;
+				case bracketClosed:
+					for (int i = bracket; i < cursor ; i++) {
+						currentClasspathName += (String) tokens.get(i);
+					}
+					state = readyToClose;
+					break;
+				case bracketOpened:
+					break;
+				default:
+					state = error;
+				}
+			}
+			if (state == bracketClosed && cursor == tokensNb) {
+				cursor = bracket + 1;
+				state = rulesStart;
+			}
+		}
+		switch(state) {
+			case readyToCloseOrOtherEntry:
+				break;
+			case readyToClose:
+			case readyToCloseEndingWithRules:
+			case readyToCloseEndingWithDestinationPath:
+				addNewEntry(paths, currentClasspathName, currentRuleSpecs,
+					customEncoding, currentDestinationPath, isSourceOnly,
+					rejectDestinationPathOnJars);
+				break;
+			case bracketOpened:
+			case bracketClosed:
+			default :
+				// we go on anyway
+		}
+	}
+	@SuppressWarnings("unchecked")
+	protected void addNewEntry(ArrayList paths, String currentClasspathName,
+			ArrayList currentRuleSpecs, String customEncoding,
+			String destPath, boolean isSourceOnly,
+			boolean rejectDestinationPathOnJars) throws InvalidInputException {
+
+		int rulesSpecsSize = currentRuleSpecs.size();
+		AccessRuleSet accessRuleSet = null;
+		if (rulesSpecsSize != 0) {
+			AccessRule[] accessRules = new AccessRule[currentRuleSpecs.size()];
+			boolean rulesOK = true;
+			Iterator i = currentRuleSpecs.iterator();
+			int j = 0;
+			while (i.hasNext()) {
+				String ruleSpec = (String) i.next();
+				char key = ruleSpec.charAt(0);
+				String pattern = ruleSpec.substring(1);
+				if (pattern.length() > 0) {
+					switch (key) {
+						case '+':
+							accessRules[j++] = new AccessRule(pattern
+									.toCharArray(), 0);
+							break;
+						case '~':
+							accessRules[j++] = new AccessRule(pattern
+									.toCharArray(),
+									IProblem.DiscouragedReference);
+							break;
+						case '-':
+							accessRules[j++] = new AccessRule(pattern
+									.toCharArray(),
+									IProblem.ForbiddenReference);
+							break;
+						case '?':
+							accessRules[j++] = new AccessRule(pattern
+									.toCharArray(),
+									IProblem.ForbiddenReference, true/*keep looking for accessible type*/);
+							break;
+						default:
+							rulesOK = false;
+					}
+				} else {
+					rulesOK = false;
+				}
+			}
+			if (rulesOK) {
+				String templates[] = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
+				templates[0] = this.bind(
+						"template.restrictedAccess.type", //$NON-NLS-1$
+						new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$
+				templates[1] = this.bind(
+						"template.restrictedAccess.constructor", //$NON-NLS-1$
+						new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$
+				templates[2] = this.bind(
+						"template.restrictedAccess.method", //$NON-NLS-1$
+						new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$
+				templates[3] = this.bind(
+						"template.restrictedAccess.field", //$NON-NLS-1$
+						new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$
+				accessRuleSet = new AccessRuleSet(accessRules, templates);
+			} else {
+				return;
+			}
+		}
+		if (Main.NONE.equals(destPath)) {
+			destPath = Main.NONE; // keep == comparison valid
+		}
+		if (rejectDestinationPathOnJars && destPath != null &&
+				(currentClasspathName.endsWith(".jar") || //$NON-NLS-1$
+					currentClasspathName.endsWith(".zip"))) { //$NON-NLS-1$
+			throw new InvalidInputException(
+					this.bind("configure.unexpectedDestinationPathEntryFile", //$NON-NLS-1$
+								currentClasspathName));
+			}
+		FileSystem.Classpath currentClasspath = FileSystem.getClasspath(
+				currentClasspathName,
+				customEncoding,
+				isSourceOnly,
+				accessRuleSet,
+				destPath);
+		if (currentClasspath != null) {
+			paths.add(currentClasspath);
+		}
+	}
+	/*
+	 * Lookup the message with the given ID in this catalog and bind its
+	 * substitution locations with the given string.
+	 */
+	private String bind(String id, String binding) {
+		return bind(id, new String[] { binding });
+	}
+
+	/*
+	 * Lookup the message with the given ID in this catalog and bind its
+	 * substitution locations with the given string values.
+	 */
+	private String bind(String id, String[] arguments) {
+		if (id == null)
+			return "No message available"; //$NON-NLS-1$
+		String message = null;
+		try {
+			message = this.bundle.getString(id);
+		} catch (MissingResourceException e) {
+			// If we got an exception looking for the message, fail gracefully by just returning
+			// the id we were looking for.  In most cases this is semi-informative so is not too bad.
+			return "Missing message: " + id + " in: " + Main.bundleName; //$NON-NLS-2$ //$NON-NLS-1$
+		}
+		return MessageFormat.format(message, (Object[]) arguments);
 	}
 }

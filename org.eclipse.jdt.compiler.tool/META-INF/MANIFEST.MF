@@ -8,4 +8,4 @@ Bundle-Localization: compiler_tool_fragment
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: META-INF.services,
  org.eclipse.jdt.internal.compiler.tool
-Fragment-Host: org.eclipse.jdt.core;bundle-version="3.3.0"
+Fragment-Host: org.eclipse.jdt.core;bundle-version="[3.3.0,4.0.0)"

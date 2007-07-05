@@ -1403,63 +1403,63 @@ protected void addNewEntry(ArrayList paths, String currentClasspathName,
 	AccessRuleSet accessRuleSet = null;
 	if (rulesSpecsSize != 0) {
 		AccessRule[] accessRules = new AccessRule[currentRuleSpecs.size()];
-    	boolean rulesOK = true;
-    	Iterator i = currentRuleSpecs.iterator();
-    	int j = 0;
-    	while (i.hasNext()) {
-    		String ruleSpec = (String) i.next();
-    		char key = ruleSpec.charAt(0);
-    		String pattern = ruleSpec.substring(1);
-    		if (pattern.length() > 0) {
-    			switch (key) {
-    			case '+':
-    				accessRules[j++] = new AccessRule(pattern
-    						.toCharArray(), 0);
-    				break;
-    			case '~':
-    				accessRules[j++] = new AccessRule(pattern
-    						.toCharArray(),
-    						IProblem.DiscouragedReference);
-    				break;
-    			case '-':
-    				accessRules[j++] = new AccessRule(pattern
-    						.toCharArray(),
-    						IProblem.ForbiddenReference);
-    				break;
-    			case '?':
-    				accessRules[j++] = new AccessRule(pattern
-    						.toCharArray(),
-    						IProblem.ForbiddenReference, true/*keep looking for accessible type*/);
-    				break;
-    			default:
-    				rulesOK = false;
-    			}
-    		} else {
-    			rulesOK = false;
-    		}
-    	}
-    	if (rulesOK) {
-    		String templates[] = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
-    		templates[0] = this.bind(
-    			"template.restrictedAccess.type", //$NON-NLS-1$
-    			new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$
-    		templates[1] = this.bind(
-    			"template.restrictedAccess.constructor", //$NON-NLS-1$
-    			new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$
-    		templates[2] = this.bind(
-    			"template.restrictedAccess.method", //$NON-NLS-1$
-    			new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$
-    		templates[3] = this.bind(
-    			"template.restrictedAccess.field", //$NON-NLS-1$
-    			new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$
-    		accessRuleSet = new AccessRuleSet(accessRules, templates);
-    	} else {
-     		if (currentClasspathName.length() != 0) {
-     	   		// we go on anyway
-    			this.logger.logIncorrectClasspath(currentClasspathName);
-    		}
-    		return;
-    	}
+		boolean rulesOK = true;
+		Iterator i = currentRuleSpecs.iterator();
+		int j = 0;
+		while (i.hasNext()) {
+			String ruleSpec = (String) i.next();
+			char key = ruleSpec.charAt(0);
+			String pattern = ruleSpec.substring(1);
+			if (pattern.length() > 0) {
+				switch (key) {
+					case '+':
+						accessRules[j++] = new AccessRule(pattern
+								.toCharArray(), 0);
+						break;
+					case '~':
+						accessRules[j++] = new AccessRule(pattern
+								.toCharArray(),
+								IProblem.DiscouragedReference);
+						break;
+					case '-':
+						accessRules[j++] = new AccessRule(pattern
+								.toCharArray(),
+								IProblem.ForbiddenReference);
+						break;
+					case '?':
+						accessRules[j++] = new AccessRule(pattern
+								.toCharArray(),
+								IProblem.ForbiddenReference, true/*keep looking for accessible type*/);
+						break;
+					default:
+						rulesOK = false;
+				}
+			} else {
+				rulesOK = false;
+			}
+		}
+		if (rulesOK) {
+			String templates[] = new String[AccessRuleSet.MESSAGE_TEMPLATES_LENGTH];
+			templates[0] = this.bind(
+					"template.restrictedAccess.type", //$NON-NLS-1$
+					new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$
+			templates[1] = this.bind(
+					"template.restrictedAccess.constructor", //$NON-NLS-1$
+					new String[] {"{0}", currentClasspathName}); //$NON-NLS-1$
+			templates[2] = this.bind(
+					"template.restrictedAccess.method", //$NON-NLS-1$
+					new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$
+			templates[3] = this.bind(
+					"template.restrictedAccess.field", //$NON-NLS-1$
+					new String[] {"{0}", "{1}", currentClasspathName}); //$NON-NLS-1$ //$NON-NLS-2$
+			accessRuleSet = new AccessRuleSet(accessRules, templates);
+		} else {
+			if (currentClasspathName.length() != 0) {
+				// we go on anyway
+				this.logger.logIncorrectClasspath(currentClasspathName);
+			}
+			return;
+		}
 	}
 	if (NONE.equals(destPath)) {
 		destPath = NONE; // keep == comparison valid
@@ -3811,7 +3811,7 @@ public void setLocale(Locale locale) {
 /*
  * External API
  */
-protected void setDestinationPath(String dest) {
+public void setDestinationPath(String dest) {
 	this.destinationPath = dest;
 }
 /*

@@ -5,6 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// CAUTION!  THIS FILE CONTAINS SPECIFIC COMBINATIONS OF TABS AND SPACES,
+// FOR TESTING WHITESPACE HANDLING IN JAVADOC.  DO NOT REFORMAT OR MODIFY
+// WHITESPACE IN ANY JAVADOC IN THIS FILE.
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 package targets.model.pc;
 
 /**
@@ -27,12 +34,23 @@ public class F<T1> {
 
 	/**
 	 * Javadoc on nested interface FChildI
+	 *	this line has tab after asterisk and ends with another tab	
+	 *	this one too	
+	 *   this line has three spaces after asterisk and ends with three spaces   
+ * this line has only one space before the asterisk
 	 */
 	public interface FChildI {}
 	
 	/** Javadoc on field _fieldT1_protected, inline format */
 	protected T1 _fieldT1_protected;
 	
+	// Next line has a space at the end, after the double asterisks
+	/** 
+	 * Javadoc on _fieldT1_private
+  this line starts with two spaces, no asterisk
+	This line starts, contains	and ends with a tab	
+ 	 	 This line starts with a space, tab, space, tab, space
+	 */
 	private T1 _fieldT1_private;
 	
 	int fieldInt;
@@ -70,4 +88,60 @@ public class F<T1> {
 	
 	// unrelated to the same-signature methods in Overriding.java
 	void f() {}
+	
+	/************************/
+	/*** Abstract methods ***/
+	/************************/
+
+	public Object getAnonymousObjectAbstract() {
+		return null;
+	}
+
+	/** 
+	 *	@add(int)
+	 */
+	int add (int j) {
+		return j + j;
+	} 
+
+	/** 
+	 * Creates a new instance of AllChecks 
+	 */
+	public void foo() {
+	}
+
+	/**
+	 * @bar	(int)
+	 */
+	int bar(int i) { return i; }
+	
+	/**
+	 *	@bar2(int)
+	 */
+	int bar2(int i) { return i; }
+	
+/**
+		Method	m
+ */
+	void m() {}
+	
+    /** This is a comment for the method m1,
+     *  it is on two lines
+     */
+	void m1() {}
+	
+	/** Another comment - starts on first line and
+    continue on the second line */
+	void m2() {}
+	
+	/**
+	 * One more test case that.
+	 * needs
+	 * to be verified.
+	 *
+	 * An empty line with no spaces need to be seen as an empty line.
+	 *
+	 * End of the comment.
+	 */
+	void m3() {}
 }

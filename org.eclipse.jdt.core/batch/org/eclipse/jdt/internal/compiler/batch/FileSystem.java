@@ -130,7 +130,7 @@ FileSystem(Classpath[] paths, String[] initialFileNames) {
 public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet) {
 	return getClasspath(classpathName, encoding, false, accessRuleSet, null);
 }
-static Classpath getClasspath(String classpathName, String encoding,
+public static Classpath getClasspath(String classpathName, String encoding,
 		boolean isSourceOnly, AccessRuleSet accessRuleSet,
 		String destinationPath) {
 	Classpath result = null;

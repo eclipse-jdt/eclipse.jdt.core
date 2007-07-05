@@ -24,18 +24,27 @@ public class MirrorDeclarationCodeExample
 		"import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationTestAnnotation;" + "\n" +
 		"@MirrorDeclarationTestAnnotation(s=\"fred\", value=5)" + "\n" +
 		"public class DeclarationTestClass {" + "\n" +
-		"    public class ClassDec {" + "\n" +
-		"	     public ClassDec() {}" + "\n" +
-		"	     public ClassDec(int j) {}" + "\n" +
-		"	     public static final int i = 1;" + "\n" +
-		"	     public float f;" + "\n" +
-		"	     public static final String s = \"hello\";" + "\n" +
-		"	     public java.util.GregorianCalendar gc;" + "\n" +
-		"        public void methodDec(int k, String... t) throws Exception {}" + "\n" +
-		"        public void methodDecNoArg(){}" + "\n" +
-		"    }" + "\n" +
-    	"    public enum EnumDec {" + "\n" +
-		"        aardvark, anteater" + "\n" +
-		"    }" + "\n" +
+		"	public class ClassDec {" + "\n" +
+		"		public ClassDec() {}" + "\n" +
+		"		public ClassDec(int j) {}" + "\n" +
+		"		public static final int i = 1;" + "\n" +
+		"		public float f;" + "\n" +
+		"		public static final String s = \"hello\";" + "\n" +
+		"		public java.util.GregorianCalendar gc;" + "\n" +
+		"		public void methodDec(int k, String... t) throws Exception {}" + "\n" +
+		"		public void methodDecNoArg(){}" + "\n" +
+		"		@MirrorDeclarationTestAnnotation() public Object foo(Object o) throws Exception {\n" +
+		"			return null;\n" +
+		"		}\n" +
+		"		@MirrorDeclarationTestAnnotation() public Object foo2(Object o) throws Exception {\n" +
+		"			return null;\n" +
+		"		}\n" +
+		"		@MirrorDeclarationTestAnnotation() public Object foo3(Object o) throws Exception {\n" +
+		"			return null;\n" +
+		"		}\n" +
+		"	}" + "\n" +
+		"	public enum EnumDec {" + "\n" +
+		"		aardvark, anteater" + "\n" +
+		"	}" + "\n" +
 		"}";
 }
