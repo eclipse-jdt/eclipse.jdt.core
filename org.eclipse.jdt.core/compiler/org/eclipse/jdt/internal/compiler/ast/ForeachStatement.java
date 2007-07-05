@@ -239,7 +239,7 @@ public class ForeachStatement extends Statement {
 				case ARRAY :
 					// inline the arraylength call
 					// collectionVariable is already on execution stack
-					codeStream.arraylength();					
+					codeStream.arraylength();
 					codeStream.ifeq(breakLabel);
 					break;
 				case RAW_ITERABLE :
@@ -249,7 +249,7 @@ public class ForeachStatement extends Statement {
 					codeStream.ifeq(breakLabel);
 					break;
 			}
-			codeStream.recordPositionsFrom(conditionPC, this.elementVariable.sourceStart);			
+			codeStream.recordPositionsFrom(conditionPC, this.elementVariable.sourceStart);
 		} else {
 			this.continueLabel.initialize(codeStream);
 			this.continueLabel.tagBits |= BranchLabel.USED;
