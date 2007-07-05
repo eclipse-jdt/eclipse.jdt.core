@@ -346,7 +346,7 @@ public class ForeachStatement extends Statement {
 		codeStream.exitUserScope(scope);
 		if (mergedInitStateIndex != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
-			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);			
+			codeStream.addDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);
 		}
 		breakLabel.place();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
