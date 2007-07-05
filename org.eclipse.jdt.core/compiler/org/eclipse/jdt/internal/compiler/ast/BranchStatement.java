@@ -63,7 +63,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (this.initStateIndex != -1) {
 		codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 		codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
-	}					
+	}
 }
 
 public void resolve(BlockScope scope) {
