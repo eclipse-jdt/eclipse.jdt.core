@@ -77,7 +77,7 @@ public void testClasspathFileChange() throws JavaModelException {
 
 	//----------------------------
 	//           Step 2
-	//----------------------------	
+	//----------------------------
 	StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
 	buffer.append("<classpath>\n"); //$NON-NLS-1$
 	buffer.append("    <classpathentry kind=\"src\" path=\"src\"/>\n"); //$NON-NLS-1$
@@ -100,7 +100,7 @@ public void testClasspathFileChange() throws JavaModelException {
 	} finally {
 		env.setAutoBuilding(wasAutoBuilding);
 	}
-}	
+}
 
 public void testClosedProject() throws JavaModelException {
 	IPath project1Path = env.addProject("CP1"); //$NON-NLS-1$
@@ -287,14 +287,14 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 	);
 	long lastModified = new java.io.File(externalJar).lastModified();
 	env.addExternalJar(projectPath, externalJar);
-	
+
 	// build -> expecting problems
 	fullBuild();
 	expectingProblemsFor(
 		classTest,
 		"Problem : The method bar() is undefined for the type Y [ resource : </Project/p/X.java> range : <57,60> category : <50> severity : <2>]"
 	);
-	
+
 	try {
 		Thread.sleep(1000);
 	} catch(InterruptedException e) {
@@ -312,14 +312,14 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 		new HashMap(),
 		externalJar
 	);
-	
+
 	new java.io.File(externalJar).setLastModified(lastModified + 1000); // to be sure its different
 	// refresh project and rebuild -> expecting no problems
 	IJavaProject project = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject("Project")); //$NON-NLS-1$
 	project.getJavaModel().refreshExternalArchives(new IJavaElement[] {project}, null);
 	incrementalBuild();
 	expectingNoProblems();
-	
+
 }
 
 public void testMissingBuilder() throws JavaModelException {
@@ -426,7 +426,7 @@ public void testMissingLibrary1() throws JavaModelException {
 
 	//----------------------------
 	//           Step 2
-	//----------------------------	
+	//----------------------------
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 	incrementalBuild();
@@ -459,7 +459,7 @@ public void testMissingLibrary2() throws JavaModelException {
 	expectingSpecificProblemFor(
 		projectPath,
 		new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try building this project", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-	
+
 	Problem[] prob1 = env.getProblemsFor(classTest1);
 	Problem[] prob2 = env.getProblemsFor(classTest2);
 	Problem[] prob3 = env.getProblemsFor(classTest3);
@@ -474,7 +474,7 @@ public void testMissingLibrary2() throws JavaModelException {
 
 	//----------------------------
 	//           Step 2
-	//----------------------------	
+	//----------------------------
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 	incrementalBuild();
@@ -516,7 +516,7 @@ public void testMissingLibrary3() throws JavaModelException {
 		new Problem("Build path", "Project 'Project' is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
 	env.removeProject(projectPath);
 }
-	
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
 public void testMissingLibrary4() throws JavaModelException {
 	this.abortOnFailure = false; // this test is failing on some releng boxes => do not abort on failures
@@ -543,38 +543,50 @@ public void testMissingLibrary4() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
 public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
 	this.abortOnFailure = false; // NOT sure this test will pass on releng boxes => do not abort on failures
-	
+
 	// Create project
 	IPath projectPath = env.addProject("Project");
 	IJavaProject project = env.getJavaProject(projectPath);
 	String[] classlibs = Util.getJavaClassLibs();
 	env.addExternalJars(projectPath, classlibs);
-	
+	Arrays.sort(classlibs);
+
 	// Build it expecting no problem
 	fullBuild();
 	expectingNoProblems();
 
 	// Build incompatible jdk level problem string
-	String jclPath = project.getPackageFragmentRoot(classlibs[0]).getPath().makeRelative().toString();
 	String projectRuntime = project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true);
 
 	// Change project incompatible jdk level preferences to warning, perform incremental build and expect 1 problem
 	project.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, CompilerOptions.WARNING);
 	incrementalBuild();
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0, max = classlibs.length; i < max; i++) {
+		if (i>0) buffer.append('\n');
+		buffer.append(getJdkLevelProblem(projectRuntime, project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString(), IMarker.SEVERITY_WARNING));
+	}
+
 	expectingProblemsFor(
 		projectPath,
-		getJdkLevelProblem(projectRuntime, jclPath, IMarker.SEVERITY_WARNING)
+		String.valueOf(buffer)
 	);
 
 	// Change project incompatible jdk level preferences to error, perform incremental build and expect 2 problems
 	project.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, CompilerOptions.ERROR);
 	incrementalBuild();
+
+	buffer = new StringBuffer();
+	for (int i = 0, max = classlibs.length; i < max; i++) {
+		if (i>0) buffer.append('\n');
+		buffer.append(getJdkLevelProblem(projectRuntime, project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString(), IMarker.SEVERITY_ERROR));
+	}
 	expectingProblemsFor(
 		projectPath,
-		"Problem : The project cannot be built until build path errors are resolved [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]\n" + 
-		getJdkLevelProblem(projectRuntime, jclPath, IMarker.SEVERITY_ERROR)
+		"Problem : The project cannot be built until build path errors are resolved [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]\n" +
+		String.valueOf(buffer)
 	);
-	
+
 	// Remove project to avoid side effect on other tests
 	env.removeProject(projectPath);
 }
@@ -588,38 +600,52 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 	String incompatibleJdkLevel = preferences.get(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, null);
 	try {
 		this.abortOnFailure = false; // NOT sure this test will pass on all releng boxes => do not abort on failures
-		
+
 		// Create project
 		IPath projectPath = env.addProject("Project");
 		IJavaProject project = env.getJavaProject(projectPath);
 		String[] classlibs = Util.getJavaClassLibs();
 		env.addExternalJars(projectPath, classlibs);
-		
+
 		// Build it expecting no problem
 		fullBuild();
 		expectingNoProblems();
 
 		// Build incompatible jdk level problem string
-		String jclPath = project.getPackageFragmentRoot(classlibs[0]).getPath().makeRelative().toString();
 		String wkspRuntime = JavaCore.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM);
-		
+		// sort classlibs
+		Arrays.sort(classlibs);
 		// Change workspace  incompatible jdk level preferences to warning, perform incremental build and expect 1 problem
 		preferences.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
 		incrementalBuild();
+
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, max = classlibs.length; i < max; i++) {
+			if (i>0) buffer.append('\n');
+			buffer.append(getJdkLevelProblem(wkspRuntime, project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString(), IMarker.SEVERITY_WARNING));
+		}
+
 		expectingProblemsFor(
 			projectPath,
-			getJdkLevelProblem(wkspRuntime, jclPath, IMarker.SEVERITY_WARNING)
+			String.valueOf(buffer)
 		);
-		
+
 		// Change workspace incompatible jdk level preferences to error, perform incremental build and expect 2 problems
 		preferences.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.ERROR);
 		incrementalBuild();
+
+		buffer = new StringBuffer();
+		for (int i = 0, max = classlibs.length; i < max; i++) {
+			if (i>0) buffer.append('\n');
+			buffer.append(getJdkLevelProblem(wkspRuntime, project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString(), IMarker.SEVERITY_ERROR));
+		}
+
 		expectingProblemsFor(
 			projectPath,
-			"Problem : The project cannot be built until build path errors are resolved [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]\n" + 
-			getJdkLevelProblem(wkspRuntime, jclPath, IMarker.SEVERITY_ERROR)
+			"Problem : The project cannot be built until build path errors are resolved [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]\n" +
+			String.valueOf(buffer)
 		);
-		
+
 		// Remove project to avoid side effect on other tests
 		env.removeProject(projectPath);
 	} finally {
@@ -753,12 +779,12 @@ public void test0100() throws JavaModelException {
 	);
 	fullBuild();
 	expectingNoProblems();
-	env.addClass(defaultPackagePath, "Y", 		
+	env.addClass(defaultPackagePath, "Y",
 		"public class Y implements X.Entry.Internal {\n" +
 		"  public Internal createEntry() {\n" +
 		"    return null;\n" +
 		"  }\n" +
-		"}");	
+		"}");
 	incrementalBuild();
 	expectingNoProblems();
 }
