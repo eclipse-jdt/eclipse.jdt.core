@@ -8129,4 +8129,93 @@ public void testBug194185() throws CoreException {
 		packageCollector);
 }
 
+/**
+ * @bug 195489: [search] References not found while using SearchEngine.searchDeclarationsOfReferencedTypes
+ * @test Verify that the type declaration match is always outside the javadoc and that the workaround described in bug 108053 works well
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=108053"
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=195489"
+ */
+public void testBug195489a() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b195489/Test.java",
+		"package b195489;\n" +
+		"/**\n" +
+		" * @see Ref\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"	public Ref ref;\n" +
+		"	public Ref getRef() {\n" +
+		"		return this.ref;\n" +
+		"	}\n" +
+		"}\n" +
+		"class Ref {}"
+	);
+	this.resultCollector.showInsideDoc = true;
+	new SearchEngine(this.workingCopies).searchDeclarationsOfReferencedTypes(workingCopies[0], this.resultCollector, null);
+	assertSearchResults(
+		"src/b195489/Test.java b195489.Ref [Ref] EXACT_MATCH OUTSIDE_JAVADOC"
+	);
+}
+public void testBug195489b() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b195489/Test.java",
+		"package b195489;\n" +
+		"public class Test {\n" +
+		"	public Ref ref;\n" +
+		"	/**\n" +
+		"	 * @see Ref\n" +
+		"	 */\n" +
+		"	public Ref getRef() {\n" +
+		"		return this.ref;\n" +
+		"	}\n" +
+		"}\n" +
+		"class Ref {}"
+	);
+	this.resultCollector.showInsideDoc = true;
+	new SearchEngine(this.workingCopies).searchDeclarationsOfReferencedTypes(workingCopies[0], this.resultCollector, null);
+	assertSearchResults(
+		"src/b195489/Test.java b195489.Ref [Ref] EXACT_MATCH OUTSIDE_JAVADOC"
+	);
+}
+public void testBug195489c() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b195489/Test.java",
+		"package b195489;\n" +
+		"/**\n" +
+		" * @see Ref\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"}\n" +
+		"class Ref {}"
+	);
+	this.resultCollector.showInsideDoc = true;
+	new SearchEngine(this.workingCopies).searchDeclarationsOfReferencedTypes(workingCopies[0], this.resultCollector, null);
+	assertSearchResults(
+		"src/b195489/Test.java b195489.Ref [Ref] EXACT_MATCH OUTSIDE_JAVADOC"
+	);
+}
+// test case for bug 108053 workaround
+public void testBug195489d() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b195489/Test.java",
+		"package b195489;\n" +
+		"/**\n" +
+		" * @see Ref\n" +
+		" */\n" +
+		"public class Test {\n" +
+		"}\n" +
+		"class Ref {}"
+	);
+	this.resultCollector.showInsideDoc = true;
+	String docCommentSupport = JAVA_PROJECT.getOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, true);
+	JAVA_PROJECT.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
+	try {
+		new SearchEngine(this.workingCopies).searchDeclarationsOfReferencedTypes(workingCopies[0], this.resultCollector, null);
+		assertSearchResults("");
+	}
+	finally {
+		JAVA_PROJECT.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, docCommentSupport);
+	}
+}
+
 }

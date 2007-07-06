@@ -1007,7 +1007,7 @@ public class SearchEngine {
 
 	/**
 	 * Searches for all declarations of the fields accessed in the given element.
-	 * The element can be a compilation unit, a source type, or a source method.
+	 * The element can be a compilation unit or a source type/method/field.
 	 * Reports the field declarations using the given requestor.
 	 * <p>
 	 * Consider the following code:
@@ -1032,7 +1032,7 @@ public class SearchEngine {
 	 * <code>B.value</code> and <code>A.field1</code>.
 	 * </p>
 	 *
-	 * @param enclosingElement the method, type, or compilation unit to be searched in
+	 * @param enclosingElement the field, method, type, or compilation unit to be searched in
 	 * @param requestor a callback object to which each match is reported
 	 * @param monitor the progress monitor used to report progress
 	 * @exception JavaModelException if the search failed. Reasons include:
@@ -1040,6 +1040,7 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
+	 *@exception IllegalArgumentException if the given java element has not the right type
 	 * @since 3.0
 	 */	
 	public void searchDeclarationsOfAccessedFields(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
@@ -1090,7 +1091,7 @@ public class SearchEngine {
 	
 	/**
 	 * Searches for all declarations of the types referenced in the given element.
-	 * The element can be a compilation unit, a source type, or a source method.
+	 * The element can be a compilation unit or a source type/method/field.
 	 * Reports the type declarations using the given requestor.
 	 * <p>
 	 * Consider the following code:
@@ -1115,7 +1116,7 @@ public class SearchEngine {
 	 * would collect the class <code>B</code> and the interface <code>I</code>.
 	 * </p>
 	 *
-	 * @param enclosingElement the method, type, or compilation unit to be searched in
+	 * @param enclosingElement the field, method, type, or compilation unit to be searched in
 	 * @param requestor a callback object to which each match is reported
 	 * @param monitor the progress monitor used to report progress
 	 * @exception JavaModelException if the search failed. Reasons include:
@@ -1123,6 +1124,7 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
+	 *@exception IllegalArgumentException if the given java element has not the right type
 	 * @since 3.0
 	 */	
 	public void searchDeclarationsOfReferencedTypes(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
@@ -1173,7 +1175,7 @@ public class SearchEngine {
 	
 	/**
 	 * Searches for all declarations of the methods invoked in the given element.
-	 * The element can be a compilation unit, a source type, or a source method.
+	 * The element can be a compilation unit or a source type/method/field.
 	 * Reports the method declarations using the given requestor.
 	 * <p>
 	 * Consider the following code:
@@ -1201,7 +1203,7 @@ public class SearchEngine {
 	 * <code>A.foo()</code>, <code>B.foo()</code>, and <code>A.bar()</code>.
 	 * </p>
 	 *
-	 * @param enclosingElement the method, type, or compilation unit to be searched in
+	 * @param enclosingElement the field, method, type or compilation unit to be searched in
 	 * @param requestor a callback object to which each match is reported
 	 * @param monitor the progress monitor used to report progress
 	 * @exception JavaModelException if the search failed. Reasons include:
@@ -1209,6 +1211,7 @@ public class SearchEngine {
 	 *		<li>the element doesn't exist</li>
 	 *		<li>the classpath is incorrectly set</li>
 	 *	</ul>
+	 *@exception IllegalArgumentException if the given java element has not the right type
 	 * @since 3.0
 	 */	
 	public void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {

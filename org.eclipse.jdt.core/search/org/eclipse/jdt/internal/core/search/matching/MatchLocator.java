@@ -206,8 +206,10 @@ public static class WrappedCoreException extends RuntimeException {
 }
 
 public static SearchDocument[] addWorkingCopies(InternalSearchPattern pattern, SearchDocument[] indexMatches, org.eclipse.jdt.core.ICompilationUnit[] copies, SearchParticipant participant) {
+	if (copies == null) return indexMatches;
 	// working copies take precedence over corresponding compilation units
 	HashMap workingCopyDocuments = workingCopiesThatCanSeeFocus(copies, pattern.focus, pattern.isPolymorphicSearch(), participant);
+	if (workingCopyDocuments.size() == 0) return indexMatches;
 	SearchDocument[] matches = null;
 	int length = indexMatches.length;
 	for (int i = 0; i < length; i++) {

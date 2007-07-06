@@ -388,24 +388,19 @@ public class BasicSearchEngine {
 	}
 	
 	/*
-	 * Returns the list of working copies used to do the search on the given Java element.
+	 * Returns the working copy to use to do the search on the given Java element.
 	 */
 	private ICompilationUnit[] getWorkingCopies(IJavaElement element) {
 		if (element instanceof IMember) {
 			ICompilationUnit cu = ((IMember)element).getCompilationUnit();
 			if (cu != null && cu.isWorkingCopy()) {
-				ICompilationUnit[] copies = getWorkingCopies();
-				int length = copies == null ? 0 : copies.length;
-				if (length > 0) {
-					ICompilationUnit[] newWorkingCopies = new ICompilationUnit[length+1];
-					System.arraycopy(copies, 0, newWorkingCopies, 0, length);
-					newWorkingCopies[length] = cu;
-					return newWorkingCopies;
-				} 
-				return new ICompilationUnit[] {cu};
+				return new ICompilationUnit[] { cu };
 			}
+		} else if (element instanceof ICompilationUnit) {
+			return new ICompilationUnit[] { (ICompilationUnit) element };
 		}
-		return getWorkingCopies();
+		
+		return null;
 	}
 
 	boolean match(char patternTypeSuffix, int modifiers) {
@@ -1169,7 +1164,7 @@ public class BasicSearchEngine {
 
 	/**
 	 * Searches for all declarations of the fields accessed in the given element.
-	 * The element can be a compilation unit, a source type, or a source method.
+	 * The element can be a compilation unit or a source type/method/field.
 	 * Reports the field declarations using the given requestor.
 	 *
 	 * @see SearchEngine#searchDeclarationsOfAccessedFields(IJavaElement, SearchRequestor, IProgressMonitor)
@@ -1179,13 +1174,24 @@ public class BasicSearchEngine {
 		if (VERBOSE) {
 			Util.verbose("BasicSearchEngine.searchDeclarationsOfAccessedFields(IJavaElement, SearchRequestor, SearchPattern, IProgressMonitor)"); //$NON-NLS-1$
 		}
+		// Do not accept other kind of element type than those specified in the spec
+		switch (enclosingElement.getElementType()) {
+			case IJavaElement.FIELD:
+			case IJavaElement.METHOD:
+			case IJavaElement.TYPE:
+			case IJavaElement.COMPILATION_UNIT:
+				// valid element type
+				break;
+			default:
+				throw new IllegalArgumentException();
+		}
 		SearchPattern pattern = new DeclarationOfAccessedFieldsPattern(enclosingElement);
 		searchDeclarations(enclosingElement, requestor, pattern, monitor);
 	}
 	
 	/**
 	 * Searches for all declarations of the types referenced in the given element.
-	 * The element can be a compilation unit, a source type, or a source method.
+	 * The element can be a compilation unit or a source type/method/field.
 	 * Reports the type declarations using the given requestor.
 	 * 
 	 * @see SearchEngine#searchDeclarationsOfReferencedTypes(IJavaElement, SearchRequestor, IProgressMonitor)
@@ -1195,13 +1201,24 @@ public class BasicSearchEngine {
 		if (VERBOSE) {
 			Util.verbose("BasicSearchEngine.searchDeclarationsOfReferencedTypes(IJavaElement, SearchRequestor, SearchPattern, IProgressMonitor)"); //$NON-NLS-1$
 		}
+		// Do not accept other kind of element type than those specified in the spec
+		switch (enclosingElement.getElementType()) {
+			case IJavaElement.FIELD:
+			case IJavaElement.METHOD:
+			case IJavaElement.TYPE:
+			case IJavaElement.COMPILATION_UNIT:
+				// valid element type
+				break;
+			default:
+				throw new IllegalArgumentException();
+		}
 		SearchPattern pattern = new DeclarationOfReferencedTypesPattern(enclosingElement);
 		searchDeclarations(enclosingElement, requestor, pattern, monitor);
 	}
 	
 	/**
 	 * Searches for all declarations of the methods invoked in the given element.
-	 * The element can be a compilation unit, a source type, or a source method.
+	 * The element can be a compilation unit or a source type/method/field.
 	 * Reports the method declarations using the given requestor.
 	 * 
 	 * @see SearchEngine#searchDeclarationsOfSentMessages(IJavaElement, SearchRequestor, IProgressMonitor)
@@ -1210,6 +1227,17 @@ public class BasicSearchEngine {
 	public void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
 		if (VERBOSE) {
 			Util.verbose("BasicSearchEngine.searchDeclarationsOfSentMessages(IJavaElement, SearchRequestor, SearchPattern, IProgressMonitor)"); //$NON-NLS-1$
+		}
+		// Do not accept other kind of element type than those specified in the spec
+		switch (enclosingElement.getElementType()) {
+			case IJavaElement.FIELD:
+			case IJavaElement.METHOD:
+			case IJavaElement.TYPE:
+			case IJavaElement.COMPILATION_UNIT:
+				// valid element type
+				break;
+			default:
+				throw new IllegalArgumentException();
 		}
 		SearchPattern pattern = new DeclarationOfReferencedMethodsPattern(enclosingElement);
 		searchDeclarations(enclosingElement, requestor, pattern, monitor);

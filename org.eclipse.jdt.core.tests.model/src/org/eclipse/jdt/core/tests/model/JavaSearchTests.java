@@ -436,13 +436,17 @@ public void testDeclarationOfReferencedTypes06() throws CoreException {
  */
 public void testDeclarationOfReferencedTypes07() throws CoreException {
 	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
-	searchDeclarationsOfReferencedTypes(
-		pkg, 
-		resultCollector
-	);
-	assertSearchResults(
-		"", 
-		this.resultCollector);
+	boolean iae = false;
+	try {
+		searchDeclarationsOfReferencedTypes(
+			pkg, 
+			resultCollector
+		);
+	} catch (IllegalArgumentException exception) {
+		assertSearchResults("");
+		iae = true;
+	}
+	assertTrue("We should get an IAE!", iae);
 }
 
 /**
@@ -450,7 +454,7 @@ public void testDeclarationOfReferencedTypes07() throws CoreException {
  * (Regression test for bug 47787 IJavaSearchResultCollector.aboutToStart() and done() not called)
  */
 public void testDeclarationOfReferencedTypes08() throws CoreException {
-	IPackageFragment pkg = getPackageFragment("JavaSearch", "src", "r7");
+	ICompilationUnit unit = getCompilationUnit("JavaSearch", "src", "r7", "A.java");
 	JavaSearchResultCollector result = new JavaSearchResultCollector() {
 	    public void beginReporting() {
 	        addLine("Starting search...");
@@ -459,10 +463,7 @@ public void testDeclarationOfReferencedTypes08() throws CoreException {
 	        addLine("Done searching.");
         }
 	};
-	searchDeclarationsOfReferencedTypes(
-		pkg, 
-		result
-	);
+	searchDeclarationsOfReferencedTypes(unit, result);
 	assertSearchResults(
 		"Starting search...\n"+
 		"Done searching.", 
