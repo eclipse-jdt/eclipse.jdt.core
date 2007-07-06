@@ -233,7 +233,70 @@ public void test004() {
 		assertTrue(false);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=180471 - variation
+public void test005() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int mode = 1;\n" + 
+			"		loop: for (;;) {\n" + 
+			"			switch (mode) {\n" + 
+			"				case 2 :\n" + 
+			"					return;\n" + 
+			"				case 1:\n" + 
+			"					mode = 2;\n" + 
+			"					continue loop;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"");
 
+	String expectedOutput =
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  iconst_1\n" + 
+		"     1  istore_1 [mode]\n" + 
+		"     2  iload_1 [mode]\n" + 
+		"     3  tableswitch default: 27\n" + 
+		"          case 1: 25\n" + 
+		"          case 2: 24\n" + 
+		"    24  return\n" + 
+		"    25  iconst_2\n" + 
+		"    26  istore_1 [mode]\n" + 
+		"    27  goto 2\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 2, line: 5]\n" + 
+		"        [pc: 24, line: 7]\n" + 
+		"        [pc: 25, line: 9]\n" + 
+		"        [pc: 27, line: 4]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 30] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 2, pc: 30] local: mode index: 1 type: int\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
 public static Class testClass() {
 	return ForStatementTest.class;
 }

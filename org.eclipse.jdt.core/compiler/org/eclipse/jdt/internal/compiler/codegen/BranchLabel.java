@@ -205,14 +205,6 @@ public void place() { // Currently lacking wide support.
 				this.codeStream.position = (this.position -= 3);
 				this.codeStream.classFileOffset -= 3;
 				this.forwardReferenceCount--;
-				// also update the PCs in the related debug attributes
-				/* OLD CODE
-					int index = codeStream.pcToSourceMapSize - 1;
-						while ((index >= 0) && (codeStream.pcToSourceMap[index][1] == oldPosition)) {
-							codeStream.pcToSourceMap[index--][1] = position;
-						}
-				*/
-				// Beginning of new code
 				if (this.codeStream.lastEntryPC == oldPosition) {
 					this.codeStream.lastEntryPC = this.position;
 				}
@@ -232,6 +224,10 @@ public void place() { // Currently lacking wide support.
 							}
 						}
 					}
+				}
+				if ((this.codeStream.generateAttributes & ClassFileConstants.ATTR_LINES) != 0) {
+					// we need to remove all entries that is beyond this.position inside the pcToSourcerMap table
+					this.codeStream.removeUnusedPcToSourceMapEntries();
 				}
 			}
 		}
