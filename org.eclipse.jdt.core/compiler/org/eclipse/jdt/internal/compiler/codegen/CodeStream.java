@@ -5877,7 +5877,7 @@ public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex
  */
 public void removeUnusedPcToSourceMapEntries() {
 	if (this.pcToSourceMapSize != 0) {
-		while (pcToSourceMap[pcToSourceMapSize - 2] > this.position) {
+		while (this.pcToSourceMapSize >= 2 && this.pcToSourceMap[this.pcToSourceMapSize - 2] > this.position) {
 			this.pcToSourceMapSize -= 2;
 		}
 	}
