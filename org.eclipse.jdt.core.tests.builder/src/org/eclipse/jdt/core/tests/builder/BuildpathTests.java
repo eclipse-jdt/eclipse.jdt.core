@@ -561,10 +561,16 @@ public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
 	// Change project incompatible jdk level preferences to warning, perform incremental build and expect 1 problem
 	project.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, CompilerOptions.WARNING);
 	incrementalBuild();
+	long projectRuntimeJDKLevel = CompilerOptions.versionToJdkLevel(projectRuntime);
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0, max = classlibs.length; i < max; i++) {
-		if (i>0) buffer.append('\n');
-		buffer.append(getJdkLevelProblem(projectRuntime, project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString(), IMarker.SEVERITY_WARNING));
+		String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
+		Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
+		long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
+		if (libraryJDK > projectRuntimeJDKLevel) {
+			if (i>0) buffer.append('\n');
+			buffer.append(getJdkLevelProblem(projectRuntime, path, IMarker.SEVERITY_WARNING));
+		}
 	}
 
 	expectingProblemsFor(
@@ -578,8 +584,13 @@ public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
 
 	buffer = new StringBuffer();
 	for (int i = 0, max = classlibs.length; i < max; i++) {
-		if (i>0) buffer.append('\n');
-		buffer.append(getJdkLevelProblem(projectRuntime, project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString(), IMarker.SEVERITY_ERROR));
+		String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
+		Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
+		long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
+		if (libraryJDK > projectRuntimeJDKLevel) {
+			if (i>0) buffer.append('\n');
+			buffer.append(getJdkLevelProblem(projectRuntime, path, IMarker.SEVERITY_ERROR));
+		}
 	}
 	expectingProblemsFor(
 		projectPath,
@@ -613,6 +624,7 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 
 		// Build incompatible jdk level problem string
 		String wkspRuntime = JavaCore.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM);
+		long wkspRuntimeJDKLevel = CompilerOptions.versionToJdkLevel(wkspRuntime);
 		// sort classlibs
 		Arrays.sort(classlibs);
 		// Change workspace  incompatible jdk level preferences to warning, perform incremental build and expect 1 problem
@@ -621,8 +633,13 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, max = classlibs.length; i < max; i++) {
-			if (i>0) buffer.append('\n');
-			buffer.append(getJdkLevelProblem(wkspRuntime, project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString(), IMarker.SEVERITY_WARNING));
+			String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
+			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
+			long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
+			if (libraryJDK > wkspRuntimeJDKLevel) {
+				if (i>0) buffer.append('\n');
+				buffer.append(getJdkLevelProblem(wkspRuntime, path, IMarker.SEVERITY_WARNING));
+			}
 		}
 
 		expectingProblemsFor(
@@ -636,8 +653,13 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 
 		buffer = new StringBuffer();
 		for (int i = 0, max = classlibs.length; i < max; i++) {
-			if (i>0) buffer.append('\n');
-			buffer.append(getJdkLevelProblem(wkspRuntime, project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString(), IMarker.SEVERITY_ERROR));
+			String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
+			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), new Path(path).makeAbsolute(), true);
+			long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
+			if (libraryJDK > wkspRuntimeJDKLevel) {
+				if (i>0) buffer.append('\n');
+				buffer.append(getJdkLevelProblem(wkspRuntime, path, IMarker.SEVERITY_ERROR));
+			}
 		}
 
 		expectingProblemsFor(
