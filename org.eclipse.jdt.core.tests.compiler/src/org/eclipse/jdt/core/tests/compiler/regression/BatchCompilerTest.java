@@ -999,29 +999,25 @@ public void test012(){
         "    -g:none            no debug info\n" +
         "    -preserveAllLocals preserve unused local vars for debug purpose\n" +
         " \n" +
-        " Annotation processing options:\n" +
-        "   These options are meaningful only in a 1.6 environment.\n" +
-        "    -Akey[=value]        annotation processors options that are made to\n" +
-        "                         annotation processors. key are identifiers separated\n" +
-        "                         by ''.''.\n" +
-        "    -processorpath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" +
-        "                         specify locations where to find annotation processors\n" +
-        "                         If this option is not used, the classpath will be\n" +
-        "                         searched for processors.\n" +
-        "    -processor <class1[,class2,...]>\n" +
-        "                         Qualified names of the annotation processors to run.\n" +
-        "                         This bypasses the default annotation discovery process\n" +
-        "    -proc:only           run annotation processors, but do not compile\n" +
-        "    -proc:none           perform compilation but do not run annotation\n" +
-        "                         processors\n" +
-        "    -s <dir>             specify a directory where to put the generated source\n" +
-        "                         files\n" +
-        "    -XprintProcessorInfo print information about which annotations and which\n" +
-        "                         elements a processor is asked to process\n" +
-        "    -XprintRounds        print information about annotation processing rounds.\n" +
+        " Annotation processing options:\n" + 
+        "   These options are meaningful only in a 1.6 environment.\n" + 
+        "    -Akey[=value]        options that are passed to annotation processors\n" + 
+        "    -processorpath <directories and zip/jar files separated by " + File.pathSeparator + ">\n" + 
+        "                         specify locations where to find annotation processors.\n" + 
+        "                         If this option is not used, the classpath will be\n" + 
+        "                         searched for processors\n" + 
+        "    -processor <class1[,class2,...]>\n" + 
+        "                         qualified names of the annotation processors to run.\n" + 
+        "                         This bypasses the default annotation discovery process\n" + 
+        "    -proc:only           run annotation processors, but do not compile\n" + 
+        "    -proc:none           perform compilation but do not run annotation\n" + 
+        "                         processors\n" + 
+        "    -s <dir>             destination directory for generated source files\n" + 
+        "    -XprintProcessorInfo print information about which annotations and elements\n" + 
+        "                         a processor is asked to process\n" + 
+        "    -XprintRounds        print information about annotation processing rounds\n" + 
         "    -classNames <className1[,className2,...]>\n" + 
-        "                         Qualified names of the classes that need\n" + 
-        "                         to be processed\n" + 
+        "                         qualified names of binary classes to process\n" + 
         " \n" +
         " Advanced options:\n" +
         "    @<file>            read command line arguments from file\n" +
