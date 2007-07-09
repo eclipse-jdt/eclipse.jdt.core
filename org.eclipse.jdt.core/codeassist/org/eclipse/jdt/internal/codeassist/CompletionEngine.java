@@ -739,7 +739,7 @@ public final class CompletionEngine
 					break;
 			}
 			
-			if (!guessedType.isValidBinding()) return;
+			if (guessedType == null || !guessedType.isValidBinding()) return;
 			
 			if (!hasPossibleAnnotationTarget(guessedType, scope)) return;
 		}
