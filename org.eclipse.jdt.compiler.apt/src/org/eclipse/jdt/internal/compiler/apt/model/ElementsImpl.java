@@ -357,14 +357,8 @@ public class ElementsImpl implements Elements {
 	 * Strip the comment characters from a javadoc comment. Assume the comment is already
 	 * missing its closing delimiter.
 	 *
-	 * We mainly do not attempt to emulate the baroque behavior of javac with respect to
-	 * treatment of whitespace. The rules here are simpler: eliminate the opening and
-	 * closing delimiter, and eliminate [whitespace plus stars] at the beginning of each
-	 * line. If the first or last line then contain only whitespace, discard them
-	 * entirely.  Javac also does things like: expand tabs at the beginning of the line if
-	 * the first non-whitespace char is not a star; if the first line contains whitespace
-	 * after the delimiter, but no non-whitespace chars, then delete the whitespace but
-	 * preserve the newline; and so forth.
+	 * Javac's behavior with regard to tab expansion and trimming of whitespace and
+	 * asterisks is bizarre and undocumented.  We do our best here to emulate it.
 	 */
 	private static String formatJavadoc(char[] unparsed)
 	{
