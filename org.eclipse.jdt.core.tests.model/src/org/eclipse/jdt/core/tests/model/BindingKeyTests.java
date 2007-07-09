@@ -44,6 +44,12 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		assertEquals(expected, signature);
 	}
 	
+	protected void assertBindingKeyTypeArgumentsEqual(String expected, String key) {
+		BindingKey bindingKey = new BindingKey(key);
+		String[] typeArguments = bindingKey.getTypeArguments();
+		assertStringsEqual("Unexpected type arguments", expected, typeArguments);
+	}
+	
 	/*
 	 * Package.
 	 */
@@ -492,4 +498,67 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"LX<TSM;TLM;>;"
 		);
 	}
+	
+	/*
+	 * Ensures that the type arguments for a parameterized type binding key are correct
+	 */
+	public void test045() {
+		assertBindingKeyTypeArgumentsEqual(
+			"Ljava.lang.String;\n",
+			"LX<Ljava/lang/String;>;"
+		);
+	}
+
+	/*
+	 * Ensures that the type arguments for a parameterized type binding key are correct
+	 */
+	public void test046() {
+		assertBindingKeyTypeArgumentsEqual(
+			"Ljava.lang.String;\n" +
+			"LY;\n",
+			"LX<Ljava/lang/String;LY;>;"
+		);
+	}
+
+	/*
+	 * Ensures that the type arguments for a parameterized type binding key are correct
+	 */
+	public void test047() {
+		assertBindingKeyTypeArgumentsEqual(
+			"",
+			"LX;"
+		);
+	}
+	
+	/*
+	 * Ensures that the type arguments for a parameterized type binding key are correct
+	 * (regression test for bug 103654 BindingKey.getTypeArguments bug with qualified types)
+	 */
+	public void test048() {
+		assertBindingKeyTypeArgumentsEqual(
+			"Ljava.lang.Object;\n",
+			"LX<Ljava/lang/String;>.LY<Ljava/lang/Object;>;"
+		);
+	}
+	
+	/*
+	 * Ensures that the type arguments for a parameterized method binding key are correct
+	 */
+	public void test049() {
+		assertBindingKeyTypeArgumentsEqual(
+			"Ljava.lang.String;\n",
+			"LX;.foo<T:Ljava/lang/Object;>(TT;)V%<Ljava/lang/String;>"
+		);
+	}
+	
+	/*
+	 * Parameterized method
+	 */
+	public void test050() {
+		assertBindingKeySignatureEquals(
+			"<T:Ljava.lang.Object;>(Ljava.lang.String;)V",
+			"LX;.foo<T:Ljava/lang/Object;>(TT;)V%<Ljava/lang/String;>"
+		);
+	}
+	
 }

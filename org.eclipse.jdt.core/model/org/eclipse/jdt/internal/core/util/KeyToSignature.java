@@ -30,6 +30,7 @@ public class KeyToSignature extends BindingKeyParser {
 	public StringBuffer signature = new StringBuffer();
 	private int kind;
 	private ArrayList arguments = new ArrayList();
+	private ArrayList typeArguments = new ArrayList();
 	private ArrayList typeParameters = new ArrayList();
 	private ArrayList thrownExceptions = new ArrayList();
 	private int mainTypeStart = -1;
@@ -70,6 +71,7 @@ public class KeyToSignature extends BindingKeyParser {
 	
 	public void consumeMethod(char[] selector, char[] methodSignature) {
 		this.arguments = new ArrayList();
+		this.typeArguments = new ArrayList();
 		CharOperation.replace(methodSignature, '/', '.');
 		switch(this.kind) {
 			case SIGNATURE:
@@ -98,6 +100,7 @@ public class KeyToSignature extends BindingKeyParser {
 	}
 	
 	public void consumeParameterizedGenericMethod() {
+		this.typeArguments = this.arguments;
 		int typeParametersSize = this.arguments.size();
 		if (typeParametersSize > 0) {
 			int sigLength = this.signature.length();
@@ -196,8 +199,8 @@ public class KeyToSignature extends BindingKeyParser {
 				this.signature.append(((KeyToSignature) this.arguments.get(i)).signature);
 			}
 			this.signature.append('>');
-			if (this.kind != TYPE_ARGUMENTS)
-				this.arguments = new ArrayList();
+			this.typeArguments = this.arguments;
+			this.arguments = new ArrayList();
 		}
 	}
 	
@@ -218,6 +221,7 @@ public class KeyToSignature extends BindingKeyParser {
 				this.thrownExceptions.add(((KeyToSignature) this.arguments.get(i)).signature.toString());
 			}
 			this.arguments = new ArrayList();
+			this.typeArguments = new ArrayList();
 		}
 	}
 	
@@ -275,6 +279,7 @@ public class KeyToSignature extends BindingKeyParser {
 		KeyToSignature keyToSignature = (KeyToSignature) this.arguments.get(0);
 		this.signature = keyToSignature.signature;
 		this.arguments = keyToSignature.arguments;
+		this.typeArguments = keyToSignature.typeArguments;
 		this.thrownExceptions = keyToSignature.thrownExceptions;
 	}
 	
@@ -309,10 +314,10 @@ public class KeyToSignature extends BindingKeyParser {
 	}
 	
 	public String[] getTypeArguments() {
-		int length = this.arguments.size();
+		int length = this.typeArguments.size();
 		String[] result = new String[length];
 		for (int i = 0; i < length; i++) {
-			result[i] = ((KeyToSignature) this.arguments.get(i)).signature.toString();
+			result[i] = ((KeyToSignature) this.typeArguments.get(i)).signature.toString();
 		}
 		return result;
 	}
