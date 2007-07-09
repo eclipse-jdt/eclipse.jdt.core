@@ -664,4 +664,36 @@ public void test0024() throws JavaModelException {
 		"expectedTypesKeys=null",
 		result.context);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191125
+public void test0025() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0006/X.java",
+		"package test0006;\n" + 
+		"@ZZZZ\n" + 
+		"public class X {\n" + 
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src3/pkgannotation/QQAnnotation.java",
+		"package pkgannotations;\n" + 
+		"public @interface QQAnnotation {\n" + 
+		"}");
+	
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("ZZZZ");
+	int tokenEnd = tokenStart + "ZZZZ".length() - 1;
+	int cursorLocation = str.lastIndexOf("ZZZZ");
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null",
+		result.context);
+}
 }
