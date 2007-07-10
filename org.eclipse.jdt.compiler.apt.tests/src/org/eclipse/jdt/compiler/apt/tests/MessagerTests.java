@@ -56,7 +56,7 @@ public class MessagerTests extends TestCase {
 	}
 
 	/**
-	 * Attempt to read various elements of the Element hierarchy.
+	 * Attempt to report errors on various elements.
 	 * @throws IOException
 	 */
 	private void internalTestMessager(JavaCompiler compiler) throws IOException {
