@@ -1244,7 +1244,7 @@ public void test0085_shortcut_boolean_expression() {
 		"----------\n");
 }
 
-// null analysis - shortcut boolean expression
+// null analysis - shortcut boolean expression and correlation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195774
 public void test0086_shortcut_boolean_expression() {
 	this.runConformTest(
@@ -1253,13 +1253,13 @@ public void test0086_shortcut_boolean_expression() {
 			"public class X {\n" + 
 			"  public static int foo(Integer i, Integer j) {\n" + 
 			"    if (i == null && j == null) {\n" + 
-			"      return 1; // throw new NullPointerException();\n" + 
+			"      return 1;\n" + 
 			"    }\n" + 
 			"    if (i == null) {\n" + 
-			"      return j.intValue();\n" + // protected by returning if both i and j are null above
+			"      return j.intValue();\n" +
 			"    }\n" + 
 			"    if (j == null) {\n" + 
-			"      return i.intValue();\n" + // protected by returning if i == null above
+			"      return i.intValue();\n" +
 			"    }\n" + 
 			"    return 0;\n" + 
 			"  }\n" + 
@@ -1267,32 +1267,27 @@ public void test0086_shortcut_boolean_expression() {
 		"");
 }
 
-// null analysis - shortcut boolean expression
+// null analysis - shortcut boolean expression and correlation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195774
-public void test0087_shortcut_boolean_expression() {
-	this.runNegativeTest(
+public void _test0087_shortcut_boolean_expression() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
 			"  public static int foo(Integer i, Integer j) {\n" + 
 			"    if (i == null && j == null) {\n" + 
-			"      return 1; // throw new NullPointerException();\n" + 
+			"      return 1;\n" + 
 			"    }\n" + 
 			"    if (j == null) {\n" + 
 			"      return i.intValue();\n" + 
 			"    }\n" + 
 			"    if (i == null) {\n" + 
-			"      return j.intValue();\n" + // protected by returning if j == null above
+			"      return j.intValue();\n" +
 			"    }\n" + 
 			"    return 0;\n" + 
 			"  }\n" + 
 			"}"},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	return i.intValue();\n" + 
-		"	       ^\n" + 
-		"Potential null pointer access: The variable i may be null at this location\n" + 
-		"----------\n");
+		"");
 }
 
 // null analysis -- instanceof
