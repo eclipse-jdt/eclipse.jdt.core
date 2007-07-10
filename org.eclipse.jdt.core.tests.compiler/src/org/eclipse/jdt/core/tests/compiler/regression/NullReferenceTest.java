@@ -1244,6 +1244,57 @@ public void test0085_shortcut_boolean_expression() {
 		"----------\n");
 }
 
+// null analysis - shortcut boolean expression
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195774
+public void test0086_shortcut_boolean_expression() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static int foo(Integer i, Integer j) {\n" + 
+			"    if (i == null && j == null) {\n" + 
+			"      return 1; // throw new NullPointerException();\n" + 
+			"    }\n" + 
+			"    if (i == null) {\n" + 
+			"      return j.intValue();\n" + // protected by returning if both i and j are null above
+			"    }\n" + 
+			"    if (j == null) {\n" + 
+			"      return i.intValue();\n" + // protected by returning if i == null above
+			"    }\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"}"},
+		"");
+}
+
+// null analysis - shortcut boolean expression
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195774
+public void test0087_shortcut_boolean_expression() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static int foo(Integer i, Integer j) {\n" + 
+			"    if (i == null && j == null) {\n" + 
+			"      return 1; // throw new NullPointerException();\n" + 
+			"    }\n" + 
+			"    if (j == null) {\n" + 
+			"      return i.intValue();\n" + 
+			"    }\n" + 
+			"    if (i == null) {\n" + 
+			"      return j.intValue();\n" + // protected by returning if j == null above
+			"    }\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	return i.intValue();\n" + 
+		"	       ^\n" + 
+		"Potential null pointer access: The variable i may be null at this location\n" + 
+		"----------\n");
+}
+
 // null analysis -- instanceof
 // JLS: instanceof returns false if o turns out to be null
 public void test0090_instanceof() {
