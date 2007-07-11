@@ -1095,7 +1095,10 @@ void setSourceStart(int sourceStart);
     int InvalidUsageOfAnnotations = Syntax + Internal + 596;
     /** @since 3.1 */
     int InvalidUsageOfAnnotationDeclarations = Syntax + Internal + 597;
-    
+    /** @since 3.4 */
+    int InvalidUsageOfTypeParametersForAnnotationDeclaration = Syntax + Internal + 598;
+    /** @since 3.4 */
+    int InvalidUsageOfTypeParametersForEnumDeclaration = Syntax + Internal + 599;
     /**
      * Annotation
      */

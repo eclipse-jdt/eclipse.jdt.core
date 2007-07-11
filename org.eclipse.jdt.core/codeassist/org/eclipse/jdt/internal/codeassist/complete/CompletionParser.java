@@ -2156,6 +2156,13 @@ protected void consumeEnumHeaderName() {
 		this.pendingAnnotation = null;
 	}
 }
+protected void consumeEnumHeaderNameWithTypeParameters() {
+	super.consumeEnumHeaderNameWithTypeParameters();
+	if (this.pendingAnnotation != null) {
+		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
+		this.pendingAnnotation = null;
+	}
+}
 protected void consumeEqualityExpression(int op) {
 	super.consumeEqualityExpression(op);
 	popElement(K_BINARY_OPERATOR);
@@ -2657,6 +2664,13 @@ protected void consumeAnnotationName() {
 }
 protected void consumeAnnotationTypeDeclarationHeaderName() {
 	super.consumeAnnotationTypeDeclarationHeaderName();
+	if (this.pendingAnnotation != null) {
+		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
+		this.pendingAnnotation = null;
+	}
+}
+protected void consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters() {
+	super.consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters();
 	if (this.pendingAnnotation != null) {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;

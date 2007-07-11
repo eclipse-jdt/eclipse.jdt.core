@@ -3489,6 +3489,26 @@ public void invalidUsageOfTypeParameters(TypeParameter firstTypeParameter, TypeP
 		firstTypeParameter.declarationSourceStart,
 		lastTypeParameter.declarationSourceEnd);
 }
+public void invalidUsageOfTypeParametersForAnnotationDeclaration(TypeDeclaration annotationTypeDeclaration) {
+	TypeParameter[] parameters = annotationTypeDeclaration.typeParameters;
+	int length = parameters.length;
+	this.handle(
+			IProblem.InvalidUsageOfTypeParametersForAnnotationDeclaration,
+			NoArgument, 
+			NoArgument, 
+			parameters[0].declarationSourceStart,
+			parameters[length - 1].declarationSourceEnd);
+}
+public void invalidUsageOfTypeParametersForEnumDeclaration(TypeDeclaration annotationTypeDeclaration) {
+	TypeParameter[] parameters = annotationTypeDeclaration.typeParameters;
+	int length = parameters.length;
+	this.handle(
+			IProblem.InvalidUsageOfTypeParametersForEnumDeclaration,
+			NoArgument, 
+			NoArgument, 
+			parameters[0].declarationSourceStart,
+			parameters[length - 1].declarationSourceEnd);
+}
 public void invalidUsageOfVarargs(Argument argument) {
 	this.handle(
 		IProblem.InvalidUsageOfVarargs,

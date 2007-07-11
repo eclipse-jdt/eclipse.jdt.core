@@ -1110,4 +1110,52 @@ public void test0016() {
 		expectedCompletionDietUnitToString,	
 		testName);
 }
+public void test0017() {
+
+	String s = 
+		"package a;											\n"
+			+ "public enum X <T> {							\n"
+			+ "}											\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public enum X<T> {\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public enum X<T> {\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString =
+		"package a;\n" + 
+		"public enum X<T> {\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<enum type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
 }

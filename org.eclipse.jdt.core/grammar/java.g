@@ -1591,6 +1591,11 @@ EnumHeaderName ::= Modifiersopt 'enum' Identifier
 /:$readableName EnumHeaderName:/
 /:$compliance 1.5:/
 
+EnumHeaderName ::= Modifiersopt 'enum' Identifier TypeParameters
+/. $putCase consumeEnumHeaderNameWithTypeParameters(); $break ./
+/:$readableName EnumHeaderName:/
+/:$compliance 1.5:/
+
 EnumBody ::= '{' EnumBodyDeclarationsopt '}'
 /. $putCase consumeEnumBodyNoConstants(); $break ./
 EnumBody ::= '{' ',' EnumBodyDeclarationsopt '}'
@@ -2060,6 +2065,11 @@ Expression_NotName -> AssignmentExpression_NotName
 AnnotationTypeDeclarationHeaderName ::= Modifiers '@' PushRealModifiers interface Identifier
 /.$putCase consumeAnnotationTypeDeclarationHeaderName() ; $break ./
 /:$compliance 1.5:/
+AnnotationTypeDeclarationHeaderName ::= Modifiers '@' PushRealModifiers interface Identifier TypeParameters
+/.$putCase consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters() ; $break ./
+/:$compliance 1.5:/
+AnnotationTypeDeclarationHeaderName ::= '@' PushModifiersForHeader interface Identifier TypeParameters
+/.$putCase consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters() ; $break ./
 AnnotationTypeDeclarationHeaderName ::= '@' PushModifiersForHeader interface Identifier
 /.$putCase consumeAnnotationTypeDeclarationHeaderName() ; $break ./
 /:$readableName AnnotationTypeDeclarationHeaderName:/

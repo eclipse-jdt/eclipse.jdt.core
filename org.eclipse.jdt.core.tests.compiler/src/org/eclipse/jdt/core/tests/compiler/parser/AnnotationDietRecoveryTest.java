@@ -251,11 +251,7 @@ public void test0002() {
 
 	String expectedDietUnitToString = 
 		"package a;\n" + 
-		"public @interface X {\n" + 
-		"  {\n" + 
-		"  }\n" + 
-		"  <clinit>() {\n" + 
-		"  }\n" + 
+		"public @interface X<T> {\n" + 
 		"}\n";
 	
 	String expectedDietPlusBodyUnitToString = 

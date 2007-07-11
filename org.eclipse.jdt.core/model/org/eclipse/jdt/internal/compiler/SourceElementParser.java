@@ -295,6 +295,12 @@ protected void consumeAnnotationTypeDeclarationHeaderName() {
 	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
 		rememberCategories();
 }
+protected void consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters() {
+	int currentAstPtr = this.astPtr;
+	super.consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		rememberCategories();
+}
 protected void consumeClassHeaderName1() {
 	int currentAstPtr = this.astPtr;
 	super.consumeClassHeaderName1();
@@ -356,6 +362,12 @@ protected void consumeEnumConstantNoClassBody() {
 protected void consumeEnumHeaderName() {
 	int currentAstPtr = this.astPtr;
 	super.consumeEnumHeaderName();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		rememberCategories();
+}
+protected void consumeEnumHeaderNameWithTypeParameters() {
+	int currentAstPtr = this.astPtr;
+	super.consumeEnumHeaderNameWithTypeParameters();
 	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
 		rememberCategories();
 }

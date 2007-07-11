@@ -7576,4 +7576,18 @@ public void test226() {
 		"The value for annotation attribute X.Annot.classe must be a class literal\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=186822
+public void test227() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public @interface X<T> {}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public @interface X<T> {}\n" + 
+		"	                    ^\n" + 
+		"Syntax error, annotation declaration cannot have type parameters\n" + 
+		"----------\n");
+}
 }
