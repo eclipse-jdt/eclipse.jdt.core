@@ -26,6 +26,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ModelTests.class);
 		suite.addTestSuite(MessagerTests.class);
 		suite.addTestSuite(ModelUtilTests.class);
+		// Not yet supported:
+		// suite.addTestSuite(NegativeTests.class);
 		return suite;
 	}
 }

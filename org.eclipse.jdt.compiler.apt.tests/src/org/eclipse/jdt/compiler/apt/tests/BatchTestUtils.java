@@ -79,6 +79,7 @@ public class BatchTestUtils {
 		options.add("-processorpath");
 		options.add(_processorJarPath);
 		options.add("-XprintRounds");
+		options.add("-XprintProcessorInfo");
 		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
 		Boolean result = task.call();
 
