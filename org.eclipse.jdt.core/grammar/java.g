@@ -1588,9 +1588,7 @@ EnumHeader ::= EnumHeaderName ClassHeaderImplementsopt
 
 EnumHeaderName ::= Modifiersopt 'enum' Identifier
 /. $putCase consumeEnumHeaderName(); $break ./
-/:$readableName EnumHeaderName:/
 /:$compliance 1.5:/
-
 EnumHeaderName ::= Modifiersopt 'enum' Identifier TypeParameters
 /. $putCase consumeEnumHeaderNameWithTypeParameters(); $break ./
 /:$readableName EnumHeaderName:/
@@ -2070,6 +2068,7 @@ AnnotationTypeDeclarationHeaderName ::= Modifiers '@' PushRealModifiers interfac
 /:$compliance 1.5:/
 AnnotationTypeDeclarationHeaderName ::= '@' PushModifiersForHeader interface Identifier TypeParameters
 /.$putCase consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters() ; $break ./
+/:$compliance 1.5:/
 AnnotationTypeDeclarationHeaderName ::= '@' PushModifiersForHeader interface Identifier
 /.$putCase consumeAnnotationTypeDeclarationHeaderName() ; $break ./
 /:$readableName AnnotationTypeDeclarationHeaderName:/
@@ -2109,6 +2108,7 @@ AnnotationMethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
 AnnotationMethodHeaderName ::= Modifiersopt Type 'Identifier' '('
 /.$putCase consumeMethodHeaderName(true); $break ./
 /:$readableName MethodHeaderName:/
+/:$compliance 1.5:/
 
 AnnotationMethodHeaderDefaultValueopt ::= $empty
 /.$putCase consumeEmptyMethodHeaderDefaultValue() ; $break ./
