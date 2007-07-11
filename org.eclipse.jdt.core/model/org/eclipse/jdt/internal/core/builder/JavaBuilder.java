@@ -209,28 +209,10 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 		}
 	} catch (CoreException e) {
 		Util.log(e, "JavaBuilder handling CoreException while building: " + currentProject.getName()); //$NON-NLS-1$
-		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttributes(
-			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
-			new Object[] {
-				Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()),
-				new Integer(IMarker.SEVERITY_ERROR),
-				new Integer(CategorizedProblem.CAT_BUILDPATH),
-				JavaBuilder.SOURCE_ID
-			}
-		);
+		createInconsistentBuildMarker(e);
 	} catch (ImageBuilderInternalException e) {
 		Util.log(e.getThrowable(), "JavaBuilder handling ImageBuilderInternalException while building: " + currentProject.getName()); //$NON-NLS-1$
-		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttributes(
-			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
-			new Object[] {
-				Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()),
-				new Integer(IMarker.SEVERITY_ERROR),
-				new Integer(CategorizedProblem.CAT_BUILDPATH),
-				JavaBuilder.SOURCE_ID
-			}
-		);
+		createInconsistentBuildMarker(e.coreException);
 	} catch (MissingSourceFileException e) {
 		// do not log this exception since its thrown to handle aborted compiles because of missing source files
 		if (DEBUG)
@@ -306,15 +288,7 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 		new BatchImageBuilder(this, false).cleanOutputFolders(false);
 	} catch (CoreException e) {
 		Util.log(e, "JavaBuilder handling CoreException while cleaning: " + currentProject.getName()); //$NON-NLS-1$
-		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttributes(
-			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IMarker.SOURCE_ID},
-			new Object[] {
-				Messages.bind(Messages.build_inconsistentProject, e.getLocalizedMessage()),
-				new Integer(IMarker.SEVERITY_ERROR),
-				JavaBuilder.SOURCE_ID
-			}
-		);
+		createInconsistentBuildMarker(e);
 	} finally {
 		notifier.done();
 		cleanup();
@@ -322,6 +296,29 @@ protected void clean(IProgressMonitor monitor) throws CoreException {
 	if (DEBUG)
 		System.out.println("Finished cleaning " + currentProject.getName() //$NON-NLS-1$
 			+ " @ " + new Date(System.currentTimeMillis())); //$NON-NLS-1$
+}
+
+private void createInconsistentBuildMarker(CoreException coreException) throws CoreException {
+	String message = null;
+	IStatus status = coreException.getStatus();
+ 	if (status.isMultiStatus()) {
+ 		IStatus[] children = status.getChildren();
+ 		if (children != null && children.length > 0)
+ 		    message = children[0].getMessage();
+ 	}
+ 	if (message == null)
+ 		message = coreException.getMessage();
+
+	IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
+	marker.setAttributes(
+		new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
+		new Object[] {
+			Messages.bind(Messages.build_inconsistentProject, message),
+			new Integer(IMarker.SEVERITY_ERROR),
+			new Integer(CategorizedProblem.CAT_BUILDPATH),
+			JavaBuilder.SOURCE_ID
+		}
+	);
 }
 
 private void cleanup() {

@@ -10,9 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
+import java.io.File;
+import java.io.IOException;
+
 import junit.framework.*;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -192,5 +196,57 @@ public void test0104() throws JavaModelException {
 	expectingSpecificProblemFor(classTest1, 
 		new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
 	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97998
+// Improving the error message in case of a read-only file in output
+// directory. Beware: this test only works under Linux - execution on other
+// platforms always succeeds, but the result is not significant.
+public void test0105() throws JavaModelException, CoreException, IOException {
+	if ("Linux".equals(System.getProperty("os.name"))) {
+		IPath projectPath = env.addProject("P");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		IPath root = env.getPackageFragmentRootPath(projectPath, "");
+		IPath outputFolderPath = env.getOutputLocation(projectPath);
+		File outputFolder = env.getWorkspaceRootPath().append(outputFolderPath).toFile();
+		env.addClass(root, "p1", 
+				"X",
+				"package p1;\n" +
+				"public class X {\n" +
+				"}\n"
+			);
+		try {
+			fullBuild(projectPath);
+			expectingNoProblems();
+			outputFolder.setReadOnly();
+			// outputFolder.setReadable(false);
+			// PREMATURE no appropriate solution for Windows/NTFS/JDK 1.4
+			cleanBuild();
+			expectingOnlySpecificProblemFor(env.getWorkspaceRootPath(), 
+					new Problem("", 
+						"The project was not built due to \"Could not delete \'" + 
+						env.getWorkspaceRootPath() + "/P/bin/.classpath\'.\". " + 
+						"Fix the problem, then try refreshing this project and building " +
+						"it since it may be inconsistent", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
+		} finally {
+			// waiting for JDK 6: outputFolder.setWritable(true); -- workaround:
+			try {
+				Runtime.getRuntime().exec("chmod -R a+w " + outputFolder.getAbsolutePath()).waitFor();
+			} catch (InterruptedException e) {
+				// go ahead
+			}
+		}
+		try {
+			cleanBuild();
+			expectingNoProblems();
+		} catch (Throwable t) {
+			try {
+				Runtime.getRuntime().exec("chmod -R a+w " + outputFolder.getAbsolutePath()).waitFor();
+			} catch (InterruptedException ie) {
+				// go ahead
+			}
+			fail(t.getMessage());
+		}
+	}
 }
 }

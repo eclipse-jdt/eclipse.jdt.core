@@ -25,16 +25,6 @@ public ImageBuilderInternalException(CoreException e) {
 	this.coreException = e;
 }
 
-public String getLocalizedMessage() {
-	IStatus status = this.coreException.getStatus();
-	if (status.isMultiStatus()) {
-		IStatus[] children = status.getChildren();
-		if (children != null && children.length > 0)
-		    return children[0].getMessage();
-	}
-    return this.coreException.getLocalizedMessage();
-}
-
 public CoreException getThrowable() {
 	return coreException;
 }
