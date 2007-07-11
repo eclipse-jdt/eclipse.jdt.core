@@ -108,6 +108,9 @@
  * 								   NullLocalVariableInstanceofYieldsFalse
  * 								   RedundantNullCheckOnNonNullLocalVariable
  * 								   NonNullLocalVariableComparisonYieldsFalse
+ *     IBM Corporation - added the following constants
+ *                                 InvalidUsageOfTypeParametersForAnnotationDeclaration
+ *                                 InvalidUsageOfTypeParametersForEnumDeclaration
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
