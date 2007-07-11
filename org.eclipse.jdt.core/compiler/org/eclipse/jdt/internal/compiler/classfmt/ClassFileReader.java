@@ -339,7 +339,6 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 	} catch(ClassFormatException e) {
 		throw e;
 	} catch (Exception e) {
-		e.printStackTrace();
 		throw new ClassFormatException(
 			ClassFormatException.ErrTruncatedInput, 
 			readOffset); 
