@@ -14,7 +14,11 @@ package targets.negative.pa;
  * javax.lang.model.element: in general, missing types should be replaced
  * by empty types with the same name.
  */
+@interface Anno1 {
+	String value() default "foo";
+}
 @A1.A2.A3 class Negative1 {
+	@Anno1("spud") String s1;
 	@A4 Missing1 m1 = MISSING_VAL1;
 	@A5(@A6(@A7)) int i1;
 	@A8 Missing2.Missing3.Missing4 m2;

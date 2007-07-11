@@ -23,8 +23,10 @@ import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.util.Elements;
@@ -66,6 +68,9 @@ public class NegativeModelProc extends AbstractProcessor
 	
 	// Initialized in collectElements()
 	private TypeElement _elementN1;
+
+	// Set this to false in order to pass the tests that are not currently supported
+	private boolean _testFailingCases = true;
 
 	
 	/* (non-Javadoc)
@@ -123,7 +128,7 @@ public class NegativeModelProc extends AbstractProcessor
 	 */
 	private boolean checkAnnotations() {
 		AnnotationMirror am3 = findAnnotation(_elementN1, "A3");
-		if (null == am3) {
+		if (_testFailingCases && null == am3) {
 			reportError("Couldn't find annotation A3 on class Negative1");
 			return false;
 		}
@@ -132,23 +137,39 @@ public class NegativeModelProc extends AbstractProcessor
 			String name = element.getSimpleName().toString();
 			if ("m1".equals(name)) {
 				AnnotationMirror am4 = findAnnotation(element, "A4");
-				if (null == am4) {
+				if (_testFailingCases && null == am4) {
 					reportError("Couldn't find annotation A4 on field Negative1.m1");
 					return false;
 				}
 			}
 			else if ("i1".equals(name)) {
 				AnnotationMirror am5 = findAnnotation(element, "A5");
-				if (null == am5) {
+				if (_testFailingCases && null == am5) {
 					reportError("Couldn't find annotation A5 on field Negative1.i1");
 					return false;
 				}
 			}
 			else if ("m2".equals(name)) {
 				AnnotationMirror am8 = findAnnotation(element, "A8");
-				if (null == am8) {
+				if (_testFailingCases && null == am8) {
 					reportError("Couldn't find annotation A8 on field Negative1.m2");
 					return false;
+				}
+			}
+			else if ("s1".equals(name)) {
+				AnnotationMirror am = findAnnotation(element, "Anno1");
+				if (null == am) {
+					reportError("Couldn't find annotation Anno on field Negative1.s1");
+					return false;
+				}
+				Map<? extends ExecutableElement, ? extends AnnotationValue> values = am.getElementValues();
+				for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
+					if ("value".equals(entry.getKey().getSimpleName().toString())) {
+						if (!"spud".equals(entry.getValue().getValue())) {
+							reportError("Unexpected value for Anno1 on Negative1.s1: " + entry.getValue().getValue());
+							return false;
+						}
+					}
 				}
 			}
 		}
