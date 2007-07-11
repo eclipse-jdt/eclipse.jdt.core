@@ -480,29 +480,25 @@ public final class CompletionEngine
 					continue next; // import of default package is forbidden when compliance is 1.4 or higher
 				}
 				
-				char[] completionName;
+				char[] completionName = this.insideQualifiedReference ? simpleTypeName : fullyQualifiedName;
 				
 				if(this.resolvingStaticImports) {
 					if(enclosingTypeNames == null || enclosingTypeNames.length == 0) {
-						completionName = CharOperation.concat(fullyQualifiedName, new char[] { '.' });
+						completionName = CharOperation.concat(completionName, new char[] { '.' });
 					} else if ((modifiers & ClassFileConstants.AccStatic) == 0) {
 						continue next;
 					} else {
-						completionName = CharOperation.concat(fullyQualifiedName, new char[] { ';' });
+						completionName = CharOperation.concat(completionName, new char[] { ';' });
 					}
 				} else {
-					completionName = CharOperation.concat(fullyQualifiedName, new char[] { ';' });
+					completionName = CharOperation.concat(completionName, new char[] { ';' });
 				}
 				
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
 				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForRestrictions(accessibility);
-				if(insideQualifiedReference) {
-					relevance += computeRelevanceForCaseMatching(this.completionToken, fullyQualifiedName);
-				} else {
-					relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
-				}
+				relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
 				
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
@@ -2017,9 +2013,8 @@ public final class CompletionEngine
 								contextAccepted = true;
 								this.buildContext(importReference, null, null, null);
 								
-								setSourceRange(
-									importReference.sourceStart,
-									importReference.declarationSourceEnd);
+								long positions = importReference.sourcePositions[importReference.sourcePositions.length - 1];
+								setSourceRange((int) (positions >>> 32), (int) positions);
 								
 								char[][] oldTokens = importReference.tokens;
 								int tokenCount = oldTokens.length;
@@ -2037,15 +2032,14 @@ public final class CompletionEngine
 											findImports((CompletionOnImportReference)importReference, false);
 										} else {
 											ReferenceBinding ref = (ReferenceBinding) binding;
+											
 											if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 												this.findImportsOfMemberTypes(lastToken, ref, importReference.isStatic());
 											}
 											if(importReference.isStatic()) {
+												
 												if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-													long positions = importReference.sourcePositions[importReference.sourcePositions.length - 1];
-													setSourceRange((int) (positions >>> 32), (int) positions);
 													this.findImportsOfStaticFields(lastToken, ref);
-													setSourceRange(importReference.sourceStart, importReference.declarationSourceEnd);
 												}
 												if(!this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
 													this.findImportsOfStaticMethods(lastToken, ref);
@@ -3862,10 +3856,21 @@ public final class CompletionEngine
 		this.resolvingImports = true;
 		this.resolvingStaticImports = importReference.isStatic();
 			
-		this.completionToken =  importName;
+		this.completionToken =  lastToken;
+		this.qualifiedCompletionToken = importName;
+		
 		// want to replace the existing .*;
 		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+			int oldStart = this.startPosition;
+			int oldEnd = this.endPosition;
+			setSourceRange(
+				importReference.sourceStart,
+				importReference.declarationSourceEnd);
 			this.nameEnvironment.findPackages(importName, this);
+			setSourceRange(
+				oldStart,
+				oldEnd - 1,
+				false);
 		}
 		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 			this.nameEnvironment.findTypes(
@@ -3903,12 +3908,7 @@ public final class CompletionEngine
 				&& !memberType.canBeSeenBy(this.unitScope.fPackage))
 				continue next;
 			
-			char[] completionName = CharOperation.concat(
-					memberType.qualifiedPackageName(),
-					memberType.qualifiedSourceName(),
-					'.');
-			
-			completionName = CharOperation.concat(completionName, SEMICOLON);
+			char[] completionName = CharOperation.concat(memberType.sourceName, SEMICOLON);
 			
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
@@ -4023,16 +4023,8 @@ public final class CompletionEngine
 				parameterTypeNames[i] = type.qualifiedSourceName();
 			}
 			char[][] parameterNames = findMethodParameterNames(method,parameterTypeNames);
-
 			
-			char[] completionName = CharOperation.concat(
-					method.declaringClass.qualifiedPackageName(),
-					'.',
-					method.declaringClass.qualifiedSourceName(),
-					'.',
-					method.selector);
-			
-			completionName = CharOperation.concat(completionName, SEMICOLON);
+			char[] completionName = CharOperation.concat(method.selector, SEMICOLON);
 			
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();

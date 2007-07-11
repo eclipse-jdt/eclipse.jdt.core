@@ -3738,7 +3738,7 @@ public void testCompletionFindImport2() throws JavaModelException {
     
 	assertResults(
 			"pack1.pack3[PACKAGE_REF]{pack1.pack3.*;, pack1.pack3, null, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED)+"}\n"+
-			"PX[TYPE_REF]{pack1.PX;, pack1, Lpack1.PX;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"PX[TYPE_REF]{PX;, pack1, Lpack1.PX;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 
