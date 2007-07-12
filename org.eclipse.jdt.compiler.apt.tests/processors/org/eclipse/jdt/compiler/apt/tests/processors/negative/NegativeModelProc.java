@@ -29,6 +29,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.Elements;
 
 /**
@@ -69,8 +70,8 @@ public class NegativeModelProc extends AbstractProcessor
 	// Initialized in collectElements()
 	private TypeElement _elementN1;
 
-	// Set this to false in order to pass the tests that are not currently supported
-	private boolean _testFailingCases = true;
+	// Report failures on tests that are already known to be unsupported
+	private boolean _reportFailingCases = true;
 
 	
 	/* (non-Javadoc)
@@ -128,30 +129,37 @@ public class NegativeModelProc extends AbstractProcessor
 	 */
 	private boolean checkAnnotations() {
 		AnnotationMirror am3 = findAnnotation(_elementN1, "A3");
-		if (_testFailingCases && null == am3) {
+		if (_reportFailingCases && null == am3) {
 			reportError("Couldn't find annotation A3 on class Negative1");
 			return false;
 		}
 		List<? extends Element> enclosedElements = _elementN1.getEnclosedElements();
+		boolean foundM1 = false; // do we find an element of unresolved type?
 		for (Element element : enclosedElements) {
 			String name = element.getSimpleName().toString();
 			if ("m1".equals(name)) {
+				foundM1 = true;
+				TypeKind tk = element.asType().getKind();
+				if (tk != TypeKind.ERROR && tk != TypeKind.DECLARED) {
+					reportError("Field Negative1.m1 has a type of unexpected kind " + tk);
+					return false;
+				}
 				AnnotationMirror am4 = findAnnotation(element, "A4");
-				if (_testFailingCases && null == am4) {
+				if (_reportFailingCases && null == am4) {
 					reportError("Couldn't find annotation A4 on field Negative1.m1");
 					return false;
 				}
 			}
 			else if ("i1".equals(name)) {
 				AnnotationMirror am5 = findAnnotation(element, "A5");
-				if (_testFailingCases && null == am5) {
+				if (_reportFailingCases && null == am5) {
 					reportError("Couldn't find annotation A5 on field Negative1.i1");
 					return false;
 				}
 			}
 			else if ("m2".equals(name)) {
 				AnnotationMirror am8 = findAnnotation(element, "A8");
-				if (_testFailingCases && null == am8) {
+				if (_reportFailingCases && null == am8) {
 					reportError("Couldn't find annotation A8 on field Negative1.m2");
 					return false;
 				}
@@ -172,6 +180,10 @@ public class NegativeModelProc extends AbstractProcessor
 					}
 				}
 			}
+		}
+		if (_reportFailingCases && !foundM1) {
+			reportError("Couldn't find field Negative1.m1, presumably because its type is missing");
+			return false;
 		}
 		return true;
 	}
