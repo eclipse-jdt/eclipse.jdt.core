@@ -600,7 +600,7 @@ private void rehash() {
 	JavaSearchScope newScope = new JavaSearchScope(this.pathsCount * 2);		// double the number of expected elements
 	newScope.projectPaths.ensureCapacity(this.projectPaths.size());
 	String currentPath;
-	for (int i = this.relativePaths.length; --i >= 0;)
+	for (int i=0, length=this.relativePaths.length; i<length; i++)
 		if ((currentPath = this.relativePaths[i]) != null) {
 			int idx = this.projectIndexes[i];
 			String projectPath = idx == -1 ? null : (String)this.projectPaths.get(idx);
