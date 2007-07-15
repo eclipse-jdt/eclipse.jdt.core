@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 143 };
+//		TESTS_NUMBERS = new int[] { 145 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -5036,5 +5036,40 @@ public void test144() {
 		"	              ^\n" + 
 		"Syntax error, enum declaration cannot have type parameters\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=186822
+public void test145() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+				"EnumA.java",
+				"public enum EnumA {\r\n" + 
+				"  B1,\r\n" + 
+				"  B2;\r\n" + 
+				"  public void foo(){}\r\n" + 
+				"}",
+				"ClassC.java",
+				"public class ClassC {\r\n" + 
+				"  void bar() {\r\n" + 
+				"    EnumA.B1.B1.foo();\r\n" + 
+				"    EnumA.B1.B2.foo();\r\n" + 
+				"  }\r\n" + 
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in ClassC.java (at line 3)\n" + 
+		"	EnumA.B1.B1.foo();\n" + 
+		"	         ^^\n" + 
+		"The static field EnumA.B1 should be accessed in a static way\n" + 
+		"----------\n" + 
+		"2. ERROR in ClassC.java (at line 4)\n" + 
+		"	EnumA.B1.B2.foo();\n" + 
+		"	         ^^\n" + 
+		"The static field EnumA.B2 should be accessed in a static way\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
 }
 }

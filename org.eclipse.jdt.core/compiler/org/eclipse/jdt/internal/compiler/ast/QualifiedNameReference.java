@@ -790,12 +790,12 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 			// constant propagation can only be performed as long as the previous one is a constant too.
 			if (this.constant != Constant.NotAConstant) {
-				this.constant = field.constant();					
+				this.constant = field.constant();
 			}
 
 			if (field.isStatic()) {
 				// static field accessed through receiver? legal but unoptimal (optional warning)
-				scope.problemReporter().nonStaticAccessToStaticField(this, field);
+				scope.problemReporter().nonStaticAccessToStaticField(this, field, index);
 				// indirect static reference ?
 				if (field.declaringClass != type) {
 					scope.problemReporter().indirectAccessToStaticField(this, field);

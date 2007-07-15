@@ -4800,14 +4800,26 @@ private int nodeSourceEnd(Binding field, ASTNode node, int index) {
 	} else if (node instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) node;
 		if (ref.binding == field) {
-			return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1]);
+			if (index == 0) {
+				return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1]);
+			} else {
+				return (int) (ref.sourcePositions[index]);
+			}
 		}
 		FieldBinding[] otherFields = ref.otherBindings;
 		if (otherFields != null) {
 			int offset = ref.indexOfFirstFieldBinding;
-			for (int i = 0, length = otherFields.length; i < length; i++) {
-				if (otherFields[i] == field)
-					return (int) (ref.sourcePositions[i + offset]);
+			if (index != 0) {
+				for (int i = 0, length = otherFields.length; i < length; i++) {
+					if ((otherFields[i] == field) && (i + offset == index)) {
+						return (int) (ref.sourcePositions[i + offset]);
+					}
+				}
+			} else {
+				for (int i = 0, length = otherFields.length; i < length; i++) {
+					if (otherFields[i] == field)
+						return (int) (ref.sourcePositions[i + offset]);
+				}
 			}
 		}
 	} else if (node instanceof ParameterizedQualifiedTypeReference) {
@@ -4822,21 +4834,34 @@ private int nodeSourceEnd(Binding field, ASTNode node, int index) {
 	}
 	return node.sourceEnd;
 }
-private int nodeSourceStart(Binding field, ASTNode node) {
+private int nodeSourceStart(Binding field, ASTNode node, int index) {
 	if (node instanceof FieldReference) {
 		FieldReference fieldReference = (FieldReference) node;
 		return (int) (fieldReference.nameSourcePosition >> 32);
 	} else 	if (node instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) node;
 		if (ref.binding == field) {
-			return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1] >> 32);
+			if (index == 0) {
+				return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1] >> 32);
+			} else {
+				return (int) (ref.sourcePositions[index] >> 32);
+			}
 		}
 		FieldBinding[] otherFields = ref.otherBindings;
 		if (otherFields != null) {
 			int offset = ref.indexOfFirstFieldBinding;
-			for (int i = 0, length = otherFields.length; i < length; i++) {
-				if (otherFields[i] == field)
-					return (int) (ref.sourcePositions[i + offset] >> 32);
+			if (index != 0) {
+				for (int i = 0, length = otherFields.length; i < length; i++) {
+					if ((otherFields[i] == field) && (i + offset == index)) {
+						return (int) (ref.sourcePositions[i + offset] >> 32);
+					}
+				}
+			} else {
+				for (int i = 0, length = otherFields.length; i < length; i++) {
+					if (otherFields[i] == field) {
+						return (int) (ref.sourcePositions[i + offset] >> 32);
+					}
+				}
 			}
 		}
 	} else if (node instanceof ParameterizedQualifiedTypeReference) {
@@ -4844,6 +4869,9 @@ private int nodeSourceStart(Binding field, ASTNode node) {
 		return (int) (reference.sourcePositions[0]>>>32);
 	}
 	return node.sourceStart;
+}
+private int nodeSourceStart(Binding field, ASTNode node) {
+	return nodeSourceStart(field, node, 0);
 }
 public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[]{ new String(local.name) };
@@ -4916,7 +4944,7 @@ public void nonGenericTypeCannotBeParameterized(int index, ASTNode location, Typ
 		nodeSourceStart(null, location),
 		nodeSourceEnd(null, location, index));
 }
-public void nonStaticAccessToStaticField(ASTNode location, FieldBinding field) {
+public void nonStaticAccessToStaticField(ASTNode location, FieldBinding field, int index) {
 	int severity = computeSeverity(IProblem.NonStaticAccessToStaticField);
 	if (severity == ProblemSeverities.Ignore) return;
 	this.handle(
@@ -4924,8 +4952,11 @@ public void nonStaticAccessToStaticField(ASTNode location, FieldBinding field) {
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		severity,
-		nodeSourceStart(field, location),
-		nodeSourceEnd(field, location));
+		nodeSourceStart(field, location, index),
+		nodeSourceEnd(field, location, index));
+}
+public void nonStaticAccessToStaticField(ASTNode location, FieldBinding field) {
+	nonStaticAccessToStaticField(location, field, -1);
 }
 public void nonStaticAccessToStaticMethod(ASTNode location, MethodBinding method) {
 	this.handle(
