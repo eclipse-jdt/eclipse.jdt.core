@@ -49,7 +49,7 @@ public class CompilationUnitDeclaration
 	public TypeDeclaration[] types;
 	public int[][] comments;
 
-	public boolean ignoreFurtherInvestigation = false;	// once pointless to investigate due to errors
+	public boolean ignoreFurtherInvestigation = false; // once pointless to investigate due to errors
 	public boolean ignoreMethodBodies = false;
 	public CompilationUnitScope scope;
 	public ProblemReporter problemReporter;
