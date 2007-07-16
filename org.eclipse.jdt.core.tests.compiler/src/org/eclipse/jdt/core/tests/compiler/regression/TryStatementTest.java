@@ -5576,7 +5576,7 @@ public void test062() {
 	}	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190209 - variation
-public void test063() {
+public void _test063() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5655,13 +5655,13 @@ public void test063() {
 			"    18  goto 23\n" + 
 			"    21  ldc <String \"\"> [20]\n" + 
 			"    23  invokevirtual X$MyClass.foo(java.lang.String) : void [22]\n" + 
-			"    26  goto 9\n" + 
-			"    29  astore_3\n" + 
-			"    30  aload_3\n" + 
-			"    31  athrow\n" + 
+			"    26  return\n" + 
+			"    27  astore_3\n" + 
+			"    28  aload_3\n" + 
+			"    29  athrow\n" + 
 			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 9] -> 29 when : any\n" + 
-			"        [pc: 10, pc: 29] -> 29 when : any\n";
+			"        [pc: 0, pc: 9] -> 27 when : any\n" + 
+			"        [pc: 10, pc: 26] -> 27 when : any\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -5682,7 +5682,7 @@ public void test063() {
 	}	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190209 - variation
-public void test064() {
+public void _test064() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5763,13 +5763,14 @@ public void test064() {
 			"    19  goto 24\n" + 
 			"    22  ldc <String \"\"> [21]\n" + 
 			"    24  invokevirtual X$MyClass.foo(java.lang.String) : void [23]\n" + 
-			"    27  goto 9\n" + 
-			"    30  astore_3\n" + 
-			"    31  aload_3\n" + 
-			"    32  athrow\n" + 
+			"    27  aconst_null\n" + 
+			"    28  areturn\n" + 
+			"    29  astore_3\n" + 
+			"    30  aload_3\n" + 
+			"    31  athrow\n" + 
 			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 9] -> 30 when : any\n" + 
-			"        [pc: 11, pc: 30] -> 30 when : any\n";
+			"        [pc: 0, pc: 9] -> 29 when : any\n" + 
+			"        [pc: 11, pc: 27] -> 29 when : any\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -5826,6 +5827,35 @@ public void test065() {
 		"	return;\n" + 
 		"	^^^^^^^\n" + 
 		"Unreachable code\n" + 
+		"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=196653
+public void _test066() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void bar() {\n" + 
+			"		try {\n" + 
+			"			Zork z = null;\n" + 
+			"			z.foo();\n" + 
+			"		} catch(Zork z) {\n" + 
+			"			z.foo();\n" + 
+			"		}		\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	Zork z = null;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\r\n" + 
+		"	} catch(Zork z) {\r\n" + 
+		"	        ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
 public static Class testClass() {
