@@ -99,29 +99,38 @@ public class Argument extends LocalDeclaration {
 		// that represents the argument. The type must be from JavaThrowable
 
 		TypeBinding exceptionType = this.type.resolveType(scope, true /* check bounds*/);
-		if (exceptionType == null) return null;
-		boolean hasError = false;
-		if (exceptionType.isBoundParameterizedType()) {
-			scope.problemReporter().invalidParameterizedExceptionType(exceptionType, this);
+		boolean hasError;
+		if (exceptionType == null) {
 			hasError = true;
-			// fall thru to create the variable - avoids additional errors because the variable is missing
-		}
-		if (exceptionType.isTypeVariable()) {
-			scope.problemReporter().invalidTypeVariableAsException(exceptionType, this);
-			hasError = true;
-			// fall thru to create the variable - avoids additional errors because the variable is missing
-		}
-		if (exceptionType.isArrayType() && ((ArrayBinding) exceptionType).leafComponentType == TypeBinding.VOID) {
-			scope.problemReporter().variableTypeCannotBeVoidArray(this);
-			hasError = true;
-			// fall thru to create the variable - avoids additional errors because the variable is missing
-		}
-		if (exceptionType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
-			scope.problemReporter().cannotThrowType(this.type, exceptionType);
-			hasError = true;
-			// fall thru to create the variable - avoids additional errors because the variable is missing
-		}
-		
+		} else {
+			hasError = false;
+			switch(exceptionType.kind()) {
+				case Binding.PARAMETERIZED_TYPE :
+					if (exceptionType.isBoundParameterizedType()) {
+						hasError = true;
+						scope.problemReporter().invalidParameterizedExceptionType(exceptionType, this);
+						// fall thru to create the variable - avoids additional errors because the variable is missing
+					}
+					break;
+				case Binding.TYPE_PARAMETER :					
+					scope.problemReporter().invalidTypeVariableAsException(exceptionType, this);
+					hasError = true;
+					// fall thru to create the variable - avoids additional errors because the variable is missing
+					break;
+				case Binding.ARRAY_TYPE :
+					if (((ArrayBinding) exceptionType).leafComponentType == TypeBinding.VOID) {
+						scope.problemReporter().variableTypeCannotBeVoidArray(this);
+						hasError = true;
+						// fall thru to create the variable - avoids additional errors because the variable is missing
+					}
+					break;
+			}
+			if (exceptionType.findSuperTypeErasingTo(TypeIds.T_JavaLangThrowable, true) == null) {
+				scope.problemReporter().cannotThrowType(this.type, exceptionType);
+				hasError = true;
+				// fall thru to create the variable - avoids additional errors because the variable is missing
+			}
+		}		
 		Binding existingVariable = scope.getBinding(name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
