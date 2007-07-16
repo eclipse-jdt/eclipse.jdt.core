@@ -5488,6 +5488,346 @@ public void test060() {
 		"No exception of type int can be thrown; an exception type must be a subclass of Throwable\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190209 - variation
+public void test062() {
+	if (new CompilerOptions(this.getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_5) return; // need autoboxing
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"final public class X {\n" + 
+				"	final class MyClass {\n" + 
+				"		/** @param s */\n" + 
+				"		void foo(final String s) {\n" + 
+				"			 /* do nothing */\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Object bar() {\n" + 
+				"		try {\n" + 
+				"			final MyClass myClass = new MyClass();\n" + 
+				"			try {\n" + 
+				"				return 0;\n" + 
+				"			} catch (final Throwable ex) {\n" + 
+				"				myClass.foo(this == null ? \"\" : \"\");\n" + 
+				"			}\n" + 
+				"	\n" + 
+				"			return this;\n" + 
+				"		} finally {\n" + 
+				"			{ /* do nothing */ }\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().bar();\n" + 
+				"		System.out.print(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	
+	String expectedOutput = 
+			"  // Method descriptor #15 ()Ljava/lang/Object;\n" + 
+			"  // Stack: 3, Locals: 5\n" + 
+			"  java.lang.Object bar();\n" + 
+			"     0  new X$MyClass [16]\n" + 
+			"     3  dup\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  invokespecial X$MyClass(X) [18]\n" + 
+			"     8  astore_1 [myClass]\n" + 
+			"     9  iconst_0\n" + 
+			"    10  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [21]\n" + 
+			"    13  astore 4\n" + 
+			"    15  aload 4\n" + 
+			"    17  areturn\n" + 
+			"    18  astore_2 [ex]\n" + 
+			"    19  aload_1 [myClass]\n" + 
+			"    20  aload_0 [this]\n" + 
+			"    21  ifnonnull 29\n" + 
+			"    24  ldc <String \"\"> [27]\n" + 
+			"    26  goto 31\n" + 
+			"    29  ldc <String \"\"> [27]\n" + 
+			"    31  invokevirtual X$MyClass.foo(java.lang.String) : void [29]\n" + 
+			"    34  aload_0 [this]\n" + 
+			"    35  astore 4\n" + 
+			"    37  aload 4\n" + 
+			"    39  areturn\n" + 
+			"    40  astore_3\n" + 
+			"    41  aload_3\n" + 
+			"    42  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 9, pc: 15] -> 18 when : java.lang.Throwable\n" + 
+			"        [pc: 0, pc: 15] -> 40 when : any\n" + 
+			"        [pc: 18, pc: 37] -> 40 when : any\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190209 - variation
+public void test063() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"final public class X {\n" + 
+				"	final class MyClass {\n" + 
+				"		/** @param s */\n" + 
+				"		void foo(final String s) {\n" + 
+				"			 /* do nothing */\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	void bar() {\n" + 
+				"		try {\n" + 
+				"			final MyClass myClass = new MyClass();\n" + 
+				"			try {\n" + 
+				"				return;\n" + 
+				"			} catch (final Throwable ex) {\n" + 
+				"				myClass.foo(this == null ? \"\" : \"\");\n" + 
+				"			}\n" + 
+				"			return;\n" + 
+				"		} finally {\n" + 
+				"			{ /* do nothing */ }\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().bar();\n" + 
+				"		System.out.print(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).complianceLevel <= ClassFileConstants.JDK1_4
+		?	"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 3, Locals: 5\n" + 
+			"  void bar();\n" + 
+			"     0  new X$MyClass [15]\n" + 
+			"     3  dup\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  invokespecial X$MyClass(X) [17]\n" + 
+			"     8  astore_1 [myClass]\n" + 
+			"     9  jsr 40\n" + 
+			"    12  return\n" + 
+			"    13  astore_2 [ex]\n" + 
+			"    14  aload_1 [myClass]\n" + 
+			"    15  aload_0 [this]\n" + 
+			"    16  ifnonnull 24\n" + 
+			"    19  ldc <String \"\"> [20]\n" + 
+			"    21  goto 26\n" + 
+			"    24  ldc <String \"\"> [20]\n" + 
+			"    26  invokevirtual X$MyClass.foo(java.lang.String) : void [22]\n" + 
+			"    29  goto 9\n" + 
+			"    32  astore 4\n" + 
+			"    34  jsr 40\n" + 
+			"    37  aload 4\n" + 
+			"    39  athrow\n" + 
+			"    40  astore_3\n" + 
+			"    41  ret 3\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 12] -> 32 when : any\n" + 
+			"        [pc: 13, pc: 32] -> 32 when : any\n"
+		:	
+			"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 3, Locals: 4\n" + 
+			"  void bar();\n" + 
+			"     0  new X$MyClass [15]\n" + 
+			"     3  dup\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  invokespecial X$MyClass(X) [17]\n" + 
+			"     8  astore_1 [myClass]\n" + 
+			"     9  return\n" + 
+			"    10  astore_2 [ex]\n" + 
+			"    11  aload_1 [myClass]\n" + 
+			"    12  aload_0 [this]\n" + 
+			"    13  ifnonnull 21\n" + 
+			"    16  ldc <String \"\"> [20]\n" + 
+			"    18  goto 23\n" + 
+			"    21  ldc <String \"\"> [20]\n" + 
+			"    23  invokevirtual X$MyClass.foo(java.lang.String) : void [22]\n" + 
+			"    26  goto 9\n" + 
+			"    29  astore_3\n" + 
+			"    30  aload_3\n" + 
+			"    31  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 9] -> 29 when : any\n" + 
+			"        [pc: 10, pc: 29] -> 29 when : any\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=190209 - variation
+public void test064() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"final public class X {\n" + 
+				"	final class MyClass {\n" + 
+				"		/** @param s */\n" + 
+				"		void foo(final String s) {\n" + 
+				"			 /* do nothing */\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Object bar() {\n" + 
+				"		try {\n" + 
+				"			final MyClass myClass = new MyClass();\n" + 
+				"			try {\n" + 
+				"				return null;\n" + 
+				"			} catch (final Throwable ex) {\n" + 
+				"				myClass.foo(this == null ? \"\" : \"\");\n" + 
+				"			}\n" + 
+				"			return null;\n" + 
+				"		} finally {\n" + 
+				"			{ /* do nothing */ }\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().bar();\n" + 
+				"		System.out.print(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	
+	String expectedOutput = new CompilerOptions(this.getCompilerOptions()).complianceLevel <= ClassFileConstants.JDK1_4
+		?	"  // Method descriptor #15 ()Ljava/lang/Object;\n" + 
+			"  // Stack: 3, Locals: 5\n" + 
+			"  java.lang.Object bar();\n" + 
+			"     0  new X$MyClass [16]\n" + 
+			"     3  dup\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  invokespecial X$MyClass(X) [18]\n" + 
+			"     8  astore_1 [myClass]\n" + 
+			"     9  jsr 41\n" + 
+			"    12  aconst_null\n" + 
+			"    13  areturn\n" + 
+			"    14  astore_2 [ex]\n" + 
+			"    15  aload_1 [myClass]\n" + 
+			"    16  aload_0 [this]\n" + 
+			"    17  ifnonnull 25\n" + 
+			"    20  ldc <String \"\"> [21]\n" + 
+			"    22  goto 27\n" + 
+			"    25  ldc <String \"\"> [21]\n" + 
+			"    27  invokevirtual X$MyClass.foo(java.lang.String) : void [23]\n" + 
+			"    30  goto 9\n" + 
+			"    33  astore 4\n" + 
+			"    35  jsr 41\n" + 
+			"    38  aload 4\n" + 
+			"    40  athrow\n" + 
+			"    41  astore_3\n" + 
+			"    42  ret 3\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 12] -> 33 when : any\n" + 
+			"        [pc: 14, pc: 33] -> 33 when : any\n"
+		:	
+			"  // Method descriptor #15 ()Ljava/lang/Object;\n" + 
+			"  // Stack: 3, Locals: 4\n" + 
+			"  java.lang.Object bar();\n" + 
+			"     0  new X$MyClass [16]\n" + 
+			"     3  dup\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  invokespecial X$MyClass(X) [18]\n" + 
+			"     8  astore_1 [myClass]\n" + 
+			"     9  aconst_null\n" + 
+			"    10  areturn\n" + 
+			"    11  astore_2 [ex]\n" + 
+			"    12  aload_1 [myClass]\n" + 
+			"    13  aload_0 [this]\n" + 
+			"    14  ifnonnull 22\n" + 
+			"    17  ldc <String \"\"> [21]\n" + 
+			"    19  goto 24\n" + 
+			"    22  ldc <String \"\"> [21]\n" + 
+			"    24  invokevirtual X$MyClass.foo(java.lang.String) : void [23]\n" + 
+			"    27  goto 9\n" + 
+			"    30  astore_3\n" + 
+			"    31  aload_3\n" + 
+			"    32  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 9] -> 30 when : any\n" + 
+			"        [pc: 11, pc: 30] -> 30 when : any\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191865
+public void test065() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		try {\n" + 
+			"			System.out.println(\"Hello\");\n" + 
+			"		} finally {\n" + 
+			"			if (true)\n" + 
+			"				return;\n" + 
+			"		}\n" + 
+			"		return;\n" + 
+			"	}\n" + 
+			"	void bar() {\n" + 
+			"		try {\n" + 
+			"			System.out.println(\"Hello\");\n" + 
+			"		} finally {\n" + 
+			"			return;\n" + 
+			"		}\n" + 
+			"		return;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 14)\n" + 
+		"	} finally {\n" + 
+		"			return;\n" + 
+		"		}\n" + 
+		"	          ^^^^^^^^^^^^^^^^\n" + 
+		"finally block does not complete normally\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Unreachable code\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }

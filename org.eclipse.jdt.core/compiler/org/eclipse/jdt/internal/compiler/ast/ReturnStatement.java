@@ -44,9 +44,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	FlowContext traversedContext = flowContext;
 	int subCount = 0;
 	boolean saveValueNeeded = false;
-	boolean hasValueToSave = this.expression != null 
-						&& this.expression.constant == Constant.NotAConstant 
-						&& !(this.expression instanceof NullLiteral);
+	boolean hasValueToSave = needValueStore();
 	do {
 		SubRoutineStatement sub;
 		if ((sub = traversedContext.subroutine()) != null) {
@@ -119,7 +117,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	int pc = codeStream.position;
 	boolean alreadyGeneratedExpression = false;
 	// generate the expression
-	if ((this.expression != null) && (this.expression.constant == Constant.NotAConstant) && !(this.expression instanceof NullLiteral)) {
+	if (needValueStore()) {
 		alreadyGeneratedExpression = true;
 		this.expression.generateCode(currentScope, codeStream, needValue()); // no value needed if non-returning subroutine
 		generateStoreSaveValueIfNecessary(codeStream);
@@ -171,6 +169,12 @@ public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 	if (this.saveValueVariable != null) {
 		codeStream.store(this.saveValueVariable, false);
 	}
+}
+
+private boolean needValueStore() {
+	return this.expression != null 
+					&& (this.expression.constant == Constant.NotAConstant || (this.expression.implicitConversion & TypeIds.BOXING)!= 0)
+					&& !(this.expression instanceof NullLiteral);
 }
 
 public boolean needValue() {
