@@ -236,19 +236,21 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 	// no op before 1.5
 }
 void checkInheritedMethods(MethodBinding[] methods, int length) {
-	int[] overriddenInheritedMethods = length > 1 ? findOverriddenInheritedMethods(methods, length) : null;
-	if (overriddenInheritedMethods != null) {
-		// detected some overridden methods that can be ignored when checking return types
-		// but cannot ignore an overridden inherited method completely when it comes to checking for bridge methods
-		int index = 0;
-		MethodBinding[] closestMethods = new MethodBinding[length];
-		for (int i = 0; i < length; i++)
-			if (overriddenInheritedMethods[i] == 0)
-				closestMethods[index++] = methods[i];
-		if (!checkInheritedReturnTypes(closestMethods, index))
+	if (length > 1) {
+		int[] overriddenInheritedMethods = findOverriddenInheritedMethods(methods, length);
+		if (overriddenInheritedMethods != null) {
+			// detected some overridden methods that can be ignored when checking return types
+			// but cannot ignore an overridden inherited method completely when it comes to checking for bridge methods
+			int index = 0;
+			MethodBinding[] closestMethods = new MethodBinding[length];
+			for (int i = 0; i < length; i++)
+				if (overriddenInheritedMethods[i] == 0)
+					closestMethods[index++] = methods[i];
+			if (index > 1 && !checkInheritedReturnTypes(closestMethods, index))
+				return;
+		} else if (!checkInheritedReturnTypes(methods, length)) {
 			return;
-	} else if (!checkInheritedReturnTypes(methods, length)) {
-		return;
+		}
 	}
 
 	MethodBinding concreteMethod = null;
@@ -278,12 +280,14 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 		return;
 	}
 
-	MethodBinding[] abstractMethods = new MethodBinding[length - 1];
-	int index = 0;
-	for (int i = length; --i >= 0;)
-		if (methods[i] != concreteMethod)
-			abstractMethods[index++] = methods[i];
-	checkConcreteInheritedMethod(concreteMethod, abstractMethods);
+	if (length > 1) {
+		MethodBinding[] abstractMethods = new MethodBinding[length - 1];
+		int index = 0;
+		for (int i = length; --i >= 0;)
+			if (methods[i] != concreteMethod)
+				abstractMethods[index++] = methods[i];
+		checkConcreteInheritedMethod(concreteMethod, abstractMethods);
+	}
 }
 boolean checkInheritedReturnTypes(MethodBinding[] methods, int length) {
 	MethodBinding first = methods[0];

@@ -3365,7 +3365,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	class Y<T extends A> extends X<T> {\n" + 
 			"	      ^\n" + 
-			"Name clash: The method id(A) of type X<T> has the same erasure as id(T) of type X<T> but does not override it\n" + 
+			"Duplicate methods named id with the parameters (A) and (T) are defined by the type X<T>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	@Override T id(T x) { return x; }\n" + 
@@ -3379,6 +3379,28 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// id(T) is already defined in Y
 			// id(java.lang.String) in Y overrides id(T) in X; return type requires unchecked conversion
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88094
+	public void test049a() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"	T id(T x) { return x; }\n" + 
+				"	A id(A x) { return x; }\n" + 
+				"}\n" +
+				"class Y<T extends A> extends X<T> {}\n" + 
+				"class A {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	class Y<T extends A> extends X<T> {}\n" + 
+			"	      ^\n" + 
+			"Duplicate methods named id with the parameters (A) and (T) are defined by the type X<T>\n" + 
+			"----------\n"
+			// methods id(T) from X<T> and id(A) from X<T> are inherited with the same signature
 		);
 	}
 
@@ -5046,12 +5068,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. ERROR in I.java (at line 8)\n" + 
 			"	interface P extends L, M, N {}\n" + 
 			"	          ^\n" + 
-			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
+			"The return type is incompatible with N.getI(), M.getI()\n" + 
 			"----------\n" + 
 			"2. ERROR in I.java (at line 10)\n" + 
 			"	abstract class Y implements L, M, N {}\n" + 
 			"	               ^\n" + 
-			"The return type is incompatible with N.getI(), M.getI(), L.getI()\n" + 
+			"The return type is incompatible with N.getI(), M.getI()\n" + 
 			"----------\n"
 /* See addtional comments in https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
 			"----------\n" + 
@@ -7830,5 +7852,114 @@ public void test143() {
 			"interface IEnhancedReturn extends IBaseReturn {}"
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=194034
+public void test144() {
+	this.runNegativeTest(
+		new String[] {
+			"PurebredCatShopImpl.java",
+			"import java.util.List;\n" +
+			"interface Pet {}\n" +
+			"interface Cat extends Pet {}\n" + 
+			"interface PetShop { List<Pet> getPets(); }\n" + 
+			"interface CatShop extends PetShop {\n" + 
+			"	<V extends Pet> List<? extends Cat> getPets();\n" + 
+			"}\n" + 
+			"interface PurebredCatShop extends CatShop {}\n" + 
+			"class CatShopImpl implements CatShop {\n" + 
+			"	public List<Pet> getPets() { return null; }\n" + 
+			"}\n" + 
+			"class PurebredCatShopImpl extends CatShopImpl implements PurebredCatShop {}"
+		},
+		"----------\n" + 
+		"1. WARNING in PurebredCatShopImpl.java (at line 10)\n" + 
+		"	public List<Pet> getPets() { return null; }\n" + 
+		"	       ^^^^\n" + 
+		"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" + 
+		"----------\n" + 
+		"2. WARNING in PurebredCatShopImpl.java (at line 12)\n" + 
+		"	class PurebredCatShopImpl extends CatShopImpl implements PurebredCatShop {}\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=195468
+public void test145() {
+	this.runConformTest(
+		new String[] {
+			"BaseImpl.java",
+			"abstract class Base<Tvalue> implements BaseInterface<Tvalue>{ public void setValue(Object object) {} }\n" +
+			"interface BaseInterface<Tvalue> { void setValue(Tvalue object); }\n" + 
+			"class BaseImpl extends Base<String> { public void setValue(String object) {} }"
+		},
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=195802
+public void test146() {
+	this.runConformTest(
+		new String[] {
+			"BugB.java",
+			"abstract class A<K> { void get(K key) {} }\n" +
+			"abstract class B extends A<C> { <S> void get(C<S> type) {} }\n" +
+			"class B2 extends A<C> { <S> void get(C<S> type) {} }\n" + 
+			"class BugB extends B {}\n" + 
+			"class NonBugB extends B2 {}\n" + 
+			"class C<T> {}"
+		},
+		""
+	);
+}
+public void test147() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface J<T> { <U1, U2> void foo(T t); }\n" + 
+			"class Y<T> { public <U3> void foo(T t) {} }\n" + 
+			"abstract class X<T> extends Y<T> implements J<T> {\n" + 
+			"	@Override public void foo(Object o) {}\n" + 
+			"}\n" + 
+			"abstract class X1<T> extends Y<T> implements J<T> {\n" + 
+			"	public <Ignored> void foo(Object o) {}\n" + 
+			"}\n" +
+			"abstract class X2<T> extends Y<T> implements J<T> {}\n" +
+			"abstract class X3 extends Y<Number> implements J<String> {}\n" +
+			"abstract class X4 extends Y<Number> implements J<String> {\n" +
+			"	@Override public void foo(Number o) {}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	abstract class X1<T> extends Y<T> implements J<T> {\n" + 
+		"	               ^^\n" + 
+		"Name clash: The method foo(T) of type Y<T> has the same erasure as foo(T) of type J<T> but does not override it\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	public <Ignored> void foo(Object o) {}\n" + 
+		"	                      ^^^^^^^^^^^^^\n" + 
+		"Name clash: The method foo(Object) of type X1<T> has the same erasure as foo(T) of type Y<T> but does not override it\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	public <Ignored> void foo(Object o) {}\n" + 
+		"	                      ^^^^^^^^^^^^^\n" + 
+		"Name clash: The method foo(Object) of type X1<T> has the same erasure as foo(T) of type J<T> but does not override it\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	abstract class X2<T> extends Y<T> implements J<T> {}\n" + 
+		"	               ^^\n" + 
+		"Name clash: The method foo(T) of type Y<T> has the same erasure as foo(T) of type J<T> but does not override it\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
+		"	abstract class X3 extends Y<Number> implements J<String> {}\n" + 
+		"	               ^^\n" + 
+		"Name clash: The method foo(T) of type Y<T> has the same erasure as foo(T) of type J<T> but does not override it\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
+		"	abstract class X4 extends Y<Number> implements J<String> {\n" + 
+		"	               ^^\n" + 
+		"Name clash: The method foo(T) of type Y<T> has the same erasure as foo(T) of type J<T> but does not override it\n" + 
+		"----------\n"
+	);
 }
 }
