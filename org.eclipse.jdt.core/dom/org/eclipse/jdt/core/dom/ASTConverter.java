@@ -4310,6 +4310,7 @@ class ASTConverter {
 	 * @param bodyDeclaration
 	 */
 	protected void setModifiers(BodyDeclaration bodyDeclaration, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
+		this.scanner.tokenizeWhiteSpace = false;
 		try {
 			int token;
 			int indexInAnnotations = 0;
@@ -4372,8 +4373,7 @@ class ASTConverter {
 			// ignore
 		}
 	}
-	
-	
+
 	protected void setModifiers(EnumDeclaration enumDeclaration, org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enumDeclaration2) {
 		this.scanner.resetTo(enumDeclaration2.declarationSourceStart, enumDeclaration2.sourceStart);
 		this.setModifiers(enumDeclaration, enumDeclaration2.annotations);
