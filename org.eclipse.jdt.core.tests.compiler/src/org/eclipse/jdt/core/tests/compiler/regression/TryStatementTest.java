@@ -25,7 +25,7 @@ public class TryStatementTest extends AbstractRegressionTest {
 	
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 58 };
+	TESTS_NUMBERS = new int[] { 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public TryStatementTest(String name) {
@@ -5576,7 +5576,7 @@ public void test062() {
 	}	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190209 - variation
-public void _test063() {
+public void test063() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5637,7 +5637,32 @@ public void _test063() {
 			"      Exception Table:\n" + 
 			"        [pc: 0, pc: 12] -> 32 when : any\n" + 
 			"        [pc: 13, pc: 32] -> 32 when : any\n"
-		:	
+		:	new CompilerOptions(this.getCompilerOptions()).complianceLevel <= ClassFileConstants.JDK1_5 ?
+			"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 3, Locals: 4\n" + 
+			"  void bar();\n" + 
+			"     0  new X$MyClass [15]\n" + 
+			"     3  dup\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  invokespecial X$MyClass(X) [17]\n" + 
+			"     8  astore_1 [myClass]\n" + 
+			"     9  return\n" + 
+			"    10  astore_2 [ex]\n" + 
+			"    11  aload_1 [myClass]\n" + 
+			"    12  aload_0 [this]\n" + 
+			"    13  ifnonnull 21\n" + 
+			"    16  ldc <String \"\"> [20]\n" + 
+			"    18  goto 23\n" + 
+			"    21  ldc <String \"\"> [20]\n" + 
+			"    23  invokevirtual X$MyClass.foo(java.lang.String) : void [22]\n" + 
+			"    26  goto 9\n" + 
+			"    29  astore_3\n" + 
+			"    30  aload_3\n" + 
+			"    31  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 9] -> 29 when : any\n" + 
+			"        [pc: 10, pc: 29] -> 29 when : any\n"
+		:
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
 			"  void bar();\n" + 
@@ -5662,7 +5687,7 @@ public void _test063() {
 			"      Exception Table:\n" + 
 			"        [pc: 0, pc: 9] -> 27 when : any\n" + 
 			"        [pc: 10, pc: 26] -> 27 when : any\n";
-	
+
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -5682,7 +5707,7 @@ public void _test063() {
 	}	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190209 - variation
-public void _test064() {
+public void test064() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -5744,7 +5769,33 @@ public void _test064() {
 			"      Exception Table:\n" + 
 			"        [pc: 0, pc: 12] -> 33 when : any\n" + 
 			"        [pc: 14, pc: 33] -> 33 when : any\n"
-		:	
+		:	new CompilerOptions(this.getCompilerOptions()).complianceLevel <= ClassFileConstants.JDK1_5 ?
+			"  // Method descriptor #15 ()Ljava/lang/Object;\n" + 
+			"  // Stack: 3, Locals: 4\n" + 
+			"  java.lang.Object bar();\n" + 
+			"     0  new X$MyClass [16]\n" + 
+			"     3  dup\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  invokespecial X$MyClass(X) [18]\n" + 
+			"     8  astore_1 [myClass]\n" + 
+			"     9  aconst_null\n" + 
+			"    10  areturn\n" + 
+			"    11  astore_2 [ex]\n" + 
+			"    12  aload_1 [myClass]\n" + 
+			"    13  aload_0 [this]\n" + 
+			"    14  ifnonnull 22\n" + 
+			"    17  ldc <String \"\"> [21]\n" + 
+			"    19  goto 24\n" + 
+			"    22  ldc <String \"\"> [21]\n" + 
+			"    24  invokevirtual X$MyClass.foo(java.lang.String) : void [23]\n" + 
+			"    27  goto 9\n" + 
+			"    30  astore_3\n" + 
+			"    31  aload_3\n" + 
+			"    32  athrow\n" + 
+			"      Exception Table:\n" + 
+			"        [pc: 0, pc: 9] -> 30 when : any\n" + 
+			"        [pc: 11, pc: 30] -> 30 when : any\n"
+		:
 			"  // Method descriptor #15 ()Ljava/lang/Object;\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
 			"  java.lang.Object bar();\n" + 
