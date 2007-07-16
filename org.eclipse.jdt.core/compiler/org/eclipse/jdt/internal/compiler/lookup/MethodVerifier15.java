@@ -150,35 +150,17 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 		for (int i = 0, l = allInheritedMethods.length; i < l; i++) {
 			MethodBinding otherInheritedMethod = allInheritedMethods[i];
 			MethodBinding otherOriginal = otherInheritedMethod.original();
+			// only check inherited methods that are different & come from separate inheritance paths
 			if (otherOriginal == originalInherited || otherOriginal == otherInheritedMethod) continue;
-
-			MethodBinding compareMethod = inheritedMethod instanceof ParameterizedGenericMethodBinding
-				? ((ParameterizedGenericMethodBinding) inheritedMethod).originalMethod
-				: inheritedMethod;
-			MethodBinding substitute = computeSubstituteMethod(otherInheritedMethod, compareMethod);
-			if (substitute == null || doesSubstituteMethodOverride(compareMethod, substitute))
-				continue;
+			if (inheritedMethod.areParametersEqual(otherInheritedMethod)) continue;
+			// skip it if otherInheritedMethod is defined by a subtype of inheritedMethod's declaringClass
+			if (otherInheritedMethod.declaringClass.erasure() != inheritedMethod.declaringClass.erasure())
+				if (otherInheritedMethod.declaringClass.findSuperTypeWithSameErasure(inheritedMethod.declaringClass) != null)
+					continue;
 			if (detectInheritedNameClash(originalInherited, otherOriginal))
 				return;
 		}
 	}
-}
-void checkForInheritedNameClash(MethodBinding inheritedMethod, MethodBinding otherInheritedMethod) {
-	// sent from checkMethods() to compare 2 inherited methods that are not 'equal'
-
-	// the 2 inherited methods clash because of a parameterized type overrides a raw type
-	//		interface I { void foo(A a); }
-	//		class Y { void foo(A<String> a) {} }
-	//		abstract class X extends Y implements I { }
-	//		class A<T> {}
-	// in this case the 2 inherited methods clash because of type variables
-	//		interface I { <T, S> void foo(T t); }
-	//		class Y { <T> void foo(T t) {} }
-	//		abstract class X extends Y implements I {}
-
-	if (inheritedMethod.declaringClass.isInterface() || inheritedMethod.isStatic()) return;
-
-	detectInheritedNameClash(inheritedMethod, otherInheritedMethod);
 }
 void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	// sent from checkMethods() to compare a current method and an inherited method that are not 'equal'
@@ -284,6 +266,32 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 			}
 		}
 	}
+}
+void checkInheritedMethods(MethodBinding inheritedMethod, MethodBinding otherInheritedMethod) {
+	// sent from checkMethods() to compare 2 inherited methods that are not 'equal'
+	if (inheritedMethod.declaringClass.erasure() == otherInheritedMethod.declaringClass.erasure()) {
+		if (inheritedMethod.areParameterErasuresEqual(otherInheritedMethod)) {
+			problemReporter().duplicateInheritedMethods(this.type, inheritedMethod, otherInheritedMethod);
+			return;
+		}
+	} else if (inheritedMethod.declaringClass.findSuperTypeWithSameErasure(otherInheritedMethod.declaringClass) != null) {
+		// skip it if inheritedMethod is defined by a subtype of otherInheritedMethod declaringClass
+		return;
+	}
+
+	// the 2 inherited methods clash because of a parameterized type overrides a raw type
+	//		interface I { void foo(A a); }
+	//		class Y { void foo(A<String> a) {} }
+	//		abstract class X extends Y implements I { }
+	//		class A<T> {}
+	// in this case the 2 inherited methods clash because of type variables
+	//		interface I { <T, S> void foo(T t); }
+	//		class Y { <T> void foo(T t) {} }
+	//		abstract class X extends Y implements I {}
+
+	if (inheritedMethod.declaringClass.isInterface() || inheritedMethod.isStatic()) return;
+
+	detectInheritedNameClash(inheritedMethod.original(), otherInheritedMethod.original());
 }
 void checkInheritedMethods(MethodBinding[] methods, int length) {
 	int count = length;
@@ -443,7 +451,7 @@ void checkMethods() {
 						matchingInherited[++index] = otherInheritedMethod;
 						foundMatch[j] = 1; // cannot null out inherited methods
 					} else {
-						checkForInheritedNameClash(inheritedMethod, otherInheritedMethod);
+						checkInheritedMethods(inheritedMethod, otherInheritedMethod);
 					}
 				}
 			}
