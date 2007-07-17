@@ -167,7 +167,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						&& ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccImplementing))
 					break checkOverride;
 				// claims to override, and doesn't actually do so
-				this.scope.problemReporter().methodMustOverride(this);					
+				this.scope.problemReporter().methodMustOverride(this);
 			} else if (!isInterfaceMethod 	
 						&& (bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
 				// actually overrides, but did not claim to do so
