@@ -292,9 +292,10 @@ public class ExecutableElementImpl extends ElementImpl implements
 	{
 		MethodBinding overriddenBinding = (MethodBinding)((ExecutableElementImpl) overridden)._binding;
 		ReferenceBinding overriderContext = (ReferenceBinding)((TypeElementImpl)type)._binding;
-		if ((MethodBinding)_binding == overriddenBinding)
-			return false;
-		if (overriddenBinding.isPrivate()) {
+		if ((MethodBinding)_binding == overriddenBinding
+				|| overriddenBinding.isStatic()
+				|| overriddenBinding.isPrivate()
+				|| ((MethodBinding)_binding).isStatic()) {
 			return false;
 		}
 		char[] selector = ((MethodBinding)_binding).selector;
@@ -326,8 +327,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 				if (lookupEnvironment == null) return false;
 				MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
 				org.eclipse.jdt.internal.compiler.lookup.MethodBinding superMethod = superMethods[i];
-				return !superMethod.isPrivate()
-					&& !(superMethod.isDefault() && (superMethod.declaringClass.getPackage()) != overriderBinding.declaringClass.getPackage())
+				return !(superMethod.isDefault() && (superMethod.declaringClass.getPackage()) != overriderBinding.declaringClass.getPackage())
 					&& methodVerifier.doesMethodOverride(overriderBinding, superMethod);
 			}
 		}

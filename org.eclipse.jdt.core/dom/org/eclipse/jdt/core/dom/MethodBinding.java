@@ -477,7 +477,10 @@ class MethodBinding implements IMethodBinding {
 	public boolean overrides(IMethodBinding overridenMethod) {
 		try {
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding overridenCompilerBinding = ((MethodBinding) overridenMethod).binding;
-			if (this.binding == overridenCompilerBinding)
+			if (this.binding == overridenCompilerBinding
+					|| overridenCompilerBinding.isStatic()
+					|| overridenCompilerBinding.isPrivate()
+					|| this.binding.isStatic())
 				return false;
 			char[] selector = this.binding.selector;
 			if (!CharOperation.equals(selector, overridenCompilerBinding.selector))
@@ -492,8 +495,7 @@ class MethodBinding implements IMethodBinding {
 					if (lookupEnvironment == null) return false;
 					MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
 					org.eclipse.jdt.internal.compiler.lookup.MethodBinding superMethod = superMethods[i];
-					return !superMethod.isPrivate()
-						&& !(superMethod.isDefault() && (superMethod.declaringClass.getPackage()) != this.binding.declaringClass.getPackage())
+					return !(superMethod.isDefault() && (superMethod.declaringClass.getPackage()) != this.binding.declaringClass.getPackage())
 						&& methodVerifier.doesMethodOverride(this.binding, superMethod);
 				}
 			}

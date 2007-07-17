@@ -46,8 +46,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 276 };
-//		TESTS_RANGE = new int[] { 253, -1 };
+//		TESTS_NUMBERS = new int[] { 277 };
+//		TESTS_RANGE = new int[] { 277, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
 	public static Test suite() {
@@ -9195,5 +9195,131 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		parser.setProject(this.getJavaProject("Converter15"));
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.createASTs(new ICompilationUnit[]{this.workingCopy}, new String[0], requestor, null);
-	}	
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191908
+	public void test0277() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" + 
+			"	public static void method() {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	public static void method() {\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding1 = methodDeclaration.resolveBinding();
+		
+		node = getASTNode(unit, 1, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
+		
+		assertFalse("Overrides", methodBinding2.overrides(methodBinding1));
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191908
+	public void test0278() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" + 
+			"	public void method() {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	public static void method() {\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "This static method cannot hide the instance method from X");
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding1 = methodDeclaration.resolveBinding();
+		
+		node = getASTNode(unit, 1, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
+		
+		assertFalse("Overrides", methodBinding2.overrides(methodBinding1));
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191908
+	public void test0279() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" + 
+			"	public static void method() {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	public void method() {\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "This instance method cannot override the static method from X");
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding1 = methodDeclaration.resolveBinding();
+		
+		node = getASTNode(unit, 1, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
+		
+		assertFalse("Overrides", methodBinding2.overrides(methodBinding1));
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191908
+	public void test0280() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+			"public class X {\n" + 
+			"	public void method() {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	@Override\n" +
+			"	public void method() {\n" + 
+			"	}\n" + 
+			"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding1 = methodDeclaration.resolveBinding();
+		
+		node = getASTNode(unit, 1, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		methodDeclaration = (MethodDeclaration) node;
+		IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
+		
+		assertTrue("Doesn't overrides", methodBinding2.overrides(methodBinding1));
+	}
 }
