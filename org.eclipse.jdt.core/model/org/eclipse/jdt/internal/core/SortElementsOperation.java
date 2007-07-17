@@ -157,11 +157,11 @@ public class SortElementsOperation extends JavaModelOperation {
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setResolveBindings(false);
 		org.eclipse.jdt.core.dom.CompilationUnit ast = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
-        
+
 		ASTRewrite rewriter= sortCompilationUnit(ast, null);
 		if (rewriter == null)
 			return document.get();
-		
+
 		TextEdit edits = rewriter.rewriteAST(document, null);
 		
 		RangeMarker[] markers = null;
