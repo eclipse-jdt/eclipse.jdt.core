@@ -8218,4 +8218,91 @@ public void testBug195489d() throws CoreException {
 	}
 }
 
+/**
+ * @bug 196339: [search] SearchEngine not returning correct result
+ * @test 1) That potential match are now well found while searching for implementors
+ * 			2) That there's a workaround for this problem
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=196339"
+ * @throws CoreException
+ */
+public void testBug196339() throws CoreException {
+	workingCopies = new ICompilationUnit[1];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b196339/x/y/z/Test.java",
+		"package b196339.xy.y.z;\n" +
+		"import a.b.c.Foo196339;\n" +
+		"public class Test implements Foo196339 {\n" +
+		"}\n"
+	);
+	search("a.b.c.Foo196339", IJavaSearchConstants.TYPE, IJavaSearchConstants.IMPLEMENTORS);
+	assertSearchResults(
+		"src/b196339/x/y/z/Test.java b196339.x.y.z.Test [Foo196339] POTENTIAL_MATCH"
+	);
+}
+// Possible workaround until this bug is fixed
+// Following test passed before the fix for bug 196339 was applied
+public void testBug196339b() throws CoreException {
+	workingCopies = new ICompilationUnit[3];
+	workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b196339/x/y/z/Test1.java",
+		"package b196339.xy.y.z;\n" +
+		"import a.b.c.Foo196339;\n" +
+		"public class Test1 implements Foo196339 {\n" +
+		"}\n"
+	);
+	workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b196339/x/y/z/Test2.java",
+		"package b196339.xy.y.z;\n" +
+		"import a.b.c.*;\n" +
+		"public class Test2 implements Foo196339 {\n" +
+		"}\n"
+	);
+	workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b196339/x/y/z/Test3.java",
+		"package b196339.xy.y.z;\n" +
+		"public class Test3 implements a.b.c.Foo196339 {\n" +
+		"}\n"
+	);
+
+	final String qualifiedType = "a.b.c.Foo196339";
+	JavaSearchResultCollector collector = new JavaSearchResultCollector() {
+		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+        Object element = searchMatch.getElement();
+        if (element instanceof IType) {
+            IType type = (IType) element;
+            // Look if super interface names matches the qualified type
+            String[] superInterfaces = type.getSuperInterfaceNames();
+            int length = superInterfaces == null ? 0 : superInterfaces.length;
+            for (int i=0; i<length; i++) {
+                if (superInterfaces[i].equals(qualifiedType)) {
+                    super.acceptSearchMatch(searchMatch);
+                    return;
+                }
+            }
+            // Look if an import declaration matches the qualified type
+            IImportDeclaration[] imports = ((ICompilationUnit) type.getAncestor(IJavaElement.COMPILATION_UNIT)).getImports();
+            length = imports == null ? 0 : imports.length;
+            for (int i=0; i<length; i++) {
+                String importName = imports[i].getElementName();
+                if (importName.equals(qualifiedType)) {
+                    super.acceptSearchMatch(searchMatch);
+                    return;
+                }
+                if (imports[i].isOnDemand()) {
+                    int idx = importName.lastIndexOf('.');
+                    if (idx > 0 && importName.substring(0, idx).equals(qualifiedType.substring(0, idx))) {
+                        super.acceptSearchMatch(searchMatch);
+                        return;
+                    }
+                }
+            }
+        }
+		}
+		
+	};
+	search("Foo196339", IJavaSearchConstants.TYPE, IJavaSearchConstants.IMPLEMENTORS, getJavaSearchScopeBugs(), collector);
+	assertSearchResults(
+		"src/b196339/x/y/z/Test1.java b196339.x.y.z.Test1 [Foo196339]\n" + 
+		"src/b196339/x/y/z/Test2.java b196339.x.y.z.Test2 [Foo196339]\n" + 
+		"src/b196339/x/y/z/Test3.java b196339.x.y.z.Test3 [a.b.c.Foo196339]",
+		collector
+	);
+}
+
 }

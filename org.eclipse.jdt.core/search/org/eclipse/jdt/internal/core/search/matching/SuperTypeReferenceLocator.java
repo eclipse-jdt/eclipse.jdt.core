@@ -77,9 +77,14 @@ public int resolveLevel(ASTNode node) {
 	if (!(node instanceof TypeReference)) return IMPOSSIBLE_MATCH;
 
 	TypeReference typeRef = (TypeReference) node;
-	TypeBinding binding = typeRef.resolvedType;
-	if (binding == null) return INACCURATE_MATCH;
-	return resolveLevelForType(this.pattern.superSimpleName, this.pattern.superQualification, binding);
+	TypeBinding typeBinding = typeRef.resolvedType;
+	if (typeBinding instanceof ArrayBinding)
+		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
+	if (typeBinding instanceof ProblemReferenceBinding)
+		typeBinding = ((ProblemReferenceBinding) typeBinding).closestMatch();
+
+	if (typeBinding == null) return INACCURATE_MATCH;
+	return resolveLevelForType(this.pattern.superSimpleName, this.pattern.superQualification, typeBinding);
 }
 public int resolveLevel(Binding binding) {
 	if (binding == null) return INACCURATE_MATCH;
