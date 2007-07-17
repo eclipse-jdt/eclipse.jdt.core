@@ -32,58 +32,58 @@ public class Wildcard extends SingleTypeReference {
 	}
 	
 	public char [][] getParameterizedTypeName() {
-        switch (this.kind) {
-            case Wildcard.UNBOUND : 
-               return new char[][] { WILDCARD_NAME };
-            case Wildcard.EXTENDS :
-                return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, CharOperation.concatWith(this.bound.getParameterizedTypeName(), '.')) };
+		switch (this.kind) {
+			case Wildcard.UNBOUND : 
+				return new char[][] { WILDCARD_NAME };
+			case Wildcard.EXTENDS :
+				return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, CharOperation.concatWith(this.bound.getParameterizedTypeName(), '.')) };
 			default: // SUPER
-                return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, CharOperation.concatWith(this.bound.getParameterizedTypeName(), '.')) };
-        }        	    
-	}	
+				return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, CharOperation.concatWith(this.bound.getParameterizedTypeName(), '.')) };
+		}
+	}
 
 	public char [][] getTypeName() {
-        switch (this.kind) {
-            case Wildcard.UNBOUND : 
-               return new char[][] { WILDCARD_NAME };
-            case Wildcard.EXTENDS :
-                return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, CharOperation.concatWith(this.bound.getTypeName(), '.')) };
+		switch (this.kind) {
+			case Wildcard.UNBOUND : 
+				return new char[][] { WILDCARD_NAME };
+			case Wildcard.EXTENDS :
+				return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_EXTENDS, CharOperation.concatWith(this.bound.getTypeName(), '.')) };
 			default: // SUPER
-                return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, CharOperation.concatWith(this.bound.getTypeName(), '.')) };
-        }        	    
+				return new char[][] { CharOperation.concat(WILDCARD_NAME, WILDCARD_SUPER, CharOperation.concatWith(this.bound.getTypeName(), '.')) };
+		}
 	}
 	
 	private TypeBinding internalResolveType(Scope scope, ReferenceBinding genericType, int rank) {
-	    TypeBinding boundType = null;
-	    if (this.bound != null) {
+		TypeBinding boundType = null;
+		if (this.bound != null) {
 			boundType = scope.kind == Scope.CLASS_SCOPE
-	       		? this.bound.resolveType((ClassScope)scope)
-	       		: this.bound.resolveType((BlockScope)scope, true /* check bounds*/);
-	       		        
+					? this.bound.resolveType((ClassScope)scope)
+					: this.bound.resolveType((BlockScope)scope, true /* check bounds*/);
+
 			if (boundType == null) {
 				return null;
-			}	    
+			}
 		}
-	    WildcardBinding wildcard = scope.environment().createWildcard(genericType, rank, boundType, null /*no extra bound*/, this.kind);
-	    return this.resolvedType = wildcard;
+		WildcardBinding wildcard = scope.environment().createWildcard(genericType, rank, boundType, null /*no extra bound*/, this.kind);
+		return this.resolvedType = wildcard;
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output){
-        switch (this.kind) {
-            case Wildcard.UNBOUND : 
-                output.append(WILDCARD_NAME);
-                break;
-            case Wildcard.EXTENDS :
-                output.append(WILDCARD_NAME).append(WILDCARD_EXTENDS);
-            	this.bound.printExpression(0, output);
-            	break;
+		switch (this.kind) {
+			case Wildcard.UNBOUND : 
+				output.append(WILDCARD_NAME);
+				break;
+			case Wildcard.EXTENDS :
+				output.append(WILDCARD_NAME).append(WILDCARD_EXTENDS);
+				this.bound.printExpression(0, output);
+				break;
 			default: // SUPER
-                output.append(WILDCARD_NAME).append(WILDCARD_SUPER);
-            	this.bound.printExpression(0, output);
-            	break;
-        }        	    
+			output.append(WILDCARD_NAME).append(WILDCARD_SUPER);
+			this.bound.printExpression(0, output);
+			break;
+		}
 		return output;
-	}	
+	}
 	
 	// only invoked for improving resilience when unable to bind generic type from parameterized reference
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {

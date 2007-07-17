@@ -2708,7 +2708,7 @@ class ASTConverter {
 		if (length > 1) {
 			// QualifiedName
 			org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference qualifiedTypeReference = (org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference) typeReference;
-			final long[] positions = qualifiedTypeReference.sourcePositions;			
+			final long[] positions = qualifiedTypeReference.sourcePositions;
 			return setQualifiedNameNameAndSourceRanges(typeName, positions, typeReference);
 		} else {
 			final SimpleName name = new SimpleName(this.ast);
