@@ -273,8 +273,10 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 					char sc, tc;
 					int x = i+t;
 					if (x >= this.eofPosition || x >= commentEnd) continue nextTag;
-					if ((sc = src[i + t]) != (tc = tag[t])) { 																					// case sensitive check
-						if (this.isTaskCaseSensitive || (ScannerHelper.toLowerCase(sc) != ScannerHelper.toLowerCase(tc))) { 	// case insensitive check
+					// case sensitive check
+					if ((sc = src[i + t]) != (tc = tag[t])) {
+						// case insensitive check
+						if (this.isTaskCaseSensitive || (ScannerHelper.toLowerCase(sc) != ScannerHelper.toLowerCase(tc))) {
 							continue nextTag;
 						}
 					}
