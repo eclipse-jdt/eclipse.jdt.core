@@ -1948,19 +1948,13 @@ public void testPotentialMatchInBinary1() throws CoreException {
 		project.setRawClasspath(newClasspath, null);
 		
 		// potential match for a field declaration
-
-		resultCollector.showAccuracy = true;
-		search(
-			"MissingFieldType.*",
-			FIELD,
-			DECLARATIONS, 
-			getJavaSearchScope(), 
-			this.resultCollector);
+		this.resultCollector.showAccuracy = true;
+		search("MissingFieldType.*", FIELD, DECLARATIONS,  getJavaSearchScope());
 		assertSearchResults(
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] POTENTIAL_MATCH\n" + 
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] POTENTIAL_MATCH\n" + 
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] POTENTIAL_MATCH",
-			this.resultCollector);
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] POTENTIAL_MATCH"
+		);
 	} finally {
 		// reset classpath
 		project.setRawClasspath(classpath, null);
@@ -1983,19 +1977,13 @@ public void testPotentialMatchInBinary2() throws CoreException {
 		project.setRawClasspath(newClasspath, null);
 		
 		// potential match for a method declaration
-
-		resultCollector.showAccuracy = true;
-		search(
-			"MissingArgumentType.foo*",
-			METHOD,
-			DECLARATIONS, 
-			getJavaSearchScope(), 
-			this.resultCollector);
+		this.resultCollector.showAccuracy = true;
+		search("MissingArgumentType.foo*", METHOD, DECLARATIONS, getJavaSearchScope());
 		assertSearchResults(
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] POTENTIAL_MATCH\n" + 
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo(java.util.EventListener) [No source] POTENTIAL_MATCH\n" + 
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] POTENTIAL_MATCH",
-			this.resultCollector);
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo(java.util.EventListener) [No source] POTENTIAL_MATCH"
+		);
 	} finally {
 		// reset classpath
 		project.setRawClasspath(classpath, null);
