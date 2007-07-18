@@ -27,8 +27,10 @@ public class Initializer extends FieldDeclaration {
 	public Initializer(Block block, int modifiers) {
 		this.block = block;
 		this.modifiers = modifiers;
-
-		declarationSourceStart = sourceStart = block.sourceStart;
+		
+		if (block != null) {
+			declarationSourceStart = sourceStart = block.sourceStart;
+		}
 	}
 
 	public FlowInfo analyseCode(
@@ -36,7 +38,10 @@ public class Initializer extends FieldDeclaration {
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
 
-		return block.analyseCode(currentScope, flowContext, flowInfo);
+		if (block != null) {
+			return block.analyseCode(currentScope, flowContext, flowInfo);
+		}
+		return flowInfo;
 	}
 
 	/**
@@ -52,7 +57,7 @@ public class Initializer extends FieldDeclaration {
 			return;
 		}
 		int pc = codeStream.position;
-		block.generateCode(currentScope, codeStream);
+		if (block != null) block.generateCode(currentScope, codeStream);
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
@@ -84,20 +89,25 @@ public class Initializer extends FieldDeclaration {
 			printModifiers(modifiers, output);
 			if (this.annotations != null) printAnnotations(this.annotations, output);
 			output.append("{\n"); //$NON-NLS-1$
-			block.printBody(indent, output);
+			if (block != null) {
+				block.printBody(indent, output);
+			}
 			printIndent(indent, output).append('}'); 
 			return output;
+		} else if (block != null) {
+			block.printStatement(indent, output);
 		} else {
-			return block.printStatement(indent, output);
+			printIndent(indent, output).append("{}"); //$NON-NLS-1$
 		}
+		return output;
 	}
 	
 	public void resolve(MethodScope scope) {
 
-	    FieldBinding previousField = scope.initializedField;
+		FieldBinding previousField = scope.initializedField;
 		int previousFieldID = scope.lastVisibleFieldID;
 		try {
-		    scope.initializedField = null;
+			scope.initializedField = null;
 			scope.lastVisibleFieldID = lastVisibleFieldID;
 			if (isStatic()) {
 				ReferenceBinding declaringType = scope.enclosingSourceType();
@@ -106,7 +116,7 @@ public class Initializer extends FieldDeclaration {
 						declaringType,
 						this);
 			}
-			block.resolve(scope);
+			if (block != null) block.resolve(scope);
 		} finally {
 		    scope.initializedField = previousField;
 			scope.lastVisibleFieldID = previousFieldID;
@@ -114,9 +124,8 @@ public class Initializer extends FieldDeclaration {
 	}
 
 	public void traverse(ASTVisitor visitor, MethodScope scope) {
-
 		if (visitor.visit(this, scope)) {
-			block.traverse(visitor, scope);
+			if (block != null) block.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}

@@ -500,7 +500,7 @@ ClassBodyDeclaration -> ClassMemberDeclaration
 ClassBodyDeclaration -> StaticInitializer
 ClassBodyDeclaration -> ConstructorDeclaration
 --1.1 feature
-ClassBodyDeclaration ::= Diet NestedMethod Block
+ClassBodyDeclaration ::= Diet NestedMethod CreateInitializer Block
 /.$putCase consumeClassBodyDeclaration(); $break ./
 /:$readableName ClassBodyDeclaration:/
 
@@ -508,9 +508,13 @@ Diet ::= $empty
 /.$putCase consumeDiet(); $break./
 /:$readableName Diet:/
 
-Initializer ::= Diet NestedMethod Block
+Initializer ::= Diet NestedMethod CreateInitializer Block
 /.$putCase consumeClassBodyDeclaration(); $break ./
 /:$readableName Initializer:/
+
+CreateInitializer ::= $empty
+/.$putCase consumeCreateInitializer(); $break./
+/:$readableName CreateInitializer:/
 
 ClassMemberDeclaration -> FieldDeclaration
 ClassMemberDeclaration -> MethodDeclaration

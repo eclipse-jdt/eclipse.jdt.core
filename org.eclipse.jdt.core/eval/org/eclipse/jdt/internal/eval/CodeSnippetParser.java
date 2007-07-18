@@ -82,9 +82,6 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 		}		
 		this.astPtr--;
 		this.astLengthPtr--;
-
-		// mark initializers with local type mark if needed
-		markInitializersWithLocalType(anonymousTypeDeclaration);
 	}
 }
 protected void consumeClassDeclaration() {

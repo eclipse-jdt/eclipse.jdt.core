@@ -479,102 +479,168 @@ public class LocalElementTests extends ModifyingResourceTests {
 			deleteFile("/P/X.java");
 		}
 	}
-    
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
-    public void _testLocalType6() throws CoreException {
-        try {
-            createFile(
-                "/P/X.java",
-                "public class X {\n" +
-                "  void foo() {\n" +
-                "    class Y {\n" +
-                "      {\n" +
-                "        class Z {\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }\n" +
-                "}"
-            );
-            ICompilationUnit cu = getCompilationUnit("/P/X.java");
-            assertElementDescendants(
-                "Unexpected compilation unit contents",
-                "X.java\n" + 
-                "  class X\n" + 
-                "    void foo()\n" + 
-                "      class Y\n" + 
-                "        <initializer #1>\n" + 
-                "          class Z",
-                cu);
-        } finally {
-            deleteFile("/P/X.java");
-        }
-    }    
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
-    public void _testLocalType7() throws CoreException {
-        try {
-            createFile(
-                "/P/X.java",
-                "public class X {\n" +
-                "  void foo() {\n" +
-                "    class Y {\n" +
-                "      {\n" +
-                "        class Z {\n" +
-                "        }\n" +
-                "      }\n" +
-                "      String s = null;\n" +
-                "    }\n" +
-                "  }\n" +
-                "}"
-            );
-            ICompilationUnit cu = getCompilationUnit("/P/X.java");
-            assertElementDescendants(
-                "Unexpected compilation unit contents",
-                "X.java\n" + 
-                "  class X\n" + 
-                "    void foo()\n" + 
-                "      class Y\n" + 
-                "        <initializer #1>\n" + 
-                "          class Z\n" +
-                "        String s", 
-                cu);
-        } finally {
-            deleteFile("/P/X.java");
-        }
-    }         
-    
+	public void testLocalType6() throws CoreException {
+		try {
+			createFile(
+					"/P/X.java",
+					"public class X {\n" +
+					"  void foo() {\n" +
+					"    class Y {\n" +
+					"      {\n" +
+					"        class Z {\n" +
+					"        }\n" +
+					"      }\n" +
+					"    }\n" +
+					"  }\n" +
+					"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("/P/X.java");
+			assertElementDescendants(
+					"Unexpected compilation unit contents",
+					"X.java\n" + 
+					"  class X\n" + 
+					"    void foo()\n" + 
+					"      class Y\n" + 
+					"        <initializer #1>\n" + 
+					"          class Z",
+					cu);
+		} finally {
+			deleteFile("/P/X.java");
+		}
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
-    public void _testLocalType8() throws CoreException {
-        try {
-            createFile(
-                "/P/X.java",
-                "public class X {\n" +
-                "  void foo() {\n" +
-                "    class Y {\n" +
-                "      String s = null;\n" +
-                "      {\n" +
-                "        class Z {\n" +
-                "        }\n" +
-                "      }\n" +
-                "    }\n" +
-                "  }\n" +
-                "}"
-            );
-            ICompilationUnit cu = getCompilationUnit("/P/X.java");
-            assertElementDescendants(
-                "Unexpected compilation unit contents",
-                "X.java\n" + 
-                "  class X\n" + 
-                "    void foo()\n" + 
-                "      class Y\n" + 
-                "        String s\n"+ 
-                "        <initializer #1>\n" + 
-                "          class Z",
-                cu);
-        } finally {
-            deleteFile("/P/X.java");
-        }
-    }      
-    
+	public void testLocalType7() throws CoreException {
+		try {
+			createFile(
+					"/P/X.java",
+					"public class X {\n" +
+					"  void foo() {\n" +
+					"    class Y {\n" +
+					"      {\n" +
+					"        class Z {\n" +
+					"        }\n" +
+					"      }\n" +
+					"      String s = null;\n" +
+					"    }\n" +
+					"  }\n" +
+					"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("/P/X.java");
+			assertElementDescendants(
+					"Unexpected compilation unit contents",
+					"X.java\n" + 
+					"  class X\n" + 
+					"    void foo()\n" + 
+					"      class Y\n" + 
+					"        <initializer #1>\n" + 
+					"          class Z\n" +
+					"        String s", 
+					cu);
+		} finally {
+			deleteFile("/P/X.java");
+		}
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
+	public void testLocalType8() throws CoreException {
+		try {
+			createFile(
+					"/P/X.java",
+					"public class X {\n" +
+					"  void foo() {\n" +
+					"    class Y {\n" +
+					"      String s = null;\n" +
+					"      {\n" +
+					"        class Z {\n" +
+					"        }\n" +
+					"      }\n" +
+					"    }\n" +
+					"  }\n" +
+					"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("/P/X.java");
+			assertElementDescendants(
+					"Unexpected compilation unit contents",
+					"X.java\n" + 
+					"  class X\n" + 
+					"    void foo()\n" + 
+					"      class Y\n" + 
+					"        String s\n"+ 
+					"        <initializer #1>\n" + 
+					"          class Z",
+					cu);
+		} finally {
+			deleteFile("/P/X.java");
+		}
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
+	public void testLocalType9() throws CoreException {
+		try {
+			createFile(
+					"/P/X.java",
+					"public class X {\n" +
+					"  {\n" +
+					"    class Y {\n" +
+					"      String s = null;\n" +
+					"      {\n" +
+					"        class Z {\n" +
+					"        }\n" +
+					"      }\n" +
+					"    }\n" +
+					"  }\n" +
+					"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("/P/X.java");
+			assertElementDescendants(
+					"Unexpected compilation unit contents",
+					"X.java\n" + 
+					"  class X\n" + 
+					"    <initializer #1>\n" + 
+					"      class Y\n" + 
+					"        String s\n"+ 
+					"        <initializer #1>\n" + 
+					"          class Z",
+					cu);
+		} finally {
+			deleteFile("/P/X.java");
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=167357
+	public void testLocalType10() throws CoreException {
+		try {
+			createFile(
+					"/P/X.java",
+					"public class X {\n" +
+					"  void foo() {\n" +
+					"    class Y {\n" +
+					"      String s = null;\n" +
+					"      {\n" +
+					"        {" +
+					"          class Z {\n" +
+					"          }" +
+					"        }\n" +
+					"      }\n" +
+					"    }\n" +
+					"  }\n" +
+					"}"
+			);
+			ICompilationUnit cu = getCompilationUnit("/P/X.java");
+			assertElementDescendants(
+					"Unexpected compilation unit contents",
+					"X.java\n" + 
+					"  class X\n" + 
+					"    void foo()\n" + 
+					"      class Y\n" + 
+					"        String s\n"+ 
+					"        <initializer #1>\n" + 
+					"          class Z",
+					cu);
+		} finally {
+			deleteFile("/P/X.java");
+		}
+	}
 }
