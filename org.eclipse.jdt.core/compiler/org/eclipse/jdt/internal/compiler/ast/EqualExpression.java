@@ -335,7 +335,7 @@ public class EqualExpression extends BinaryExpression {
 					endLabel.place();
 				}
 			} else {
-				codeStream.ixor();				
+				codeStream.ixor();
 			}
 		}
 	}
@@ -415,7 +415,7 @@ public class EqualExpression extends BinaryExpression {
 						codeStream.iconst_0();
 						endLabel.place();
 					}
-				}				
+				}
 				return;
 			}
 			if ((cst = right.constant) != Constant.NotAConstant && cst.intValue() == 0) {

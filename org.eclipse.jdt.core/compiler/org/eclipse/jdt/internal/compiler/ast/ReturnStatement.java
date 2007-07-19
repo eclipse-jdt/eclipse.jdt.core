@@ -142,7 +142,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	if (this.expression != null && !alreadyGeneratedExpression) {
 		this.expression.generateCode(currentScope, codeStream, true);
-		generateStoreSaveValueIfNecessary(codeStream);	
+		generateStoreSaveValueIfNecessary(codeStream);
 	}
 	// output the suitable return bytecode or wrap the value inside a descriptor for doits
 	this.generateReturnBytecode(codeStream);

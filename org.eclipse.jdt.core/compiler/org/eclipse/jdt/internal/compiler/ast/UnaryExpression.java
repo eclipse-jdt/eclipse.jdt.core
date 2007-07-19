@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class UnaryExpression extends OperatorExpression {
-	
+
 	public Expression expression;
 	public Constant optimizedBooleanConstant;
 
@@ -31,7 +31,7 @@ public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-	this.expression.checkNPE(currentScope, flowContext, flowInfo);	
+	this.expression.checkNPE(currentScope, flowContext, flowInfo);
 	if (((bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
 		return this.expression.
 			analyseCode(currentScope, flowContext, flowInfo).
@@ -43,9 +43,9 @@ public FlowInfo analyseCode(
 }
 
 	public Constant optimizedBooleanConstant() {
-		
-		return this.optimizedBooleanConstant == null 
-				? this.constant 
+
+		return this.optimizedBooleanConstant == null
+				? this.constant
 				: this.optimizedBooleanConstant;
 	}
 
@@ -60,7 +60,7 @@ public FlowInfo analyseCode(
 		BlockScope currentScope,
 		CodeStream codeStream,
 		boolean valueRequired) {
-			
+
 		int pc = codeStream.position;
 		BranchLabel falseLabel, endifLabel;
 		if (this.constant != Constant.NotAConstant) {
@@ -94,7 +94,7 @@ public FlowInfo analyseCode(
 							}
 						} else { // 6596: if (!(a && b)){} - must still place falseLabel
 							falseLabel.place();
-						}						
+						}
 						break;
 				}
 				break;
@@ -200,13 +200,13 @@ public FlowInfo analyseCode(
 	}
 
 	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
-		
+
 		output.append(operatorToString()).append(' ');
 		return this.expression.printExpression(0, output);
-	} 
-	
+	}
+
 	public TypeBinding resolveType(BlockScope scope) {
-		
+
 		boolean expressionIsCast;
 		if ((expressionIsCast = this.expression instanceof CastExpression) == true) this.expression.bits |= DisableUnnecessaryCastCheck; // will check later on
 		TypeBinding expressionType = this.expression.resolveType(scope);
@@ -221,13 +221,13 @@ public FlowInfo analyseCode(
 			if (!expressionType.isBaseType()) {
 				expressionTypeID = scope.environment().computeBoxingType(expressionType).id;
 			}
-		}		
+		}
 		if (expressionTypeID > 15) {
 			this.constant = Constant.NotAConstant;
 			scope.problemReporter().invalidOperator(this, expressionType);
 			return null;
 		}
-	
+
 		int tableId;
 		switch ((bits & OperatorMASK) >> OperatorSHIFT) {
 			case NOT :
@@ -239,7 +239,7 @@ public FlowInfo analyseCode(
 			default :
 				tableId = MINUS;
 		} //+ and - cases
-	
+
 		// the code is an int
 		// (cast)  left   Op (cast)  rigth --> result
 		//  0000   0000       0000   0000      0000
@@ -286,7 +286,7 @@ public FlowInfo analyseCode(
 			this.constant = Constant.NotAConstant;
 			if (((bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
 				Constant cst = expression.optimizedBooleanConstant();
-				if (cst != Constant.NotAConstant) 
+				if (cst != Constant.NotAConstant)
 					this.optimizedBooleanConstant = BooleanConstant.fromValue(!cst.booleanValue());
 			}
 		}
@@ -300,7 +300,7 @@ public FlowInfo analyseCode(
 	public void traverse(
     		ASTVisitor visitor,
     		BlockScope blockScope) {
-			
+
 		if (visitor.visit(this, blockScope)) {
 			this.expression.traverse(visitor, blockScope);
 		}

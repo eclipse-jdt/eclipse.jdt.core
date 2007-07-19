@@ -5000,9 +5000,9 @@ public void noSuchEnclosingInstance(TypeBinding targetType, ASTNode location, bo
 	this.handle(
 		id,
 		new String[] { new String(targetType.readableName())}, 
-		new String[] { new String(targetType.shortReadableName())}, 
-		location.sourceStart, 
-		location.sourceEnd); 
+		new String[] { new String(targetType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
 }
 public void notCompatibleTypesError(EqualExpression expression, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
