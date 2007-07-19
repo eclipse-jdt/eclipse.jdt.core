@@ -831,7 +831,7 @@ class ASTConverter {
 			}			
 			int start = type.getStartPosition();
 			int end = type.getStartPosition() + type.getLength();
-			int previousSearchStart = end;
+			int previousSearchStart = end - 1;
 			ArrayType componentType = (ArrayType) type.getParent();
 			for (int i = 0; i < dimensionsLength; i++) {
 				previousSearchStart = retrieveRightBracketPosition(previousSearchStart + 1, this.compilationUnitSourceLength);
@@ -4239,10 +4239,16 @@ class ASTConverter {
 		this.scanner.resetTo(start, end);
 		try {
 			int token;
+			int balance = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameRBRACKET:
-						return this.scanner.currentPosition - 1;
+					case TerminalTokens.TokenNameLBRACKET :
+						balance++;
+						break;
+					case TerminalTokens.TokenNameRBRACKET :
+						balance--;
+						if (balance == 0) return this.scanner.currentPosition - 1;
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {

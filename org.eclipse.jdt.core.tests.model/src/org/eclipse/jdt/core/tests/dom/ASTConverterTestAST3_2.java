@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.AssertStatement;
@@ -9353,5 +9354,65 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		final IPackageBinding packageBinding = packageDeclaration.resolveBinding();
 		assertNotNull("No binding", packageBinding);
 		assertEquals("Wrong name", "Sample", packageBinding.getName());
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=196514
+	 */
+	public void test0682() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0682", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, true, true);
+		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(
+				unit,
+				2,
+				"Variable must provide either dimension expressions or an array initializer\n" + 
+				"Syntax error on token \"String\", [ expected after this token");
+		node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		node = expressionStatement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, node.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) node;
+		List arguments = methodInvocation.arguments();
+		assertEquals("Wrong size", 1, arguments.size());
+		node = (ASTNode)arguments.get(0);
+		assertEquals("Not an array creation", ASTNode.ARRAY_CREATION, node.getNodeType());
+		ArrayCreation arrayCreation = (ArrayCreation) node;
+		ArrayType arrayType = arrayCreation.getType();
+		checkSourceRange(arrayType, "String]", sourceUnit.getSource());
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=196514
+	 */
+	public void test0683() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0683", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, true, true);
+		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 1, 0);
+		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement expressionStatement = (ExpressionStatement) node;
+		node = expressionStatement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, node.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) node;
+		List arguments = methodInvocation.arguments();
+		assertEquals("Wrong size", 1, arguments.size());
+		node = (ASTNode)arguments.get(0);
+		assertEquals("Not an array creation", ASTNode.ARRAY_CREATION, node.getNodeType());
+		ArrayCreation arrayCreation = (ArrayCreation) node;
+		ArrayType arrayType = arrayCreation.getType();
+		checkSourceRange(arrayType, "String[0][b[10]][]", sourceUnit.getSource());
+		node = arrayType.getComponentType();
+		assertEquals("Not an array type", ASTNode.ARRAY_TYPE, node.getNodeType());
+		arrayType = (ArrayType)node;
+		checkSourceRange(arrayType, "String[0][b[10]]", sourceUnit.getSource());
+		node = arrayType.getComponentType();
+		assertEquals("Not an array type", ASTNode.ARRAY_TYPE, node.getNodeType());
+		arrayType = (ArrayType)node;
+		checkSourceRange(arrayType, "String[0]", sourceUnit.getSource());
 	}
 }
