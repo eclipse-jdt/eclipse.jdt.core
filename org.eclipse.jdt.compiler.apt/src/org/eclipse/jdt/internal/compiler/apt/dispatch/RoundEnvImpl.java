@@ -189,6 +189,9 @@ public class RoundEnvImpl implements RoundEnvironment
 	@Override
 	public Set<? extends Element> getRootElements()
 	{
+		if (_units == null) {
+			return Collections.emptySet();
+		}
 		if (_rootElements == null) {
 			Set<Element> elements = new HashSet<Element>(_units.length);
 			for (CompilationUnitDeclaration unit : _units) {

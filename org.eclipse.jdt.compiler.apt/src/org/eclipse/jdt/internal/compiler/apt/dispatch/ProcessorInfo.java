@@ -145,5 +145,32 @@ public class ProcessorInfo {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString()
+	{
+		return _processor.getClass().getName();
+	}
+	
+	/**
+	 * @return a string representing the set of supported annotation types, in a format
+	 * suitable for debugging.  The format is unspecified and subject to change.
+	 */
+	public String getSupportedAnnotationTypesAsString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append('[');
+		Iterator<String> iAnnots = _processor.getSupportedAnnotationTypes().iterator(); 
+		boolean hasNext = iAnnots.hasNext();
+		while (hasNext) {
+			sb.append(iAnnots.next());
+			hasNext = iAnnots.hasNext();
+			if (hasNext) {
+				sb.append(',');
+			}
+		}
+		sb.append(']');
+		return sb.toString();
+	}
 }
 
