@@ -58,102 +58,115 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 	if (matchBinary(pattern, info, null)) {
 		binaryType = new ResolvedBinaryType((JavaElement) binaryType.getParent(), binaryType.getElementName(), binaryType.getKey());
 		locator.reportBinaryMemberDeclaration(null, binaryType, null, info, SearchMatch.A_ACCURATE);
+		return;
 	}
 
-	// Get methods from binary type info
+	// Define arrays to store methods/fields from binary type if necessary
 	IBinaryMethod[] binaryMethods = info.getMethods();
 	int bMethodsLength = binaryMethods == null ? 0 : binaryMethods.length;
-	IBinaryMethod[] inaccurateMethods = new IBinaryMethod[bMethodsLength];
+	IBinaryMethod[] unresolvedMethods = null;
 	char[][] binaryMethodSignatures = null;
-	if (bMethodsLength > 0) {
-		System.arraycopy(binaryMethods, 0, inaccurateMethods, 0, bMethodsLength);
-	}
+	boolean hasUnresolvedMethods = false;
 
 	// Get fields from binary type info
 	IBinaryField[] binaryFields = info.getFields();
 	int bFieldsLength = binaryFields == null ? 0 : binaryFields.length;
-	IBinaryField[] inaccurateFields = new IBinaryField[bFieldsLength];
-	if (bFieldsLength > 0) {
-		System.arraycopy(binaryFields, 0, inaccurateFields, 0, bFieldsLength);
-	}
+	IBinaryField[] unresolvedFields = null;
+	boolean hasUnresolvedFields = false;
 	
 	// Report as many accurate matches as possible
-	if (((InternalSearchPattern)pattern).mustResolve) {
+	int accuracy = SearchMatch.A_ACCURATE;
+	boolean mustResolve = ((InternalSearchPattern)pattern).mustResolve;
+	if (mustResolve) {
 		BinaryTypeBinding binding = locator.cacheBinaryType(binaryType, info);
 		if (binding != null) {
 			// filter out element not in hierarchy scope
 			if (!locator.typeInHierarchy(binding)) return;
 
-			// Report accurate methods
+			// Search matches on resolved methods
 			MethodBinding[] availableMethods = binding.availableMethods();
 			int aMethodsLength = availableMethods == null ? 0 : availableMethods.length;
+			hasUnresolvedMethods = bMethodsLength != aMethodsLength;
 			for (int i = 0; i < aMethodsLength; i++) {
 				MethodBinding method = availableMethods[i];
-				int level = locator.patternLocator.resolveLevel(method);
 				char[] methodSignature = method.genericSignature();
 				if (methodSignature == null) methodSignature = method.signature();
-				switch (level) {
-					case PatternLocator.ACCURATE_MATCH:
-						IMethod methodHandle = binaryType.getMethod(
-							new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
-							CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(methodSignature))));
-						locator.reportBinaryMemberDeclaration(null, methodHandle, method, info, SearchMatch.A_ACCURATE);
-						// fall through impossible match case to remove the reported method
-					case PatternLocator.IMPOSSIBLE_MATCH:
-						// Store binary method signatures to avoid multiple computation
-						if (binaryMethodSignatures == null) {
-							binaryMethodSignatures = new char[bMethodsLength][];
-							for (int j=0; j<bMethodsLength; j++) {
-								IBinaryMethod binaryMethod = binaryMethods[j];
-								char[] signature = binaryMethod.getGenericSignature();
-								if (signature == null) signature = binaryMethod.getMethodDescriptor();
-								binaryMethodSignatures[j] = signature;
-							}
-						}
-						// The method is either accurate or impossible so remove from inaccurate methods list
+
+				// Report the match if possible
+				int level = locator.patternLocator.resolveLevel(method);
+				if (level != PatternLocator.IMPOSSIBLE_MATCH) {
+					IMethod methodHandle = binaryType.getMethod(
+						new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
+						CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(methodSignature))));
+					accuracy = level == PatternLocator.ACCURATE_MATCH ? SearchMatch.A_ACCURATE : SearchMatch.A_INACCURATE;
+					locator.reportBinaryMemberDeclaration(null, methodHandle, method, info, accuracy);
+				}
+
+				// Remove method from unresolved list
+				if (hasUnresolvedMethods) {
+					if (binaryMethodSignatures == null) { // Store binary method signatures to avoid multiple computation
+						binaryMethodSignatures = new char[bMethodsLength][];
 						for (int j=0; j<bMethodsLength; j++) {
-							if (CharOperation.equals(binaryMethods[j].getSelector(), method.selector) && CharOperation.equals(binaryMethodSignatures[j], methodSignature)) {
-								inaccurateMethods[j] = null;
-								break;
-							}
+							IBinaryMethod binaryMethod = binaryMethods[j];
+							char[] signature = binaryMethod.getGenericSignature();
+							if (signature == null) signature = binaryMethod.getMethodDescriptor();
+							binaryMethodSignatures[j] = signature;
 						}
-						break;
+					}
+					for (int j=0; j<bMethodsLength; j++) {
+						if (CharOperation.equals(binaryMethods[j].getSelector(), method.selector) && CharOperation.equals(binaryMethodSignatures[j], methodSignature)) {
+							if (unresolvedMethods == null) {
+								System.arraycopy(binaryMethods, 0, unresolvedMethods = new IBinaryMethod[bMethodsLength], 0, bMethodsLength);
+							}
+							unresolvedMethods[j] = null;
+							break;
+						}
+					}
 				}
 			}
 
-			// Report accurate fields
+			// Search matches on resolved fields
 			FieldBinding[] availableFields = binding.availableFields();
 			int aFieldsLength = availableFields == null ? 0 : availableFields.length;
+			hasUnresolvedFields = bFieldsLength != aFieldsLength;
 			for (int i = 0; i < aFieldsLength; i++) {
 				FieldBinding field = availableFields[i];
+
+				// Report the match if possible
 				int level = locator.patternLocator.resolveLevel(field);
-				switch (level) {
-					case PatternLocator.ACCURATE_MATCH:
-						IField fieldHandle = binaryType.getField(new String(field.name));
-						locator.reportBinaryMemberDeclaration(null, fieldHandle, field, info, SearchMatch.A_ACCURATE);
-						// fall through impossible match case to remove reported field
-					case PatternLocator.IMPOSSIBLE_MATCH:
-						// The field is either an accurate or impossible match, so remove it from inaccurate fields list
-						for (int j=0; j<bFieldsLength; j++) {
-							if ( CharOperation.equals(binaryFields[j].getName(), field.name)) {
-								inaccurateFields[j] = null;
-								break;
+				if (level != PatternLocator.IMPOSSIBLE_MATCH) {
+					IField fieldHandle = binaryType.getField(new String(field.name));
+					accuracy = level == PatternLocator.ACCURATE_MATCH ? SearchMatch.A_ACCURATE : SearchMatch.A_INACCURATE;
+					locator.reportBinaryMemberDeclaration(null, fieldHandle, field, info, accuracy);
+				}
+
+				// Remove the field from unresolved list
+				if (hasUnresolvedFields) {
+					for (int j=0; j<bFieldsLength; j++) {
+						if ( CharOperation.equals(binaryFields[j].getName(), field.name)) {
+							if (unresolvedFields == null) {
+								System.arraycopy(binaryFields, 0, unresolvedFields = new IBinaryField[bFieldsLength], 0, bFieldsLength);
 							}
+							unresolvedFields[j] = null;
+							break;
 						}
-						break;
+					}
 				}
 			}
 
 			// If all methods/fields were accurate then returns now
-			if (bMethodsLength == aMethodsLength && bFieldsLength == aFieldsLength) {
+			if (!hasUnresolvedMethods && !hasUnresolvedFields) {
 				return;
 			}
 		}
+		accuracy = SearchMatch.A_INACCURATE;
 	}
 
 	// Report inaccurate methods
+	if (mustResolve) binaryMethods = unresolvedMethods;
+	bMethodsLength = binaryMethods == null ? 0 : binaryMethods.length;
 	for (int i=0; i < bMethodsLength; i++) {
-		IBinaryMethod method = inaccurateMethods[i];
+		IBinaryMethod method = binaryMethods[i];
 		if (method == null) continue; // impossible match or already reported as accurate
 		if (matchBinary(pattern, method, info)) {
 			char[] name;
@@ -175,19 +188,21 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 			String[] parameterTypes = CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(methodSignature)));
 			IMethod methodHandle = binaryType.getMethod(selector, parameterTypes);
 			methodHandle = new ResolvedBinaryMethod(binaryType, selector, parameterTypes, methodHandle.getKey());
-			locator.reportBinaryMemberDeclaration(null, methodHandle, null, info, SearchMatch.A_INACCURATE);
+			locator.reportBinaryMemberDeclaration(null, methodHandle, null, info, accuracy);
 		}
 	}
 
 	// Report inaccurate fields
+	if (mustResolve) binaryFields =  unresolvedFields;
+	bFieldsLength = binaryFields == null ? 0 : binaryFields.length;
 	for (int i=0; i<bFieldsLength; i++) {
-		IBinaryField field = inaccurateFields[i];
+		IBinaryField field = binaryFields[i];
 		if (field == null) continue; // impossible match or already reported as accurate
 		if (matchBinary(pattern, field, info)) {
 			String fieldName = new String(field.getName());
 			IField fieldHandle = binaryType.getField(fieldName);
 			fieldHandle = new ResolvedBinaryField(binaryType, fieldName, fieldHandle.getKey());
-			locator.reportBinaryMemberDeclaration(null, fieldHandle, null, info, SearchMatch.A_INACCURATE);
+			locator.reportBinaryMemberDeclaration(null, fieldHandle, null, info, accuracy);
 		}
 	}
 }

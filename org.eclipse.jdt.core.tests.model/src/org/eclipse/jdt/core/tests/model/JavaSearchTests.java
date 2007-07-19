@@ -1936,16 +1936,15 @@ public void testPackageReference8() throws CoreException { // was testPatternMat
  * class file.
  * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
  */
-public void testPotentialMatchInBinary1() throws CoreException {
-	IJavaProject project = this.getJavaProject("JavaSearch");
-	IClasspathEntry[] classpath = project.getRawClasspath();
+public void testSearchFieldInBinaryWithResolution() throws CoreException {
+	IClasspathEntry[] classpath = JAVA_PROJECT.getRawClasspath();
 	try {
 		// add AbortCompilation.jar to classpath
 		int length = classpath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
 		System.arraycopy(classpath, 0, newClasspath, 0, length);
 		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
-		project.setRawClasspath(newClasspath, null);
+		JAVA_PROJECT.setRawClasspath(newClasspath, null);
 		
 		// potential match for a field declaration
 		this.resultCollector.showAccuracy = true;
@@ -1957,7 +1956,40 @@ public void testPotentialMatchInBinary1() throws CoreException {
 		);
 	} finally {
 		// reset classpath
-		project.setRawClasspath(classpath, null);
+		JAVA_PROJECT.setRawClasspath(classpath, null);
+	}
+}
+// bug 186333: Pattern which does not resolve should find all the matches exact
+public void testSearchFieldInBinaryNoResolution() throws CoreException {
+	IClasspathEntry[] classpath = JAVA_PROJECT.getRawClasspath();
+	try {
+		// add AbortCompilation.jar to classpath
+		int length = classpath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
+		System.arraycopy(classpath, 0, newClasspath, 0, length);
+		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
+		JAVA_PROJECT.setRawClasspath(newClasspath, null);
+		
+		// exact match for a field declaration
+		JavaSearchResultCollector collector = new JavaSearchResultCollector() {
+			public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+	            IField field = (IField) searchMatch.getElement();
+	            if (field.getDeclaringType().getElementName().equals("MissingFieldType")) {
+		            super.acceptSearchMatch(searchMatch);
+	            }
+            }
+		};
+		collector.showAccuracy = true;
+		search("*", FIELD, DECLARATIONS,  getJavaSearchScope(), collector);
+		assertSearchResults(
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] EXACT_MATCH",
+			collector
+		);
+	} finally {
+		// reset classpath
+		JAVA_PROJECT.setRawClasspath(classpath, null);
 	}
 }	
 /**
@@ -1965,16 +1997,15 @@ public void testPotentialMatchInBinary1() throws CoreException {
  * class file.
  * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
  */
-public void testPotentialMatchInBinary2() throws CoreException {
-	IJavaProject project = this.getJavaProject("JavaSearch");
-	IClasspathEntry[] classpath = project.getRawClasspath();
+public void testSearchMethodInBinaryWithResolution() throws CoreException {
+	IClasspathEntry[] classpath = JAVA_PROJECT.getRawClasspath();
 	try {
 		// add AbortCompilation.jar to classpath
 		int length = classpath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
 		System.arraycopy(classpath, 0, newClasspath, 0, length);
 		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
-		project.setRawClasspath(newClasspath, null);
+		JAVA_PROJECT.setRawClasspath(newClasspath, null);
 		
 		// potential match for a method declaration
 		this.resultCollector.showAccuracy = true;
@@ -1986,7 +2017,41 @@ public void testPotentialMatchInBinary2() throws CoreException {
 		);
 	} finally {
 		// reset classpath
-		project.setRawClasspath(classpath, null);
+		JAVA_PROJECT.setRawClasspath(classpath, null);
+	}
+}
+// bug 186333: Pattern which does not resolve should find all the matches exact
+public void testSearchMethodInBinaryNoResolution() throws CoreException {
+	IClasspathEntry[] classpath = JAVA_PROJECT.getRawClasspath();
+	try {
+		// add AbortCompilation.jar to classpath
+		int length = classpath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
+		System.arraycopy(classpath, 0, newClasspath, 0, length);
+		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
+		JAVA_PROJECT.setRawClasspath(newClasspath, null);
+		
+		// exact match for a method declaration
+		JavaSearchResultCollector collector = new JavaSearchResultCollector() {
+			public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+	            IMethod method = (IMethod) searchMatch.getElement();
+	            if (method.getDeclaringType().getElementName().equals("MissingArgumentType")) {
+		            super.acceptSearchMatch(searchMatch);
+	            }
+            }
+		};
+		collector.showAccuracy = true;
+		search("*", METHOD, DECLARATIONS,  getJavaSearchScope(), collector);
+		assertSearchResults(
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo(java.util.EventListener) [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.MissingArgumentType() [No source] EXACT_MATCH",
+			collector
+		);
+	} finally {
+		// reset classpath
+		JAVA_PROJECT.setRawClasspath(classpath, null);
 	}
 }	
 /**
@@ -1994,36 +2059,52 @@ public void testPotentialMatchInBinary2() throws CoreException {
  * class file.
  * (Regression test for 1G4IN3E: ITPJCORE:WINNT - AbortCompilation using J9 to search for class declaration) 
  */
-public void testPotentialMatchInBinary3() throws CoreException {
-	IJavaProject project = this.getJavaProject("JavaSearch");
-	IClasspathEntry[] classpath = project.getRawClasspath();
+public void testSearchTypesInBinaryWithResolution() throws CoreException {
+	IClasspathEntry[] classpath = JAVA_PROJECT.getRawClasspath();
 	try {
 		// add AbortCompilation.jar to classpath
 		int length = classpath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
 		System.arraycopy(classpath, 0, newClasspath, 0, length);
 		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
-		project.setRawClasspath(newClasspath, null);
-		
-		// potential match for a type declaration
+		JAVA_PROJECT.setRawClasspath(newClasspath, null);
 
+		// exact match for a type declaration
 		resultCollector.showAccuracy = true;
-		search(
-			"Missing*",
-			TYPE,
-			DECLARATIONS, 
-			getJavaSearchScope(), 
-			this.resultCollector);
+		search("AbortCompilation.*Missing*", TYPE, DECLARATIONS,  getJavaSearchScope());
 		assertSearchResults(
 			"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" + 
 			"AbortCompilation.jar AbortCompilation.MissingArgumentType [No source] EXACT_MATCH\n" + 
-			"AbortCompilation.jar AbortCompilation.MissingFieldType [No source] EXACT_MATCH",
-			this.resultCollector);
+			"AbortCompilation.jar AbortCompilation.MissingFieldType [No source] EXACT_MATCH"
+		);
 	} finally {
 		// reset classpath
-		project.setRawClasspath(classpath, null);
+		JAVA_PROJECT.setRawClasspath(classpath, null);
 	}
 }
+public void testSearchTypeInBinaryNoResolution() throws CoreException {
+	IClasspathEntry[] classpath = JAVA_PROJECT.getRawClasspath();
+	try {
+		// add AbortCompilation.jar to classpath
+		int length = classpath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[length+1];
+		System.arraycopy(classpath, 0, newClasspath, 0, length);
+		newClasspath[length] = JavaCore.newLibraryEntry(new Path("/JavaSearch/AbortCompilation.jar"), null, null);
+		JAVA_PROJECT.setRawClasspath(newClasspath, null);
+
+		// exact match for a type declaration
+		resultCollector.showAccuracy = true;
+		search("Missing*", TYPE, DECLARATIONS,  getJavaSearchScope());
+		assertSearchResults(
+			"AbortCompilation.jar AbortCompilation.EnclosingType$MissingEnclosingType [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.MissingArgumentType [No source] EXACT_MATCH\n" + 
+			"AbortCompilation.jar AbortCompilation.MissingFieldType [No source] EXACT_MATCH"
+		);
+	} finally {
+		// reset classpath
+		JAVA_PROJECT.setRawClasspath(classpath, null);
+	}
+}	
 /**
  * Hierarchy scope test.
  * (regression test for bug 3445 search: type hierarchy scope incorrect (1GLC8VS))
