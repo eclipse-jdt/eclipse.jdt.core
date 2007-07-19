@@ -42,12 +42,12 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	 * Collects a many-to-many map of annotation types to
 	 * the elements they appear on.
 	 */
-	ManyToMany<TypeElement, Element> _annoToElement;
+	final ManyToMany<TypeElement, Element> _annoToElement;
 
 	public AnnotationDiscoveryVisitor(BaseProcessingEnvImpl env) {
 		_env = env;
 		_factory = env.getFactory();
-		this._annoToElement = new ManyToMany<TypeElement, Element>();
+		_annoToElement = new ManyToMany<TypeElement, Element>();
 	}
 
 	@Override

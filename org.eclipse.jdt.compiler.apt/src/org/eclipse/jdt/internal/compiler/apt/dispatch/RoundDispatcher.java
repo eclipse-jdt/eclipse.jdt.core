@@ -12,11 +12,14 @@
 
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
+import java.io.PrintWriter;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 
 /**
@@ -28,6 +31,8 @@ public class RoundDispatcher {
 	private final RoundEnvironment _roundEnv;
 	private final IProcessorProvider _provider;
 	private boolean _searchForStar = false;
+	private final PrintWriter _traceProcessorInfo;
+	private final PrintWriter _traceRounds;
 	
 	/**
 	 * Processors discovered so far.  This list may grow during the
@@ -39,14 +44,23 @@ public class RoundDispatcher {
 	 * @param rootAnnotations a possibly empty but non-null set of annotations on the
 	 * root compilation units of this round.  A local copy of the set will be made, to
 	 * avoid modifying the set passed in.
+	 * @param traceProcessorInfo a PrintWriter that processor trace output will be sent 
+	 * to, or null if tracing is not desired.
+	 * @param traceRounds 
 	 */
 	public RoundDispatcher(
-			IProcessorProvider provider, RoundEnvironment env, Set<TypeElement> rootAnnotations)
+			IProcessorProvider provider, 
+			RoundEnvironment env, 
+			Set<TypeElement> rootAnnotations, 
+			PrintWriter traceProcessorInfo, 
+			PrintWriter traceRounds)
 	{
 		_provider = provider;
 		_processors = provider.getDiscoveredProcessors();
 		_roundEnv = env;
 		_unclaimedAnnotations = new HashSet<TypeElement>(rootAnnotations);
+		_traceProcessorInfo = traceProcessorInfo;
+		_traceRounds = traceRounds;
 	}
 	
 	/**
@@ -54,6 +68,38 @@ public class RoundDispatcher {
 	 */
 	public void round()
 	{
+		if (null != _traceRounds) {
+			StringBuilder sbElements = new StringBuilder();
+			sbElements.append("\tinput files: {"); //$NON-NLS-1$
+			Iterator<? extends Element> iElements = _roundEnv.getRootElements().iterator();
+			boolean hasNext = iElements.hasNext();
+			while (hasNext) {
+				sbElements.append(iElements.next());
+				hasNext = iElements.hasNext();
+				if (hasNext) {
+					sbElements.append(',');
+				}
+			}
+			sbElements.append('}');
+			_traceRounds.println(sbElements.toString());
+			
+			StringBuilder sbAnnots = new StringBuilder();
+			sbAnnots.append("\tannotations: ["); //$NON-NLS-1$
+			Iterator<TypeElement> iAnnots = _unclaimedAnnotations.iterator();
+			hasNext = iAnnots.hasNext();
+			while (hasNext) {
+				sbAnnots.append(iAnnots.next());
+				hasNext = iAnnots.hasNext();
+				if (hasNext) {
+					sbAnnots.append(',');
+				}
+			}
+			sbAnnots.append(']');
+			_traceRounds.println(sbAnnots.toString());
+			
+			_traceRounds.println("\tlast round: " + _roundEnv.processingOver()); //$NON-NLS-1$
+		}
+		
 		// If there are no root annotations, try to find a processor that claims "*"
 		_searchForStar = _unclaimedAnnotations.isEmpty();
 		
@@ -90,7 +136,26 @@ public class RoundDispatcher {
 			boolean shouldCall = pi.computeSupportedAnnotations(
 					_unclaimedAnnotations, annotationsToProcess);
 			if (shouldCall) {
-				if (pi._processor.process(annotationsToProcess, _roundEnv)) {
+				boolean claimed = pi._processor.process(annotationsToProcess, _roundEnv);
+				if (null != _traceProcessorInfo && !_roundEnv.processingOver()) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("Processor "); //$NON-NLS-1$
+					sb.append(pi._processor.getClass().getName());
+					sb.append(" matches ["); //$NON-NLS-1$
+					Iterator<TypeElement> i = annotationsToProcess.iterator();
+					boolean hasNext = i.hasNext();
+					while (hasNext) {
+						sb.append(i.next());
+						hasNext = i.hasNext();
+						if (hasNext) {
+							sb.append(' ');
+						}
+					}
+					sb.append("] and returns "); //$NON-NLS-1$
+					sb.append(claimed);
+					_traceProcessorInfo.println(sb.toString());
+				}
+				if (claimed) {
 					// The processor claimed its annotations.
 					_unclaimedAnnotations.removeAll(annotationsToProcess);
 					if (pi.supportsStar()) {

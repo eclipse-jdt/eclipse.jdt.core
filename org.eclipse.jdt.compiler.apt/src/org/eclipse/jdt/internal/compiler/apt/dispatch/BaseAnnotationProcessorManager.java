@@ -51,6 +51,11 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 	 */
 	protected List<ProcessorInfo> _processors = new ArrayList<ProcessorInfo>();
 	
+	// Tracing
+	protected boolean _printProcessorInfo = false;
+	protected boolean _printRounds = false;
+	protected int _round;
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager#configure(org.eclipse.jdt.internal.compiler.batch.Main, java.lang.String[])
 	 */
@@ -144,7 +149,13 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 		if (_isFirstRound) {
 			_isFirstRound = false;
 		}
-		RoundDispatcher dispatcher = new RoundDispatcher(this, roundEnv, roundEnv.getRootAnnotations());
+		PrintWriter traceProcessorInfo = _printProcessorInfo ? _out : null;
+		PrintWriter traceRounds = _printRounds ? _out : null;
+		if (traceRounds != null) {
+			traceRounds.println("Round " + ++_round + ':'); //$NON-NLS-1$
+		}
+		RoundDispatcher dispatcher = new RoundDispatcher(
+				this, roundEnv, roundEnv.getRootAnnotations(), traceProcessorInfo, traceRounds);
 		dispatcher.round();
 	}
 

@@ -47,6 +47,10 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 	
 	private ClassLoader _procLoader;
 	
+	// Set this to true in order to trace processor discovery when -XprintProcessorInfo is specified
+	private final static boolean VERBOSE_PROCESSOR_DISCOVERY = true;
+	private boolean _printProcessorDiscovery = false;
+	
 	/**
 	 * Zero-arg constructor so this object can be easily created via reflection.
 	 * A BatchAnnotationProcessorManager cannot be used until its
@@ -65,10 +69,8 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 		BatchProcessingEnvImpl processingEnv = new BatchProcessingEnvImpl(this, (Main) batchCompiler, commandLineArguments);
 		_processingEnv = processingEnv;
 		_procLoader = processingEnv.getFileManager().getClassLoader(StandardLocation.ANNOTATION_PROCESSOR_PATH);
-		_commandLineProcessors = parseCommandLineProcessors(commandLineArguments);
-		if (null != _commandLineProcessors) {
-			_commandLineProcessorIter = _commandLineProcessors.iterator();
-		}
+		parseCommandLine(commandLineArguments);
+		_round = 0;
 	}
 	
 	/**
@@ -77,20 +79,30 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 	 * @param commandLineArguments contains one string for every space-delimited token on the command line
 	 * @return a list of qualified classnames, or null if there was no -processor option.
 	 */
-	private List<String> parseCommandLineProcessors(String[] commandLineArguments) {
-		List<String> result = null;
+	private void parseCommandLine(String[] commandLineArguments) {
+		List<String> commandLineProcessors = null;
 		for (int i = 0; i < commandLineArguments.length; ++i) {
 			String option = commandLineArguments[i];
-			if ("-processor".equals(option)) { //$NON-NLS-1$
-				result = new ArrayList<String>();
+			if ("-XprintProcessorInfo".equals(option)) { //$NON-NLS-1$
+				_printProcessorInfo = true;
+				_printProcessorDiscovery = VERBOSE_PROCESSOR_DISCOVERY;
+			}
+			else if ("-XprintRounds".equals(option)) { //$NON-NLS-1$
+				_printRounds = true;
+			}
+			else if ("-processor".equals(option)) { //$NON-NLS-1$
+				commandLineProcessors = new ArrayList<String>();
 				String procs = commandLineArguments[++i];
 				for (String proc : procs.split(",")) { //$NON-NLS-1$
-					result.add(proc);
+					commandLineProcessors.add(proc);
 				}
 				break;
 			}
 		}
-		return result;
+		_commandLineProcessors =  commandLineProcessors;
+		if (null != _commandLineProcessors) {
+			_commandLineProcessorIter = _commandLineProcessors.iterator();
+		}
 	}
 
 	@Override
@@ -102,6 +114,9 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 				p.init(_processingEnv);
 				ProcessorInfo pi = new ProcessorInfo(p);
 				_processors.add(pi);
+				if (_printProcessorDiscovery && null != _out) {
+					_out.println("API specified processor: " + pi); //$NON-NLS-1$
+				}
 				return pi;
 			}
 			return null;
@@ -119,6 +134,9 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 					p.init(_processingEnv);
 					ProcessorInfo pi = new ProcessorInfo(p);
 					_processors.add(pi);
+					if (_printProcessorDiscovery && null != _out) {
+						_out.println("Command line specified processor: " + pi); //$NON-NLS-1$
+					}
 					return pi;
 				} catch (Exception e) {
 					// TODO: better error handling
@@ -140,6 +158,16 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 				p.init(_processingEnv);
 				ProcessorInfo pi = new ProcessorInfo(p);
 				_processors.add(pi);
+				if (_printProcessorDiscovery && null != _out) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("Discovered processor service "); //$NON-NLS-1$
+					sb.append(pi);
+					sb.append("\n  supporting "); //$NON-NLS-1$
+					sb.append(pi.getSupportedAnnotationTypesAsString());
+					sb.append("\n  in "); //$NON-NLS-1$
+					sb.append(getProcessorLocation(p));
+					_out.println(sb.toString());
+				}
 				return pi;
 			}
 		} catch (ServiceConfigurationError e) {
@@ -147,6 +175,38 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 			throw new AbortCompilation(null, e);
 		}
 		return null;
+	}
+	
+	/**
+	 * Used only for debugging purposes.  Generates output like "file:jar:D:/temp/jarfiles/myJar.jar!/".
+	 * Surely this code already exists in several hundred other places?  
+	 * @return the location whence a processor class was loaded.
+	 */
+	private String getProcessorLocation(Processor p) {
+		// Get the classname in a form that can be passed to ClassLoader.getResource(),
+		// e.g., "pa/pb/pc/Outer$Inner.class"
+		boolean isMember = false;
+		Class<?> outerClass = p.getClass();
+		StringBuilder innerName = new StringBuilder();
+		while (outerClass.isMemberClass()) {
+			innerName.insert(0, outerClass.getSimpleName());
+			innerName.insert(0, '$');
+			isMember = true;
+			outerClass = outerClass.getEnclosingClass();
+		}
+		String path = outerClass.getName();
+		path = path.replace('.', '/');
+		if (isMember) {
+			path = path + innerName;
+		}
+		path = path + ".class"; //$NON-NLS-1$
+		
+		// Find the URL for the class resource and strip off the resource name itself
+		String location = _procLoader.getResource(path).toString();
+		if (location.endsWith(path)) {
+			location = location.substring(0, location.length() - path.length());
+		}
+		return location;
 	}
 
 	@Override
