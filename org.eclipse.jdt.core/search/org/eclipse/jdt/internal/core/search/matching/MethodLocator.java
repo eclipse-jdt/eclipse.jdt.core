@@ -334,7 +334,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			// verify closest match if pattern was bound
 			// (see bug 70827)
 			if (focus != null && focus.getElementType() == IJavaElement.METHOD) {
-				if (methodBinding != null) {
+				if (methodBinding != null && methodBinding.declaringClass != null) {
 					boolean isPrivate = Flags.isPrivate(((IMethod) focus).getFlags());
 					if (isPrivate && !CharOperation.equals(methodBinding.declaringClass.sourceName, focus.getParent().getElementName().toCharArray())) {
 						return; // finally the match was not possible
