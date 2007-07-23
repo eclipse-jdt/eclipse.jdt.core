@@ -76,10 +76,16 @@ private AnnotationInfo[] decodeAnnotations(int offset, boolean runtimeVisible) {
 	return null; // nothing to record
 }
 public int compareTo(Object o) {
-	if (!(o instanceof FieldInfo)) {
-		throw new ClassCastException();
-	}
 	return new String(this.getName()).compareTo(new String(((FieldInfo) o).getName()));
+}
+public boolean equals(Object o) {
+	if (!(o instanceof FieldInfo)) {
+		return false;
+	}
+	return CharOperation.equals(this.getName(), ((FieldInfo) o).getName());
+}
+public int hashCode() {
+	return CharOperation.hashCode(this.getName());
 }
 /**
  * Return the constant of the field.

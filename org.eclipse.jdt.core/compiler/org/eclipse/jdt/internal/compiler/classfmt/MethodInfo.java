@@ -178,14 +178,21 @@ protected MethodInfo (byte classFileBytes[], int offsets[], int offset) {
 	this.signatureUtf8Offset = -1;
 }
 public int compareTo(Object o) {
-	if (!(o instanceof MethodInfo)) {
-		throw new ClassCastException();
-	}
-
 	MethodInfo otherMethod = (MethodInfo) o;
 	int result = new String(this.getSelector()).compareTo(new String(otherMethod.getSelector()));
 	if (result != 0) return result;
 	return new String(this.getMethodDescriptor()).compareTo(new String(otherMethod.getMethodDescriptor()));
+}
+public boolean equals(Object o) {
+	if (!(o instanceof MethodInfo)) {
+		return false;
+	}
+	MethodInfo otherMethod = (MethodInfo) o;
+	return CharOperation.equals(this.getSelector(), otherMethod.getSelector())
+			&& CharOperation.equals(this.getMethodDescriptor(), otherMethod.getMethodDescriptor());
+}
+public int hashCode() {
+	return CharOperation.hashCode(this.getSelector()) + CharOperation.hashCode(this.getMethodDescriptor());
 }
 /**
  * @return the annotations or null if there is none.

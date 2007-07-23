@@ -165,6 +165,9 @@ public boolean equals(Object obj) {
 	}
 	return false;
 }
+public int hashCode() {
+	return this.tag + this.id + this.constantPoolName.length + this.offset;
+}
 public char[] constantPoolName() {
 	return this.constantPoolName;
 }
