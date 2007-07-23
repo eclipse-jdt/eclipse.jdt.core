@@ -51,7 +51,6 @@ public class SourceElementParser extends CommentRecorderParser {
 	char[][] superTypeNames;
 	int nestedTypeIndex;
 	LocalDeclarationVisitor localDeclarationVisitor = null;
-	CompilerOptions options;
 	HashtableOfObjectToInt sourceEnds = new HashtableOfObjectToInt();
 	HashMap nodesToCategories = new HashMap(); // a map from ASTNode to char[][]
 	boolean useSourceJavadocParser = true;
