@@ -139,7 +139,7 @@ public final boolean canBeSeenByForCodeSnippet(MethodBinding methodBinding, Type
 	if (methodBinding.isPublic()) return true;
 
 	ReferenceBinding invocationType = (ReferenceBinding) receiverType;
-	if (invocationType == methodBinding.declaringClass && invocationType == receiverType) return true;
+	if (invocationType == methodBinding.declaringClass) return true;
 
 	if (methodBinding.isProtected()) {
 		// answer true if the invocationType is the declaringClass or they are in the same package
