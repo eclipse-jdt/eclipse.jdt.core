@@ -224,7 +224,7 @@ public class CharacterLiteral extends Expression {
 			throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 		}
 		char value = (char) secondChar;
-		char nextChar = (char) scanner.getNextChar();
+		int nextChar = scanner.getNextChar();
 		if (secondChar == '\\') {
 			if (nextChar == -1) {
 				throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
@@ -256,29 +256,29 @@ public class CharacterLiteral extends Expression {
 					break;
 				default : //octal (well-formed: ended by a ' )
 					try {
-						if (ScannerHelper.isDigit(nextChar)) {
-							int number = ScannerHelper.getNumericValue(nextChar);
-							nextChar = (char) scanner.getNextChar();
+						if (ScannerHelper.isDigit((char) nextChar)) {
+							int number = ScannerHelper.getNumericValue((char) nextChar);
+							nextChar = scanner.getNextChar();
 							if (nextChar == -1) {
 								throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 							}
 							if (nextChar != '\'') {
-								if (!ScannerHelper.isDigit(nextChar)) {
+								if (!ScannerHelper.isDigit((char) nextChar)) {
 									throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 								}
-								number = (number * 8) + ScannerHelper.getNumericValue(nextChar);
-								nextChar = (char) scanner.getNextChar();
+								number = (number * 8) + ScannerHelper.getNumericValue((char) nextChar);
+								nextChar = scanner.getNextChar();
 								if (nextChar == -1) {
 									throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 								}
 								if (nextChar != '\'') {
-									if (!ScannerHelper.isDigit(nextChar)) {
+									if (!ScannerHelper.isDigit((char) nextChar)) {
 										throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 									}
-									number = (number * 8) + ScannerHelper.getNumericValue(nextChar);
+									number = (number * 8) + ScannerHelper.getNumericValue((char) nextChar);
 								}
 							}
-							return (char) number;			
+							return (char) number;
 						} else {
 							throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 						}
@@ -286,7 +286,7 @@ public class CharacterLiteral extends Expression {
 						throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 					}
 			}
-			nextChar = (char) scanner.getNextChar();
+			nextChar = scanner.getNextChar();
 			if (nextChar == -1) {
 				throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 			}
