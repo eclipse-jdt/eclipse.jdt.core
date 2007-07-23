@@ -214,7 +214,9 @@ class RecoveredTypeBinding implements ITypeBinding {
 			} else if (this.referenceBinding instanceof org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding) {
 				typeBinding = (org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding) this.referenceBinding;
 			}
-			return new String(typeBinding.compoundName[typeBinding.compoundName.length - 1]);
+			if (typeBinding != null) {
+				return new String(typeBinding.compoundName[typeBinding.compoundName.length - 1]);
+			}
 		}
 		return this.getTypeNameFrom(getType());
 	}
