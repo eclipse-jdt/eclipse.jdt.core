@@ -207,9 +207,25 @@ public Scanner(
 	this.sourceLevel = sourceLevel;
 	this.complianceLevel = complianceLevel;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
-	this.taskTags = taskTags;
-	this.taskPriorities = taskPriorities;
-	this.isTaskCaseSensitive = isTaskCaseSensitive;
+	if (taskTags != null) {
+		int length = taskTags.length;
+		if (taskPriorities != null) {
+			int[] initialIndexes = new int[length];
+			for (int i = 0; i < length; i++) {
+				initialIndexes[i] = i;
+			}
+			Util.reverseQuickSort(taskTags, 0, taskTags.length - 1, initialIndexes);
+			char[][] temp = new char[length][];
+			for (int i = 0; i < length; i++) {
+				temp[i] = taskPriorities[initialIndexes[i]];
+			}
+			this.taskPriorities = temp;
+		} else {
+			Util.reverseQuickSort(taskTags, 0, taskTags.length - 1);
+		}
+		this.taskTags = taskTags;
+		this.isTaskCaseSensitive = isTaskCaseSensitive;
+	}
 }
 
 public Scanner(

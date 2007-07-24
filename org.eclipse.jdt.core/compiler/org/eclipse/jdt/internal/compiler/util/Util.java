@@ -424,7 +424,64 @@ public class Util implements SuffixConstants {
 			int suffixIndex = suffixLength - i - 1;
 			if (c != SUFFIX_java[suffixIndex] && c != SUFFIX_JAVA[suffixIndex]) return false;
 		}
-		return true;		
+		return true;
+	}
+
+	public static void reverseQuickSort(char[][] list, int left, int right, int[] result) {
+		int original_left= left;
+		int original_right= right;
+		char[] mid= list[(right + left) / 2];
+		do {
+			while (CharOperation.compareTo(list[left], mid) > 0) {
+				left++;
+			}
+			while (CharOperation.compareTo(mid, list[right]) > 0) {
+				right--;
+			}
+			if (left <= right) {
+				char[] tmp= list[left];
+				list[left]= list[right];
+				list[right]= tmp;
+				int temp = result[left];
+				result[left] = result[right];
+				result[right] = temp;
+				left++;
+				right--;
+			}
+		} while (left <= right);
+		if (original_left < right) {
+			reverseQuickSort(list, original_left, right, result);
+		}
+		if (left < original_right) {
+			reverseQuickSort(list, left, original_right, result);
+		}
+	}
+
+	public static void reverseQuickSort(char[][] list, int left, int right) {
+		int original_left= left;
+		int original_right= right;
+		char[] mid= list[(right + left) / 2];
+		do {
+			while (CharOperation.compareTo(list[left], mid) > 0) {
+				left++;
+			}
+			while (CharOperation.compareTo(mid, list[right]) > 0) {
+				right--;
+			}
+			if (left <= right) {
+				char[] tmp= list[left];
+				list[left]= list[right];
+				list[right]= tmp;
+				left++;
+				right--;
+			}
+		} while (left <= right);
+		if (original_left < right) {
+			reverseQuickSort(list, original_left, right);
+		}
+		if (left < original_right) {
+			reverseQuickSort(list, left, original_right);
+		}
 	}
 
 	/**
